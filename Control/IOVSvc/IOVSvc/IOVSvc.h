@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVSVC_H
@@ -18,51 +18,20 @@
  *****************************************************************************/
 
 #include "AthenaBaseComps/AthService.h"
-#ifndef KERNEL_STATUSCODES_H
 #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
 #include "GaudiKernel/ClassID.h"
-#endif
-#ifndef GAUDIKERNEL_MSGSTREAM_H
 #include "GaudiKernel/MsgStream.h"
-#endif
-#ifndef SGTOOLS_DATAPROXY_H
 #include "SGTools/DataProxy.h"
-#endif
-
-#ifndef  ATHENAKERNEL_IIOVSVC_H
 #include "AthenaKernel/IIOVSvc.h"
-#endif
-
-#ifndef IOVSVC_IOVENTRY_H
 #include "IOVSvc/IOVEntry.h"
-#endif
-#ifndef SGTOOLS_CALLBACKID_H
 #include "SGTools/CallBackID.h"
-#endif
-#ifndef ATHENAKERNEL_IOVTIME_H
 #include "AthenaKernel/IOVTime.h"
-#endif
-
-#ifndef ATHENAKERNEL_IOVSVCDEFS_H
 #include "AthenaKernel/IOVSvcDefs.h"
-#endif
-
 #include "IOVSvc/IIOVSvcTool.h"
-
-#ifndef _CPP_SET
 #include <set>
-#endif
-#ifndef _CPP_MAP
 #include <map>
-#endif
-#ifndef _CPP_LIST
 #include <list>
-#endif
-#ifndef _CPP_STRING
 #include <string>
-#endif
 #include <mutex>
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -82,112 +51,110 @@ namespace SG {
   class DataProxy;
 }
 
-class IOVSvc: virtual public AthService, 
-              virtual public IIOVSvc {
-
+class IOVSvc: public extends<AthService, IIOVSvc>
+{
 public:
 
   IOVSvc( const std::string& name, ISvcLocator* svc );
   virtual ~IOVSvc();
 
-  virtual StatusCode initialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode reinitialize() override;
+  virtual StatusCode finalize() override;
 
-  /// Query the interfaces.
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  ///  static const InterfaceID& interfaceID();
-
-  StatusCode createIOVTool( const std::string& storeName );
-  std::vector<std::string> getStoreNames() const;
+  virtual StatusCode createIOVTool( const std::string& storeName ) override;
+  virtual std::vector<std::string> getStoreNames() const override;
 
   /// register callback functions
+  virtual
   StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
-                    const IOVSvcCallBackFcn& fcn, bool trigger=false);
+                    const IOVSvcCallBackFcn& fcn, bool trigger=false) override;
 
+  virtual
   StatusCode regFcn(const CallBackID c1,
                     const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
-                    bool trigger);
+                    bool trigger) override;
 
+  virtual
   StatusCode regFcn(const std::string& toolName,
                     const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
-                    bool trigger);
+                    bool trigger) override;
 
   /// Update Range from dB
   virtual StatusCode setRange(const CLID& clid, const std::string& key, 
-                              IOVRange&);
+                              IOVRange&) override;
   virtual StatusCode setRange(const CLID& clid, const std::string& key, 
                               IOVRange& io,
-                              const std::string& storeName);
+                              const std::string& storeName) override;
 
   virtual StatusCode getRange(const CLID& clid, const std::string& key, 
-                              IOVRange& io) const;
+                              IOVRange& io) const override;
 
   /// Subscribe method for DataProxy. key StoreGate key
   virtual StatusCode regProxy( const SG::DataProxy *proxy, 
                                const std::string& key,
-                               const std::string& storeName);
+                               const std::string& storeName) override;
 
   /// replace a registered DataProxy with a new version
   virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
                                    const SG::DataProxy *pNew,
-                                   const std::string& storeName);
+                                   const std::string& storeName) override;
 
 
   /// Another way to subscribe
   virtual StatusCode regProxy( const CLID& clid, const std::string& key,
-                               const std::string& storeName );
+                               const std::string& storeName ) override;
 
 
-  virtual StatusCode deregProxy( const SG::DataProxy *proxy );
-  virtual StatusCode deregProxy( const CLID& clid, const std::string& key );
+  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) override;
+  virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) override;
 
 
 
   /// Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     IOVRange& range, std::string &tag,
-                                    IOpaqueAddress*& ioa) const;
+                                    IOpaqueAddress*& ioa) const override;
 
   /// Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     const IOVTime& time,
                                     IOVRange& range, std::string &tag,
-                                    IOpaqueAddress*& ioa) const;
+                                    IOpaqueAddress*& ioa) const override;
 
   /// Set a particular IOVRange in db (and memory)
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 
                                   const IOVRange& range, 
-                                  const std::string &tag);
+                                  const std::string &tag) override;
   
   /// supply a list of TADs whose proxies will be preloaded
   virtual StatusCode preLoadTAD( const SG::TransientAddress *,
-                                 const std::string& storeName );
+                                 const std::string& storeName ) override;
 
   /// supply a list of TADs whose data will be preloaded
   virtual StatusCode preLoadDataTAD( const SG::TransientAddress *,
-                                     const std::string& storeName );
+                                     const std::string& storeName ) override;
 
   /// return list of tools (or functions) that have been triggered by key
   /// will return FAILURE if no tools found, or no key found
   virtual StatusCode getTriggeredTools(const std::string& key,
                                        std::set<std::string>& tools,
-                                       const std::string& storeName);
+                                       const std::string& storeName) override;
 
-  virtual void resetAllProxies();
+  virtual void resetAllProxies() override;
 
   virtual void ignoreProxy(const CLID& clid, const std::string& key,
-                           const std::string& storeName);
+                           const std::string& storeName) override;
 
   virtual StatusCode createCondObj(CondContBase*, const DataObjID&, 
-                                   const EventIDBase&);
+                                   const EventIDBase&) override;
 
 
 private:
 
-  bool createIOVTool(const std::string& storeName, IIOVSvcTool*& tool) const;
+  StatusCode createIOVTool(const std::string& storeName, IIOVSvcTool*& tool);
   IIOVSvcTool* getTool( const std::string& storeName, 
-                        bool createIF=true ) const;
+                        bool createIF=true );
   IIOVSvcTool* getTool( const CLID& clid, const std::string& key) const;
   IIOVSvcTool* getTool( const SG::DataProxy* proxy ) const;
   IIOVSvcTool* getTool( const CallBackID& c1 ) const;
@@ -197,8 +164,7 @@ private:
   
 
   typedef std::map< std::string, IIOVSvcTool* > toolMap;
-
-  mutable toolMap m_toolMap;
+  toolMap m_toolMap;
 
 
   BooleanProperty m_preLoadRanges, m_preLoadData, m_partialPreLoadData;
