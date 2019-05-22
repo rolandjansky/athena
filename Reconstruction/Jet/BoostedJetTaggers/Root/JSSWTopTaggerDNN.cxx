@@ -69,6 +69,8 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
     if ( m_calibarea.compare("Local") == 0 ){
       configPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/"+m_configFile).c_str());
+    } else if ( m_calibarea.find("eos") != std::string::npos) {
+      configPath = PathResolverFindCalibFile((m_calibarea+"/"+m_configFile).c_str());
     } else {
       configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
     }

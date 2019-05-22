@@ -231,6 +231,7 @@ StatusCode JetUncertaintiesTool::initialize()
 
     // Read the config file
     const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+    std::cout << "debug " << configFilePath << std::endl;
     if (configFilePath == "")
     {
         ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is \"" << m_path << "\", CalibArea is \"" << m_calibArea << "\")");
