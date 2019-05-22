@@ -719,7 +719,7 @@ InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleT
   trackquality.setDoubleCut("MaxXi2forSearch"    ,m_xi2maxlink );
   trackquality.setDoubleCut("MaxXi2MultiTracks"  ,m_xi2multitracks);
 
-  return std::move(trackquality);
+  return trackquality;
 }
 
 ///////////////////////////////////////////////////////////////////
