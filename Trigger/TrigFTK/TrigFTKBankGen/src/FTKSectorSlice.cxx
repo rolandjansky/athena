@@ -13,24 +13,10 @@
 
 using namespace std;
 
-FTKSectorSlice::FTKSectorSlice() : 
-   m_slicePhi(0),
-   m_sliceC(0),
-   m_sliceD0(0),
-   m_sliceZ0(0),
-   m_sliceCot(0) {
+FTKSectorSlice::FTKSectorSlice() {
 }
 
 FTKSectorSlice::~FTKSectorSlice() {
-   cleanup();
-}
-
-void FTKSectorSlice::cleanup(void) {
-   if(m_slicePhi) { delete m_slicePhi; m_slicePhi=0; }
-   if(m_sliceC) { delete m_sliceC; m_sliceC=0; }
-   if(m_sliceD0) { delete m_sliceD0; m_sliceD0=0; }
-   if(m_sliceZ0) { delete m_sliceZ0; m_sliceZ0=0; }
-   if(m_sliceCot) { delete m_sliceCot; m_sliceCot=0; }
 }
 
 void FTKSectorSlice::getSliceRanges
@@ -73,7 +59,6 @@ bool FTKSectorSlice::loadSlices(std::string slice_file_path,
 
 
    // delete old slices (if any)
-   cleanup();
 
    // open slice file
    TFile *slice_file=TFile::Open(slice_file_path.c_str());
@@ -116,16 +101,21 @@ bool FTKSectorSlice::loadSlices(std::string slice_file_path,
       cotRange.second=TMath::SinH(3);
    }
 
-   m_slicePhi=new FTKSectorSlice_oneVar
-      (slice_file,"c_bits_phi",phiRange.first,phiRange.second,true);
-   m_sliceC=new FTKSectorSlice_oneVar
-      (slice_file,"c_bits_c",cRange.first,cRange.second,false);
-   m_sliceD0=new FTKSectorSlice_oneVar
-      (slice_file,"c_bits_d",d0Range.first,d0Range.second,false);
-   m_sliceZ0=new FTKSectorSlice_oneVar
-      (slice_file,"c_bits_z0",z0Range.first,z0Range.second,false);
-   m_sliceCot=new FTKSectorSlice_oneVar
-      (slice_file,"c_bits_ctheta",cotRange.first,cotRange.second,false);
+   m_slicePhi=std::unique_ptr<FTKSectorSlice_oneVar>
+      (new FTKSectorSlice_oneVar
+       (slice_file,"c_bits_phi",phiRange.first,phiRange.second,true));
+   m_sliceC=std::unique_ptr<FTKSectorSlice_oneVar>
+      (new FTKSectorSlice_oneVar
+       (slice_file,"c_bits_c",cRange.first,cRange.second,false));
+   m_sliceD0=std::unique_ptr<FTKSectorSlice_oneVar>
+      (new FTKSectorSlice_oneVar
+       (slice_file,"c_bits_d",d0Range.first,d0Range.second,false));
+   m_sliceZ0=std::unique_ptr<FTKSectorSlice_oneVar>
+      (new FTKSectorSlice_oneVar
+       (slice_file,"c_bits_z0",z0Range.first,z0Range.second,false));
+   m_sliceCot=std::unique_ptr<FTKSectorSlice_oneVar>
+      (new FTKSectorSlice_oneVar
+       (slice_file,"c_bits_ctheta",cotRange.first,cotRange.second,false));
 
    selectSlices();
 
@@ -146,32 +136,57 @@ void FTKSectorSlice::selectSlices(bool usePhi,
 }
 
 vector<int>* FTKSectorSlice::searchSectors(FTKTrack& track) {
-   vector<TBits const *> check;
+   // sector candidates are found by checking slices in the coordinates
+   // ther are up to five coordinates:
+   //   phi, C, D0, Z0, Cot
+   // for each coordinate there is a flag m_useXXX
+   // on top of that, the coordinate onlyu contributes if the
+   // track's coordinate is in range (find() method is non-null)
+
+   vector<TBits const *> check; // set of Tbits to be checked
    check.reserve(5);
-   TBits const *bits;
-   if(m_usePhi &&((bits=m_slicePhi->find(track.getPhi()))) ) check.push_back(bits);
-   if(m_useC && ((bits=m_sliceC->find(2.*track.getHalfInvPt()))) ) check.push_back(bits);
-   if(m_useD0 && ((bits=m_sliceD0->find(track.getIP()))) ) check.push_back(bits);
-   if(m_useZ0 && ((bits=m_sliceZ0->find(track.getZ0()))) ) check.push_back(bits);
-   if(m_useCot && ((bits=m_sliceCot->find(track.getCotTheta()))) ) check.push_back(bits);
 
-  vector<int> *sectors = new vector<int>();
+   TBits const *bits; // temporary pointer to the coordinate of interest
 
-  if(check.size()) {
-     TBits result_bits(*check[0]);
-     for(size_t i=1;i<check.size();i++) {
-        // AND of all TBits
-        result_bits &= *check[i];
-     }
-     // extract list of sectors
-     unsigned int curPos = result_bits.FirstSetBit(0);
-     unsigned int nMax=result_bits.GetNbits();
-     while (curPos != nMax) {
-        sectors->push_back((int) curPos);
-        curPos = result_bits.FirstSetBit(curPos+1);
-     }
-  }
-  return sectors;
+   // locate phi slice
+   if(m_usePhi &&((bits=m_slicePhi->find(track.getPhi()))) )
+      check.push_back(bits);
+
+   // locate curvature slide
+   if(m_useC && ((bits=m_sliceC->find(2.*track.getHalfInvPt()))) ) 
+      check.push_back(bits);
+
+   // locate D0 slice
+   if(m_useD0 && ((bits=m_sliceD0->find(track.getIP()))) )
+      check.push_back(bits);
+
+   // locate Z0 slice
+   if(m_useZ0 && ((bits=m_sliceZ0->find(track.getZ0()))) )
+      check.push_back(bits);
+
+   // locate cot(theta) slice
+   if(m_useCot && ((bits=m_sliceCot->find(track.getCotTheta()))) )
+      check.push_back(bits);
+
+   // result: a new list of sector numbers
+   vector<int> *sectors = new vector<int>();
+
+   if(check.size()) {
+      TBits result_bits(*check[0]);
+      for(size_t i=1;i<check.size();i++) {
+         // AND of all TBits
+         result_bits &= *check[i];
+      }
+      // extract list of sectors
+      // sector numbers : all TBit positions whcih are true
+      unsigned int curPos = result_bits.FirstSetBit(0);
+      unsigned int nMax=result_bits.GetNbits();
+      while (curPos != nMax) {
+         sectors->push_back((int) curPos);
+         curPos = result_bits.FirstSetBit(curPos+1);
+      }
+   }
+   return sectors;
 }
 
 

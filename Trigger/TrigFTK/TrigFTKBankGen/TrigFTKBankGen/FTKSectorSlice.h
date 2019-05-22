@@ -8,6 +8,7 @@
 #include <TROOT.h>
 #include <TBits.h>
 #include <TrigFTKSim/FTKTrack.h>
+#include <memory>
 
 class FTKSectorSlice_oneVar {
  public:
@@ -59,13 +60,9 @@ class FTKSectorSlice {
                        std::pair<double,double> &cotRange);
 
  private:
-  void cleanup(void);
 
-  FTKSectorSlice_oneVar *m_slicePhi;
-  FTKSectorSlice_oneVar *m_sliceC;
-  FTKSectorSlice_oneVar *m_sliceD0;
-  FTKSectorSlice_oneVar *m_sliceZ0;
-  FTKSectorSlice_oneVar *m_sliceCot;
+  std::unique_ptr<FTKSectorSlice_oneVar>
+     m_slicePhi,m_sliceC,m_sliceD0,m_sliceZ0,m_sliceCot;
 
   bool m_usePhi,m_useC,m_useD0,m_useZ0,m_useCot;
 };
