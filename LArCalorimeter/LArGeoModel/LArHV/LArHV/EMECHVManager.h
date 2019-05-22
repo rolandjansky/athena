@@ -8,6 +8,10 @@
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMECHVDescriptor.h"
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif 
+
 struct EMECHVPayload;
 
 /**
@@ -63,6 +67,13 @@ class EMECHVManager
 
   // Get the database payload
   EMECHVPayload *getPayload(const EMECHVElectrode &) const;
+
+#ifndef SIMULATIONBASE
+  // Get hvLine for an electrode
+  int hvLineNo(const EMECHVElectrode& electrode
+	       , int gap
+	       , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
  private:
   EMECHVManager& operator=(const EMECHVManager& right);

@@ -7,6 +7,10 @@
 
 #include "LArHV/EMECPresamplerHVModule.h"
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 struct EMECPresamplerHVPayload;
 class CellBinning;
 
@@ -50,6 +54,12 @@ class EMECPresamplerHVManager
 
   // Get the database payload
   EMECPresamplerHVPayload *getPayload(const EMECPresamplerHVModule &) const;
+
+#ifndef SIMULATIONBASE
+  // Get hvLine for a module
+  int hvLineNo(const EMECPresamplerHVModule& module
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
  private:
   // Illegal operations
