@@ -20,6 +20,7 @@
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
+#include "JetUncertainties/ELogPtMassForTagSFUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
@@ -230,6 +231,7 @@ StatusCode JetUncertaintiesTool::initialize()
 
     // Read the config file
     const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+    std::cout << "debug " << configFilePath << std::endl;
     if (configFilePath == "")
     {
         ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is \"" << m_path << "\", CalibArea is \"" << m_calibArea << "\")");
@@ -444,7 +446,12 @@ StatusCode JetUncertaintiesTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    
+    // Get name of accessor to SF value
+    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName",""));
+    if ( m_name_TagScaleFactor != "") {
+      ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
+    }
+
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
     TString refNPV = settings.GetValue("Pileup.NPVRef","");
@@ -1143,6 +1150,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return new PtEtaUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
+            case CompParametrization::eLOGPtMassForTagSF:
+                return new ELogPtMassForTagSFUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
@@ -1548,6 +1557,11 @@ bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Qw);
 }
+bool JetUncertaintiesTool::getComponentScalesTagScaleFactor(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::TagScaleFactor);
+}
 bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1788,6 +1802,9 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
         case CompParametrization::PtMass:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
+        case CompParametrization::eLOGPtMassForTagSF:
+	    value = histo.getValue(jet4vec.Pt()*m_energyScale,log(jet4vec.M()/jet4vec.Pt()));
+            break;
         case CompParametrization::PtMassEta:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
             break;
@@ -1991,9 +2008,9 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     }
     
     // Check for a global validity histogram
-    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet)){
         return CP::CorrectionCode::OutOfValidityRange;
-    
+    }
 
     // Scale the jet and/or its moments by the uncertainty/uncertainties
     // Note that uncertainties may be either positive or negative
@@ -2066,7 +2083,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         const double smear = uncSet.at(iVar).second;
-        
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
@@ -2116,6 +2132,10 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 break;
             case CompScaleVar::Qw:
                 if (updateQw(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::TagScaleFactor:
+	        if (updateTagScaleFactor(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2808,6 +2828,28 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
     ATH_MSG_ERROR("Qw moment is not available on the jet, please make sure to set Qw before calling the tool");
     return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accTagScaleFactor(m_name_TagScaleFactor);
+    const static bool TagScaleFactorwasAvailable  = accTagScaleFactor.isAvailable(jet);
+    
+    const xAOD::Jet& constJet = jet;
+    if (TagScaleFactorwasAvailable)
+    {
+        if (!accTagScaleFactor.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("TagScaleFactor was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTagScaleFactor(constJet);
+        accTagScaleFactor(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("TagScaleFactor is not available on the jet, please make sure you called BoostedJetTaggers tag() function before calling this function.");
+    return StatusCode::FAILURE;
 }
 
 

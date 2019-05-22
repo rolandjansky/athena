@@ -87,15 +87,23 @@ FatjetTruthLabel JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const
 
     if( isMatchTop && nMatchB>0 &&
 	mLowTop < jet.m()*0.001 && (mHighTop<0 || jet.m()*0.001 < mHighTop) ) { // if mHighTop<0, we don't apply the upper cut on jet mass
-      return FatjetTruthLabel::t; 
+      return FatjetTruthLabel::tqqb; 
     }else if( isMatchW && nMatchB==0 &&
 	      mLowW < jet.m()*0.001 && jet.m()*0.001 < mHighW ){
-      return FatjetTruthLabel::W; 
+      if ( isMatchTop ) {
+	return FatjetTruthLabel::Wqq_From_t;
+      }else{
+	return FatjetTruthLabel::Wqq;
+      } 
     }else if( isMatchZ && 
 	      mLowZ < jet.m()*0.001 && jet.m()*0.001 < mHighZ ){
-      return FatjetTruthLabel::Z;
+      return FatjetTruthLabel::Zqq;
     }else{
-      return FatjetTruthLabel::other; 
+      if ( isMatchTop ){
+	return FatjetTruthLabel::other_From_t; 
+      }else{
+	return FatjetTruthLabel::other_From_V;
+      }
     }
     
     return FatjetTruthLabel::unknown;

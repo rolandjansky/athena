@@ -11,8 +11,8 @@ Step 1: Decprate the truth labeling
 SF is provided according to the jet truth labels.
 Truth labels are defined as enum in BoostedJetTaggers/FatjetTruthLabel.h
 ```
-enum class FatjetTruthLabel : int {t = 1, W = 2, Z = 3, b = 4, other = 5, notruth = 6, unknown = -1};
-const FatjetTruthLabel FatjetTruthLabel_types [] = {FatjetTruthLabel::t, FatjetTruthLabel::W, FatjetTruthLabel::Z, FatjetTruthLabel::b, FatjetTruthLabel::other, FatjetTruthLabel::notruth, FatjetTruthLabel::unknown};
+enum class FatjetTruthLabel : int {tqqb = 1, Wqq = 2, Zqq = 3, Wqq_From_t = 4, other_From_t = 5, other_From_V = 6, notruth = 7, unknown = -1};
+const FatjetTruthLabel FatjetTruthLabel_types [] = {FatjetTruthLabel::tqqb, FatjetTruthLabel::Wqq, FatjetTruthLabel::Zqq, FatjetTruthLabel::Wqq_From_t, FatjetTruthLabel::other_From_t, FatjetTruthLabel::other_From_V, FatjetTruthLabel::notruth, FatjetTruthLabel::unknown};
 ```
 
 
@@ -23,22 +23,30 @@ It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJet
 
 Details of truth definitions
 -----------------------------------
-* FatjetTruthLabel::t
+* FatjetTruthLabel::tqqb
 1. Associated trimmed truth jet is matched to truth top quark by dR<0.75
 2. GhostBHadronsFinalCount is greater than 0
 3. Trimmed truth jet mass satisfies 140 < mJ < 200GeV
 
-* FatjetTruthLabel::W
-1. Associated trimmed truth jet is matched to truth W boson by dR<0.75
+* FatjetTruthLabel::Wqq_From_t
+1. Associated trimmed truth jet is matched to both truth top and truth W boson by dR<0.75
 2. GhostBHadronsFinalCount is equal to 0
 3. Trimmed truth jet mass satisfies 50 < mJ < 100GeV
 
-* FatjetTruthLabel::Z
+* FatjetTruthLabel::Wqq
+1. Associated trimmed truth jet is matched to truth W boson by dR<0.75 but not matched to truth top
+2. GhostBHadronsFinalCount is equal to 0
+3. Trimmed truth jet mass satisfies 50 < mJ < 100GeV
+
+* FatjetTruthLabel::Zqq
 1. Associated trimmed truth jet is matched to truth Z boson by dR<0.75
 2. Trimmed truth jet mass satisfies 60 < mJ < 110GeV
 
-* FatjetTruthLabel::other
-If trimmed truth jet is matched to truth top quark, W, or Z boson, but does not satisfy the additional requirements above, FatjetTruthLabel::other is decorated.
+* FatjetTruthLabel::other_From_t
+If trimmed truth jet is matched to truth top quark but does not satisfy the additional requirements above, FatjetTruthLabel::other_From_t is decorated.
+
+* FatjetTruthLabel::other_From_V
+If trimmed truth jet is matched to truth W or Z but does not satisfy the additional requirements above, FatjetTruthLabel::other_From_V is decorated.
 
 * FatjetTruthLabel::unknown
 All jets not satisfying the above are defined as FatjetTruthLabel::unknown.

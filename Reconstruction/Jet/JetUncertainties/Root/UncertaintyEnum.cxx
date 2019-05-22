@@ -101,6 +101,7 @@ namespace CompParametrization
             case eLOGmOe:       return "eLOGmOe";
             case eLOGmOeEta:    return "eLOGmOeEta";
             case eLOGmOeAbsEta: return "eLOGmOeAbsEta";
+	    case eLOGPtMassForTagSF: return "eLOGPtMassForTagSF";
             default:            return "UNKNOWN";
         }
     }
@@ -125,6 +126,8 @@ namespace CompParametrization
             return eLOGmOeEta;
         if (!type.CompareTo("eLOGmOeAbsEta",TString::kIgnoreCase))
             return eLOGmOeAbsEta;
+        if (!type.CompareTo("eLOGPtMassForTagSF",TString::kIgnoreCase))
+            return eLOGPtMassForTagSF;
         return UNKNOWN;
     }
 
@@ -145,6 +148,7 @@ namespace CompParametrization
         switch(type)
         {
             case PtMass:
+	    case eLOGPtMassForTagSF:
             case PtMassEta:
             case PtMassAbsEta:
             case eLOGmOe:
@@ -249,6 +253,7 @@ namespace CompScaleVar
             case PtResAbs:      return "PtResAbs";
             case FourVecRes:    return "FourVecRes";
             case FourVecResAbs: return "FourVecResAbs";
+      	    case TagScaleFactor:return "TagScaleFactor";
             default:            return "UNKNOWN";
         }
     }
@@ -291,6 +296,8 @@ namespace CompScaleVar
             return FourVecRes;
         if (!type.CompareTo("FourVecResAbs",TString::kIgnoreCase))
             return FourVecResAbs;
+        if (!type.CompareTo("TagScaleFactor",TString::kIgnoreCase))
+            return TagScaleFactor;
         return UNKNOWN;
     }
 
@@ -310,6 +317,7 @@ namespace CompScaleVar
             case D2Beta1:
             case C2Beta1:
             case Qw:
+            case TagScaleFactor:
                 return true;
 
             default:

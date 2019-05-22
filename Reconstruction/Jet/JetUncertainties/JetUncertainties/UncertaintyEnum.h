@@ -53,6 +53,7 @@ namespace CompParametrization
         eLOGmOe,        // 2D, (E,log(m/E)) dependence
         eLOGmOeEta,     // 3D, (E,log(m/E),eta) dependence
         eLOGmOeAbsEta,  // 3D, (E,log(m/E),|eta|) dependence
+        eLOGPtMassForTagSF,// 2D, (pt,log(m/pT)) dependence, only for tagging SF
     };
 
     TString enumToString(const TypeEnum type);
@@ -100,6 +101,7 @@ namespace CompScaleVar
         D2Beta1,        // The value of D_2^{beta=1} (ECF ratio)
         C2Beta1,        // The value of C_2^{beta=1} (ECF ratio)
         Qw,             // The value of Qw
+        TagScaleFactor, // Tagging efficiency SF
         
         // Resolution uncertainties
         MassRes,        // The jet mass resolution, relative

@@ -69,6 +69,8 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
     if ( m_calibarea.compare("Local") == 0 ){
       configPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/"+m_configFile).c_str());
+    } else if ( m_calibarea.find("eos") != std::string::npos) {
+      configPath = PathResolverFindCalibFile((m_calibarea+"/"+m_configFile).c_str());
     } else {
       configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
     }
@@ -204,7 +206,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     return StatusCode::FAILURE;
   }
   else if(m_calibarea_keras.compare("Local")==0){
-    std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/";
+    std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/Rel21/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
     m_kerasConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_kerasConfigFileName);
@@ -217,7 +219,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // necessary because xml files are too large to house on the data space
     m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
     if(m_calcSF)
-      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea+m_weightFileName).c_str());
+      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea_keras+m_weightFileName).c_str());
   }
 
   // read json file for DNN weights
@@ -292,7 +294,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
-      std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
+      ATH_MSG_INFO( (m_APP_NAME+"Tagging SF histogram for "+flavor+" is installed.") );
     }
     m_weightHistograms = m_weightHistograms_nominal;
   }
@@ -349,24 +351,16 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   // decorate truth label for SF provider
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
-  if ( !acc_truthLabel.isAvailable(jet) ){
+  if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
       return m_accept;
     }
   }
-
   float jet_weight=1.0;
   if( (jet_score > cut_score) && m_calcSF) {
-    SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
-    try{
-      acc_truthLabel(jet);
-      jet_weight = getWeight(jet);
-    } catch (...) {
-      ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"FatjetTruthLabel\" to your jet before calling tag(..)");
-    }
+    jet_weight = getWeight(jet);
   }
-
   // decorate the cut value if needed;
   if(m_decorate){
     ATH_MSG_DEBUG("Decorating with score");
@@ -421,23 +415,37 @@ double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
 }
 
 double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
-    if ( jet.pt() < 200e3 || fabs(jet.eta())>2.0 ) return 1.0;
+    if ( jet.pt()*0.001 < m_jetPtMin ||
+	 jet.pt()*0.001 > m_jetPtMax ||
+	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
 
     std::string truthLabelStr;
     FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
-    if( jetContainment==FatjetTruthLabel::t ){
-      truthLabelStr="t_qqb";
-    }else if( jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::Z){
-      truthLabelStr="V_qq";
+    if( m_weightHistograms.count("t_qqb") ) {
+      // full-contained top tagger
+      if( jetContainment==FatjetTruthLabel::tqqb ){
+	truthLabelStr="t_qqb";
+      //}else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq ){
+	//truthLabelStr="V_qq";
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+	truthLabelStr="q";
+      }
     }else{
-      truthLabelStr="q";
+      // W/Z tagger or inclusive top tagger
+      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::Wqq_From_t || jetContainment==FatjetTruthLabel::other_From_t ){
+	truthLabelStr="t";
+      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
+	truthLabelStr="V_qq";
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+	truthLabelStr="q";
+      }
     }
 
-    //double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
-    //SF for pT>1TeV is provided by overflow bin in the config histogram
-    int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
-    double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
-
+    double SF=1.0;
+    if( m_weightHistograms.count(truthLabelStr.c_str()) ){
+      int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
+      SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+    }  
     if ( SF < 1e-3 ) return 1.0;
     else return SF;
 }
