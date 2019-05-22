@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file AthenaKernel/CondCont.icc
  * @author Vakho, Charles, Scott
@@ -234,6 +231,8 @@ CondCont<T>::~CondCont<T>()
  * on the most-derived @c CondCont.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * EXTENDS if the last existing range in the container was extended
+ * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range

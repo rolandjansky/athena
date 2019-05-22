@@ -54,13 +54,16 @@ struct RangeCompare
   bool overlap (const Range& r1, const Range& r2) const
   { return r1.m_end > r2.m_begin; }
 
-  bool extendRange (Range& r, const Range& newRange) const
+  int extendRange (Range& r, const Range& newRange) const
   {
     if (r.m_begin != newRange.m_begin) {
-      return false;
+      return -1;
     }
-    r.m_end = std::max (r.m_end, newRange.m_end);
-    return true;
+    if (newRange.m_end <= r.m_end) {
+      return 0;
+    }
+    r.m_end = newRange.m_end;
+    return 1;
   }
 };
 
@@ -501,17 +504,13 @@ void test1a()
 
     //======
 
-    TestMap::const_iterator it;
-
-    it = map.extendLastRange (Range (97, 110));
-    assert (it != nullptr);
+    assert (map.extendLastRange (Range (97, 110)) == 1);
     
     // 93..96->650 97..110->660 - - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 2);
     r = map.range();
     assert (r.size() == 2);
-    assert (it == r.end()-1);
     assert (r.begin()->second->m_x == 650);
     assert ((r.begin()+1)->second->m_x == 660);
     assert ((r.begin()+1)->first.m_begin == 97);
@@ -527,15 +526,13 @@ void test1a()
 
     //======
 
-    it = map.extendLastRange (Range (97, 105));
-    assert (it != nullptr);
+    assert (map.extendLastRange (Range (97, 105)) == 0);
     
     // 93..96->650 97..110->660 - - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 2);
     r = map.range();
     assert (r.size() == 2);
-    assert (it == r.end()-1);
     assert (r.begin()->second->m_x == 650);
     assert ((r.begin()+1)->second->m_x == 660);
     assert ((r.begin()+1)->first.m_begin == 97);
@@ -551,7 +548,7 @@ void test1a()
 
     //======
 
-    assert ( ! map.extendLastRange (Range (98, 120)));
+    assert ( map.extendLastRange (Range (98, 120)) < 0 );
     // 93..96->650 97..110->660 - - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 2);
@@ -561,6 +558,29 @@ void test1a()
     assert ((r.begin()+1)->second->m_x == 660);
     assert ((r.begin()+1)->first.m_begin == 97);
     assert ((r.begin()+1)->first.m_end == 110);
+    assert (map.find (92) == nullptr);
+    assert (map.find (94)->second->m_x == 650);
+    assert (map.find (105)->second->m_x == 660);
+
+    assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
+
+    //======
+
+    assert (map.emplace (Range (97, 150),
+                         std::make_unique<Payload> (670, &phist), true) ==
+            TestMap::EmplaceResult::EXTENDED);
+    // 93..96->650 97..150->660 - - - - - -
+    assert (map.capacity() == 8);
+    assert (map.size() == 2);
+    r = map.range();
+    assert (r.size() == 2);
+    assert (r.begin()->second->m_x == 650);
+    assert ((r.begin()+1)->second->m_x == 660);
+    assert ((r.begin()+1)->first.m_begin == 97);
+    assert ((r.begin()+1)->first.m_end == 150);
     assert (map.find (92) == nullptr);
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (105)->second->m_x == 660);
