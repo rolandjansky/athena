@@ -395,7 +395,9 @@ class TestDeduplication( unittest.TestCase ):
         
         with  self.assertRaises(DeduplicationFailed):
             result3.addService(dummyService(AString="blaOther"))
-        result3.wasMerged()
+
+        [ ca.wasMerged() for ca in [result1, result2, result3]]
+
 
 class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
 
@@ -477,5 +479,48 @@ class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
         ca.wasMerged()
 
 
+class TestSequencesMerging( unittest.TestCase ):
+    def setUp(self):
+        Configurable.configurableRun3Behavior=1
+
+    def test_sequences_merging(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.lock()
+        from AthenaCommon.Logging import logging
+        logging.getLogger('ComponentAccumulator').setLevel(DEBUG)
+        
+
+        print("ca1")
+        ca1 = ComponentAccumulator()
+        ca1.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
+        ca1.printConfig()
+
+        print("ca2")
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
+	ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [    
+	    "SCT_RDO_Container#SCT_RDOs",
+	    "InDetSimDataCollection#SCT_SDO_Map"	    
+	])
+        ca2.printConfig()
+
+        print("after merge")
+        ca1.merge(ca2)
+        ca1.printConfig()
+        
+        self.assertEqual( len(ca1._allSequences), 2, "Dangling sequences not maintained" )
+                
+        print("Instantiating top CA")
+        from MainServicesConfig import MainServicesThreadedCfg
+        topca = MainServicesThreadedCfg( ConfigFlags )
+        topca.printConfig()
+
+        
+
+        
+        print("Merging to the top level CA")        
+        topca.merge( ca1 )
+        topca.printConfig()
+        topca.wasMerged()
+        
 if __name__ == "__main__":
     unittest.main()
