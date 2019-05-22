@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,7 @@ namespace xAOD{
     AUXSTORE_OBJECT_SETTER_AND_GETTER(TrigRingerRings_v2, std::vector<float>, rings, setRings) 
 
     unsigned TrigRingerRings_v2::size() const{
-        static Accessor< std::vector<float> > acc( "rings" );
+        static const Accessor< std::vector<float> > acc( "rings" );
         return acc(*this).size();
     }
 
@@ -40,7 +40,7 @@ namespace xAOD{
     //
     const TrigEMCluster* TrigRingerRings_v2::emCluster() const {
        // The link accessor:
-       static Accessor< EMClusterLink_t > acc( "emClusterLink" );
+       static const Accessor< EMClusterLink_t > acc( "emClusterLink" );
    
        // Check if the link is available:
        if( ! acc.isAvailable( *this ) ) {

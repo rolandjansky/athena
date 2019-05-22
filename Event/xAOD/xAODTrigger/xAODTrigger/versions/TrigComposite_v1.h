@@ -4,7 +4,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.h 784388 2016-11-15 17:08:58Z tamartin $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 
@@ -21,6 +20,8 @@ extern "C" {
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
 #include "xAODBase/IParticleContainer.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace TrigCompositeUtils{ 
    typedef unsigned int DecisionID;
@@ -176,7 +177,7 @@ namespace xAOD {
       /// @}
 
       /// For use in validation, when copying element links from one object to another
-      static bool s_throwOnCopyError;
+      static bool s_throwOnCopyError ATLAS_THREAD_SAFE;
 
       /// Constant used to identify an initial ROI from L1
       static const std::string s_initialRoIString;

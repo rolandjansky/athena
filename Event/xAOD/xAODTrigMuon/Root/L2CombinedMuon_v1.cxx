@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2CombinedMuon_v1.cxx 658542 2015-04-01 18:17:00Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -75,21 +74,21 @@ namespace xAOD {
 
    void L2CombinedMuon_v1::setPt( float pt ) {
 
-      static Accessor< float > acc( "pt" );
+      static const Accessor< float > acc( "pt" );
       acc( *this ) = pt;
       return;
    }
 
    void L2CombinedMuon_v1::setEta( float eta ) {
 
-      static Accessor< float > acc( "eta" );
+      static const Accessor< float > acc( "eta" );
       acc( *this ) = eta;
       return;
    }
 
    void L2CombinedMuon_v1::setPhi( float phi ) {
 
-      static Accessor< float > acc( "phi" );
+      static const Accessor< float > acc( "phi" );
       acc( *this ) = phi;
       return;
    }
@@ -119,7 +118,7 @@ namespace xAOD {
 
    const xAOD::TrackParticle* L2CombinedMuon_v1::idTrack() const {
 
-      static Accessor< ElementLink< TrackParticleContainer > >
+      static const Accessor< ElementLink< TrackParticleContainer > >
          acc( "idTrackLink" );
       if( ! acc.isAvailable( *this ) ) {
          return 0;
@@ -137,7 +136,7 @@ namespace xAOD {
 
    const xAOD::L2StandAloneMuon* L2CombinedMuon_v1::muSATrack() const {
 
-      static Accessor< ElementLink< L2StandAloneMuonContainer > >
+      static const Accessor< ElementLink< L2StandAloneMuonContainer > >
          acc( "muSATrackLink" );
       if( ! acc.isAvailable( *this ) ) {
          return 0;

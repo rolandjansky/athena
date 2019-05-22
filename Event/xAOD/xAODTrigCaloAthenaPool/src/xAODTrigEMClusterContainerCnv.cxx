@@ -59,7 +59,7 @@ createPersistent( xAOD::TrigEMClusterContainer* trans ) {
 xAOD::TrigEMClusterContainer* xAODTrigEMClusterContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "B37C59EC-1A1E-467C-BFCE-52EA08694C60" );
+   static const pool::Guid v1_guid( "B37C59EC-1A1E-467C-BFCE-52EA08694C60" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
