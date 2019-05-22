@@ -96,7 +96,7 @@ namespace Analysis {
       m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
       // VD:trackToVertexIPestimator missing
       m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
-      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool")
+      m_TightTrackVertexAssociationTool("CP::TrackVertexAssociationTool")
   {
     
     declareInterface<ITagTool>(this);
