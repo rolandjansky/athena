@@ -55,6 +55,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h"
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -214,6 +215,7 @@
 #pragma link C++ class TFCSHitCellMappingFCal+;
 #pragma link C++ class TFCSHitCellMappingWiggle+;
 #pragma link C++ class TFCSHitCellMappingWiggleEMB+;
+#pragma link C++ class TFCSEnergyRenormalization+;
 
 #pragma link C++ class TFCSTruthState+;
 #pragma link C++ class TFCSExtrapolationState+;
