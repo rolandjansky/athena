@@ -39,7 +39,6 @@ def MainServicesThreadedCfg(cfgFlags):
     ########################################################################
     # Core components needed for serial and threaded jobs
     cfg=ComponentAccumulator("AthMasterSeq")
-    cfg.merge( MainServicesMiniCfg(LoopMgr) )
     cfg.setAppProperty('TopAlg',['AthSequencer/AthMasterSeq'],overwrite=True)
     cfg.setAppProperty('OutStreamType', 'AthenaOutputStream')
 
@@ -64,7 +63,8 @@ def MainServicesThreadedCfg(cfgFlags):
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
-
+    cfg.merge( MainServicesMiniCfg(LoopMgr) )
+    
     #Set up incident firing:
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
     from GaudiCoreSvc.GaudiCoreSvcConf import IncidentProcAlg
