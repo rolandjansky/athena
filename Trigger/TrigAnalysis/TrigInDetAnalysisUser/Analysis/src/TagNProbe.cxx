@@ -1,18 +1,29 @@
+/**
+ **   @file    TagNProbe.cxx         
+ **   
+ **
+ **   @author maparo
+ **   @date   Wed 22 May 2019 21:21:50 BST
+ **
+ **   $Id: TagNProbe.cxx, v0.0   Wed 22 May 2019 21:21:50 BST maparo $
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 #include "TagNProbe.h"
 
-double TagNProbe::computeZ( TIDA::Track* t1, TIDA::Track* t2 ) {
 
-  // this is definitely wrong, but for now I assume all 
-  // tracks to be taus at this stage, hence assigning tau mass
+
+double TagNProbe::computeZ( TIDA::Track* t1, TIDA::Track* t2, double mass ) {
 
   double ZMass = 91.1876; // GeV
-  double TauMass = 1.77686; // GeV
 
+  /// !!!!! why ????
   TLorentzVector v1;
-  v1.SetPtEtaPhiM( (t1->pT())/1000., t1->eta(), t1->phi(), TauMass );
+  v1.SetPtEtaPhiM( (t1->pT())/1000., t1->eta(), t1->phi(), mass );
 
   TLorentzVector v2;
-  v2.SetPtEtaPhiM( (t2->pT())/1000., t2->eta(), t2->phi(), TauMass );
+  v2.SetPtEtaPhiM( (t2->pT())/1000., t2->eta(), t2->phi(), mass );
 
   double invMass = ( v1 + v2 ).M();
 
@@ -49,7 +60,8 @@ double TagNProbe::selection( TIDA::Roi& troi, TIDA::Roi& proi )
     for ( size_t ip=0; ip<refp_probe.size() ; ip++ ) {
 
       /// check compatibility w.r.t. Z mass
-      double pair_mass = computeZ( refp_tag[it], refp_probe[ip] );
+      double TauMass = 1.77686; // GeV
+      double pair_mass = computeZ( refp_tag[it], refp_probe[ip], TauMass );
       if ( pair_mass>0 )
           return pair_mass;
 

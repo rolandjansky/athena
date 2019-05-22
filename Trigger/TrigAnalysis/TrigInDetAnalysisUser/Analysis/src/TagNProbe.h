@@ -1,7 +1,20 @@
-#ifndef __TAGNPROBE_H
-#define __TAGNPROBE_H
+/* emacs: this is -*- c++ -*- */
+/**
+ **   @file    TagNProbe.h        
+ **                   
+ **   @author  maparo
+ **   @date    Wed 22 May 2019 21:22:50 BST
+ **
+ **   $Id: TagNProbe.h, v0.0   Wed 22 May 2019 21:22:50 BST maparo $
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#include <stdlib.h>
+
+#ifndef  TIDA_TAGNPROBE_H
+#define  TIDA_TAGNPROBE_H
+
+#include <cstdlib>
 
 #include "TLorentzVector.h"
 
@@ -10,6 +23,7 @@
 #include "TrigInDetAnalysisUtils/Filters.h" 
 #include "TrigInDetAnalysisUtils/Filter_Offline2017.h" 
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h" 
+
 #include "RoiFilter.h"
 
 #include <iostream> 
@@ -22,6 +36,7 @@
 #include "TrigInDetAnalysis/Efficiency.h" 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h" 
 #include "TrigInDetAnalysisExample/ChainString.h"
+
 
 class TagNProbe {
 
@@ -51,7 +66,7 @@ public:
 
   double selection( TIDA::Roi & troi, TIDA::Roi & proi );
 
-  double computeZ( TIDA::Track* t1, TIDA::Track* t2 );
+  double computeZ( TIDA::Track* t1, TIDA::Track* t2, double mass=0 );
 
   void SetUniqueFlag( bool flag ) { m_unique = flag; }
 
@@ -71,4 +86,4 @@ private:
 
 };
 
-#endif  // __TAGNPROBE_H 
+#endif  // TIDA_TAGNPROBE_H 
