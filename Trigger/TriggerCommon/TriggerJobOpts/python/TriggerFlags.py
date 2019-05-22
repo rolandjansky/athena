@@ -328,6 +328,16 @@ class useOfflineSpacePoints(JobProperty):
 
 _flags.append(useOfflineSpacePoints)
 
+class doTransientByteStream(JobProperty):
+    """ switch off usage of the transient bytestream 
+    and access RDO objects directly. Partial implementation. 
+    """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+    
+_flags.append(doTransientByteStream)
+
 class doNtuple(JobProperty):
     """ """
     statusOn=True
