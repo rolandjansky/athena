@@ -210,10 +210,13 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+        #if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+        if False:
             kwargs.setdefault("World", 'Cavern')
         else:
-            kwargs.setdefault("World", ATLASEnvelopeCfg(ConfigFlags))
+            accGeo, toolGeo = ATLASEnvelopeCfg(ConfigFlags)
+            kwargs.setdefault("World", toolGeo)
+            result.merge(accGeo)
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
@@ -258,13 +261,17 @@ if __name__ == '__main__':
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-
   ConfigFlags.Detector.SimulateBpipe = True
   ConfigFlags.Detector.SimulateID = True
   ConfigFlags.Detector.SimulateCalo = True 
   ConfigFlags.Detector.SimulateMuon = True
   ConfigFlags.Detector.SimulateForward = True
   ConfigFlags.Detector.GeometryFwdRegion = True
+
+
+  ConfigFlags.Sim.CavernBG = "Signal"  #for it to go via atlas?
+  ConfigFlags.Sim.WorldRRange = 15000
+  ConfigFlags.Sim.WorldZRange = 27000
   # Finalize 
   ConfigFlags.lock()
 

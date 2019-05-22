@@ -46,6 +46,7 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result = ComponentAccumulator()
     #add Services to G4AtlasAlg
     acc, DetGeoSvc = DetectorGeometrySvcCfg(ConfigFlags)
+    print "TESTTTTT" #check if it runs!
     kwargs.setdefault('DetGeoSvc', DetGeoSvc)
     result.merge(acc)
 
@@ -127,6 +128,8 @@ if __name__ == '__main__':
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
+  ConfigFlags.Sim.WorldRRange = 15000
+  ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
   # Finalize 
   ConfigFlags.lock()
 
