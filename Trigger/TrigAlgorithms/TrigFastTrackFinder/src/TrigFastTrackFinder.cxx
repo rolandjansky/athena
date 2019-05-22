@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,6 @@
 #include <memory>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -64,8 +63,9 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "src/TrigFastTrackFinder.h"
+#include "TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "CxxUtils/phihelper.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -1250,7 +1250,7 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDe
   m_roiEta = roi.eta();
   m_roiEtaWidth = roi.etaPlus() - roi.etaMinus();
   m_roiPhi = roi.phi();
-  m_roiPhiWidth = HLT::wrapPhi(roi.phiPlus() - roi.phiMinus());
+  m_roiPhiWidth = CxxUtils::wrapToPi(roi.phiPlus() - roi.phiMinus());
   m_roiZ = roi.zed();
   m_roiZ_Width = roi.zedPlus() - roi.zedMinus();
 
@@ -1272,7 +1272,7 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDe
     float phi0 = trackPars->parameters()[Trk::phi0]; 
     m_trk_phi0.push_back(phi0);
     m_trk_a0beam.push_back(a0+m_shift_x*sin(phi0)-m_shift_y*cos(phi0));
-    float dPhi0 = HLT::wrapPhi(phi0 - m_roiPhi);
+    float dPhi0 = CxxUtils::wrapToPi(phi0 - m_roiPhi);
     m_trk_dPhi0.push_back(dPhi0);
     float theta = trackPars->parameters()[Trk::theta]; 
     float eta = -log(tan(0.5*theta)); 
