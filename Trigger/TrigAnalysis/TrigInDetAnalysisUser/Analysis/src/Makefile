@@ -154,7 +154,8 @@ ROBJECTS  = \
         $(OBJDIR)/ConfVtxAnalysis.o  \
         $(OBJDIR)/PurityAnalysis.o \
         $(OBJDIR)/globals.o \
-        $(OBJDIR)/computils.o
+        $(OBJDIR)/computils.o \
+        $(OBJDIR)/TagNProbe.o 	
 
 LOBJECTS  = \
         $(OBJDIR)/TIDAEvent.o \
@@ -203,79 +204,79 @@ $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h
 
 rdict : $(EXEDIR)/rdict  
 $(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) $(LIBSO) 
-        $(CXX) $(LDFLAGS) -o $@ $(ROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 wdict : $(EXEDIR)/wdict 
 $(EXEDIR)/wdict : dirs $(WOBJECTS) $(LIBSO)     
-        $(CXX) $(LDFLAGS) -o $@ $(WOBJECTS) $(LIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(WOBJECTS) $(LIBS) $(GLIBS)
 
 reader : $(EXEDIR)/reader 
 $(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  $(LIBSO)    
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
 
 skim : dirs $(EXEDIR)/skim 
 $(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  $(LIBSO)        
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/skim.o $(LIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/skim.o $(LIBS) $(GLIBS)
 
 fastadd : dirs $(EXEDIR)/fastadd 
 $(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  $(LIBSO)  
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/fastadd.o $(LIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/fastadd.o $(LIBS) $(GLIBS)
 
 refit : dirs $(EXEDIR)/refit 
 $(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)      
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
 
 comparitor : $(EXEDIR)/comparitor  
 $(EXEDIR)/comparitor : $(COBJECTS)  $(LIBSO)
-        $(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 cpucost : $(EXEDIR)/cpucost  
 $(EXEDIR)/cpucost : $(CCOBJECTS)  $(LIBSO)
-        $(CXX) $(LDFLAGS) -o $@ $(CCOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CCOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 chains : $(EXEDIR)/chains  
 $(EXEDIR)/chains : $(CHOBJECTS)  $(LIBSO)
-        $(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 
 makeSmallRefFile : $(EXEDIR)/makeSmallRefFile
 $(EXEDIR)/makeSmallRefFile : $(OBJDIR)/makeSmallRefFile.o
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/makeSmallRefFile.o  $(ROOTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/makeSmallRefFile.o  $(ROOTLIBS)
 
 listroot : $(EXEDIR)/listroot  
 $(EXEDIR)/listroot : $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
 
 runtool : dirs $(EXEDIR)/runtool
 $(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o $(OBJDIR)/computils.o 
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(OBJDIR)/computils.o $(GLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(OBJDIR)/computils.o $(GLIBS)
 
 sb : $(EXEDIR)/sb  
 $(EXEDIR)/sb : $(OBJDIR)/chainparser.o 
-        $(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/chainparser.o $(RLIBS) $(ROOTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/chainparser.o $(RLIBS) $(ROOTLIBS)
 
 
 # compile
 # $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 
 $(OBJDIR)/%.o : %.cxx 
-        echo $(CXXFLAGS)
-        $(CXX) $(CXXFLAGS) -c $<  -o $@
+	echo $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) -c $<  -o $@
 
 # $(OBJDIR)/%.o : $(SRCDIR)/%.c 
 $(OBJDIR)/%.o : %.c 
-        $(CC) $(CFLAGS) -c $<  -o $@
+	$(CC) $(CFLAGS) -c $<  -o $@
 
 
 %/.d:
-        mkdir -p $(@D)
-        touch $@
+	mkdir -p $(@D)
+	touch $@
 
 rootdep : $(DICTHEADERS)
-        cp $(DICTHEADERS) . 
+	cp $(DICTHEADERS) . 
 
 $(SRCDIR)/TrigInDetAnalysisDict.cxx: $(DICTHEADERS)
-        @echo rootcint  -f $@ -c -I$(TID) $?
-        @rootcint       -f $@ -c -I$(TID) $?
+	@echo rootcint  -f $@ -c -I$(TID) $?
+	@rootcint       -f $@ -c -I$(TID) $?
 
 
 $(OBJECTS) : $(HEADERS)
@@ -290,12 +291,12 @@ ifeq ($(CMTCONFIG),)
 
 lib: $(LIBDIR)/libTIDA.a 
 $(LIBDIR)/libTIDA.a : $(LOBJECTS)
-        $(AR) $(ARFLAGS)  $@ $(LOBJECTS)
-        $(RANLIB) $@
+	$(AR) $(ARFLAGS)  $@ $(LOBJECTS)
+	$(RANLIB) $@
 
 libso: $(LIBDIR)/libTIDA.so 
 $(LIBDIR)/libTIDA.so : $(LOBJECTS) 
-        $(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
+	$(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
 
 else
 # if libraries are already build inside athena, do nothing 
@@ -306,31 +307,31 @@ endif
 
 
 clean :
-        $(RM) -rf $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so}
-        $(RM) -f $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so} $(SRCDIR)/*Dict.{h,cxx}
-        make -C $(TIDUB)/Resplot/src clean
-        make -C $(TIDUB)/Readcards/src clean
+	$(RM) -rf $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so}
+	$(RM) -f $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so} $(SRCDIR)/*Dict.{h,cxx}
+	make -C $(TIDUB)/Resplot/src clean
+	make -C $(TIDUB)/Readcards/src clean
 
 
 libclean :
-        $(RM) -f $(LIBDIR)/lib*.{a,so} 
+	$(RM) -f $(LIBDIR)/lib*.{a,so} 
 
 
 resplot: $(TIDUB)/Resplot/lib/$(ARCH_TYPE)/.d
-        make -C $(TIDUB)/Resplot/src install
+	make -C $(TIDUB)/Resplot/src install
 
 readcards:  $(TIDUB)/Readcards/lib/$(ARCH_TYPE)/.d
-        make -C $(TIDUB)/Readcards/src install
+	make -C $(TIDUB)/Readcards/src install
 
 archive : 
-        cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
+	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
 
 
 INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
 
 $(INSTALLDIR)/TIDA% : $(EXEDIR)/%
-        cp $< $@
-        cp $< $@.exe
+	cp $< $@
+	cp $< $@.exe
 
 
 INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
@@ -338,15 +339,15 @@ INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
 ginstall : install $(patsubst %,$(INSTALLDIR)/TIDA%,$(INSTALLFILES))
 
 install : all 
-        cp $(EXEDIR)/comparitor $(HOME)/bin
-        cp $(EXEDIR)/chains     $(HOME)/bin
-        cp $(EXEDIR)/reader     $(HOME)/bin
-        cp $(EXEDIR)/rdict      $(HOME)/bin
-        cp $(EXEDIR)/cpucost    $(HOME)/bin
-        cp $(EXEDIR)/skim       $(HOME)/bin
-        cp $(EXEDIR)/listroot   $(HOME)/bin
-        cp $(EXEDIR)/runtool    $(HOME)/bin
-        cp $(EXEDIR)/sb         $(HOME)/bin
+	cp $(EXEDIR)/comparitor $(HOME)/bin
+	cp $(EXEDIR)/chains     $(HOME)/bin
+	cp $(EXEDIR)/reader     $(HOME)/bin
+	cp $(EXEDIR)/rdict      $(HOME)/bin
+	cp $(EXEDIR)/cpucost    $(HOME)/bin
+	cp $(EXEDIR)/skim       $(HOME)/bin
+	cp $(EXEDIR)/listroot   $(HOME)/bin
+	cp $(EXEDIR)/runtool    $(HOME)/bin
+	cp $(EXEDIR)/sb         $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 
