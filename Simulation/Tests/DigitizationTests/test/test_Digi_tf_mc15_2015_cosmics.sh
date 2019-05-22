@@ -10,30 +10,59 @@
 
 DigiOutFileName="mc15_2015_cosmics.RDO.pool.root"
 
-Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/testCosmics.ATLAS-R2-2015-03-01-00_VALIDATION.HITS.pool.root  --outputRDOFile ${DigiOutFileName}  --maxEvents 100  --skipEvents 0  --digiSeedOffset1 11 --digiSeedOffset2 22  --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION  --conditionsTag default:OFLCOND-RUN12-SDR-25  --DataRunNumber 222500  --postInclude 'default:PyJobTransforms/UseFrontier.py'
+Digi_tf.py \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/testCosmics.ATLAS-R2-2015-03-01-00_VALIDATION.HITS.pool.root  \
+--outputRDOFile ${DigiOutFileName}  \
+--maxEvents 100  \
+--skipEvents 0  \
+--digiSeedOffset1 11 \
+--digiSeedOffset2 22  \
+--geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION  \
+--conditionsTag default:OFLCOND-RUN12-SDR-25  \
+--DataRunNumber 222500  \
+--postInclude 'default:PyJobTransforms/UseFrontier.py'
 
-echo  "art-result: $? Digi_tf.py"
+rc=$?
+echo  "art-result: $rc Digi_tf.py"
+rc1=-9999
+rc2=-9999
+rc3=-9999
+rc4=-9999
 
 # get reference directory
 source DigitizationCheckReferenceLocation.sh
 echo "Reference set being used: " ${DigitizationTestsVersion}
 
-# Do reference comparisons
-art-diff.py ./$DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
-echo  "art-result: $? diff-pool"
-
-
-
-art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root --mode=summary
-echo  "art-result: $? diff-root"
-
-checkFile ./$DigiOutFileName
-echo "art-result: $? checkFile"
-
-
-ArtPackage=$1
-ArtJobName=$2
-
-
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-echo  "art-result: $? art-compare"
+if [ $rc -eq 0 ]
+then
+    # Do reference comparisons
+    art-diff.py ./$DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
+    rc1=$?
+fi
+echo  "art-result: $rc1 diff-pool"
+#
+#
+#
+if [ $rc -eq 0 ]
+then
+    art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root --mode=summary
+    rc2=$?
+fi
+echo  "art-result: $rc2 diff-root"
+#
+if [ $rc -eq 0 ]
+then
+    checkFile ./$DigiOutFileName
+    rc3=$?
+fi
+echo "art-result: $rc3 checkFile"
+#
+#
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc4=$?
+fi
+echo  "art-result: $rc4 art-compare"
