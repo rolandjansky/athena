@@ -5,7 +5,7 @@
 
 preTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
-        'dev/flavtag/april2019/rnnip/antikt4emtopo/network.json',
+        'dev/flavtag/april2019/rnnip/antikt4empflow/network.json',
         'dev/flavtag/april2019/smt/antikt4empflow/extended-hybrid.json',
     ]
 }
