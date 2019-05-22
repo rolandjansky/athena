@@ -68,6 +68,10 @@ StatusCode PerfMonMTSvc::finalize() {
  */
 void PerfMonMTSvc::startAud( const std::string& stepName,
                              const std::string& compName ) {
+
+  // Just for testing!!!
+  if( compName != "HelloWorld") return;
+
   ATH_MSG_INFO("Starting Auditing " << stepName << " " << compName);
   const EventContext ctx = Gaudi::Hive::currentContext();
   if(ctx.valid()) {
@@ -76,8 +80,11 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
   }
 
   // Print the CPU information
-  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << PMonMT::get_cpu_time() << " [ms]");
+  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << PMonMT::get_thread_cpu_time() << " [ms]");
   ATH_MSG_INFO("START :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
+
+  // Capture here - NOT THREAD SAFE!!! - NOT COMPONENT AWARE!!!
+  m_measurement.capture();
 }
 
 /*
@@ -85,9 +92,16 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
  */
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
+  // Just for testing!!!
+  if( compName != "HelloWorld") return;
+
   ATH_MSG_INFO("Stopping Auditing " << stepName << " " << compName);
 
   // Print the CPU information
-  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << PMonMT::get_cpu_time() << " [ms]");
+  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << PMonMT::get_thread_cpu_time() << " [ms]");
   ATH_MSG_INFO("STOP :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
+
+  // Capture here - NOT THREAD SAFE!!! - NOT COMPONENT AWARE!!!
+  double delta_cpu = PMonMT::get_thread_cpu_time() - m_measurement.cpu_time;
+  ATH_MSG_INFO("DCPU :: " << delta_cpu << " [ms]");
 }
