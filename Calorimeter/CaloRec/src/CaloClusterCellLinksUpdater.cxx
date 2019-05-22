@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterCellLinksUpdater.cxx 
@@ -102,6 +102,13 @@ StatusCode CaloClusterCellLinksUpdater::execute() {
       CaloClusterCellLink::iterator lnk_it=cellLinks->begin();
       CaloClusterCellLink::iterator lnk_it_e=cellLinks->end();
       for (;lnk_it!=lnk_it_e;++lnk_it) {
+        if (lnk_it.index() >= cellLinks_cst->getCellContainer()->size()) {
+          // FIXME: cluster links are screwed up in ESDs due to changes
+          //        in output algorithm sequencing; see ATR-19778.
+          //        For now, add some protection to avoid a crash in that case,
+          //        but this isn't a real fix.
+          continue;
+        }
 	//Ask cell for it's hash
 	const IdentifierHash cellHash = (*lnk_it)->caloDDE()->calo_hash();
 	const int newIdx=cellCont->findIndex(cellHash);
