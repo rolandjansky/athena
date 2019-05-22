@@ -123,14 +123,14 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigTrackSummaryHelperToolFTK
         
 
-        
+
+# @TODO does th InDetTrigTrackSummaryHelperToolFTK do hole search and if so is that intended ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigTrackSummaryToolFTK = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolFTK",
                                                  InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolFTK,
-                                                 InDetHoleSearchTool    = None,
                                                  doSharedHits           = False,
-                                                 TRT_ElectronPidTool    = None
-                                                 )
+                                                 doHolesInDet           = False,
+                                                 TRT_ElectronPidTool    = None)
 ToolSvc += InDetTrigTrackSummaryToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigTrackSummaryToolFTK

@@ -167,7 +167,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetTrackSummaryTool = Trk__TrackSummaryTool(name = "GSFBuildInDetTrackSummaryTool",
                                                               InDetSummaryHelperTool = GSFBuildTrackSummaryHelperTool,
                                                               doSharedHits           = False,
-                                                              InDetHoleSearchTool    = GSFBuildHoleSearchTool,
+                                                              doHolesInDet           = True,
                                                               TRT_ElectronPidTool    = GSFBuildTRT_ElectronPidTool,
                                                               PixelToTPIDTool        = GSFBuildPixelToTPIDTool)
         ToolSvc += GSFBuildInDetTrackSummaryTool
