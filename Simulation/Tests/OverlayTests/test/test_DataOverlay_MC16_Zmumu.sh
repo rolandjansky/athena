@@ -27,20 +27,32 @@ OverlayChain_tf.py \
 --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --imf False
-echo "art-result: $? dataoverlay"
 
-Reco_tf.py \
---inputRDOFile testRTT.RDO.pool.root \
---outputESDFile testRTT.ESD.pool.root \
---outputAODFile testRTT.AOD.pool.root \
---preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
---postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
---preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArThinnedDigits.set_Value_and_Lock(False)' \
---ignorePatterns "L1TopoMenuLoader.+ERROR." \
---imf False
-echo "art-result: $? reco"
+rc=$?
+echo "art-result: $rc dataoverlay"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-echo "art-result: $? regression"
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    Reco_tf.py \
+    --inputRDOFile testRTT.RDO.pool.root \
+    --outputESDFile testRTT.ESD.pool.root \
+    --outputAODFile testRTT.AOD.pool.root \
+    --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
+    --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
+    --preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArThinnedDigits.set_Value_and_Lock(False)' \
+    --ignorePatterns "L1TopoMenuLoader.+ERROR." \
+    --imf False
+    rc2=$?
+fi
+echo "art-result: $rc2 reco"
+
+rc3=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc3=$?
+fi
+echo "art-result: $rc3 regression"

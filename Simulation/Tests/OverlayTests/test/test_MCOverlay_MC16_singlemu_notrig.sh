@@ -20,18 +20,30 @@ OverlayPool_tf.py \
 --triggerConfig 'OverlayPool=NONE' \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --imf False
-echo "art-result: $? overlaypool"
 
-Reco_tf.py \
---inputRDOFile MC_plus_MC.RDO.pool.root \
---outputESDFile MC_plus_MC.ESD.pool.root \
---outputAODFile MC_plus_MC.AOD.pool.root \
---maxEvents -1 --skipEvents 0 --autoConfiguration everything \
---preExec 'rec.doTrigger=False;from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' \
---imf False
-echo "art-result: $? reco"
+rc=$?
+echo "art-result: $rc overlaypool"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-echo "art-result: $? regression"
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    Reco_tf.py \
+    --inputRDOFile MC_plus_MC.RDO.pool.root \
+    --outputESDFile MC_plus_MC.ESD.pool.root \
+    --outputAODFile MC_plus_MC.AOD.pool.root \
+    --maxEvents -1 --skipEvents 0 --autoConfiguration everything \
+    --preExec 'rec.doTrigger=False;from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' \
+    --imf False
+    rc2=$?
+fi
+echo "art-result: $rc2 reco"
+
+rc3=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc3=$?
+fi
+echo "art-result: $rc3 regression"
