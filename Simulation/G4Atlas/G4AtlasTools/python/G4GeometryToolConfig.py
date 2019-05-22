@@ -9,7 +9,7 @@ from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 
-from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelope
+from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool #G4AtlasDetectorConstructionTool, BoxEnvelope #(check)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
@@ -362,6 +362,6 @@ def getCavernWorld(name="Cavern", **kwargs):
 def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
     return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
 
-def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
+def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
-    return CfgMgr.MaterialDescriptionTool(name, **kwargs)
+    return MaterialDescriptionTool(name, **kwargs)

@@ -60,6 +60,7 @@ if __name__ == '__main__':
   from G4AtlasTools.G4GeometryToolConfig import ZDCGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import AFPGeoDetectorToolCfg
   from G4AtlasTools.G4GeometryToolConfig import ForwardRegionEnvelopeCfg
+  from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg
 
 
   ## Initialize a new component accumulator
@@ -114,6 +115,8 @@ if __name__ == '__main__':
   accATLAS,toolATLAS = ATLASEnvelopeCfg(ConfigFlags)
   cfg.merge(accATLAS)
   cfg.addPublicTool(toolATLAS)
+
+  cfg.addPublicTool(MaterialDescriptionToolCfg(ConfigFlags))
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
