@@ -19,4 +19,4 @@ postTagDL2JetToTrainingMap={
 # is listed in the two dictionaries above. Unfortunately we'll miss
 # collections since we duplicate and rename a few jet collections
 # within the JetBTaggerTool.
-blacklistedJetCollections=["AntiKt4EMPFlow_BTagging201810"]
+blacklistedJetCollections=["AntiKt4EMPFlow_BTagging201903"]
