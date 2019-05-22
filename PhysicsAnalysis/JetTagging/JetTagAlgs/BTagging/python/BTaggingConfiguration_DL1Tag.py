@@ -50,7 +50,8 @@ def buildDL1(basename, calibrationName=''):
     options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
     from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
     vetoed = postTagDL2JetToTrainingMap.keys() + blacklistedJetCollections
-    options['vetoCollections'] = vetoed
+    if BTaggingFlags.Do2019Retraining:
+        options['vetoCollections'] = vetoed
     return Analysis__DL1Tag(**options)
 
   return DL1Instance, metaInstance

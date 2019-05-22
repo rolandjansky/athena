@@ -82,7 +82,8 @@ def buildRNNIP(basename, special_config=False, calibration=None):
                 options.setdefault(option, defaults[option])
         options['name'] = name
         vetoed = preTagDL2JetToTrainingMap.keys() + blacklistedJetCollections
-        options['vetoCollections'] = vetoed
+        if BTaggingFlags.Do2019Retraining:
+            options['vetoCollections'] = vetoed
         from JetTagTools.JetTagToolsConf import Analysis__RNNIPTag
         return Analysis__RNNIPTag(**options)
 
