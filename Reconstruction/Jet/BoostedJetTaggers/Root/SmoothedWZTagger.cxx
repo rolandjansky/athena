@@ -216,7 +216,7 @@ StatusCode SmoothedWZTagger::initialize(){
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
-      std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
+      ATH_MSG_INFO( ("Tagging SF histogram for "+flavor+" is installed."));
     }
     m_weightHistograms = m_weightHistograms_nominal;    
   }

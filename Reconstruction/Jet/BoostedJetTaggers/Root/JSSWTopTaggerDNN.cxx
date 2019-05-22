@@ -217,7 +217,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // necessary because xml files are too large to house on the data space
     m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
     if(m_calcSF)
-      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea+m_weightFileName).c_str());
+      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea_keras+m_weightFileName).c_str());
   }
 
   // read json file for DNN weights
@@ -292,7 +292,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
-      std::cout << "Tagging SF histogram for " << flavor << " is installed." << std::endl;
+      ATH_MSG_INFO( (m_APP_NAME+"Tagging SF histogram for "+flavor+" is installed.") );
     }
     m_weightHistograms = m_weightHistograms_nominal;
   }
@@ -440,7 +440,6 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
     }
 
     double SF=1.0;
-    std::cout << truthLabelStr << " " << jet.pt() << " " << log(jet.m()/jet.pt()) << std::endl;
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
       int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
       SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);

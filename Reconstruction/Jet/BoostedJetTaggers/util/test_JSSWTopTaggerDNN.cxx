@@ -145,14 +145,11 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "eta", &eta, "eta/F" );
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
-  std::string jetAlg = "AntiKt10LCTopoTrimmedPtFrac5SmallR20";
-  std::string jetUnc_FJ_base = "rel21/Moriond2018/";
-  std::string MCType = "MC16a"; //recommendations are for MC16a
   JetUncertaintiesTool* m_jetUncToolSF = new JetUncertaintiesTool(("JetUncProvider_SF"));
-  m_jetUncToolSF->setProperty("JetDefinition", jetAlg);
+  m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");
   m_jetUncToolSF->setProperty("Path", "/data/data7/zp/tnobe/testBJT4/build/x86_64-slc6-gcc62-opt/share/JetUncertainties/test/");
-  m_jetUncToolSF->setProperty("ConfigFile", (jetUnc_FJ_base+"testSF.config").c_str());
-  m_jetUncToolSF->setProperty("MCType", MCType);
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Moriond2018/TagSFUncert_JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_80Eff.config");
+  m_jetUncToolSF->setProperty("MCType", "MC16a");
   m_jetUncToolSF->initialize();
 
   std::vector<std::string> pulls = {"__1down", "__1up"};
@@ -184,7 +181,6 @@ int main( int argc, char* argv[] ) {
   //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
   m_Tagger.setProperty( "CalibArea",    "Local");
   m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/Rel21/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_80Eff.dat");
-  //m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/Rel21/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_50Eff.dat");
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   m_Tagger.retrieve();
@@ -232,7 +228,6 @@ int main( int argc, char* argv[] ) {
 
       pass = res;
       sf = (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF");
-      //sf = (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkInclusive50_SF");
       pt = (*jet_itr)->pt();
       m  = (*jet_itr)->m();
       eta = (*jet_itr)->eta();
@@ -243,11 +238,10 @@ int main( int argc, char* argv[] ) {
 	bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
 	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
 	validForUncTool &= (fabs(eta) < 2);
-	std::cout << "Nominal SF " << sf << std::endl;
+	std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << std::endl;
 	if( validForUncTool ){
 	  for ( auto sysSet : m_jetUnc_sysSets2 ){
 	    m_Tagger->tag( **jet_itr );
-	    std::cout << "Nominal SF " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << " " << sf << std::endl;
 	    m_jetUncToolSF->applySystematicVariation(sysSet);
 	    m_jetUncToolSF->applyCorrection(**jet_itr);
 	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
