@@ -8,6 +8,10 @@
 #include "LArHV/HECHVDescriptor.h"
 #include "LArHV/HECHVModule.h"
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 struct HECHVPayload;
 
 /**
@@ -54,6 +58,12 @@ class HECHVManager
 
   // Get the database payload
   HECHVPayload *getPayload(const HECHVSubgap &) const;
+
+#ifndef SIMULATIONBASE
+  // Get hvLine for a subgap
+  int hvLineNo(const HECHVSubgap& subgap
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
  private:
   HECHVManager(const HECHVManager& right);

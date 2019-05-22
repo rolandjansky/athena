@@ -93,9 +93,16 @@ void EMECPresamplerHVModule::voltage_current(int iGap,double& voltage, double&cu
  current = payload->current[iGap];
 }
 
+#ifndef SIMULATIONBASE
+int EMECPresamplerHVModule::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const
+{
+  return hvIdMapping
+    ? getManager().hvLineNo(*this,hvIdMapping)
+    : getManager().getPayload(*this)->hvLineNo[iGap];
+}
+#else
 int EMECPresamplerHVModule::hvLineNo(int iGap) const 
 {
-  EMECPresamplerHVPayload *payload = getManager().getPayload(*this);
-  return payload->hvLineNo[iGap];
+  return getManager().getPayload(*this)->hvLineNo[iGap];
 }
-
+#endif
