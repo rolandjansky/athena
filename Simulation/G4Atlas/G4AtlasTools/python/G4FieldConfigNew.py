@@ -2,7 +2,7 @@
 
 from G4AtlasTools.G4AtlasToolsConf import GlobalFieldManagerTool, DetectorFieldManagerTool
 #from G4AtlasServices.G4AtlasServicesConfigNew import StandardFieldSvcCfg #either make new file for the StandardFieldSvcCfg etc.. or just import the file
-import G4AtlasServices.G4AtlasServicesConfigNew as Services
+import G4AtlasServices.G4AtlasFieldServices as Services
 
 # Field Managers
 def ATLASFieldManagerToolCfg(ConfigFlags, name='ATLASFieldManager', **kwargs):
@@ -74,7 +74,7 @@ def MuonFieldManagerToolCfg(ConfigFlags, name='MuonFieldManager', **kwargs):
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
 
-def BasicFwdFieldMangerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs):
+def BasicFwdFieldManagerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs):
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  1e-9)
     kwargs.setdefault('DeltaOneStep',       1e-8)
@@ -88,90 +88,90 @@ def BasicFwdFieldMangerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs
         kwargs.setdefault("MaximumStep", 1000.)
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
-def Q1FwdFieldMangerToolCfg(ConfigFlags, name='Q1FwdFieldManager', **kwargs):
+def Q1FwdFieldManagerToolCfg(ConfigFlags, name='Q1FwdFieldManager', **kwargs):
     kwargs.setdefault("FieldSvc", Services.Q1FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q2FwdFieldMangerToolCfg(ConfigFlags, name='Q2FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q2FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q2FwdFieldManagerToolCfg(ConfigFlags, name='Q2FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q2FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2a', 'FwdRegion::LQXBA.2R1MagQ2b'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q3FwdFieldMangerToolCfg(ConfigFlags, name='Q3FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q3FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q3FwdFieldManagerToolCfg(ConfigFlags, name='Q3FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q3FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def D1FwdFieldMangerToolCfg(ConfigFlags, name='D1FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.D1FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def D1FwdFieldManagerToolCfg(ConfigFlags, name='D1FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.D1FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::MBXW.A4R1MagD1a', 'FwdRegion::MBXW.B4R1MagD1b',
                                          'FwdRegion::MBXW.C4R1MagD1c', 'FwdRegion::MBXW.D4R1MagD1d',
                                          'FwdRegion::MBXW.E4R1MagD1e', 'FwdRegion::MBXW.F4R1MagD1f'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def D2FwdFieldMangerToolCfg(ConfigFlags, name='D2FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.D2FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def D2FwdFieldManagerToolCfg(ConfigFlags, name='D2FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.D2FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LBRCD.4R1MagD2'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q4FwdFieldMangerToolCfg(ConfigFlags, name='Q4FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q4FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q4FwdFieldManagerToolCfg(ConfigFlags, name='Q4FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q4FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q5FwdFieldMangerToolCfg(ConfigFlags, name='Q5FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q5FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q5FwdFieldManagerToolCfg(ConfigFlags, name='Q5FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q5FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDC.5R1MagQ5'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q6FwdFieldMangerToolCfg(ConfigFlags, name='Q6FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q6FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q6FwdFieldManagerToolCfg(ConfigFlags, name='Q6FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q6FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDD.6R1MagQ6'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q7FwdFieldMangerToolCfg(ConfigFlags, name='Q7FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q7FwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q7FwdFieldManagerToolCfg(ConfigFlags, name='Q7FwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q7FwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNFD.7R1MagQ7a', 'FwdRegion::LQNFD.7R1MagQ7b'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q1HKickFwdFieldMangerToolCfg(ConfigFlags, name='Q1HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q1HKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q1HKickFwdFieldManagerToolCfg(ConfigFlags, name='Q1HKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q1HKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1HKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q1VKickFwdFieldMangerToolCfg(ConfigFlags, name='Q1VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q1VKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q1VKickFwdFieldManagerToolCfg(ConfigFlags, name='Q1VKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q1VKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1VKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q2HKickFwdFieldMangerToolCfg(ConfigFlags, name='Q2HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q2HKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q2HKickFwdFieldManagerToolCfg(ConfigFlags, name='Q2HKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q2HKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2HKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q2VKickFwdFieldMangerToolCfg(ConfigFlags, name='Q2VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q2VKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q2VKickFwdFieldManagerToolCfg(ConfigFlags, name='Q2VKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q2VKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2VKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q3HKickFwdFieldMangerToolCfg(ConfigFlags, name='Q3HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q3HKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q3HKickFwdFieldManagerToolCfg(ConfigFlags, name='Q3HKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q3HKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3HKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q3VKickFwdFieldMangerToolCfg(ConfigFlags, name='Q3VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q3VKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q3VKickFwdFieldManagerToolCfg(ConfigFlags, name='Q3VKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q3VKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3VKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q4VKickAFwdFieldMangerToolCfg(ConfigFlags, name='Q4VKickAFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q4VKickAFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q4VKickAFwdFieldManagerToolCfg(ConfigFlags, name='Q4VKickAFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q4VKickAFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4VKickA'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q4HKickFwdFieldMangerToolCfg(ConfigFlags, name='Q4HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q4HKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q4HKickFwdFieldManagerToolCfg(ConfigFlags, name='Q4HKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q4HKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4HKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q4VKickBFwdFieldMangerToolCfg(ConfigFlags, name='Q4VKickBFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q4VKickBFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q4VKickBFwdFieldManagerToolCfg(ConfigFlags, name='Q4VKickBFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q4VKickBFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4VKickB'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q5HKickFwdFieldMangerToolCfg(ConfigFlags, name='Q5HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q5HKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q5HKickFwdFieldManagerToolCfg(ConfigFlags, name='Q5HKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q5HKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDC.5R1MagQ5HKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
-def Q6VKickFwdFieldMangerToolCfg(ConfigFlags, name='Q6VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc", Services.Q6VKickFwdG4FieldSvc(ConfigFlags))
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+def Q6VKickFwdFieldManagerToolCfg(ConfigFlags, name='Q6VKickFwdFieldManager', **kwargs):
+    kwargs.setdefault("FieldSvc", Services.Q6VKickFwdG4FieldSvcCfg(ConfigFlags))
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDD.6R1MagQ6VKick'])
-    return BasicFwdFieldMangerToolCfg(ConfigFlags, name, **kwargs)
+    return BasicFwdFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
-def FwdRegionFieldMangerToolCfg(ConfigFlags, name='FwdRegionFieldManager', **kwargs):
+def FwdRegionFieldManagerToolCfg(ConfigFlags, name='FwdRegionFieldManager', **kwargs):
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::ForwardRegionGeoModel'])
     #from G4AtlasApps.SimFlags import simFlags
     #if simFlags.FwdStepLimitation.statusOn:
@@ -212,8 +212,8 @@ if __name__ == '__main__':
   cfg.addPublicTool(TightMuonsATLASFieldManagerToolCfg  (ConfigFlags))
   cfg.addPublicTool(ClassicFieldManagerToolCfg(ConfigFlags))
   cfg.addPublicTool(BasicDetectorFieldManagerToolCfg(ConfigFlags))
-  cfg.addPublicTool(Q1FwdFieldMangerToolCfg(ConfigFlags))
-  cfg.addPublicTool(FwdRegionFieldMangerToolCfg(ConfigFlags))
+  cfg.addPublicTool(Q1FwdFieldManagerToolCfg(ConfigFlags))
+  cfg.addPublicTool(FwdRegionFieldManagerToolCfg(ConfigFlags))
 
   # Dump config
   #cfg.getService("StoreGateSvc").Dump = True

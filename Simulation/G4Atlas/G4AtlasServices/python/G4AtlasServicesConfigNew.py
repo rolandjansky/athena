@@ -5,7 +5,7 @@ from AthenaCommon import CfgGetter
 #from G4AtlasApps.SimFlags import simFlags
 #from AthenaCommon.BeamFlags import jobproperties
 
-from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, StandardFieldSvc, G4AtlasSvc, G4GeometryNotifierSvc
+from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
@@ -20,11 +20,12 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, Bedro
  SX1PhysicsRegionToolCfg,  
  SCTSiliconPhysicsRegionToolCfg"""
 
-from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg
-#from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldMangerToolCfg, Q2FwdFieldMangerToolCfg, Q3FwdFieldMangerToolCfg, D1FwdFieldMangerToolCfg, D2FwdFieldMangerToolCfg, Q4FwdFieldMangerToolCfg, Q5FwdFieldMangerToolCfg, Q6FwdFieldMangerToolCfg, Q7FwdFieldMangerToolCfg, Q1HKickFwdFieldMangerToolCfg, Q1VKickFwdFieldMangerToolCfg, Q2HKickFwdFieldMangerToolCfg, Q2VKickFwdFieldMangerToolCfg, Q3HKickFwdFieldMangerToolCfg, Q3VKickFwdFieldMangerToolCfg, Q4VKickAFwdFieldMangerToolCfg, Q4HKickFwdFieldMangerToolCfg, Q4VKickBFwdFieldMangerToolCfg, Q5HKickFwdFieldMangerToolCfg,  Q6VKickFwdFieldMangerToolCfg, FwdRegionFieldMangerToolCfg
+from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
+from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
+#import G4AtlasTools.G4FieldConfigNew
 """ClassicFieldManagerToolCfg
 BasicDetectorFieldManagerToolCfg
-BasicFwdFieldMangerToolCfg"""
+BasicFwdFieldManagerToolCfg"""
 
 #already imported - is this correct?
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -131,84 +132,12 @@ def getTB_RegionCreatorList(ConfigFlags):
     return regionCreatorList
 
 #########################################################################
-def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
-    import MagFieldServices.SetupField
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
-    #kwargs.setdefault("FieldOn", True)
-    return StandardFieldSvc(name, **kwargs)
-
-def ForwardFieldSvcCfg(ConfigFlags, name="ForwardField", **kwargs):
-    #FIXME Once it exists this version should use the new MagField Service defined in ForwardRegionMgField
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc")
-    #kwargs.setdefault("FieldOn", True)
-    return StandardFieldSvc(name, **kwargs)
-
-def Q1FwdG4FieldSvcCfg(ConfigFlags, name='Q1FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1")
-    return StandardFieldSvc(name, **kwargs)
-def Q2FwdG4FieldSvcCfg(ConfigFlags, name='Q2FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2")
-    return StandardFieldSvc(name, **kwargs)
-def Q3FwdG4FieldSvcCfg(ConfigFlags, name='Q3FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3")
-    return StandardFieldSvc(name, **kwargs)
-def D1FwdG4FieldSvcCfg(ConfigFlags, name='D1FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "D1")
-    return StandardFieldSvc(name, **kwargs)
-def D2FwdG4FieldSvcCfg(ConfigFlags, name='D2FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "D2")
-    return StandardFieldSvc(name, **kwargs)
-def Q4FwdG4FieldSvcCfg(ConfigFlags, name='Q4FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4")
-    return StandardFieldSvc(name, **kwargs)
-def Q5FwdG4FieldSvcCfg(ConfigFlags, name='Q5FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q5")
-    return StandardFieldSvc(name, **kwargs)
-def Q6FwdG4FieldSvcCfg(ConfigFlags, name='Q6FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q6")
-    return StandardFieldSvc(name, **kwargs)
-def Q7FwdG4FieldSvcCfg(ConfigFlags, name='Q7FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q7")
-    return StandardFieldSvc(name, **kwargs)
-def Q1HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q1VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q2HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q2VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q3HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q3VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q4VKickAFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickAFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4VKickA")
-    return StandardFieldSvc(name, **kwargs)
-def Q4HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q4HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q4VKickBFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickBFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4VKickB")
-    return StandardFieldSvc(name, **kwargs)
-def Q5HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q5HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q5HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q6VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q6VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q6VKick")
-    return StandardFieldSvc(name, **kwargs)
-
 def getATLAS_FieldMgrList(ConfigFlags):
     fieldMgrList = []
     from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.TightMuonStepping.statusOn or\
-       not simFlags.TightMuonStepping():
+    #if not simFlags.TightMuonStepping.statusOn or\
+    #   not simFlags.TightMuonStepping():
+    if False:
         fieldMgrList += [ATLASFieldManagerToolCfg(ConfigFlags)]
     else:
         fieldMgrList += [TightMuonsATLASFieldManagerToolCfg(ConfigFlags)]
@@ -218,33 +147,34 @@ def getATLAS_FieldMgrList(ConfigFlags):
         fieldMgrList += [BeamPipeFieldManagerToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateID:
         fieldMgrList += [InDetFieldManagerToolCfg(ConfigFlags)]
-    if ConfigFlags.Detector.SimulateCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
-        fieldMgrList += [MuonsOnlyInCaloFieldManager(ConfigFlags)]
+    #if ConfigFlags.Detector.SimulateCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
+    if False:
+        fieldMgrList += [MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateMuon:
-        fieldMgrList += [MuonFieldManager(ConfigFlags)]
+        fieldMgrList += [MuonFieldManagerToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateForward: #needed?
         if ConfigFlags.Detector.GeometryFwdRegion: #or forward?
-            fieldMgrList += [Q1FwdFieldManager(ConfigFlags),
-                             Q2FwdFieldManager(ConfigFlags),
-                             Q3FwdFieldManager(ConfigFlags),
-                             D1FwdFieldManager(ConfigFlags),
-                             D2FwdFieldManager(ConfigFlags),
-                             Q4FwdFieldManager(ConfigFlags),
-                             Q5FwdFieldManager(ConfigFlags),
-                             Q6FwdFieldManager(ConfigFlags),
-                             Q7FwdFieldManager(ConfigFlags),
-                             Q1HKickFwdFieldManager(ConfigFlags),
-                             Q1VKickFwdFieldManager(ConfigFlags),
-                             Q2HKickFwdFieldManager(ConfigFlags),
-                             Q2VKickFwdFieldManager(ConfigFlags),
-                             Q3HKickFwdFieldManager(ConfigFlags),
-                             Q3VKickFwdFieldManager(ConfigFlags),
-                             Q4VKickAFwdFieldManager(ConfigFlags),
-                             Q4HKickFwdFieldManager(ConfigFlags),
-                             Q4VKickBFwdFieldManager(ConfigFlags),
-                             Q5HKickFwdFieldManager(ConfigFlags),
-                             Q6VKickFwdFieldManager(ConfigFlags),
-                             FwdRegionFieldManager(ConfigFlags)]
+            fieldMgrList += [Q1FwdFieldManagerToolCfg(ConfigFlags),
+                             Q2FwdFieldManagerToolCfg(ConfigFlags),
+                             Q3FwdFieldManagerToolCfg(ConfigFlags),
+                             D1FwdFieldManagerToolCfg(ConfigFlags),
+                             D2FwdFieldManagerToolCfg(ConfigFlags),
+                             Q4FwdFieldManagerToolCfg(ConfigFlags),
+                             Q5FwdFieldManagerToolCfg(ConfigFlags),
+                             Q6FwdFieldManagerToolCfg(ConfigFlags),
+                             Q7FwdFieldManagerToolCfg(ConfigFlags),
+                             Q1HKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q1VKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q2HKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q2VKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q3HKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q3VKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q4VKickAFwdFieldManagerToolCfg(ConfigFlags),
+                             Q4HKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q4VKickBFwdFieldManagerToolCfg(ConfigFlags),
+                             Q5HKickFwdFieldManagerToolCfg(ConfigFlags),
+                             Q6VKickFwdFieldManagerToolCfg(ConfigFlags),
+                             FwdRegionFieldManagerToolCfg(ConfigFlags)]
     return fieldMgrList
 
 #called?
@@ -269,11 +199,13 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
     kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools(ConfigFlags))
     from G4AtlasApps.SimFlags import simFlags
-    if hasattr(simFlags,"Eta"): #FIXME ugly hack
+    #if hasattr(simFlags,"Eta"): #FIXME ugly hack
+    if False:
         kwargs.setdefault("World", 'TileTB_World')
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
-    elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
+    #elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
+    elif False:
         kwargs.setdefault("World", 'LArTB_World')
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
@@ -281,9 +213,10 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
             kwargs.setdefault("World", 'Cavern')
         else:
-            kwargs.setdefault("World", 'Atlas')
+            kwargs.setdefault("World", ATLASEnvelopeCfg(ConfigFlags))
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
-        if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
+        #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
+        if True:
             kwargs.setdefault("FieldManagers", getATLAS_FieldMgrList(ConfigFlags))
     return result, DetectorGeometrySvc(name, **kwargs)
 
@@ -340,16 +273,12 @@ if __name__ == '__main__':
 
   #add the algorithm
   acc1, Svc1 = DetectorGeometrySvcCfg(ConfigFlags)
-  Svc2 = StandardFieldSvcCfg(ConfigFlags)
-  Svc3 = ForwardFieldSvcCfg(ConfigFlags)
-  Svc4 = Q1FwdG4FieldSvcCfg(ConfigFlags)
   Svc5 = G4AtlasSvcCfg(ConfigFlags)
   Svc6 = G4GeometryNotifierSvcCfg(ConfigFlags)
 
   cfg.addService(Svc1)
-  cfg.addService(Svc2)
-  cfg.addService(Svc3)
-  cfg.addService(Svc4)
+  cfg.addService(Svc5)
+  cfg.addService(Svc6)
 
   cfg.merge(acc1)
 
