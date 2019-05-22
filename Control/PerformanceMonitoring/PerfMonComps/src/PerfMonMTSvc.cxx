@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// STL includes
-#include <pthread.h>
-#include <time.h>
-#include <ctime>
-
 // Framework includes
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -80,16 +75,9 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
                  " slot number is " << ctx.slot());
   }
 
-  // Get thread's clock id
-  clockid_t thread_cid;
-  pthread_getcpuclockid(pthread_self(),&thread_cid);
-  ATH_MSG_INFO("START :: Current thread's CPU clock id is " << thread_cid);
-
-  // Read the CPU time for the clock id
-  struct timespec ctime;
-  clock_gettime(thread_cid, &ctime);
-  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6 << " [ms]");
-  ATH_MSG_INFO("START :: Current std::clock time is " << std::clock()/CLOCKS_PER_SEC*1.e3 << " [ms]");
+  // Print the CPU information
+  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << PMonMT::get_cpu_time() << " [ms]");
+  ATH_MSG_INFO("START :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
 }
 
 /*
@@ -99,14 +87,7 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
   ATH_MSG_INFO("Stopping Auditing " << stepName << " " << compName);
 
-  // Get thread's clock id
-  clockid_t thread_cid;
-  pthread_getcpuclockid(pthread_self(),&thread_cid);
-  ATH_MSG_INFO("STOP :: Current thread's CPU clock id is " << thread_cid);
-
-  // Read the CPU time for the clock id
-  struct timespec ctime;
-  clock_gettime(thread_cid, &ctime);
-  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6 << " [ms]");
-  ATH_MSG_INFO("STOP :: Current std::clock time is " << std::clock()/CLOCKS_PER_SEC*1.e3 << " [ms]");
+  // Print the CPU information
+  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << PMonMT::get_cpu_time() << " [ms]");
+  ATH_MSG_INFO("STOP :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
 }
