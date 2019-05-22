@@ -20,11 +20,14 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, Bedro
  SX1PhysicsRegionToolCfg,  
  SCTSiliconPhysicsRegionToolCfg"""
 
-from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg
-from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldMangerToolCfg, Q2FwdFieldMangerToolCfg, Q3FwdFieldMangerToolCfg, D1FwdFieldMangerToolCfg, D2FwdFieldMangerToolCfg, Q4FwdFieldMangerToolCfg, Q5FwdFieldMangerToolCfg, Q6FwdFieldMangerToolCfg, Q7FwdFieldMangerToolCfg, Q1HKickFwdFieldMangerToolCfg, Q1VKickFwdFieldMangerToolCfg, Q2HKickFwdFieldMangerToolCfg, Q2VKickFwdFieldMangerToolCfg, Q3HKickFwdFieldMangerToolCfg, Q3VKickFwdFieldMangerToolCfg, Q4VKickAFwdFieldMangerToolCfg, Q4HKickFwdFieldMangerToolCfg, Q4VKickBFwdFieldMangerToolCfg, Q5HKickFwdFieldMangerToolCfg,  Q6VKickFwdFieldMangerToolCfg, FwdRegionFieldMangerToolCfg
+from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg
+#from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldMangerToolCfg, Q2FwdFieldMangerToolCfg, Q3FwdFieldMangerToolCfg, D1FwdFieldMangerToolCfg, D2FwdFieldMangerToolCfg, Q4FwdFieldMangerToolCfg, Q5FwdFieldMangerToolCfg, Q6FwdFieldMangerToolCfg, Q7FwdFieldMangerToolCfg, Q1HKickFwdFieldMangerToolCfg, Q1VKickFwdFieldMangerToolCfg, Q2HKickFwdFieldMangerToolCfg, Q2VKickFwdFieldMangerToolCfg, Q3HKickFwdFieldMangerToolCfg, Q3VKickFwdFieldMangerToolCfg, Q4VKickAFwdFieldMangerToolCfg, Q4HKickFwdFieldMangerToolCfg, Q4VKickBFwdFieldMangerToolCfg, Q5HKickFwdFieldMangerToolCfg,  Q6VKickFwdFieldMangerToolCfg, FwdRegionFieldMangerToolCfg
 """ClassicFieldManagerToolCfg
 BasicDetectorFieldManagerToolCfg
 BasicFwdFieldMangerToolCfg"""
+
+#already imported - is this correct?
+from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
@@ -262,7 +265,7 @@ def getGeometryConfigurationTools(ConfigFlags):
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault("DetectorConstruction", 'G4AtlasDetectorConstructionTool')
+    kwargs.setdefault("DetectorConstruction", G4AtlasDetectorConstructionToolCfg(ConfigFlags))
     ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
     kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools(ConfigFlags))
     from G4AtlasApps.SimFlags import simFlags
