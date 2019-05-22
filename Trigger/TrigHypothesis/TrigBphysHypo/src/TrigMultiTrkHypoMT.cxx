@@ -54,7 +54,7 @@ TrigMultiTrkHypoMT::~TrigMultiTrkHypoMT()
 StatusCode TrigMultiTrkHypoMT::initialize()
 {
     ATH_MSG_DEBUG( "Initializing " << name() << "...");
-    if(m_trkMasses.size() != m_nTrk){
+    if(static_cast<int>(m_trkMasses.size()) != m_nTrk){
         ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
              << m_trkMasses.size() << " track masses!");
         return StatusCode::FAILURE;
@@ -63,7 +63,7 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     	for(float mass :  m_trkMasses) msg() << MSG::INFO << mass <<", ";
         msg() << MSG::DEBUG << endmsg;  
     }
-    if(m_ptTrkMin.size() != m_nTrk){
+    if(static_cast<int>(m_ptTrkMin.size()) != m_nTrk){
         ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
             << m_ptTrkMin.size() << " track pTs!");        
         return StatusCode::FAILURE;
@@ -325,7 +325,7 @@ bool TrigMultiTrkHypoMT::passNTracks(int nObjMin,
 
   if( nObjMin <= 0 ) return true; //why on earth would this ever happen...
   //don't bother running if we don't even have enough input tracks
-  if(inputTrkVec.size() < nObjMin) return false;
+  if(static_cast<int>(inputTrkVec.size()) < nObjMin) return false;
   
   outputTrkVec.clear();
  
