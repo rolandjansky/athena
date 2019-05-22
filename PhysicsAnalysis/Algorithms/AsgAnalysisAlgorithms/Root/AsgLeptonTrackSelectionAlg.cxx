@@ -111,9 +111,10 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
+          m_accept.clear();
+
           if (m_preselection.getBool (*particle))
           {
-            m_accept.clear();
             std::size_t cutIndex {0};
 
             const xAOD::TrackParticle *track {nullptr};
@@ -145,10 +146,10 @@ namespace CP
                 m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
               }
             }
-
-            m_selectionAccessor->setBits
-              (*particle, selectionFromAccept (m_accept));
           }
+
+          m_selectionAccessor->setBits
+              (*particle, selectionFromAccept (m_accept));
         }
         return StatusCode::SUCCESS;
       });

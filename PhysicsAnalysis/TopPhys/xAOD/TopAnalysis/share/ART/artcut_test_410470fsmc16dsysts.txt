@@ -15,7 +15,7 @@ PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMPFlowJets
+JetCollectionName AntiKt4EMTopoJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
@@ -54,7 +54,7 @@ PerfStats No
 
 
 ### Systematics configuration
-Systematics Nominal
+Systematics All
 JetUncertainties_NPModel CategoryReduction
 JetUncertainties_BunchSpacing 25ns
 LargeRJESUncertaintyConfig Split23,Tau32WTA

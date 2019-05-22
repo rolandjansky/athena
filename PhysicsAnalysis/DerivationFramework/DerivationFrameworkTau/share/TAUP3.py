@@ -123,61 +123,12 @@ TAUP3TauTPThinningTool     = DerivationFramework__TauTrackParticleThinning(
 ToolSvc += TAUP3TauTPThinningTool
 thinningTools.append(TAUP3TauTPThinningTool)
 
-# ------------------------------------------------------------------------------------------------------------------------------------------
-# For tau trigger performance studies
-
-import sys
-import PyUtils.AthFile
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaCommon import Logging
-taup3log = Logging.logging.getLogger('TAUP3')
-
-thinHLTTau = False
-try:
-  fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
-  RunNumber = fileinfo.infos['run_number'][0]
-  AMITag = fileinfo.infos['metadata']['/TagInfo']['AMITag']
-
-  if not DerivationFrameworkIsMonteCarlo and RunNumber >= 355261 or DerivationFrameworkIsMonteCarlo and 'r11364' in AMITag:
-    thinHLTTau = True
-  if DerivationFrameworkIsMonteCarlo:
-    taup3log.info("AMITag = {0}, HLT tau thinning = {1}".format(AMITag,thinHLTTau))
-  else:
-    taup3log.info("RunNumber = {0}, HLT tau thinning = {1}".format(RunNumber,thinHLTTau))
-except:
-  taup3log.info("Encountered problem while parsing metadata")
-
-if thinHLTTau:
-  # no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
-
-  # TauTracks thinning
-  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
-  TAUP3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "TAUP3HLTTauTracksThinningTool",
-                                                                         ThinningService = "TAUP3ThinningSvc",
-                                                                         TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
-                                                                         TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
-                                                                         IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
-  ToolSvc += TAUP3HLTTauTracksThinningTool
-  thinningTools.append(TAUP3HLTTauTracksThinningTool)
-  
-  # Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
-  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-  TAUP3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "TAUP3HLTTauCCThinningTool",
-                                                                           ThinningService         = "TAUP3ThinningSvc",
-                                                                           SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
-                                                                           TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
-  ToolSvc += TAUP3HLTTauCCThinningTool
-  thinningTools.append(TAUP3HLTTauCCThinningTool)
-
-# ------------------------------------------------------------------------------------------------------------------------------------------
-
 # truth thinning here:
 import DerivationFrameworkTau.TAUPThinningHelper 
 TAUP3TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP3",
                                                                      "TAUP3ThinningSvc",
                                                                      ToolSvc)
 thinningTools += TAUP3TruthThinningTools
-
 # =============================================
 # Skimming tool
 # =============================================
@@ -262,16 +213,6 @@ TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3
 TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 TAUP3SlimmingHelper.ExtraVariables += ["Muons.PromptLeptonIso.PromptLeptonVeto"]
 TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(name="Muons")
-
-# ------------------------------------------------------------------------------------------------------------------------------------------
-# For tau trigger performance studies
-TAUP3SlimmingHelper.ExtraVariables += [ "HLT_xAOD__JetContainer_TrigTauJet.pt.eta.phi.m.constituentLinks",
-                                        "HLT_xAOD__TauJetContainer_TrigTauRecMerged.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.charge.isTauFlags.BDTJetScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.BDTJetScoreSigTrans.RNNJetScore.RNNJetScoreSigTrans.isolFrac.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis.ptJetSeed.leadTrkPt.massTrkSys.trFlightPathSig.centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.PSSFraction.etEMAtEMScale.etHadAtEMScale.sumEMCellEtOverLeadTrkPt.hadLeakEt.secMaxStripEt",
-                                        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig.phi.theta.qOverP.z0.d0.vertexLink.vz.chiSquared.numberDoF.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.numberOfInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerHits.numberOfPixelHits.numberOfPixelHoles.numberOfPixelSharedHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTSharedHits.numberOfSCTDeadSensors",
-                                        "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker.CENTER_LAMBDA.FIRST_ENG_DENS.EM_PROBABILITY.SECOND_LAMBDA.SECOND_R.e_sampl.eta0.phi0.rawE.rawEta.rawPhi.rawM.altE.altEta.altPhi.altM.calE.calEta.calPhi.calM",
-                                        "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks.pt.eta.phi.flagSet.trackLinks",
-                                        "HLT_xAOD__VertexContainer_xPrimVx.z" ]
-# ------------------------------------------------------------------------------------------------------------------------------------------
 
 if globalflags.DataSource() == "geant4":
   #TAUP3SlimmingHelper.AppendToDictionary = {'AntiKt4TruthJets':'xAOD::JetContainer','AntiKt4TruthJetsAux':'xAOD::JetAuxContainer'}
