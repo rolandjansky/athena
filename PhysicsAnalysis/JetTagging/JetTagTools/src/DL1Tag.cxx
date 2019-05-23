@@ -73,6 +73,7 @@ namespace Analysis {
     declareProperty("forceDL1CalibrationAlias", m_forceDL1CalibrationAlias = true);
     declareProperty("DL1CalibAlias", m_DL1CalibAlias = "AntiKt4TopoEM");
     declareProperty("xAODBaseName", m_xAODBaseName);
+    declareProperty("vetoCollections", m_blacklist);
 
     // global configuration
     declareProperty("Runmodus", m_runModus);
@@ -87,6 +88,9 @@ namespace Analysis {
   }
 
   StatusCode DL1Tag::initialize() {
+
+    m_vetoCollections.insert(m_blacklist.begin(), m_blacklist.end());
+
     // prepare calibraiton tool
     StatusCode sc = m_calibrationTool.retrieve();
     if ( sc.isFailure() ) {
@@ -226,6 +230,11 @@ namespace Analysis {
 				 const std::string& assigned_jet_author){
 
     std::string jetauthor = assigned_jet_author;
+
+    if (m_vetoCollections.count(jetauthor)) {
+      ATH_MSG_DEBUG("#BTAG# skipping DL1 for '" << jetauthor << "'");
+      return;
+    }
 
     if (m_LocalNNConfigFile.size()==0) {
       if (m_forceDL1CalibrationAlias) {

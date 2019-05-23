@@ -134,10 +134,16 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  TFile* outputFile = TFile::Open( "output_BoostedXbbTagger.root", "recreate" );
-  int pass;
+  TFile* outputFile = TFile::Open( "output_JSSWTopTaggerDNN.root", "recreate" );
+  int pass,truthLabel;
+  float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
+  Tree->Branch( "sf", &sf, "sf/F" );
+  Tree->Branch( "pt", &pt, "pt/F" );
+  Tree->Branch( "m", &m, "m/F" );
+  Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
   JetUncertaintiesTool* m_jetUncToolSF = new JetUncertaintiesTool(("JetUncProvider_SF"));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");

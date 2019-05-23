@@ -197,12 +197,13 @@ if DerivationFrameworkIsMonteCarlo:
 #===================================================
 
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+addVRJets(jetm4Seq)
 
-LargeRJetColls = ["AntiKt10LCTopo",
-                  "AntiKt10TrackCaloCluster",
-                 ]
-
-addVRJets(jetm4Seq, outputGroup="JETM4", largeRColls=LargeRJetColls)
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJetsTCC
+addVRJetsTCC(jetm4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
+             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]

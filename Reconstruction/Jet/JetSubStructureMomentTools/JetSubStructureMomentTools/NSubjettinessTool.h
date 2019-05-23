@@ -19,6 +19,7 @@ class NSubjettinessTool :
 
     private:
       float m_Alpha;
+      bool m_doDichroic;
       
 };
 

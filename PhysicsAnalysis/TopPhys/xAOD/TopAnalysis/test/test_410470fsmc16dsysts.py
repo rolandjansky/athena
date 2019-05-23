@@ -1,6 +1,6 @@
 #!/usr/bin/env python                                                                                         
 
-# art-description: DxAOD MC16d TOPQ1 FullSim 410470 Actual Mu Pileup Reweighting
+# art-description: DxAOD MC16d TOPQ1 FullSim 410470 with systematics
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
 # art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_s3126_r10201_p3554.ART.v2

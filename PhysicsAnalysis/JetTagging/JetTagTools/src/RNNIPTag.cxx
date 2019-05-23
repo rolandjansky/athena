@@ -185,6 +185,8 @@ namespace Analysis {
     declareProperty("writeTrackLinks",
                     m_writeTrackLinks = false);
 
+    declareProperty("vetoCollections", m_blacklist);
+
     declareProperty("trackAssociationName"    ,
                     m_trackAssociationName = "BTagTrackToJetAssociator");
     declareProperty("originalTPCollectionName",
@@ -217,6 +219,8 @@ namespace Analysis {
 
 
   StatusCode RNNIPTag::initialize() {
+
+    m_vetoCollections.insert(m_blacklist.begin(), m_blacklist.end());
 
     /** retrieving TrackToVertex: */
     /*if ( m_trackToVertexTool.retrieve().isFailure() ) {
@@ -307,6 +311,13 @@ namespace Analysis {
 
 
   StatusCode RNNIPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
+
+    // some collections have another tool running the equivelent code,
+    // we short circuit in that case
+    if (m_vetoCollections.count(jetName)) {
+      ATH_MSG_DEBUG("#BTAG# skipping rnnip for '" << jetName << "'");
+      return StatusCode::SUCCESS;
+    }
 
     /** author to know which jet algorithm: */
     std::string author;
