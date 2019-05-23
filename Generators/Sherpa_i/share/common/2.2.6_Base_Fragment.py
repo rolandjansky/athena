@@ -52,6 +52,13 @@ genSeq.Sherpa_i.Parameters += [
     "SIN2THETAW=0.23113",
     ]
 
+## Add Lund hadronisation model switches from arXiv:1905.09127
+genSeq.Sherpa_i.Parameters += [
+    "PARJ(21)=0.36",
+    "PARJ(41)=0.3",
+    "PARJ(42)=0.6",
+    ]
+
 ## set/add partial widths for H, W, Z to PDG values
 ## cf. https://sherpa.hepforge.org/doc/SHERPA-MC-2.2.4.html#HDH_005fWIDTH
 genSeq.Sherpa_i.Parameters += [
