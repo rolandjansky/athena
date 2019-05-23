@@ -21,7 +21,7 @@
 
 class ISCT_RodDecoder;
 
-/** 
+/**
  * @class SCTRawDataProviderTool
  *
  * @brief Athena Algorithm Tool to fill Collections of SCT RDO Containers.
@@ -43,10 +43,10 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   /** Initialize */
   virtual StatusCode initialize() override;
 
-  /** 
-   * @brief Main decoding method.
+  /**
+   * @brief Old-style decoding method.
    *
-   * Loops over ROB fragments, get ROB/ROD ID, then decode if not allready decoded.
+   * Retrieve EventContext and call the convert method with EventContext
    *
    * @param vecROBFrags Vector containing ROB framgents.
    * @param rdoIDCont RDO ID Container to be filled.
@@ -57,9 +57,22 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
                              ISCT_RDO_Container& rdoIDCont,
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) const override;
-
-  /** Reset list of known ROB IDs */
-  virtual void beginNewEvent() const override;
+  /**
+   * @brief Main decoding method.
+   *
+   * Loops over ROB fragments, get ROB/ROD ID, then decode if not allready decoded.
+   *
+   * @param vecROBFrags Vector containing ROB framgents.
+   * @param rdoIDCont RDO ID Container to be filled.
+   * @param errs Byte stream error container.
+   * @param bsFracCont Byte stream fraction container.
+   * @param ctx EventContext of the event
+   *  */
+  virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecROBFrags,
+                             ISCT_RDO_Container& rdoIDCont,
+                             InDetBSErrContainer* errs,
+                             SCT_ByteStreamFractionContainer* bsFracCont,
+                             const EventContext& ctx) const override;
 
  private: 
 

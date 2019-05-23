@@ -33,6 +33,18 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
                                            InDetBSErrContainer* errs,
                                            SCT_ByteStreamFractionContainer* bsFracCont) const
 {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return convert(vecROBFrags, rdoIDCont, errs, bsFracCont, ctx);
+}
+
+// Convert method
+
+StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
+                                           ISCT_RDO_Container& rdoIDCont,
+                                           InDetBSErrContainer* errs,
+                                           SCT_ByteStreamFractionContainer* bsFracCont,
+                                           const EventContext& ctx) const
+{
   if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
@@ -40,7 +52,6 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   std::set<uint32_t>& robIDSet{getRobIDSet(ctx)};
 
   // loop over the ROB fragments
@@ -83,15 +94,6 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   }
 
   return sc;
-}
-
-// beginNewEvent method
-
-void SCTRawDataProviderTool::beginNewEvent() const 
-{
-  // reset list of known robIDs by calling getRobIDSet
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  getRobIDSet(ctx);
 }
 
 std::set<uint32_t>& SCTRawDataProviderTool::getRobIDSet(const EventContext& ctx) const {
