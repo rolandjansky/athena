@@ -15,11 +15,11 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "HepMC/GenEvent.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "CxxUtils/sincos.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
-
 namespace Muon {
 
   MuonLayerHoughTool::MuonLayerHoughTool(const std::string& type, const std::string& name, const IInterface* parent):
@@ -74,12 +74,17 @@ namespace Muon {
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
     if( m_doNtuple ){
-      TDirectory* cdir = gDirectory;
-      m_file = new TFile("HitNtuple.root","RECREATE");
-      m_tree = new TTree("data","data");
-      m_ntuple = new MuonHough::HitNtuple();
-      m_ntuple->initForWrite(*m_tree);
-      gDirectory = cdir;
+      if (Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
+        // Disabled under concurrency due to thread-safety concerns, but we want to keep it as a debug tool
+        ATH_MSG_DEBUG("HitNtuple disabled because of concurrency");
+      } else {
+        TDirectory* cdir = gDirectory;
+        m_file = new TFile("HitNtuple.root","RECREATE");
+        m_tree = new TTree("data","data");
+        m_ntuple = new MuonHough::HitNtuple();
+        m_ntuple->initForWrite(*m_tree);
+        gDirectory = cdir;
+      }
     }else{
       m_file = 0;
       m_tree = 0;
