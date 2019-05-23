@@ -44,6 +44,7 @@ else:
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
+ToolSvc += theCaloNoiseTool
 
 from LArMonTools.LArMonToolsConf import LArRODMonTool
 theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
