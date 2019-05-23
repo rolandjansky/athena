@@ -55,6 +55,9 @@ algSeq += jetSequence
 algSeq += jvtSequence
 
 # Set up an ntuple to check the job with:
+treeMaker = CfgMgr.CP__TreeMakerAlg( 'TreeMaker' )
+treeMaker.TreeName = 'jets'
+athAlgSeq += treeMaker
 ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
 ntupleMaker.TreeName = 'jets'
 ntupleMaker.Branches = [
@@ -71,6 +74,9 @@ if dataType != 'data':
     ]
 ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
 algSeq += ntupleMaker
+treeFiller = CfgMgr.CP__TreeFillerAlg( 'TreeFiller' )
+treeFiller.TreeName = 'jets'
+athAlgSeq += treeFiller
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
