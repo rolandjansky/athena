@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_CLASS_DEF_H
@@ -12,14 +12,14 @@
  */
 
 #include "AthenaKernel/ClassID_traits.h"
-#include "CxxUtils/unused.h"
 #include "CxxUtils/checker_macros.h"
 #include <boost/preprocessor/stringize.hpp>
 
 #ifdef __CLING__
 # define CLIDREGISTRY_ADDENTRY(CID, NAME)                               \
   namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
+    [[maybe_unused]]                                                    \
+    const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry(CID, typeid(NAME),                         \
                                   ClassID_traits< NAME >::typeNameString(), \
 				  ClassID_traits< NAME >::packageInfo(), \
@@ -27,7 +27,8 @@
   } 
 # define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
   namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
+    [[maybe_unused]]                                                    \
+    const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry                                            \
       (CID, typeid(ARG1,ARG2),                                          \
        ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
@@ -37,7 +38,8 @@
 #else
 # define CLIDREGISTRY_ADDENTRY(CID, NAME)                               \
   namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
+    [[maybe_unused]]                                                    \
+    const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry<CID>(typeid(NAME),                         \
                                   ClassID_traits< NAME >::typeNameString(), \
 				  ClassID_traits< NAME >::packageInfo(), \
@@ -45,7 +47,8 @@
   } 
 # define CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)                        \
   namespace detail {							\
-    const bool UNUSED(clidEntry_ ## CID) =                              \
+    [[maybe_unused]]                                                    \
+    const bool clidEntry_ ## CID =                                      \
       CLIDRegistry::addEntry<CID>                                       \
       (typeid(ARG1,ARG2),                                               \
        ClassID_traits< ARG1,ARG2 >::typeNameString(),                   \
