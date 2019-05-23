@@ -67,13 +67,17 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   
   /** For bookkeeping of decoded ROBs */
-  mutable std::set<uint32_t> m_robIDSet ATLAS_THREAD_SAFE {};
+  mutable std::vector<std::set<uint32_t>> m_robIDSet ATLAS_THREAD_SAFE {};
+  /** Cache to store events for slots */
+  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE {};
 
   /** Number of decode errors encountered in decoding. 
       Turning off error message after 100 errors are counted */
   mutable std::atomic_int m_decodeErrCount{0};
 
   mutable std::mutex m_mutex{};
+
+  std::set<uint32_t>& getRobIDSet(const EventContext& ctx) const;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H

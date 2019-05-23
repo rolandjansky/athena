@@ -38,7 +38,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   
   StatusCode sc{StatusCode::SUCCESS};
 
-  std::lock_guard<std::mutex> lock(m_mutex);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  std::set<uint32_t>& robIDSet{getRobIDSet(ctx)};
 
   // loop over the ROB fragments
 
@@ -48,7 +49,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     // get the ID of this ROB/ROD
     uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
-    if (m_robIDSet.count(robid) or tmpROBIDSet.count(robid)) {
+    if (robIDSet.count(robid) or tmpROBIDSet.count(robid)) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
                     << std::hex<<robid << std::dec
                     << " already decoded, skip");
@@ -72,7 +73,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     }
   }
 
-  m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
+  robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
 
   if (sc == StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");
@@ -86,7 +87,31 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 
 void SCTRawDataProviderTool::beginNewEvent() const 
 {
-  // reset list of known robIDs
-  std::lock_guard<std::mutex> lock(m_mutex);
-  m_robIDSet.clear();
+  // reset list of known robIDs by calling getRobIDSet
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  getRobIDSet(ctx);
+}
+
+std::set<uint32_t>& SCTRawDataProviderTool::getRobIDSet(const EventContext& ctx) const {
+  std::lock_guard<std::mutex> lock{m_mutex};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+
+  if (slot<m_cache.size() and m_cache[slot]==evt) {
+    // Cache is valid
+    return m_robIDSet[slot];
+  }
+
+  // Expand cache if necessary
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};  
+  if (slot>=m_cache.size()) {
+    m_cache.resize(slot+1, invalidValue);
+    m_robIDSet.resize(slot+1);
+  }
+
+  // Set event number and clear cache for the new event
+  m_cache[slot] = evt;
+  m_robIDSet[slot].clear();
+
+  return m_robIDSet[slot];
 }
