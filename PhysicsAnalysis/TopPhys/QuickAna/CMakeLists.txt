@@ -203,4 +203,5 @@ endif()
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.conf )
+atlas_install_data( share/*.C )
 atlas_install_scripts( scripts/* )
