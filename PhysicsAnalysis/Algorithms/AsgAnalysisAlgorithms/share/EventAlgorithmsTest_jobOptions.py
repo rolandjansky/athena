@@ -39,8 +39,8 @@ eventSelectionSequence = \
 algSeq += eventSelectionSequence
 
 # Set up an ntuple to check the job with:
-treeMaker = CfgMgr.CP__TreeMakerAlg( 'TreeMaker' )
-treeMaker.TreeName = 'muons'
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'events'
 algSeq += treeMaker
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'events'
@@ -50,8 +50,8 @@ ntupleMaker.Branches = [
 ]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
-treeFiller = CfgMgr.CP__TreeFillerAlg( 'TreeFiller' )
-treeFiller.TreeName = 'muons'
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'events'
 algSeq += treeFiller
 
 # For debugging.
