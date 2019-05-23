@@ -34,6 +34,8 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
 
     def __init__(self,name='MuPatCandidateTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
+        if not muonRecFlags.doCSCs():
+            kwargs["CscRotCreator"] = ""
         super(MuPatCandidateTool,self).__init__(name,**kwargs)
 MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
         
@@ -46,13 +48,13 @@ class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         if not muonRecFlags.doCSCs():
             # overwrite whatever is set
-            kwargs["CscRotCreator"] = None
+            kwargs["CscRotCreator"] = ""
         super(MuPatHitTool,self).__init__(name,**kwargs)
         getPublicTool("ResidualPullCalculator")
 
 
 MuPatHitTool.setDefaultProperties(
-    CscRotCreator = "FixedErrorMuonClusterOnTrackCreator" ,
+    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""),
     MdtRotCreator = "MdtDriftCircleOnTrackCreatorPreFit" )
 # end of class MuPatHitTool
 

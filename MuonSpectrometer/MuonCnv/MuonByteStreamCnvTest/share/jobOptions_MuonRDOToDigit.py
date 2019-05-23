@@ -2,6 +2,8 @@ include.block ("MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py")
 
 from AthenaCommon.CfgGetter import getPublicTool
 
+from MuonRecExample.MuonRecFlags import muonRecFlags
+
 ## configure the tool
 
 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
@@ -9,9 +11,9 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          DecodeMdtRDO = True,
                          DecodeRpcRDO = True,
                          DecodeTgcRDO = True,
-                         DecodeCscRDO = True ) 
+                         DecodeCscRDO = muonRecFlags.doCSCs() )
 			 
-MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
+if muonRecFlags.doCSCs(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
 
 ToolSvc += MuonRdoToMuonDigitTool
 

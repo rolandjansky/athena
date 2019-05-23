@@ -36,6 +36,7 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
   m_numClusterShape(0),
   m_numJet(0),
   m_direction(0),
+  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
   declareProperty("cscSegmentContainerKey", m_cscSegmentContainerKey="NCB_MuonSegments");
@@ -89,13 +90,15 @@ StatusCode BeamBackgroundFiller::initialize() {
 //------------------------------------------------------------------------------
 StatusCode BeamBackgroundFiller::execute() {
 
-  p_cscSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_cscSegmentContainerKey);
-  if(!p_cscSegmentContainer ) {
-    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_cscSegmentContainerKey << endreq;
-    return StatusCode::SUCCESS;
-  }
-  else {
-    ATH_MSG_DEBUG( m_cscSegmentContainerKey << " retrieved from StoreGate");
+  if (!m_cscSegmentContainerKey.empty()) {
+      p_cscSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_cscSegmentContainerKey);
+      if(!p_cscSegmentContainer ) {
+        msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_cscSegmentContainerKey << endreq;
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_DEBUG( m_cscSegmentContainerKey << " retrieved from StoreGate");
+      }
   }
 
   p_mdtSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_mdtSegmentContainerKey);
@@ -174,28 +177,30 @@ void BeamBackgroundFiller::FillMatchMatrix()
   m_matchMatrix.clear();
   m_resultClus.clear();
 
-  // select only the CSC segments with the global direction parallel to the beam pipe
-  for(unsigned int i=0; i<p_cscSegmentContainer->size(); i++) {
-    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_cscSegmentContainer->at(i));
-    if (!seg) std::abort();
+  if (p_cscSegmentContainer) {
+      // select only the CSC segments with the global direction parallel to the beam pipe
+      for(unsigned int i=0; i<p_cscSegmentContainer->size(); i++) {
+        const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_cscSegmentContainer->at(i));
+        if (!seg) std::abort();
 
-    Identifier id = m_helperTool->chamberId(*seg);
-    if ( !id.is_valid() ) continue;
-    if ( !m_idHelperTool->isMuon(id) ) continue;
+        Identifier id = m_helperTool->chamberId(*seg);
+        if ( !id.is_valid() ) continue;
+        if ( !m_idHelperTool->isMuon(id) ) continue;
 
-    if ( !m_idHelperTool->isCsc(id) ) continue;
+        if ( !m_idHelperTool->isCsc(id) ) continue;
 
-    const Amg::Vector3D& globalPos = seg->globalPosition();
-    const Amg::Vector3D& globalDir = seg->globalDirection();
-    double thetaPos = globalPos.theta();
-    double thetaDir = globalDir.theta();
+        const Amg::Vector3D& globalPos = seg->globalPosition();
+        const Amg::Vector3D& globalDir = seg->globalDirection();
+        double thetaPos = globalPos.theta();
+        double thetaDir = globalDir.theta();
 
-    double d2r = TMath::Pi()/180.;
-    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
-    
-    ElementLink<Trk::SegmentCollection> segLink;
-    segLink.toIndexedElement(*p_cscSegmentContainer, i);
-    m_indexSeg.push_back(segLink);
+        double d2r = TMath::Pi()/180.;
+        if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
+
+        ElementLink<Trk::SegmentCollection> segLink;
+        segLink.toIndexedElement(*p_cscSegmentContainer, i);
+        m_indexSeg.push_back(segLink);
+      }
   }
   
   // select only the MDT segments with the global direction parallel to the beam pipe

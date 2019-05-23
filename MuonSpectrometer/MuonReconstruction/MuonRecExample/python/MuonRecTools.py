@@ -243,7 +243,7 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
 # end of class MuonEDMPrinterTool
 
 
-def MuonTrackSummaryHelper(name="MuonTrackSummaryHelper",**kwargs):
+def MuonTrackSummaryHelperTool(name="MuonTrackSummaryHelperTool",**kwargs):
     AtlasTrackingGeometrySvc = getService("AtlasTrackingGeometrySvc")
     kwargs.setdefault("TrackingGeometryName", AtlasTrackingGeometrySvc.TrackingGeometryName)
     kwargs.setdefault("DoHolesOnTrack", False)
@@ -261,7 +261,7 @@ class MuonTrackSummaryTool(Trk__TrackSummaryTool,ConfiguredBase):
 
     def __init__(self,name="MuonTrackSummaryTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelper" )
+        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelperTool" )
         kwargs.setdefault("doSharedHits", False )
         kwargs.setdefault("AddDetailedMuonSummary", True )
         super(MuonTrackSummaryTool,self).__init__(name,**kwargs)
@@ -429,8 +429,9 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
     getPublicTool("MuonEDMPrinterTool")
     getPublicTool("MuonSegmentMomentum")
     getPublicTool("MuonClusterOnTrackCreator")
-    getPublicTool("CscClusterOnTrackCreator")
-    getPublicTool("CscBroadClusterOnTrackCreator")
+    if muonRecFlags.doCSCs():
+        getPublicTool("CscClusterOnTrackCreator")
+        getPublicTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")
     getPublicTool("MdtTubeHitOnTrackCreator")
         

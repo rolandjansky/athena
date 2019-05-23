@@ -131,7 +131,7 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col] )
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], UseCSC=muonRecFlags.doCSCs())
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "Truth",
                                           OutputName             = col + "Truth") 

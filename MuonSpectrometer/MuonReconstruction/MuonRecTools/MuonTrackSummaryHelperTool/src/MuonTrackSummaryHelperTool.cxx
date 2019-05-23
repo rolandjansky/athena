@@ -73,6 +73,7 @@ Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
   declareProperty("MdtPrepDataContainer", m_mdtKey="MDT_DriftCircles");
   declareProperty("HoleOnTrackTool", m_muonTgTool);	
   declareProperty("TrackingGeometryName", m_trackingGeometryName);
+  declareProperty("UseCSC", m_useCSC=true);
 }
 
 Muon::MuonTrackSummaryHelperTool::~MuonTrackSummaryHelperTool()
@@ -115,12 +116,14 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
       muonOkay=false;
     }
 
+  if (m_useCSC) {
   sc = detStore()->retrieve(m_cscId);
-  if (sc.isFailure())
+    if (sc.isFailure())
     {
       msg (MSG::WARNING) << "Could not get CSC ID helper !" << endmsg;
       muonOkay=false;
     }
+  } else m_cscId = nullptr;
 
   sc = detStore()->retrieve(m_mdtId);
   if (sc.isFailure())
@@ -208,7 +211,7 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   if(m_rpcId->is_rpc(id)){
     if( m_rpcId->measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
     else                           increment(information[numberOfRpcEtaHits]);
-  }else if(m_cscId->is_csc(id)){
+  }else if(m_cscId && m_cscId->is_csc(id)){
     if( m_cscId->measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
     else  {                         
       increment(information[numberOfCscEtaHits]);
@@ -321,7 +324,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
 	  if(m_rpcId->is_rpc(id)){
 	    if( m_rpcId->measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
 	    else                           increment(information[Trk::numberOfRpcEtaHoles]);
-	  }else if(m_cscId->is_csc(id)){
+	  }else if(m_cscId && m_cscId->is_csc(id)){
 	    if( m_cscId->measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
 	    else                           increment(information[Trk::numberOfCscEtaHoles]);
 	  }else if(m_tgcId->is_tgc(id)){

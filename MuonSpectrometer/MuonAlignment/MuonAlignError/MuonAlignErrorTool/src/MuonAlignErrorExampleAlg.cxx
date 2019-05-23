@@ -17,8 +17,8 @@ MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISv
   m_debug(0),
   m_cham_per_dev(0),
   m_dev_per_track(0),
-  m_idHelperTool("Muon::MuonIdHelperTool"),
-  m_idTool("MuonCalib::IdToFixedIdTool")
+  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+  m_idTool("MuonCalib::IdToFixedIdTool/IdToFixedIdTool")
 {
   declareProperty("alignErrorTool", m_alignErrorTool);
   declareProperty("muonIdHelperTool", m_idHelperTool);

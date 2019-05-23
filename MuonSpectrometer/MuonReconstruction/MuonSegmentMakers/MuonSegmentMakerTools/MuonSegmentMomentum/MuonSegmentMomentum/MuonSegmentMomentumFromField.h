@@ -62,6 +62,7 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
   const CscIdHelper*                  m_cscid;
   const sTgcIdHelper*                  m_stgcid;
   bool m_doOld;
+  bool m_useCSC;
 };
 
 #endif // MuonSegmentMomentumFromField_H
