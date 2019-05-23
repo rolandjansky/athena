@@ -59,16 +59,11 @@ ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
 
     declareProperty("DeltaTCut", m_deltaTCut = 25);
     declareProperty("ChisqRatioCut", m_ChisqRatioCut = 10);
-
-    //ATH_MSG_INFO("Creating ZdcAnalysisoTool named " << m_name);
-    //ATH_MSG_INFO("ZDC config file path " << m_zdcAnalysisConfigPath);
-
 }
 
 ZdcAnalysisTool::~ZdcAnalysisTool()
 {
     ATH_MSG_DEBUG("Deleting ZdcAnalysisTool named " << m_name);
-    //SafeDelete( m_zdcDataAnalyzer );
 }
 
 void ZdcAnalysisTool::initializeTriggerEffs(unsigned int runNumber)
@@ -298,8 +293,6 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
         }
     }
 
-    //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
-
     ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
@@ -398,7 +391,6 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
     //
-    //zdcDataAnalyzer->DisableModule(0,0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
     zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
@@ -406,11 +398,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     // We allow the combineDelay to be controlled by the properties
     //
-    //  if (m_combineDelay) {
     m_combineDelay = true;
     ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
-
-    //zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
 
     //  We use per-module delays to handle the delayed-undelayed swap on EMC
     //
@@ -421,11 +410,6 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
-
-    //    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
-    //  }
-
-    //zdcDataAnalyzer->SetDebugLevel(4); // temporary
 
     return zdcDataAnalyzer;
 }
@@ -883,9 +867,6 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 
         int side = (zdcModule->side() == -1) ? 0 : 1 ;
 
-        //std::cout << "LG: ";for (int i = 0;i<7;i++){std::cout<<LGADCSamples.at(i)<< " ";};std::cout<<std::endl;
-        //std::cout << "HG: ";for (int i = 0;i<7;i++){std::cout<<HGADCSamples.at(i)<< " ";};std::cout<<std::endl;
-
         if (!m_combineDelay) {
             m_zdcDataAnalyzer->LoadAndAnalyzeData(side, zdcModule->zdcModule(), HGUndelADCSamples, LGUndelADCSamples);
         }
@@ -903,19 +884,6 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
             m_zdcDataAnalyzer->LoadAndAnalyzeData(side, zdcModule->zdcModule(),
                                                   HGUndelADCSamples, LGUndelADCSamples,
                                                   HGDelayADCSamples, LGDelayADCSamples);
-
-            /*
-            if (m_delayDeltaT > 0) {
-            m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),
-                              HGUndelADCSamples, LGUndelADCSamples,
-                              HGDelayADCSamples, LGDelayADCSamples);
-            }
-            else {
-            m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),
-                              HGDelayADCSamples, LGDelayADCSamples,
-                              HGUndelADCSamples, LGUndelADCSamples);
-            }
-            */
         }
     }
 
@@ -966,9 +934,6 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 
     // Record sum objects
 
-    //xAOD::ZdcModuleContainer* newModuleContainer = new xAOD::ZdcModuleContainer();
-    //xAOD::ZdcModuleAuxContainer* newModuleAuxContainer = new xAOD::ZdcModuleAuxContainer() ;
-
     std::unique_ptr<xAOD::ZdcModuleContainer> newModuleContainer( new xAOD::ZdcModuleContainer() );
     std::unique_ptr<xAOD::ZdcModuleAuxContainer> newModuleAuxContainer( new xAOD::ZdcModuleAuxContainer() );
 
@@ -991,7 +956,6 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
         zdc_sum->auxdecor<float>("UncalibSumErr") = uncalibSumErr;
 
         float finalEnergy = calibEnergy;
-        //if (iside==0) finalEnergy = finalEnergy*(1 + 7e-7 * finalEnergy); // nonlinear correction for side C
 
         zdc_sum->auxdecor<float>("FinalEnergy") = finalEnergy;
         zdc_sum->auxdecor<float>("AverageTime") = getAverageTime(iside);
@@ -999,7 +963,6 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
         zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask() >> (4 * iside)) & 0xF;
     }
 
-    //ATH_MSG_INFO("Recording sums called ZdcSums" << m_auxSuffix);
     ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums" + m_auxSuffix) ) ;
     ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSums"  + m_auxSuffix + "Aux.") );
 
@@ -1010,11 +973,6 @@ void ZdcAnalysisTool::setEnergyCalibrations(unsigned int runNumber)
 {
 
     char name[128];
-    /*
-      sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcEnergyCalibFileName.c_str());
-      ATH_MSG_INFO("Opening energy calibration file " << name);
-      std::unique_ptr<TFile> fCalib (TFile::Open(name, "READ"));
-    */
 
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/" + m_zdcEnergyCalibFileName).c_str() );
     ATH_MSG_INFO("Opening energy calibration file " << filename);
@@ -1061,7 +1019,6 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
 {
     char name[128];
     std::string filename = PathResolverFindCalibFile( "ZdcAnalysis/" + m_zdcTimeCalibFileName );
-    //sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
     ATH_MSG_INFO("Opening time calibration file " << filename);
     std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str(), "READ"));
 
@@ -1095,7 +1052,6 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
                 {
                     ATH_MSG_WARNING("No time calib. spline " << name);
                 }
-                // T0LGOffsetSplines[iside][imod] = spline;
             }
         }
         m_zdcDataAnalyzer->LoadT0Calibrations(std::move (T0HGOffsetSplines), std::move (T0LGOffsetSplines));
@@ -1172,56 +1128,6 @@ float ZdcAnalysisTool::getModuleSum(int side)
     if (!m_zdcDataAnalyzer) return 0;
     return m_zdcDataAnalyzer->GetModuleSum(side);
 }
-
-/*
-  float ZdcAnalysisTool::getModuleAmplitude(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetPulseAnalyzer(side,mod)->GetAmplitude();
-  }
-
-  float ZdcAnalysisTool::getModuleFitAmplitude(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetPulseAnalyzer(side,mod)->GetFitAmplitude();
-  }
-
-  float ZdcAnalysisTool::getModuleFitT0(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetPulseAnalyzer(side,mod)->GetFitT0();
-  }
-
-  float ZdcAnalysisTool::getModuleTime(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetModuleTime(side,mod);
-  }
-
-  float ZdcAnalysisTool::getModuleCalibAmplitude(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod);
-  }
-
-  float ZdcAnalysisTool::getModuleCalibTime(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetModuleCalibTime(side,mod);
-  }
-
-  float ZdcAnalysisTool::getModuleStatus(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetModuleStatus(side,mod);
-  }
-
-  float ZdcAnalysisTool::getModuleChisq(int side, int mod)
-  {
-  if (!m_zdcDataAnalyzer) return 0;
-  return m_zdcDataAnalyzer->GetModuleChisq(side,mod);
-  }
-*/
 
 float ZdcAnalysisTool::getCalibModuleSum(int side)
 {

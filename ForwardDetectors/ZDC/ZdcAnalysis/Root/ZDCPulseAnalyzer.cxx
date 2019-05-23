@@ -787,7 +787,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
 
   if (m_prePulse) {
     // If we have a prepulse, find the smallest 2nd derivative
-    // if (m_minSampleEvt <= (int) (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)) {  // ???
+    //
     SampleCIter minPreDeriv2ndIter = std::min_element(m_samplesDeriv2nd.begin() + m_minSampleEvt,
                                      m_samplesDeriv2nd.begin() + loopLimit + 1);
 
@@ -984,15 +984,11 @@ void ZDCPulseAnalyzer::DoFitCombined()
     if (m_prePulseCombinedFitter) delete m_prePulseCombinedFitter;
     m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1());
 
-    // else UpdateFitterTimeLimits(m_prePulseCombinedFitter, fitWrapper, true);
-
     theFitter = m_prePulseCombinedFitter;
   }
   else {
     if (m_defaultCombinedFitter) delete m_defaultCombinedFitter;
     m_defaultCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1());
-
-    // else UpdateFitterTimeLimits(m_defaultCombinedFitter, fitWrapper, false);
 
     theFitter = m_defaultCombinedFitter;
   }

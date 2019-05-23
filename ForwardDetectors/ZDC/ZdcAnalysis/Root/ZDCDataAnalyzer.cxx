@@ -362,17 +362,6 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
 
   (*m_msgFunc_p)(ZDCMsg::Verbose, ("Loading undelayed and delayed data for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) +  ", " + std::to_string(module)));
 
-  // if (msgLvl (MSG::VERBOSE)) {
-  //   ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
-  //   for (size_t sample = 0; sample < HGSamples.size(); sample++) {
-  //     ANA_MSG_VERBOSE ("HGSample[" << sample << "] = " << HGSamples[sample]);
-  //   }
-
-  //   for (size_t sample = 0; sample < HGSamples.size(); sample++) {
-  //     ANA_MSG_VERBOSE ("HGSampleDelayed[" << sample << "] = " << HGSamplesDelayed[sample]);
-  //   }
-  // }
-
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
   bool result = false;

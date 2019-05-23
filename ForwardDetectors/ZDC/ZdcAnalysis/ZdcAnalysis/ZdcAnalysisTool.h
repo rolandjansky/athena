@@ -88,7 +88,6 @@ public:
 
     if (level <= (unsigned int) _debugLevel) {
       if (message != "") std::cout << message << std::endl;
-      // if (message != "") ATH_MSG_INFO(message);
       return true;
     }
     else return false;
