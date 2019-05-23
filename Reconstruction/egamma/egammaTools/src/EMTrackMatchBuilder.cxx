@@ -114,7 +114,8 @@ StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, egammaRec* e
 }
 
 // ===============================================================
-StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec* eg, const xAOD::TrackParticleContainer*    trackPC) const
+StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec* eg, 
+                                             const xAOD::TrackParticleContainer* trackPC) const
 {
   if (!eg || !trackPC)
   {
@@ -139,12 +140,21 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
   {
     bool isTRT = (xAOD::EgammaHelpers::numberOfSiHits(*trkIt) < 4);
 
-    if (!(isCandidateMatch(cluster, isTRT, (*trkIt), false ) &&
-          inBroadWindow(ctx, trkMatches, cluster, trackNumber, isTRT, (*trkIt), Trk::alongMomentum)) && m_isCosmics)
-    {
-      // Second chance for cosmics, flip eta and phi
+    if(isTRT){
+      continue;
+    }
+
+    if(!m_isCosmics){
+      if (isCandidateMatch(cluster, isTRT, (*trkIt), false)){
+        inBroadWindow(ctx, trkMatches, *cluster, trackNumber, 
+                      isTRT, (**trkIt), Trk::alongMomentum);
+      }
+    }
+    else{
+      // For cosmics, flip eta and phi
       if (isCandidateMatch(cluster, isTRT, (*trkIt), true))
-        inBroadWindow(ctx, trkMatches, cluster,  trackNumber, isTRT,  (*trkIt), Trk::oppositeMomentum);
+        inBroadWindow(ctx, trkMatches, *cluster,  trackNumber, 
+                      isTRT,  (**trkIt), Trk::oppositeMomentum);
     }
   }
 
@@ -152,7 +162,6 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
   {
     //sort the track matches
     std::sort(trkMatches.begin(), trkMatches.end(), TrackMatchSorter);
-
 
     //set the matching values
     TrackMatch bestTrkMatch=trkMatches.at(0);
@@ -188,21 +197,23 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
   return StatusCode::SUCCESS;
 }
 
-// =================================================================
 bool
 EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                                    std::vector<TrackMatch>& trackMatches,
-                                   const xAOD::CaloCluster*   cluster, 
-                                   int                  trackNumber,
-                                   bool                 trkTRT,
-                                   const xAOD::TrackParticle* trkPB,
+                                   const xAOD::CaloCluster&   cluster, 
+                                   int                        trackNumber,
+                                   bool                       trkTRT,
+                                   const xAOD::TrackParticle& trkPB,
                                    const Trk::PropDirection dir) const
 {
-  // make position match between cluster and TrackParameters at LAr calorimeter 
-  // 
-
-  // protection against bad pointers
-  if (cluster==0 || trkPB==0) return false;
+  /* 
+   * If it is TRT do nothing.
+   * If it is silicon we always do both Rescale 
+   * and Standard and then we decide
+   */
+  if(trkTRT){
+    return false;
+  } 
 
   IEMExtrapolationTools::TrkExtrapDef extrapFrom;
   if (m_useLastMeasurement) {
@@ -229,90 +240,75 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::vector<double>  deltaEtaRes(4, -999.0);
   std::vector<double>  deltaPhiRes(4, -999.0); 
   ATH_MSG_DEBUG("### Matching #### ");  
-  
-  /* 
-   * If it is TRT we can determine immediately if it failed
-   * or not (we use matches at calo)
-   * If it is silicon we always do both Rescale 
-   * and Standard and then we decide
+
+
+  /*
+   * Try both extrapFrom and extrapFrom1
+   * Typically this is once from perigee
+   * and once from perigee Rescale
+   * */
+  if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                           &cluster, 
+                                           &trkPB, 
+                                           trkTRT,
+                                           dir, 
+                                           eta,
+                                           phi,
+                                           deltaEta, 
+                                           deltaPhi, 
+                                           extrapFrom).isFailure()) 
+  {
+    return false;
+  }
+  IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
+  std::vector<double>  eta1(4, -999.0);
+  std::vector<double>  phi1(4, -999.0);
+  if (m_extrapolationTool->getMatchAtCalo (ctx, 
+                                           &cluster, 
+                                           &trkPB, 
+                                           trkTRT,
+                                           dir, 
+                                           eta1,
+                                           phi1,
+                                           deltaEtaRes, 
+                                           deltaPhiRes, 
+                                           extrapFrom1).isFailure())
+  {
+    return false;
+  }
+
+  deltaPhiRescale = deltaPhiRes[2];
+  /*
+   * Sanity check for very far away matches 
    */
-  if(trkTRT){//TRTSA
-    if(!m_extrapolationTool->matchesAtCalo (ctx,
-                                            cluster, 
-                                            trkPB, 
-                                            trkTRT,
-                                            dir, 
-                                            eta,
-                                            phi,
-                                            deltaEta, 
-                                            deltaPhi, 
-                                            extrapFrom)) {
-      ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<", No Rescale attempted, isTRTSA = " <<trkTRT);
-      return false;
-    }
-  } //end if is TRTSA
-  else{//Silicon tracks
-    if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                             cluster, 
-                                             trkPB, 
-                                             trkTRT,
-                                             dir, 
-                                             eta,
-                                             phi,
-                                             deltaEta, 
-                                             deltaPhi, 
-                                             extrapFrom).isFailure()) 
-    {
-      if (m_useLastMeasurement) ATH_MSG_DEBUG("Extrapolation from last measurement failed");
-      else ATH_MSG_DEBUG("Extrapolation from perigee failed");
-      return false;
-    }
-    //=======================================================================================///
-    //Calculate both always std and rescale
-    IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
-    std::vector<double>  eta1(4, -999.0);
-    std::vector<double>  phi1(4, -999.0);
-    if (m_extrapolationTool->getMatchAtCalo (ctx, 
-                                             cluster, 
-                                             trkPB, 
-                                             trkTRT,
-                                             dir, 
-                                             eta1,
-                                             phi1,
-                                             deltaEtaRes, 
-                                             deltaPhiRes, 
-                                             extrapFrom1).isFailure())
-    {
-      ATH_MSG_DEBUG("Extrapolation from rescaled perigee failed");
-      return false;
-    }
+  if(fabs(deltaPhiRes[2]) > m_MaxDeltaPhiRescale){
+    ATH_MSG_DEBUG("DeltaPhiRescaled above maximum: " << deltaPhiRes[2] << 
+                  " (max: " << m_MaxDeltaPhiRescale << ")" );
+    return false;
+  }
+  /*
+   * Try to match : First std , then rescale, else failure
+   */ 
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta &&
+     deltaPhi[2] < m_narrowDeltaPhi && 
+     deltaPhi[2] > -m_narrowDeltaPhiBrem){
+    ATH_MSG_DEBUG("Matched with Perigee") ;
+  }
+  else if(m_SecondPassRescale && 
+          fabs(deltaEtaRes[2]) < m_narrowDeltaEta &&
+          deltaPhiRes[2] < m_narrowDeltaPhiRescale 
+          && deltaPhiRes[2] > -m_narrowDeltaPhiRescaleBrem){
+    ATH_MSG_DEBUG("Not Perigee but matched with Rescale") ;
+  }
+  else{
+    ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<", No Rescale attempted, isTRTSA = " <<trkTRT);
+    ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " << deltaPhiRes[2] <<" / "<< deltaEtaRes[2] );
+    return false;
+  }
 
-    ATH_MSG_DEBUG("Done with extrapolations");
-
-    deltaPhiRescale = deltaPhiRes[2];
-    //Try to match : First std , then rescale, else failure 
-    if(fabs(deltaEta[2]) < m_narrowDeltaEta &&deltaPhi[2] < m_narrowDeltaPhi && deltaPhi[2] > -m_narrowDeltaPhiBrem){
-      ATH_MSG_DEBUG("Matched with Perigee") ;
-    }
-    else if(m_SecondPassRescale && fabs(deltaEtaRes[2]) < m_narrowDeltaEta &&deltaPhiRes[2] < m_narrowDeltaPhiRescale && deltaPhiRes[2] > -m_narrowDeltaPhiRescaleBrem){
-      ATH_MSG_DEBUG("Not Perigee but matched with Rescale") ;
-    }
-    else{
-      ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<", No Rescale attempted, isTRTSA = " <<trkTRT);
-      ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " << deltaPhiRes[2] <<" / "<< deltaEtaRes[2] );
-      return false;
-    }
-    if(fabs(deltaPhiRes[2]) > m_MaxDeltaPhiRescale)
-    {
-      ATH_MSG_DEBUG("DeltaPhiRescaled above maximum: " << deltaPhiRes[2] << 
-                    " (max: " << m_MaxDeltaPhiRescale << ")" );
-      return false;
-    }
-  } //end if is silicon
-
-  /*In case of extrapolation from 
+  /* In case of extrapolation from 
    * perigee keep the dPhi from the last measurement
-   * This means for success we do another extrapolation
+   * This means we do another extrapolation
    * from last
    */
   if (!m_useLastMeasurement ) {  
@@ -322,8 +318,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(4, -999.0);
     if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                             cluster, 
-                                             trkPB, 
+                                             &cluster, 
+                                             &trkPB, 
                                              trkTRT,
                                              dir, 
                                              eta1,
@@ -335,7 +331,6 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
       ATH_MSG_DEBUG("Extrapolation from last measurement failed");
       return false;
     }
-
     //Always the deltaPhiLast will be from the last measurement
     deltaPhiLast = deltaPhi1[2];
   }
@@ -344,11 +339,12 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
     deltaPhiLast = deltaPhi[2];
   }
   ATH_MSG_DEBUG("Rescale dPhi " << deltaPhiRescale);
-  ATH_MSG_DEBUG("dPhi Last measurement " << deltaPhiLast);     
-
-  //Create Track Match struct here
+  ATH_MSG_DEBUG("dPhi Last measurement " << deltaPhiLast);      
+  /*
+   * Done with extrapolation
+   * Lets do the matching logic
+   */
   TrackMatch trkmatch;
-
   //Add the matching variable to the TrackMAtch
   for(int i=0; i<4 ;++i){
     trkmatch.deltaEta[i]=deltaEta.at(i); 
@@ -357,7 +353,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   }  
   trkmatch.deltaPhiLast=deltaPhiLast; 
 
-  //Variables used for the sorting. Note both dPhi will be used.
+  //Variables used for the sorting. Note both dPhi's will be used.
   trkmatch.isTRT=trkTRT;
   trkmatch.trackNumber=trackNumber;
   if (!trkTRT) {
@@ -376,73 +372,64 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
     trkmatch.seconddR = -999;
     ATH_MSG_DEBUG("TRTSA = " << trkTRT << " DPhi " << trkmatch.dR <<" deltaPhi " << deltaPhi[2]);   
   }
-
-  //Primary Score. The first thing to check in finding the best track match
+  /*
+   * Primary Score. 
+   * The first thing to check in 
+   * finding the best track match
+   * Prefer pixel over SCT only 
+   */
   trkmatch.score=0; 
-  /*Seconday score based on hits to be used for track that are very close 
-    to each other at the calo, pick the innermost possible one*/
-  trkmatch.hitsScore=0;
-
-  if(!trkTRT){  //10 primary points if it is not TRT ==> TRT-only are the weakest candidates ==> score =0
-
-    trkmatch.score+=10 ;   
-    if(m_useScoring){
-
-      int nPixel=0;
-      uint8_t uint8_value=0;
-
-      //Check number of pixel hits
-      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
-        nPixel+=uint8_value;
-      }
-      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
-        nPixel+=uint8_value;
-      }
-
-      //20 primary score points if it also have pixel hits
-      if (nPixel > 0)  {
-        trkmatch.score+=20;
-      }
-
-      //Check the 2 innermost layers
-      int nInnerMost =0;
-      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfInnermostPixelLayerHits)){
-        nInnerMost+=uint8_value;
-      }
-      int expectInnermostPixelLayerHit = 0; 
-      if (trkPB->summaryValue(uint8_value,  xAOD::expectInnermostPixelLayerHit)){
-        expectInnermostPixelLayerHit+=uint8_value;
-      }
-      int nNextToInnerMost =0;
-      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfNextToInnermostPixelLayerHits)){
-        nNextToInnerMost+=uint8_value;
-      }
-      int expectNextToInnermostPixelLayerHit = 0; 
-      if (trkPB->summaryValue(uint8_value,  xAOD::expectNextToInnermostPixelLayerHit)){
-        expectNextToInnermostPixelLayerHit+=uint8_value;
-      }
-
-      //Secondary score , find the longest track possible, 
-      //i.e the one with the most inner hists  in the pixel 
-      //npixel*5 
-      trkmatch.hitsScore+=(nPixel*5);
-      //Extra points for NextToInnermost
-      if(!expectNextToInnermostPixelLayerHit ||  nNextToInnerMost>0){
-        trkmatch.hitsScore+=5;
-      }
-      //Extra points for Innermost
-      if(!expectInnermostPixelLayerHit ||  nInnerMost>0){
-        trkmatch.hitsScore+=10;
-      }
-
-      ATH_MSG_DEBUG("Pixel hits : " <<nPixel 
-                    <<" InnerMost : " << nInnerMost
-                    <<" Expected InnerMost : " << expectInnermostPixelLayerHit
-                    <<" NextToInnerMost : " << nNextToInnerMost
-                    <<" Expected NextToInnerMost : " << expectNextToInnermostPixelLayerHit);   
-
-    }  
+  int nPixel=0;
+  uint8_t uint8_value=0;
+  //Check number of pixel hits
+  if (trkPB.summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
+    nPixel+=uint8_value;
   }
+  if (trkPB.summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
+    nPixel+=uint8_value;
+  }
+  if (nPixel > 0)  {
+    trkmatch.score+=1;
+  }
+  /*
+   * Seconday score based on hits to be used 
+   * for track that are very close
+   * to each other at the calo, 
+   * pick the longest possible one
+   */
+  trkmatch.hitsScore=0;
+  if(m_useScoring){
+    //Check the 2 innermost layers
+    int nInnerMost =0;
+    if (trkPB.summaryValue(uint8_value,  xAOD::numberOfInnermostPixelLayerHits)){
+      nInnerMost+=uint8_value;
+    }
+    int expectInnermostPixelLayerHit = 0; 
+    if (trkPB.summaryValue(uint8_value,  xAOD::expectInnermostPixelLayerHit)){
+      expectInnermostPixelLayerHit+=uint8_value;
+    }
+    int nNextToInnerMost =0;
+    if (trkPB.summaryValue(uint8_value,  xAOD::numberOfNextToInnermostPixelLayerHits)){
+      nNextToInnerMost+=uint8_value;
+    }
+    int expectNextToInnermostPixelLayerHit = 0; 
+    if (trkPB.summaryValue(uint8_value,  xAOD::expectNextToInnermostPixelLayerHit)){
+      expectNextToInnermostPixelLayerHit+=uint8_value;
+    }
+
+    //Secondary score , find the longest track possible, 
+    //i.e the one with the most inner hists  in the pixel 
+    //npixel*5 
+    trkmatch.hitsScore+=(nPixel*5);
+    //Extra points for NextToInnermost
+    if(!expectNextToInnermostPixelLayerHit ||  nNextToInnerMost>0){
+      trkmatch.hitsScore+=5;
+    }
+    //Extra points for Innermost
+    if(!expectInnermostPixelLayerHit ||  nInnerMost>0){
+      trkmatch.hitsScore+=10;
+    }
+  }  
   ATH_MSG_DEBUG("Score : " <<trkmatch.score <<" hitsScore : " <<trkmatch.hitsScore);   
 
   trackMatches.push_back(trkmatch);
@@ -475,24 +462,29 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*        cluster,
     if(trkTRT){
       Et = cluster->et();
     }
-    //===========================================================//     
+    
     double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
     double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
     double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-    //===========================================================//     
+    
     double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
     double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
     double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
     double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
     double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
-    //===========================================================//     
+    
     //check eta match . Both metrics need to fail in order to disgard the track
-    if ( (!trkTRT) && (fabs(cluster->etaBE(2) - trkEta) > 2.*m_broadDeltaEta) && (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){
-      ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+    if ( (!trkTRT) && 
+         (fabs(cluster->etaBE(2) - trkEta) > 2.*m_broadDeltaEta) && 
+         (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){
+      ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
+                    << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
       return false;
     }
     //It has to fail all metrics in order to be disgarded
-    else if ( (fabs(deltaPhi2) > 2.*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
+    else if ( (fabs(deltaPhi2) > 2.*m_broadDeltaPhi) && 
+              (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && 
+              (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
       ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
       return false;
     }
@@ -503,9 +495,8 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*        cluster,
 }
 
 bool EMTrackMatchBuilder::TrackMatchSorter(const EMTrackMatchBuilder::TrackMatch& match1,
-					   const EMTrackMatchBuilder::TrackMatch& match2)
+                                           const EMTrackMatchBuilder::TrackMatch& match2)
 {
-
   if(match1.score!= match2.score) {//Higher score
     return match1.score>match2.score;
   }
@@ -515,13 +506,10 @@ bool EMTrackMatchBuilder::TrackMatchSorter(const EMTrackMatchBuilder::TrackMatch
     if(fabs(match1.seconddR-match2.seconddR)>1e-02 ){ //Can the second distance separate them?
       return match1.seconddR < match2.seconddR	;
     }
-
     if((match1.hitsScore!= match2.hitsScore)){ //use the one with more pixel
       return match1.hitsScore>match2.hitsScore;
     }
-
   }
-
   //closest DR
   return match1.dR < match2.dR	;
 }
