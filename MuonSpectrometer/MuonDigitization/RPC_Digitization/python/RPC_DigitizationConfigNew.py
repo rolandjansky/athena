@@ -85,8 +85,7 @@ def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 
 def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
@@ -106,7 +105,5 @@ def RPC_OverlayDigitizerCfg(flags, name="RPC_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 
