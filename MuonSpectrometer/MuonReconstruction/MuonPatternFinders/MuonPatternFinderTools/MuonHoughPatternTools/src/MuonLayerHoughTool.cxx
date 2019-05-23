@@ -251,8 +251,8 @@ namespace Muon {
 
 
     // create structure to hold data per sector and set the sector indices
-    state.houghDataPerSectorVec.resize(16);
-    for( unsigned int i=0;i<state.houghDataPerSectorVec.size();++i ) state.houghDataPerSectorVec[i].sector=i+1;
+    (*state.houghDataPerSectorVec).resize(16);
+    for( unsigned int i=0;i<(*state.houghDataPerSectorVec).size();++i ) (*state.houghDataPerSectorVec)[i].sector=i+1;
 
     // return DetectorRegionIndex and sectorLayerHash
     auto getHashes = [this]( const Identifier& id ){
@@ -267,7 +267,7 @@ namespace Muon {
       Identifier id = col->identify();
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
-      fill(state,*col,state.houghDataPerSectorVec[sector-1].hitVec[hashes.second]);
+      fill(state,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second]);
     }
 
     for( auto col : rpcCols ){
@@ -275,7 +275,7 @@ namespace Muon {
       Identifier id = col->identify();
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
-      fill(state,*col,state.houghDataPerSectorVec[sector-1].hitVec[hashes.second],state.houghDataPerSectorVec[sector-1].phiHitVec[hashes.first]);
+      fill(state,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],(*state.houghDataPerSectorVec)[sector-1].phiHitVec[hashes.first]);
     }
 
     auto hashInSector = [this]( IdentifierHash hash, int sector, unsigned int sectorLayerHash ) {
@@ -289,19 +289,19 @@ namespace Muon {
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
       // fill current sector
-      fill(state, *col,state.houghDataPerSectorVec[sector-1].hitVec[hashes.second],
-          state.houghDataPerSectorVec[sector-1].phiHitVec[hashes.first],sector);
+      fill(state, *col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],
+          (*state.houghDataPerSectorVec)[sector-1].phiHitVec[hashes.first],sector);
 
       // fill neighbours if in overlap
       int neighbourSectorDown = sector == 1 ? 16 : sector-1;
       if( hashInSector(col->identifyHash(),neighbourSectorDown,hashes.second) ) 
-        fill(state, *col,state.houghDataPerSectorVec[neighbourSectorDown-1].hitVec[hashes.second],
-             state.houghDataPerSectorVec[neighbourSectorDown-1].phiHitVec[hashes.first],neighbourSectorDown);
+        fill(state, *col,(*state.houghDataPerSectorVec)[neighbourSectorDown-1].hitVec[hashes.second],
+             (*state.houghDataPerSectorVec)[neighbourSectorDown-1].phiHitVec[hashes.first],neighbourSectorDown);
 
       int neighbourSectorUp   = sector == 16 ? 1 : sector+1;
       if( hashInSector(col->identifyHash(),neighbourSectorUp,hashes.second) ) 
-        fill(state, *col,state.houghDataPerSectorVec[neighbourSectorUp-1].hitVec[hashes.second],
-             state.houghDataPerSectorVec[neighbourSectorUp-1].phiHitVec[hashes.first],neighbourSectorUp);
+        fill(state, *col,(*state.houghDataPerSectorVec)[neighbourSectorUp-1].hitVec[hashes.second],
+             (*state.houghDataPerSectorVec)[neighbourSectorUp-1].phiHitVec[hashes.first],neighbourSectorUp);
       
     }
     
@@ -319,7 +319,7 @@ namespace Muon {
     ATH_MSG_DEBUG("MuonLayerHoughTool::analyse");
     if( m_doTruth ) getTruth();
 
-    state.houghDataPerSectorVec.resize(16);
+    (*state.houghDataPerSectorVec).resize(16);
 
     // loops over all sectors, contains hashes for technology and region and chamber (?)
     CollectionsPerSectorCit sit = m_collectionsPerSector.begin();
@@ -328,7 +328,7 @@ namespace Muon {
             
       ATH_MSG_DEBUG("analyse: Filling hits sector " << sit->sector);
 
-      HoughDataPerSector& houghData = state.houghDataPerSectorVec[sit->sector-1]; 
+      HoughDataPerSector& houghData = (*state.houghDataPerSectorVec)[sit->sector-1]; 
       houghData.sector = sit->sector;
 
       // fill hits for this sector -> hitsVec and PhiHitsVec are known now
@@ -343,7 +343,7 @@ namespace Muon {
     MuonPatternCombinationCollection* patternCombis = new MuonPatternCombinationCollection();
 
     // loop over data and fill the hough transform
-    for( auto& houghData : state.houghDataPerSectorVec ){
+    for( auto& houghData : (*state.houghDataPerSectorVec) ){
 
       ATH_MSG_DEBUG("analyse: Filling Hough sector " << houghData.sector);
 
@@ -416,8 +416,8 @@ namespace Muon {
     }
     else{
       // now that the full hough transform is filled, order sectors by maxima
-      std::vector<HoughDataPerSector*> sectorData(state.houghDataPerSectorVec.size());
-      for( unsigned int i=0;i<state.houghDataPerSectorVec.size();++i) sectorData[i] = &state.houghDataPerSectorVec[i];
+      std::vector<HoughDataPerSector*> sectorData((*state.houghDataPerSectorVec).size());
+      for( unsigned int i=0;i<(*state.houghDataPerSectorVec).size();++i) sectorData[i] = &(*state.houghDataPerSectorVec)[i];
       std::stable_sort(sectorData.begin(),sectorData.end(),SortHoughDataPerSector());
 
       std::vector<HoughDataPerSector*>::iterator spit = sectorData.begin();
@@ -439,7 +439,7 @@ namespace Muon {
                         << " layers with phi maxima " << houghData.nphilayersWithMaxima[region] << " hits " << houghData.nphimaxHitsInRegion[region] );
   
           // look for maxima in the overlap regions of sectors
-          associateMaximaInNeighbouringSectors(houghData,state.houghDataPerSectorVec);
+          associateMaximaInNeighbouringSectors(houghData,(*state.houghDataPerSectorVec));
 
           // layers in this region
           int nlayers = MuonStationIndex::LayerIndexMax;
@@ -459,7 +459,7 @@ namespace Muon {
     }
     
     if( m_ntuple ) {
-      fillNtuple(state.houghDataPerSectorVec);
+      fillNtuple((*state.houghDataPerSectorVec));
       m_tree->Fill();
     }
 
@@ -471,6 +471,10 @@ namespace Muon {
       ATH_MSG_DEBUG("Association performance ");
       printTruthSummary(state.foundTruthHits,state.outputTruthHits);
     }
+
+    // write hough data to SG
+    SG::WriteHandle<HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+    handle.record(std::move(state.houghDataPerSectorVec));
 
     return patternCombis;
   }
@@ -504,7 +508,7 @@ namespace Muon {
       bool isNSW=m_idHelper->issTgc(seed.hits[0]->prd->identify()) || m_idHelper->isMM(seed.hits[0]->prd->identify());
       // extend seed within the current sector
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
-      extendSeed( state, road, state.houghDataPerSectorVec[sector-1] );
+      extendSeed( state, road, (*state.houghDataPerSectorVec)[sector-1] );
 
       // look for maxima in the overlap regions of sectors
       int sectorN            = sector-1;
@@ -513,28 +517,28 @@ namespace Muon {
       if(sectorP>16) sectorP = 1;
 
       // associate the road with phi maxima
-      associatePhiMaxima( road, state.houghDataPerSectorVec[sector-1].phiMaxVec[region] );
+      associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sector-1].phiMaxVec[region] );
       //
       if(m_addSectors && isNSW) {
-        extendSeed(state, road, state.houghDataPerSectorVec[sectorN-1] );
-        associatePhiMaxima( road, state.houghDataPerSectorVec[sectorN-1].phiMaxVec[region] );
-        extendSeed(state, road, state.houghDataPerSectorVec[sectorP-1] );
-        associatePhiMaxima( road, state.houghDataPerSectorVec[sectorP-1].phiMaxVec[region] );
+        extendSeed(state, road, (*state.houghDataPerSectorVec)[sectorN-1] );
+        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sectorN-1].phiMaxVec[region] );
+        extendSeed(state, road, (*state.houghDataPerSectorVec)[sectorP-1] );
+        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sectorP-1].phiMaxVec[region] );
       }
 
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown ) {
-        associatePhiMaxima( road, state.houghDataPerSectorVec[sector-1].phiMaxVec[road.neighbouringRegion] );
+        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sector-1].phiMaxVec[road.neighbouringRegion] );
       }
       // if close to a sector boundary, try adding maxima in that sector as well
       if( road.neighbouringSector != -1 ) {
         ATH_MSG_DEBUG("  Adding neighbouring sector " << road.neighbouringSector );
-        extendSeed(state, road, state.houghDataPerSectorVec[road.neighbouringSector-1] );
-        associatePhiMaxima( road, state.houghDataPerSectorVec[road.neighbouringSector-1].phiMaxVec[region] );
+        extendSeed(state, road, (*state.houghDataPerSectorVec)[road.neighbouringSector-1] );
+        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[road.neighbouringSector-1].phiMaxVec[region] );
       }
 
       // finally deal with the case that we have both neighbouring region and sector
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown && road.neighbouringSector != -1) {
-        associatePhiMaxima( road, state.houghDataPerSectorVec[ road.neighbouringSector-1].phiMaxVec[road.neighbouringRegion] );
+        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[ road.neighbouringSector-1].phiMaxVec[road.neighbouringRegion] );
       }
 
       // merge phi maxima
