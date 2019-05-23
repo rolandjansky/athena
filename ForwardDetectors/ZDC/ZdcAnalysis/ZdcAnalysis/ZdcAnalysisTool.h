@@ -83,7 +83,7 @@ public:
   {
     if (level == ZDCMsg::Fatal) {
       std::cout << message << std::endl;
-      throw;
+      throw std::exception();
     }
 
     if (level <= (unsigned int) _debugLevel) {
