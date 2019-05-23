@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFlatConditionSvc.h"
@@ -7,7 +7,7 @@
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "SGTools/DataProxy.h"
 
 #include "AthenaKernel/errorcheck.h"
