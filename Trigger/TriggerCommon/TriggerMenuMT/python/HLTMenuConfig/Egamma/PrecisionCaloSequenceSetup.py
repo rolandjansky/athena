@@ -8,7 +8,7 @@ from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
       
-class precisionCaloMenuDefs():
+class precisionCaloMenuDefs(object):
       """Static class to collect all string manipulation in Calo sequences """
       precisionCaloClusters= ""
 
