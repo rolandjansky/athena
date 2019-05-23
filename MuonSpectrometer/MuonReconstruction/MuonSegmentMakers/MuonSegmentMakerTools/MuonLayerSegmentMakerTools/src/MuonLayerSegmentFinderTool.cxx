@@ -100,20 +100,26 @@ namespace Muon {
     MuonStationIndex::DetectorRegionIndex regionIndex = intersection.layerSurface.regionIndex;
     MuonStationIndex::LayerIndex  layerIndex  = intersection.layerSurface.layerIndex;
 
+    // get hough data
+    SG::ReadHandle<MuonLayerHoughTool::HoughDataPerSectorVec> houghDataPerSectorVec {m_houghDataPerSectorVecKey};
+    if (!houghDataPerSectorVec.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return;
+    }
 
     // sanity check
-    if( static_cast<int>(m_layerHoughTool->houghData().size()) <= sector-1 ){
-      ATH_MSG_WARNING(" m_layerHoughTool->houghData().size() smaller than sector " << m_layerHoughTool->houghData().size()
+    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
+      ATH_MSG_WARNING(" m_layerHoughTool->houghData().size() smaller than sector " << houghDataPerSectorVec->size()
                       << " sector " << sector );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = m_layerHoughTool->houghData()[sector-1];
+    const MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
     ATH_MSG_DEBUG(" findMdtSegmentsFromHough: sector " << sector << " " << MuonStationIndex::regionName(regionIndex)
                   << " " << MuonStationIndex::layerName(layerIndex) << " sector hash " << sectorLayerHash
-                  << " houghData " << m_layerHoughTool->houghData().size() << " " << houghDataPerSector.maxVec.size());
+                  << " houghData " << houghDataPerSectorVec->size() << " " << houghDataPerSector.maxVec.size());
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){
