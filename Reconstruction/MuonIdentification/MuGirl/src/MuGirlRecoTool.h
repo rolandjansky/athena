@@ -23,6 +23,7 @@
 
 // Hough transform
 #include "MuonLayerHough/MuonLayerHough.h"
+#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 
 
 // Forward declarations
@@ -238,6 +239,10 @@ namespace MuGirlNS {
     ToolHandle <Trk::IParticleCaloExtensionTool>        m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
 
     ServiceHandle<MagField::IMagFieldSvc>               m_magFieldSvc;             /**< Magnetic Field Service */
+
+    // Storegate
+    SG::ReadHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
+        "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
   }; // class MuGirlRecoTool
 
