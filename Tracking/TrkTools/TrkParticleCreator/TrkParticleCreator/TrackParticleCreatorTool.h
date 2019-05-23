@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -16,62 +16,50 @@ changes : 11.02.04 added docu
 
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrkParticleBase/TrackParticleBase.h" // for TrackParticleOrigin enum
-#include "TrkParameters/TrackParameters.h"
-#include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrack/TrackInfo.h"
-#include "TrkEventPrimitives/FitQuality.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
-#include "TrkTrackSummary/MuonTrackSummary.h"
-
-#include "xAODTracking/VertexFwd.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackingPrimitives.h"
 
 #include "AthContainers/AuxElement.h"
-
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "InDetIdentifier/PixelID.h"
-
+#include "ITrackToVertex/ITrackToVertex.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+#include "TrkEventPrimitives/FitQuality.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParticleBase/TrackParticleBase.h" // for TrackParticleOrigin enum
+#include "TrkParameters/TrackParameters.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrack/TrackInfo.h"
+#include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
+#include "xAODTracking/TrackingPrimitives.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexFwd.h"
 
-class AtlasDetectorID;
-
-class IBLParameterSvc;
+#include "GaudiKernel/ToolHandle.h"
 
 namespace Rec
 {
   class TrackParticle;
 }
 
-namespace Reco 
-{ 
-  class ITrackToVertex; 
-} 
-
-namespace MagField 
-{
-  class IMagFieldSvc;
+namespace InDet {
+  class BeamSpotData;
 }
-
-namespace InDet { class BeamSpotData; }
 
 namespace Trk {
 
-  class ITrackSummaryTool;
-  class IExtrapolator;
   class Track;
   class VxCandidate;
 
-  class TrackParticleCreatorTool : virtual public ITrackParticleCreatorTool, public AthAlgTool
+class TrackParticleCreatorTool : public extends<AthAlgTool, ITrackParticleCreatorTool>
   {
   public:
 
     TrackParticleCreatorTool(const std::string&,const std::string&,const IInterface*);
 
-    virtual ~TrackParticleCreatorTool();
+    virtual ~TrackParticleCreatorTool() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
@@ -87,8 +75,8 @@ namespace Trk {
     */
     virtual
     Rec::TrackParticle* createParticle( const Trk::Track* track,
-    const Trk::VxCandidate* vxCandidate,
-    Trk::TrackParticleOrigin prtOrigin) override;
+                                        const Trk::VxCandidate* vxCandidate,
+                                        Trk::TrackParticleOrigin prtOrigin) const override;
 
     /** Method to construct a xAOD::TrackParticle from a Rec::TrackParticle.
     @param track particle 

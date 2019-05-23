@@ -16,6 +16,7 @@ class TLAConditionMT;
 class IConditionVisitor{
     
 public:
+  virtual ~IConditionVisitor() = default;
   virtual void visit(const EtaEtConditionMT*, const std::string&) = 0;
   virtual void visit(const EtaEtAsymmetricConditionMT*, const std::string&) = 0;
   virtual void visit(const DijetConditionMT*, const std::string&) = 0;

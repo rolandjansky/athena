@@ -12,8 +12,6 @@
 SCT_AlignCondAlg::SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_writeKey{"SCTAlignmentStore", "SCTAlignmentStore"}
-  , m_condSvc{"CondSvc", name}
-  , m_detManager{nullptr}
 {
   declareProperty("WriteKey", m_writeKey);
 }

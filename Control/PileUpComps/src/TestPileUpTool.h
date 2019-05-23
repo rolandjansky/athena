@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPCOMPS_TESTPILEUPTOOL_H
@@ -27,22 +27,22 @@ public:
   /// \name IPileUpTool methods
   //@{
   ///called before the bunchXing loop
-  virtual StatusCode prepareEvent(unsigned int nInputEvents);
+  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode mergeEvent();
+  virtual StatusCode mergeEvent() override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode
   processBunchXing(int bunchXing,
                    SubEventIterator bSubEvents,
-                   SubEventIterator eSubEvents);
+                   SubEventIterator eSubEvents) override final;
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //@}
 private:
   std::vector<std::pair<unsigned int, int> > m_seen;
-  bool m_doFiltering;
-  unsigned int m_maxInTimePileUp;
+  Gaudi::Property<bool> m_doFiltering{this, "DoFiltering", false, ""};
+  Gaudi::Property<unsigned int> m_maxInTimePileUp{this, "MaxInTimePileUp", 4, ""};
 };
 #endif

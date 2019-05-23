@@ -446,9 +446,9 @@ class DictFromChainName(object):
 
 
             #---- Check if topo is a bphsyics topo -> change signature ----            
-            from SignatureDicts import AllowedTopos_bphys
+            from SignatureDicts import AllowedTopos_Bphysics
             for t in genchainDict['topo']:
-                if (t in AllowedTopos_bphys):
+                if (t in AllowedTopos_Bphysics):
                     chainProperties['signature'] = 'Bphysics'
 
 

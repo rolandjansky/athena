@@ -131,6 +131,30 @@ private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
+class SelectionCutBDTJetScoreSigTrans
+  : public SelectionCut
+{
+public:
+  SelectionCutBDTJetScoreSigTrans(TauSelectionTool* tTST);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
+private:
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+};
+
+class SelectionCutRNNJetScoreSigTrans
+  : public SelectionCut
+{
+public:
+  SelectionCutRNNJetScoreSigTrans(TauSelectionTool* tTST);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
+private:
+  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
+};
+
 class SelectionCutJetIDWP
   : public SelectionCut
 {

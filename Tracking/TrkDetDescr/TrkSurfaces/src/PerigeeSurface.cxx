@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -16,27 +16,27 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::NoBounds Trk::PerigeeSurface::s_perigeeBounds;
+const Trk::NoBounds Trk::PerigeeSurface::s_perigeeBounds;
 
 Trk::PerigeeSurface::PerigeeSurface() :
     Surface(),
-    m_lineDirection(0)    
+    m_lineDirection(nullptr)    
 {}
 
 Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp):
     Surface(),
-    m_lineDirection(0)    
+    m_lineDirection(nullptr)    
 {
-    Surface::m_center       = new Amg::Vector3D(gp);
-    Surface::m_transform    = new Amg::Transform3D();
+    Surface::m_center       =  std::make_unique<Amg::Vector3D>(gp);
+    Surface::m_transform =std::make_unique<Amg::Transform3D>();
     (*Surface::m_transform) = Amg::Translation3D(gp.x(),gp.y(),gp.z());
 }
 
 Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform):
     Surface(),
-    m_lineDirection(0)    
+    m_lineDirection(nullptr)    
 {
-    Surface::m_transform    = tTransform;
+    Surface::m_transform.store(std::unique_ptr<Amg::Transform3D> (tTransform));
 }
 
 
@@ -49,25 +49,24 @@ Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf):
     Surface(),
-    m_lineDirection(0)    
+    m_lineDirection(nullptr)    
 {
-    if (pesf.m_center)         Surface::m_center = new Amg::Vector3D(*pesf.m_center);
-    if (pesf.m_transform)      Surface::m_transform = new Amg::Transform3D(*pesf.m_transform);
+    if (pesf.m_center)         Surface::m_center =std::make_unique<Amg::Vector3D>(*pesf.m_center);
+    if (pesf.m_transform)      Surface::m_transform = std::make_unique<Amg::Transform3D>(*pesf.m_transform);
 
 }
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& shift):
     Surface(),
-    m_lineDirection(0)    
+    m_lineDirection(nullptr)    
 {
-    if (pesf.m_center)         Surface::m_center = new Amg::Vector3D(shift*(*pesf.m_center));
-    if (pesf.m_transform)      Surface::m_transform = new Amg::Transform3D(shift*(*pesf.m_transform));
+    if (pesf.m_center)         Surface::m_center = std::make_unique<Amg::Vector3D>(shift*(*pesf.m_center));
+    if (pesf.m_transform)      Surface::m_transform = std::make_unique<Amg::Transform3D>(shift*(*pesf.m_transform));
 
 }
 
 Trk::PerigeeSurface::~PerigeeSurface()
 {
-    delete m_lineDirection;
 }
 
 // assignment operator
@@ -75,8 +74,7 @@ Trk::PerigeeSurface& Trk::PerigeeSurface::operator=(const Trk::PerigeeSurface& p
 {
   if (this!=&pesf){
        Trk::Surface::operator=(pesf);
-       delete m_lineDirection;
-       m_lineDirection = new Amg::Vector3D(lineDirection());
+       m_lineDirection.store(std::make_unique<Amg::Vector3D>(lineDirection()));
        
   }
   return *this;

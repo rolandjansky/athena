@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -49,8 +51,8 @@ public:
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
  private:
-  const SCT_ID* m_pHelper;
-  bool m_useDatabase;
+  const SCT_ID* m_pHelper{nullptr};
+  bool m_useDatabase{true};
 
   SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey{this, "CondKey", "SCT_TdaqEnabledCondData", "Active SCT RODs"};
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IIOVSVC_H
@@ -39,8 +39,7 @@ namespace SG {
 class IIOVSvc : virtual public IService {
 
 public:
-  /// Retrieve interface ID
-  static const InterfaceID& interfaceID();
+  DeclareInterfaceID (IIOVSvc, 1, 0);
 
   virtual StatusCode createIOVTool( const std::string& storeName ) = 0;
   virtual std::vector<std::string> getStoreNames() const = 0;
@@ -152,12 +151,5 @@ public:
                                    const EventIDBase&) = 0;
 
 };
-
-inline
-const InterfaceID& 
-IIOVSvc::interfaceID() {
-    static const InterfaceID IID("IIOVSvc", 1, 0);
-    return IID;
-}
 
 #endif

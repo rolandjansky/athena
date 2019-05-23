@@ -19,8 +19,6 @@ using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipNoiseCondAlg::SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
-  , m_id_sct{nullptr}
 {
 }
 

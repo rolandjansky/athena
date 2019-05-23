@@ -7,6 +7,10 @@
 
 class HECHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class HECHVSubgap
 {
  public:
@@ -22,7 +26,12 @@ class HECHVSubgap
   bool hvOn() const;
   double voltage() const;
   double current() const;
+
+#ifndef SIMULATIONBASE
+  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo() const;
+#endif
 
   // Voltage and current at the same time:
   void voltage_current(double& v, double& i) const;

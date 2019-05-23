@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND, seqOR
+from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
@@ -86,6 +86,37 @@ def createCFTree(CFseq):
 ## CORE of Decision Handling
 #######################################
 
+def findViewAlgs( inputNodes, viewNodes ):
+    """ Make lists of algorithms that run in views, and those that don't """
+
+    allAlgs = []
+    viewAlgs = []
+
+    # Examine all nodes
+    for node in inputNodes:
+
+        # If node is a sequence, explore further
+        if isSequence( node ):
+
+            # Identify view CF nodes
+            if node.getName() in viewNodes:
+
+                # Retrieve view algorithms
+                # (views don't nest, so will be returned in first list)
+                newViewAlgs, dummy = findViewAlgs( node.getChildren(), [] )
+                viewAlgs += newViewAlgs
+
+            # Explore the tree
+            else:
+                newAlgs, newViewAlgs = findViewAlgs( node.getChildren(), viewNodes )
+                allAlgs += newAlgs
+                viewAlgs += newViewAlgs
+        
+        # Node is an algorithm
+        else:
+            allAlgs += [ node.getName() ]
+
+    return allAlgs, viewAlgs
 
 
 def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
@@ -174,7 +205,19 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     Configurable.configurableRun3Behavior=0
         
     topSequence += hltTop
-    
+
+    # List all CF nodes to be used with EventViews
+    viewNodes = []
+    for viewMaker in viewMakers:
+      viewNodes.append( viewMaker.ViewNodeName )
+
+    # Identify the algorithms that will run in EventViews
+    wholeEventAlgs, viewAlgs = findViewAlgs( topSequence.getChildren(), viewNodes )
+
+    # Look for view algs in the whole event context
+    for viewAlgName in viewAlgs:
+        if viewAlgName in wholeEventAlgs:
+            raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
 
 
 def matrixDisplay( allSeq ):

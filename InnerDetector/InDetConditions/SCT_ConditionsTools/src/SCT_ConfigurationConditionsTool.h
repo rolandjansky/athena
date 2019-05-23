@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -87,8 +89,8 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey{this, "CondKey", "SCT_ConfigurationCondData", "SCT DAQ configuration"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  const SCT_ID*                         m_pHelper;                  //!< ID helper for SCT
-  bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
+  const SCT_ID* m_pHelper{nullptr};                  //!< ID helper for SCT
+  BooleanProperty m_checkStripsInsideModules{this, "checkStripsInsideModule", true, " Do we want to check if a strip is bad because it is inside a bad module"};
 
   /** Is a strip within a bad module*/
   bool                                  isStripInBadModule(const Identifier& stripId, const EventContext& ctx) const;

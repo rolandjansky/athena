@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,9 +25,9 @@ std::atomic<unsigned int> Trk::Surface::s_numberOfFreeInstantiations{0};
 #endif
 
 Trk::Surface::Surface() :
-  m_transform(0),
-  m_center(0),
-  m_normal(0),
+  m_transform(nullptr),
+  m_center(nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
@@ -41,16 +41,16 @@ Trk::Surface::Surface() :
 }
 
 Trk::Surface::Surface(Amg::Transform3D* tform) :
-  m_transform(0),
-  m_center(0),
-  m_normal(0),
+  m_transform (nullptr),
+  m_center (nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
   m_materialLayer(0),
   m_owner(Trk::SurfaceOwner(0))
 {
-	m_transform = tform;
+	m_transform.store(std::unique_ptr<Amg::Transform3D> (tform));
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
@@ -65,9 +65,9 @@ Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform) :
 
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement) :
-  m_transform(0),
-  m_center(0),
-  m_normal(0),
+  m_transform(nullptr),
+  m_center(nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(&detelement),
   m_associatedDetElementId(),
   m_associatedLayer(0),
@@ -80,9 +80,9 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement) :
 }
 
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
-  m_transform(0),
-  m_center(0),
-  m_normal(0),
+  m_transform(nullptr),
+  m_center(nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(&detelement),
   m_associatedDetElementId(id),
   m_associatedLayer(0),
@@ -96,9 +96,9 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
 
 // copy constructor - Attention! sets the associatedDetElement to 0 and the identifier to invalid
 Trk::Surface::Surface(const Surface& sf) :
-  m_transform(0),
-  m_center(0),
-  m_normal(0),
+  m_transform(nullptr),
+  m_center(nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(sf.m_associatedLayer),
@@ -106,7 +106,7 @@ Trk::Surface::Surface(const Surface& sf) :
   m_owner(Trk::SurfaceOwner(0))
 {
 
-	m_transform = new Amg::Transform3D(sf.transform());
+	m_transform=std::make_unique<Amg::Transform3D>(sf.transform());
 
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
@@ -118,9 +118,13 @@ Trk::Surface::Surface(const Surface& sf) :
 // copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifieer to invalid
 // also invalidates the material layer
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift) :
-  m_transform( sf.m_transform ? new Amg::Transform3D(shift* (*(sf.m_transform)) ) : new Amg::Transform3D(shift) ),
-  m_center( (sf.m_center) ? new Amg::Vector3D(shift*(*(sf.m_center)) ) : 0),
-  m_normal(0),
+  m_transform( sf.m_transform ? 
+               std::make_unique<Amg::Transform3D>(shift* (*(sf.m_transform)) ) : 
+               std::make_unique<Amg::Transform3D>(shift) ),
+  m_center( (sf.m_center) ? 
+            std::make_unique<Amg::Vector3D>( shift*(*(sf.m_center)) ) : 
+            nullptr),
+  m_normal(nullptr),
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
@@ -141,10 +145,6 @@ Trk::Surface::~Surface()
   s_numberOfInstantiations--; // EDM Monitor - decrement one instance
   if ( isFree() ) s_numberOfFreeInstantiations--;
 #endif
-
-  delete m_transform;
-  delete m_center;
-  delete m_normal;
 }
 
 // assignment operator
@@ -152,10 +152,10 @@ Trk::Surface::~Surface()
 Trk::Surface& Trk::Surface::operator=(const Trk::Surface& sf)
 {
   if (this!=&sf){
-    delete m_transform;
-    delete m_center;  m_center = 0;
-    delete m_normal;  m_normal = 0;
-    m_transform              = new Amg::Transform3D(sf.transform());
+    m_transform.release();
+    m_center.release();
+    m_normal.release();
+    m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
     m_associatedDetElement   = 0;
     m_associatedDetElementId = Identifier();
     m_associatedLayer        = sf.m_associatedLayer;

@@ -109,7 +109,14 @@ void EMBPresamplerHVModule::voltage_current(int iGap,double& voltage, double&cur
  current = payload->current[iGap];
 }
 
-int EMBPresamplerHVModule::hvLineNo(int iGap) const {
-  EMBPresamplerHVPayload *payload = m_c->manager->getPayload(*this);
-  return payload->hvLineNo[iGap];
+#ifndef SIMULATIONBASE
+int EMBPresamplerHVModule::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->manager->hvLineNo(*this,iGap,hvIdMapping)
+    : m_c->manager->getPayload(*this)->hvLineNo[iGap];
 }
+#else
+int EMBPresamplerHVModule::hvLineNo(int iGap) const {
+  return m_c->manager->getPayload(*this)->hvLineNo[iGap];
+}
+#endif

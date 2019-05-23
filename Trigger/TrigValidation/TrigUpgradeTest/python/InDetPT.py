@@ -81,7 +81,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
   InDetTrigMTxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name =  "InDetTrigMTxAODParticleCreatorTool" + signature,
                                                                      Extrapolator = InDetTrigExtrapolator,
-                                                                     #ForceTrackSummaryUpdate = False,
                                                                      #TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits) 
                                                                      TrackSummaryTool = InDetTrigTrackSummaryTool)
   

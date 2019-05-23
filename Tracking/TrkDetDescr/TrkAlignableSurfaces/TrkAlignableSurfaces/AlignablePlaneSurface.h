@@ -100,7 +100,7 @@ namespace Trk {
 
    protected:
     /** The pointer ro the nominal Surface */
-    mutable const PlaneSurface*        m_nominalSurface;
+    const PlaneSurface*        m_nominalSurface;
                          
   };
   

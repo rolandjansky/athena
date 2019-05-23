@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 706292 2015-11-06 05:33:24Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -75,21 +74,21 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setPt( float pt ) {
 
-      static Accessor< float > acc( "pt" );
+      static const Accessor< float > acc( "pt" );
       acc( *this ) = pt;
       return;
    }
 
    void L2StandAloneMuon_v1::setEta( float eta ) {
 
-      static Accessor< float > acc( "eta" );
+      static const Accessor< float > acc( "eta" );
       acc( *this ) = eta;
       return;
    }
 
    void L2StandAloneMuon_v1::setPhi( float phi ) {
 
-      static Accessor< float > acc( "phi" );
+      static const Accessor< float > acc( "phi" );
       acc( *this ) = phi;
       return;
    }
@@ -166,15 +165,15 @@ namespace xAOD {
    ///
    /// Object for accessing the superPointR variable
    ///
-   static SG::AuxElement::Accessor< std::vector< float > >  sprAcc( "superPointR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >  sprAcc( "superPointR" );
    /// Object for accessing the superPointZ variable
-   static SG::AuxElement::Accessor< std::vector< float > >  spzAcc( "superPointZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >  spzAcc( "superPointZ" );
    /// Object for accessing the superPointSlope variable
-   static SG::AuxElement::Accessor< std::vector< float > >  spsAcc( "superPointSlope" );
+   static const SG::AuxElement::Accessor< std::vector< float > >  spsAcc( "superPointSlope" );
    /// Object for accessing the superPointIntercept variable
-   static SG::AuxElement::Accessor< std::vector< float > >  spiAcc( "superPointIntercept" );
+   static const SG::AuxElement::Accessor< std::vector< float > >  spiAcc( "superPointIntercept" );
    /// Object for accessing the superPointChi2 variable
-   static SG::AuxElement::Accessor< std::vector< float > >  spcAcc( "superPointChi2" );
+   static const SG::AuxElement::Accessor< std::vector< float > >  spcAcc( "superPointChi2" );
 
    /// Get superPoint properties
    float L2StandAloneMuon_v1::superPointR( int chamber ) const {
@@ -256,10 +255,10 @@ namespace xAOD {
    /////////////////////////////////////////////////////////////////////////////
    ///
    /// Object for accessing track position variables
-   static SG::AuxElement::Accessor< std::vector< float > >    trkrAcc( "trackPositionR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    trkzAcc( "trackPositionZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    trketaAcc( "trackPositionEta" );
-   static SG::AuxElement::Accessor< std::vector< float > >    trkphiAcc( "trackPositionPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    trkrAcc( "trackPositionR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    trkzAcc( "trackPositionZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    trketaAcc( "trackPositionEta" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    trkphiAcc( "trackPositionPhi" );
 
    /// Get and set track positions
    uint32_t L2StandAloneMuon_v1::nTrackPositions() const {
@@ -345,20 +344,20 @@ namespace xAOD {
    //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
    //                                      roiPhi, setRoiPhi )
    uint32_t L2StandAloneMuon_v1::roiEta() const {
-      static Accessor< uint32_t > acc( "roiEtaUint" );
+      static const Accessor< uint32_t > acc( "roiEtaUint" );
       return acc( *this );                 
    }                                       
    void L2StandAloneMuon_v1::setRoiEta( uint32_t value ) {         
-      static Accessor< uint32_t > acc( "roiEtaUint" );
+      static const Accessor< uint32_t > acc( "roiEtaUint" );
       acc( *this ) = value;                
       return;                              
    }
    uint32_t L2StandAloneMuon_v1::roiPhi() const {                 
-      static Accessor< uint32_t > acc( "roiPhiUint" );
+      static const Accessor< uint32_t > acc( "roiPhiUint" );
       return acc( *this );                 
    }                                       
    void L2StandAloneMuon_v1::setRoiPhi( uint32_t value ) {         
-      static Accessor< uint32_t > acc( "roiPhiUint" );
+      static const Accessor< uint32_t > acc( "roiPhiUint" );
       acc( *this ) = value;                
       return;                              
    }
@@ -386,53 +385,53 @@ namespace xAOD {
    /// Object for accessing the road information
    ///
    /// chamber types
-   static SG::AuxElement::Accessor< std::vector< int > >
+   static const SG::AuxElement::Accessor< std::vector< int > >
       ct1nAcc( "chamberType1Normal" );
-   static SG::AuxElement::Accessor< std::vector< int > >
+   static const SG::AuxElement::Accessor< std::vector< int > >
       ct1oAcc( "chamberType1Overlap" );
-   static SG::AuxElement::Accessor< std::vector< int > >
+   static const SG::AuxElement::Accessor< std::vector< int > >
       ct2nAcc( "chamberType2Normal" );
-   static SG::AuxElement::Accessor< std::vector< int > >
+   static const SG::AuxElement::Accessor< std::vector< int > >
       ct2oAcc( "chamberType2Overlap" );
 
    /// road slope and intercept
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       awnAcc( "roadAwNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       awoAcc( "roadAwOverlap" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       bwnAcc( "roadBwNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       bwoAcc( "roadBwOverlap" );
 
    /// Z range
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       zminnAcc( "zMinNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       zminoAcc( "zMinOverlap" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       zmaxnAcc( "zMaxNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       zmaxoAcc( "zMaxOverlap" );
 
    /// R range
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       rminnAcc( "rMinNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       rminoAcc( "rMinOverlap" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       rmaxnAcc( "rMaxNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       rmaxoAcc( "rMaxOverlap" );
 
    /// Eta range
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       eminnAcc( "etaMinNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       eminoAcc( "etaMinOverlap" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       emaxnAcc( "etaMaxNormal" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       emaxoAcc( "etaMaxOverlap" );
 
    ///
@@ -975,10 +974,10 @@ namespace xAOD {
    /// Set the results of TGC fit
    void L2StandAloneMuon_v1::setTgcInn( float eta, float phi, float r, float z ) {
 
-      static Accessor< float > tieAcc( "tgcInnEta" );
-      static Accessor< float > tipAcc( "tgcInnPhi" );
-      static Accessor< float > tirAcc( "tgcInnR" );
-      static Accessor< float > tizAcc( "tgcInnZ" );
+      static const Accessor< float > tieAcc( "tgcInnEta" );
+      static const Accessor< float > tipAcc( "tgcInnPhi" );
+      static const Accessor< float > tirAcc( "tgcInnR" );
+      static const Accessor< float > tizAcc( "tgcInnZ" );
 
       tieAcc( *this ) = eta;
       tipAcc( *this ) = phi;
@@ -990,10 +989,10 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setTgcInnF( float rhoStd, long rhoN, float phiStd, long phiN ) {
 
-      static Accessor< float > tirsAcc( "tgcInnRhoStd" );
-      static Accessor< long >  tirnAcc( "tgcInnRhoN" );
-      static Accessor< float > tipsAcc( "tgcInnPhiStd" );
-      static Accessor< long >  tipnAcc( "tgcInnPhiN" );
+      static const Accessor< float > tirsAcc( "tgcInnRhoStd" );
+      static const Accessor< long >  tirnAcc( "tgcInnRhoN" );
+      static const Accessor< float > tipsAcc( "tgcInnPhiStd" );
+      static const Accessor< long >  tipnAcc( "tgcInnPhiN" );
 
       tirsAcc( *this ) = rhoStd;
       tirnAcc( *this ) = rhoN;
@@ -1005,10 +1004,10 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setTgcMid1( float eta, float phi, float r, float z ) {
 
-      static Accessor< float > tm1eAcc( "tgcMid1Eta" );
-      static Accessor< float > tm1pAcc( "tgcMid1Phi" );
-      static Accessor< float > tm1rAcc( "tgcMid1R" );
-      static Accessor< float > tm1zAcc( "tgcMid1Z" );
+      static const Accessor< float > tm1eAcc( "tgcMid1Eta" );
+      static const Accessor< float > tm1pAcc( "tgcMid1Phi" );
+      static const Accessor< float > tm1rAcc( "tgcMid1R" );
+      static const Accessor< float > tm1zAcc( "tgcMid1Z" );
 
       tm1eAcc( *this ) = eta;
       tm1pAcc( *this ) = phi;
@@ -1020,10 +1019,10 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setTgcMid2( float eta, float phi, float r, float z ) {
 
-      static Accessor< float > tm2eAcc( "tgcMid2Eta" );
-      static Accessor< float > tm2pAcc( "tgcMid2Phi" );
-      static Accessor< float > tm2rAcc( "tgcMid2R" );
-      static Accessor< float > tm2zAcc( "tgcMid2Z" );
+      static const Accessor< float > tm2eAcc( "tgcMid2Eta" );
+      static const Accessor< float > tm2pAcc( "tgcMid2Phi" );
+      static const Accessor< float > tm2rAcc( "tgcMid2R" );
+      static const Accessor< float > tm2zAcc( "tgcMid2Z" );
 
       tm2eAcc( *this ) = eta;
       tm2pAcc( *this ) = phi;
@@ -1035,10 +1034,10 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setTgcMidF( float rhoChi2, long rhoN, float phiChi2, long phiN ) {
 
-      static Accessor< float > tmrcAcc( "tgcMidRhoChi2" );
-      static Accessor< long >  tmrnAcc( "tgcMidRhoN" );
-      static Accessor< float > tmpcAcc( "tgcMidPhiChi2" );
-      static Accessor< long >  tmpnAcc( "tgcMidPhiN" );
+      static const Accessor< float > tmrcAcc( "tgcMidRhoChi2" );
+      static const Accessor< long >  tmrnAcc( "tgcMidRhoN" );
+      static const Accessor< float > tmpcAcc( "tgcMidPhiChi2" );
+      static const Accessor< long >  tmpnAcc( "tgcMidPhiN" );
 
       tmrcAcc( *this ) = rhoChi2;
       tmrnAcc( *this ) = rhoN;
@@ -1068,9 +1067,9 @@ namespace xAOD {
    /// Set the results of RPC fit
    void L2StandAloneMuon_v1::setRpc1( float x, float y, float z ) {
 
-      static Accessor< float > r1xAcc( "rpc1x" );
-      static Accessor< float > r1yAcc( "rpc1y" );
-      static Accessor< float > r1zAcc( "rpc1z" );
+      static const Accessor< float > r1xAcc( "rpc1x" );
+      static const Accessor< float > r1yAcc( "rpc1y" );
+      static const Accessor< float > r1zAcc( "rpc1z" );
 
       r1xAcc( *this ) = x;
       r1yAcc( *this ) = y;
@@ -1081,9 +1080,9 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setRpc2( float x, float y, float z ) {
 
-      static Accessor< float > r2xAcc( "rpc2x" );
-      static Accessor< float > r2yAcc( "rpc2y" );
-      static Accessor< float > r2zAcc( "rpc2z" );
+      static const Accessor< float > r2xAcc( "rpc2x" );
+      static const Accessor< float > r2yAcc( "rpc2y" );
+      static const Accessor< float > r2zAcc( "rpc2z" );
 
       r2xAcc( *this ) = x;
       r2yAcc( *this ) = y;
@@ -1094,9 +1093,9 @@ namespace xAOD {
 
    void L2StandAloneMuon_v1::setRpc3( float x, float y, float z ) {
 
-      static Accessor< float > r3xAcc( "rpc3x" );
-      static Accessor< float > r3yAcc( "rpc3y" );
-      static Accessor< float > r3zAcc( "rpc3z" );
+      static const Accessor< float > r3xAcc( "rpc3x" );
+      static const Accessor< float > r3yAcc( "rpc3y" );
+      static const Accessor< float > r3zAcc( "rpc3z" );
 
       r3xAcc( *this ) = x;
       r3yAcc( *this ) = y;
@@ -1108,70 +1107,70 @@ namespace xAOD {
    /////////////////////////////////////////////////////////////////////////////
    ///
    /// Object for accessing extenstion variables
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext0Acc( "extension0" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext1Acc( "extension1" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext2Acc( "extension2" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext3Acc( "extension3" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext4Acc( "extension4" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext5Acc( "extension5" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext6Acc( "extension6" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext7Acc( "extension7" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext8Acc( "extension8" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > ext9Acc( "extension9" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext0Acc( "extension0" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext1Acc( "extension1" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext2Acc( "extension2" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext3Acc( "extension3" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext4Acc( "extension4" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext5Acc( "extension5" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext6Acc( "extension6" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext7Acc( "extension7" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext8Acc( "extension8" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > ext9Acc( "extension9" );
 
    /// Object for level 1 emulation info
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > lvl1eAcc( "lvl1Emulation" );    
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > lvl1eAcc( "lvl1Emulation" );
 
    /// Object for ROB info
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > robidAcc( "robId" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > robrmAcc( "removedRobId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > robidAcc( "robId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > robrmAcc( "removedRobId" );
 
    /// Object for CSM info
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > csmidAcc( "csmId" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > csmszAcc( "csmSize" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > csmerAcc( "csmError" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > csmrmAcc( "removedCsmId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > csmidAcc( "csmId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > csmszAcc( "csmSize" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > csmerAcc( "csmError" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > csmrmAcc( "removedCsmId" );
 
    /// Object for accessing RPC pad hits
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > padiAcc( "padHitOnlineId" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > padcAcc( "padHitCode" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padxAcc( "padHitX" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padyAcc( "padHitY" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padzAcc( "padHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padrAcc( "padHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padpAcc( "padHitP" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > padiAcc( "padHitOnlineId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > padcAcc( "padHitCode" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    padxAcc( "padHitX" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    padyAcc( "padHitY" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    padzAcc( "padHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    padrAcc( "padHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    padpAcc( "padHitP" );
 
    /// Object for accessing TGC hits
-   static SG::AuxElement::Accessor< std::vector< float > >    tirpAcc( "tgcInnRhoHitPhi" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tirrAcc( "tgcInnRhoHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tirzAcc( "tgcInnRhoHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tirwAcc( "tgcInnRhoHitWidth" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > tiriAcc( "tgcInnRhoHitInSeg" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tippAcc( "tgcInnPhiHitPhi" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tiprAcc( "tgcInnPhiHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tipzAcc( "tgcInnPhiHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tipwAcc( "tgcInnPhiHitWidth" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > tipiAcc( "tgcInnPhiHitInSeg" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmrpAcc( "tgcMidRhoHitPhi" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmrrAcc( "tgcMidRhoHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmrzAcc( "tgcMidRhoHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmrwAcc( "tgcMidRhoHitWidth" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > tmriAcc( "tgcMidRhoHitInSeg" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmppAcc( "tgcMidPhiHitPhi" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmprAcc( "tgcMidPhiHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmpzAcc( "tgcMidPhiHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    tmpwAcc( "tgcMidPhiHitWidth" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > tmpiAcc( "tgcMidPhiHitInSeg" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tirpAcc( "tgcInnRhoHitPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tirrAcc( "tgcInnRhoHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tirzAcc( "tgcInnRhoHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tirwAcc( "tgcInnRhoHitWidth" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > tiriAcc( "tgcInnRhoHitInSeg" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tippAcc( "tgcInnPhiHitPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tiprAcc( "tgcInnPhiHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tipzAcc( "tgcInnPhiHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tipwAcc( "tgcInnPhiHitWidth" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > tipiAcc( "tgcInnPhiHitInSeg" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmrpAcc( "tgcMidRhoHitPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmrrAcc( "tgcMidRhoHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmrzAcc( "tgcMidRhoHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmrwAcc( "tgcMidRhoHitWidth" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > tmriAcc( "tgcMidRhoHitInSeg" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmppAcc( "tgcMidPhiHitPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmprAcc( "tgcMidPhiHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmpzAcc( "tgcMidPhiHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    tmpwAcc( "tgcMidPhiHitWidth" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > tmpiAcc( "tgcMidPhiHitInSeg" );
 
    /// Object for accessing the MDT tube variables
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtonAcc( "mdtHitOnlineId" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtoffAcc( "mdtHitOfflineId" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdtrAcc( "mdtHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdtzAcc( "mdtHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdtresAcc( "mdtHitResidual" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdttAcc( "mdtHitTime" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdtspcAcc( "mdtHitSpace" );
-   static SG::AuxElement::Accessor< std::vector< float > >    mdtsigAcc( "mdtHitSigma" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > mdtonAcc( "mdtHitOnlineId" );
+   static const SG::AuxElement::Accessor< std::vector< uint32_t > > mdtoffAcc( "mdtHitOfflineId" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdtrAcc( "mdtHitR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdtzAcc( "mdtHitZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdtresAcc( "mdtHitResidual" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdttAcc( "mdtHitTime" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdtspcAcc( "mdtHitSpace" );
+   static const SG::AuxElement::Accessor< std::vector< float > >    mdtsigAcc( "mdtHitSigma" );
    ///
    /////////////////////////////////////////////////////////////////////////////
 
@@ -1189,7 +1188,7 @@ namespace xAOD {
    /// Set size of extension stirage
    void L2StandAloneMuon_v1::setExtensionCapacity( int value ) {
  
-      static Accessor< int > ecapAcc( "extensionCapacity" );
+      static const Accessor< int > ecapAcc( "extensionCapacity" );
       ecapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1211,7 +1210,7 @@ namespace xAOD {
    /// Set size of ROB storage
    void L2StandAloneMuon_v1::setRobCapacity( int value ) {
  
-      static Accessor< int > rcapAcc( "robCapacity" );
+      static const Accessor< int > rcapAcc( "robCapacity" );
       rcapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1225,7 +1224,7 @@ namespace xAOD {
    /// Set size of CSM storage
    void L2StandAloneMuon_v1::setCsmCapacity( int value ) {
  
-      static Accessor< int > ccapAcc( "csmCapacity" );
+      static const Accessor< int > ccapAcc( "csmCapacity" );
       ccapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1241,7 +1240,7 @@ namespace xAOD {
    /// Set size of L1 emulation storage
    void L2StandAloneMuon_v1::setLvl1EmuCapacity( int value ) {
  
-      static Accessor< int > lcapAcc( "lvl1EmuCapacity" );
+      static const Accessor< int > lcapAcc( "lvl1EmuCapacity" );
       lcapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1254,7 +1253,7 @@ namespace xAOD {
    /// Set size of storage for RPC hits
    void L2StandAloneMuon_v1::setRpcHitsCapacity( int value ) {
  
-      static Accessor< int > rcapAcc( "rpcHitsCapacity" );
+      static const Accessor< int > rcapAcc( "rpcHitsCapacity" );
       rcapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1273,7 +1272,7 @@ namespace xAOD {
    /// Set size of storage for TGC hits
    void L2StandAloneMuon_v1::setTgcHitsCapacity( int value ) {
  
-      static Accessor< int > tcapAcc( "tgcHitsCapacity" );
+      static const Accessor< int > tcapAcc( "tgcHitsCapacity" );
       tcapAcc( *this ) = value;
 
       if ( value > 0 ) {
@@ -1305,7 +1304,7 @@ namespace xAOD {
    /// Set size of storage for MDT hits
    void L2StandAloneMuon_v1::setMdtHitsCapacity( int value ) {
 
-      static Accessor< int > mcapAcc( "mdtHitsCapacity" );
+      static const Accessor< int > mcapAcc( "mdtHitsCapacity" );
       mcapAcc( *this ) = value;
 
       if ( value > 0 ) {

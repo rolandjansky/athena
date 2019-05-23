@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigBphysContainerCnv.cxx
@@ -66,8 +66,8 @@ StatusCode xAODTrigBphysContainerCnv::createObj(IOpaqueAddress* pAddr,
 xAOD::TrigBphysContainer* xAODTrigBphysContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-    //      static pool::Guid v1_guid( "0C7F7869-C67A-4E4A-8793-358F8B32DFEA" ); // JW - the original version
-    static pool::Guid v1_guid( "FD05137E-421B-40B5-AB7C-D119C5490784" ); // JW a test version
+    //      static const pool::Guid v1_guid( "0C7F7869-C67A-4E4A-8793-358F8B32DFEA" ); // JW - the original version
+    static const pool::Guid v1_guid( "FD05137E-421B-40B5-AB7C-D119C5490784" ); // JW a test version
     
 
    // Check if we're reading the most up to date type:

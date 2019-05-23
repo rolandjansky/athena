@@ -12,7 +12,6 @@
 
 SCT_MajorityCondAlg::SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
 {
 }
 

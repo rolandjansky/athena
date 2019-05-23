@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -160,7 +160,8 @@ namespace Trk
   void
   MaterialAllocator::addLeadingMaterial(std::vector<FitMeasurement*>& measurements,
                                         ParticleHypothesis particleHypothesis,
-                                        FitParameters& fitParameters) const {
+                                        FitParameters& fitParameters,
+                                        Garbage_t& garbage) const {
     // nothing to do if starting with vertex measurement
     if (measurements.front()->isVertex()) {
       return;
@@ -263,7 +264,8 @@ namespace Trk
                                              *surface,
                                              alongMomentum,
                                              false,
-                                             particleHypothesis);
+                                             particleHypothesis,
+                                             garbage);
 
         // check material found (expected at least for leading measurement)
         if (indetMaterial && !indetMaterial->empty()) {
@@ -289,7 +291,7 @@ namespace Trk
                         << ", try again with back extrapolation ");
 
         // clean up after previous attempt
-        deleteMaterial(indetMaterial);
+        deleteMaterial(indetMaterial, garbage);
         indetMaterial = 0;
 
         std::vector<const TrackStateOnSurface*>* indetMaterialF = 0;
@@ -312,7 +314,8 @@ namespace Trk
                                                 perigee->associatedSurface(),
                                                 oppositeMomentum,
                                                 false,
-                                                particleHypothesis);
+                                                particleHypothesis,
+                                                garbage);
 
           if (indetMaterialR && !indetMaterialR->empty()) {
             indetMaterialF = new std::vector<const TrackStateOnSurface*>;
@@ -545,7 +548,7 @@ namespace Trk
         intersection = 0;
       }
       delete perigee;
-      deleteMaterial(indetMaterial);
+      deleteMaterial(indetMaterial, garbage);
       indetMaterial = 0;
     }
 
@@ -621,13 +624,15 @@ namespace Trk
   MaterialAllocator::allocateMaterial(std::vector<FitMeasurement*>& measurements,
                                       ParticleHypothesis particleHypothesis,
                                       const FitParameters& fitParameters,
-                                      const TrackParameters& startParameters) const {
+                                      const TrackParameters& startParameters,
+                                      Garbage_t& garbage) const {
     // different strategies used for indet and muon spectrometer
-    indetMaterial(measurements, particleHypothesis, startParameters);
+    indetMaterial(measurements, particleHypothesis, startParameters, garbage);
     if (!m_extrapolator.empty()) spectrometerMaterial(measurements,
                                                                   particleHypothesis,
                                                                   fitParameters,
-                                                                  startParameters);
+                                                                  startParameters,
+                                                                  garbage);
 
     // debug
     if (msgLvl(MSG::VERBOSE)) {
@@ -710,7 +715,8 @@ namespace Trk
   }
 
   std::vector<const TrackStateOnSurface*>*
-  MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters) const {
+  MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters,
+                                             Garbage_t& garbage) const {
     // make sure the spectrometer entrance volume is available
     if (!m_spectrometerEntrance) {
       if (!m_trackingGeometrySvc) {
@@ -749,7 +755,8 @@ namespace Trk
                            entranceSurface,
                            anyDirection,
                            false,
-                           Trk::muon);
+                           Trk::muon,
+                           garbage);
     delete entranceParameters;
     if (!extrapolatedTSOS
         || !extrapolatedTSOS->size()
@@ -794,7 +801,7 @@ namespace Trk
                                                      0,
                                                      (**m).materialEffects()->clone()));
 
-    deleteMaterial(extrapolatedTSOS);
+    deleteMaterial(extrapolatedTSOS, garbage);
 
     // debug
     if (msgLvl(MSG::VERBOSE) && !leadingTSOS->empty()) {
@@ -871,7 +878,8 @@ namespace Trk
 
   bool
   MaterialAllocator::reallocateMaterial(std::vector<FitMeasurement*>& measurements,
-                                        const FitParameters& parameters) const {
+                                        const FitParameters& parameters,
+                                        Garbage_t& garbage) const {
     ATH_MSG_DEBUG(" reallocateSpectrometerMaterial ");
 
     int n = 0;
@@ -941,7 +949,8 @@ namespace Trk
                              *(**r).surface(),
                              oppositeMomentum,
                              false,
-                             Trk::muon);
+                             Trk::muon,
+                             garbage);
 
       if (spectrometerMaterial && !spectrometerMaterial->empty()) {
 //      for (std::vector<const TrackStateOnSurface*>::const_reverse_iterator s =
@@ -1091,10 +1100,11 @@ namespace Trk
   }
 
   void
-  MaterialAllocator::deleteMaterial(const std::vector<const TrackStateOnSurface*>* material) const {
+  MaterialAllocator::deleteMaterial(const std::vector<const TrackStateOnSurface*>* material,
+                                    Garbage_t& garbage) const {
     if (material) {
-      for (auto m : *material) {
-        delete m;
+      for (const TrackStateOnSurface* m : *material) {
+        garbage.push_back (std::unique_ptr<const TrackStateOnSurface>(m));
       }
       delete material;
     }
@@ -1106,7 +1116,8 @@ namespace Trk
                                           const Surface& surface,
                                           PropDirection dir,
                                           BoundaryCheck boundsCheck,
-                                          ParticleHypothesis particleHypothesis) const {
+                                          ParticleHypothesis particleHypothesis,
+                                          Garbage_t& garbage) const {
     // fix up material duplication appearing after recent TrackingGeometry speed-up
     const std::vector<const TrackStateOnSurface*>* TGMaterial =
       extrapolator->extrapolateM(parameters, surface, dir, boundsCheck, particleHypothesis);
@@ -1141,14 +1152,15 @@ namespace Trk
     }
 
     delete TGMaterial;
-    if (duplicates) deleteMaterial(duplicates);
+    if (duplicates) deleteMaterial(duplicates, garbage);
     return material;
   }
 
   void
   MaterialAllocator::indetMaterial(std::vector<FitMeasurement*>& measurements,
                                    ParticleHypothesis particleHypothesis,
-                                   const TrackParameters& startParameters) const {
+                                   const TrackParameters& startParameters,
+                                   Garbage_t& garbage) const {
     // gather material between first and last measurements inside indet volume
     // allow a few mm radial tolerance around first&last measurements for their associated material
     double tolerance = 10. * Gaudi::Units::mm / startParameters.momentum().unit().perp();
@@ -1260,11 +1272,12 @@ namespace Trk
                            *endIndetMeasurement->surface(),
                            alongMomentum,
                            false,
-                           particleHypothesis);
+                           particleHypothesis,
+                           garbage);
 
     if (parameters != &startParameters) delete parameters;
     if (!indetMaterial || indetMaterial->empty()) {
-      deleteMaterial(indetMaterial);
+      deleteMaterial(indetMaterial, garbage);
       return;
     }
 
@@ -1294,7 +1307,7 @@ namespace Trk
     if (indetMaterialEnd == indetMaterial->begin()) {
       // extrapolateM finds no material on track !!
       m_messageHelper->printWarning(1);
-      deleteMaterial(indetMaterial);
+      deleteMaterial(indetMaterial, garbage);
       return;
     }
 
@@ -1513,7 +1526,7 @@ namespace Trk
     }
 
     // memory management
-    deleteMaterial(indetMaterial);
+    deleteMaterial(indetMaterial, garbage);
 
     ATH_MSG_VERBOSE(" finished indetMaterial ");
   }
@@ -2195,7 +2208,8 @@ namespace Trk
   MaterialAllocator::spectrometerMaterial(std::vector<FitMeasurement*>& measurements,
                                           ParticleHypothesis particleHypothesis,
                                           const FitParameters& fitParameters,
-                                          const TrackParameters& startParameters) const {
+                                          const TrackParameters& startParameters,
+                                          Garbage_t& garbage) const {
     // return if no MS measurement
     if (m_calorimeterVolume->inside(measurements.back()->position())) return;
 
@@ -2410,7 +2424,8 @@ namespace Trk
                                                   entranceSurface,
                                                   anyDirection,
                                                   false,
-                                                  Trk::muon);
+                                                  Trk::muon,
+                                                  garbage);
     } else {
       const Surface& entranceSurface = startParameters.associatedSurface();
       spectrometerMaterial = extrapolatedMaterial(m_extrapolator,
@@ -2418,7 +2433,8 @@ namespace Trk
                                                   entranceSurface,
                                                   anyDirection,
                                                   false,
-                                                  Trk::muon);
+                                                  Trk::muon,
+                                                  garbage);
     }
 
     // debug
@@ -2513,7 +2529,7 @@ namespace Trk
     ATH_MSG_VERBOSE(" spectrometer: mem management");
     delete endParameters;
     delete entranceParameters;
-    deleteMaterial(spectrometerMaterial);
+    deleteMaterial(spectrometerMaterial, garbage);
 
     materialAggregation(measurements, ParticleMasses().mass[particleHypothesis]);
   }

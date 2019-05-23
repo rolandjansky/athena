@@ -7,6 +7,10 @@
 
 #include "LArHV/FCALHVModule.h"
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 struct FCALHVPayload;
 
 /**
@@ -51,6 +55,12 @@ class FCALHVManager
   
   // Get the database payload
   FCALHVPayload *getPayload(const FCALHVLine &) const;
+
+#ifndef SIMULATIONBASE
+  // Get hvLine for a subgap
+  int hvLineNo(const FCALHVLine& line
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
  private:
   FCALHVManager(const FCALHVManager& right);

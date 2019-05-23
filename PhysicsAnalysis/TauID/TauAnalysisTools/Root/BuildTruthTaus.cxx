@@ -47,7 +47,7 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   , m_iNNeutralOthers(0)
   , m_iNChargedDaughters(0)
   , m_bIsHadronicTau(false)
-  , m_tMCTruthClassifier("MCTruthClassifierTool", this)
+  , m_tMCTruthClassifier("MCTruthClassifier", this)
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
 
@@ -76,8 +76,10 @@ StatusCode BuildTruthTaus::initialize()
   ATH_MSG_INFO( "Initializing BuildTruthTaus" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
-  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMCTruthClassifier, MCTruthClassifier));
+  ATH_CHECK(m_tMCTruthClassifier.setProperty("ParticleCaloExtensionTool", ""));
+  ATH_CHECK(m_tMCTruthClassifier.setProperty("TruthInConeTool", ""));
   ATH_CHECK(m_tMCTruthClassifier.initialize());
+
   return StatusCode::SUCCESS;
 }
 

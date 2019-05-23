@@ -74,7 +74,7 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IMultiComponentStateMerger>    m_merger;
-  PublicToolHandle<IMultiComponentStateCombiner>  m_combiner
+  ToolHandle<IMultiComponentStateCombiner>  m_combiner
      {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfSmootherCombiner",""};
 
 

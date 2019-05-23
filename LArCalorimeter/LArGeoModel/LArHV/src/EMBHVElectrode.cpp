@@ -55,10 +55,17 @@ double EMBHVElectrode::current(int iGap) const {
   return payload->current[iGap];
 }
 
-int EMBHVElectrode::hvLineNo(int iGap) const {
-  EMBHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->hvLineNo[iGap];
+#ifndef SIMULATIONBASE
+int EMBHVElectrode::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->module->getManager().hvLineNo(*this, iGap, hvIdMapping)
+    : m_c->module->getManager().getPayload(*this)->hvLineNo[iGap];
 }
+#else
+int EMBHVElectrode::hvLineNo(int iGap) const {
+  return m_c->module->getManager().getPayload(*this)->hvLineNo[iGap];
+}
+#endif
 
 void EMBHVElectrode::voltage_current(int iGap,double& voltage, double&current) const {
  EMBHVPayload *payload = m_c->module->getManager().getPayload(*this);

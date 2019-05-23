@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -28,11 +30,11 @@
 #include <vector>
 
 //fwd declarations
-class StatusCode;
-class InterfaceID;
-class Incident;
-class SCT_ID;
 class Identifier;
+class Incident;
+class InterfaceID;
+class SCT_ID;
+class StatusCode;
 
 /**
  * @class SCT_CablingToolInc, providing mappings of online and offline identifiers and also serial numbers
@@ -104,8 +106,8 @@ class SCT_CablingToolInc: public extends<AthAlgTool, ISCT_CablingTool, IIncident
   ToolHandle<ISCT_FillCabling> m_cablingFillerText{"SCT_FillCablingFromText"};
   ToolHandle<ISCT_FillCabling> m_cablingFillerCoraCool{"SCT_FillCablingFromCoraCool"};
   StringProperty m_cablingDataSource; //!< the name of the data source
-  const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
-  bool m_usingDatabase;
+  const SCT_ID* m_idHelper{nullptr}; //!< helper for offlineId/hash conversions
+  bool m_usingDatabase{true};
 };
 
 #endif // SCT_CablingToolInc_h

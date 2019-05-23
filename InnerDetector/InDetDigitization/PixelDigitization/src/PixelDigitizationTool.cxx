@@ -22,9 +22,6 @@
 
 #include <limits>
 #include <cstdint>
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
-
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
@@ -35,7 +32,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_HardScatterSplittingSkipper(false),
   m_onlyHitElements(false),
   m_detID(nullptr),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
   m_mergeSvc("PileUpMergeSvc",name),
   m_detManager(nullptr),
@@ -49,7 +45,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("SDOCollName",      m_simDataCollKey,  "SDO collection name");
   declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //=======================================

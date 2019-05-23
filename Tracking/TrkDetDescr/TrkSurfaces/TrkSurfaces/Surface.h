@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,6 +29,8 @@
 #include "Identifier/Identifier.h"
 
 #include <atomic>
+#include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
 class SurfaceCnv_p1;
@@ -204,7 +206,7 @@ namespace Trk {
                                 double tol1=0.,
                                 double tol2=0.) const = 0;   
 								
-	  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
+	    virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
                                      const BoundaryCheck& bchk) const = 0;   						
       
       /** This method returns the GlobalPosition from a LocalPosition
@@ -278,16 +280,39 @@ namespace Trk {
       /** Return 'true' if this surface is own by the detector element */
       bool isActive() const;
       
-      /** set ownership */
-      void setOwner(SurfaceOwner) const;
-      
+      /** Set ownership  
+       * Athena MT note : This should not be really used
+       * as it  modifies a const object.
+       * The non-const overload below is fine.
+       */ 
+      void setOwner  ATLAS_NOT_THREAD_SAFE  (SurfaceOwner x) const 
+      { const_cast<SurfaceOwner&> (m_owner) = x; }
+
+      /* set Ownership */      
+      void setOwner(SurfaceOwner x)  
+      { m_owner = x; }
+
       /** return ownership */
-      SurfaceOwner owner() const;
+      SurfaceOwner owner() const 
+      { return m_owner; }
 
       /** set material layer */
-      void setMaterialLayer(const Layer& materiallay) const;
-      void setMaterialLayer(const Layer* materiallay) const;
+      void setMaterialLayer(const Layer& mlay) 
+      { m_materialLayer = (&mlay); }
+    
+      void setMaterialLayer(const Layer* mlay) 
+      { m_materialLayer = mlay; }
       
+       /** set material layer 
+       * Athena MT note : This should not be really used
+       * as it  modifies a const object.
+       * The non-const overload above is fine.
+       */ 
+      void setMaterialLayer ATLAS_NOT_THREAD_SAFE (const Layer& mlay) const 
+      { const_cast<Surface*> (this)->m_materialLayer = (&mlay); }
+      void setMaterialLayer ATLAS_NOT_THREAD_SAFE (const Layer* mlay) const 
+      { const_cast<Surface*> (this)->m_materialLayer = mlay; }
+     
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const;
       
@@ -305,16 +330,24 @@ namespace Trk {
       /** method to associate the associated Trk::Layer which is alreay owned
          - only allowed by LayerBuilder
          - only done if no Layer is set already  */
-      void associateLayer(const Layer&) const;
+      void associateLayer(const Layer& lay)
+      { m_associatedLayer = (&lay); }
+     
+      /* Athena MT note : This should not be really used
+       * as it  modifies a const object.
+       * The non-const overload above is fine
+       */ 
+      void associateLayer ATLAS_NOT_THREAD_SAFE (const Layer& lay) const
+      { const_cast<Surface*> (this)->m_associatedLayer = (&lay); }
             
   protected:
       friend class ::SurfaceCnv_p1;
             
       /** Private members are in principle implemented as mutable pointers to objects for easy checks
         if they are already declared or not */           
-      mutable Amg::Transform3D*                 m_transform;     //!< Transform3D to orient surface w.r.t to global frame
-      mutable Amg::Vector3D*                    m_center;        //!< center position of the surface
-      mutable Amg::Vector3D*                    m_normal;        //!< normal vector of the surface
+      CxxUtils::CachedUniquePtrT<Amg::Transform3D>  m_transform;     //!< Transform3D to orient surface w.r.t to global frame
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>     m_center;        //!< center position of the surface
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>     m_normal;        //!< normal vector of the surface
        
       /** Pointers to the a TrkDetElementBase */
       const TrkDetElementBase*                  m_associatedDetElement;
@@ -323,16 +356,16 @@ namespace Trk {
       /**The associated layer Trk::Layer 
        - layer in which the Surface is be embedded
        */
-      mutable const Layer*                      m_associatedLayer;
+      const Layer*                      m_associatedLayer;
       
       /** Possibility to attach a material descrption
       - potentially given as the associated material layer
         don't delete, it's the TrackingGeometry's job to do so
       */
-      mutable const Layer*                      m_materialLayer;
+      const Layer*                      m_materialLayer;
       
       /** pointer to surface owner : 0  free surface */
-      mutable SurfaceOwner                      m_owner;
+      SurfaceOwner                      m_owner;
          
       /**Tolerance for being on Surface */
       const static double                       s_onSurfaceTolerance;
@@ -350,7 +383,7 @@ namespace Trk {
   
   inline const Amg::Transform3D* Surface::cachedTransform() const
   {
-    return m_transform;
+    return m_transform.get();
   }
 
   inline const Amg::Transform3D& Surface::transform() const
@@ -364,16 +397,25 @@ namespace Trk {
 
   inline const Amg::Vector3D& Surface::center() const
   {
-    if (m_transform && !m_center) m_center = new Amg::Vector3D(m_transform->translation());
-    if (m_center) return (*m_center);
-    if (m_associatedDetElement && m_associatedDetElementId.is_valid()) return m_associatedDetElement->center(m_associatedDetElementId);
+    if(m_transform && !m_center){
+          return *(m_center.set( 
+                         std::make_unique<Amg::Vector3D>(m_transform->translation())
+                        ));
+
+    }
+    if(m_center) return (*m_center);
+    if(m_associatedDetElement && m_associatedDetElementId.is_valid()) return m_associatedDetElement->center(m_associatedDetElementId);
     if (m_associatedDetElement) return m_associatedDetElement->center();
     return s_origin;
   }
 
   inline const Amg::Vector3D& Surface::normal() const
   {
-    if (m_transform && m_normal==0) m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+    if (m_transform && !m_normal) {
+      return *(m_normal.set(
+                     std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2))
+                    ));
+    }
     if (m_normal) return (*m_normal);
     if (m_associatedDetElement && m_associatedDetElementId.is_valid()) return m_associatedDetElement->normal(m_associatedDetElementId);
     if (m_associatedDetElement) return m_associatedDetElement->normal();
@@ -486,21 +528,7 @@ namespace Trk {
   { return (m_associatedDetElement!=0); }
   
   inline bool Surface::isFree() const 
-  { return (m_owner==Trk::noOwn); }
-
-  inline void Surface::setOwner(SurfaceOwner x) const 
-  { m_owner = x; }
-
-  inline SurfaceOwner Surface::owner() const 
-  { return m_owner; }
-
-  inline void Surface::setMaterialLayer(const Layer& mlay) const
-  { m_materialLayer = (&mlay); }
-  inline void Surface::setMaterialLayer(const Layer* mlay) const
-  { m_materialLayer = mlay; }
-  
-  inline void Surface::associateLayer(const Layer& lay) const
-  { m_associatedLayer = (&lay); }
+  { return (m_owner==Trk::noOwn); }  
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& operator << ( MsgStream& sl, const Surface& sf);

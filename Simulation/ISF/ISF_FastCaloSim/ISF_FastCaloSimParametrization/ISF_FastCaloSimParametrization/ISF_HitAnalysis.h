@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HIT_ANALYSIS_H
@@ -38,7 +38,6 @@ namespace Trk
 
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
-class ICaloSurfaceHelper;
 
 #include <string>
 #include <Rtypes.h>
@@ -61,7 +60,6 @@ class LArHEC_ID;
 class IGeoModelSvc;
 
 //############################
-class ICaloSurfaceBuilder;
 class ICaloCoordinateTool;
 class IExtrapolateToCaloTool;
 class CaloDepthTool;
@@ -196,7 +194,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
-   ToolHandle<ICaloSurfaceHelper>       m_caloSurfaceHelper;
    mutable const Trk::TrackingVolume*   m_caloEntrance;
    std::string                          m_caloEntranceName;
    // extrapolation through Calo
@@ -209,8 +206,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    //IExtrapolateToCaloTool*      m_etoCaloEntrance;
    //CaloDepthTool*               m_calodepth;
    //CaloDepthTool*               m_calodepthEntrance;
-   ///ICaloSurfaceBuilder*           m_calosurf;
-   //ICaloSurfaceBuilder*           m_calosurf_entrance;
    //Trk::IExtrapolator*            m_extrapolator;
    //std::string                    m_extrapolatorName;
    //std::string                    m_extrapolatorInstanceName;

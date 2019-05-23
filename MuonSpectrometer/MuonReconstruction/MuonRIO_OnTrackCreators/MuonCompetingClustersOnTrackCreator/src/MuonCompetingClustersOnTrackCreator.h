@@ -24,7 +24,6 @@
 
 class Identifier;
 class MdtIdHelper;
-class MdtCalibrationSvc;
 
 namespace MuonGM {
   class MuonDetectorManager;

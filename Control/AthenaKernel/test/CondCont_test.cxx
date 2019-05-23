@@ -284,6 +284,18 @@ void checkit (const CondCont<T>& cc_rl,
 }
 
 
+std::string dump_cc (const CondCont<B>& cc)
+{
+  std::ostringstream ss;
+  for (const EventIDRange& r : cc.ranges()) {
+    const B* p = nullptr;
+    assert (cc.find (r.start(), p));
+    ss << r << " [" << p->m_x << "]\n";
+  }
+  return ss.str();
+}
+
+
 void test1 (TestRCUSvc& rcusvc)
 {
   std::cout << "test1\n";
@@ -361,6 +373,12 @@ void test1 (TestRCUSvc& rcusvc)
   assert (cc_ts.insert (EventIDRange (timestamp (100), timestamp (200)),
                         std::make_unique<B> (50)).isSuccess());
 
+  sc = cc_ts.insert (EventIDRange (timestamp (100), timestamp (300)),
+                     std::make_unique<B> (60));
+  assert (sc.isSuccess());
+  assert (CondContBase::Category::isExtended (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:100] - [t:300]} [50]\n");
+
   //*** Test errors from find().
   const B* b = nullptr;
   assert (!cc_rl.find (timestamp (100), b));
@@ -399,18 +417,6 @@ void test2 (TestRCUSvc& rcusvc)
 
   auto b4 = std::make_unique<B> (4);
   assert( ! bcc_rl.insert (EventIDRange (runlbn (40, 2), runlbn (40, 5)), std::move(b4)).isSuccess() );
-}
-
-
-std::string dump_cc (const CondCont<B>& cc)
-{
-  std::ostringstream ss;
-  for (const EventIDRange& r : cc.ranges()) {
-    const B* p = nullptr;
-    assert (cc.find (r.start(), p));
-    ss << r << " [" << p->m_x << "]\n";
-  }
-  return ss.str();
 }
 
 

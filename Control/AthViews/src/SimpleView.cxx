@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <stdexcept>
 #include "AthViews/SimpleView.h"
+#include "AthViews/View.h"
 
 using namespace std;
 
@@ -31,11 +32,11 @@ void SimpleView::linkParent( const IProxyDict* parent ) {
  * Find an exact match; no handling of aliases, etc.
  * Returns 0 to flag failure.
  */
-SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
+SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t /*sgkey*/ ) const
 {
-  cout << "Not implemented: SimpleView::proxy_exact" << endl;
+  //cout << "Not implemented: SimpleView::proxy_exact" << endl;
   //TODO - view rename
-  return m_store->proxy_exact( sgkey );
+  return nullptr;
 }
 
 
@@ -219,20 +220,27 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 
 
 std::string SimpleView::dump( const std::string& delim ) const {
-  std::string ret = "in view: "+name() + delim +" [ ";
+
+  // Dump view contents
+  std::string ret = "Dump view " + name() + delim + "\n[";
   for ( const SG::DataProxy* dp: proxies() ) {
     if ( dp->name().find( name() ) == 0 ) 
-      ret += dp->name() + delim;
+      ret += " " + dp->name() + delim;
   }
-  ret += " ] ";
+  ret += " ]";
+
+  // Dump parent views
   for ( auto p : m_parents ) {
-    const SimpleView * parent = dynamic_cast<const SimpleView*>( p );
+    auto parent = dynamic_cast<const SG::View*>( p );
     if ( parent ) {
-      ret += delim;
+      ret += "\nParent:\n";
       ret += parent->dump( delim );
-    } else {
-      ret += delim + "main store";
     }
+  }
+
+  // Fallthrough
+  if ( m_allowFallThrough ) {
+    ret += "\nCan access main store: " + m_store->name();
   }
   return ret;
 }

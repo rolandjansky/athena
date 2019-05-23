@@ -54,8 +54,6 @@ namespace Trk {
 namespace Rec {
   class IMuonPrintingTool;
   class IMuonMeanMDTdADCFiller;  
-  class IParticleCaloClusterAssociationTool;
-  class IParticleCaloCellAssociationTool;
   class IMuonTrackQuery;
 }
 namespace MuonCombined {

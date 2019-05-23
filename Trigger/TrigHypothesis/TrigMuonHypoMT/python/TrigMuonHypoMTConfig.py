@@ -197,7 +197,7 @@ def addMonitoring(tool, monClass, name, thresholdHLT ):
 
 
 def getThresholdsFromDict( chainDict ):    
-    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon' or i['signature'] is 'Bphysics']
     return sum( [ [part['threshold']]*int(part['multiplicity']) for part in cparts ], [])
 
 

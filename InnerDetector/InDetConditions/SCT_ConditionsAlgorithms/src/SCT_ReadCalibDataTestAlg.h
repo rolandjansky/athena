@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -50,10 +52,10 @@ class SCT_ReadCalibDataTestAlg:public AthReentrantAlgorithm
   StatusCode processProperties();             //!< Process jobOpt properties
   
   //----------Private Attributes----------//
-  const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
-  Identifier                          m_moduleId;      //!< Module identifier
-  Identifier                          m_waferId;       //!< Wafer identifier
-  Identifier                          m_stripId;       //!< Strip identifier
+  const SCT_ID* m_id_sct{nullptr};        //!< ID helper for SCT
+  Identifier m_moduleId;      //!< Module identifier
+  Identifier m_waferId;       //!< Wafer identifier
+  Identifier m_stripId;       //!< Strip identifier
  
   // Get Tool Handle
   ToolHandle<ISCT_ReadCalibDataTool> m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool", "Tool to retrieve calibration information"};

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -62,25 +64,25 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
  
   bool setConditionsFromGeoModel();
 
-  float                                       m_defaultTemperature;        //!< Default temperature (non-DB)
-  float                                       m_defaultBiasVoltage;        //!< Default bias voltage (non-DB)
-  float                                       m_defaultDepletionVoltage;   //!< Default depletion voltage (non-DB)
-  bool                                        m_useDB;                     //!< Whether to used the conditions DB or not
-  bool                                        m_checkGeoModel;
-  bool                                        m_forceUseGeoModel;
+  FloatProperty m_defaultTemperature{this, "Temperature", 10., "Default temperature (non-DB)"};
+  FloatProperty m_defaultBiasVoltage{this, "BiasVoltage", 150., "Default bias voltage (non-DB)"};
+  FloatProperty m_defaultDepletionVoltage{this, "DepletionVoltage", 70., "Default depletion voltage (non-DB)"};
+  BooleanProperty m_useDB{this, "UseDB", true, "Whether to used the conditions DB or not"};
+  BooleanProperty m_checkGeoModel{this, "CheckGeoModel", true};
+  BooleanProperty m_forceUseGeoModel{this, "ForceUseGeoModel", false};
 
-  ServiceHandle<IGeoModelSvc>                 m_geoModelSvc;
-  ServiceHandle<IRDBAccessSvc>                m_rdbSvc;
+  ServiceHandle<IGeoModelSvc> m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
+  ServiceHandle<IRDBAccessSvc> m_rdbSvc{this, "RDBAccessSvc", "RDBAccessSvc"};
 
-  float                                       m_geoModelTemperature;
-  float                                       m_geoModelBiasVoltage;
-  float                                       m_geoModelDepletionVoltage;
-  bool                                        m_useGeoModel;
+  float m_geoModelTemperature;
+  float m_geoModelBiasVoltage;
+  float m_geoModelDepletionVoltage;
+  bool m_useGeoModel{false};
 
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_SiliconBiasVoltCondData", "SCT silicon bias voltage"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp{this, "CondKeyTemp", "SCT_SiliconTempCondData", "SCT silicon temperature"};
 
-  const SCT_ID* m_sct_id;
+  const SCT_ID* m_sct_id{nullptr};
 
   const SCT_DCSFloatCondData* getCondDataHV() const;
   const SCT_DCSFloatCondData* getCondDataTemp() const;

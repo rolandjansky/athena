@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -219,9 +219,9 @@ namespace Trk {
       virtual std::string name() const override { return "Trk::ConeSurface"; }
 
     protected: //!< data members
-      SharedObject<const ConeBounds>  m_bounds;                //!< bounds (shared)
-      mutable Amg::Vector3D*          m_referencePoint;        //!< The global reference point (== a point on the surface)
-      mutable Amg::Vector3D*          m_rotSymmetryAxis;       //!< The rotational symmetry axis
+      SharedObject<const ConeBounds>                     m_bounds;                //!< bounds (shared)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>          m_referencePoint;        //!< The global reference point (== a point on the surface)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>          m_rotSymmetryAxis;       //!< The rotational symmetry axis
   };
   
   inline ConeSurface* ConeSurface::clone() const

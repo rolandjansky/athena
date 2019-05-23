@@ -40,11 +40,13 @@ void test1()
   assert (k1.mode() == Gaudi::DataHandle::Reader);
   assert (k1.storeHandle().name() == "StoreGateSvc");
   assert (!k1.storeHandle().isSet());
+  assert (k1.hashedKey() == 0);
   assert (k1.initialize().isSuccess());
   assert (k1.storeHandle().isSet());
   assert (k1.start().isSuccess());
   assert (!k1.isCondition());
   assert (!k1.empty());
+  assert (k1.hashedKey() == 752331202);
 
   k1 = "aab";
   assert (k1.clid() == 1234);

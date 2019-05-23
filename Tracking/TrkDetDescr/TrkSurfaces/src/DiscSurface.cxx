@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,80 +22,79 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::NoBounds Trk::DiscSurface::s_boundless;
+const Trk::NoBounds Trk::DiscSurface::s_boundless;
 
 // default constructor
 Trk::DiscSurface::DiscSurface() :
   Trk::Surface(),
   m_bounds(),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // copy constructor
 Trk::DiscSurface::DiscSurface(const DiscSurface& dsf) :
   Trk::Surface(dsf),
   m_bounds(dsf.m_bounds),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // copy constructor with shift
 Trk::DiscSurface::DiscSurface(const DiscSurface& dsf, const Amg::Transform3D& transf ) :
   Trk::Surface(dsf, transf),
   m_bounds(dsf.m_bounds),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct a disc with full phi coverage
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax) :
   Trk::Surface(htrans),
   m_bounds(new Trk::DiscBounds(rmin, rmax)),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct a disc with given phi coverage
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec) :
   Trk::Surface(htrans),
   m_bounds(new Trk::DiscBounds(rmin, rmax, hphisec)),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double minhalfx, double maxhalfx, double maxR, double minR, double avephi, double stereo):
   Trk::Surface(htrans),
   m_bounds(new Trk::DiscTrapezoidalBounds(minhalfx, maxhalfx, maxR, minR, avephi, stereo)),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct a disc with given bounds
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscBounds* dbounds) :
   Trk::Surface(htrans),
   m_bounds(dbounds),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct a disc with given bounds
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBounds* dbounds) :
   Trk::Surface(htrans),
   m_bounds(dbounds),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct a disc from a transform, bounds is not set.
 Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans) :
   Trk::Surface(std::move(htrans)),
   m_bounds(nullptr),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 // construct form TrkDetElementBase
 Trk::DiscSurface::DiscSurface(const Trk::TrkDetElementBase& detelement) :
   Trk::Surface(detelement),
   m_bounds(),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 // destructor (will call destructor from base class which deletes objects)
 Trk::DiscSurface::~DiscSurface()
 {
-  delete m_referencePoint;
 }
 
 Trk::DiscSurface& Trk::DiscSurface::operator=(const DiscSurface& dsf)
@@ -103,8 +102,7 @@ Trk::DiscSurface& Trk::DiscSurface::operator=(const DiscSurface& dsf)
   if (this!=&dsf){
     Trk::Surface::operator=(dsf);
     m_bounds =  dsf.m_bounds;
-    delete m_referencePoint;
-    m_referencePoint = 0;
+    m_referencePoint.store(nullptr);
   }
   return *this;
 }
@@ -129,14 +127,14 @@ const Amg::Vector3D& Trk::DiscSurface::globalReferencePoint() const
       double rMedium = bounds().r();
       double phi     = dbo->averagePhi() ;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
-      m_referencePoint = new Amg::Vector3D(transform()*gp);
+      m_referencePoint.set(std::make_unique<Amg::Vector3D>(transform()*gp));
     } else {
       const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
       //double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ; //nonsense, or logic inverted?
       double rMedium = bounds().r(); 
       double phi     = dtbo ? dtbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
-      m_referencePoint = new Amg::Vector3D(transform()*gp);
+      m_referencePoint.set(std::make_unique<Amg::Vector3D>(transform()*gp));
     }
   }
   return (*m_referencePoint);

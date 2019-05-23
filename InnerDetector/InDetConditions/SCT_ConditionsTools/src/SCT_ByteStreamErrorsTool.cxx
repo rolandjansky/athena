@@ -18,13 +18,7 @@
 
 /** Constructor */
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
-  base_class(type, name, parent),
-  m_sct_id{nullptr},
-  m_tempMaskedChips{},
-  m_abcdErrorChips{},
-  m_mutex{},
-  m_cache{},
-  m_nRetrievalFailure{0}
+  base_class(type, name, parent)
 {
 }
 

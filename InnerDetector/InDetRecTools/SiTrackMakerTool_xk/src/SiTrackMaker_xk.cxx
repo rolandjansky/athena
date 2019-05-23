@@ -273,7 +273,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX, bool SCT) const
   data.sct = SCT and m_useSct;
   bool simpleTrack = false;
 
-  InDet::TrackQualityCuts trackquality = std::move(setTrackQualityCuts(simpleTrack));
+  InDet::TrackQualityCuts trackquality = setTrackQualityCuts(simpleTrack);
 
   // New event for track finder tool
   //
@@ -340,7 +340,7 @@ void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX, bool SCT) const
   data.sct          = SCT && m_useSct;
   bool simpleTrack  = true;
 
-  InDet::TrackQualityCuts trackquality = std::move(setTrackQualityCuts(simpleTrack));
+  InDet::TrackQualityCuts trackquality = setTrackQualityCuts(simpleTrack);
 
   // New event for track finder tool
   //

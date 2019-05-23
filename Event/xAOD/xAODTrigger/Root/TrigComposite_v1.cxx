@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.cxx 784384 2016-11-15 16:37:49Z tamartin $
 
 // System include(s):
 #include <algorithm>
@@ -164,8 +163,8 @@ namespace xAOD {
 
       // Since this function shouldn't throw exceptions too easily,
       // let's be super careful here...
-      static ConstAccessor< std::vector< std::string > > accNames( "linkColNames" );
-      static ConstAccessor< std::vector< uint32_t > >    accCLIDs( "linkColClids" );
+      static const ConstAccessor< std::vector< std::string > > accNames( "linkColNames" );
+      static const ConstAccessor< std::vector< uint32_t > >    accCLIDs( "linkColClids" );
       if( ! (accNames.isAvailable( *this ) || accCLIDs.isAvailable( *this) ) ) {
          return false;
       }
@@ -224,25 +223,25 @@ namespace xAOD {
 
    std::vector< std::string >& TrigComposite_v1::linkColNamesNC() {
 
-      static Accessor< std::vector< std::string > > acc( "linkColNames" );
+      static const Accessor< std::vector< std::string > > acc( "linkColNames" );
       return acc( *this );
    }
 
    std::vector< uint32_t >& TrigComposite_v1::linkColKeysNC() {
 
-      static Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
+      static const Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
       return acc( *this );
    }
 
    std::vector< uint16_t >& TrigComposite_v1::linkColIndicesNC() {
 
-      static Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
+      static const Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
       return acc( *this );
    }
 
    std::vector< uint32_t >& TrigComposite_v1::linkColClidsNC() {
 
-      static Accessor< std::vector< uint32_t > > acc( "linkColClids" );
+      static const Accessor< std::vector< uint32_t > > acc( "linkColClids" );
       return acc( *this );
    }
 
