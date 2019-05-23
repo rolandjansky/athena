@@ -38,6 +38,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   
   StatusCode sc{StatusCode::SUCCESS};
 
+  std::lock_guard<std::recursive_mutex> lock{m_mutex};
+
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   std::set<uint32_t>& robIDSet{getRobIDSet(ctx)};
 
@@ -93,7 +95,7 @@ void SCTRawDataProviderTool::beginNewEvent() const
 }
 
 std::set<uint32_t>& SCTRawDataProviderTool::getRobIDSet(const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
+  std::lock_guard<std::recursive_mutex> lock{m_mutex};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
 

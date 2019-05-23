@@ -75,7 +75,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
       Turning off error message after 100 errors are counted */
   mutable std::atomic_int m_decodeErrCount{0};
 
-  mutable std::mutex m_mutex{};
+  mutable std::recursive_mutex m_mutex{};
 
   std::set<uint32_t>& getRobIDSet(const EventContext& ctx) const;
 };
