@@ -51,6 +51,10 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
    virtual StatusCode  execute( const EventContext& context ) const override;
    virtual StatusCode  finalize() override;
 
+  protected:
+   //The vertexing tool is not reentrant so this algorithm cannot be used reentrantly
+   bool isReEntrant() const override { return false; }
+
   private:
 
     TrigMultiTrkHypoMT();
