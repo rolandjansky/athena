@@ -36,7 +36,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -74,8 +74,7 @@ namespace MuonCombined {
     m_stauTofTool("MuGirlNS::StauBetaTofTool/StauBetaTofTool"),
     m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
     m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-    m_mdtCalibrationDbSvc("MdtCalibrationDbSvc", name)
-
+    m_calibrationDbTool("MdtCalibrationDbTool", this)
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
@@ -96,7 +95,7 @@ namespace MuonCombined {
     declareProperty("MuonTofTool",m_stauTofTool);
     declareProperty("Updator", m_updator );
     declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
-    declareProperty("MdtCalibrationDbSvc", m_mdtCalibrationDbSvc );
+    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
     declareProperty("DoSummary", m_doSummary = false );
     declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
     declareProperty("UseTruthMatching", m_useTruthMatching = false );
@@ -140,7 +139,7 @@ namespace MuonCombined {
     ATH_CHECK(m_stauTofTool.retrieve());
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
-    ATH_CHECK(m_mdtCalibrationDbSvc.retrieve());
+    ATH_CHECK(m_calibrationDbTool.retrieve());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -483,7 +482,7 @@ namespace MuonCombined {
           float locR = pars->parameters()[Trk::locR];
           float errR = pars->covariance() ? Amg::error(*pars->covariance(),Trk::locR) : 0.3;
           auto detEl = mdt->detectorElement();
-          auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+          auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
           auto rtRelation = data.rtRelation;
           bool out_of_bound_flag = false;
           float drdt = rtRelation->rt()->driftvelocity(driftTime);
@@ -764,7 +763,7 @@ namespace MuonCombined {
         float locR = rline;
         float errR = dc.errorTrack();
         auto detEl = mdt->detectorElement();
-        auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+        auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
         auto rtRelation = data.rtRelation;
         bool out_of_bound_flag = false;
         float drdt = rtRelation->rt()->driftvelocity(driftTime);

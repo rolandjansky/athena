@@ -161,18 +161,9 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
 
   ATH_CHECK( m_idToFixedIdTool.retrieve() );
 
-  ServiceHandle<MdtCalibrationDbSvc> dbSvc("MdtCalibrationDbSvc", name());
-  ATH_CHECK( dbSvc.retrieve() );
-  ATH_MSG_DEBUG( "Retrieved MdtCalibrationDbSvc" );
-
-  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadTube,
-				dynamic_cast<IMdtCalibDBTool*>(this),
-				&MdtCalibrationDbSvc::loadTube,
-				dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
-  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadRt,
-				dynamic_cast<IMdtCalibDBTool*>(this),
-				&MdtCalibrationDbSvc::loadRt,
-				dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
+  //In 2019 for the AthenaMT migration,
+  //old callback functions and member data cache were removed from MdtCalibrationDbSvc
+  //Please use MdtCalibDbAlg to provide derived data via the condition store
 
   // initialize MdtTubeCalibContainers 
   ATH_CHECK( defaultT0s() );

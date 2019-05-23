@@ -1,18 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- * Mdt Calibration Database Service Base Class
- * -------------------------------------------
- *
- * Author       : Martin Woudstra
- * Creation Date: 02 May 2005
- * Last Update  : 27 Feb 2006 by D.Orestano
- ***************************************************************************/
-
-#ifndef MDTCALIBSVC_MDTCALIBRATIONDBSVC_H
-#define MDTCALIBSVC_MDTCALIBRATIONDBSVC_H
+#ifndef MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H
+#define MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
@@ -23,6 +14,8 @@
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
 
+#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class MdtCalibrationRegionSvc;
 class MdtIdHelper;
@@ -40,24 +33,23 @@ namespace MuonCalib{
  * derived from MuonCalib::IMdtCalibDBTool to access different types of DB
  * (currently implemented ASCII files and COOL CLOBS)*/
 
-class MdtCalibrationDbSvc : public AthService, virtual public IInterface {
+//TODO: Use public extends<AthAlgTool, IInterface> here. Then you can construct the base class using base_class.
+
+class MdtCalibrationDbTool : public AthAlgTool, virtual public IInterface {
 public:
   /** constructor */
-  MdtCalibrationDbSvc(const std::string &name,ISvcLocator *sl);
+  MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent);
+
   /** destructor */
-  virtual ~MdtCalibrationDbSvc();
+  virtual ~MdtCalibrationDbTool();
   /** IInterface implementation */
   static const InterfaceID &interfaceID() {
-    static InterfaceID s_iID("MdtCalibrationDbSvc", 1, 0);
+    static InterfaceID s_iID("MdtCalibrationDbTool", 1, 0);
     return s_iID;
   }
-  /** IInterface implementation */
-  virtual StatusCode queryInterface(const InterfaceID &riid,void **ppvIF);
     
   /** initialization */
-  virtual StatusCode initialize(void);
-  /** finalization */
-  virtual StatusCode finalize(void);
+  virtual StatusCode initialize();
 
   /** Access to calibration constants per calibration region/chamber */
   MuonCalib::MdtFullCalibData getCalibration( const Identifier &id ) const; 
@@ -99,7 +91,6 @@ private:
   void initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet);
     
   /** Tool handling the DB access */
-  ToolHandle<MuonCalib::IMdtCalibDBTool> m_dbTool; 
   ServiceHandle<StoreGateSvc> m_detStore;
 
   /** Properties: */
@@ -116,4 +107,4 @@ private:
 
 };
 
-#endif // MDTCALIBSVC_MDTCALIBRATIONDBSVC_H
+#endif // MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H

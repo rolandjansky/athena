@@ -74,7 +74,7 @@ class PileUpMergeSvc;
 class MdtIdHelper;
 class MdtHitIdHelper;
 
-class MdtCalibrationDbSvc;
+class MdtCalibrationDbTool;
 
 // Digitization class for MDT hits
 /*
@@ -250,7 +250,7 @@ protected:
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
-  ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
+  ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
   ServiceHandle<IMDTConditionsSvc> m_pSummarySvc;
   bool m_t0_from_DB ;
 

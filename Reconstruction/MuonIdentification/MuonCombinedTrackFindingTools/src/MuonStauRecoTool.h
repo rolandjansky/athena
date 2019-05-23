@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTAURECOTOOL_H
@@ -42,7 +42,7 @@ namespace Muon {
   class IMuonPRDSelectionTool;
   class RpcClusterOnTrack;
 }
-class MdtCalibrationDbSvc;
+class MdtCalibrationDbTool;
 
 namespace Rec {
   class ICombinedMuonTrackBuilder;
@@ -250,7 +250,7 @@ namespace MuonCombined {
     ToolHandle<MuGirlNS::IStauBetaTofTool>           m_stauTofTool;
     ToolHandle<MuonCombined::MuonInsideOutRecoTool>  m_insideOutRecoTool;
     ToolHandle<Trk::IUpdator>                        m_updator;
-    ServiceHandle<MdtCalibrationDbSvc>               m_mdtCalibrationDbSvc;
+    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
     Muon::MuonSectorMapping                          m_muonSectorMapping;
 
     struct TruthMatchingCounters {
