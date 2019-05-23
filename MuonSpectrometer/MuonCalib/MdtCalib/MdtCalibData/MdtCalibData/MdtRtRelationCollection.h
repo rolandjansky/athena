@@ -25,4 +25,7 @@ It is a DataVector. It can be saved to storegate.
 typedef DataVector<MuonCalib::MdtRtRelation> MdtRtRelationCollection;
 CLASS_DEF(MdtRtRelationCollection, 1270996316, 1 )
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( MdtRtRelationCollection, 1160701058 );
+
 #endif
