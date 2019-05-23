@@ -61,7 +61,7 @@ class CloseComponentsMultiStateMerger : public AthAlgTool, virtual public IMulti
   ToolHandle<IComponentSeparationDistance>  m_distance;
 
   ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner;
-  PublicToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler
+  ToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler
      {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",""};
     
   ServiceHandle<IChronoStatSvc>                  m_chronoSvc;           //!< Timing: The Gaudi time auditing service

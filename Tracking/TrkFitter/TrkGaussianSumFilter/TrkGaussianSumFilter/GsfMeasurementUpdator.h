@@ -82,10 +82,10 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
  private:
   int                                      m_outputlevel;                      //!< to cache current output level
   ToolHandle<IUpdator>                     m_updator;                          //!< Linear (Kalman) updator
-  PublicToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator
+  ToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator
      {this,"PosteriorWeightsCalculator","Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",""};       //!< GSF Weights updator
 
-  PublicToolHandle<IMultiComponentStateAssembler> m_stateAssembler
+  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler
      {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",""};                   //!< State assembler
 
   ServiceHandle<IChronoStatSvc>            m_chronoSvc;                        //!< Timing: The Gaudi time auditing service
