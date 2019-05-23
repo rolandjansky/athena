@@ -20,7 +20,7 @@ Adopted from RT_Relation_DigiTool
 #include "MdtCalibData/IRtResolution.h"
 
 #include "MdtCalibData/MdtRtRelation.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -58,7 +58,8 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     const MuonGM::MuonDetectorManager* m_muonGeoMgr;
     
   protected:
-    ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
+    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
+
 };
 
 

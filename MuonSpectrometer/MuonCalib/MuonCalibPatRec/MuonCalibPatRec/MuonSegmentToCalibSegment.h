@@ -16,7 +16,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 
 class MdtIdHelper;
 class CscIdHelper;
@@ -105,7 +105,7 @@ output the muon calibration input.
     const TgcIdHelper*  m_tgcIdHelper;
 
     /** pointer to MdtCalibSvc */
-    ServiceHandle<MdtCalibrationSvc> m_calibSvc;
+    ToolHandle<MdtCalibrationTool> m_calibrationTool;
 
     /** IdentifierTool initialization */
     ToolHandle< Muon::IMuonPatternSegmentAssociationTool> m_assocTool;

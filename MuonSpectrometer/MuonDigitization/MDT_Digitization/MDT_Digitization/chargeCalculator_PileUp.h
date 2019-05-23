@@ -37,7 +37,6 @@ to the third digit of decimal number of the  pdgid.
 
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "TrkDetDescrUtils/GeometryStatics.h"
 

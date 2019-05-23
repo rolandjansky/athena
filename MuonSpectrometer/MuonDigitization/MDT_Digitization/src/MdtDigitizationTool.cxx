@@ -60,7 +60,7 @@
 //Calibration Service
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
@@ -74,12 +74,12 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_BMGid(-1)
   , m_mergeSvc(0)
   , m_inputObjectName("")
-  , m_calibDbSvc("MdtCalibrationDbSvc", name) 
+  , m_calibrationDbTool("MdtCalibrationDbTool",this)
   , m_pSummarySvc("MDTCondSummarySvc", name)
 {
   declareProperty("DigitizationTool",    m_digiTool,                          "Tool which handle the digitization process");
   //Conditions Database
-  declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
+  declareProperty("CalibrationDbTool", m_calibrationDbTool);
   declareProperty("MDTCondSummarySvc",   m_pSummarySvc);
   declareProperty("UseDeadChamberSvc",   m_UseDeadChamberSvc   =  false );
   declareProperty("GetT0FromBD",         m_t0_from_DB          =  false );
@@ -120,6 +120,7 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   declareProperty("UseOffSet2",          m_useOffSet2          =  true);
   //Truth
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 
@@ -132,7 +133,7 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "Configuration  MdtDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "DigitizationTool       " << m_digiTool            );
-  ATH_MSG_INFO ( "MdtCalibrationDbSvc    " << m_calibDbSvc          );
+  ATH_MSG_INFO ( "MdtCalibrationDbTool    " << m_calibrationDbTool  );
   ATH_MSG_INFO ( "MDTCondSummarySvc      " << m_pSummarySvc         );
   ATH_MSG_INFO ( "UseDeadChamberSvc      " << m_UseDeadChamberSvc   );
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
@@ -226,15 +227,7 @@ StatusCode MdtDigitizationTool::initialize() {
   m_inv_c_light = 1./(CLHEP::c_light);
   
   ATH_CHECK(m_rndmSvc.retrieve());
-  
-  // Get pointer to MdtCalibrationDbSvc and cache it :
-  if ( m_t0_from_DB ){
-    if ( !m_calibDbSvc.retrieve().isSuccess() ) {
-      ATH_MSG_FATAL("Unable to retrieve pointer to MdtCalibrationDbSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  
+
   //Gather masked stations
   for (unsigned int i=0;i<m_maskedStations.size();i++) {
     std::string mask=m_maskedStations[i];
@@ -941,10 +934,10 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       insideMask = false;
     }
     if( insideMatch || insideMask ) {
-      // get calibration constants from DbSvc
+      // get calibration constants from DbTool
       double t0 = m_offsetTDC;
       if ( m_t0_from_DB ) {
-	MuonCalib::MdtFullCalibData data = m_calibDbSvc->getCalibration( geo->collectionHash(), geo->detectorElementHash() ); 
+	MuonCalib::MdtFullCalibData data = m_calibrationDbTool->getCalibration( geo->collectionHash(), geo->detectorElementHash() );
 	if ( data.tubeCalib ) {
 	  int ml    = m_idHelper->multilayer(idDigit)-1;
 	  int layer = m_idHelper->tubeLayer(idDigit)-1;

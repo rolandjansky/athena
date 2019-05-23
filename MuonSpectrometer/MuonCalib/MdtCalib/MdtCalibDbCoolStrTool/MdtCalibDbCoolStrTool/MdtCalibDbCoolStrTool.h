@@ -17,6 +17,8 @@
 #include "zlib.h"
 #include "vector"
 
+#include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
+
 class MdtCalibrationRegionSvc;
 class Identifier; 
 class MdtIdHelper;
