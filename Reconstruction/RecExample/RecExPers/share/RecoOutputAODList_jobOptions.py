@@ -36,8 +36,6 @@
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
-from AthenaCommon.GlobalFlags import globalflags
-
 from AthenaCommon.Logging import logging
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
 
@@ -50,9 +48,6 @@ fullAODList = CfgItemList( "AodList" )
 
 # EventInfo stuff
 fullItemList = ["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
-if globalflags.isOverlay():
-    fullItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*" ]
-    pass
 try:
     include ( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py")
     fullAODList += CfgItemList( "EventAthenaPool",
