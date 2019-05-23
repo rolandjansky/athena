@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "JetUncertainties/ELogPtMassForTagSFUncertaintyComponent.h"
+#include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
 #include "JetUncertainties/Helpers.h"
 #include "BoostedJetTaggers/FatjetTruthLabel.h"
 
@@ -15,7 +15,7 @@ namespace jet
 //                                              //
 //////////////////////////////////////////////////
 
-ELogPtMassForTagSFUncertaintyComponent::ELogPtMassForTagSFUncertaintyComponent(const std::string& name)
+PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const std::string& name)
     : UncertaintyComponent(ComponentHelper(name))
     , m_massDef(CompMassDef::UNKNOWN)
     , m_label()
@@ -23,25 +23,25 @@ ELogPtMassForTagSFUncertaintyComponent::ELogPtMassForTagSFUncertaintyComponent(c
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
 
-ELogPtMassForTagSFUncertaintyComponent::ELogPtMassForTagSFUncertaintyComponent(const ComponentHelper& component)
+PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
     , m_massDef(component.massDef)
     , m_label(component.FatjetTruthLabelForSF)
 {
-    ATH_MSG_DEBUG(Form("Creating ELogPtMassForTagSFUncertaintyComponent named %s",m_uncHistName.Data()));
+    ATH_MSG_DEBUG(Form("Creating PtLogPtMassForTagSFUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
-ELogPtMassForTagSFUncertaintyComponent::ELogPtMassForTagSFUncertaintyComponent(const ELogPtMassForTagSFUncertaintyComponent& toCopy)
+PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const PtLogPtMassForTagSFUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
     , m_massDef(toCopy.m_massDef)
     , m_label(toCopy.m_label)
 {
-    ATH_MSG_DEBUG(Form("Creating copy of ELogPtMassForTagSFUncertaintyComponent named %s",m_uncHistName.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of PtLogPtMassForTagSFUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
-ELogPtMassForTagSFUncertaintyComponent* ELogPtMassForTagSFUncertaintyComponent::clone() const
+PtLogPtMassForTagSFUncertaintyComponent* PtLogPtMassForTagSFUncertaintyComponent::clone() const
 {
-    return new ELogPtMassForTagSFUncertaintyComponent(*this);
+    return new PtLogPtMassForTagSFUncertaintyComponent(*this);
 }
 
 
@@ -51,12 +51,12 @@ ELogPtMassForTagSFUncertaintyComponent* ELogPtMassForTagSFUncertaintyComponent::
 //                                              //
 //////////////////////////////////////////////////
 
-bool ELogPtMassForTagSFUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool PtLogPtMassForTagSFUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
     return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,log(getMassOverPt(jet,m_massDef))));
 }
 
-double ELogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
+double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
     static SG::AuxElement::Accessor<FatjetTruthLabel> accLabel("FatjetTruthLabel");
     if ( !accLabel.isAvailable(jet) ){

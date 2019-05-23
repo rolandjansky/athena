@@ -53,7 +53,7 @@ namespace CompParametrization
         eLOGmOe,        // 2D, (E,log(m/E)) dependence
         eLOGmOeEta,     // 3D, (E,log(m/E),eta) dependence
         eLOGmOeAbsEta,  // 3D, (E,log(m/E),|eta|) dependence
-        eLOGPtMassForTagSF,// 2D, (pt,log(m/pT)) dependence, only for tagging SF
+        PtLOGPtMassForTagSF,// 2D, (pt,log(m/pT)) dependence, only for tagging SF
     };
 
     TString enumToString(const TypeEnum type);
