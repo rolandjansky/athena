@@ -20,7 +20,7 @@
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
-#include "JetUncertainties/ELogPtMassForTagSFUncertaintyComponent.h"
+#include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
@@ -1150,8 +1150,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return new PtEtaUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
-            case CompParametrization::eLOGPtMassForTagSF:
-                return new ELogPtMassForTagSFUncertaintyComponent(component);
+            case CompParametrization::PtLOGPtMassForTagSF:
+                return new PtLogPtMassForTagSFUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
@@ -1802,7 +1802,7 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
         case CompParametrization::PtMass:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
-        case CompParametrization::eLOGPtMassForTagSF:
+        case CompParametrization::PtLOGPtMassForTagSF:
 	    value = histo.getValue(jet4vec.Pt()*m_energyScale,log(jet4vec.M()/jet4vec.Pt()));
             break;
         case CompParametrization::PtMassEta:
