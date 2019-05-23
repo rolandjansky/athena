@@ -38,6 +38,9 @@ fullESDList = CfgItemList( "EsdList" )
 
 # EventInfo stuff
 fullItemList = ["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
+if globalflags.isOverlay():
+    fullItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*" ]
+    pass
 protectedInclude ( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py")
 fullESDList += CfgItemList( "EventAthenaPool",
                             items = fullItemList,
