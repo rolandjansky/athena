@@ -553,9 +553,12 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
 
 # add filtering information
-from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCTool
-EXOT5MergeMCTool = DerivationFramework__MergeMCTool(name="EXOT5MergeMCTool")
-exot5Seq += EXOT5MergeMCTool 
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCAna
+EXOT5MergeMCAna = DerivationFramework__MergeMCAna(name="EXOT5MergeMCAna")
+exot5Seq += EXOT5MergeMCAna
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SumEvtWeightFilterAlg
+EXOT5SumEvtWeightFilterAlg = DerivationFramework__SumEvtWeightFilterAlg(name="EXOT5SumEvtWeightFilterAlg")
+exot5Seq += EXOT5SumEvtWeightFilterAlg
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool

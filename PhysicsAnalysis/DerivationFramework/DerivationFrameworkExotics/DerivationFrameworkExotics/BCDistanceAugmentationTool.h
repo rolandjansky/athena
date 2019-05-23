@@ -33,11 +33,6 @@ namespace DerivationFramework {
       //int32_t                        m_runNumber;
       ToolHandle<VGammaORTool>            m_PhIsoTool;
 
-      // for the flavour filtering
-      const std::vector<float> computeTruthInfo(const xAOD::TruthEventContainer* xTruthEventContainer) const;
-      bool isBwithWeakDK(const int pID) const;
-      bool isDwithWeakDK(const int pID) const;
-
   }; 
 
 }
