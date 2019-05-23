@@ -4,6 +4,8 @@ from AthenaCommon.Include import include  # to include old style job options
 
 def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False):
 
+    outputCollections = list()
+
     ## print some information about the conditions the simulation
     ## is running in
 
@@ -14,13 +16,28 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     from RecExConfig.RecFlags import rec
     from AthenaCommon.GlobalFlags import globalflags, jobproperties
     log.info("Begin setup of L1 Calo Run 3 simulation chain")
-    log.info("rec.read.*     : RDO: %s, ESD: %s, AOD: %s" % (rec.readRDO(), rec.readESD(), rec.readAOD()) )
-    log.info("rec.do*        : RDOTrigger: %s, ESD: %s, AOD: %s" % (rec.doRDOTrigger(), rec.doESD(), rec.doAOD()))
-    log.info("rec.doWrite.*  : ESD: %s, AOD: %s, TAG: %s" % (rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG()) )
+    log.info("rec.read.*              : RDO: %s, ESD: %s, AOD: %s" % (rec.readRDO(), rec.readESD(), rec.readAOD()) )
+    log.info("rec.do*                 : RDOTrigger: %s, ESD: %s, AOD: %s" % (rec.doRDOTrigger(), rec.doESD(), rec.doAOD()))
+    log.info("rec.doWrite.*           : ESD: %s, AOD: %s, TAG: %s" % (rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG()) )
+    log.info("globalflags.DataSource  : %s" % globalflags.DataSource())
 
     from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
     log.info(simflags._context_name)
     simflags.print_JobProperties('tree&value')
+
+    # consistency check
+    if globalflags.DataSource()=='data':
+        if simflags.Calo.SCellType() != "Emulated":
+            log.error("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated." % simflags.Calo.SCellType())
+    else:
+        if simflags.Calo.SCellType() == "Emulated":
+            log.warning("Running on simulation and SuperCell-type is set to Emulated. Simulation should run from simulated SuperCells")
+
+    if simflags.Calo.SCellType() == "Emulated":
+        log.info("Running with emulated SuperCells")
+    else:
+        log.info("Running with simulated SuperCells")
+
 
     ## Setup the histogramming, if it does not exist yet
 
@@ -46,15 +63,48 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
             from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
             topSequence += xAODMaker__EventInfoCnvAlg()
-            pass
     else:
         if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
             topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
-            pass
 
     ## when running on data the ROBDataProviderSvc needs to be setup 
     if  jobproperties.Global.InputFormat() == 'bytestream':
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
+
+
+
+    
+    ## If simulation is run and one wants to simulate the SuperCells:
+    ## SuperCell simulation should actually be somewhere before as part of the detector simulation, but at the moment I put it here
+###       if simflags.Calo.SCellType() != "Emulated" and globalflags.DataSource()!='data':
+###   
+###           print "JOERG"
+###           from RecExConfig.ObjKeyStore import objKeyStore
+###           from RecExConfig.InputFilePeeker import inputFileSummary
+###           print inputFileSummary
+###           print inputFileSummary['eventdata_itemsList']
+###   
+###           topSequenceSnapshot = [c for c in topSequence]
+###   
+###   
+###   
+###           include("LArROD/LArConfigureCablingSCFolder.py")
+###           from LArL1Sim.LArSCL1Getter import LArSCL1Getter
+###           LArSCL1Getter()
+###           from Digitization.DigitizationFlags import digitizationFlags
+###           digitizationFlags.rndmSeedList.addSeed("LArSCL1Maker", 335242, 7306589 )
+###           topSequence.LArSCL1Maker.RndmSvc = digitizationFlags.rndmSvc.get_Value()
+###           from LArROD.LArSCellGetter import LArSCellGetter
+###           LArSCellGetter()
+###           outputCollections += [ "LArDigitContainer#LArDigitSCL1",
+###                                  "CaloCellContainer#SCell" ]
+###           for alg in topSequence:
+###               if alg not in topSequenceSnapshot:
+###                   l1simAlgSeq += alg
+###           topSequence.removeAll()
+###           for alg in topSequenceSnapshot:
+###               topSequence += alg 
+
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
@@ -159,12 +209,12 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if rec.doWriteAOD():
         from TrigT1CaloFexSim.SetupOutput import fillAOD
         stream = fillAOD( SuperCellContainer=SCIn,
-                          WriteAllCalo=False)
+                          WriteAllCalo=False, otherOutput = outputCollections)
 
     if rec.doRDOTrigger():
         from TrigT1CaloFexSim.SetupOutput import fillRDO
         stream = fillRDO( SuperCellContainer=SCIn,
-                          WriteAllCalo=False)
+                          WriteAllCalo=False, otherOutput = outputCollections)
 
     if simflags.EnableDebugOutput():
         from TrigT1CaloFexSim.SetupOutput import printStreamingInfo

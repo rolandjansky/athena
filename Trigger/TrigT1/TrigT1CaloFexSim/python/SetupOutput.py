@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput ):
 
     itemList = []
 
@@ -32,6 +32,9 @@ def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False )
     # eFEX taus
     itemList += [ "xAOD::EmTauRoIContainer#SClusterTau",
                   "xAOD::EmTauRoIAuxContainer#SClusterTauAux.*" ]
+
+    itemList += otherOutput
+    
 
     from OutputStreamAthenaPool.MultipleStreamManager import AugmentedPoolStream
     if isinstance(stream,AugmentedPoolStream):
