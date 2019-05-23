@@ -74,6 +74,9 @@ eventSelectionSequence = \
 algSeq += eventSelectionSequence
 
 # Set up an ntuple to check the job with:
+treeMaker = AnaAlgorithmConfig( 'CP::TreeMakerAlg/TreeMaker' )
+treeMaker.TreeName = 'events'
+job.algsAdd( treeMaker )
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'events'
 ntupleMaker.Branches = [
@@ -82,6 +85,9 @@ ntupleMaker.Branches = [
 ]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
+treeFiller = AnaAlgorithmConfig( 'CP::TreeFillerAlg/TreeFiller' )
+treeFiller.TreeName = 'events'
+job.algsAdd( treeFiller )
 
 # For debugging.
 print( algSeq )
