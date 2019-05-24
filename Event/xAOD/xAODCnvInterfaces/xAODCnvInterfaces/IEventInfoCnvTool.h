@@ -44,7 +44,7 @@ namespace xAODMaker {
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
                                   bool copyPileUpLinks = true,
-				  bool IsDataOverlay = false) = 0;
+				  bool forceMCInfoCopy = false) = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

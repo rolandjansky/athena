@@ -114,7 +114,7 @@ namespace xAODMaker {
                                          xAOD::EventInfo* xaod,
                                          bool pileUpInfo,
                                          bool copyPileUpLinks,
-					 bool IsDataOverlay) {
+					 bool forceMCInfoCopy) {
 
       if( ! aod ) {
          ATH_MSG_WARNING( "Null pointer received for input!" );
@@ -151,9 +151,9 @@ namespace xAODMaker {
             eventTypeBitmask |= xAOD::EventInfo::IS_CALIBRATION;
          }
          xaod->setEventTypeBitmask( eventTypeBitmask );
-         // Only add MC information for simulation files:
-	 //ot for Data+MC overlay
-         if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) || IsDataOverlay ) {
+         // Only add MC information for simulation files
+	 //or for Data+MC overlay
+         if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) || forceMCInfoCopy ) {
             xaod->setMCChannelNumber( aod->event_type()->mc_channel_number() );
             xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
             std::vector< float >

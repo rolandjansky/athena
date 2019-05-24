@@ -53,7 +53,7 @@ namespace xAODMaker {
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
                                   bool copyPileUpLinks = true,
-				  bool IsDataOverlay = false);
+				  bool forceMCInfoCopy = false);
 
    private:
 #ifndef XAOD_ANALYSIS
