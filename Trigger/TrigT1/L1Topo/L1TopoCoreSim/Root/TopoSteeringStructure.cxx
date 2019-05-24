@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "L1TopoCoreSim/TopoSteeringStructure.h"
 
@@ -37,15 +37,15 @@ namespace {
       catch(const boost::bad_lexical_cast & bc) {
          if( parvalue.size()>=3 && parvalue[0]==':' and parvalue[parvalue.size()-1]==':' ) {
 
-            auto x = L1TopoHardwareParameters.find(parvalue.substr(1,parvalue.size()-2));
+            auto x = L1TopoHWParameters::get().find(parvalue.substr(1,parvalue.size()-2));
 
             string parname = parvalue.substr(1,parvalue.size()-2);
 
-            if( x != L1TopoHardwareParameters.end()) {
+            if( x != L1TopoHWParameters::get().end()) {
                val = x->second.value;
             } else {
                cout << "Hardware constrained parameters are" << endl;
-               for(auto & x : L1TopoHardwareParameters)
+               for(auto & x : L1TopoHWParameters::get())
                   cout << "   " << x.first << endl;
 
                TCS_EXCEPTION("Generic parameter value " << parvalue << " has the hardware contrained parameter format, but '" << parname << "' is not listed in L1TopoHardware.cxx");
