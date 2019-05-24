@@ -87,18 +87,18 @@ StatusCode DerivationFramework::SumEvtWeightFilterAlg::execute()
   const xAOD::JetContainer* jets = nullptr;
   ATH_CHECK(evtStore()->retrieve(jets, "AntiKt4TruthJets"));
   double weight = evtInfo->mcEventWeight();
-  static SG::AuxElement::ConstAccessor< int >  decoratorFlavourFilter("FlavourFilter");  
+  static SG::AuxElement::ConstAccessor< int >    decoratorFlavourFilter("FlavourFilter");  
   static SG::AuxElement::ConstAccessor< float >  decoratorMGVTruthPt("MGVTruthPt");  
   static SG::AuxElement::ConstAccessor< float >  decoratorSherpaVTruthPt("SherpaVTruthPt");  
-  static SG::AuxElement::ConstAccessor< bool >  decoratorin_vy_overlap("in_vy_overlap");
-  static SG::AuxElement::ConstAccessor< bool >  decoratorin_vy_overlap_iso("in_vy_overlap_iso");
+  static SG::AuxElement::ConstAccessor< bool >   decoratorin_vy_overlap("in_vy_overlap");
+  static SG::AuxElement::ConstAccessor< bool >   decoratorin_vy_overlap_iso("in_vy_overlap_iso");
   int flav=decoratorFlavourFilter(*evtInfo);
   float ptv = decoratorMGVTruthPt(*evtInfo);
   float sherpaptv = decoratorSherpaVTruthPt(*evtInfo);
   bool passPhotonOR = decoratorin_vy_overlap(*evtInfo);
   bool passPhotonORIso = decoratorin_vy_overlap_iso(*evtInfo);
 
-// needs to be added
+  // First pass of filtering on ptV
   bool passSherpaPTVFilter=(sherpaptv>100.0e3);
 
   double JetEtaFilter = 5.0;
