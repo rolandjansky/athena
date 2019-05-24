@@ -180,7 +180,7 @@ namespace Trk {
       {
           int steerBin  = m_steeringBinUtility->bin(lp, 0);
           int singleBin = (*m_singleBinUtilities)[steerBin]->bin(lp,0);
-          return ((*((*m_array)[steerBin]))[singleBin]).getPtr();
+          return ((*((*m_array)[steerBin]))[singleBin]).get();
       }
 
       /** Returns the pointer to the templated class object from the BinnedArray,
@@ -190,7 +190,7 @@ namespace Trk {
       {
           int steerBin  = m_steeringBinUtility->bin(gp, 0);
           int singleBin = (*m_singleBinUtilities)[steerBin]->bin(gp, 0);
-          return ((*((*m_array)[steerBin]))[singleBin]).getPtr();
+          return ((*((*m_array)[steerBin]))[singleBin]).get();
       }
 
       /** Returns the pointer to the templated class object from the BinnedArray - entry point */
@@ -198,7 +198,7 @@ namespace Trk {
       { 
           int steerBin  = m_steeringBinUtility->entry(gp, 0);
           int singleBin = (*m_singleBinUtilities)[steerBin]->entry(gp,0);
-          return ((*((*m_array)[steerBin]))[singleBin]).getPtr();
+          return ((*((*m_array)[steerBin]))[singleBin]).get();
             
       }
 
@@ -213,7 +213,7 @@ namespace Trk {
 	  for (size_t isteer=0; isteer<m_steeringBinUtility->bins(); ++isteer)
 	    {
 	      for (size_t isingle = 0; isingle< (*m_singleBinUtilities)[isteer]->bins(); ++isingle)
-		{ m_arrayObjects->push_back(((*((*m_array)[isteer]))[isingle]).getPtr()); }
+		{ m_arrayObjects->push_back(((*((*m_array)[isteer]))[isingle]).get()); }
 	    }
 	}
 	return (*m_arrayObjects);

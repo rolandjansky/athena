@@ -260,10 +260,10 @@ namespace Trk {
   }
 
   inline const CylinderBounds& CylinderSurface::bounds() const
-  { return (m_bounds.getRef()); }
+  { return *(m_bounds.get()); }
 
   inline bool CylinderSurface::hasBounds() const
-  { return m_bounds.getPtr() != nullptr; }
+  { return m_bounds.get() != nullptr; }
 
   inline bool CylinderSurface::insideBounds(const Amg::Vector2D& locpos,
                                             double tol1,

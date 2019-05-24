@@ -233,7 +233,7 @@ namespace Trk {
     
   inline const SurfaceBounds& DiscSurface::bounds() const
   {
-    if (m_bounds.getPtr()) return (m_bounds.getRef());
+    if (m_bounds.get()) return (*(m_bounds.get()));
     if (Surface::m_associatedDetElement && Surface::m_associatedDetElementId.is_valid()){ 
      return m_associatedDetElement->bounds(Surface::m_associatedDetElementId);
     }

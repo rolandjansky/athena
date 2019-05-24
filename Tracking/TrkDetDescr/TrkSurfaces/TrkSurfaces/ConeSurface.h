@@ -242,7 +242,7 @@ namespace Trk {
   }  
 
   inline const ConeBounds& ConeSurface::bounds() const
-  { return (m_bounds.getRef()); }
+  { return *(m_bounds.get()); }
 
   inline bool ConeSurface::insideBounds(const Amg::Vector2D& locpos,
                                         double tol1,

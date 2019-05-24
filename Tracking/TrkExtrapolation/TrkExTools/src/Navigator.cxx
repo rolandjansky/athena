@@ -372,7 +372,7 @@ Trk::Navigator::nextDenseTrackingVolume(
 
   const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol.boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    const Trk::Surface *nextSurface = &((bounds[ib].getPtr())->surfaceRepresentation());
+    const Trk::Surface *nextSurface = &((bounds[ib].get())->surfaceRepresentation());
     surfaces->push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(nextSurface, true));
   }
 
@@ -414,11 +414,11 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
   }
   const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    const Trk::Surface &surf = (bounds[ib].getPtr())->surfaceRepresentation();
+    const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
     if (surf.isOnSurface(parms->position(), true, tol, tol)) {
       // isAtBoundary = true;
       // const Trk::TrackingVolume* attachedVol =
-      //  (bounds[ib].getPtr())->attachedVolume(parms->position(),parms->momentum(),dir);
+      //  (bounds[ib].get())->attachedVolume(parms->position(),parms->momentum(),dir);
       // if (!nextVol && attachedVol ) nextVol = attachedVol;
 
       // sanity check to enforce the desired tolerance
@@ -426,7 +426,7 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
                                                                         dir * parms->momentum().unit());
       if (distSol.currentDistance(false) < tol && distSol.numberOfSolutions() > 0) {
         isAtBoundary = true;
-        const Trk::TrackingVolume *attachedVol = (bounds[ib].getPtr())->attachedVolume(
+        const Trk::TrackingVolume *attachedVol = (bounds[ib].get())->attachedVolume(
           parms->position(), parms->momentum(), dir);
         if (!nextVol && attachedVol) {
           nextVol = attachedVol;
