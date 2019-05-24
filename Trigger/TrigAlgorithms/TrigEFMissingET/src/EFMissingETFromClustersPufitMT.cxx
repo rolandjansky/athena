@@ -24,7 +24,7 @@ PURPOSE:  athenaMT migration
 
 // TrigEFMissingET includes
 #include "EFMissingETFromClustersPufitMT.h"
-
+#include "EFMissingETComponentCopier.h"
 
 #include <TMatrixD.h>
 
@@ -76,9 +76,6 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met,
 {
 
   ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::update()" );
-
-  const std::vector<std::string> vComp = {"TCPufit", "TCPufitUnc", "Muons"};
-  met->defineComponents(vComp);
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
   auto caloClustersHandle = SG::makeHandle( m_clustersKey, ctx );
@@ -318,7 +315,15 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met,
    
   } // end container loop.
   
-  
+
+
+  // Save MET into final met object
+  EFMissingETComponentCopier copier = EFMissingETComponentCopier(met, metHelper);
+  const std::vector<std::string> vComp = {"TCPufit", "TCPufitUnc"};
+  met->defineComponents( vComp );
+  copier.addHelperCompToMET(TrigEFMissingEtComponent::TCPufit);
+  copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCPufit);
+  copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCPufitUnc);
   
   return StatusCode::SUCCESS;
 

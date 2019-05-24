@@ -34,16 +34,14 @@ topSequence += clusterSequence
 # Add EFMissingETFrom** algorithm
 #################################################
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromClustersMT, EFMissingETFromHelperMT
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromClustersMT
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 clusterTool = EFMissingETFromClustersMT( name="METFromClustersTool" )
 clusterTool.ClustersCollection = clusterContainer
 
-helperTool = EFMissingETFromHelperMT("theHelperTool") 
-
 metAlg = EFMissingETAlgMT( name="EFMET" )
-metAlg.METTools=[ clusterTool, helperTool ]
+metAlg.METTools=[ clusterTool ]
 metAlg.METContainerKey = "HLT_MET_Clusters"
 metAlg.MonTool = getMETMonTool()
 topSequence += metAlg
