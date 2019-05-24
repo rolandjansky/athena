@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "StoreGate/StoreGateSvc.h"
@@ -10,7 +10,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigmuRoI/TrigmuRoI.h"
 
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 unsigned int getBitMaskValue( const unsigned int uintValue,
 	                       const unsigned int mask ) {
@@ -210,8 +210,8 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
      
        double etamin = eta - 0.2;
        double etamax = eta + 0.2;
-       double phimin = HLT::wrapPhi(phi - 0.2);
-       double phimax = HLT::wrapPhi(phi + 0.2); 
+       double phimin = CxxUtils::wrapToPi(phi - 0.2);
+       double phimax = CxxUtils::wrapToPi(phi + 0.2);
 
        if ((*it).second >= m_minValueForOutOfTimeBC &&
            (*it).second <= m_maxValueForOutOfTimeBC    ) {

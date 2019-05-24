@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
                           Control/AthenaMonitoring
+                          Control/CxxUtils
                           DetectorDescription/RegionSelector
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData

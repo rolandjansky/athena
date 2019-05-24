@@ -37,9 +37,8 @@
 
 #include "AthLinks/ElementLink.h"
 #include "AthViews/ViewHelper.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 #include "TrigConfHLTData/HLTUtils.h"
-#include "AthenaKernel/MsgStreamMember.h"
 
 
 class ISvcLocator;
@@ -345,7 +344,7 @@ bool TrigMultiTrkHypoMT::passNTracks(int nObjMin,
        if( (*outTrk)->charge() *  (*inTrk)->charge() < 0 ) continue; 
        
        double deta = (*inTrk)->eta() - (*outTrk)->eta();
-       double dphi = HLT::wrapPhi((*inTrk)->phi() - (*outTrk)->phi());
+       double dphi = CxxUtils::wrapToPi((*inTrk)->phi() - (*outTrk)->phi());
        double deltaR2 = deta*deta + dphi*dphi;
        if( deltaR2 <= mindR2) already_found = true;
      } 
