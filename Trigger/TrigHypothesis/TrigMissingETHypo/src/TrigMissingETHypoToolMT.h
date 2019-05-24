@@ -19,7 +19,7 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
-#include "TrigMissingETHypo/ITrigMissingETHypoToolMT.h"
+#include "ITrigMissingETHypoToolMT.h"
 
 class TrigMissingETHypoToolMT: public extends<AthAlgTool, ITrigMissingETHypoToolMT>  {
 
