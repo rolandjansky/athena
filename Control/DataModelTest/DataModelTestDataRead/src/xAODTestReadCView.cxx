@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -58,14 +58,15 @@ StatusCode xAODTestReadCView::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CView> cview (m_cviewKey, ctx);
 
-  static C::Accessor<int> anInt10 ("anInt10");
-  std::cout << m_cviewKey.key() << ":";
+  static const C::Accessor<int> anInt10 ("anInt10");
+  std::ostringstream ost;
+  ost << m_cviewKey.key() << ":";
   for (const C* c : *cview) {
-    std::cout << " " << c->anInt();
+    ost << " " << c->anInt();
     if (anInt10.isAvailable(*c))
-      std::cout << "(" << anInt10(*c) << ")";
+      ost << "(" << anInt10(*c) << ")";
   }
-  std::cout << "\n";
+  ATH_MSG_INFO (ost.str());
 
   if (!m_writeKey.key().empty()) {
     SG::WriteHandle<DMTest::CView> writeview (m_writeKey, ctx);
