@@ -42,7 +42,7 @@ atlas_add_library( HFORToolsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( HFORTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES POOLRootAccess AthenaBaseComps GaudiKernel xAODBase xAODJet xAODTruth xAODEventInfo PathResolver
+      LINK_LIBRARIES POOLRootAccessLib AthenaBaseComps GaudiKernel xAODBase xAODJet xAODTruth xAODEventInfo PathResolver
       HFORToolsLib )
 endif()
 
@@ -56,7 +56,7 @@ if( NOT XAOD_STANDALONE )
   atlas_add_test( ut_HFORTools_test
     SOURCES test/ut_HFORTools_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${Boost_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccess AthenaBaseComps GaudiKernel HFORToolsLib
+    LINK_LIBRARIES ${Boost_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccessLib AthenaBaseComps GaudiKernel HFORToolsLib
     PROPERTIES TIMEOUT 600 )
 endif()
 
