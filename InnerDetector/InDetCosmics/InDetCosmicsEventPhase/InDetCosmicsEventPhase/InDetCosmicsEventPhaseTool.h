@@ -11,10 +11,12 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "InDetCosmicsEventPhase/IInDetCosmicsEventPhaseTool.h"
+#include "TRT_ConditionsData/AverageT0.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -45,9 +47,6 @@ namespace InDet
       /** standard Athena-Algorithm method */
       virtual StatusCode finalize  ();
       
-      /** if m_useNewEP = True, set averageT0 != 0 */
-      void beginRun();
-      
       /** finds event phase of a track from the leading edge */
       double findPhase(const Trk::Track *track) const;
       
@@ -59,13 +58,13 @@ namespace InDet
       
     private:
       
-      double m_averageT0; // subtract average T0 in EP calculation (new April 2009)
+
+      SG::ReadCondHandleKey<TRTCond::AverageT0> m_T0ReadKey{this,"T0ReadKey","AverageT0","Average T0 in-key"};      
       
-      ServiceHandle<ITRT_CalDbSvc> m_trtconddbsvc ;//!< TRT Calibration DB tool
+      ToolHandle<ITRT_CalDbTool> m_caldbtool ;//!< TRT Calibration DB tool
       
-      bool m_gett0;
-      bool m_useNewEP;
       double m_globalOffset; 
+      bool m_useNewEP; 
     }; 
 }
 
