@@ -16,7 +16,7 @@
 //
 // ********************************************************************
 
-#include "TrigL2MissingET/T2CaloMissingET.h"
+#include "T2CaloMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -31,7 +31,7 @@
 
 #define USECABLINGSERVICE
 #ifndef USECABLINGSERVICE
-#include "TrigL2MissingET/febmapL2.h"
+#include "febmapL2.h"
 #endif
 
 // number of components for the MET feature
