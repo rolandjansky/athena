@@ -4,7 +4,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
@@ -87,7 +87,7 @@ void EFTauTopoFex :: fill_delta_r(const xAOD::IParticleContainer* c1, const xAOD
   for (const auto &p1: *c1) {
     for (const auto &p2: *c2) {
       float deta = fabs(p1->eta() - p2->eta());
-      float dphi = fabs(HLT::wrapPhi(p1->phi() - p2->phi()));
+      float dphi = fabs(CxxUtils::wrapToPi(p1->phi() - p2->phi()));
       float dr = sqrt(deta * deta + dphi * dphi); // compute dR
       m_dR.push_back(dr);
     }
