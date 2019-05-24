@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/T2MbtsHypo.h"
+#include "T2MbtsHypo.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
 
 #include <bitset>

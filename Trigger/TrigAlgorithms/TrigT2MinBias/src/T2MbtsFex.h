@@ -8,7 +8,7 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "TileEvent/TileCellCollection.h"
-#include "TrigT2MinBias/T2MbtsUtils.h"
+#include "T2MbtsUtils.h"
 #include <vector>
 
 class TileTBID;
