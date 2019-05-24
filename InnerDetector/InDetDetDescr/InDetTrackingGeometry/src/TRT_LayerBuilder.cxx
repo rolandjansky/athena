@@ -364,7 +364,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
                         * The above line was using the nodel (not delete option for the old shared object
                         * now that SharedObject is a shared_ptr typeded do the same with empty deleter
                         */
-                       Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, [](const Trk::Surface*){});
+                       Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, Trk::do_not_delete<const Trk::Surface>);
                        strawsPerPhiSecLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
                        // and record
                        ++sectorStraws;

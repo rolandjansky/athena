@@ -297,7 +297,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
        const Trk::Surface* moduleSurface = takeIt ? (&((*sidetIter)->surface())) : (&(otherSide->surface()));
   
        // register the module surface
-       Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface, [](const Trk::Surface*){});
+       Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface, Trk::do_not_delete<const Trk::Surface>);
   
        Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
        if (takeIt) (layerSurfaces[currentlayer]).push_back(surfaceOrder);

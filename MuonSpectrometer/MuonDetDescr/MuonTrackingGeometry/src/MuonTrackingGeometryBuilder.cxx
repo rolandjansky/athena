@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -1237,7 +1237,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
   /* The above was passing a SharedObject with the ndel == True
    * now that SharedObject is a typeded to std::shared_ptr , pass a no-op deleter
    */
-  subVolumes.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, [](const Trk::TrackingVolume*){}),
+  subVolumes.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, Trk::do_not_delete<const Trk::TrackingVolume>),
                                                         Amg::Vector3D(transf*gp)));
        //glue subVolumes
         sVols.push_back(sVol); 
@@ -1497,7 +1497,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
 	  Amg::Vector3D gp(0.5*(hSteps[h].second+hSteps[h+1].second),0.,0.);
 	  subVolumesVect.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol),
 	                                                       Amg::Vector3D((*transf)*gp)));
-	  hSubsTr.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, [](const Trk::TrackingVolume*){}),
+	  hSubsTr.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, Trk::do_not_delete<const Trk::TrackingVolume>),
 	                                                       Amg::Vector3D((*transf)*gp)));
 	  hSubs.push_back(sVol);
 
@@ -1854,7 +1854,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processShield(cons
       Amg::Vector3D gp(subBds->mediumRadius(),0.,0.);
       subVolumesVect.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol),
 								Amg::Vector3D((*transf)*gp)));
-      hSubsTr.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, [](const Trk::TrackingVolume*){}),
+      hSubsTr.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const Trk::TrackingVolume>(sVol, Trk::do_not_delete<const Trk::TrackingVolume>),
                                                          Amg::Vector3D((*transf)*gp)));
       hSubs.push_back(sVol);
       
