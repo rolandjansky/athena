@@ -12,8 +12,6 @@ template <class Tvol> inline BoundaryCylinderSurface<Tvol>&
   if (this!=&bcs){
     delete BoundarySurface<Tvol>::m_insideVolume;
     delete BoundarySurface<Tvol>::m_outsideVolume;
-    BoundarySurface<Tvol>::m_insideVolumeArray.remRef();
-    BoundarySurface<Tvol>::m_outsideVolumeArray.remRef();
     delete Surface::m_transform;
     delete Surface::m_center;
     delete Surface::m_normal;
