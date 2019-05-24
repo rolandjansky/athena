@@ -17,7 +17,7 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
  ********************************************************************/
 
 #include "EFMissingETFromJetsMT.h"
-
+#include "EFMissingETComponentCopier.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
 
@@ -74,9 +74,6 @@ StatusCode EFMissingETFromJetsMT::update( xAOD::TrigMissingET *met,
 {
 
   ATH_MSG_DEBUG( "called EFMissingETFromJetsMT::update()" ); // 
-
-  const std::vector<std::string> vComp = {"Jets", "Muon"};
-  met->defineComponents(vComp);
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
@@ -176,6 +173,16 @@ StatusCode EFMissingETFromJetsMT::update( xAOD::TrigMissingET *met,
   metComp = metHelper->GetComponent(TrigEFMissingEtComponent::JET); 
   ATH_MSG_DEBUG( " calculated MET: " << sqrt((metComp->m_ex)*(metComp->m_ex)+(metComp->m_ey)*(metComp->m_ey)) );
 
+  // Copy MET from helper into final MET object
+  EFMissingETComponentCopier copier = EFMissingETComponentCopier(met, metHelper);
+  const std::vector<std::string> vComp{"JET","JETB1", "JETB2", "JETE1", "JETE2"};
+  met->defineComponents( vComp );
+  copier.addHelperCompToMET(TrigEFMissingEtComponent::JET);
+  copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::JET);
+  copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::JETB1);
+  copier.setMETCompFromHelper(2, TrigEFMissingEtComponent::JETB2);
+  copier.setMETCompFromHelper(3, TrigEFMissingEtComponent::JETE1);
+  copier.setMETCompFromHelper(4, TrigEFMissingEtComponent::JETE2);
 
   if(m_timersvc)
     m_glob_timer->stop(); // total time
