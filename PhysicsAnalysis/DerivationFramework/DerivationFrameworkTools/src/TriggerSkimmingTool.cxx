@@ -59,16 +59,16 @@ namespace DerivationFramework {
     bool passAND(false);
     bool passOR(false);
     bool passORHLTOnly(false);
-    if (cntrAND==m_triggerListAND.size() && m_triggerListAND.size() > 0) passAND=true;
-    if (cntrOR > 0 && m_triggerListOR.size() > 0) passOR=true; 
-    if (cntrORHLTOnly > 0 && m_triggerListORHLTOnly.size() > 0) passORHLTOnly=true; 
+    if (cntrAND==m_triggerListAND.size() && !m_triggerListAND.empty()) passAND=true;
+    if (cntrOR > 0 && !m_triggerListOR.empty()) passOR=true; 
+    if (cntrORHLTOnly > 0 && !m_triggerListORHLTOnly.empty()) passORHLTOnly=true; 
  
     bool pass(false);
     pass = passAND || passOR || passORHLTOnly;
-    if (m_triggerListAND.size()==0 && m_triggerListORHLTOnly.size() == 0) pass = passOR;
-    if (m_triggerListOR.size()==0 && m_triggerListORHLTOnly.size() == 0) pass = passAND;
-    if (m_triggerListAND.size()==0 && m_triggerListOR.size()==0) pass = passORHLTOnly ;
-    if (m_triggerListAND.size() == 0 && m_triggerListORHLTOnly.size() > 0) pass = passORHLTOnly || passOR; 
+    if (m_triggerListAND.empty() && m_triggerListORHLTOnly.empty()) pass = passOR;
+    if (m_triggerListOR.empty() && m_triggerListORHLTOnly.empty()) pass = passAND;
+    if (m_triggerListAND.empty() && m_triggerListOR.empty()) pass = passORHLTOnly ;
+    if (m_triggerListAND.empty() && !m_triggerListORHLTOnly.empty()) pass = passORHLTOnly || passOR; 
     return pass;
   }  
 
