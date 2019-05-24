@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
- ** File: Trigger/TrigHypothesis/TrigTauHypo/T2TauTauCombFexAlgo.h
+ ** File: T2TauTauCombFexAlgo.h
  **
  ** Description: FEX algorithm: search for pairs of taus with delta eta in some interval +
  **              some additional cuts; intended for H-> tau tau SM and MSSM

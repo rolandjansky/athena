@@ -6,7 +6,7 @@
 #include <cmath>
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
-#include "TrigTauHypo/EFTauTopoHypo.h"
+#include "EFTauTopoHypo.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJet.h"

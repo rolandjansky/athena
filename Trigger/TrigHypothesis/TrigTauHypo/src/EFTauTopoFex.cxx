@@ -11,7 +11,7 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "TrigTauHypo/EFTauTopoFex.h"
+#include "EFTauTopoFex.h"
 
 //Constructor
 EFTauTopoFex::EFTauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator)
