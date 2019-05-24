@@ -22,7 +22,7 @@
 #include "TrigCaloEvent/TrigT2Jet.h"
 //#include "TrigCaloEvent/TrigT2JetContainer.h" // Not needed anymore
 
-#include "TrigCaloHypo/TrigL2JetHypo.h"
+#include "TrigL2JetHypo.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
