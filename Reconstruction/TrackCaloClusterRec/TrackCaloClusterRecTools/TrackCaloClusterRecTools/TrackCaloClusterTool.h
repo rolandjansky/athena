@@ -3,12 +3,15 @@
   Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
-TrackCaloClusterTool.h  -  Description
--------------------
-begin   : May 2010
-authors : P-A Delsart
-***************************************************************************/
+///////////////////////////////////////////////////////////////////////
+///
+/// \file TrackCaloClusterTool.h  
+///
+/// Defines implementions of ITrackCaloClusterTool in charge of building different taste of TCC or UFO
+/// 
+/// authors : Naomie Calace, P-A Delsart
+///////////////////////////////////////////////////////////////////////
+
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TRACKCALOCLUSTER_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TRACKCALOCLUSTER_H
 

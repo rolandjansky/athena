@@ -87,6 +87,7 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContaine
     return StatusCode::FAILURE;
   }
 
+  // Loop over the TrackParticleClusterAssociationContainer to retrieve the (track, vector<cluster>) associations
   for ( const auto* assocClusters : *tccInfo.assocContainer ) {
     ATH_MSG_VERBOSE ("InDetTrackParticlesClusterAssociations index = " << assocClusters->index());
 
@@ -94,7 +95,7 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContaine
     
     // flollow the link to the track particle
     const xAOD::TrackParticle* trk = *(assocClusters->trackParticleLink());
-
+    // verify the track is compatible with PV0
     if (! m_loosetrackvertexassoTool->isCompatible(*trk, *tccInfo.pv0) ) continue ;
 
 
@@ -107,9 +108,11 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContaine
     }
     
     
-	FourMom_t tcc_4p(0.,0.,0.,0.);
+	FourMom_t tcc_4p(0.,0.,0.,0.); // will be the TCC 4-vector
     // follow the link to the calorimeter clusters
     ATH_MSG_VERBOSE ("#(CaloCluster) = " << assocClusters->caloClusterLinks().size());
+
+    // Loop over associated clusters to sum the 4-vectors x weigths
     for (size_t c = 0; c < assocClusters->caloClusterLinks().size(); ++c) {
       const xAOD::CaloCluster* cluster = *(assocClusters->caloClusterLinks().at(c));
 
@@ -121,7 +124,9 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContaine
       ATH_MSG_VERBOSE ("cluster->pt() " << cluster_pt << " cluster->eta() " << cluster->eta() << " cluster->phi() " 
                        << cluster->phi() << " track pt " << trk->pt() << " (tccInfo.clusterToTracksWeightMap.at(cluster)).Pt() " << (tccInfo.clusterToTracksWeightMap.at(cluster)).Pt());
     } // for caloClusterLinks
-        
+
+
+    // get angular position from tracks
     double eta = trk->eta();
 	double phi = trk->phi();
 	
@@ -141,17 +146,14 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContaine
 	}
 	
 
+    // Build the final TCC
 	xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
 	tccContainer->push_back(tcc);
 	tcc->setParameters(tcc_4p.Pt(),eta,phi,tcc_4p.M(),xAOD::TrackCaloCluster::Taste::Combined,assocClusters->trackParticleLink(),assocClusters->caloClusterLinks());
-
-	// Commenting this for the moment... We can decide if we want this back later.
-	//         tcc->setParameters(tcc_4p.Pt(),eta,phi,tcc_4p.M(),xAOD::TrackCaloCluster::Taste::Combined,assocClusters->trackParticleLink(),assocClusters->caloClusterLinks());
 	
     ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
 	
-	if(m_saveDetectorEta) {
-	  
+	if(m_saveDetectorEta) {	  
 	  const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(trk);
 	  double det_eta = pars->position().eta();
 	  tcc->auxdecor<float>("DetectorEta") = det_eta;
@@ -190,7 +192,9 @@ StatusCode TCCChargedTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer
   
   
   unsigned int i = 0;
+  // Loop over ALL tracks at the source of TCC
   for ( const auto* track : *tccInfo.allTracks ) {
+    // considre ONLY tracks NOT matched to a cluster :
     if(tccInfo.trackTotalClusterPt.find(track)==tccInfo.trackTotalClusterPt.end()){
       bool isMatched = m_loosetrackvertexassoTool->isCompatible(*track, *tccInfo.pv0 );
       if (!isMatched) continue;
@@ -242,7 +246,9 @@ StatusCode TCCNeutralTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer
 
   unsigned int i = 0;
 
+  // Loop over ALL clusters 
   for ( const auto* cluster : *tccInfo.allClusters ) {
+    // consider only clusters NOT matched to a track :
     if(tccInfo.clusterToTracksWeightMap.find(cluster)==tccInfo.clusterToTracksWeightMap.end()){
 	  if (m_applyFilter and m_clusterFilterTool->rejectCluster(*cluster)) continue;
 
@@ -253,7 +259,7 @@ StatusCode TCCNeutralTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer
 	  const std::vector< ElementLink<xAOD::CaloClusterContainer> > ClusterLink {clusterLink};
 	  tcc->setParameters(cluster->pt(),cluster->eta(),cluster->phi(),cluster->m(),xAOD::TrackCaloCluster::Taste::Neutral,ElementLink<xAOD::TrackParticleContainer>(),ClusterLink);
       ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
-
+      
       static SG::AuxElement::Accessor< float > acc_det_eta ( "DetectorEta" );        
 	  if(m_saveDetectorEta && acc_det_eta.isAvailable(*cluster)) {
 	    tcc->auxdecor<float>("DetectorEta") = acc_det_eta(*cluster);
@@ -302,8 +308,9 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
   const xAOD::PFOContainer* nPFO_orig = nullptr;
   ATH_CHECK( evtStore()->retrieve(nPFO_orig, "JetETMissNeutralParticleFlowObjects") );
 
-  // The vertex container is necessary for determining which tracks we use, since we only want tracks from the PV
 
+  
+  // Loop over the TrackParticleClusterAssociationContainer to retrieve the (track, vector<cluster>) associations
   for ( const auto* assocClusters : *tccInfo.assocContainer ) {
     const ElementLink<xAOD::TrackParticleContainer> trackLinks;
     ATH_MSG_VERBOSE ("InDetTrackParticlesClusterAssociations index = " << assocClusters->index());

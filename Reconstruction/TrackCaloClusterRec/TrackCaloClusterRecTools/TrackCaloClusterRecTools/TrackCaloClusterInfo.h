@@ -14,6 +14,12 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
 
+////////////////////////////////////////////////////////
+/// \class TrackCaloClusterInfo
+///
+/// Holds all the necessary information to build TrackCaloCluster objects.
+/// In particular the map of weights relating tracks and clusters (or PFO objects)
+
 struct TrackCaloClusterInfo
 {
 

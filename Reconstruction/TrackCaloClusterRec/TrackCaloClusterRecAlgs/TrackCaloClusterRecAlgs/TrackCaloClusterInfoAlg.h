@@ -7,14 +7,17 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
-// #include "xAODBase/IParticle.h"
-// #include "xAODPFlow/TrackCaloClusterContainer.h"
-// #include "xAODTracking/TrackParticleContainer.h"
 
 #include "TrackCaloClusterRecTools/TrackCaloClusterInfo.h"
-
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
+
+////////////////////////////////////////////////////////
+/// \class TrackCaloClusterInfoAlg
+///
+/// Builds a TrackCaloClusterInfo map which contains the weights needed to build TrackCaloCluster objects.
+/// This TrackCaloClusterInfo is then expected to be used by a TrackCaloClusterAlg and its tools.
+///
 
 class TrackCaloClusterInfoAlg: public ::AthAlgorithm { 
 public: 
@@ -31,21 +34,12 @@ public:
 protected:
   virtual  StatusCode fillInfo(TrackCaloClusterInfo & tccInfo);
   
-  /// fill the maps
-  //void fillMaps(std::multimap <const xAOD::CaloCluster*, const xAOD::TrackParticle*>& clusterToTracksMap, std::map <const xAOD::TrackParticle*, FourMom_t>& TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>& clusterToTracksWeightMap    );
-    
-  
-  
-  
   ///TrackCaloClusterInfo created by this alg
   std::string m_tccInfoName;
 
-  ///
+  /// the TrackParticleClusterAssociationContainer created by this alg
   std::string m_inputTrackCaloAssocName;
   
-  ///Clusters or PFO  used as source for the weights
-  //std::string m_inputObjectName;
-
   ///Tracks  used by this alg
   std::string m_inputTracksName;
 
@@ -53,7 +47,6 @@ protected:
   std::string m_inputClustersName;
   
   std::string m_vertexContname;
-
   
   /// use cluster energy or pt?
   bool m_useEnergy;
