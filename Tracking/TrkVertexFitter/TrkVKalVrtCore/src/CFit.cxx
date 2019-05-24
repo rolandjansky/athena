@@ -213,7 +213,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
         if(forcft_.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( forcft_.indtrkmc[ic*NTrkM + tk] )index.push_back(tk);}
-           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, forcft_.wmfit[it], index, vk));
+           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, forcft_.wmfit[ic], index, vk));
         }
       }
       //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
