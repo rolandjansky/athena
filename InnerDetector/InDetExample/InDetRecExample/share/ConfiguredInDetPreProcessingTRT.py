@@ -169,9 +169,6 @@ class ConfiguredInDetPreProcessingTRT:
          if jobproperties.Beam.beamType()=="cosmics": 
             InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False 
 
-# --- overwrite for phase usage
-         if usePhase:
-            InDetTRT_DriftCircleTool.ComTimeName = "TRT_Phase"
 
          ToolSvc += InDetTRT_DriftCircleTool
          if (InDetFlags.doPrintConfigurables()):

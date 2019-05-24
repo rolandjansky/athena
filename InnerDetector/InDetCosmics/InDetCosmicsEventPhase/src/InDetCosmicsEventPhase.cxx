@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetCosmicsEventPhase/InDetCosmicsEventPhase.h"
@@ -12,7 +12,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -27,9 +27,9 @@ namespace InDet
 {
   InDetCosmicsEventPhase::InDetCosmicsEventPhase(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_trtconddbsvc("TRT_CalDbSvc", name),
+    m_caldbtool("TRT_CalDbTool", this),
     m_eventPhaseTool() {
-    declareProperty("TRTCalDbSvc", m_trtconddbsvc);
+    declareProperty("TRTCalDbTool", m_caldbtool);
     declareProperty("TrackSummaryTool", m_trackSumTool);
     declareProperty("EventPhaseTool", m_eventPhaseTool);
   }
@@ -37,7 +37,7 @@ namespace InDet
   StatusCode InDetCosmicsEventPhase::initialize() {
     ATH_MSG_INFO("initialize()");
 
-    StatusCode sc = m_trtconddbsvc.retrieve();
+    StatusCode sc = m_caldbtool.retrieve();
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve TRT Calibration DB Service!");
       return sc;
@@ -52,17 +52,10 @@ namespace InDet
     return StatusCode::SUCCESS;
   }
 
-  StatusCode InDetCosmicsEventPhase::beginRun() {
-    m_event = 0;
-    //m_eventPhaseTool->beginRun();  // To access conditions, move this
-    return StatusCode::SUCCESS;
-  }
 
   StatusCode InDetCosmicsEventPhase::execute() {
-    ++m_event;
-    ATH_MSG_DEBUG("execute() event: " << m_event);
+
     m_phase = 0;
-    if (m_event == 1) m_eventPhaseTool->beginRun(); //to here
 
     const Trk::Track* selected = 0;
     int maxTRT = -1;
@@ -139,10 +132,9 @@ namespace InDet
 
   StatusCode InDetCosmicsEventPhase::storePhase() {
     ATH_MSG_DEBUG("Recording phase...  " << m_phase);
-    SG::WriteHandle<ComTime> writeKey_TRTPhase(m_writeKey_TRTPhase);
-    writeKey_TRTPhase = std::make_unique<ComTime>(m_phase, m_phase); //handle assignment actually does a record
-                                                                     // operation
-    ATH_CHECK(writeKey_TRTPhase.isValid());
+    SG::WriteHandle<ComTime> writeTRTPhase(m_writeKey_TRTPhase);
+    writeTRTPhase = std::make_unique<ComTime>(m_phase, m_phase);
+    ATH_CHECK(writeTRTPhase.isValid());
     return StatusCode::SUCCESS;
   }
 }
