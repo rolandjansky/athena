@@ -8,7 +8,7 @@
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 //=============================================
-//======= TFCSLateralShapeParametrization =========
+//======= TFCSLateralShapeParametrizationHitChain =========
 //=============================================
 
 TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain(const char* name, const char* title):TFCSLateralShapeParametrization(name,title),m_number_of_hits_simul(nullptr)
@@ -41,6 +41,20 @@ int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationSt
     if(n>0) return n;
   } 
   return 1;
+}
+
+float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
+{
+  if(m_number_of_hits_simul) {
+    double sigma2=m_number_of_hits_simul->get_sigma2_fluctuation(simulstate,truth,extrapol);
+    if(sigma2>0) return sigma2;
+  }
+  for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+    double sigma2=hitsim->get_sigma2_fluctuation(simulstate,truth,extrapol);
+    if(sigma2>0) return sigma2;
+  } 
+  //Limit to factor 1000 fluctuations
+  return 1000;
 }
 
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)

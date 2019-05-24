@@ -34,6 +34,9 @@ public:
   /// Call get_number_of_hits() only once, as it could contain a random number
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
+  ///Give the effective size sigma^2 of the fluctuations that should be generated.
+  virtual float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+
   void Print(Option_t *option = "") const override;
 
 #if defined(__FastCaloSimStandAlone__)
@@ -45,8 +48,10 @@ public:
 #endif
 
 
-private:
+protected:
   Chain_t m_chain;
+  
+private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
   ClassDefOverride(TFCSLateralShapeParametrizationHitChain,1)  //TFCSLateralShapeParametrizationHitChain
 };
