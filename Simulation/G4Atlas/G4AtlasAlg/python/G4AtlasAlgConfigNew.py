@@ -48,7 +48,9 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     acc, DetGeoSvc = DetectorGeometrySvcCfg(ConfigFlags)
     print "TESTTTTT" #check if it runs!
     kwargs.setdefault('DetGeoSvc', DetGeoSvc)
-    result.merge(acc)
+    result.addService(DetGeoSvc)
+    tools = result.popToolsAndMerge(acc)
+    result.setPrivateTools(tools)
 
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent") #tocheck -are these string inputs?
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
@@ -130,6 +132,7 @@ if __name__ == '__main__':
 
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
+  ConfigFlags.Detector.SimulateForward = False
   # Finalize 
   ConfigFlags.lock()
 
@@ -139,7 +142,8 @@ if __name__ == '__main__':
   #add the algorithm
   acc, Alg  = G4AtlasAlgCfg(ConfigFlags)
   cfg.addEventAlgo(Alg) 
-  cfg.merge(acc)
+  tools = cfg.popToolsAndMerge(acc)
+  cfg.setPrivateTools(tools)
 
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True

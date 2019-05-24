@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from G4AtlasTools.G4AtlasToolsConf import GlobalFieldManagerTool, DetectorFieldManagerTool
 #from G4AtlasServices.G4AtlasServicesConfigNew import StandardFieldSvcCfg #either make new file for the StandardFieldSvcCfg etc.. or just import the file
@@ -18,16 +19,20 @@ def ATLASFieldManagerToolCfg(ConfigFlags, name='ATLASFieldManager', **kwargs):
     return GlobalFieldManagerTool(name, **kwargs)
 
 def TightMuonsATLASFieldManagerToolCfg(ConfigFlags, name='TightMuonsATLASFieldManager', **kwargs):
+    result = ComponentAccumulator()
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("IntegratorStepper", simFlags.G4Stepper.get_Value())
 
     acc = StandardFieldSvcCfg(ConfigFlags)
     kwargs.setdefault("FieldSvc", acc.getService("StandardField"))
+    result.merge(acc)
 
     kwargs.setdefault("UseTightMuonStepping",True)
     if simFlags.EquationOfMotion.statusOn:
         kwargs.setdefault("EquationOfMotion", simFlags.EquationOfMotion.get_Value() )
-    return GlobalFieldManagerTool(name, **kwargs)
+
+    result.addPublicTool(GlobalFieldManagerTool(name, **kwargs))
+    return result, GlobalFieldManagerTool(name, **kwargs) #return tuple for now (add public / private tool later )
 
 def ClassicFieldManagerToolCfg(ConfigFlags, name='ClassicFieldManager', **kwargs):
     kwargs.setdefault("IntegratorStepper", "ClassicalRK4")
@@ -217,7 +222,8 @@ if __name__ == '__main__':
 
   #add the algorithm
   cfg.addPublicTool(ATLASFieldManagerToolCfg(ConfigFlags))
-  cfg.addPublicTool(TightMuonsATLASFieldManagerToolCfg  (ConfigFlags))
+  acc = TightMuonsATLASFieldManagerToolCfg  (ConfigFlags)
+  cfg.merge(acc)
   #cfg.addPublicTool(ClassicFieldManagerToolCfg(ConfigFlags))
   #cfg.addPublicTool(BasicDetectorFieldManagerToolCfg(ConfigFlags))
   #cfg.addPublicTool(Q1FwdFieldManagerToolCfg(ConfigFlags))

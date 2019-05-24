@@ -133,6 +133,7 @@ def getTB_RegionCreatorList(ConfigFlags):
 
 #########################################################################
 def getATLAS_FieldMgrList(ConfigFlags):
+    result = ComponentAccumulator()
     fieldMgrList = []
     from G4AtlasApps.SimFlags import simFlags
     #if not simFlags.TightMuonStepping.statusOn or\
@@ -140,7 +141,10 @@ def getATLAS_FieldMgrList(ConfigFlags):
     if False:
         fieldMgrList += [ATLASFieldManagerToolCfg(ConfigFlags)]
     else:
-        fieldMgrList += [TightMuonsATLASFieldManagerToolCfg(ConfigFlags)]
+        acc, tool = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
+        #fieldMgrList += [acc.getPublicTool('TightMuonsATLASFieldManager')] # issue with public tools?
+        fieldMgrList += [tool]
+        result.merge(acc)
 
     from AthenaCommon.DetFlags import DetFlags
     if ConfigFlags.Detector.SimulateBpipe:
@@ -175,7 +179,8 @@ def getATLAS_FieldMgrList(ConfigFlags):
                              Q5HKickFwdFieldManagerToolCfg(ConfigFlags),
                              Q6VKickFwdFieldManagerToolCfg(ConfigFlags),
                              FwdRegionFieldManagerToolCfg(ConfigFlags)]
-    return fieldMgrList
+    result.setPrivateTools(fieldMgrList)
+    return result, fieldMgrList
 
 #called?
 def getCTB_FieldMgrList(ConfigFlags):
@@ -220,7 +225,11 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
-            kwargs.setdefault("FieldManagers", getATLAS_FieldMgrList(ConfigFlags))
+            print "TESTTT" 
+            acc, fieldMgrList = getATLAS_FieldMgrList(ConfigFlags)
+            kwargs.setdefault("FieldManagers", fieldMgrList ) #causing issues...!
+            tool = result.popToolsAndMerge(acc)
+            result.setPrivateTools(tool)
     return result, DetectorGeometrySvc(name, **kwargs)
 
 def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
@@ -280,14 +289,15 @@ if __name__ == '__main__':
 
   #add the algorithm
   acc1, Svc1 = DetectorGeometrySvcCfg(ConfigFlags)
-  Svc5 = G4AtlasSvcCfg(ConfigFlags)
-  Svc6 = G4GeometryNotifierSvcCfg(ConfigFlags)
+  #Svc5 = G4AtlasSvcCfg(ConfigFlags)
+  #Svc6 = G4GeometryNotifierSvcCfg(ConfigFlags)
 
   cfg.addService(Svc1)
-  cfg.addService(Svc5)
-  cfg.addService(Svc6)
+  #cfg.addService(Svc5)
+  #cfg.addService(Svc6)
 
-  cfg.merge(acc1)
+  tool = cfg.popToolsAndMerge(acc1)
+  cfg.setPrivateTools(tool)
 
   #cfg.addEventAlgo(Alg) #Event algo?
   #cfg.merge(acc)
