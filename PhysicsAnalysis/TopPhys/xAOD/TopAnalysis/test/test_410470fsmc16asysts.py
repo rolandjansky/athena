@@ -1,8 +1,9 @@
-#!/usr/bin/env python
-
-# art-description: DxAOD MC16a TOPQ1 - top-xaod validation-cuts.txt - configured to process all systematics
+#!/usr/bin/env python                                                                                                                                                                                                                              
+# art-description: DxAOD MC16a TOPQ1 FullSim 410470 with systematics
 # art-type: grid
 # art-output: output.root
+# art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_s3126_r9364_p3554.ART.v2
+# art-input-nfiles: 2
 # art-include: 21.2/AnalysisTop
 
 import ROOT
@@ -13,13 +14,13 @@ import subprocess, sys, shlex, random, shutil, os
 os.system('art.py createpoolfile')
 
 # -- Settings --
-cutfilename   = "validation-cuts.txt"
-inputfilename = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1"
+cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
 
-# -- Move to a unique directory --
-rundir = str(random.randrange(10**8))
-os.mkdir(rundir)
-os.chdir(rundir)
+try:  
+   inputfilenames=os.environ["ArtInFile"]
+except KeyError: 
+   print "Please set the environment variable ArtInFile"
+   sys.exit(1)
 
 # -- Get the validation file path from the most recent location --
 cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
@@ -28,21 +29,23 @@ cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
 
 # -- Print the file location for debugging --
 print "ART Test : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
-print "ART Test : Using inputfile %s"%(inputfilename)
+print "ART Test : Using inputfiles :",inputfilenames
 print "Running on full statistics"
 
 # -- Copy the cutfile locally to be updated -- 
 shutil.copyfile(cutfilepath, cutfilename)
 
-# -- Write the input file path to a temporary file --
-inputfilepath = open("input.txt","w")
-inputfilepath.write(inputfilename+"\n")
-inputfilepath.close()
+ # -- Write the input file path to a temporary file --
+lines = inputfilenames.split(",")
+with open('input.txt', 'w') as inputfilepath:
+    for line in lines:
+       print "line : ", line
+       inputfilepath.write(line+'\n')
 
-# -- Edit the validation cutfile to run all systematics --
-cmd  = "sed -i -e 's/Systematics Nominal/Systematics All/g' %s"%(cutfilename)
-proc = subprocess.Popen(shlex.split(cmd))
-proc.wait()
+f = open('input.txt', 'r')
+print "Printing input.txt"
+print f.read()
+f.close()
 
 # -- Run top-xaod --
 cmd  = "top-xaod %s input.txt"%(cutfilename)
@@ -54,4 +57,3 @@ print "art-result: " + str(proc.returncode)
 
 # -- Check the return code and exit this script with that --
 sys.exit( proc.returncode )
-

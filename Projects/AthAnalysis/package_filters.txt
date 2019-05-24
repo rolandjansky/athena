@@ -53,6 +53,7 @@
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/EventUtils
++ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
@@ -151,6 +152,10 @@
 + Control/DataModelRoot
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
++ Control/PerformanceMonitoring/PerfMonComps
++ Control/PerformanceMonitoring/PerfMonEvent
++ Control/PerformanceMonitoring/PerfMonKernel
++ Control/PerformanceMonitoring/PerfMonGPerfTools
 + Control/Navigation
 
 #scripts package contains useful commands like get_files

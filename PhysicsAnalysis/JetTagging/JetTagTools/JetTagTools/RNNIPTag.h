@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_RNNIPTAG_H
@@ -68,7 +68,7 @@ namespace Analysis {
   be solved for that. Revisit ... */
     void setOrigin(const xAOD::Vertex* priVtx);
 
-    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);
+    StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string &jetName);
 
     /** calculate individual track contribution to the three likelihoods: */
     // void trackWeight(std::string jetAuthor, TrackGrade grade,
@@ -128,6 +128,13 @@ namespace Analysis {
     // won't support reading different local files for different jet
     // collections.
     std::map<std::string, std::string > m_network_cfg;
+
+    // we want to kill this algorithm eventually. We'll start by
+    // vetoing jet collections where we have the replacement algorithm
+    // running
+    std::set<std::string> m_vetoCollections;
+    // this is the same thing, just for the athena python bindings
+    std::vector<std::string> m_blacklist;
 
     // At runtime, we can run a list of networks for each track
     // sorting. Networks include the configuration name, which is used

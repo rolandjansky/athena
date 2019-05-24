@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # import Common Algs
@@ -250,6 +250,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),

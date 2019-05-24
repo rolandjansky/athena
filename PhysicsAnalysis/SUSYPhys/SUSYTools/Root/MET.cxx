@@ -64,6 +64,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build electron MET");
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const auto& el : *elec) {
+      // pass baseline selection
       if (cacc_baseline(*el)) {
         bool veto(false);
         if (invis) {
@@ -81,6 +82,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build photon MET");
     ConstDataVector<xAOD::PhotonContainer> metgamma(SG::VIEW_ELEMENTS);
     for (const auto& ph : *gamma) {
+      // pass baseline selection
       if (cacc_baseline(*ph)) {
         bool veto(false);
         if (invis) {
@@ -98,6 +100,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build tau MET");
     ConstDataVector<xAOD::TauJetContainer> mettau(SG::VIEW_ELEMENTS);
     for (const auto& tau : *taujet) {
+      // pass baseline selection
       if (cacc_baseline(*tau)) {
         bool veto(false);
         if (invis) {
@@ -116,6 +119,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::MuonContainer> metmuon(SG::VIEW_ELEMENTS);
     for (const auto& mu : *muon) {
       bool veto(false);
+      // pass baseline selection
       if (cacc_baseline(*mu)) {
         if (invis) {
           for (const auto& ipart : *invis) {
@@ -180,6 +184,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build electron MET");
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const auto& el : *elec) {
+      // pass baseline selection
       if (cacc_baseline(*el)) metelectron.push_back(el);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_eleTerm, xAOD::Type::Electron, &met, metelectron.asDataVector(), metMap) );
@@ -189,6 +194,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ATH_MSG_VERBOSE("Build muon MET");
     ConstDataVector<xAOD::MuonContainer> metmuon(SG::VIEW_ELEMENTS);
     for (const auto& mu : *muon) {
+      // pass baseline selection
       if (cacc_baseline(*mu)) metmuon.push_back(mu);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_muonTerm, xAOD::Type::Muon, &met, metmuon.asDataVector(), metMap) );
@@ -248,6 +254,39 @@ StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
 
   return StatusCode::SUCCESS;
 
+}
+
+// Crack region cleaning for PFlow jets: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/HowToCleanJetsR21#EGamma_Crack_Electron_topocluste 
+bool SUSYObjDef_xAOD::IsPFlowCrackVetoCleaning(	const xAOD::ElectronContainer* elec, 
+						const xAOD::PhotonContainer* gamma ) const {
+
+  bool passPFlowCVCleaning = true;
+
+  if (elec) {
+    for (const xAOD::Electron* el : *elec) {
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) { 
+        if (acc_passCrackVetoCleaning.isAvailable(*el)) {
+          if (!acc_passCrackVetoCleaning(*el)) passPFlowCVCleaning = false;      
+        } else {
+            ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
+        }
+      }
+    }
+  }
+
+  if (gamma) {
+    for (const xAOD::Photon* ph : *gamma) {
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) { 
+        if (acc_passCrackVetoCleaning.isAvailable(*ph)) {
+          if (!acc_passCrackVetoCleaning(*ph)) passPFlowCVCleaning = false;      
+        } else {
+            ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
+        }
+      }
+    }
+  }
+
+  return passPFlowCVCleaning;
 }
 
 }

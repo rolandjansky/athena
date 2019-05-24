@@ -35,24 +35,22 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
     m_jetJVT_ConfigFile("JVTlikelihood_20140805.root"),
 
     // Calibration strings for R21 only
-    m_jetAntiKt4_Data_ConfigFile("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config"),
+    m_jetAntiKt4_Data_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_Data_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu"),
 
-    m_jetAntiKt4_MCFS_ConfigFile("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config"),
+    m_jetAntiKt4_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    // Not recommended to use JER smearing (derived from FS on AF2)
-    m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config"),
-    m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC"),
+    m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config"),
+    m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
     
-    // Not recommended to use JER smearing (derived from FS on AF2) 
-    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config"),
-    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC"),
+    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config"),
+    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config"),
+    m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config"),
+    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu")
   {  
 
@@ -513,17 +511,18 @@ StatusCode JetMETCPTools::setupMET()
   else {
     met::METMaker *metMaker = new met::METMaker("met::METMaker");
     top::check(metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name");
-    if (m_config->fwdJetAndMET() == "Tight")
-    {
+   
+    if(m_config->useParticleFlowJets()){
+      top::check(metMaker->setProperty("DoPFlow", true), "Failed to set METMaker DoPFlow to true");
+    }
+    if (m_config->fwdJetAndMET() == "Tight"){
       top::check(metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight");
     }
-    else if (m_config->fwdJetAndMET() == "fJVT")
-    {
+    else if (m_config->fwdJetAndMET() == "fJVT"){
       ATH_MSG_WARNING(" option fJVT no longer recommended, please use  fJVTTight. Option to be removed.");
       top::check(metMaker->setProperty("JetRejectionDec", "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT");
     }
-    else if ((m_config->fwdJetAndMET() == "fJVTTight"))
-    {
+    else if ((m_config->fwdJetAndMET() == "fJVTTight")){
       ATH_MSG_INFO("JetRejectionDec set to passFJVTTight");
       top::check(metMaker->setProperty("JetRejectionDec", "passFJVTTight"), "Failed to set METMaker JetRejectionDec to passFJVTTight");
     }

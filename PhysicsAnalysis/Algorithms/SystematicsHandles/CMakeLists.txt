@@ -7,6 +7,7 @@ atlas_subdir( SystematicsHandles )
 
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthContainers
    Control/AthToolSupport/AsgTools
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
@@ -23,7 +24,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
-   LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore
+   LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore AthContainers
    PRIVATE_LINK_LIBRARIES RootCoreUtils
    xAODJet xAODMuon xAODEgamma xAODTau )
 
@@ -49,4 +50,8 @@ atlas_add_test( cc_SysWriteHandle
 
 atlas_add_test( cc_SysListHandle
    SOURCES test/cc_SysListHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
+
+atlas_add_test( cc_SysDecorationHandle
+   SOURCES test/cc_SysDecorationHandle.cxx
    LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )

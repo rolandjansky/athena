@@ -5,10 +5,14 @@ GRLDir  GoodRunsLists
 GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.xml
 
 ### Pile-up reweighting tool - Metadata determines which to use
+
 # MC16d configuration
-PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.FS.v2/CI.prw.merged.root GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
-PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.AF.v2/CI.prw.merged.root GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
-PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root 
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.FS.v2/CI.prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.AF.v2/CI.prw.merged.root
+PRWActualMu_FS GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWActualMu_AF GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
+
 
 ### Object container names
 ElectronCollectionName Electrons
@@ -21,15 +25,14 @@ TrackJetCollectionName AntiKt2PV0TrackJets
 JetGhostTrackDecoName GhostTrack
 
 ### Large-R configuration
-LargeRJESJMSConfig CaloMass
+LargeRJESJMSConfig CombMass
 LargeRJetPt 200000
 LargeRJetEta 2
 LargeJetSubstructure None
-LargeRToptaggingConfigFile NFC
 
 ### Reclustered jet configuration
 UseRCJets True
-UseRCJetSubstructure True
+#UseRCJetSubstructure True
 RCJetEta 2.0
 UseVarRCJets True
 VarRCJetMassScale m_w,m_t
@@ -76,7 +79,7 @@ PhotonUseRadiativeZ False
 ### Muon configuration
 MuonQuality Medium
 MuonQualityLoose Medium
-MuonIsolation Gradient
+MuonIsolation FCTight_FixedRad
 MuonIsolationLoose None
 
 ### Tau configuration
@@ -96,6 +99,9 @@ DoLoose Data
 # Turn on MetaData to pull IsAFII from metadata
 UseAodMetaData True
 #IsAFII False
+
+### Boosted jet taggers configuration
+BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
 BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60 MV2c10:Continuous DL1:Continuous
@@ -153,73 +159,73 @@ RUN_NUMBER >= 348197
 SUB EL_2015
 . BASIC
 . period_2015
-TRIGDEC HLT_e24_lhmedium_L1EM20VH HLT_e60_lhmedium HLT_e120_lhloose
+GTRIGDEC
 EL_N 25000 >= 1
 
 SUB EL_2016
 . BASIC
 . period_2016
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0
+GTRIGDEC
 EL_N 27000 >= 1
 
 SUB EL_2017
 . BASIC
 . period_2017
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0
+GTRIGDEC
 EL_N 27000 >= 1
 
 SUB EL_2018
 . BASIC
 . period_2018
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0
+GTRIGDEC
 EL_N 27000 >= 1
 
 SUB MU_2015
 . BASIC
 . period_2015
-TRIGDEC HLT_mu20_iloose_L1MU15 HLT_mu50
+GTRIGDEC
 MU_N 25000 >= 1
 
 SUB MU_2016
 . BASIC
 . period_2016
-TRIGDEC HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 MU_N 27000 >= 1
 
 SUB MU_2017
 . BASIC
 . period_2017
-TRIGDEC HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 MU_N 27000 >= 1
 
 SUB MU_2018
 . BASIC
 . period_2018
-TRIGDEC HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 MU_N 27000 >= 1
 
 SUB EM_2015
 . BASIC
 . period_2015
-TRIGDEC HLT_e24_lhmedium_L1EM20VH HLT_e60_lhmedium HLT_e120_lhloose HLT_mu20_iloose_L1MU15 HLT_mu50
+GTRIGDEC
 EL_N_OR_MU_N 25000 >= 1
 
 SUB EM_2016
 . BASIC
 . period_2016
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0 HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 EL_N_OR_MU_N 27000 >= 1
 
 SUB EM_2017
 . BASIC
 . period_2017
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0 HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 EL_N_OR_MU_N 27000 >= 1
 
 SUB EM_2018
 . BASIC
 . period_2018
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0 HLT_mu26_ivarmedium HLT_mu50
+GTRIGDEC
 EL_N_OR_MU_N 27000 >= 1
 
 ########################
@@ -229,7 +235,7 @@ EL_N_OR_MU_N 27000 >= 1
 SUB ejets_basic
 EL_N 25000 == 1
 MU_N 25000 == 0
-TRIGMATCH
+GTRIGMATCH
 #EMU_OVERLAP
 JETCLEAN LooseBad
 JET_N 25000 >= 1
@@ -238,8 +244,7 @@ JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET > 30000
 MWT > 30000
-#JET_N_BTAG FixedCutBEff_77 >= 1
-#RECO::KLFITTERRUN kElectron
+#RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
@@ -303,7 +308,7 @@ SAVE
 SUB mujets_basic
 MU_N 25000 == 1
 EL_N 25000 == 0
-TRIGMATCH
+GTRIGMATCH
 #EMU_OVERLAP
 JETCLEAN LooseBad
 JET_N 25000 >= 1
@@ -311,8 +316,7 @@ JET_N 25000 >= 2
 JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET+MWT > 60000
-#JET_N_BTAG FixedCutBEff_77 >= 1
-#RECO::KLFITTERRUN kMuon
+#RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
@@ -376,7 +380,7 @@ SAVE
 SUB emu_basic
 EL_N 25000 >= 1
 MU_N 25000 >= 1
-TRIGMATCH
+GTRIGMATCH
 #EMU_OVERLAP
 JETCLEAN LooseBad
 HT > 120000
@@ -424,7 +428,7 @@ SAVE
 
 SUB ee_basic
 EL_N 25000 >= 2
-TRIGMATCH
+GTRIGMATCH
 JETCLEAN LooseBad
 MET > 60000
 JET_N 25000 >= 1
@@ -473,7 +477,7 @@ SAVE
 
 SUB mumu_basic
 MU_N 25000 >= 2
-TRIGMATCH
+GTRIGMATCH
 #EMU_OVERLAP
 JETCLEAN LooseBad
 MET > 60000

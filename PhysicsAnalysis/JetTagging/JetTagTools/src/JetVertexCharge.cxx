@@ -25,7 +25,6 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
@@ -193,14 +192,15 @@ namespace Analysis {
 
 
 //////////////////////////////////////////////////////////////////
-StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
 
 
 
    /** author to know which jet algorithm: */
-   std::string author = JetTagUtils::getJetAuthor(jetToTag);
+   std::string author;
    if (m_doForcedCalib) author = m_ForcedCalibName;
+   else author = jetName;
    std::string alias = m_calibrationTool->channelAlias(author);
 
 

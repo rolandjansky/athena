@@ -16,6 +16,8 @@
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODTruth/xAODTruthHelpers.h"
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
+
 
 #include <vector>
 
@@ -301,6 +303,10 @@ namespace DerivationFramework {
     float vtxP = -999;
     int vtxTrkParticleIndex1 = -999;
     int vtxTrkParticleIndex2 = -999;
+    float vtxTrkParticle1_dEta2 = -999;
+    float vtxTrkParticle1_dPhi2 = -999;
+    float vtxTrkParticle2_dEta2 = -999;
+    float vtxTrkParticle2_dPhi2 = -999;
     float vtxRerr = -999;
     float vtxZerr = -999;
     float vtxMerr = -999;
@@ -309,6 +315,9 @@ namespace DerivationFramework {
     int   vtxNdof = -999;
     float vtxdEta = -999;
     float vtxdPhi = -999;
+    float vtxE    = -999;
+    float vtxPhi  = -999;
+    float vtxEta  = -999;
 
     if( caloCluster && caloCluster->pt() > m_minET ){
       const xAOD::TrackParticle* trk1 = nullptr;
@@ -317,7 +326,7 @@ namespace DerivationFramework {
       int trkIndex2 = -999;
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
         auto trackParticle = el->trackParticle( i );
-        if( nSiHits(trackParticle) >= 7 ) {
+        if( nSiHits(trackParticle) >= 7 &&  ElectronSelectorHelpers::passBLayerRequirement(trackParticle) ) {
           if ( trk1 == nullptr ){
             trk1 = trackParticle;
             trkIndex1 = i;
@@ -366,7 +375,40 @@ namespace DerivationFramework {
           
           vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) ); 
           vtxdEta -= caloCluster->etaBE(2);
-        
+          
+          xAOD::TrackParticle::FourMom_t vertex4P = m_V0Tools->V04Momentum(myVertex.get(), 0.511);
+          vtxE = vertex4P.E();
+          vtxPhi = vertex4P.Phi();
+          vtxEta = vertex4P.Eta();
+          double momentumScaleFactor = caloCluster->e() / vtxE;
+
+          auto perigeeParameters = trk1->perigeeParameters();
+          Amg::Vector3D pos = perigeeParameters.position();
+          Amg::Vector3D mom = perigeeParameters.momentum();
+          mom *= momentumScaleFactor; 
+          Trk::CurvilinearParameters  scaledTrk( pos, mom, trk1->charge() );
+
+          float etaAtCalo, phiAtCalo;
+          if( m_emExtrapolationTool->getEtaPhiAtCalo (&scaledTrk,
+                                                      &etaAtCalo,
+                                                      &phiAtCalo) ){
+            vtxTrkParticle1_dEta2 = caloCluster->etaBE(2) - etaAtCalo;
+            vtxTrkParticle1_dPhi2 = P4Helpers::deltaPhi(caloCluster->phiBE(2), phiAtCalo) ;
+          }
+
+          auto perigeeParameters2 = trk2->perigeeParameters();
+          pos = perigeeParameters2.position();
+          mom = perigeeParameters2.momentum();
+          mom *= momentumScaleFactor; 
+          scaledTrk = Trk::CurvilinearParameters( pos, mom, trk2->charge() );
+
+          if( m_emExtrapolationTool->getEtaPhiAtCalo (&scaledTrk,
+                                                      &etaAtCalo,
+                                                      &phiAtCalo) ){
+            vtxTrkParticle2_dEta2 = caloCluster->etaBE(2) - etaAtCalo;
+            vtxTrkParticle2_dPhi2 = P4Helpers::deltaPhi(caloCluster->phiBE(2), phiAtCalo) ;
+          }
+
         } else {
           vtxChi2 = 0;
           vtxNdof = 0;
@@ -381,8 +423,15 @@ namespace DerivationFramework {
     el->auxdecor<float>("vtxMerr") = vtxMerr;
     el->auxdecor<float>("vtxPt")   = vtxP;
     el->auxdecor<float>("vtxPterr")= vtxPerr;
+    el->auxdecor<float>("vtxE")    = vtxE;
+    el->auxdecor<float>("vtxEta")  = vtxEta;
+    el->auxdecor<float>("vtxPhi")  = vtxPhi;
     el->auxdecor<int>("vtxTrkParticleIndex1") = vtxTrkParticleIndex1;
     el->auxdecor<int>("vtxTrkParticleIndex2") = vtxTrkParticleIndex2;
+    el->auxdecor<float>("vtxTrkParticle1_dPhi2") = vtxTrkParticle1_dPhi2;
+    el->auxdecor<float>("vtxTrkParticle1_dEta2") = vtxTrkParticle1_dEta2;
+    el->auxdecor<float>("vtxTrkParticle2_dPhi2") = vtxTrkParticle2_dPhi2;
+    el->auxdecor<float>("vtxTrkParticle2_dEta2") = vtxTrkParticle2_dEta2;
     el->auxdecor<float>("vtxChi2") = vtxChi2;
     el->auxdecor<int>("vtxNdof")   = vtxNdof;
     el->auxdecor<float>("vtxdEta") = vtxdEta;
