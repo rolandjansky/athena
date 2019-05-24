@@ -542,23 +542,24 @@ if isMC:
 else:
   EXOT5BCDistanceAugmentationTool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
 ToolSvc += EXOT5BCDistanceAugmentationTool
-
 augmentationTools.append(EXOT5BCDistanceAugmentationTool)
 
+# adding the skimming code
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
-    'EXOT5Kernel_skim', SkimmingTools=skimmingTools)
-exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
-    'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
-
-# add filtering information
+# augment the setup
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Augment', AugmentationTools=augmentationTools)
+# add filtering information BEFORE skimming
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCAna
 EXOT5MergeMCAna = DerivationFramework__MergeMCAna(name="EXOT5MergeMCAna")
 exot5Seq += EXOT5MergeMCAna
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SumEvtWeightFilterAlg
 EXOT5SumEvtWeightFilterAlg = DerivationFramework__SumEvtWeightFilterAlg(name="EXOT5SumEvtWeightFilterAlg")
 exot5Seq += EXOT5SumEvtWeightFilterAlg
+
+# Skim & thin
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel_skim', SkimmingTools=skimmingTools)
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel', ThinningTools=thinningTools)
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
