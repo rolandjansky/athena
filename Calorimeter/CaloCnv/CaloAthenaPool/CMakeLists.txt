@@ -17,7 +17,6 @@ atlas_depends_on_subdirs(
    Calorimeter/CaloEvent
    Calorimeter/CaloInterface
    Calorimeter/CaloUtils
-   Control/SGTools
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolCnvSvc )
 
@@ -29,7 +28,7 @@ atlas_add_poolcnv_library( CaloAthenaPoolPoolCnv
    CaloEvent/CaloTowerContainer.h CaloEvent/CaloCellLinkContainer.h
    CaloEvent/CaloShowerContainer.h
    LINK_LIBRARIES AthenaPoolUtilities CaloTPCnv CaloDetDescrLib CaloEvent
-   CaloUtilsLib SGTools StoreGateLib AthenaPoolCnvSvcLib )
+   CaloUtilsLib StoreGateLib AthenaPoolCnvSvcLib )
 
 # Install files from the package:
 atlas_install_headers( CaloAthenaPool )
