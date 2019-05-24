@@ -17,6 +17,7 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -224,13 +225,14 @@ namespace ST {
       //...
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
-      if ( doLargeRdecorations && !m_WtagConfig.empty() && !m_ZtagConfig.empty()){
-        dec_wtagged(*jet) = m_WTaggerTool->keep(*jet);
-        dec_ztagged(*jet) = m_ZTaggerTool->keep(*jet);
-      }
-      else{
-        dec_wtagged(*jet) = -1;
-        dec_ztagged(*jet) = -1;
+      const static SG::AuxElement::Decorator<int> dec_toptagged("toptagged");
+      dec_wtagged(*jet) = -1;
+      dec_ztagged(*jet) = -1;
+      dec_toptagged(*jet) = -1;
+      if ( doLargeRdecorations) {
+        if (!m_WtagConfig.empty()) dec_wtagged(*jet) = m_WTaggerTool->tag(*jet);
+        if (!m_ZtagConfig.empty()) dec_ztagged(*jet) = m_ZTaggerTool->tag(*jet);
+        if (!m_ToptagConfig.empty()) dec_toptagged(*jet) = m_TopTaggerTool->tag(*jet);
       }
       //  For OR, selected if it passed cuts
       if ( acc_baseline(*jet) ){

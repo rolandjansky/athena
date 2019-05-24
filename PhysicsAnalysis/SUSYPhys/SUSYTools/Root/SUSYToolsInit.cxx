@@ -25,6 +25,7 @@ using namespace ST;
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
@@ -66,6 +67,8 @@ using namespace ST;
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "PathResolver/PathResolver.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 #define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )                \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
@@ -240,19 +243,29 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise Boson taggers
+  // Initialise Boson taggers: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendationFullRun2#Higgs_taggers
   if (!m_WTaggerTool.isUserConfigured() && !m_WtagConfig.empty()) {
     m_WTaggerTool.setTypeAndName("SmoothedWZTagger/WTagger");
-    ATH_CHECK( m_WTaggerTool.setProperty("ConfigFile",m_WtagConfig) );
+    ATH_CHECK( m_WTaggerTool.setProperty("ConfigFile", m_WtagConfig) );
+    ATH_CHECK( m_WTaggerTool.setProperty("CalibArea", m_WZTaggerCalibArea) );
     ATH_CHECK( m_WTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_WTaggerTool.retrieve() );
   }
 
   if (!m_ZTaggerTool.isUserConfigured() && !m_ZtagConfig.empty()) {
     m_ZTaggerTool.setTypeAndName("SmoothedWZTagger/ZTagger");
-    ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile",m_ZtagConfig) );
+    ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile", m_ZtagConfig) );
+    ATH_CHECK( m_ZTaggerTool.setProperty("CalibArea", m_WZTaggerCalibArea) );
     ATH_CHECK( m_ZTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_ZTaggerTool.retrieve() );
+  }
+
+  if (!m_TopTaggerTool.isUserConfigured() && !m_ToptagConfig.empty()) {
+    m_TopTaggerTool.setTypeAndName("JSSWTopTaggerDNN/TopTagger");
+    ATH_CHECK( m_TopTaggerTool.setProperty("ConfigFile", m_ToptagConfig) );
+    ATH_CHECK( m_TopTaggerTool.setProperty("CalibArea", m_TopTaggerCalibArea) );
+    ATH_CHECK( m_TopTaggerTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_TopTaggerTool.retrieve() );
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
