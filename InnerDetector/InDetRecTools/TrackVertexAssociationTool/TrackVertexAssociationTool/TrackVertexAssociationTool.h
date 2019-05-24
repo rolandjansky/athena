@@ -101,7 +101,7 @@ namespace CP {
       // Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it
       bool m_requirePriVtx;
 
-      SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+      SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices",
                                                        "container for reconstructed primary vertices" };
 
   };

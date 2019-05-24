@@ -71,7 +71,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  // retrieve containers 
+  // retrieve containers
   SG::ReadHandle<xAOD::TrackParticleContainer> trkCont(m_trkContname);
 
   SG::ReadHandle<xAOD::VertexContainer> vxCont(m_vertexContname);
