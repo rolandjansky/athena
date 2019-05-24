@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC16-style simulation of decaying Charginos using FullG4 (tests Charginos and Gauginos packages)
+# art-description: MC16-style simulation of stable Sleptons using FullG4 (tests Sleptons package alone)
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0/AthSimulation
@@ -20,7 +20,7 @@ Sim_tf.py \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
---inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.448307.MGPy8EG_A14N23LO_mAMSB_C1C1_5000_208000_LL4p0_MET60.evgen.EVNT.e6962.EVNT.15631425._000001.pool.root.1" \
+--inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.404510.MGPy8EG_A14N23LO_GMSB_stablestau_lambda_090_tanb_10_dy.evgen.EVNT.e5652.EVNT.13360872._000001.pool.root.1" \
 --outputHITSFile "Hits.pool.root" \
 --maxEvents 10 \
 --imf False
