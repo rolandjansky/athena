@@ -1764,7 +1764,7 @@ bool Trk::GsfExtrapolator::radialDirectionCheck(const IPropagator& prop,
   if (boundarySurfaces.size()==4) {
     // propagate to the inside surface and compare the distance:
     // it can be either the next layer from the initial point, or the inner tube boundary surface
-    const Trk::Surface& insideSurface = (boundarySurfaces[Trk::tubeInnerCover].getPtr())->surfaceRepresentation();                  
+    const Trk::Surface& insideSurface = (boundarySurfaces[Trk::tubeInnerCover].get())->surfaceRepresentation();                  
     const Trk::TrackParameters* parsOnInsideSurface = prop.propagateParameters(*(startParm.begin()->first),
                                                                                insideSurface,dir,true,m_fieldProperties,particle);
     double distToInsideSurface = parsOnInsideSurface ? (startPosition-(parsOnInsideSurface->position())).mag() : 10e10;

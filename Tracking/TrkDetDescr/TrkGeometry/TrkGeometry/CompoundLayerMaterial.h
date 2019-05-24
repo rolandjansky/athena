@@ -145,7 +145,7 @@ namespace Trk {
     }
     
     inline const ElementTable* CompoundLayerMaterial::elementTable() const 
-    { return m_elementTable.getPtr(); }
+    { return m_elementTable.get(); }
   
 }
 

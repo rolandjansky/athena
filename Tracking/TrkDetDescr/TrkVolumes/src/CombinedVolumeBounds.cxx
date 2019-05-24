@@ -129,7 +129,7 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
           shared   = sclo->shared();
 	}
         //vEx.addRef();
-	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.getPtr());
+	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.get());
         if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
        
 	Trk::Volume* firstSub = new Trk::Volume(*volExcl->volume());
@@ -199,7 +199,7 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
           shared   = scli->shared();
 	}
 	//vEx.addRef();
-	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.getPtr());
+	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.get());
         if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
 	Trk::Volume* secondSub = new Trk::Volume(*volExcl->volume());
  

@@ -116,7 +116,7 @@ namespace Trk {
       */
      const T* object(const Amg::Vector2D& lp) const
      { if (m_binUtility->inside(lp)) 
-         return ((*m_array)[m_binUtility->bin(lp, 0)]).getPtr();
+         return ((*m_array)[m_binUtility->bin(lp, 0)]).get();
        return 0;
      }
 
@@ -124,12 +124,12 @@ namespace Trk {
          it returns 0 if not defined;
       */
      const T* object(const Amg::Vector3D& gp) const
-     { return ((*m_array)[m_binUtility->bin(gp, 0)]).getPtr(); }
+     { return ((*m_array)[m_binUtility->bin(gp, 0)]).get(); }
 
 
      /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
      const T* entryObject(const Amg::Vector3D& gp) const
-     { return ((*m_array)[m_binUtility->entry(gp, 0)]).getPtr(); }
+     { return ((*m_array)[m_binUtility->entry(gp, 0)]).get(); }
 
      /** Returns the pointer to the templated class object from the BinnedArray
       */
@@ -137,7 +137,7 @@ namespace Trk {
      {
       // the bins
       size_t bin = associatedResult ? m_binUtility->bin(gp, 0) : m_binUtility->next(gp, mom, 0);
-      return ((*m_array)[bin]).getPtr();
+      return ((*m_array)[bin]).get();
      }
 
      /** Return all objects of the Array */
@@ -146,7 +146,7 @@ namespace Trk {
         m_arrayObjects = new std::vector<const T*>;
         m_arrayObjects->reserve(arrayObjectsNumber());
         for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
-              m_arrayObjects->push_back(((*m_array)[ill]).getPtr());
+              m_arrayObjects->push_back(((*m_array)[ill]).get());
        }
        return (*m_arrayObjects);
      }
