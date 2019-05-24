@@ -93,7 +93,6 @@ def Q6VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q6VKickFwdG4FieldSvc', **kwargs):
     return StandardFieldSvc(name, **kwargs)
 
 
-
 if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
   import os
