@@ -35,7 +35,7 @@
 #include "CxxUtils/phihelper.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "TrigMuonEvent/TileMuFeature.h"
-#include "TrigTileMuId/TrigTileRODMuAlg.h"
+#include "TrigTileRODMuAlg.h"
 //#include "TH1.h"
 
 class ISvcLocator;
