@@ -120,7 +120,6 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
     const xAOD::TruthParticle* part1=truthParts->at(ipart);
     if ( part1->status()!=3 ) continue;
     countStatus3++;
-    //if ( countStatus3 < 2 ) continue; // skip incoming beam particles
     p_1=part1->p4();    
     
     // Find the next particle in the list with status==3.
@@ -168,7 +167,6 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string d
   const xAOD::JetContainer* truthJet=nullptr;
   ATH_CHECK( evtStore()->retrieve(truthJet, m_truthJetContainerName) );
   if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
-    //std::cout << "isTRUTH3!!" << std::endl;
     const xAOD::TruthParticleContainer* truthPartsW=nullptr;
     ATH_CHECK(evtStore()->retrieve(truthPartsW, m_truthWBosonContainerName));
     const xAOD::TruthParticleContainer* truthPartsZ=nullptr;
@@ -183,7 +181,7 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string d
     return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, decorName,
 			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
   }
-
+  
   return StatusCode::FAILURE;
 }
 

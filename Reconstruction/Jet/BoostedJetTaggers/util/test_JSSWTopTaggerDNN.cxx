@@ -46,6 +46,7 @@ int main( int argc, char* argv[] ) {
 
   // arguments
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
+  int m_DSID=361028;
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -57,6 +58,7 @@ int main( int argc, char* argv[] ) {
   Info( APP_NAME, " $> %s -f X  | Run on xAOD file X", APP_NAME );
   Info( APP_NAME, " $> %s -n X  | X = number of events you want to run on", APP_NAME );
   Info( APP_NAME, " $> %s -e X  | X = specific number of the event to run on - for debugging", APP_NAME );
+  Info( APP_NAME, " $> %s -d X  | X = dataset ID", APP_NAME );
   Info( APP_NAME, " $> %s -v    | run in verbose mode   ", APP_NAME );
   Info( APP_NAME, "==============================================" );
 
@@ -89,6 +91,16 @@ int main( int argc, char* argv[] ) {
       if(string(argv[ipos]).compare("-event")==0){
         ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", ievent );
+        break;
+      }
+    }
+  }
+
+  if(options.find("-d")!=string::npos){
+    for( int ipos=0; ipos<argc ; ipos++ ) {
+      if(string(argv[ipos]).compare("-d")==0){
+        m_DSID = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-d) : DSID = %i", nevents );
         break;
       }
     }
@@ -177,12 +189,10 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  //m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
-  //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
   m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/JSSWTopTaggerDNN/Rel21/");
   m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190522_80Eff.dat");
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
-  //m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
+  m_Tagger.setProperty("DSID", m_DSID); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   m_Tagger.retrieve();
 
 
