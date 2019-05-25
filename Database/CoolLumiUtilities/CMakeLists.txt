@@ -43,6 +43,7 @@ atlas_add_dictionary( CoolLumiUtilitiesDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/*.py )
+atlas_install_joboptions( share/*.txt )
 
 
 atlas_add_test( OnlineLumiCalibrationCondData_test
@@ -50,9 +51,19 @@ atlas_add_test( OnlineLumiCalibrationCondData_test
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
+
+atlas_add_test( BunchGroupCondData_test
+  SOURCES test/BunchGroupCondData_test.cxx
+  INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
+
 atlas_add_test( OnlineLumiCalibrationCondAlg_test
   SOURCES test/OnlineLumiCalibrationCondAlg_test.cxx
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools
-  ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
+
+atlas_add_test( BunchGroupCondAlg_test
+  SOURCES test/BunchGroupCondAlg_test.cxx
+  INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
