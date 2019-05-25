@@ -23,6 +23,9 @@ namespace Trk {
 template <class T> 
 using SharedObject = std::shared_ptr<T>;  
 
+template<typename T>
+auto do_not_delete = [](T*){};
+
 } // end of namespace
 
 

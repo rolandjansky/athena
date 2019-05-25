@@ -22,7 +22,7 @@ Trk::MaterialLayer::MaterialLayer(const Surface& surfaceRepresentation,
   * Probably ownership might need some clean up here 
   */
 m_surfaceRepresentation(SharedObject<const Surface>(&surfaceRepresentation,
-                                                    [](const Surface*) {}))
+                                                    do_not_delete<const Surface>))
 {
     m_layerMaterialProperties.reset(mlprop.clone());
     m_layerThickness = 1.;

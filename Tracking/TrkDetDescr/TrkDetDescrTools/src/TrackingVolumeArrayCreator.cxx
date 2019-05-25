@@ -115,7 +115,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
         volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter)),
                                                             Amg::Vector3D(currentCylBounds->mediumRadius(), 0.0, 0.0)));
         }else{
-          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), [](const TrackingVolume*){}),
+          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>),
                                                               Amg::Vector3D(currentCylBounds->mediumRadius(), 0.0, 0.0)));
      
         }
@@ -198,7 +198,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
                                                               Amg::Vector3D((*volIter)->center())));
         }
         else{
-           volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter),[](const TrackingVolume*){}),
+           volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter),do_not_delete<const TrackingVolume>),
                                                                Amg::Vector3D((*volIter)->center())));
 
         
@@ -245,7 +245,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
         volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter)),
                                                             Amg::Vector3D(((*volIter)->transform())*gp)));
         }else{
-          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), [](const TrackingVolume*){}),
+          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>),
                                                             Amg::Vector3D(((*volIter)->transform())*gp)));
      
         }
@@ -313,7 +313,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
     if(navtype==false){
 	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
     }else{
-	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],[](const TrackingVolume*){}),ngp));
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],do_not_delete<const TrackingVolume>),ngp));
     }
 	  // push back volume position to avoid another loop
 	  volPos.push_back( std::pair< std::pair<double,int>, std::pair<double,double> >
@@ -379,7 +379,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv]),ngp));
     }
     else{
-	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv],[](const TrackingVolume*){}),ngp));
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv],do_not_delete<const TrackingVolume>),ngp));
     }
 	  // push back volume position to avoid another loop
 	  volPos.push_back(std::pair< std::pair<double,int>, std::pair<double,double> >
@@ -474,7 +474,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
       if(navtype==false){
       volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
       }else{
-      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],[](const TrackingVolume*){}),ngp));
+      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],do_not_delete<const TrackingVolume>),ngp));
       }
       // push back volume position to avoid another loop
       volPos.push_back(std::pair<double,std::pair<double,double> >(cyl->mediumRadius(),std::pair<double,double>(ngp.phi(),dphi)));
@@ -624,7 +624,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
       if(navtype==false){
         volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
       }else{
-        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], [](const TrackingVolume*){}),ngp));
+        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], do_not_delete<const TrackingVolume>),ngp));
       }
       // push back volume position to avoid another loop
       volPos.push_back(std::pair<float,std::pair<float,float> >(vols[i]->center()[2],std::pair<float,float>(ngp.phi(),dphi)));
@@ -761,7 +761,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cuboidVolumesArrayNav
         if(navtype==false){
           volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter)));
         }else{
-          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), [](const TrackingVolume*){}));
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>));
         }
     }
     if (volOrder.size()) {
@@ -795,7 +795,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::trapezoidVolumesArray
           volOrder.push_back(Trk::SharedObject<const TrackingVolume>(*volIter));
         }else
         {
-          volOrder.push_back(Trk::SharedObject<const TrackingVolume>(*volIter,[](const TrackingVolume*){}));
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>(*volIter,do_not_delete<const TrackingVolume>));
         }
     }
     if (volOrder.size()) {
@@ -829,7 +829,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::doubleTrapezoidVolume
           volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter)));
         }
         else{
-          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter),[](const TrackingVolume*){}));
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter),do_not_delete<const TrackingVolume>));
         }
     }
     if (volOrder.size()) {
