@@ -27,3 +27,7 @@ atlas_add_dictionary( LumiBlockDataDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthContainers LumiBlockData )
 
+atlas_add_test( LuminosityCondData_test
+  SOURCES test/LuminosityCondData_test.cxx
+  LINK_LIBRARIES LumiBlockData )
+
