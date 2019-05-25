@@ -51,9 +51,13 @@ atlas_add_test( OnlineLumiCalibrationCondData_test
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
-
 atlas_add_test( BunchGroupCondData_test
   SOURCES test/BunchGroupCondData_test.cxx
+  INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
+
+atlas_add_test( FillParamsCondData_test
+  SOURCES test/FillParamsCondData_test.cxx
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
@@ -64,6 +68,11 @@ atlas_add_test( OnlineLumiCalibrationCondAlg_test
 
 atlas_add_test( BunchGroupCondAlg_test
   SOURCES test/BunchGroupCondAlg_test.cxx
+  INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+  LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
+
+atlas_add_test( FillParamsCondAlg_test
+  SOURCES test/FillParamsCondAlg_test.cxx
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
