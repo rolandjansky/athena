@@ -192,11 +192,11 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
           }
 
 	  AthenaMP::WorkerOutput newOutput;
-          newOutput._filename = absolutename.string();
-          newOutput._technology = entries[1];
-          newOutput._description = entries[2];
-          newOutput._access_mode = entries[3];
-          newOutput._shared = (line.find("SHARED")!=std::string::npos);
+          newOutput.filename = absolutename.string();
+          newOutput.technology = entries[1];
+          newOutput.description = entries[2];
+          newOutput.access_mode = entries[3];
+          newOutput.shared = (line.find("SHARED")!=std::string::npos);
 
           (*jobOutputs)[basename.string()].push_back(newOutput);
         }

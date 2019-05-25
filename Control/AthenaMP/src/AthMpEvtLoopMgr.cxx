@@ -436,19 +436,19 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
 	      masterFile /= boost::filesystem::path(*keys_it);
 	      if(boost::filesystem::exists(masterFile) && boost::filesystem::is_regular_file(masterFile))
 		ofs << "    <File "
-		    << "description=\"" << outp._description
-		    << "\" mode=\"" << outp._access_mode
+		    << "description=\"" << outp.description
+		    << "\" mode=\"" << outp.access_mode
 		    << "\" name=\"" << masterFile.string()
-		    << "\" shared=\"" << (outp._shared?"True":"False")
-		    << "\" technology=\"" << outp._technology
+		    << "\" shared=\"" << (outp.shared?"True":"False")
+		    << "\" technology=\"" << outp.technology
 		    << "\"/>" << std::endl;
 	    }
 	    ofs << "    <File "
-		<< "description=\"" << outp._description
-		<< "\" mode=\"" << outp._access_mode
-		<< "\" name=\"" << outp._filename
-		<< "\" shared=\"" << (outp._shared?"True":"False")
-		<< "\" technology=\"" << outp._technology
+		<< "description=\"" << outp.description
+		<< "\" mode=\"" << outp.access_mode
+		<< "\" name=\"" << outp.filename
+		<< "\" shared=\"" << (outp.shared?"True":"False")
+		<< "\" technology=\"" << outp.technology
 		<< "\"/>" << std::endl;
 	  }
 	}
