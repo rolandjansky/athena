@@ -38,15 +38,18 @@ if jobproperties.Beam.beamType()=='collisions':
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTTracksMonTool
 
-from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-sct_DCSConditionsToolSetup.setup()
-
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
 InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      OutputLevel      = 4,
                                      histoPathBase    = "/stat",
-                                     SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool())
+                                     UseDCS           = InDetFlags.useDCS() )
+if InDetFlags.useDCS():
+  from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+  sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+  sct_DCSConditionsToolSetup.setup()
+  InDetSCTErrMonTool.SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
+else:
+  InDetSCTErrMonTool.SCT_DCSConditionsTool = None
 
 if jobproperties.Beam.beamType()=='collisions':
   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
