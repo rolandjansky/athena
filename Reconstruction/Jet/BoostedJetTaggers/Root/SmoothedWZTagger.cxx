@@ -207,7 +207,7 @@ StatusCode SmoothedWZTagger::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    TFile* weightConfig=new TFile( m_weightConfigPath.c_str(), "OPEN" );
+    std::unique_ptr<TFile> weightConfig(new TFile(m_weightConfigPath.c_str(), "OPEN"));
     if( !weightConfig ) {
       ATH_MSG_INFO( ("SmoothedWZTagger: Error openning config file : "+m_weightConfigPath ) );
       return StatusCode::FAILURE;
