@@ -7,10 +7,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigEDMConfig.TriggerEDMRun3 import recordable
       
 class precisionCaloMenuDefs(object):
       """Static class to collect all string manipulation in Calo sequences """
-      precisionCaloClusters= ""
+      precisionCaloClusters= recordable("HLT_CaloEMClusters")
 
 def precisionCaloSequence(ConfigFlags):
     """ Creates PrecisionCalo sequence """
