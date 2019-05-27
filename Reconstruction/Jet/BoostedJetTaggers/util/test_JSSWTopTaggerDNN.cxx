@@ -242,21 +242,23 @@ int main( int argc, char* argv[] ) {
 
       Tree->Fill();
       
-      if ( (*jet_itr)->pt() > 350e3 && fabs((*jet_itr)->eta()) < 2.0 && pass ) {
-	bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
-	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
-	validForUncTool &= (fabs(eta) < 2);
-	std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb)" << std::endl;
-	if( validForUncTool ){
-	  for ( auto sysSet : m_jetUnc_sysSets2 ){
-	    m_Tagger->tag( **jet_itr );
-	    m_jetUncToolSF->applySystematicVariation(sysSet);
-	    m_jetUncToolSF->applyCorrection(**jet_itr);
-	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
+      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ){
+	if ( (*jet_itr)->pt() > 350e3 && fabs((*jet_itr)->eta()) < 2.0 && pass ) {
+	  bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
+	  validForUncTool &= (m/pt >= 0 && m/pt <= 1);
+	  validForUncTool &= (fabs(eta) < 2);
+	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb)" << std::endl;
+	  if( validForUncTool ){
+	    for ( auto sysSet : m_jetUnc_sysSets2 ){
+	      m_Tagger->tag( **jet_itr );
+	      m_jetUncToolSF->applySystematicVariation(sysSet);
+	      m_jetUncToolSF->applyCorrection(**jet_itr);
+	      std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
+	    }
 	  }
 	}
       }
-   }
+    }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }

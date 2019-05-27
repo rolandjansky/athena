@@ -207,7 +207,7 @@ StatusCode SmoothedWZTagger::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    std::unique_ptr<TFile> weightConfig(new TFile(m_weightConfigPath.c_str(), "OPEN"));
+    TFile* weightConfig = new TFile(m_weightConfigPath.c_str(), "OPEN");
     if( !weightConfig ) {
       ATH_MSG_INFO( ("SmoothedWZTagger: Error openning config file : "+m_weightConfigPath ) );
       return StatusCode::FAILURE;
@@ -376,7 +376,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
   if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
-      ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
+      // data
       return m_accept;
     }
   }

@@ -351,16 +351,15 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   // decorate truth label for SF provider
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
+  float jet_weight=1.0;
   if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
-    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
-      ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
-      return m_accept;
+    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::SUCCESS ){
+      if( (jet_score > cut_score) && m_calcSF) {
+	jet_weight = getWeight(jet);
+      }
     }
   }
-  float jet_weight=1.0;
-  if( (jet_score > cut_score) && m_calcSF) {
-    jet_weight = getWeight(jet);
-  }
+
   // decorate the cut value if needed;
   if(m_decorate){
     ATH_MSG_DEBUG("Decorating with score");
