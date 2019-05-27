@@ -91,7 +91,10 @@ def setupMenu():
         ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
-    TriggerFlags.TauSlice.signatures = []
+    TriggerFlags.TauSlice.signatures = [
+        #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
+        #ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+    ]
     TriggerFlags.BphysicsSlice.signatures = [ ]
     TriggerFlags.CombinedSlice.signatures = []
     TriggerFlags.HeavyIonSlice.signatures  = []
