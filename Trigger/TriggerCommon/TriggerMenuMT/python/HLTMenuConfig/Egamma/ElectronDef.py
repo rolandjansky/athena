@@ -12,7 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
 from TrigUpgradeTest.InDetSetup import inDetSetup
-#from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -20,14 +20,14 @@ from TrigUpgradeTest.InDetSetup import inDetSetup
 #----------------------------------------------------------------
 
 def fastCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence("Electron")
+    return fastCaloMenuSequence("ElectronFastCalo")
     
 def electronSequenceCfg( flags ):    
     inDetSetup()
     return electronMenuSequence()
 
-#def precisionCaloSequenceCfg( flags ):
-#    return precisionCaloMenuSequence()
+def precisionCaloSequenceCfg( flags ):
+    return precisionCaloMenuSequence()
 
 #----------------------------------------------------------------
 # Class to configure chain
