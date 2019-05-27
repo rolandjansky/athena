@@ -239,17 +239,19 @@ int main( int argc, char* argv[] ) {
 
       Tree->Fill();
 
-      bool validForUncTool = (pt >= 200e3 && pt < 2500e3);
-      validForUncTool &= (m/pt >= 0 && m/pt <= 1);
-      validForUncTool &= (fabs(eta) < 2);
-      if( validForUncTool ){
-	std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb, 2: W->qq, 3: Z->qq, etc.)" << std::endl;
-	std::cout << "passMass? " << (res.getCutResult("PassMassHigh") && res.getCutResult("PassMassLow")) << " passD2? " << res.getCutResult("PassD2") << std::endl;
-	for ( auto sysSet : m_jetUnc_sysSets ){
-	  m_Tagger->tag( **jet_itr );
-	  m_jetUncToolSF->applySystematicVariation(sysSet);
-	  m_jetUncToolSF->applyCorrection(**jet_itr);
-	  std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
+      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ){
+	bool validForUncTool = (pt >= 200e3 && pt < 2500e3);
+	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
+	validForUncTool &= (fabs(eta) < 2);
+	if( validForUncTool ){
+	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb, 2: W->qq, 3: Z->qq, etc.)" << std::endl;
+	  std::cout << "passMass? " << (res.getCutResult("PassMassHigh") && res.getCutResult("PassMassLow")) << " passD2? " << res.getCutResult("PassD2") << std::endl;
+	  for ( auto sysSet : m_jetUnc_sysSets ){
+	    m_Tagger->tag( **jet_itr );
+	    m_jetUncToolSF->applySystematicVariation(sysSet);
+	    m_jetUncToolSF->applyCorrection(**jet_itr);
+	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
+	  }
 	}
       }
     }
