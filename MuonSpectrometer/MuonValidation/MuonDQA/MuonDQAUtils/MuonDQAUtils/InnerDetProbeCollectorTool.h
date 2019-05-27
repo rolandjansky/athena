@@ -32,7 +32,6 @@
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEvent/TrigMuonEFContainer.h"
-#include "TrigSteeringEvent/TriggerDecision.h"
 /// Track Particles
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"

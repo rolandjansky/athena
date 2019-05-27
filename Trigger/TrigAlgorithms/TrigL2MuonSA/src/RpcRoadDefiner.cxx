@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/RpcRoadDefiner.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 

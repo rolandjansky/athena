@@ -465,10 +465,14 @@ if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput()
      if hasattr(ToolSvc,'TrackToVertex') :
         trackToVertexTool = ToolSvc.TrackToVertex
      else :
-        from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
-        trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
-        ToolSvc += trackToVertexTool
-     
+       from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+       atlas_extrapolator = AtlasExtrapolator()
+
+       from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+       trackToVertexTool = Reco__TrackToVertex('TrackToVertex',
+                                               Extrapolator = atlas_extrapolator)
+       ToolSvc += trackToVertexTool
+
 if rec.doPhysicsValidationAugmentation() :
   try:
     import InDetPhysValMonitoring.InDetPhysValDecoration

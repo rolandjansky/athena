@@ -22,7 +22,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthenaKernel/CLASS_DEF.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 #include <exception>
 #include <string>

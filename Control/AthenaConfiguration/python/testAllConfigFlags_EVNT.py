@@ -5,7 +5,16 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 ConfigFlags.Input.Files = defaultTestFiles.EVNT
 ConfigFlags._loadDynaFlags("Detector")
-ConfigFlags._loadDynaFlags("Sim")
+
+# Don't fail just because G4AtlasApps isn't present in this build.
+havesim = True
+try:
+    import G4AtlasApps # noqa: F401
+except ImportError:
+    havesim = False
+if havesim:
+    ConfigFlags._loadDynaFlags("Sim")
+
 ConfigFlags.initAll()
 ConfigFlags.dump()
 

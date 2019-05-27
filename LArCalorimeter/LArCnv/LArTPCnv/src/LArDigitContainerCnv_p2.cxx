@@ -35,6 +35,11 @@ void
 LArDigitContainerCnv_p2::persToTrans(const LArDigitContainer_p2* pers, 
 				     LArDigitContainer* trans, MsgStream &/*log*/)
 {
+  if (pers->m_nSamples==0 || pers->m_samples.size()==0) {
+    //No data
+    return;
+  }
+
   const unsigned nMaxChannels=4*(pers->m_gain.size());
   trans->clear();
   trans->reserve(pers->m_samples.size()/pers->m_nSamples);

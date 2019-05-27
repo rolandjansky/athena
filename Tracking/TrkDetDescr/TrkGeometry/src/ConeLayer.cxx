@@ -85,7 +85,7 @@ const Trk::ConeSurface& Trk::ConeLayer::surfaceRepresentation() const
 double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                    Trk::PropDirection dir) const
 {    
-  if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+  if (!Trk::Layer::m_layerMaterialProperties.get())
     return 0.;
   // calculate the direction to the normal 
   const Amg::Vector3D& parmPos = parm.position();
@@ -98,7 +98,7 @@ double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
 double Trk::ConeLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                     Trk::PropDirection dir) const 
 {
-  if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+  if (!Trk::Layer::m_layerMaterialProperties.get())
     return 0;
   const Amg::Vector3D& parmPos = parm.position();
   Amg::Vector3D pastStep(parmPos + dir*parm.momentum().normalized());

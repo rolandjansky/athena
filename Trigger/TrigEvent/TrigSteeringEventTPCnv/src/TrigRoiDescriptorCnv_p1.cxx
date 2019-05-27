@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -7,7 +7,6 @@
 #include <cmath>
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p1.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p1.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 
 void TrigRoiDescriptorCnv_p1::persToTrans(const TrigRoiDescriptor_p1* persObj, 

@@ -9,11 +9,15 @@
 
 athena G4AtlasApps/jobOptions.G4Cosmic.py
 
-echo  "art-result: $? simulation"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-# TODO This is a regression test I think.
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"

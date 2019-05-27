@@ -489,13 +489,13 @@ namespace Trk {
       auto& bSurfaces = boundarySurfaces();
       // fast loop pointer comparison of the surfaces 
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           // pointer of the parameter surface is identical with one of the boundary surface pointers
           if (pSurface == &bSurface->surfaceRepresentation()) return true;
       }
       // slow loop - checking the onSurface (does pointer comparison as well)
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           // pointer of the parameter surface is identical with one of the boundary surface pointers
           if (bSurface->onBoundary(pars)) return true;
       }
@@ -595,7 +595,7 @@ namespace Trk {
       std::vector< BoundaryIntersection<T> > bIntersections;
       auto& bSurfaces = boundarySurfaces();
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           Intersection bsIntersection   = bSurface->surfaceRepresentation().straightLineIntersection(pars.position(),dir,true,false);
           if (bsIntersection.valid)
               bIntersections.push_back(BoundaryIntersection<T>(bsIntersection,bSurface,&(bSurface->surfaceRepresentation()),0,pDir));

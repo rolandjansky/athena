@@ -231,7 +231,7 @@ namespace Trk {
   
   inline const SurfaceBounds& StraightLineSurface::bounds() const
   {
-    if (m_bounds.getPtr()) return (m_bounds.getRef());
+    if (m_bounds.get()) return *(m_bounds.get());
     if (Surface::m_associatedDetElement && Surface::m_associatedDetElementId.is_valid()){ 
      return m_associatedDetElement->bounds(Surface::m_associatedDetElementId);
     }
@@ -243,7 +243,7 @@ namespace Trk {
                                                double tol1,
                                                double tol2) const
   { 
-    if (!(m_bounds.getPtr()) && !Surface::m_associatedDetElement) return true;
+    if (!(m_bounds.get()) && !Surface::m_associatedDetElement) return true;
     return (fabs(locpos[locR]) < bounds().r() + tol1 
            && bounds().insideLoc2(locpos, tol2)); 
   }

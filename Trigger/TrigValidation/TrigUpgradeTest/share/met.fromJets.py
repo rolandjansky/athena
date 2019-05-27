@@ -35,7 +35,7 @@ topSequence += jetSequence
 # Add EFMissingETFrom** algorithm
 #################################################
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT, EFMissingETFromHelperMT
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
@@ -43,9 +43,7 @@ metAlg = EFMissingETAlgMT( name="EFMET" )
 mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
 mhtTool.JetsCollection = jetsKey
 
-helperTool = EFMissingETFromHelperMT("theHelperTool") 
-
-metAlg.METTools=[ mhtTool, helperTool ]
+metAlg.METTools=[ mhtTool ]
 metAlg.METContainerKey="HLT_MET_mht"
 metAlg.MonTool = getMETMonTool()
 

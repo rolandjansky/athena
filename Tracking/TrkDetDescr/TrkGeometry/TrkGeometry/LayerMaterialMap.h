@@ -59,7 +59,7 @@ namespace Trk {
 		~LayerMaterialMap();
 	
 		/** retrieval method */
-		const ElementTable* elementTable() const { return m_elementTable.getPtr(); }
+		const ElementTable* elementTable() const { return m_elementTable.get(); }
 	
 		/** update method*/
 		void updateElementTable(const SharedObject<const ElementTable>& eTable) const 

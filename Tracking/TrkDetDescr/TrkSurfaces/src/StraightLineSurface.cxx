@@ -139,7 +139,7 @@ bool Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo,
 {
    if (!bchk) return true;
    // check whether this is a boundless surface
-   if (!(m_bounds.getPtr()) && !Surface::m_associatedDetElement) return true;
+   if (!(m_bounds.get()) && !Surface::m_associatedDetElement) return true;
    // get the standard bounds
    Amg::Vector3D loc3Dframe = (transform().inverse())*glopo;
    Amg::Vector2D locCand(loc3Dframe.perp(), loc3Dframe.z());
@@ -204,9 +204,9 @@ Trk::DistanceSolution Trk::StraightLineSurface::straightLineDistanceEstimate
   //
   double Rm = 20., Lzm = 1.e+10;
 
-  if (m_bounds.getPtr()) {
-    Rm  = m_bounds.getRef().r();
-    Lzm = m_bounds.getRef().halflengthZ();
+  if (m_bounds.get()) {
+    Rm  = m_bounds.get()->r();
+    Lzm = m_bounds.get()->halflengthZ();
   }
   else if (Surface::m_associatedDetElement) {
 

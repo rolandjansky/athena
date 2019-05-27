@@ -14,7 +14,7 @@
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
+--truthStrategy 'MC15aPlusLLP' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
@@ -25,10 +25,14 @@ Sim_tf.py \
 --maxEvents 4 \
 --imf False
 
-echo  "art-result: $? simulation"
-
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid  --entries 4 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+rc=$?
+echo  "art-result: $rc simulation"
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+echo  "art-result: $rc2 regression"
