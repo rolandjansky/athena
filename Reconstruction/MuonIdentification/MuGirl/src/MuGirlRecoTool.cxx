@@ -230,6 +230,8 @@ StatusCode MuGirlRecoTool::initialize() {
 
   if (!m_caloExtensionTool.empty()) ATH_CHECK(m_caloExtensionTool.retrieve());
 
+  ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+
   ATH_MSG_INFO("MuGirlrecoTool initialized successfully");
 
   return StatusCode::SUCCESS;

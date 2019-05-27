@@ -66,7 +66,7 @@ namespace Muon {
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
-
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     return StatusCode::SUCCESS;
   }
 

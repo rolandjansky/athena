@@ -140,6 +140,7 @@ namespace MuonCombined {
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     
     if( m_doTruth ){
       // add pdgs from jobO to set

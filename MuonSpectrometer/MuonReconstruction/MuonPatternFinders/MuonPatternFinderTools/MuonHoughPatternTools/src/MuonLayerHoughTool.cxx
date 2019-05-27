@@ -116,6 +116,8 @@ namespace Muon {
       m_MuonTruthSegmentsKey="";
     }
 
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+
     // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
     m_selectors.resize(MuonStationIndex::ChIndexMax);
     m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
@@ -170,6 +172,7 @@ namespace Muon {
     //   }
     // }
 
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
 
     return StatusCode::SUCCESS;
   }
