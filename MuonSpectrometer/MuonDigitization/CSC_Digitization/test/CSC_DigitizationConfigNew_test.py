@@ -10,8 +10,6 @@ from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
-from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderCfg
 
@@ -22,8 +20,6 @@ Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-ConfigFlags.join(createDigitizationCfgFlags())
-ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.lock()
 # Function tests
 # Construct our accumulator to run
