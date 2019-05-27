@@ -23,12 +23,34 @@ class ConfigurationError(RuntimeError):
 
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
+def printProperties(msg, c, nestLevel = 0):
+    for propname, propval in six.iteritems(c.getValuedProperties()):
+        # Ignore empty lists
+        if propval==[]:
+            continue
+        # Printing EvtStore could be relevant for Views?
+        if propname in ["DetStore","EvtStore"]:
+            continue
+
+        propstr = str(propval)
+        if isinstance(propval,GaudiHandles.PublicToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,ConfigurableAlgTool):
+            propstr = propval.getFullName()
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+    return
+
+
 class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
         if not Configurable.configurableRun3Behavior:
-            msg = "discoverd Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
+            msg = "discovered Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
             self._msg.error(msg)
             raise ConfigurationError(msg)
         
@@ -69,31 +91,20 @@ class ComponentAccumulator(object):
 
 
 
+    def printCondAlgs(self, summariseProps=False):
+        self._msg.info( "Condition Algorithms" )
+        for c in self._conditionsAlgs:
+            self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
+            if summariseProps:
+                printProperties(self._msg, c, 1)
+        return
+        
+
     def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
 
-        def printProperties(c, nestLevel = 0):
-            for propname, propval in six.iteritems(c.getValuedProperties()):
-                # Ignore empty lists
-                if propval==[]:
-                    continue
-                # Printing EvtStore could be relevant for Views?
-                if propname in ["DetStore","EvtStore"]:
-                    continue
-
-                propstr = str(propval)
-                if isinstance(propval,GaudiHandles.PublicToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,ConfigurableAlgTool):
-                    propstr = propval.getFullName()
-                self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
-            return
 
         if withDetails:
             self._msg.info( self._sequence )
@@ -113,14 +124,13 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
                         if summariseProps:
-                            printProperties(c, nestLevel)
+                            printProperties(self._msg, c, nestLevel)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
                 printSeqAndAlgs(s)
 
-        self._msg.info( "Condition Algorithms" )
-        self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
+        self.printCondAlgs (summariseProps = summariseProps)
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
@@ -131,7 +141,7 @@ class ComponentAccumulator(object):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
             if summariseProps:
-                printProperties(t)
+                printProperties(self._msg, t)
         self._msg.info( "]" )
 
 
