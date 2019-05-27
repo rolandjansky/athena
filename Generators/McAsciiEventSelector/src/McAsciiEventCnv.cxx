@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // McAsciiEventCnv.cxx 
@@ -14,7 +14,7 @@
 
 // Framework includes
 #include "GaudiKernel/StatusCode.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 // EventInfo includes
 #include "EventInfo/EventInfo.h"
