@@ -19,6 +19,9 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
 
+    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    acc.merge (MdtCalibDbAlgCfg(flags))
+
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
@@ -249,6 +252,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
+    return cfg
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
@@ -300,11 +304,12 @@ def muonRdoDecodeTestMC():
     with open('MuonRdoDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
+    return cfg
     
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRdoDecodeConfig.py
-    muonRdoDecodeTestData()
+    cfg = muonRdoDecodeTestData()
     #muonRdoDecodeTestMC()
 
 
