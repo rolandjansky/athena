@@ -449,9 +449,9 @@ class ComponentAccumulator(object):
                     if ourSeq:
                         mergeSequences(ourSeq, otherSeq)
                         found=True
-                        self._msg.debug("   Succeeded to merge sequence %s to %s", otherSeq.name(), ourSeq.name() )                                                
+                        self._msg.verbose("   Succeeded to merge sequence %s to %s", otherSeq.name(), ourSeq.name() )
                     else:
-                        self._msg.debug("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name() )
+                        self._msg.verbose("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name() )
                 if not found: # just copy the sequence as a dangling one
                     self._allSequences.append( copy.copy(otherSeq) )
                     mergeSequences( self._allSequences[-1], otherSeq )
@@ -562,6 +562,10 @@ class ComponentAccumulator(object):
             self.appendConfigurable(ch)
         return
 
+    def __verifyFinalSequencesStructure(self):
+        if len(self._allSequences) != 1:
+            raise ConfigurationError('It is not allowed for the storable CA to have more than one top sequence, now it has: {}'\
+                                         .format(','.join([ s.name() for s in self._allSequences])))
 
     def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
@@ -601,9 +605,8 @@ class ComponentAccumulator(object):
               basecfg = MainServicesSerialCfg()
               basecfg.merge(self)
               self = basecfg
-              if len(self._allSequences) != 1:
-                  raise ConfigurationError('It is not allowed for the storable CA to have more than one top sequence, now it has: {}'\
-                                           .format(','.join([ s.name() for s in self._allSequences])))
+              self.__verifyFinalSequencesStructure()
+
             self._jocat={}
             self._jocfg={}
             self._pycomps={}
@@ -781,9 +784,9 @@ class ComponentAccumulator(object):
 
         return app
 
-
     def run(self,maxEvents=None,OutputLevel=3):
         app = self.createApp (OutputLevel)
+        self.__verifyFinalSequencesStructure()
 
         #Determine maxEvents
         if maxEvents is None:
