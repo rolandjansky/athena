@@ -42,6 +42,7 @@ def setupMenu():
         ChainProp(name='HLT_mu20_ivar_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu6_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6noL1_L1MU6', groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
@@ -90,7 +91,10 @@ def setupMenu():
         ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
-    TriggerFlags.TauSlice.signatures = []
+    TriggerFlags.TauSlice.signatures = [
+        #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
+        #ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+    ]
     TriggerFlags.BphysicsSlice.signatures = [ ]
     TriggerFlags.CombinedSlice.signatures = []
     TriggerFlags.HeavyIonSlice.signatures  = []

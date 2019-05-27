@@ -493,24 +493,24 @@ class TrigMuonEFTrackIsolationHypoConfig() :
         try:
             ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
 
-            self.PtCone02Cut = -1.0
-            self.PtCone03Cut = ptcone03
-            self.AcceptAll = False
+            tool.PtCone02Cut = 0.0
+            tool.PtCone03Cut = ptcone03
+            tool.AcceptAll = False
 
             if 'MS' in isoCut:
-                self.RequireCombinedMuon = False
+                tool.RequireCombinedMuon = False
             else:
-                self.RequireCombinedMuon = True
+                tool.RequireCombinedMuon = True
 
-            self.DoAbsCut = True
+            tool.DoAbsCut = False
             if 'var' in isoCut :
-                self.useVarIso = True
+                tool.useVarIso = True
             else :
-                self.useVarIso = False                                
+                tool.useVarIso = False                                
         except LookupError:
             if(isoCut=='passthrough') :
                 print 'Setting passthrough'
-                self.AcceptAll = True
+                tool.AcceptAll = True
             else:
                 print 'isoCut = ', isoCut
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')

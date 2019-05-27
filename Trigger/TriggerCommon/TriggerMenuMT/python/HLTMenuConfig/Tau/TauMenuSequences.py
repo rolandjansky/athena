@@ -9,7 +9,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from TrigUpgradeTest.tauDefs import tauCaloSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence
 
 
 # ====================================================================================================  
