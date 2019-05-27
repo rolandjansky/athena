@@ -28,9 +28,9 @@ StatusCode DerivationFramework::MergeMCAna::initialize()
     CHECK (book (TH1F("npart23", ";N;Particles", 20, -0.5, 19.5)));
     CHECK (book (TH1F("npart3",  ";N;Particles", 20, -0.5, 19.5)));
     CHECK (book (TH1F("npart11", ";N;Particles", 20, -0.5, 19.5)));
-    CHECK (book (TH1F("ptvFilter", ";p_{T}^{v};Particles", 1000, 0.0, 500.0)));
-    CHECK (book (TH1F("ptvSherpaFilter3", ";p_{T}^{v};Particles", 1000, 0.0, 500.0)));
-    CHECK (book (TH1F("ptvSherpaFilter11", ";p_{T}^{v};Particles", 1000, 0.0, 500.0)));
+    CHECK (book (TH1F("ptvFilter", ";p_{T}^{v};Particles", 1500, 0.0, 1500.0)));
+    CHECK (book (TH1F("ptvSherpaFilter3", ";p_{T}^{v};Particles", 1500, 0.0, 1500.0)));
+    CHECK (book (TH1F("ptvSherpaFilter11", ";p_{T}^{v};Particles", 1500, 0.0, 1500.0)));
   }
   // Set bin labels
   hist( "MCCount" )->GetXaxis()->SetBinLabel(1,"All W");

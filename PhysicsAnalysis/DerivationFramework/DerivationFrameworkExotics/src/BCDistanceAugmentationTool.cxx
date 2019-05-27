@@ -20,7 +20,6 @@ DerivationFramework::BCDistanceAugmentationTool::BCDistanceAugmentationTool(cons
 
   declareProperty( "BCTool",        m_bcTool );
   declareProperty( "PhotonIsoTool", m_PhIsoTool );
-  //declareProperty( "RunNumber", m_runNumber = 0 );
 }
 
 DerivationFramework::BCDistanceAugmentationTool::~BCDistanceAugmentationTool() {

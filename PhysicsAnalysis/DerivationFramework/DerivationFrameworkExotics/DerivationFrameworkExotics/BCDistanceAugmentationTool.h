@@ -30,8 +30,7 @@ namespace DerivationFramework {
     private:
 
       ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
-      //int32_t                        m_runNumber;
-      ToolHandle<VGammaORTool>            m_PhIsoTool;
+      ToolHandle<VGammaORTool>             m_PhIsoTool;
 
   }; 
 

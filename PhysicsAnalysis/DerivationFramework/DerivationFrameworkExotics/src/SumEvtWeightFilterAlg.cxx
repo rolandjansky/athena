@@ -54,7 +54,8 @@ StatusCode DerivationFramework::SumEvtWeightFilterAlg::execute()
 
   // preserve the order. this is assumed below
   const std::vector<std::string> filters = {"All","VBFSherpa","BFilter","CFilter","LFFilter",
-					    "SherpaPTV","JZVBFFilter","MGVBFFilter","MGVBFORFilter",
+					    "SherpaPTV90","SherpaPTV100","SherpaPTV500", // for the sherpa photon samples, inclusive, and less than 500 gev
+					    "JZVBFFilter","MGVBFFilter","MGVBFORFilter",
 					    "MGZnnNp01ORFilter","ZOtherORFilter","MGWFilter",
 					    "MGWNoFlavFilter","PhotonFilter","PhotonwIsoFilter"};
 
@@ -97,10 +98,6 @@ StatusCode DerivationFramework::SumEvtWeightFilterAlg::execute()
   float sherpaptv = decoratorSherpaVTruthPt(*evtInfo);
   bool passPhotonOR = decoratorin_vy_overlap(*evtInfo);
   bool passPhotonORIso = decoratorin_vy_overlap_iso(*evtInfo);
-
-  // First pass of filtering on ptV
-  bool passSherpaPTVFilter=(sherpaptv>100.0e3);
-
   double JetEtaFilter = 5.0;
   double JetpTFilter = 20e3;
   double MjjFilter = 800.0e3;
@@ -129,16 +126,18 @@ StatusCode DerivationFramework::SumEvtWeightFilterAlg::execute()
   if(flav==1)                                     cutFlowSvc()->addEvent( m_mcCutIDs[2], weight );
   if(flav==2)                                     cutFlowSvc()->addEvent( m_mcCutIDs[3], weight );
   if(flav==0)                                     cutFlowSvc()->addEvent( m_mcCutIDs[4], weight );
-  if(passSherpaPTVFilter)                         cutFlowSvc()->addEvent( m_mcCutIDs[5], weight );
-  if(passQCDFilter)                               cutFlowSvc()->addEvent( m_mcCutIDs[6], weight );
-  if(passMGJetFilter)                             cutFlowSvc()->addEvent( m_mcCutIDs[7], weight );
-  if(passMGJetFilterOREleTau)                     cutFlowSvc()->addEvent( m_mcCutIDs[8], weight );
-  if(ptv>75.0e3 && passMGJetFilterOREleTau)       cutFlowSvc()->addEvent( m_mcCutIDs[9], weight );
-  if(ptv>100.0e3 && passMGJetFilterOREleTau)      cutFlowSvc()->addEvent( m_mcCutIDs[10], weight );
-  if(flav==0 && ptv>100.0e3 && passMGJetFilter)   cutFlowSvc()->addEvent( m_mcCutIDs[11], weight );
-  if(ptv>100.0e3 && passMGJetFilter)              cutFlowSvc()->addEvent( m_mcCutIDs[12], weight );
-  if(passPhotonOR)                                cutFlowSvc()->addEvent( m_mcCutIDs[13], weight );
-  if(passPhotonORIso)                             cutFlowSvc()->addEvent( m_mcCutIDs[14], weight );
+  if(sherpaptv> 90.0e3)                           cutFlowSvc()->addEvent( m_mcCutIDs[5], weight );
+  if(sherpaptv>100.0e3)                           cutFlowSvc()->addEvent( m_mcCutIDs[6], weight );
+  if(sherpaptv>500.0e3)                           cutFlowSvc()->addEvent( m_mcCutIDs[7], weight );
+  if(passQCDFilter)                               cutFlowSvc()->addEvent( m_mcCutIDs[8], weight );
+  if(passMGJetFilter)                             cutFlowSvc()->addEvent( m_mcCutIDs[9], weight );
+  if(passMGJetFilterOREleTau)                     cutFlowSvc()->addEvent( m_mcCutIDs[10], weight );
+  if(ptv>75.0e3 && passMGJetFilterOREleTau)       cutFlowSvc()->addEvent( m_mcCutIDs[11], weight );
+  if(ptv>100.0e3 && passMGJetFilterOREleTau)      cutFlowSvc()->addEvent( m_mcCutIDs[12], weight );
+  if(flav==0 && ptv>100.0e3 && passMGJetFilter)   cutFlowSvc()->addEvent( m_mcCutIDs[13], weight );
+  if(ptv>100.0e3 && passMGJetFilter)              cutFlowSvc()->addEvent( m_mcCutIDs[14], weight );
+  if(passPhotonOR)                                cutFlowSvc()->addEvent( m_mcCutIDs[15], weight );
+  if(passPhotonORIso)                             cutFlowSvc()->addEvent( m_mcCutIDs[16], weight );
   
   // Increment the event counter
   ++m_eventsProcessed;
