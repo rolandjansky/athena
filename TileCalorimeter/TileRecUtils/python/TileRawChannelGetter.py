@@ -156,11 +156,11 @@ class TileRawChannelGetter ( Configured)  :
                 NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
                 if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
-                    from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilterAlg
-                    theTileRawChannelNoiseFilterAlg = TileRawChannelNoiseFilterAlg()
-                    theTileRawChannelNoiseFilterAlg.NoiseFilterTools= NoiseFilterTools
+                    from TileRecUtils.TileRecUtilsConf import TileRawChannelCorrectionAlg
+                    theTileRawChannelCorrectionAlg = TileRawChannelCorrectionAlg()
+                    theTileRawChannelCorrectionAlg.NoiseFilterTools= NoiseFilterTools
                     TileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
-                    topSequence += theTileRawChannelNoiseFilterAlg
+                    topSequence += theTileRawChannelCorrectionAlg
 
             if (jobproperties.TileRecFlags.doTileMF()
                 or (not jobproperties.TileRecFlags.OfcFromCOOL()

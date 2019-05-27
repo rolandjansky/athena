@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILERECUTILS_TILERAWCHANNELNOISEFILTERALG_H
-#define TILERECUTILS_TILERAWCHANNELNOISEFILTERALG_H
+#ifndef TILERECUTILS_TILERAWCHANNELCORRECTIONALG_H
+#define TILERECUTILS_TILERAWCHANNELCORRECTIONALG_H
 
 // Tile includes
 #include "TileEvent/TileRawChannelContainer.h"
@@ -18,14 +18,14 @@
 #include "GaudiKernel/ToolHandle.h"
 
 /** 
- *  @class TileRawChannelNoiseFilterAlg
+ *  @class TileRawChannelCorrectionAlg
  *  @brief This algorithm applies noise filter tools to input Tile raw channel container
  */
-class TileRawChannelNoiseFilterAlg: public AthReentrantAlgorithm {
+class TileRawChannelCorrectionAlg: public AthReentrantAlgorithm {
   public:
 
-    TileRawChannelNoiseFilterAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileRawChannelNoiseFilterAlg();
+    TileRawChannelCorrectionAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    ~TileRawChannelCorrectionAlg();
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -43,4 +43,4 @@ class TileRawChannelNoiseFilterAlg: public AthReentrantAlgorithm {
         "NoiseFilterTools", {}, "Tile noise filter tools"};
 };
 
-#endif // TILERECUTILS_TILERAWCHANNELNOISEFILTERALG_H
+#endif // TILERECUTILS_TILERAWCHANNELCORRECTIONALG_H

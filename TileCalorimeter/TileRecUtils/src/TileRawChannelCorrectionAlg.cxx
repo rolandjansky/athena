@@ -3,7 +3,7 @@
 */
 
 // Tile includes
-#include "TileRawChannelNoiseFilterAlg.h"
+#include "TileRawChannelCorrectionAlg.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 
 // Athena includes
@@ -13,17 +13,17 @@
 
 #include <memory>
 
-TileRawChannelNoiseFilterAlg::TileRawChannelNoiseFilterAlg(const std::string& name, ISvcLocator* pSvcLocator)
+TileRawChannelCorrectionAlg::TileRawChannelCorrectionAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 
-TileRawChannelNoiseFilterAlg::~TileRawChannelNoiseFilterAlg() {
+TileRawChannelCorrectionAlg::~TileRawChannelCorrectionAlg() {
 }
 
 
-StatusCode TileRawChannelNoiseFilterAlg::initialize() {
+StatusCode TileRawChannelCorrectionAlg::initialize() {
 
   ATH_MSG_DEBUG( "Input raw channel container: '" << m_inputRawChannelContainerKey.key()
                 << "'  output container: '" << m_outputRawChannelContainerKey.key() << "'" );
@@ -40,7 +40,7 @@ StatusCode TileRawChannelNoiseFilterAlg::initialize() {
 }
 
 
-StatusCode TileRawChannelNoiseFilterAlg::execute(const EventContext& ctx) const {
+StatusCode TileRawChannelCorrectionAlg::execute(const EventContext& ctx) const {
 
 
   const TileRawChannelContainer* inputRawChannels = SG::makeHandle(m_inputRawChannelContainerKey, ctx).get();
@@ -65,7 +65,7 @@ StatusCode TileRawChannelNoiseFilterAlg::execute(const EventContext& ctx) const 
 }
 
 
-StatusCode TileRawChannelNoiseFilterAlg::finalize() {
+StatusCode TileRawChannelCorrectionAlg::finalize() {
 
   ATH_MSG_DEBUG( "in finalize()" );
 

@@ -26,7 +26,7 @@
 #include "../TileRawChannelBuilderTest.h"
 #include "../TileDQstatusTool.h"
 #include "../TileDQstatusAlg.h"
-#include "../TileRawChannelNoiseFilterAlg.h"
+#include "../TileRawChannelCorrectionAlg.h"
 
 DECLARE_COMPONENT( TileRawChannelBuilderFlatFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilter )
@@ -56,4 +56,4 @@ DECLARE_COMPONENT( TileMuonReceiverDumper )
 DECLARE_COMPONENT( TileRawChannelBuilderTest )
 DECLARE_COMPONENT( TileDQstatusTool )
 DECLARE_COMPONENT( TileDQstatusAlg )
-DECLARE_COMPONENT( TileRawChannelNoiseFilterAlg )
+DECLARE_COMPONENT( TileRawChannelCorrectionAlg )
