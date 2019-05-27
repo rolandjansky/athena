@@ -381,7 +381,9 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
   if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
-      ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
+      // data
+      m_dec_weight(jet) = 1.0;
+      m_dec_accept(jet) = m_accept;
       return m_accept;
     }
   }
