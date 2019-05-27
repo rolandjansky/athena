@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonMatching/TrigMuonMatching.h"
@@ -40,21 +40,21 @@ namespace Trig {
 
   Bool_t TrigMuonMatching::match(const xAOD::Muon* mu,
 				 const std::string &chain,
-				 const double mindelR)
+				 const double mindelR) const
   {
     return match(mu->eta(),mu->phi(),chain,mindelR);
   }
   
   Bool_t TrigMuonMatching::matchL1(const xAOD::Muon* mu,
 				   const std::string &l1item,
-				   const double DelR)
+				   const double DelR) const
   {
     return matchL1(mu->eta(),mu->phi(),l1item,DelR);
   }
 
   Double_t TrigMuonMatching::minDelR(const xAOD::Muon* mu,
 				     const std::string &chain,
-				     const double mindelR)
+				     const double mindelR) const
   {
     Double_t delmin = mindelR;
     EFmuon efmuon,dummy;
@@ -63,7 +63,7 @@ namespace Trig {
 
   Double_t TrigMuonMatching::minDelRL1(const xAOD::Muon* mu,
 				       const std::string &l1item,
-				       const double DelR)
+				       const double DelR) const
   {
     Double_t l1dr = DelR;
     const xAOD::MuonRoIContainer* muonrois = 0;
@@ -103,7 +103,7 @@ namespace Trig {
   Bool_t TrigMuonMatching::match(const double eta,
 				 const double phi,
 				 const std::string &chain,
-				 const double mindelR)
+				 const double mindelR) const
   {    
     if(!m_trigDecTool->isPassed(chain)){
       return false;
@@ -118,7 +118,7 @@ namespace Trig {
   Bool_t TrigMuonMatching::matchL1(const double eta,
 				   const double phi,
 				   const std::string &l1item,
-				   const double DelR)
+				   const double DelR) const
   {
     if(!m_trigDecTool->isPassed("L1_MU.*")){
       return false;
@@ -147,7 +147,7 @@ namespace Trig {
   Bool_t TrigMuonMatching::matchL2SA(const xAOD::Muon* mu,
 				     const std::string &l1item,
 				     const std::string &chain,
-				     const double DelR)
+				     const double DelR) const
   {
     if(!m_trigDecTool->isPassed("L1_MU.*")){
       return false;
@@ -189,7 +189,7 @@ namespace Trig {
 
   Bool_t TrigMuonMatching::matchL2CB(const xAOD::Muon* mu,
 				     const std::string &chain,
-				     const double DelR)
+				     const double DelR) const
   {
     const std::string eventTrigger = chain;
 
@@ -239,7 +239,7 @@ namespace Trig {
     return true;
   }
 
-  Bool_t TrigMuonMatching::isPassedRerun(const std::string& trigger)
+  Bool_t TrigMuonMatching::isPassedRerun(const std::string& trigger) const
   {
     const unsigned int bits = m_trigDecTool->isPassedBits(trigger);
     if( (bits & TrigDefs::EF_passedRaw) && ! ( bits & TrigDefs::EF_passThrough) && ( bits & TrigDefs::EF_resurrected)){
@@ -281,7 +281,7 @@ namespace Trig {
   double TrigMuonMatching::dR(const double eta1,
 			      const double phi1,
 			      const double eta2,
-			      const double phi2)
+			      const double phi2) const
   {
     double deta = fabs(eta1 - eta2);
     double dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2*TMath:: \
@@ -290,7 +290,7 @@ namespace Trig {
   }
   
   
-  int TrigMuonMatching::getL1pt(const std::string& l1item)
+  int TrigMuonMatching::getL1pt(const std::string& l1item) const
   {
     int rc = -1;
     
@@ -322,7 +322,7 @@ namespace Trig {
   
   void TrigMuonMatching::tokenize(const std::string& str,
 				     std::vector<std::string>& tokens,
-				     const std::string& delimiters)
+				     const std::string& delimiters) const
   {
     tokens.clear();
     std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -341,7 +341,7 @@ namespace Trig {
 						const double eta,
 						const double phi,
 						const double mindelR,
-						const std::string& chainForEventTrigger)
+						const std::string& chainForEventTrigger) const
   {
     efMuonId.valid = false;
     Double_t drmin = mindelR;
@@ -440,7 +440,7 @@ namespace Trig {
   }
   
   bool TrigMuonMatching::isEqual(const double x,
-				 const double y)
+				 const double y) const
   {
     if (fabs(x - y) < std::numeric_limits<float>::epsilon()) return true;
     return false;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // MuonTPExtrapolationTool.cxx
 #include "DerivationFrameworkMuons/MuonTPExtrapolationTool.h"
@@ -53,19 +53,19 @@ StatusCode MuonTPExtrapolationTool::initialize()
 
 //**********************************************************************
 
-bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi){
+bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi) const {
 
 #ifndef XAOD_ANALYSIS
   // decorators used to access or store the information 
-  static SG::AuxElement::Decorator< char > Decorated ("DecoratedPivotEtaPhi");
-  static SG::AuxElement::Decorator< std::string > DecoOutcome ("DecorationOutcome");
-  static SG::AuxElement::Decorator< float > Eta ("EtaTriggerPivot");
-  static SG::AuxElement::Decorator< float > Phi ("PhiTriggerPivot");
+  static const SG::AuxElement::Decorator< char > Decorated ("DecoratedPivotEtaPhi");
+  static const SG::AuxElement::Decorator< std::string > DecoOutcome ("DecorationOutcome");
+  static const SG::AuxElement::Decorator< float > Eta ("EtaTriggerPivot");
+  static const SG::AuxElement::Decorator< float > Phi ("PhiTriggerPivot");
 #else
-  static SG::AuxElement::Accessor< char > Decorated ("DecoratedPivotEtaPhi");
-  static SG::AuxElement::Accessor< std::string > DecoOutcome ("DecorationOutcome");
-  static SG::AuxElement::Accessor< float > Eta ("EtaTriggerPivot");
-  static SG::AuxElement::Accessor< float > Phi ("PhiTriggerPivot");
+  static const SG::AuxElement::Accessor< char > Decorated ("DecoratedPivotEtaPhi");
+  static const SG::AuxElement::Accessor< std::string > DecoOutcome ("DecorationOutcome");
+  static const SG::AuxElement::Accessor< float > Eta ("EtaTriggerPivot");
+  static const SG::AuxElement::Accessor< float > Phi ("PhiTriggerPivot");
 #endif
 
   if (! Decorated.isAvailable(*particle) || !Decorated(*particle)){
@@ -107,7 +107,7 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
 
 //**********************************************************************
 
-const xAOD::TrackParticle* MuonTPExtrapolationTool::getPreferredTrackParticle (const xAOD::IParticle* probe){
+const xAOD::TrackParticle* MuonTPExtrapolationTool::getPreferredTrackParticle (const xAOD::IParticle* probe) const {
   if (dynamic_cast<const xAOD::TruthParticle*>(probe)){
     ATH_MSG_WARNING("Pivot plane extrapolation not supported for Truth probes!");
     return 0;
@@ -144,7 +144,7 @@ StatusCode MuonTPExtrapolationTool::decoratePivotPlaneCoords(const xAOD::IPartic
 
 // **********************************************************************
 
-double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe)
+double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe) const
 {
   // should never happen, but better be safe than sorry
   if(!probe){
@@ -212,9 +212,9 @@ const xAOD::EventInfo* info = 0;
   float dr = sqrt( deta*deta + dphi*dphi);
 
   // decorators for the delta eta and delta phi and dR
-  static SG::AuxElement::Decorator< float > DecDeta ("probe_dEtaTriggerPivot");
-  static SG::AuxElement::Decorator< float > DecDphi ("probe_dPhiTriggerPivot");
-  static SG::AuxElement::Decorator< float > DecDR ("probe_dRTriggerPivot");
+  static const SG::AuxElement::Decorator< float > DecDeta ("probe_dEtaTriggerPivot");
+  static const SG::AuxElement::Decorator< float > DecDphi ("probe_dPhiTriggerPivot");
+  static const SG::AuxElement::Decorator< float > DecDR ("probe_dRTriggerPivot");
     
   // here, we copy the eta and phi decorations from the TrackParticles to the 
   // tag and probe IParticles - to make them easier to access during the 
@@ -222,8 +222,8 @@ const xAOD::EventInfo* info = 0;
   // In the case of an unsuccessful extrap, this additionally ensures that the 
   // IP direction for eta/phi is written to the output tree
   // instead of a garbage value that would result from a missing decoration
-  static SG::AuxElement::Decorator< float > DecEta ("probe_EtaTriggerPivot");
-  static SG::AuxElement::Decorator< float > DecPhi ("probe_PhiTriggerPivot");
+  static const SG::AuxElement::Decorator< float > DecEta ("probe_EtaTriggerPivot");
+  static const SG::AuxElement::Decorator< float > DecPhi ("probe_PhiTriggerPivot");
 
   // special unphysical values to signify an ID probe not reaching the pivot plane
   if (IDProbeMissesMS){
@@ -262,7 +262,7 @@ const xAOD::EventInfo* info = 0;
 //**********************************************************************
 
 #ifndef XAOD_ANALYSIS
-const Trk::TrackParameters* MuonTPExtrapolationTool::extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track)
+const Trk::TrackParameters* MuonTPExtrapolationTool::extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track) const
 {
   // BARREL
   const Trk::Perigee& perigee = track.perigeeParameters();

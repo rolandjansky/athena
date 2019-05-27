@@ -47,9 +47,9 @@ class LargestWeightsMultiStateMerger : public AthAlgTool, virtual public IMultiC
   unsigned int                  m_maximumNumberOfComponents;
   bool                          m_doSmallComponentMerging;
   
-  PublicToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
+  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
      {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/LargestWeightsStateCombiner",""};
-  PublicToolHandle<IMultiComponentStateAssembler> m_stateAssembler
+  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler
      {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/LargestWeightsStateAssembler",""};
 
 };

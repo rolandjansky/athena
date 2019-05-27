@@ -3412,7 +3412,8 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
                                                                   parameterVector[Trk::loc2],parameterVector[Trk::phi],
                                                                   parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
 // 
-		leadingTSOS	       	= m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters);
+                Trk::IMaterialAllocator::Garbage_t garbage;
+                leadingTSOS	       	= m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters,garbage);
 		if (leadingTSOS && leadingTSOS->size() && leadingTSOS->front()->trackParameters())
 		    leadingParameters	= leadingTSOS->front()->trackParameters();
                 delete correctedParameters;

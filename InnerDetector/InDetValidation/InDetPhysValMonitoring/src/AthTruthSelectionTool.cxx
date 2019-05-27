@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,7 +54,6 @@ AthTruthSelectionTool::initialize() {
   // can set cut properties now
   typedef xAOD::TruthParticle P_t;
   typedef Accept<P_t> Accept_t;
-  typedef Accept_t::func_type F_t;
   //
   const std::vector<Accept_t> filters = {
     // if p.pt=0, TVector3 generates an error when querying p.eta(); a limit of 1e-7 was not found to be enough to

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
@@ -57,11 +57,14 @@ class TileCoolMgr:
         if not idInfo:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
             return None
-        elif idInfo[5] != "": return idInfo[5]
-        elif len(self.getTag(condId)):   return self.getTag(condId)
+        elif idInfo[5] != "":
+            return idInfo[5]
+        elif len(self.getTag(condId)):
+            return self.getTag(condId)
         else:
             folder = self.getActualFolder(condId)
-            if folder: return folder
+            if folder:
+                return folder
             else:
                 self.__log.error("Cannot find out key for  \'%s\'!" % condId)
                 return None
@@ -82,8 +85,10 @@ class TileCoolMgr:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
             return None
         else:
-            if idInfo[4]=="SplitMC": return True
-            else: return False
+            if idInfo[4]=="SplitMC":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isSplitOnline(self, condId):
@@ -92,8 +97,10 @@ class TileCoolMgr:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
             return None
         else:
-            if idInfo[4]=="SplitOnline": return True
-            else: return False            
+            if idInfo[4]=="SplitOnline":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isOfflineOnly(self, condId):
@@ -102,8 +109,10 @@ class TileCoolMgr:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
             return None
         else:
-            if idInfo[4]=="OfflineOnly": return True
-            else: return False            
+            if idInfo[4]=="OfflineOnly":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isSqlite(self, condId):
@@ -112,8 +121,10 @@ class TileCoolMgr:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
             return None
         else:
-            if idInfo[4]=="Sqlite": return True
-            else: return False
+            if idInfo[4]=="Sqlite":
+                return True
+            else:
+                return False
 
 
     #_______________________________________________________________
@@ -203,15 +214,22 @@ class TileCoolMgr:
 
 
     def getActualFolder(self, condId):
-        if self.isOfflineOnly(condId): return self.getFolder(condId)
-        elif self.isSplitOnline(condId): 
-            if self.isOnline() and not self.isMC(): return self.getFolder(condId)
-            else:                                   return self.getFolderTwo(condId)
+        if self.isOfflineOnly(condId):
+            return self.getFolder(condId)
+        elif self.isSplitOnline(condId):
+            if self.isOnline() and not self.isMC():
+                return self.getFolder(condId)
+            else:
+                return self.getFolderTwo(condId)
         elif self.isSplitMC(condId):
-            if self.isMC(): return self.getFolderTwo(condId)
-            else:           return self.getFolder(condId)
-        elif self.isSqlite(condId): return self.getFolder(condId)
-        else: return None
+            if self.isMC():
+                return self.getFolderTwo(condId)
+            else:
+                return self.getFolder(condId)
+        elif self.isSqlite(condId):
+            return self.getFolder(condId)
+        else:
+            return None
 
 
 
@@ -348,7 +366,7 @@ class TileCoolMgr:
 
 
 
-def TileCoolMgrConfig(configflags):
+def TileCoolMgrConfig(configFlags):
     #Instantiate TileCoolMgr based on run3-style config flags
     return TileCoolMgr(isMC=configFlags.Input.isMC, 
                        isOnline=configFlags.common.isOnline,

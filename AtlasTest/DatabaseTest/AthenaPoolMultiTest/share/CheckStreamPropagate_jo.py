@@ -44,28 +44,9 @@ EventSelector.InputCollections  = [ "AthenaPoolMultiTest_Propagate.root" ];
 from EventBookkeeperTools.EventBookkeeperToolsConf import StreamSelectorTool
 # Select existing Stream1
 selector1 = StreamSelectorTool("Selector1")
-selector1.SelectedStream = "Stream1"
+selector1.AcceptStreams = ["Stream1"]
 selector1.OutputLevel = DEBUG
 svcMgr.EventSelector.HelperTools += [selector1]
-# Select existing Stream1, but use a separate CutFlowSvc
-# Create the CutFlowSvc instance(s)
-from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-cfs = CfgMgr.CutFlowSvc("SS_CutFlowSvc")
-svcMgr += cfs
-cfs.InputStream = "StreamAll"
-cfs.OutputCollName = "StreamSelect"
-cfs.OutputIncompleteCollName = "IncompleteStreamSelect"
-
-selector2 = StreamSelectorTool("Selector2")
-selector2.SelectedStream = "Stream1"
-selector2.CutFlowSvc = cfs
-selector2.OutputLevel = DEBUG
-svcMgr.EventSelector.HelperTools += [selector2]
-# Select non-existing StreamX
-selectorx = StreamSelectorTool("SelectorX")
-selectorx.SelectedStream = "StreamX"
-selectorx.OutputLevel = DEBUG
-svcMgr.EventSelector.HelperTools += [selectorx]
 
 #--------------------------------------------------------------
 # Configure the filters

@@ -101,6 +101,8 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
    from AthenaCommon import CfgGetter
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool("MCTruthClassifier")
+   if muonRecFlags.doNSWNewThirdChain():
+       topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","sTGC_SDO"]
 
    try:
        from PyUtils.MetaReaderPeeker import metadata

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigCaloClusterContainerCnv.cxx 592328 2014-04-10 10:58:05Z krasznaa $
 
 // System include(s):
 #include <exception>
@@ -60,7 +59,7 @@ xAOD::TrigCaloClusterContainer*
 xAODTrigCaloClusterContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "0C7F7869-C67A-4E4A-8793-358F8B32DFEA" );
+   static const pool::Guid v1_guid( "0C7F7869-C67A-4E4A-8793-358F8B32DFEA" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

@@ -64,7 +64,7 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
         if DetFlags.pileup.sTGC_on():
             IntervalsList += [ CfgGetter.getPrivateTool("sTgcRange",      checkType=True) ]
         if DetFlags.pileup.Micromegas_on():
-            IntervalsList += [ CfgGetter.getPrivateTool("MmRange",        checkType=True) ]
+            IntervalsList += [ CfgGetter.getPrivateTool("MMRange",        checkType=True) ]
         # RecoTimingObj
         if DetFlags.pileup.any_on():
             IntervalsList += [ CfgGetter.getPrivateTool("TimingObjRange", checkType=True) ]

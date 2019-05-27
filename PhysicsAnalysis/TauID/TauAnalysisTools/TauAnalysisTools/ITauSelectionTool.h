@@ -43,9 +43,6 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize() = 0;
 
-  /// Function initialising the tool
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst"))) = 0;
-
   /// Get an object describing the "selection steps" of the tool
   virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
 
@@ -60,9 +57,6 @@ public:
 
   /// Write control histograms to output file
   virtual void writeControlHistograms() = 0;
-
-  /// Call this for each new event.
-  virtual StatusCode beginEvent() __attribute__ ((deprecated("This function is deprecated and will be removed in the future without further notice. Please remove it from your code."))) = 0;
 
 }; // class ITauSelectionTool
 

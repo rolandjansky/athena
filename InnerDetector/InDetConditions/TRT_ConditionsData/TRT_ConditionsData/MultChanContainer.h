@@ -29,7 +29,8 @@
 
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "TRT_ConditionsData/NestedContainer.h"
-
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cxxabi.h>
 
 namespace TRTCond
@@ -172,7 +173,8 @@ template <class DaughterContainer>
   {
     // on the first call, we insert a container for the default. the default is always the first container.
     if(  id.level()==ExpandedIdentifier::BARRELEC ) {
-      std::cout << "Sorry: TRTCond::MultiChannelContainer cannot store containers at BARREL_EC granularity" << std::endl ;
+      MsgStream log(Athena::getMessageSvc(),"TRTCond::MultChanContainer");
+      log << MSG::WARNING << "Sorry:  cannot store containers at BARREL_EC granularity" << endmsg ;
     }
     return findContainer( channelId( id ) ) ;
   }
@@ -208,8 +210,10 @@ template <class DaughterContainer>
       // update the cache
 
       // sanity check to test we have added a default value
-      if( this->size()>0 && *(this->chan_begin()) != m_defaultschannelid )
-	std::cout << "TRTCal::MultChanContainer ERROR: first channel id is not defaults channel id!" << std::endl ;
+      if( this->size()>0 && *(this->chan_begin()) != m_defaultschannelid ) {
+        MsgStream log(Athena::getMessageSvc(),"TRTCond::MultChanContainer");
+        log << MSG::ERROR << " first channel id is not defaults channel id!" << endmsg ;
+      }
       
       // first get the max channel id
       size_t maxchanid(0) ;
@@ -230,16 +234,17 @@ template <class DaughterContainer>
   template <class DaughterContainer>
   inline void MultChanContainer<DaughterContainer>::set( const ExpandedIdentifier& id, const typename DaughterContainer::value_type& t ) 
   {
-    if( id.level()==ExpandedIdentifier::DETECTOR ) 
+    if( id.level()==ExpandedIdentifier::DETECTOR ) { 
       // set the default value. don't use the id, since it will only confuse the container
       findContainer(id)->set( t ) ; 
-    else if( id.level()==ExpandedIdentifier::BARRELEC ) 
-      std::cout << "Sorry: TRTCond::MultiChannelContainer cannot store containers at BARREL_EC granularity" << std::endl ;
-    else 
+    } else if( id.level()==ExpandedIdentifier::BARRELEC ) {
+      MsgStream log(Athena::getMessageSvc(),"TRTCond::MultChanContainer");
+      log << MSG::WARNING << "Sorry: cannot store containers at BARREL_EC granularity" << endmsg;
+    } else {  
       findContainer(id)->set( id, t ) ;
+    }
   }
   
-
   template <class DaughterContainer>
   inline const typename DaughterContainer::value_type& 
   MultChanContainer<DaughterContainer>::get( const ExpandedIdentifier& id ) const 

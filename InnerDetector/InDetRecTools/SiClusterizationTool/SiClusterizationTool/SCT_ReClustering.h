@@ -20,21 +20,20 @@ class Identifier;
 
 ///This performs reclustering after identifying dead or noisy channels 
 class SCT_ReClustering
-  {
-  public:
+{
+ public:
     
-    SCT_ReClustering();  //constructor
-    virtual ~SCT_ReClustering() = default;
+  SCT_ReClustering();  //constructor
+  virtual ~SCT_ReClustering() = default;
 
-    /** called by SCT_ClusteringTool. If some bad channel has broken the 
-     * cluster (provided as a list of RDOs) in non-consecutive fragments, just split it.
-     */ 
-    std::vector<std::vector<Identifier> > recluster(
-    	  std::vector<std::vector<Identifier> >&, const SCT_ID&);
+  /** called by SCT_ClusteringTool. If some bad channel has broken the 
+   * cluster (provided as a list of RDOs) in non-consecutive fragments, just split it.
+   */ 
+  std::vector<std::vector<Identifier> > recluster(std::vector<std::vector<Identifier>>&, const SCT_ID&);
     
-  private:
-    typedef std::vector<Identifier> m_ID_Vector; 
-    typedef std::vector<Identifier>::iterator m_discont; 
-  };
+ private:
+  typedef std::vector<Identifier> ID_Vector; 
+  typedef std::vector<Identifier>::iterator Discont; 
+};
 
 #endif // SiClusterizationTool_SCT_ReClustering_H

@@ -83,6 +83,11 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
 
+    # tau
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
+
+
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
 ]

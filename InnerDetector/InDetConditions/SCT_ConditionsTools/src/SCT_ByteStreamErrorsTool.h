@@ -89,7 +89,7 @@ private:
 
   ToolHandle<ISCT_ConfigurationConditionsTool> m_config{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
-  const SCT_ID* m_sct_id;
+  const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
 
   SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName{this, "ContainerName", "SCT_ByteStreamErrs", "Key of InDetBSErrContainer for SCT"};
@@ -100,15 +100,15 @@ private:
 
   mutable std::vector<std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>> m_bsErrors ATLAS_THREAD_SAFE; // Used by getErrorSet, addError, resetSets
 
-  mutable std::vector<std::map<Identifier, unsigned int>> m_tempMaskedChips ATLAS_THREAD_SAFE;
-  mutable std::vector<std::map<Identifier, unsigned int>> m_abcdErrorChips ATLAS_THREAD_SAFE;
+  mutable std::vector<std::map<Identifier, unsigned int>> m_tempMaskedChips ATLAS_THREAD_SAFE {};
+  mutable std::vector<std::map<Identifier, unsigned int>> m_abcdErrorChips ATLAS_THREAD_SAFE {};
 
   // Mutex to protect the contents.
-  mutable std::recursive_mutex m_mutex;
+  mutable std::recursive_mutex m_mutex{};
   // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE;
+  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE {};
 
-  mutable std::atomic_uint m_nRetrievalFailure;
+  mutable std::atomic_uint m_nRetrievalFailure{0};
 
   StatusCode fillData(const EventContext& ctx) const;
 

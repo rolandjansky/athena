@@ -1,9 +1,11 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include <iostream>
-#include "AsgTools/MsgStreamMacros.h"
 #include "TRT_ConditionsData/StorePIDinfo.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <iostream>
+
 
 StorePIDinfo::StorePIDinfo(){
 	m_nbins = 0;
@@ -23,7 +25,8 @@ void StorePIDinfo::update( int nbins, float min, float max, std::vector<float> v
 	m_min 	= min	;
 	m_max	= max	;
 	if (values.size()!=m_nbins){
-	  //ATH_MSG_ERROR(" Different Values of n_bins and vector size!!!")
+          MsgStream log(Athena::getMessageSvc(),"StorePIDinfo");
+	  log << MSG::ERROR << " Different Values of n_bins and vector size!!!" << endmsg;
 	}
 	m_values.clear();
 	for (unsigned int i = 0; i<values.size(); i++ ){
@@ -46,19 +49,21 @@ void StorePIDinfo::push_back( float value ){
 }
 
 StatusCode StorePIDinfo::check( int gas, int detpart) const{
+        MsgStream log(Athena::getMessageSvc(),"StorePIDinfo");
 	if 	( m_nbins == 0)
 	{
-	  std::cout << " StorePIDinfo: No bins in the DB!! Gas: " << gas << " detPart: " << detpart << std::endl;
+
+	  log << MSG::ERROR << " StorePIDinfo: No bins in the DB!! Gas: " << gas << " detpart " << detpart << endmsg;
           return StatusCode::FAILURE;
 	}
 	else if ( m_nbins != m_values.size() )
 	{
-	  std::cout << " Different number of PID numbers!!!!! " << gas << " detPart: " << detpart << std::endl;
+	  log << MSG::ERROR << " Different number of PID numbers!!!!! " << endmsg;
           return StatusCode::FAILURE;
 	}
 	else if ( (m_max < m_min) || (m_max == m_min) )
 	{
-	  std::cout << " Max is smaller or equal than min!!!" << gas << " detPart: " << detpart << std::endl;
+	  log << MSG::ERROR << " Max is smaller or equal than min!!!" << endmsg;
           return StatusCode::FAILURE;
 	}
         return StatusCode::SUCCESS;
@@ -74,12 +79,12 @@ float StorePIDinfo::GetBinValue 	( int bin) const {
 }
 
 int StorePIDinfo::GetBin	( float input  ) const {
+
 	if (input < m_min) 		return 0;
         else if (input >= m_max) 	return m_nbins-1;
 	else{
 		float dr = (m_max-m_min)/m_nbins;
 		unsigned int bin = int (                       (input - m_min)/dr    ) ;
-		//if 	(bin >=  m_nbins) ATH_MSG_ERROR"  Bin number is larger than number of bins!");
 		return bin;
 	}
 	return 0;

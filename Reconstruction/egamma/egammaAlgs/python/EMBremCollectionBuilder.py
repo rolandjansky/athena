@@ -33,6 +33,9 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         import egammaRec.EMCommonRefitter
         GSFBuildInDetExtrapolator= egammaExtrapolator()
 
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += GSFBuildInDetExtrapolator   # should be temporary
+
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         GSFRefitterTool = egammaTrkRefitterTool(name = 'GSFRefitterTool',
@@ -40,7 +43,6 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                 useBeamSpot = False,
                                                 Extrapolator = AtlasExtrapolator(),
                                                 ReintegrateOutliers=True)
-        from AthenaCommon.AppMgr import ToolSvc
         #
         # Load association tool from Inner Detector to handle pixel ganged ambiguities
         #
@@ -165,7 +167,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetTrackSummaryTool = Trk__TrackSummaryTool(name = "GSFBuildInDetTrackSummaryTool",
                                                               InDetSummaryHelperTool = GSFBuildTrackSummaryHelperTool,
                                                               doSharedHits           = False,
-                                                              InDetHoleSearchTool    = GSFBuildHoleSearchTool,
+                                                              doHolesInDet           = True,
                                                               TRT_ElectronPidTool    = GSFBuildTRT_ElectronPidTool,
                                                               PixelToTPIDTool        = GSFBuildPixelToTPIDTool)
         ToolSvc += GSFBuildInDetTrackSummaryTool
@@ -177,8 +179,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                          KeepParameters          = True,
                                                                          Extrapolator            = GSFBuildInDetExtrapolator,
                                                                          TrackSummaryTool        = GSFBuildInDetTrackSummaryTool,
-                                                                         UseTrackSummaryTool     = False,
-                                                                         ForceTrackSummaryUpdate = False)
+                                                                         UseTrackSummaryTool     = False)
         #
         #  do track slimming
         #

@@ -13,6 +13,8 @@ namespace Monitored {
    */
   class IHistogramProvider {
   public:
+    virtual ~IHistogramProvider() = default;
+
     /**
      * @brief Getter of ROOT object 
      * 

@@ -74,7 +74,7 @@ class PileUpMergeSvc;
 class MdtIdHelper;
 class MdtHitIdHelper;
 
-class MdtCalibrationDbSvc;
+class MdtCalibrationDbTool;
 
 // Digitization class for MDT hits
 /*
@@ -228,7 +228,6 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   //pileup truth veto
   bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
 
   bool m_BMGpresent;
   int m_BMGid;
@@ -251,7 +250,7 @@ protected:
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
-  ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
+  ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
   ServiceHandle<IMDTConditionsSvc> m_pSummarySvc;
   bool m_t0_from_DB ;
 

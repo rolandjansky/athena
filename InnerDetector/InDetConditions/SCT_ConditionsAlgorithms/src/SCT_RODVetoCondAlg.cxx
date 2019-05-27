@@ -21,8 +21,7 @@
 
 SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_pHelper{nullptr}
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 

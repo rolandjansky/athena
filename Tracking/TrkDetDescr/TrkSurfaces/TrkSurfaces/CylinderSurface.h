@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -232,9 +232,9 @@ namespace Trk {
     protected: //!< data members
       template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
 
-      mutable SharedObject<const CylinderBounds>  m_bounds;               //!< bounds (shared)
-      mutable Amg::Vector3D*                      m_referencePoint;       //!< The global reference point (== a point on the surface)
-      mutable Amg::Vector3D*                      m_rotSymmetryAxis;      //!< The rotational symmetry axis
+      SharedObject<const CylinderBounds>                 m_bounds;               //!< bounds (shared)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>          m_referencePoint;        //!< The global reference point (== a point on the surface)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>          m_rotSymmetryAxis;       //!< The rotational symmetry axis
   };
   
   inline CylinderSurface* CylinderSurface::clone() const
@@ -260,10 +260,10 @@ namespace Trk {
   }
 
   inline const CylinderBounds& CylinderSurface::bounds() const
-  { return (m_bounds.getRef()); }
+  { return *(m_bounds.get()); }
 
   inline bool CylinderSurface::hasBounds() const
-  { return m_bounds.getPtr() != nullptr; }
+  { return m_bounds.get() != nullptr; }
 
   inline bool CylinderSurface::insideBounds(const Amg::Vector2D& locpos,
                                             double tol1,

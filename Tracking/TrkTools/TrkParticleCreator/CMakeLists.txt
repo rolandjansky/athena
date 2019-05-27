@@ -15,12 +15,15 @@ atlas_depends_on_subdirs(
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/PixelGeoModel
+   MagneticField/MagFieldInterfaces
    MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
+   Reconstruction/RecoTools/ITrackToVertex
    Tracking/TrkEvent/TrkEventPrimitives
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkEvent/TrkParticleBase
    Tracking/TrkEvent/TrkTrack
    Tracking/TrkEvent/TrkTrackSummary
+   Tracking/TrkExtrapolation/TrkExInterfaces
    Tracking/TrkTools/TrkToolInterfaces
    PRIVATE
    Control/AthContainers
@@ -30,13 +33,10 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-   MagneticField/MagFieldInterfaces
    Reconstruction/Particle
-   Reconstruction/RecoTools/ITrackToVertex
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-   Tracking/TrkEvent/VxVertex
-   Tracking/TrkExtrapolation/TrkExInterfaces )
+   Tracking/TrkEvent/VxVertex )
 
 # Component(s) in the package:
 atlas_add_library( TrkParticleCreatorLib

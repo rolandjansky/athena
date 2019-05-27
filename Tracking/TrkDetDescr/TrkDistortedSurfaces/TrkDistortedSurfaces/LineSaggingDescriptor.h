@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -76,9 +76,9 @@ namespace Trk {
      double                  m_linearDensity;
 
      /** direction of gravity */
-     static double           s_elecStatFactor;
-     static Amg::Vector3D    s_gravityDirection;
-     static Amg::Vector3D    s_referenceDirection;
+     static const double           s_elecStatFactor;
+     alignas(16)  static const Amg::Vector3D    s_gravityDirection;
+     alignas(16) static const Amg::Vector3D    s_referenceDirection;
 
 
            

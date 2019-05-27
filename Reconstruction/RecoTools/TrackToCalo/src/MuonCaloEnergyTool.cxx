@@ -178,11 +178,11 @@ namespace Rec {
 
     if(!tp) return;
 
-    const Rec::ParticleCellAssociation* association = 0;
-    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.2,NULL,true);
+    std::unique_ptr<const Rec::ParticleCellAssociation> association = 
+      m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,nullptr);
 
-    if(!association) return;
-    ATH_MSG_DEBUG( " particleCellAssociation done  " << association );
+    if(!association) {return;}
+    ATH_MSG_DEBUG( " particleCellAssociation done  " << association.get());
 
     std::vector< std::pair<const CaloCell*,Rec::ParticleCellIntersection*> > cellIntersections = association->cellIntersections();
 
@@ -201,7 +201,10 @@ namespace Rec {
     double Eloss = 0.;
     double scaleTG = 1.0;
     if(!caloExtension.muonEntryLayerIntersection()) {
-      if(caloExtension.caloEntryLayerIntersection()->momentum().mag()-fabs(deltaE)>1000.) ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum " << caloExtension.caloEntryLayerIntersection()->momentum().mag() );
+      if(caloExtension.caloEntryLayerIntersection()->momentum().mag()-fabs(deltaE)>1000.) {
+        ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum " 
+                         << caloExtension.caloEntryLayerIntersection()->momentum().mag() );
+      }
       ATH_MSG_DEBUG( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly ");
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();

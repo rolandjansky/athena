@@ -20,12 +20,10 @@
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVManager.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
 #include "LArHV/HECHVManager.h"
@@ -94,6 +92,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(m_DCSFolderKeys.initialize());
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_BFKey.initialize() );
+  ATH_CHECK(m_hvMappingKey.initialize());
 
   // Write Handle
   
@@ -127,7 +126,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   bool doHVData=false;
   bool doAffected=false;
 
-  SG::WriteCondHandle<LArHVData> writeHandle{m_hvDataKey};
+  SG::WriteCondHandle<LArHVData> writeHandle{m_hvDataKey, ctx};
   if(m_doHV || m_doAffectedHV) {
     if (writeHandle.isValid()) {
       ATH_MSG_DEBUG("Found valid write LArHVData handle");
@@ -136,7 +135,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     }
   } 
 
-  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_outKey};
+  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_outKey, ctx};
   if(m_doAffected){
     if (writeAffectedHandle.isValid()) {
       ATH_MSG_DEBUG("Found valid write LArAffectedRegions handle");
@@ -153,8 +152,16 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   EventIDRange rangeW{start, stop};
 
   std::vector<const CondAttrListCollection*> attrvec;
+  const LArHVIdMapping* hvCabling{nullptr};
 
   if(doHVData || (doAffected && m_doAffectedHV) ) {
+    SG::ReadCondHandle<LArHVIdMapping> cHdl{m_hvMappingKey, ctx};
+    hvCabling = *cHdl;
+    if(!hvCabling) {
+      ATH_MSG_ERROR("Unable to access LArHVIdMapping Cond Object");
+      return StatusCode::FAILURE;
+    }
+    
     // get handles to DCS Database folders
     for (auto fldkey: m_DCSFolderKeys ) {
       SG::ReadCondHandle<CondAttrListCollection> cHdl(fldkey, ctx);
@@ -267,7 +274,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     std::unique_ptr<LArHVData> hvdata = std::make_unique<LArHVData>();
     LArHVData* p_hvdata = hvdata.get();
   
-    ATH_CHECK(fillPayload(p_hvdata, hvdataOld, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
+    ATH_CHECK(fillPayload(p_hvdata, hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
   
   
     const EventIDRange crangeW(rangeW);
@@ -281,13 +288,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   } // doHVData
 
   if(doAffected) {
-       SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey};
+       SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey, ctx};
        const LArBadFebCont* bfCont{*readBFHandle};
        if(!bfCont){
          ATH_MSG_WARNING(" Do not have Bad FEBs info, will be not filled " << m_BFKey.key() );
        }
 
-       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
        const LArOnOffIdMapping* cabling{*cablingHdl};
        if(!cabling) {
          ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
@@ -313,11 +320,11 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
        CaloAffectedRegionInfoVec *vAffected = new CaloAffectedRegionInfoVec();
    
        if (m_doAffectedHV) {
-         ATH_CHECK(searchNonNominalHV_EMB(vAffected, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_HEC(vAffected, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_FCAL(vAffected, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMB(vAffected, hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected, hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected, hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_HEC(vAffected, hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_FCAL(vAffected, hvCabling, voltage, hvlineidx));
        }
    
    
@@ -346,7 +353,16 @@ StatusCode LArHVCondAlg::finalize() {
 }
 
 
-StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataOld, std::vector<float> &voltage, std::vector<float> &current, std::vector<unsigned int> &hvlineidx , const LArHVPathology& pathologies, pathVec& hasPathologyEM, pathVec& hasPathologyHEC, pathVec& hasPathologyFCAL) const
+StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
+				     , const LArHVData* hvdataOld
+				     , const LArHVIdMapping* hvCabling
+				     , std::vector<float> &voltage
+				     , std::vector<float> &current
+				     , std::vector<unsigned int> &hvlineidx 
+				     , const LArHVPathology& pathologies
+				     , pathVec& hasPathologyEM
+				     , pathVec& hasPathologyHEC
+				     , pathVec& hasPathologyFCAL) const
 {
   LArHVData::hvMap &hvmap = hvdata->m_voltage;
   LArHVData::currMap &currmap = hvdata->m_current;
@@ -391,11 +407,11 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
              //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap));
-                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                    ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap)<<" in LArHVData mapping !!!");
-                    return StatusCode::FAILURE;
-                 }
+	       const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap,hvCabling));
+	       if(itrLine == hvlineidx.end()) { // error, could not find HVline index
+		 ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap,hvCabling)<<" in LArHVData mapping !!!");
+		 return StatusCode::FAILURE;
+	       }
                  unsigned idx = itrLine - hvlineidx.begin(); 
                  double hv=voltage[idx];
                  double curr=current[idx];
@@ -425,20 +441,20 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
  
-         const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+         const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
  
          double wt = 0.5;
          for (unsigned int igap=0;igap<2;igap++) {
-             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule->hvLineNo(igap));
-             if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule->hvLineNo(igap)<<" in LArHVData mapping !!!");
-                return StatusCode::FAILURE;
-             }
-             unsigned idx = itrLine - hvlineidx.begin(); 
-             double hv=voltage[idx];
-             double curr=current[idx];
-             addHV(v,hv,wt);
-             addCurr(ihv,curr,wt);
+	   const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap,hvCabling));
+	   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
+	     ATH_MSG_ERROR("Do not have hvline: "<<hvmodule.hvLineNo(igap,hvCabling)<<" in LArHVData mapping !!!");
+	     return StatusCode::FAILURE;
+	   }
+	   unsigned idx = itrLine - hvlineidx.begin();
+	   double hv=voltage[idx];
+	   double curr=current[idx];
+	   addHV(v,hv,wt);
+	   addCurr(ihv,curr,wt);
          }
 
       } else if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id) > 0){ // LAr EMEC
@@ -465,9 +481,9 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
            //     " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
            //     " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap));
+	       const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap,hvCabling));
                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                   ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap)<<" in LArHVData mapping !!!");
+                   ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap,hvCabling)<<" in LArHVData mapping !!!");
                    return StatusCode::FAILURE;
                  }
                  unsigned idx = itrLine - hvlineidx.begin(); 
@@ -495,13 +511,13 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
  
-         const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+         const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
  
          double wt = 0.5; 
          for (unsigned int igap=0;igap<2;igap++) {
-             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule->hvLineNo(igap));
+	   const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap,hvCabling));
              if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule->hvLineNo(igap)<<" in LArHVData mapping !!!");
+	       ATH_MSG_ERROR("Do not have hvline: "<<hvmodule.hvLineNo(igap,hvCabling)<<" in LArHVData mapping !!!");
                 return StatusCode::FAILURE;
              }
              unsigned idx = itrLine - hvlineidx.begin(); 
@@ -561,9 +577,9 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
     //std::cout << " nsubgaps " << nsubgaps << std::endl;
     for (unsigned int i=0;i<nsubgaps;i++) {
         const HECHVSubgap& subgap = cell->getSubgap(i);
-        const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo());
+        const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo(hvCabling));
         if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-           ATH_MSG_ERROR("Do not have hvline: "<<subgap.hvLineNo()<<" in LArHVData mapping !!!");
+           ATH_MSG_ERROR("Do not have hvline: "<<subgap.hvLineNo(hvCabling)<<" in LArHVData mapping !!!");
            return StatusCode::FAILURE;
         }
         unsigned idx = itrLine - hvlineidx.begin(); 
@@ -637,9 +653,9 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
         for (unsigned int i=0;i<nlines;i++) {
           const FCALHVLine* line = tile->getHVLine(i);
           if (!line) continue;
-          const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), line->hvLineNo());
+          const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), line->hvLineNo(hvCabling));
           if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-           ATH_MSG_ERROR("Do not have hvline: "<<line->hvLineNo()<<" in LArHVData mapping !!!");
+           ATH_MSG_ERROR("Do not have hvline: "<<line->hvLineNo(hvCabling)<<" in LArHVData mapping !!!");
            return StatusCode::FAILURE;
           }
           unsigned idx = itrLine - hvlineidx.begin(); 
@@ -774,7 +790,10 @@ StatusCode LArHVCondAlg::fillUpdatedHVChannelsVec(std::vector<float> &voltageCac
 }
 
 //=========================================================================================
-StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const {  // deals with LAr HV, EMBarrel
+StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffected
+						, const LArHVIdMapping* hvCabling
+						, const std::vector<float> &voltage
+						, const std::vector<unsigned int> &hvlineidx) const {  // deals with LAr HV, EMBarrel
 
   ATH_MSG_DEBUG(" start HV_EMB ");
   const LArHVManager *manager = nullptr;
@@ -804,9 +823,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
+                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
                 //unsigned idx = itrLine - hvlineidx.begin(); 
@@ -882,26 +901,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
     } //end for iSide
 
     // barrel presampler
-    const EMBPresamplerHVManager* hvManager_EMBPS=manager->getEMBPresamplerHVManager();
+    const EMBPresamplerHVManager& hvManager_EMBPS=manager->getEMBPresamplerHVManager();
     HVnominal = HV_nominal("EMBPS",0.);
-    for (unsigned int iSide=hvManager_EMBPS->beginSideIndex();iSide<hvManager_EMBPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMBPS->beginPhiIndex();iPhi<hvManager_EMBPS->endPhiIndex();iPhi++) {
-          for (unsigned int iEta=hvManager_EMBPS->beginEtaIndex();iEta<hvManager_EMBPS->endEtaIndex();iEta++) { //0 to 7
-            EMBPresamplerHVModuleConstLink hvMod = hvManager_EMBPS->getHVModule(iSide,iEta,iPhi);
+    for (unsigned int iSide=hvManager_EMBPS.beginSideIndex();iSide<hvManager_EMBPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMBPS.beginPhiIndex();iPhi<hvManager_EMBPS.endPhiIndex();iPhi++) {
+          for (unsigned int iEta=hvManager_EMBPS.beginEtaIndex();iEta<hvManager_EMBPS.endEtaIndex();iEta++) { //0 to 7
+            const EMBPresamplerHVModule& hvMod = hvManager_EMBPS.getHVModule(iSide,iEta,iPhi);
             ATH_MSG_DEBUG("iSide,iPhi,iEta " << iSide << " " << iPhi << " " << iEta);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod->hvLineNo(iGap));
+	      const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap,hvCabling));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod.hvLineNo(iGap,hvCabling)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
 		hv[iGap]=fabs(voltage[itrLine - hvlineidx.begin()]);
             }
-            float eta_min=hvMod->getEtaMin();
-            float eta_max=hvMod->getEtaMax();
-            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
-            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
+            float eta_min=hvMod.getEtaMin();
+            float eta_max=hvMod.getEtaMax();
+            float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
             ATH_MSG_DEBUG("  HV " <<  hv[0] << " " << hv[1] << " " << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max);
 
             //take decisions according to all the gaps HV :
@@ -929,7 +948,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
   return StatusCode::SUCCESS;
 }
 //=========================================================================================
-StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, EM EndCap OUTER
+StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec *vAffected
+						       , const LArHVIdMapping* hvCabling						       
+						       , const std::vector<float> &voltage
+						       , const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, EM EndCap OUTER
 
   const LArHVManager *manager = nullptr;
 
@@ -964,9 +986,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
+		const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
                   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                     ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
+		    ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData !!!");
                      return StatusCode::FAILURE;
                   }
 		  hv[iGap]=voltage[itrLine - hvlineidx.begin()];
@@ -1045,24 +1067,24 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
     } //end for iSide
 
     // endcap presampler
-    const EMECPresamplerHVManager* hvManager_EMECPS=manager->getEMECPresamplerHVManager();
+    const EMECPresamplerHVManager& hvManager_EMECPS=manager->getEMECPresamplerHVManager();
     float HVnominal = HV_nominal("EMECPS",0.);
-    for (unsigned int iSide=hvManager_EMECPS->beginSideIndex();iSide<hvManager_EMECPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMECPS->beginPhiIndex();iPhi<hvManager_EMECPS->endPhiIndex();iPhi++) {
-            EMECPresamplerHVModuleConstLink hvMod = hvManager_EMECPS->getHVModule(iSide,iPhi);
+    for (unsigned int iSide=hvManager_EMECPS.beginSideIndex();iSide<hvManager_EMECPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMECPS.beginPhiIndex();iPhi<hvManager_EMECPS.endPhiIndex();iPhi++) {
+            const EMECPresamplerHVModule& hvMod = hvManager_EMECPS.getHVModule(iSide,iPhi);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod->hvLineNo(iGap));
+	      const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap,hvCabling));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod.hvLineNo(iGap,hvCabling)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
 		hv[iGap]=fabs(voltage[itrLine - hvlineidx.begin()]);
             }
-            float eta_min=hvMod->getEtaMin(); 
-            float eta_max=hvMod->getEtaMax();
-            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
-            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
+            float eta_min=hvMod.getEtaMin(); 
+            float eta_max=hvMod.getEtaMax();
+            float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
             ATH_MSG_DEBUG("iSide,iPhi" << iSide << " " << iPhi << "  HV " <<  hv[0] << " " << hv[1] << " "
                           << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " 
                           << phi_min << " " << phi_max);
@@ -1091,7 +1113,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
   return StatusCode::SUCCESS;
 }
 //=========================================================================================
-StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, EM EndCap INNER
+StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec *vAffected
+						       , const LArHVIdMapping* hvCabling
+						       , const std::vector<float> &voltage
+						       , const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, EM EndCap INNER
   const LArHVManager *manager = nullptr;
 
   ATH_MSG_DEBUG(" start loop over EMEC_INNER ");
@@ -1123,9 +1148,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { 
-                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
+		const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
                   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                     ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
+		    ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData !!!");
                      return StatusCode::FAILURE;
                   }
 		  hv[iGap]=voltage[itrLine - hvlineidx.begin()];
@@ -1210,7 +1235,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
   return StatusCode::SUCCESS;
 }
 //=========================================================================================
-StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, HEC
+StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffected
+						, const LArHVIdMapping* hvCabling
+						, const std::vector<float> &voltage
+						, const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, HEC
   
   ATH_MSG_DEBUG(" in HEC ");
   const LArHVManager *manager = nullptr;
@@ -1242,9 +1270,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
 	  double hv[4] = {0}; // 4 subgaps in HEC
 	  for (unsigned int iGap=0;iGap<hvMod.getNumSubgaps();iGap++) {
 	    const HECHVSubgap& subgap=hvMod.getSubgap(iGap);
-            const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo());
+            const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo(hvCabling));
             if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-              ATH_MSG_ERROR("Do not have hvline: "<<subgap.hvLineNo()<<" in LArHVData !!!");
+              ATH_MSG_ERROR("Do not have hvline: "<<subgap.hvLineNo(hvCabling)<<" in LArHVData !!!");
               return StatusCode::FAILURE;
             }
 	    if(iGap<4) hv[iGap]=voltage[itrLine - hvlineidx.begin()];
@@ -1285,7 +1313,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
   return StatusCode::SUCCESS;
 }
 //=========================================================================================
-StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, FCAL
+StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAffected
+						 , const LArHVIdMapping* hvCabling
+						 , const std::vector<float> &voltage
+						 , const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, FCAL
 
   ATH_MSG_DEBUG( " inFCAL ");
   const LArHVManager *manager = nullptr;
@@ -1319,9 +1350,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
           float hv[4] = {0};
 	  for (unsigned int iLine=0;iLine<hvMod.getNumHVLines();iLine++) {
 	    const FCALHVLine& hvline = hvMod.getHVLine(iLine);
-            const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvline.hvLineNo());
+            const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvline.hvLineNo(hvCabling));
             if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-              ATH_MSG_ERROR("Do not have hvline: "<<hvline.hvLineNo()<<" in LArHVData !!!");
+              ATH_MSG_ERROR("Do not have hvline: "<<hvline.hvLineNo(hvCabling)<<" in LArHVData !!!");
               return StatusCode::FAILURE;
             }
 	    if (iLine<4) hv[iLine] = voltage[itrLine - hvlineidx.begin()];

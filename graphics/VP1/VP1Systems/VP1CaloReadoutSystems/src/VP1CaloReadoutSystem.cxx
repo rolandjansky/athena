@@ -839,20 +839,20 @@ void VP1CaloReadoutSystem::createHV() {
     }
   }
 
-  const EMBPresamplerHVManager *  embPreHVManager  = larHVManager->getEMBPresamplerHVManager();
-  for (unsigned int e=embPreHVManager->beginSideIndex();e!=embPreHVManager->endSideIndex();e++) {
-    for (unsigned int y=embPreHVManager->beginEtaIndex();y!=embPreHVManager->endEtaIndex();y++) {
-      for (unsigned int p=embPreHVManager->beginPhiIndex();p!=embPreHVManager->endPhiIndex();p++) {
-	EMBPresamplerHVModuleConstLink embMod=embPreHVManager->getHVModule(e,y,p);
+  const EMBPresamplerHVManager&  embPreHVManager  = larHVManager->getEMBPresamplerHVManager();
+  for (unsigned int e=embPreHVManager.beginSideIndex();e!=embPreHVManager.endSideIndex();e++) {
+    for (unsigned int y=embPreHVManager.beginEtaIndex();y!=embPreHVManager.endEtaIndex();y++) {
+      for (unsigned int p=embPreHVManager.beginPhiIndex();p!=embPreHVManager.endPhiIndex();p++) {
+	const EMBPresamplerHVModule& embMod=embPreHVManager.getHVModule(e,y,p);
 	
 	double r=1900; // Radius to draw stuff at for barrel Presampler HV.
 	
 	{
 	  int cc=0;
-	  double etaMin=embMod->getEtaMin();
-	  double etaMax=embMod->getEtaMax();
-	  double phiMin=embMod->getPhiMin();
-	  double phiMax=embMod->getPhiMax();
+	  double etaMin=embMod.getEtaMin();
+	  double etaMax=embMod.getEtaMax();
+	  double phiMin=embMod.getPhiMin();
+	  double phiMax=embMod.getPhiMax();
 	  SoVertexProperty *vtxProperty = new SoVertexProperty();
 	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMin)));
 	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMax),r*sin(phiMax)  ,r*sinh(etaMin)));
@@ -865,8 +865,8 @@ void VP1CaloReadoutSystem::createHV() {
 	  ls->vertexProperty=vtxProperty;
 	  m_clockwork->embPreModsSeparator->addChild(ls);
 	  
-	  double voltage0 = embMod->voltage(0);
-	  double voltage1 = embMod->voltage(1);
+	  double voltage0 = embMod.voltage(0);
+	  double voltage1 = embMod.voltage(1);
 	  double nominalVoltage = m_clockwork->ui.embPresamplerNominalSpinBox->value();
 	  bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	  bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -974,16 +974,16 @@ void VP1CaloReadoutSystem::createHV() {
     }
   }
 
-  const EMECPresamplerHVManager *  emecPreHVManager  = larHVManager->getEMECPresamplerHVManager();
-  for (unsigned int e=emecPreHVManager->beginSideIndex();e!=emecPreHVManager->endSideIndex();e++) {
+  const EMECPresamplerHVManager&  emecPreHVManager  = larHVManager->getEMECPresamplerHVManager();
+  for (unsigned int e=emecPreHVManager.beginSideIndex();e!=emecPreHVManager.endSideIndex();e++) {
     double z =  e==0 ? -3650:3650;
-    for (unsigned int p=emecPreHVManager->beginPhiIndex();p!=emecPreHVManager->endPhiIndex();p++) {
-      EMECPresamplerHVModuleConstLink emecMod=emecPreHVManager->getHVModule(e,p);
+    for (unsigned int p=emecPreHVManager.beginPhiIndex();p!=emecPreHVManager.endPhiIndex();p++) {
+      const EMECPresamplerHVModule& emecMod=emecPreHVManager.getHVModule(e,p);
       
-      double phiMin = emecMod->getPhiMin();
-      double phiMax = emecMod->getPhiMax();
-      double etaMin = emecMod->getEtaMin();
-      double etaMax = emecMod->getEtaMax();
+      double phiMin = emecMod.getPhiMin();
+      double phiMax = emecMod.getPhiMax();
+      double etaMin = emecMod.getEtaMin();
+      double etaMax = emecMod.getEtaMax();
       double rMax=fabs(z/sinh(etaMin));
       double rMin=fabs(z/sinh(etaMax));
       
@@ -1002,8 +1002,8 @@ void VP1CaloReadoutSystem::createHV() {
       ls->vertexProperty=vtxProperty;
       m_clockwork->emecPreModsSeparator->addChild(ls);
       
-      double voltage0 = emecMod->voltage(0);
-      double voltage1 = emecMod->voltage(1);
+      double voltage0 = emecMod.voltage(0);
+      double voltage1 = emecMod.voltage(1);
       double nominalVoltage = m_clockwork->ui.emecPresamplerNominalSpinBox->value();
       bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
       bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -1938,13 +1938,13 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       if (element->getSamplingIndex()==0) {
 
 	 if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
-	  EMECPresamplerHVModuleConstLink module = element->getPresamplerHVModule();
+	  const EMECPresamplerHVModule& module = element->getPresamplerHVModule();
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
-	  highVoltageStream <<  "Status: "   << module->hvOn(0)    << ' ' << module->hvOn(1)    <<  '\n';
-	  highVoltageStream <<  "Current: "  << module->current(0) << ' ' << module->current(1) <<  '\n';
-	  highVoltageStream <<  "Voltage: "  << module->voltage(0) << ' ' << module->voltage(1) <<  '\n';
+	  highVoltageStream <<  "Status: "   << module.hvOn(0)    << ' ' << module.hvOn(1)    <<  '\n';
+	  highVoltageStream <<  "Current: "  << module.current(0) << ' ' << module.current(1) <<  '\n';
+	  highVoltageStream <<  "Voltage: "  << module.voltage(0) << ' ' << module.voltage(1) <<  '\n';
 	  
 	  message(highVoltageStream.str().c_str());
 	  
@@ -1970,10 +1970,10 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  double z      = (element->getZLocal(pos)+
 			   element->getDescriptor()->getManager()->getFocalToRef() +
 			   element->getDescriptor()->getManager()->getRefToActive())* (element->getEndcapIndex()==0 ? -1:1);
-	  double phiMin = module->getPhiMin();
-	  double phiMax = module->getPhiMax();
-	  double etaMin = module->getEtaMin();
-	  double etaMax = module->getEtaMax();
+	  double phiMin = module.getPhiMin();
+	  double phiMax = module.getPhiMax();
+	  double etaMin = module.getEtaMin();
+	  double etaMax = module.getEtaMax();
 	  
 	  
 	  double rMax=fabs(z/sinh(etaMin));
@@ -2112,14 +2112,14 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       //
       if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	if (element->getSamplingIndex()==0) {
-	  EMBPresamplerHVModuleConstLink module = element->getPresamplerHVModule();
+	  const EMBPresamplerHVModule& module = element->getPresamplerHVModule();
 	  
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
-	  highVoltageStream <<  "Status: "   << module->hvOn(0)    << ' ' << module->hvOn(1)    <<  '\n';
-	  highVoltageStream <<  "Current: "  << module->current(0) << ' ' << module->current(1) <<  '\n';
-	  highVoltageStream <<  "Voltage: "  << module->voltage(0) << ' ' << module->voltage(1) <<  '\n';
+	  highVoltageStream <<  "Status: "   << module.hvOn(0)    << ' ' << module.hvOn(1)    <<  '\n';
+	  highVoltageStream <<  "Current: "  << module.current(0) << ' ' << module.current(1) <<  '\n';
+	  highVoltageStream <<  "Voltage: "  << module.voltage(0) << ' ' << module.voltage(1) <<  '\n';
 	  
 	  message(highVoltageStream.str().c_str());
 	  
@@ -2142,10 +2142,10 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  
 	  
 	  double r      = element->getRLocal(pos);
-	  double phiMin = module->getPhiMin();
-	  double phiMax = module->getPhiMax();
-	  double etaMin = module->getEtaMin();
-	  double etaMax = module->getEtaMax();
+	  double phiMin = module.getPhiMin();
+	  double phiMax = module.getPhiMax();
+	  double etaMin = module.getEtaMin();
+	  double etaMax = module.getEtaMax();
 	  sep->addChild(white);
 	  sep->addChild(drawStyle);
 	  sep->addChild(lm);

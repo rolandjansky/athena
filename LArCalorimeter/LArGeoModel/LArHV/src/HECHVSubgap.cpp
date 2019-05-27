@@ -64,8 +64,14 @@ void HECHVSubgap::voltage_current(double& voltage, double&current) const {
  current = payload->current;
 }
 
-
-int HECHVSubgap::hvLineNo() const {
-  HECHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->hvLineNo;
+#ifndef SIMULATIONBASE
+int HECHVSubgap::hvLineNo(const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->module->getManager().hvLineNo(*this,hvIdMapping)
+    : m_c->module->getManager().getPayload(*this)->hvLineNo;
 }
+#else
+int HECHVSubgap::hvLineNo() const {
+  return m_c->module->getManager().getPayload(*this)->hvLineNo;
+}
+#endif

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -33,7 +35,7 @@ public:
 
   //@name Tool methods
   //@{
-  SCT_LinkMaskingTool(const std::string &type, const std::string &name, const IInterface *parent);
+  SCT_LinkMaskingTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_LinkMaskingTool() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
@@ -51,7 +53,7 @@ public:
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
 private:
-  const SCT_ID* m_sctHelper; //!< ID helper for SCT
+  const SCT_ID* m_sctHelper{nullptr}; //!< ID helper for SCT
 
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey{this, "CondKey", "SCT_LinkMaskingCondData", "SCT Front End olinks to be masked"};

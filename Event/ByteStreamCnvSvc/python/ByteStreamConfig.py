@@ -10,7 +10,9 @@ def TrigBSReadCfg( inputFlags ):
     Creates accumulator for BS reading
     """
     filenames = inputFlags.Input.Files
+
     
+
     acc = ComponentAccumulator()
     
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream
@@ -112,6 +114,8 @@ def TrigBSReadCfg( inputFlags ):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags    
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 

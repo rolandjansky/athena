@@ -15,12 +15,15 @@
 #ifndef ISiTrackMaker_H
 #define ISiTrackMaker_H
 
-#include <list>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
 
 class MsgStream;
 
@@ -41,13 +44,8 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiTrackMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
@@ -83,11 +81,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiTrackMaker::interfaceID()
-    {
-      return IID_ISiTrackMaker;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream

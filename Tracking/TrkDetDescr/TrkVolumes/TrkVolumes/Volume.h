@@ -91,7 +91,7 @@ namespace Trk {
     }
 
     inline const VolumeBounds& Volume::volumeBounds() const
-    {  return(m_volumeBounds.getRef()); }
+    {  return *(m_volumeBounds.get()); }
     
     
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 

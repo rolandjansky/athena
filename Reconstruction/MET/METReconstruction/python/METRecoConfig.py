@@ -111,6 +111,8 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         config.inputKey = defaultInputKey['Truth']
         config.outputKey = config.objType
     if suffix == 'Calo':
+        from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+        CaloNoiseCondAlg ('totalNoise')
         tool = CfgMgr.met__METCaloRegionsTool('MET_CaloRegionsTool')
         if doCells:
             tool.UseCells     = True

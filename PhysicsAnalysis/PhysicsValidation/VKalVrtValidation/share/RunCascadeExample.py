@@ -63,7 +63,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "CascadeInDetTrackSummaryTool",
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,
-                                                  InDetHoleSearchTool    = InDetHoleSearchTool)
+                                                  doHolesInDet           = True)
 
 ToolSvc += InDetTrackSummaryTool
 print InDetTrackSummaryTool

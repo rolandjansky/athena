@@ -224,6 +224,13 @@ PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
 
+# gtest
+PP="$PP"'|Ran [0-9]+ tests in'
+
+# Verbosity cleanup in TileInfoLoader.
+PP="$PP"'|^TileInfoLoader +INFO'
+
+
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
 fi

@@ -189,6 +189,13 @@ public:
   virtual StatusCode start();
 
 
+  /** 
+   * @brief Return the hashed StoreGate key.
+   *
+   * May be 0 if not yet initialized.
+   */
+  SG::sgkey_t hashedKey() const;
+
 private:
   /// Set the owning handle.  Only callable from VarHandleBase.
   friend class VarHandleBase;
@@ -227,6 +234,9 @@ private:
 
   /// StoreGate key, that doesn't include the storename
   std::string m_sgKey;
+
+  /// The hashed StoreGate key.  May be 0 if not yet initialized.
+  SG::sgkey_t m_hashedKey = 0;
 
   /// Cache test for whether we're referencing the event store.
   bool m_isEventStore = false;

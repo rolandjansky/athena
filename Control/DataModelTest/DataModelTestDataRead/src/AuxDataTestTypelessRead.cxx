@@ -131,7 +131,7 @@ void dumpAuxItem (std::ostream& ost, SG::auxid_t auxid, const SG::AuxVectorData&
 StatusCode AuxDataTestTypelessRead::execute()
 {
   ++m_count;
-  std::cout << m_count << "\n";
+  ATH_MSG_INFO( m_count );
 
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
@@ -143,17 +143,18 @@ StatusCode AuxDataTestTypelessRead::execute()
   for (SG::auxid_t auxid : vec->getAuxIDs())
     auxid_map[r.getName(auxid)] = auxid;
 
-  std::cout << "bvec types: ";
+  std::ostringstream ost1;
+  ost1 << "bvec types: ";
   for (const auto& m : auxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
+    ost1 << r.getName(m.second) << "/" 
+         << System::typeinfoName (*r.getType(m.second)) << " ";
+  ATH_MSG_INFO (ost1.str());
   for (size_t i = 0; i < vec->size(); i++) {
     std::ostringstream ss;
     ss << "  ";
     for (const auto& m : auxid_map)
       dumpAuxItem (ss, m.second, *vec, i);
-    std::cout << ss.str() << "\n";
+    ATH_MSG_INFO (ss.str());
   }
 
   const BAux* b = 0;
@@ -164,15 +165,16 @@ StatusCode AuxDataTestTypelessRead::execute()
   for (SG::auxid_t auxid : cont->getAuxIDs())
     bauxid_map[r.getName(auxid)] = auxid;
 
-  std::cout << "b types: ";
+  std::ostringstream ost2;
+  ost2 << "b types: ";
   for (const auto& m : bauxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
+    ost2 << r.getName(m.second) << "/" 
+         << System::typeinfoName (*r.getType(m.second)) << " ";
+  ATH_MSG_INFO (ost2.str());
   std::ostringstream ss;
   for (const auto& m : bauxid_map)
     dumpAuxItem (ss, m.second, *cont, 0);
-  std::cout << ss.str() << "\n";
+  ATH_MSG_INFO (ss.str());
 
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.

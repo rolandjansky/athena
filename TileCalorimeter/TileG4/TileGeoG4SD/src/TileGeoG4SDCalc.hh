@@ -29,6 +29,7 @@
 // athena headers
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
+#include "CxxUtils/checker_macros.h"
 
 // Geant4 headers
 #include "G4Types.hh"
@@ -36,6 +37,8 @@
 // STL headers
 #include <vector>
 #include <memory>
+
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 class TileGeoG4LookupBuilder;
 class G4Step;
@@ -47,14 +50,12 @@ class TileGeoG4Cell;
 class StoreGateSvc;
 class IGeoModelSvc;
 
-class TileGeoG4SDCalc: public AthService, virtual public ITileCalculator {
+class TileGeoG4SDCalc: public extends<AthService, ITileCalculator> {
 public:
   TileGeoG4SDCalc(const std::string& name, ISvcLocator * pSvcLocator);
   virtual ~TileGeoG4SDCalc();
 
   virtual StatusCode initialize() override final;
-
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
 
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const override final;

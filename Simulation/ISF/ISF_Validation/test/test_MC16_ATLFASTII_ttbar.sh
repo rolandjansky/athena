@@ -27,11 +27,15 @@ Sim_tf.py \
 --maxEvents 250 \
 --imf False
 
-echo  "art-result: $? simulation"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-ArtPackage=$1
-ArtJobName=$2
-# TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid  --entries 10 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"

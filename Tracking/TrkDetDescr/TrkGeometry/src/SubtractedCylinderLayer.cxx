@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ const Trk::SubtractedCylinderSurface& Trk::SubtractedCylinderLayer::surfaceRepre
 double Trk::SubtractedCylinderLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                    Trk::PropDirection dir) const
 {    
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     // calculate the direction to the normal 
     const Amg::Vector3D& parmPos = parm.position();
@@ -66,7 +66,7 @@ double Trk::SubtractedCylinderLayer::preUpdateMaterialFactor(const Trk::TrackPar
 double Trk::SubtractedCylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                     Trk::PropDirection dir) const 
 {
-   if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+   if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0;
     const Amg::Vector3D& parmPos = parm.position();
     Amg::Vector3D pastStep(parmPos + dir*parm.momentum().normalized());
@@ -76,11 +76,14 @@ double Trk::SubtractedCylinderLayer::postUpdateMaterialFactor(const Trk::TrackPa
 }
 
 void Trk::SubtractedCylinderLayer::moveLayer(Amg::Transform3D& shift) const {
+        /*
+        * AthenaMT note . This method
+        * should not be probably const
+        * const_cast / mutable kind of issue
+        * Looks like a const "setter" 
+        */
        Amg::Transform3D transf = shift * (*m_transform);
-       delete m_transform;
-       m_transform = new Amg::Transform3D(transf);
-       delete m_center;
-       m_center = new Amg::Vector3D(m_transform->translation());
-       delete m_normal;
-       m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
+       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }

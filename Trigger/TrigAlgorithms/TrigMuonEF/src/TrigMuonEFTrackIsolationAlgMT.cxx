@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFTrackIsolationAlgMT.h"
-#include "AthenaMonitoring/Monitored.h"
-
+#include "xAODMuon/MuonAuxContainer.h"
+#include "xAODTrigMuon/L2IsoMuonAuxContainer.h"
 
 TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
                                                               ISvcLocator* pSvcLocator )
@@ -24,38 +24,27 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
   ATH_MSG_DEBUG("package version = " << PACKAGE_VERSION);
   ATH_MSG_DEBUG("*** Properties set as follows ***");
   ATH_MSG_DEBUG("Track isolation tool  : " << m_onlineEfIsoTool);
-  ATH_MSG_DEBUG("IdTrackParticles      : " << m_idTrackParticleKey.key());
-  ATH_MSG_DEBUG("FTKTrackParticles     : " << m_ftkTrackParticleKey.key());
+  ATH_MSG_DEBUG("TrackParticles        : " << m_trackParticleKey.key());
   ATH_MSG_DEBUG("EFMuonParticles       : " << m_efMuonContainerKey.key());
   ATH_MSG_DEBUG("L2MuonParticles       : " << m_l2MuonContainerKey.key());
   ATH_MSG_DEBUG("requireCombinedMuon   : " << m_requireCombined);
   ATH_MSG_DEBUG("useVarIso             : " << m_useVarIso);
   ATH_MSG_DEBUG("IsoType               : " << m_isoType);
 
-  if ( m_isoType == 1 ) {
-    ATH_CHECK( m_ftkTrackParticleKey.initialize(false) );  // we don't need FTK tracks in this mode, do disable the read handle key
-    ATH_CHECK( m_l2MuonContainerKey.initialize(false) );  // we don't need L2 muons in this mode, do disable the read handle key
-    ATH_CHECK( m_l2MuonIsoContainerKey.initialize(false) );  // we don't record L2 isolation muons in this mode, do disable the write handle key
-    ATH_CHECK( m_idTrackParticleKey.initialize() );
-    ATH_CHECK( m_efMuonContainerKey.initialize() );
-    ATH_CHECK( m_muonContainerKey.initialize() );
-  } else if ( m_isoType == 2 ) {
-    ATH_CHECK( m_idTrackParticleKey.initialize(false) );  // we don't need IS tracks in this mode, do disable the read handle key
-    ATH_CHECK( m_efMuonContainerKey.initialize(false) );  // we don't need EF muons in this mode, do disable the read handle key
-    ATH_CHECK( m_muonContainerKey.initialize(false) );    // we don't record EF muons in this mode, do disable the write handle key
-    ATH_CHECK( m_ftkTrackParticleKey.initialize() );
-    ATH_CHECK( m_l2MuonContainerKey.initialize() );
-    ATH_CHECK( m_l2MuonIsoContainerKey.initialize() );
-  } else {
-    ATH_MSG_WARNING("Not initialize DataHandling keys due to wrong iso type");
+  if(m_isoType!=1 && m_isoType!=2){
+    ATH_MSG_ERROR("Isolation type not supported");
+    return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_trackParticleKey.initialize() );
+  ATH_CHECK( m_l2MuonContainerKey.initialize(m_isoType==2) );  // we don't need L2 muons in this mode, do disable the read handle key
+  ATH_CHECK( m_l2MuonIsoContainerKey.initialize(m_isoType==2) );  // we don't record L2 isolation muons in this mode, do disable the write handle key
+  ATH_CHECK( m_efMuonContainerKey.initialize(m_isoType==1) );
+  ATH_CHECK( m_muonContainerKey.initialize(m_isoType==1) );
 
-  if ( m_useOnlineTriggerTool ) {
-    ATH_CHECK( m_onlineEfIsoTool.retrieve() );
-  } else {
-    ATH_MSG_WARNING("Not configurate muon isolation tool");
-  }
+
+
+  ATH_CHECK( m_onlineEfIsoTool.retrieve() );
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -105,116 +94,83 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   // get input objects
   const xAOD::TrackParticleContainer *idTrackParticles = nullptr;
   const xAOD::MuonContainer *efMuonContainer = nullptr;
-  if ( m_isoType == 1 ) { // isoType==1 -> ID+EF
-    auto idTrackHandle = SG::makeHandle( m_idTrackParticleKey, ctx );
-    if( !idTrackHandle.isValid() ) {
-      ATH_MSG_WARNING("Failed to retrieve inner detector track particles");
-      return StatusCode::FAILURE;
-    }
-    idTrackParticles = idTrackHandle.cptr();
-    ATH_MSG_DEBUG("Inner detector track particles retrieved with size : " << idTrackHandle->size() << "...");
+  const xAOD::L2CombinedMuonContainer *l2MuonContainer = nullptr;
+  auto idTrackHandle = SG::makeHandle( m_trackParticleKey, ctx );
+  if( !idTrackHandle.isValid() ) {
+    ATH_MSG_ERROR("Failed to retrieve inner detector track particles");
+    return StatusCode::FAILURE;
+  }
+  idTrackParticles = idTrackHandle.cptr();
+  ATH_MSG_DEBUG("Inner detector track particles retrieved with size : " << idTrackHandle->size() << "...");
 
+  if ( m_isoType == 1 ) { // isoType==1 -> ID+EF
     auto efMuonHandle = SG::makeHandle( m_efMuonContainerKey, ctx );
     if ( !efMuonHandle.isValid() ) {
-      ATH_MSG_WARNING("Failed to retrieve EF Muon Container " << m_efMuonContainerKey.key());
+      ATH_MSG_ERROR("Failed to retrieve EF Muon Container " << m_efMuonContainerKey.key());
       return StatusCode::FAILURE;
     } 
     efMuonContainer = efMuonHandle.cptr();
     ATH_MSG_DEBUG("EF Muons retrieved with size : " << efMuonHandle->size());
-
-  } else {
-    ATH_MSG_DEBUG("No IDTrk / EF Muon isolation required");
   }
-
-  const xAOD::TrackParticleContainer *ftkTrackParticles = nullptr;
-  const xAOD::L2CombinedMuonContainer *l2MuonContainer = nullptr;  
   if ( m_isoType == 2 ) { // isoType==2 -> FTK+L2
-    auto ftkTrackHandle = SG::makeHandle( m_ftkTrackParticleKey, ctx );
-    if ( !ftkTrackHandle.isValid() ) {
-      ATH_MSG_WARNING("Failed to retrieve FTK track particles");
-      return StatusCode::FAILURE;
-    }
-    ftkTrackParticles = ftkTrackHandle.cptr();
-    ATH_MSG_DEBUG("FTK track particles retrieved with size : " << ftkTrackHandle->size());
-
     auto l2MuonHandle = SG::makeHandle( m_l2MuonContainerKey, ctx );
     if ( !l2MuonHandle.isValid() ) {
-      ATH_MSG_WARNING("Failed to retrieve L2 Muon container");
+      ATH_MSG_ERROR("Failed to retrieve L2 Muon container");
       return StatusCode::FAILURE;
     }
     l2MuonContainer = l2MuonHandle.cptr();
     ATH_MSG_DEBUG("L2 Muons retrieved with size : " << l2MuonHandle->size());
-
-  } else {
-    ATH_MSG_DEBUG("No FTK / L2 Muon isolation required");
   }
 
   // start calculation
-  // prepare output for isoType==1
-  auto muonContainer = std::make_unique<xAOD::MuonContainer>();
-  auto efaux = std::make_unique<xAOD::MuonAuxContainer>();
-  muonContainer->setStore(efaux.get());
+  // prepare output
+  xAOD::MuonContainer *muonContainer = nullptr;
+  xAOD::L2IsoMuonContainer *l2MuonIsoContainer = nullptr;
 
-  if ( m_isoType==1 ) { // isoType==1 -> ID+EF
-    // loop on EF Muons
+  StatusCode result = StatusCode::SUCCESS;
+  std::vector<double> isoResults;
+  std::vector<double> dzvals; // for monitoring
+  std::vector<double> drvals; // for monitoring
+  std::vector<double> selfremoval;
+
+  if( m_isoType==1){
+    SG::WriteHandle<xAOD::MuonContainer> muonOutput(m_muonContainerKey);
+    ATH_CHECK(muonOutput.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>())); 
+    ATH_MSG_DEBUG("Record EF isolation muon : " << m_muonContainerKey.key());
+    muonContainer = muonOutput.ptr();
+
     for ( auto muon : *efMuonContainer ) {
-      ATH_MSG_DEBUG("Processing newxt EF muon w/ ID Track Isolation " << muon);
       const xAOD::Muon::MuonType muonType = muon->muonType();
-      if ( muonType==xAOD::Muon::MuonType::Combined || muonType==xAOD::Muon::MuonType::SegmentTagged ) {
-        ATH_MSG_DEBUG("EF muon has combined or segment tagged muon");
-      } else {
+      if ( muonType!=xAOD::Muon::MuonType::Combined) {
         if ( m_requireCombined ) {
-          ATH_MSG_DEBUG("Not a combined or segment tagged muon & requiredCombined = true, so ignore this muon");
+          ATH_MSG_DEBUG("Not a combined or muon & requiredCombined = true, so ignore this muon");
           continue;
         } else {
-          if ( muonType==xAOD::Muon::MuonType::MuonStandAlone ) {
-            ATH_MSG_DEBUG("EF muon has standalone muon");
-          } else {
+          if ( muonType!=xAOD::Muon::MuonType::MuonStandAlone ) {
             ATH_MSG_DEBUG("EF muon hsa neither combined, segment tagged, nor standalone muon");
             continue;
-          }
-        }
-      } // if ( muonType==xAOD::Muon::MuonType::Combined || .... )
-
-      std::vector<double> isoResults;
-      std::vector<double> dzvals; // for monitoring
-      std::vector<double> drvals; // for monitoring
-      std::vector<double> selfremoval;
-
-      ATH_MSG_DEBUG("Runing ID Tracks now");
-      StatusCode result = StatusCode::FAILURE;
-      if ( m_useOnlineTriggerTool ) {
-        result = m_onlineEfIsoTool->calcTrackIsolation( muon, idTrackParticles, m_coneSizes, isoResults, &dzvals, &drvals, false, &selfremoval );
-      } else {
-        ATH_MSG_WARNING("Not configurate offline isolation tool");
+	  }
+	}
       }
+      result = m_onlineEfIsoTool->calcTrackIsolation( muon, idTrackParticles, m_coneSizes, isoResults, &dzvals, &drvals, false, &selfremoval );
 
       ini_trkdz.insert( ini_trkdz.begin(), dzvals.begin(), dzvals.end());
       ini_trkdr.insert( ini_trkdr.begin(), drvals.begin(), drvals.end());
-
       if ( selfremoval.size()==3 ) {
         ini_selfpt.push_back(selfremoval[0]*1e-3);     // convert to GeV
         ini_combinedpt.push_back(selfremoval[1]*1e-3); // convert to GeV
         ini_removedpt.push_back(selfremoval[2]*1e-3);  // convert to GeV
-      } else {
-        ATH_MSG_WARNING("Muon pt not stored correctly - histogram have not been filled for this muon");
       }
-     
+
       if ( result.isFailure() || isoResults.size()!=2 ) {
-         if ( result.isFailure() ) {
-           ATH_MSG_WARNING("Isolation tool failed for this muon - isolation will not be set for this muon");
-         } else if ( isoResults.size()!=2 ) {
-           ATH_MSG_WARNING("Wrong number of isolation results - isolation will not be set for this muon");
-         }
-      } else { // isolation tool was ok - store results
-
-	const float ptcone20 = isoResults[0]; 	
+	ATH_MSG_WARNING("Isolation will not be set for this muon. result.isFailure: "<<result.isFailure()<<" isoResults.size: "<<isoResults.size());
+      } 
+      else { // isolation tool was ok - store results
+      	const float ptcone20 = isoResults[0]; 	
         const float ptcone30 = isoResults[1]; 
-
-        ini_cone2.push_back(ptcone20*1e-3); // convert to GeV
+	ini_cone2.push_back(ptcone20*1e-3); // convert to GeV
         ini_cone3.push_back(ptcone30*1e-3); // convert to GeV
 
-        // deep copy muon (since otherwise we risk overwriting isolation results from other algos)
         muonContainer->push_back( new xAOD::Muon(*muon) );
         xAOD::Muon* outputmuon = muonContainer->back();
 
@@ -226,94 +182,47 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
           outputmuon->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
           outputmuon->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
         }
-      } 
-    } // EF Muon loop
-  } // done isoTypei==1
+      }
+    }//loop over muons
+  }
+  if(m_isoType==2){
+    SG::WriteHandle<xAOD::L2IsoMuonContainer> l2MuonIsoOutput(m_l2MuonIsoContainerKey);
+    ATH_CHECK(l2MuonIsoOutput.record(std::make_unique<xAOD::L2IsoMuonContainer>(), std::make_unique<xAOD::L2IsoMuonAuxContainer>()));
+    ATH_MSG_DEBUG("Record L2 isolation muon : " << m_muonContainerKey.key());
+    l2MuonIsoContainer = l2MuonIsoOutput.ptr();
 
-  // prepare output for isoType==1
-  auto l2MuonIsoContainer = std::make_unique<xAOD::L2IsoMuonContainer>();
-  auto l2isoaux = std::make_unique<xAOD::L2IsoMuonAuxContainer>();
-  muonContainer->setStore(l2isoaux.get());
-
-  if ( m_isoType==2 ) {
-    // loop on L2 muons
     for ( auto muon : *l2MuonContainer ) {
-      ATH_MSG_DEBUG("Running L2 Muons and FTK Tracks now");
 
-      std::vector<double> isoResultsFTK;
-      std::vector<double> dzvalsFTK;
-      std::vector<double> drvalsFTK;
-      std::vector<double> selfremovalFTK;   
+      result = m_onlineEfIsoTool->calcTrackIsolation( muon, idTrackParticles, m_coneSizes, isoResults, &dzvals, &drvals, true, &selfremoval );
 
-      // FTK tracks
-      StatusCode resultFTK = StatusCode::FAILURE;
-      if ( m_useOnlineTriggerTool ) {
-        resultFTK = m_onlineEfIsoTool->calcTrackIsolation( muon, ftkTrackParticles, m_coneSizes, isoResultsFTK, &dzvalsFTK, &drvalsFTK, true, &selfremovalFTK );
-      } else {
-        ATH_MSG_WARNING("Not configurate offline isolation tool");
+      ini_trkdz.insert( ini_trkdz.begin(), dzvals.begin(), dzvals.end());
+      ini_trkdr.insert( ini_trkdr.begin(), drvals.begin(), drvals.end());
+      if ( selfremoval.size()==3 ) {
+        ini_selfpt.push_back(selfremoval[0]*1e-3);     // convert to GeV
+        ini_combinedpt.push_back(selfremoval[1]*1e-3); // convert to GeV
+        ini_removedpt.push_back(selfremoval[2]*1e-3);  // convert to GeV
       }
 
-      ini_trkdz.insert( ini_trkdz.begin(), dzvalsFTK.begin(), dzvalsFTK.end());
-      ini_trkdr.insert( ini_trkdr.begin(), drvalsFTK.begin(), drvalsFTK.end());
-
-      if ( selfremovalFTK.size()==3 ) {
-        ini_selfpt.push_back(selfremovalFTK[0]*1e-3);     // convert to GeV
-        ini_combinedpt.push_back(selfremovalFTK[1]*1e-3); // convert to GeV
-        ini_removedpt.push_back(selfremovalFTK[2]*1e-3);  // convert to GeV
-      } else {
-        ATH_MSG_WARNING("Muon pt not stored correctly - histogram have not been filled for this muon");
-      }
- 
-      if ( resultFTK.isFailure() || isoResultsFTK.size()!=2 ) {
-         if ( resultFTK.isFailure() ) {
-           ATH_MSG_WARNING("Isolation tool failed for this muon (FTK) - isolation will not be set for this muon");
-         } else if ( isoResultsFTK.size()!=2 ) {
-           ATH_MSG_WARNING("Wrong number of FTK isolation results - isolation will not be set for this muon");
-         }
+      if ( result.isFailure() || isoResults.size()!=2 ) {
+	ATH_MSG_WARNING("Isolation will not be set for this muon. result.isFailure: "<<result.isFailure()<<" isoResults.size: "<<isoResults.size());
       } else { // isolation tool was ok - store results
 
-	const float ptcone20FTK = isoResultsFTK[0]; 	
-        const float ptcone30FTK = isoResultsFTK[1]; 
+      	const float ptcone20 = isoResults[0]; 	
+        const float ptcone30 = isoResults[1]; 
+	ini_cone2.push_back(ptcone20*1e-3); // convert to GeV
+        ini_cone3.push_back(ptcone30*1e-3); // convert to GeV
 
-        ini_cone2.push_back(ptcone20FTK*1e-3); // convert to GeV
-        ini_cone3.push_back(ptcone30FTK*1e-3); // convert to GeV
-
-        xAOD::L2IsoMuon *muonIso = new xAOD::L2IsoMuon();
+      	xAOD::L2IsoMuon *muonIso = new xAOD::L2IsoMuon();
         l2MuonIsoContainer->push_back(muonIso);
         muonIso->setPt(muon->pt());
         muonIso->setEta(muon->eta());
         muonIso->setPhi(muon->phi());
         muonIso->setCharge(muon->charge());
-        muonIso->setSumPt02(ptcone20FTK);
-        muonIso->setSumPt03(ptcone30FTK);
-
-      } 
-    } // L2 muon loop
-  } // done isoType==2
-
-  if ( m_isoType==1 ) {
-
-     ini_ntrks.push_back(idTrackParticles->size());
-
-    // record output objects for EF
-    const size_t noutputMuons = muonContainer->size();
-    auto muonOutput = SG::makeHandle( m_muonContainerKey, ctx );
-    ATH_CHECK( muonOutput.record( std::move(muonContainer), std::move(efaux) ));
-    ATH_MSG_DEBUG("Successfully record EF isolation muon : " << m_muonContainerKey.key() << " with size = " << noutputMuons);
-
-  }
-  if ( m_isoType ==2 ) {
-    ini_ntrks.push_back(ftkTrackParticles->size());
-
-    // record output objects for L2
-    const size_t noutputMuons = l2MuonIsoContainer->size();
-    auto l2MuonIsoOutput = SG::makeHandle( m_l2MuonIsoContainerKey, ctx );
-    ATH_CHECK( l2MuonIsoOutput.record( std::move(l2MuonIsoContainer), std::move(l2isoaux) ));
-    ATH_MSG_DEBUG("Successfully record L2 isolation muon : " << m_muonContainerKey.key() << " with size = " << noutputMuons);
-
+        muonIso->setSumPt02(ptcone20);
+        muonIso->setSumPt03(ptcone30);
+      }
+    }
   }
 
   return StatusCode::SUCCESS;
 }
-
-

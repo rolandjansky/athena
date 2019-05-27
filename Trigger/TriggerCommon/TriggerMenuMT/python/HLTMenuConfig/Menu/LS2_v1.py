@@ -43,8 +43,8 @@ def setupMenu():
         ChainProp(name='HLT_2mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu6_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6noL1_L1MU6', groups=SingleMuonGroup),
-        # ms-only does not currently work while other muon chains included
-        #ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -64,6 +64,10 @@ def setupMenu():
     TriggerFlags.METSlice.signatures = [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
+#        ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
+        #waiting for merging strategy of chain parts
+        #ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
     ]
 
     TriggerFlags.JetSlice.signatures = [

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -10,18 +12,18 @@
 
 #ifndef SCT_RODVetoTool_h
 #define SCT_RODVetoTool_h
-//STL includes
-#include <string>
-
-//Gaudi includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/ReadHandleKey.h"
 
 //Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
+#include "StoreGate/ReadHandleKey.h"
+
+//STL includes
+#include <string>
 
 //forward declarations
 class IdentifierHash;
@@ -62,9 +64,9 @@ private:
 
   // The vector of bad rods should be kept in a threadsafe way so it can 
   // be called and read safely.
-  SG::ReadHandleKey<IdentifierSet> m_badModuleIds;
+  SG::ReadHandleKey<IdentifierSet> m_badModuleIds{this, "BadModuleIds", "BadSCTModuleIds_RODVeto", "Read key for bad module identifiers"};
 
-  const SCT_ID* m_pHelper;
+  const SCT_ID* m_pHelper{nullptr};
 };
 
 #endif // SCT_RODVetoTool_h

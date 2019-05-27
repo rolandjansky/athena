@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // VarHandleBase.cxx 
@@ -504,7 +504,11 @@ namespace SG {
       if (store) m_store = store;
     }
 
-    StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
+    SG::DataProxy* proxy = m_store->proxy_exact (m_key->hashedKey());
+    if (!proxy) {
+      proxy = m_store->proxy(this->clid(), this->key());
+    }
+    StatusCode sc = this->setState(proxy);
 
     // Failure to find the proxy is ok in the case of a @c WriteHandle
     // that has not yet been written to.
@@ -794,7 +798,7 @@ namespace SG {
       return nullptr;
     }
 
-    SG::DataObjectSharedPtr<DataObject> sptr (dobj.release());
+    SG::DataObjectSharedPtr<DataObject> sptr (std::move (dobj));
     unsigned int initRefCount = sptr->refCount();
     SG::DataProxy* new_proxy = 
       store->recordObject (sptr, this->name(), allowMods, returnExisting);

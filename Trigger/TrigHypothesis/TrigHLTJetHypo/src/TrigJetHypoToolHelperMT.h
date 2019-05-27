@@ -39,9 +39,10 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                           const IInterface* parent);
 
   StatusCode initialize() override;
-  bool  pass(HypoJetVector&,
-             const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
-
+  virtual bool
+    pass(HypoJetVector&,
+	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:

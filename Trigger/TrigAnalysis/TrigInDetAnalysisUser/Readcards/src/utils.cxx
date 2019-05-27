@@ -1,23 +1,21 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 
-/**************************************************************************
+/**
  **
- **   File:         utils.cxx        
+ **   @file         utils.cxx        
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton    
+ **   @author       M.Sutton    
  **
- **   Created:      Thu Jun 23 01:11:43 BST 2005
- **   Modified:     
+ **   @date         Thu Jun 23 01:11:43 BST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
 

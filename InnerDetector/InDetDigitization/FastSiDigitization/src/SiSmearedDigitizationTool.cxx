@@ -66,9 +66,6 @@
 
 using namespace InDetDD;
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
-
 // Constructor with parameters:
 SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, const std::string &name,
                                                      const IInterface* parent):
@@ -91,7 +88,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_mergeSvc("PileUpMergeSvc",name),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_prdTruthNamePixel("PRD_MultiTruthPixel"),
   m_prdTruthNameSCT("PRD_MultiTruthSCT"),
   m_prdTruthNamePlanar("PRD_MultiTruthPlanar"),
@@ -155,7 +151,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
   declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto"          , m_vetoThisBarcode, "Barcode of particle to ignore");
 
 }
 

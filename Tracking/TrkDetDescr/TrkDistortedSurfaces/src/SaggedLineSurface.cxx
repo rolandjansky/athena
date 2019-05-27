@@ -19,8 +19,8 @@
 Trk::SaggedLineSurface::SaggedLineSurface() :
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(),
-  m_saggingDescriptor(0),
-  m_lineDirection(0)
+  m_saggingDescriptor(nullptr),
+  m_lineDirection(nullptr)
 {}
 
 Trk::SaggedLineSurface::SaggedLineSurface(Amg::Transform3D* htrans,
@@ -30,21 +30,21 @@ Trk::SaggedLineSurface::SaggedLineSurface(Amg::Transform3D* htrans,
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(htrans, radius, halez),
   m_saggingDescriptor(lsd),
-  m_lineDirection(0)
+  m_lineDirection(nullptr)
 {}
 
 Trk::SaggedLineSurface::SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans) :
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(std::move(htrans)),
   m_saggingDescriptor(nullptr),
-  m_lineDirection(0)
+  m_lineDirection(nullptr)
 {}
 
 Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(detelement,id),
   m_saggingDescriptor(),
-  m_lineDirection(0)
+  m_lineDirection(nullptr)
 {}
 
 Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id,
@@ -52,7 +52,7 @@ Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& deteleme
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(detelement,id),
   m_saggingDescriptor(),
-  m_lineDirection(0)
+  m_lineDirection(nullptr)
 {
      m_saggingDescriptor = new Trk::LineSaggingDescriptor(wireLength, wireTension, linearDensity);
 }
@@ -61,13 +61,12 @@ Trk::SaggedLineSurface::SaggedLineSurface(const Trk::SaggedLineSurface& sls) :
   Trk::DistortedSurface(sls),
   Trk::StraightLineSurface(sls),
   m_saggingDescriptor(new Trk::LineSaggingDescriptor(sls.distortionDescriptor())),
-  m_lineDirection(0)
+  m_lineDirection(nullptr)
 {}
 
 Trk::SaggedLineSurface::~SaggedLineSurface()
 {
   delete m_saggingDescriptor;
-  delete m_lineDirection;
 }
 
 Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineSurface& sls) 
@@ -76,8 +75,7 @@ Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineS
     Trk::DistortedSurface::operator=(sls);
     Trk::StraightLineSurface::operator=(sls);
     delete m_saggingDescriptor;
-    delete m_lineDirection;
-    m_lineDirection=NULL;
+    m_lineDirection.store(nullptr);
     m_saggingDescriptor=new Trk::LineSaggingDescriptor(sls.distortionDescriptor());
   }
   return *this;
@@ -86,8 +84,10 @@ Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineS
 Trk::StraightLineSurface* Trk::SaggedLineSurface::correctedSurface(const Amg::Vector2D& lp) const
 {
   // prepare
-  Amg::Transform3D* newHepTransform = 0;
-  if (!m_lineDirection) m_lineDirection = new Amg::Vector3D(transform().rotation().col(3));
+  Amg::Transform3D* newHepTransform =nullptr;
+  if (!m_lineDirection) {
+    m_lineDirection.set(std::make_unique<Amg::Vector3D>(transform().rotation().col(3)));
+  }
   if (m_saggingDescriptor){
     // first get the hep transform from the distortion descriptor
     newHepTransform = m_saggingDescriptor->correctedSurfaceTransform(lp,

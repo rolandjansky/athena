@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPERFPLOT_TRKINJET_H
@@ -85,7 +85,6 @@ private:
   int m_dRNBins, m_jetPtNBins;
   float m_dRMin, m_dRMax, m_jetPtMin, m_jetPtMax;
   float m_dRWidth;
-  float m_etaMin, m_etaMax;
 
   std::vector<int>   m_tracksVsDr;
   std::vector<float> m_sumPtVsDr;

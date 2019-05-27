@@ -17,8 +17,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiClusterizationTool/MergedPixelsTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Incident.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -36,11 +35,11 @@
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "GaudiKernel/Incident.h"
 
 using CLHEP::micrometer;
 
@@ -53,55 +52,11 @@ namespace InDet {
         const IInterface *parent) :
     PixelClusteringToolBase(type,name,parent),
     m_incidentSvc("IncidentSvc", name),
-    m_IBLParameterSvc("IBLParameterSvc",name),
-    m_emulateSplitter(false),
-    m_minSplitSize(1),
-    m_maxSplitSize(1000),
-    m_minSplitProbability(0.),
-    m_splitProbTool("", this),  
-    m_clusterSplitter("", this),
-    m_doIBLSplitting(false),
-    m_IBLAbsent(true),
-    m_doMergeBrokenClusters(false),             /* ITk: switch to turn ON/OFF merging of broken clusters */
-    m_doRemoveClustersWithToTequalSize(false),  /* ITk: switch to remove clusters with ToT=size */
-    m_doCheckSizeBeforeMerging(false),          /* ITk: switch to check size to-be-merged clusters */
-    m_beam_spread(200.0),                       /* ITk: size of luminous region, needed for cluster size check */
-    m_lossThreshold(0.001),                     /* ITk: maximum probability to loose N_mis consequitive pixels in a cluster */
-    m_pixelEff(0.90),                           /* ITk: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency) */
-    m_splitClusterMapName("SplitClusterAmbiguityMap"),
-    m_processedClusters(0),
-    m_modifiedOrigClusters(0),   
-    m_splitOrigClusters(0),   
-    m_splitProdClusters(0),   
-    m_largeClusters(0),
-    m_printw(true),
-    m_minToT({0,0,0,0,0,0,0})
-    //m_detStore("DetectorStore", name),
-    //m_idHelper(0)
+    m_IBLParameterSvc("IBLParameterSvc",name)
     {
       declareInterface<IPixelClusteringTool>(this);
-      /// for cluster splitting
-      declareProperty("EmulateSplitting",            m_emulateSplitter);
-      declareProperty("MinimalSplitSize",            m_minSplitSize);
-      declareProperty("MaximalSplitSize",            m_maxSplitSize);
-      declareProperty("MinimalSplitProbability",     m_minSplitProbability);
-      declareProperty("SplitProbTool",               m_splitProbTool);
-      declareProperty("ClusterSplitter",             m_clusterSplitter);
-      declareProperty("DoIBLSplitting",		     m_doIBLSplitting);
-      declareProperty("SplitClusterAmbiguityMap",    m_splitClusterMapName); //No longer used Remove later
-      declareProperty("DoMergeBrokenClusters",       m_doMergeBrokenClusters); // ITk: switch to turn ON/OFF merging of broken clusters
-      declareProperty("DoRemoveClustersWithToTequalSize",m_doRemoveClustersWithToTequalSize); // ITk: switch to remove clusters with ToT=size
-      declareProperty("DoCheckSizeBeforeMerging",    m_doCheckSizeBeforeMerging); // ITk: switch to check size to-be-merged clusters
-      declareProperty("BeamSpread",                  m_beam_spread); // ITk: size of luminous region, needed for cluster size check
-      declareProperty("LossProbability",             m_lossThreshold); // ITk: maximum probability to loose N_mis consequitive pixels in a cluster
-      declareProperty("MinPixelEfficiency",          m_pixelEff); // ITk: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency)    
-      declareProperty("ToTMinCut",                   m_minToT, "Minimum ToT cut [IBL, b-layer, L1, L2, Endcap, DBM, ITk extra");
     }
   
-//---------------------------------------------------------------------------
-// virtual destructor
-    MergedPixelsTool::~MergedPixelsTool(){}
-
     StatusCode  MergedPixelsTool::initialize(){
 
       if (m_IBLParameterSvc.retrieve().isFailure()) { 
@@ -209,7 +164,7 @@ namespace InDet {
  	if (abs(pixelID.barrel_ec(rdoID))==2) { layerIndex=4; }  // disks
  	if (abs(pixelID.barrel_ec(rdoID))==4) { layerIndex=5; }  // DBM
  	// cut on minimum ToT
- 	if (tot<m_minToT.at(layerIndex)) { continue; } // skip hits with ToT less than ToT cut
+ 	if (tot<m_minToT.value().at(layerIndex)) { continue; } // skip hits with ToT less than ToT cut
 	int lvl1= (*nextRDO)->getLVL1A();
 	// check if this is a ganged pixel    
 	Identifier gangedID;

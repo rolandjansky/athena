@@ -7,8 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class ISiZvertexMaker
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
 //
 //  Base class for primary vertices z-coordinates generation
 //
@@ -27,16 +25,15 @@
 #ifndef ISiZvertexMaker_H
 #define ISiZvertexMaker_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "VxVertex/Vertex.h"
+#include "GaudiKernel/IAlgTool.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "IRegionSelector/IRoiDescriptor.h"
+#include "VxVertex/Vertex.h"
 
 class MsgStream;
 
 namespace InDet{
-
-  static const InterfaceID IID_ISiZvertexMaker("InDet::ISiZvertexMaker",1,0);
 
   class ISiZvertexMaker : virtual public IAlgTool 
     {
@@ -46,24 +43,18 @@ namespace InDet{
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
-      virtual ~ISiZvertexMaker(){};
+      // InterfaceID
+      DeclareInterfaceID(ISiZvertexMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::list<Trk::Vertex> newEvent()=0;
+      virtual std::list<Trk::Vertex> newEvent() const =0;
       virtual std::list<Trk::Vertex> newRegion
-      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
+      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
       virtual std::list<Trk::Vertex> newRegion
-      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&)=0;
+      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -84,11 +75,6 @@ namespace InDet{
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiZvertexMaker::interfaceID()
-    {
-      return IID_ISiZvertexMaker;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream
@@ -112,4 +98,3 @@ namespace InDet{
 } // end of name space
 
 #endif // ISiZvertexMaker_H
-

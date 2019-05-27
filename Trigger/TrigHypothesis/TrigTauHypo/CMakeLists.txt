@@ -22,11 +22,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigEvent/TrigTopoEvent
                           Trigger/TrigSteer/TrigInterfaces
-			  Event/xAOD/xAODTrigger
+			              Event/xAOD/xAODTrigger
                           PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthViews
                           Control/AthContainers
+                          Control/CxxUtils
                           Event/EventInfo
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODJet

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAssociationTools/PRD_AssociationTool.h"
@@ -25,10 +25,9 @@ Trk::PRD_AssociationTool::PRD_AssociationTool(const std::string& t,
   const std::string& n,
   const IInterface*  p )
   :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
-  declareInterface<IPRD_AssociationTool>(this);
 }
 
 Trk::PRD_AssociationTool::~PRD_AssociationTool()
@@ -50,36 +49,40 @@ StatusCode Trk::PRD_AssociationTool::finalize()
 
 StatusCode Trk::PRD_AssociationTool::addPRDs( const Trk::Track& track )
 {
-  using namespace std;
+  return addPRDs (m_maps, track);
+}
 
+StatusCode Trk::PRD_AssociationTool::addPRDs( Maps& maps, const Trk::Track& track ) const
+{
   // test caching
-  TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
-  if (itvec!=m_trackPrepRawDataMap.end())
+  TrackPrepRawDataMap::const_iterator itvec = maps.m_trackPrepRawDataMap.find(&track);
+  if (itvec!=maps.m_trackPrepRawDataMap.end())
   {
     ATH_MSG_ERROR ("track already found in cache, should not happen");
     return StatusCode::FAILURE;
   }
   // get all prds on 'track'
-  vector< const Trk::PrepRawData* > prds = getPrdsOnTrack( track );
-  vector< const Trk::PrepRawData* >::const_iterator it    = prds.begin();
-  vector< const Trk::PrepRawData* >::const_iterator itEnd = prds.end();	
-
-  // loop over PRD
-  for (; it!=itEnd; ++it)
-     m_prepRawDataTrackMap.insert(std::make_pair(*it, &track) );
+  std::vector< const Trk::PrepRawData* > prds = getPrdsOnTrack( maps, track );
+  for (const Trk::PrepRawData* prd : prds) {
+     maps.m_prepRawDataTrackMap.emplace(prd, &track);
+  }
 
   // cache this using m_trackPrepRawDataMap
-  m_trackPrepRawDataMap.insert( std::make_pair(&track, prds) );
+  maps.m_trackPrepRawDataMap.emplace(&track, prds);
     
   ATH_MSG_DEBUG ("Added PRDs from Track at ("<<&track<<") - map now has size: \t"<<
-                 m_prepRawDataTrackMap.size());
+                 maps.m_prepRawDataTrackMap.size());
   return StatusCode::SUCCESS;
 }
 
 StatusCode Trk::PRD_AssociationTool::removePRDs( const Trk::Track& track )
 {
-  using namespace std;
+  return removePRDs (m_maps, track);
+}
 
+StatusCode Trk::PRD_AssociationTool::removePRDs( Maps& maps,
+                                                 const Trk::Track& track ) const
+{
   // This is NOT pretty code!
   // At the moment I'm brute-forcing, but maybe I need a second map, containing <Track*, iterator>
   // The problem is that I think filling such a map is also time-consuming.
@@ -87,75 +90,63 @@ StatusCode Trk::PRD_AssociationTool::removePRDs( const Trk::Track& track )
   // EJWM
 
   // save for debugging purposes
-  int oldSize = m_prepRawDataTrackMap.size();//used in debug output at end.
+  int oldSize = maps.m_prepRawDataTrackMap.size();//used in debug output at end.
 
   // test caching
-  TrackPrepRawDataMap::iterator itvec = m_trackPrepRawDataMap.find(&track);
-  if (itvec==m_trackPrepRawDataMap.end())
+  TrackPrepRawDataMap::iterator itvec = maps.m_trackPrepRawDataMap.find(&track);
+  if (itvec==maps.m_trackPrepRawDataMap.end())
   {
     ATH_MSG_ERROR ("Track not found in cache, this should not happen");
     return StatusCode::FAILURE;
   }
 
   // get all prds on 'track'
-  vector< const Trk::PrepRawData* > prds = itvec->second;
-  vector< const Trk::PrepRawData* >::const_iterator it    = prds.begin();
-  vector< const Trk::PrepRawData* >::const_iterator itEnd = prds.end();	
-
-  // loop over PRD
-  for (; it!=itEnd; ++it)
+  std::vector< const Trk::PrepRawData* > prds = itvec->second;
+  for (const Trk::PrepRawData* prd : prds)
   {
     // now get all map elements (i.e. Tracks) that contain this PRD
-    PrepRawData* prd = const_cast<PrepRawData*>(*it);
     IPRD_AssociationTool::PrepRawDataTrackMapRange 
-        range = m_prepRawDataTrackMap.equal_range(prd);
+        range = maps.m_prepRawDataTrackMap.equal_range(prd);
 
     // get iterators for range
     ConstPRD_MapIt mapIt    = range.first;
     ConstPRD_MapIt mapItEnd = range.second;
-
-// FIXME - doesn't compile. Out of time -  come back to it later
-// 		remove_if(
-//  			mapIt, mapItEnd, 
-//  			compose1(
-//  				bind2nd(equal_to<const Track*>(), &track), 
-//  				select2nd<PrepRawDataTrackMap::value_type>()
-//  				)
-//  			);
 
     // simple for loop instead of fancier remove_if above
     for ( ;mapIt!=mapItEnd; ++mapIt)
     {
       if ( mapIt->second==&track ) 
       {
-        m_prepRawDataTrackMap.erase( mapIt );
+        maps.m_prepRawDataTrackMap.erase( mapIt );
         break;//should only ever be one Track
       }
     }
   }
  
   // remove cached PRD vector
-  m_trackPrepRawDataMap.erase( itvec );
+  maps.m_trackPrepRawDataMap.erase( itvec );
  
   ATH_MSG_DEBUG ("Removed  PRDs from track (" <<&track<<") \t- map has changed "<<
-                 "size from \t"<<oldSize <<" \tto "<<m_prepRawDataTrackMap.size());
+                 "size from \t"<<oldSize <<" \tto "<<maps.m_prepRawDataTrackMap.size());
   return StatusCode::SUCCESS;
 }
 
 Trk::IPRD_AssociationTool::TrackSet
-    Trk::PRD_AssociationTool::findConnectedTracks( const Trk::Track& track ) 
+Trk::PRD_AssociationTool::findConnectedTracks( const Trk::Track& track ) const
 {
-  using namespace std;
-  //using namespace __gnu_cxx;
-  
+  return findConnectedTracks (m_maps, track);
+}
+
+Trk::IPRD_AssociationTool::TrackSet
+Trk::PRD_AssociationTool::findConnectedTracks( const Maps& maps,
+                                               const Trk::Track& track ) const
+{
   TrackSet connectedTracks;
   
-  std::vector< const Trk::PrepRawData* > prds = getPrdsOnTrack(track);
-  std::vector< const Trk::PrepRawData* >::const_iterator it    = prds.begin();
-  std::vector< const Trk::PrepRawData* >::const_iterator itEnd = prds.end();
-  for ( ; it!=itEnd; it++)
+  std::vector< const Trk::PrepRawData* > prds = getPrdsOnTrack(maps, track);
+  for (const Trk::PrepRawData* prd : prds)
   {
-    IPRD_AssociationTool::PrepRawDataTrackMapRange range = onTracks(**it);
+    IPRD_AssociationTool::PrepRawDataTrackMapRange range = onTracks(maps, *prd);
    
     // TODO use remove_copy_if instead.
     for ( ; range.first!=range.second; ++(range.first) )
@@ -165,10 +156,10 @@ Trk::IPRD_AssociationTool::TrackSet
       if (conTrack!=&track) {
 	// this does actually not allow for double entries
         connectedTracks.insert(conTrack);
-        ATH_MSG_VERBOSE ("Track "<<&track<<" \tshares PRD "<<*it<<" \twith track:"<<conTrack);
+        ATH_MSG_VERBOSE ("Track "<<&track<<" \tshares PRD "<<prd<<" \twith track:"<<conTrack);
       }
     }
-    ATH_MSG_VERBOSE ("Added in connected tracks for PRD:"<<*it<<
+    ATH_MSG_VERBOSE ("Added in connected tracks for PRD:"<<prd<<
                      "\tsize of list now:"<<connectedTracks.size());
   }
 
@@ -176,13 +167,22 @@ Trk::IPRD_AssociationTool::TrackSet
 }
 
 
-std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(const Trk::Track& track) const
+std::vector< const Trk::PrepRawData* >
+Trk::PRD_AssociationTool::getPrdsOnTrack(const Trk::Track& track) const
+{
+  return getPrdsOnTrack (m_maps, track);
+}
+
+
+std::vector< const Trk::PrepRawData* >
+Trk::PRD_AssociationTool::getPrdsOnTrack(const Maps& maps,
+                                         const Trk::Track& track) const
 {
   typedef std::vector<const PrepRawData*> PRDs_t;
 
   // test caching
-  TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
-  if (itvec!=m_trackPrepRawDataMap.end())
+  TrackPrepRawDataMap::const_iterator itvec = maps.m_trackPrepRawDataMap.find(&track);
+  if (itvec!=maps.m_trackPrepRawDataMap.end())
   {
     ATH_MSG_VERBOSE ("found track in cache, return cached PRD vector for track");
     return itvec->second;
@@ -200,13 +200,11 @@ std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(
       back_inserter(vec), 
       bind2nd(CreatePRD_VectorFromTrack(), &track) );*/
 
-  DataVector<const MeasurementBase>::const_iterator it    = track.measurementsOnTrack()->begin();
-  DataVector<const MeasurementBase>::const_iterator itEnd = track.measurementsOnTrack()->end();
   PRDs_t vec;
   vec.reserve(track.measurementsOnTrack()->size());
-  for (;it!=itEnd;it++)
+  for (const MeasurementBase* meas : *track.measurementsOnTrack())
   {
-    const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(*it);
+    const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(meas);
     if (rot){
       if(m_idHelperTool->isMuon(rot->identify())){
 	//only use precision hits for muon track overlap
@@ -215,7 +213,7 @@ std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(
       vec.push_back(rot->prepRawData());
     }
     else{
-      const Trk::CompetingRIOsOnTrack* competingROT = dynamic_cast <const Trk::CompetingRIOsOnTrack*> (*it);
+      const Trk::CompetingRIOsOnTrack* competingROT = dynamic_cast <const Trk::CompetingRIOsOnTrack*> (meas);
       if(competingROT){
 	const unsigned int numROTs = competingROT->numberOfContainedROTs();
 	for( unsigned int i=0;i<numROTs;++i ){
@@ -234,15 +232,21 @@ std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(
 }
 
 Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
-    Trk::PRD_AssociationTool::onTracks(const PrepRawData& prd) const
+Trk::PRD_AssociationTool::onTracks(const PrepRawData& prd) const
+{
+  return onTracks (m_maps, prd);
+}
+
+Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
+Trk::PRD_AssociationTool::onTracks(const Maps& maps, const PrepRawData& prd) const
 {
 //	std::pair<IPRD_AssociationTool::PRD_MapIt, IPRD_AssociationTool::PRD_MapIt>       range = 
-  return m_prepRawDataTrackMap.equal_range(&prd);
+  return maps.m_prepRawDataTrackMap.equal_range(&prd);
 }
 
 void Trk::PRD_AssociationTool::reset()
 {
-  m_prepRawDataTrackMap.clear();
-  m_trackPrepRawDataMap.clear();
+  m_maps.m_prepRawDataTrackMap.clear();
+  m_maps.m_trackPrepRawDataMap.clear();
 }
 

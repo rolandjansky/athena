@@ -24,10 +24,11 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
                          const IInterface* parent);
   
 
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
-  bool pass(HypoJetVector&,
-	    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
+  virtual bool pass(HypoJetVector&,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>&
+		    ) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 

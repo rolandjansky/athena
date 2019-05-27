@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -77,7 +77,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, nullptr);
   }
-  m_counterTotal   = {};
   m_neventsTotal   = 0;
   m_neventsTotalV  = 0;
   m_problemsTotal  = 0;
@@ -89,31 +88,31 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::execute() 
+StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 { 
   if (not m_useNewStrategy and not m_useZBoundaryFinding and not m_ITKGeometry) {
-    return oldStrategy();
+    return oldStrategy(ctx);
   }
-  return newStrategy();
+  return newStrategy(ctx);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
+StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) const
 {
-  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
   // For HI events we can use MBTS information from calorimeter
   //
-  if (not isGoodEvent()) {
+  if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
 
   bool ZVE = false;
   if (m_useZvertexTool) {
-    std::list<Trk::Vertex> vertices = std::move(m_zvertexmaker->newEvent());
+    std::list<Trk::Vertex> vertices = m_zvertexmaker->newEvent();
     if (not vertices.empty()) ZVE = true;
     m_seedsmaker->find3Sp(vertices);
   } else {
@@ -181,19 +180,19 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 // Execute with new strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
+StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) const
 {
-  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
   // For HI events we can use MBTS information from calorimeter
   //
-  if (not isGoodEvent()) {
+  if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
 
   // Get beam information and preparation for z -histogramming
   //
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey};
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
   Trk::PerigeeSurface per(beamSpotHandle->beamPos());
  
   m_seedsmaker->newEvent(0);
@@ -393,13 +392,13 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumpevent(MsgStream& out, const InDet::
 // Test is it good event for reconstruction (mainly for HI events)
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
+bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
 
   if (not m_useMBTS) return true;
 
   // Test MBTS information from calorimeter
   //
-  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_evtKey};
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_evtKey, ctx};
   if (not eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background, xAOD::EventInfo::MBTSTimeDiffHalo)) {
     return true;
   }
@@ -408,7 +407,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
   //
   unsigned int nsp = 0;
   if (not m_SpacePointsPixelKey.empty()) {
-    SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey};
+    SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey, ctx};
     if (not spacePointsPixel.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsPixel) {
         nsp += spc->size();
@@ -424,7 +423,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
   //
   nsp = 0;
   if (not m_SpacePointsSCTKey.empty()) {
-    SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey};
+    SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey, ctx};
     if (not spacePointsSCT.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsSCT) {
         nsp += spc->size();

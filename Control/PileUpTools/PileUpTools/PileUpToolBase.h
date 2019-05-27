@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_PILEUPTOOLBASE_H
@@ -13,6 +13,10 @@
  */
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PileUpTools/IPileUpTool.h"
+
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
+
 class PileUpToolBase :  public extends<AthAlgTool, IPileUpTool> {
 public:
   /// \name structors and AlgTool implementation
@@ -48,9 +52,12 @@ public:
   virtual void resetFilter() override { m_filterPassed=true; }
 
 protected:
-  int m_firstXing; ///>Property: first xing in which det is live
-  int m_lastXing; ///>Property: last xing in which det is live
-  bool m_filterPassed; ///stores whether the filter for this
-                       ///PileUpTool was passed.
+  Gaudi::Property<int> m_firstXing{this, "FirstXing", -999,
+      "First bunch-crossing in which det is live"};
+  Gaudi::Property<int> m_lastXing {this, "LastXing", 999,
+      "Last bunch-crossing in which det is live"};
+  Gaudi::Property<int> m_vetoThisBarcode{this, "ParticleBarcodeVeto", crazyParticleBarcode,
+      "Barcode of particle to ignore"};
+  bool m_filterPassed{true}; ///stores whether the filter for this PileUpTool was passed.
 };
 #endif

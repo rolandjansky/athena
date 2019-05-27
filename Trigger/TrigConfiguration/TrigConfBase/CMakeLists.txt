@@ -32,6 +32,13 @@ if( NOT XAOD_STANDALONE )
       SCRIPT athena.py TrigConfBase/test_TrigConfMsgAlg.py )
 endif()
 
+if( APPLE )
+    # To enable soft linking of some Athena symbols in trigger configuration
+    # packages:
+    set_target_properties( TrigConfBase PROPERTIES LINK_FLAGS
+       "-undefined dynamic_lookup" )
+endif()
+
 atlas_add_test( trigconf_msg_standalone_test
    SOURCES test/trigconf_msgsvc_test.cxx
    LINK_LIBRARIES TrigConfBase )

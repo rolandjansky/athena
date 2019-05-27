@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -221,8 +221,8 @@ StatusCode TileCablingSvc::initialize() {
   }
 
   ATH_MSG_INFO( "Setting Cabling type to " << m_cablingType );
-  m_cablingService->setCablingType((TileCablingService::TileCablingType) m_cablingType);
-
+  ATH_CHECK( m_cablingService->setCablingType((TileCablingService::TileCablingType) m_cablingType) );
+  ATH_MSG_DEBUG( "Maximum number of gains: " <<  m_cablingService->getMaxChannels());
 
   // ------------ Setting TileCal channel hashes in CaloDDE -------------
   // ---------- it can be done only after we set cabling type -----------
@@ -612,7 +612,6 @@ StatusCode TileCablingSvc::initialize() {
 //
 //_____________________________________________________________________________
 StatusCode TileCablingSvc::finalize() {
-  ATH_MSG_DEBUG( "finalize called, deleting TileCablingService instance" );
-  m_cablingService = m_cablingService->deleteInstance();
+  ATH_MSG_DEBUG( "finalized" );
   return StatusCode::SUCCESS;
 }

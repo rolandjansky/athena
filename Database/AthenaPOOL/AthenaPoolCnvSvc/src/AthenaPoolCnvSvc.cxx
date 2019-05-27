@@ -1138,7 +1138,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
-   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREE:CollectionTree");
+   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREEINDEX:CollectionTree");
    declareProperty("TopLevelContainerName", m_containerNameHintProp = "");
    declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
    declareProperty("PoolAttributes", m_poolAttr);

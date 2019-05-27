@@ -1,2 +1,3 @@
+ApplicationMgr.ExtSvc={"StoreGateSvc/StoreGateSvc"};
 ApplicationMgr.ExtSvc={"StoreGateSvc/OtherStore"};
 OtherStore.ProxyProviderSvc="";

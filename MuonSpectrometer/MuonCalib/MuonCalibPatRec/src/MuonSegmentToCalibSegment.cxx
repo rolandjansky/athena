@@ -29,7 +29,7 @@ namespace Trk {
 }
 
 // mdt calibration
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
@@ -65,7 +65,7 @@ namespace MuonCalib {
     m_cscIdHelper(NULL),
     m_rpcIdHelper(NULL),
     m_tgcIdHelper(NULL),
-    m_calibSvc("MdtCalibrationSvc", name),
+    m_calibrationTool("MdtCalibrationTool",this),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
 
@@ -92,6 +92,8 @@ namespace MuonCalib {
     declareProperty("UpdateForT0Shift", m_updateForT0Shift = -1 );
     declareProperty("DoTOF", m_doTof = true );
     declareProperty("DoCosmicsTof", m_cosmics_tof=false);
+
+    declareProperty("CalibrationTool",m_calibrationTool);
   }
 
   // Initialize
@@ -134,8 +136,6 @@ namespace MuonCalib {
       m_rpcIdHelper = 0;
       m_tgcIdHelper = 0;
     }
-
-    ATH_CHECK( m_calibSvc.retrieve() );
 
     // Get the maximum number of segments each algorithm can
     // store in the ntuple
@@ -761,7 +761,7 @@ namespace MuonCalib {
 	} else { 
 	  segment_with_multiple_t0s=true;
 	  // We may be in a new chamber, with a different fitted t0 
-	  m_calibSvc->driftRadiusFromTime( calibHit, input, settings ); 
+	  m_calibrationTool->driftRadiusFromTime( calibHit, input, settings );
 	  
 	  // Reset the value of the t0 shift 
 	  t0Shift = calibHit.driftTime() - mrot->driftTime(); 
@@ -776,7 +776,7 @@ namespace MuonCalib {
 
 	// Calculate drift radius from drift time using MdtCalibrationSvc
 	double oldDriftTime = calibHit.driftTime(); // 0 unless we shift t0
-	m_calibSvc->driftRadiusFromTime( calibHit, input, settings );
+	m_calibrationTool->driftRadiusFromTime( calibHit, input, settings );
 	
 	double timeDif = calibHit.driftTime() - mrot->driftTime();
 	

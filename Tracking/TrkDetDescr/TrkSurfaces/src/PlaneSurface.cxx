@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 #include <iomanip>
 #include "CxxUtils/sincos.h"
 
-Trk::NoBounds Trk::PlaneSurface::s_boundless;
+const Trk::NoBounds Trk::PlaneSurface::s_boundless;
 
 // default constructor
 Trk::PlaneSurface::PlaneSurface() :
@@ -59,7 +59,7 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
     curvilinearRotation.col(1) = curvUVT.curvV();
     curvilinearRotation.col(2) = curvUVT.curvT();
     // curvilinear surfaces are boundless
-    Trk::Surface::m_transform = new Amg::Transform3D;
+    Trk::Surface::m_transform = std::make_unique<Amg::Transform3D>();
     (*Trk::Surface::m_transform) = curvilinearRotation;
     Trk::Surface::m_transform->pretranslate(position);
 }
@@ -69,7 +69,7 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,Amg::Tr
   Trk::Surface(detelement),
   m_bounds()
 {
-  m_transform = transf;
+  m_transform.store(std::unique_ptr<Amg::Transform3D> (transf));
 }
 
 // construct form SiDetectorElement
@@ -77,7 +77,7 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const 
   Trk::Surface(detelement, id),
   m_bounds()
 {
-  m_transform = transf;
+  m_transform.store(std::unique_ptr<Amg::Transform3D> (transf));
 }
 
 // construct planar surface without bounds

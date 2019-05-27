@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackVertexAssoTestAlg.cxx 
@@ -38,10 +38,7 @@ TrackVertexAssoTestAlg::TrackVertexAssoTestAlg( const std::string& name,
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
-  declareProperty( "TightTrackVertexAssoTool", m_tighttrackvertexassoTool);
-  declareProperty( "LooseTrackVertexAssoTool", m_loosetrackvertexassoTool);
-  declareProperty( "ElectronTrackVertexAssoTool", m_electrontrackvertexassoTool);
-
+  declareProperty( "TVATool", m_TVATool );
 }
 
 // Destructor
@@ -58,10 +55,7 @@ StatusCode TrackVertexAssoTestAlg::initialize()
   ATH_CHECK( m_trkContname.initialize() );
   ATH_CHECK( m_vertexContname.initialize() );
   //retrieve tool from ToolHandle
-  CHECK(m_loosetrackvertexassoTool.retrieve());
-  CHECK(m_tighttrackvertexassoTool.retrieve());
-  CHECK(m_electrontrackvertexassoTool.retrieve());
-
+  CHECK(m_TVATool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -77,7 +71,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  // retrieve TrackContainer 
+  // retrieve containers
   SG::ReadHandle<xAOD::TrackParticleContainer> trkCont(m_trkContname);
 
   SG::ReadHandle<xAOD::VertexContainer> vxCont(m_vertexContname);
@@ -88,13 +82,19 @@ StatusCode TrackVertexAssoTestAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  // do Match, match to all compitable vertices
-  xAOD::TrackVertexAssociationMap trkvxassoMap_tight = m_tighttrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
-  xAOD::TrackVertexAssociationMap trkvxassoMap_loose = m_loosetrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
-  xAOD::TrackVertexAssociationMap trkvxassoMap_electron = m_electrontrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
+  // Test isCompitable
+  ATH_MSG_INFO("Testing TrackVertexAssociationTool::isCompatible...");
+  if(trkCont->size()!=0 && vxCont->size()!=0)
+  {
+    bool isMatched = m_TVATool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
+    ATH_MSG_INFO("Is the first track compatible with the first vertex (the PriVx)? "<< isMatched);
+  }
 
-  ATH_MSG_INFO("Number of vertices for electron track-vertex association: " << trkvxassoMap_electron.size());
-  for (const auto& assoc: trkvxassoMap_electron) {
+  // Test getMatchMap
+  ATH_MSG_INFO("Testing TrackVertexAssociationTool::getMatchMap...");
+  xAOD::TrackVertexAssociationMap trkvxassoMap = m_TVATool->getMatchMap(*trkCont, *vxCont);
+  ATH_MSG_INFO("Number of vertices for track-vertex association: " << trkvxassoMap.size());
+  for (const auto& assoc: trkvxassoMap) {
     const xAOD::Vertex *vx = assoc.first;
     ATH_MSG_INFO("vertex at x, y, z " <<
                  setprecision(4) << setfill(' ') <<
@@ -102,47 +102,51 @@ StatusCode TrackVertexAssoTestAlg::execute()
                  " has " << assoc.second.size() << " associated tracks");
   }
 
+  // Test getUniqueMatchVertex
+  ATH_MSG_INFO("Testing TrackVertexAssociationTool::getUniqueMatchVertex...");
   std::vector<const xAOD::Vertex* > v_vx;
   v_vx.clear();
-
+  for(auto *vertex : *vxCont) {
+    v_vx.push_back(vertex);
+  }
   if(trkCont->size()!=0)
   {
-    const xAOD::Vertex *vx=m_tighttrackvertexassoTool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
-    ATH_MSG_INFO(vx);
+    const xAOD::Vertex *vx=m_TVATool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
+    ATH_MSG_INFO("Unique match vertex for first track: " << vx);
   }
 
-  // do Match, only match the best matched vertex
-  xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_tight = m_tighttrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
-  xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_loose = m_loosetrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
-  xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_electron = m_electrontrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
-
-//  std::vector<xAOD::TrackParticle &> trk_list_ref;
-//  trk_list_ref.clear();
-
-
-  // example of access tracks match to each vertex, tracks stored in std::vector<xAOD::TrackParticle* >, more seen TrackVertexAssociationMap.h file
-
-//  const xAOD::Vertex *pv=vxCont->at(0);
-//  xAOD::TrackVertexAssociationList trkvxassoList_tight=trkvxassoMap_tight[pv];
-//  ATH_MSG_INFO("Number of track PV associated: "<< trkvxassoList_tight.size());
-
-
-  // Test of ElementLink
-  if(trkCont->size()>0)
+  // Test getUniqueMatchVertexLink
+  ATH_MSG_INFO("Testing TrackVertexAssociationTool::getUniqueMatchVertexLink...");
+  if(trkCont->size() > 2)
   {
-    ElementLink<xAOD::VertexContainer> match_vx=m_tighttrackvertexassoTool->getUniqueMatchVertexLink(*(trkCont->at(0)), *vxCont );
-
-    //  // 
-
+    ElementLink<xAOD::VertexContainer> match_vx = m_TVATool->getUniqueMatchVertexLink(*(trkCont->at(2)), *vxCont );
 
     if(match_vx.isValid())
     {
-      ATH_MSG_INFO( match_vx );
-      ATH_MSG_INFO( *match_vx );
-      ATH_MSG_INFO( (*match_vx)->z());
+      ATH_MSG_INFO( "Uniquely matched vertex for third track - ");
+      ATH_MSG_INFO( "Vertex ElementLink address: " << match_vx );
+      ATH_MSG_INFO( "Vertex address: " << *match_vx );
+      ATH_MSG_INFO( "Vertex z pos: " << (*match_vx)->z());
     }
   }
 
+  // Test getUniqueMatchMap
+  ATH_MSG_INFO("Testing TrackVertexAssociationTool::getUniqueMatchMap...");
+  xAOD::TrackVertexAssociationMap trkvxassoUniqueMap = m_TVATool->getUniqueMatchMap(*trkCont, *vxCont);
+  ATH_MSG_INFO("Number of vertices for track-vertex association: " << trkvxassoUniqueMap.size());
+  for (const auto& assoc: trkvxassoUniqueMap) {
+    const xAOD::Vertex *vx = assoc.first;
+    ATH_MSG_INFO("vertex at x, y, z " <<
+                 setprecision(4) << setfill(' ') <<
+                 setw(10) << vx->x() << ", " << setw(10) << vx->y() << ", " << setw(10) << vx->z() <<
+                 " has " << assoc.second.size() << " uniquely associated tracks");
+  }
+
+  // Example of accessing tracks matched to each vertex. Tracks are stored in a std::vector<xAOD::TrackParticle* >, for more details see TrackVertexAssociationMap.h
+
+  // const xAOD::Vertex *pv=vxCont->at(0);
+  // xAOD::TrackVertexAssociationList trkvxassoList = trkvxassoMap[pv];
+  // ATH_MSG_INFO("Number of tracks associated to the PriVx: " << trkvxassoList.size());
 
 
 

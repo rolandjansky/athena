@@ -81,17 +81,19 @@ namespace Muon {
 
       bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
       bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;      
+
       if(tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) || tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit)){
-	if(  okId1 && tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) ) return true;
-	if( tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) &&  okId2 ) return false;
+	if(  okId1 && tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) ) return false;
+	if( tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) && okId2 ) return true;
       }
+      
       // get average direction of the 2 TSOSs
       Amg::Vector3D trackDir = tsos1->trackParameters()->momentum().unit();
       trackDir += tsos2->trackParameters()->momentum().unit();
       const Amg::Vector3D& pos1 = tsos1->trackParameters()->position();
       const Amg::Vector3D& pos2 = tsos2->trackParameters()->position();
       double dist = (pos2 - pos1).dot(trackDir);
-      
+
       if( fabs(dist) < 1e-5 ){
 	//one is a good muon hit and one is not: good muon hit comes after
 	if(  okId1 && !okId2 ) return true;

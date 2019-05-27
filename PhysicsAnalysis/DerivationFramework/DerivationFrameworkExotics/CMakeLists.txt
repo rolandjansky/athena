@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetCalibTools
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
-			  AnalysisCommon/PATInterfaces
+			  PhysicsAnalysis/AnalysisCommon/PATInterfaces
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
                           GaudiKernel )

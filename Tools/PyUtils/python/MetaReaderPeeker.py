@@ -57,7 +57,8 @@ def convert_itemList(layout=None):
             return item_list
 
         elif layout == '#join':
-            return [k + '#' + v for k, v in item_list]
+            return [k + '#' + v for k, v in item_list if k]
+
 
         elif layout == 'dict':
             from collections import defaultdict

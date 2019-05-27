@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_InDetPerfPlot_resITk
@@ -119,7 +119,6 @@ private:
   TH1* m_resITk_chargeID;
   TH1* m_resITk_chargeID_vs_eta;
   TH1* m_resITk_chargeID_vs_pt;
-  TH1* m_resITk_chargeID_vs_phi;
 
   TH1* m_resITk_momTail;
   TH1* m_resITk_momTail_vs_eta;
@@ -183,17 +182,6 @@ private:
 
   TH1* m_significance_d0_vs_eta;
   TH1* m_significance_z0_vs_eta;
-
-  TH1* m_fix_qoverpt_res[16]{};
-
-  TH1* m_fix_qoverptresolutionRMS_vs_eta{};
-
-
-  TH1* m_fix_d0_res[16]{};
-  TH1* m_fix_d0resolutionRMS_vs_eta{};
-
-  TH1* m_fix_z0_res[16]{};
-  TH1* m_fix_z0resolutionRMS_vs_eta{};
 };
 
 

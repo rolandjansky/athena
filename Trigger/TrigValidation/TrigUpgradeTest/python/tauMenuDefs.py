@@ -61,7 +61,7 @@ def tauCoreTrackSequence():
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+taujets')]
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
     viewAlgs.append(ViewVerify)
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/exceptions.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/CLASS_DEF.h"
@@ -21,6 +22,7 @@
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/unused.h"
+#include "boost/timer/timer.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -335,13 +337,57 @@ void test6()
 }
 
 
-int main()
+//************************************************************************
+
+
+unsigned int perftest (ISvcLocator* svcloc, unsigned int ntry)
+{
+  StoreGateSvc* sg = nullptr;
+  assert (svcloc->service ("StoreGateSvc", sg).isSuccess());
+  assert (sg->record (std::make_unique<MyObj> (42), "MyObj", false).isSuccess());
+
+  SG::ReadHandleKey<MyObj> key ("MyObj");
+  assert (key.initialize().isSuccess());
+
+  EventContext ctx;
+  ctx.setExtension( Atlas::ExtendedEventContext(sg->hiveProxyDict()) );
+  unsigned int sum = 0;
+  boost::timer::cpu_timer timer;
+  for (unsigned int i=0; i < ntry; i++) {
+    SG::ReadHandle<MyObj> h (key, ctx);
+    sum += h->x;
+  }
+  timer.stop();
+  boost::timer::cpu_times times = timer.elapsed();
+  std::cout << ntry << " times: " << boost::timer::format(times);
+  std::cout << "Each: " << (float)times.user / ntry / 1000 << " us (user)\n";
+
+  return sum;
+}
+
+
+
+//************************************************************************
+
+
+int main (int argc, char** argv)
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
   //need MessageSvc
   if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
     return 1;
+  }
+
+  if (argc >= 2 && strncmp (argv[1], "--perf", 6) == 0) {
+    unsigned int ntry = 1000000;
+    const char* p = strchr (argv[1], '=');
+    if (p) {
+      ntry = atoi (p+1);
+      if (ntry < 1) ntry = 1;
+    }
+    perftest (svcloc, ntry);
+    return 0;
   }
 
   test1();

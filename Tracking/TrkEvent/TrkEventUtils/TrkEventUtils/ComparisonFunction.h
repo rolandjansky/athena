@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,8 +29,7 @@ namespace Trk {
      
     */
 
-   template <class T>  class ComparisonFunction : 
-           public std::binary_function<const T*, const T*, bool> {
+   template <class T>  class ComparisonFunction {
      public:        
         /** Default Constructor */
         ComparisonFunction():
@@ -89,18 +88,18 @@ namespace Trk {
                  return ( (one->position() - (*m_point)).mag() < (two->position() - (*m_point)).mag());
                 }
                 Amg::Vector3D distPosOne((one->position())-(*m_point)); 
-		double lmag2 = m_line->mag(); lmag2 *= lmag2;
-		double dp1_mag2 = distPosOne.mag(); dp1_mag2 *= dp1_mag2;
-		double pl1_2 = m_line->dot(distPosOne); pl1_2 *= pl1_2;
+                double lmag2 = m_line->mag(); lmag2 *= lmag2;
+                double dp1_mag2 = distPosOne.mag(); dp1_mag2 *= dp1_mag2;
+                double pl1_2 = m_line->dot(distPosOne); pl1_2 *= pl1_2;
                 double distOne = (lmag2*dp1_mag2 - pl1_2)/dp1_mag2; 
 
                 Amg::Vector3D distPosTwo((two->position())-(*m_point)); 
-		double dp2_mag2 = distPosTwo.mag(); dp1_mag2 *= dp1_mag2;
-		double pl2_2 = m_line->dot(distPosTwo); pl1_2 *= pl1_2;
+                double dp2_mag2 = distPosTwo.mag(); dp1_mag2 *= dp1_mag2;
+                double pl2_2 = m_line->dot(distPosTwo); pl1_2 *= pl1_2;
                 double distTwo = (lmag2*dp2_mag2 - pl2_2)/dp2_mag2; 
                 
                 return ( fabs(distOne) < fabs(distTwo) );
-         }
+        }
          
       private:
         Amg::Vector3D* m_point;

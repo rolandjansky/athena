@@ -11,6 +11,8 @@
 #include "CscCalibTools/ICscCalibTool.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+#include "MuonRDO/CscRawDataContainer.h"
+#include "MuonDigitContainer/CscDigitContainer.h"
 
 class MdtIdHelper;
 class CscIdHelper;
@@ -121,10 +123,18 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   */
   bool m_show_warning_level_invalid_TGC_A09_SSW6_hit;
 
-  bool m_retrievePrivateCopy;
 
   /** Flag to distinguish 12-fold TGC cabling and 8-fold TGC cabling */
   bool m_is12foldTgc;
+
+  SG::ReadHandleKey<MdtCsmContainer> m_mdtRdoKey{this, "MdtRdoContainer", "MDTCSM", "Mdt RDO Input"};
+  SG::WriteHandleKey<MdtDigitContainer> m_mdtDigitKey{this, "MdtDigitContainer", "MDT_DIGITS", "Mdt Digit Output"};
+  SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this, "CscRdoContainer", "CSCRDO", "Csc RDO Input"};
+  SG::WriteHandleKey<CscDigitContainer> m_cscDigitKey{this, "CscDigitContainer", "CSC_DIGITS", "Csc Digit Output"};
+  SG::ReadHandleKey<RpcPadContainer> m_rpcRdoKey{this, "RpcRdoContainer", "RPCPAD", "Rpc RDO Input"};
+  SG::WriteHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RpcDigitContainer", "RPC_DIGITS", "Rpc Digit Output"};
+  SG::ReadHandleKey<TgcRdoContainer> m_tgcRdoKey{this, "TgcRdoContainer", "TGCRDO", "Tgc RDO Input"};
+  SG::WriteHandleKey<TgcDigitContainer> m_tgcDigitKey{this, "TgcDigitContainer", "TGC_DIGITS", "Tgc Digit Output"};
 };
 
 

@@ -42,7 +42,8 @@ class EMECDetectorManager : public GeoVDetectorManager
    * @brief  Constructor
    */
   EMECDetectorManager(const EMECHVManager* hvManagerInner=nullptr
-		      , const EMECHVManager* hvManagerOuter=nullptr);
+		      , const EMECHVManager* hvManagerOuter=nullptr
+		      , const EMECPresamplerHVManager* presamplerHVManager=nullptr);
 
   /**
    * @brief  Destructor
@@ -178,7 +179,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Get the HV Manager (presampler)
    */
-  const EMECPresamplerHVManager * getPresamplerHVManager() const;
+  const EMECPresamplerHVManager&  getPresamplerHVManager() const;
 
  private:
     
@@ -238,9 +239,9 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	The HV Managers for the emec;
    */
-  mutable const EMECHVManager *m_HVManager[2];
+  mutable const EMECHVManager* m_HVManager[2];
 
-  mutable const EMECPresamplerHVManager *m_presamplerHVManager;
+  mutable const EMECPresamplerHVManager* m_presamplerHVManager;
 };
 
 /**

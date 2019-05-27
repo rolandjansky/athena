@@ -324,7 +324,6 @@ if Cosmics:
     InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool", 
                                                                       Extrapolator            = InDetExtrapolator,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                                      ForceTrackSummaryUpdate = False,
                                                                       KeepParameters          = True, 
                                                                       OutputLevel = DEBUG)
     #ToolSvc += InDetxAODSplitParticleCreatorTool

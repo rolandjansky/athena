@@ -23,13 +23,9 @@
 
 using namespace MuonGM;
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_vetoThisBarcode(crazyParticleBarcode) {
+ {
 
   declareProperty("InputObjectName",  m_inputObjectName = "CSC_Hits", "name of the input objects");
   declareProperty("pedestal",m_pedestal = 0.0);
@@ -45,7 +41,6 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("ElectronEnergy",   m_electronEnergy   = 66); // eV
   declareProperty("NInterFixed",      m_NInterFixed   = false);
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 

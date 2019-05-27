@@ -67,7 +67,14 @@ void EMECHVElectrode::voltage_current(int iGap,double& voltage, double&current) 
  current = payload->current[iGap];
 }
 
-int EMECHVElectrode::hvLineNo(int iGap) const {
-  EMECHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->hvLineNo[iGap];
+#ifndef SIMULATIONBASE
+int EMECHVElectrode::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->module->getManager().hvLineNo(*this, iGap, hvIdMapping)
+    : m_c->module->getManager().getPayload(*this)->hvLineNo[iGap];
 }
+#else
+int EMECHVElectrode::hvLineNo(int iGap) const {
+  return m_c->module->getManager().getPayload(*this)->hvLineNo[iGap];
+}
+#endif

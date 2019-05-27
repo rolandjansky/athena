@@ -49,7 +49,7 @@ StatusCode HLTCaloCellMaker::initialize() {
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
 
-  auto roisHandle = SG::makeHandle( m_roiCollectionKey );
+  auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
 
   // datahandle 

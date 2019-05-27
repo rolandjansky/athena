@@ -9,13 +9,8 @@
 
 // Constructor
 SCT_FlaggedConditionTool::SCT_FlaggedConditionTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_badIds{"SCT_FlaggedCondData"},
-  // SCT_FlaggedCondData created by SCT_Clusterization
-  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionTool
-  m_sctID{nullptr}
+  base_class(type, name, parent)
 {
-  declareProperty("SCT_FlaggedCondData", m_badIds, "SCT flagged conditions data");
 }
 
 // Initialize
@@ -69,7 +64,13 @@ bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditio
 bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
-    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (isGood)");
+    if (m_numWarnForFailures<m_maxNumWarnForFailures) {
+      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (isGood)");
+      m_numWarnForFailures++;
+      if (m_numWarnForFailures==m_maxNumWarnForFailures) {
+        ATH_MSG_WARNING("Disabling this type of messages from " << name());
+      }
+    }
     return false;
   }
 
@@ -89,7 +90,13 @@ const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashI
 
   const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
-    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (details)");
+    if (m_numWarnForFailures<m_maxNumWarnForFailures) {
+      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (details)");
+      m_numWarnForFailures++;
+      if (m_numWarnForFailures==m_maxNumWarnForFailures) {
+        ATH_MSG_WARNING("Disabling this type of messages from " << name());
+      }
+    }
     return nullString;
   }
 
@@ -117,7 +124,13 @@ const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id) const
 int SCT_FlaggedConditionTool::numBadIds(const EventContext& ctx) const {
   const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
-    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
+    if (m_numWarnForFailures<m_maxNumWarnForFailures) {
+      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
+      m_numWarnForFailures++;
+      if (m_numWarnForFailures==m_maxNumWarnForFailures) {
+        ATH_MSG_WARNING("Disabling this type of messages from " << name());
+      }
+    }
     return -1;
   }
 
@@ -141,7 +154,13 @@ const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds() const {
 const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getCondData(const EventContext& ctx) const {
   SG::ReadHandle<SCT_FlaggedCondData> condData{m_badIds, ctx};
   if (not condData.isValid()) {
-    ATH_MSG_ERROR("Failed to get " << m_badIds.key());
+    if (m_numWarnForFailures<m_maxNumWarnForFailures) {
+      ATH_MSG_WARNING("Failed to get " << m_badIds.key());
+      m_numWarnForFailures++;
+      if (m_numWarnForFailures==m_maxNumWarnForFailures) {
+        ATH_MSG_WARNING("Disabling this type of messages from " << name());
+      }
+    }
     return nullptr;
   }
   return condData.cptr();

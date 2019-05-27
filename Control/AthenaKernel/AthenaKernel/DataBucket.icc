@@ -8,6 +8,7 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include <type_traits>
 
@@ -106,6 +107,9 @@ SG::DataBucket<T>::cast (CLID clid,
                          IRegisterTransient* irt /*= 0*/,
                          bool isConst /*=true*/)
 {
+  if (ATH_LIKELY (clid == classID())) {
+    return m_ptr;
+  }
   void* ret = SG::BaseInfo<T>::cast (m_ptr, clid);
   if (ret || !isConst)
     return ret;

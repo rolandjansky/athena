@@ -102,8 +102,7 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
     totalCapacity += cond.capacity();
   }
   bool pass = std::round(ff.value()) == totalCapacity;
-  
-  
+
   // loop over edges, figure out if it is a condition - jet edge
   // figure out if it the jet is used (flow == 1)
   // add the jet to passing_jets. As this is a set, duplicates

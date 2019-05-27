@@ -10,12 +10,9 @@
 #include "StoreGate/ReadCondHandle.h"
 
 // Constructor
-SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string &type, const std::string &name, const IInterface *parent) :
-  base_class(type, name, parent),
-  m_pHelper{nullptr},
-  m_checkStripsInsideModules{true}
+SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent)
 { 
-  declareProperty("checkStripsInsideModule", m_checkStripsInsideModules);
 }
 
 // Initialize

@@ -39,7 +39,7 @@ namespace InDet
       @author  Weiming Yao <Weiming.Yao>
   */  
 
-  class SeedToTrackConversionTool : virtual public ISeedToTrackConversionTool, public AthAlgTool
+  class SeedToTrackConversionTool : public extends<AthAlgTool, ISeedToTrackConversionTool>
   {
   public:
     SeedToTrackConversionTool(const std::string&,const std::string&,const IInterface*);

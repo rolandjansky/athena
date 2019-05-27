@@ -39,7 +39,10 @@ public:
    virtual StatusCode finalize();
 private:
    StringProperty m_attrListKey{this,"AttributeListKey","Input","Key for attribute list input to be used"};
-   StringProperty m_streamName{this,"SelectedStream","ALL","Name of stream to be used as a filter, defaluts to ALL"};
+   //StringArrayProperty m_streamName{this,"SelectedStreams","ALL","Name of stream to be used as a ACCEPT, defaluts to ALL"};
+   //StringArrayProperty m_unstreamName{this,"DeselectedStreams","ALL","Name of stream to be used as a VETO, defaluts to ALL"};
+   std::vector<std::string> m_streamName;
+   std::vector<std::string> m_unstreamName;
 
    ServiceHandle<ICutFlowSvc> m_cutflow;
    CutIdentifier m_cutid;

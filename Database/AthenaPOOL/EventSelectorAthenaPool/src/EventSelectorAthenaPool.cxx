@@ -239,7 +239,9 @@ StatusCode EventSelectorAthenaPool::reinit() {
 
    // reset markers
    m_numEvt.resize(m_inputCollectionsProp.value().size(), -1);
+   for( auto& el : m_numEvt ) el = -1;
    m_firstEvt.resize(m_inputCollectionsProp.value().size(), -1);
+   for( auto& el : m_firstEvt ) el = -1;
    m_guid = Guid::null();
 
    // Initialize InputCollectionsIterator
@@ -249,6 +251,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
       m_firstEvt[0] = 0;
    }
    m_evtCount = 0;
+   m_headerIterator = 0;
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       ATH_MSG_INFO("Done reinitialization for shared reader client");
       return(StatusCode::SUCCESS);

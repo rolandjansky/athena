@@ -29,13 +29,13 @@ namespace InDet {
 
   class TruthClusterizationFactory;
 
-  class TruthPixelClusterSplitProbTool : public AthAlgTool, virtual public IPixelClusterSplitProbTool
+  class TruthPixelClusterSplitProbTool : public extends<AthAlgTool, IPixelClusterSplitProbTool>
   {
   public:
     
     TruthPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p);
 
-    virtual ~TruthPixelClusterSplitProbTool() {};
+    virtual ~TruthPixelClusterSplitProbTool() = default;
     
     StatusCode initialize();
 
@@ -48,14 +48,12 @@ namespace InDet {
     
     InDet::PixelClusterSplitProb compileSplitProbability(std::vector<double>& vectorOfProbs ) const;
     
-    ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory;
+    ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory{this, "NnClusterizationFactory", "InDet::NnClusterizationFactory/TruthClusterizationFactory"};
 
-    std::vector<double> m_priorMultiplicityContent;
+    DoubleArrayProperty m_priorMultiplicityContent{this, "PriorMultiplicityContent", {2793337, 82056, 19944}};
 
   };
   
 }
 
-
 #endif
-    

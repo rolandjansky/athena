@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////////////
 // MuonTPExtrapolationTool
@@ -27,18 +27,18 @@ class MuonTPExtrapolationTool
   MuonTPExtrapolationTool(std::string myname);
   virtual ~MuonTPExtrapolationTool();
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
   /// compute dR on trigger pivot plane
   /// see interface class for full description
-  double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe);
+  virtual double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe) const override;
 
   // this method is intended for use in the DAOD production. It takes only one particle as argument, and handles the decoration. 
-  virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle);
+  virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle) override;
 
 #ifndef XAOD_ANALYSIS
   /// run the extrapolation - only available in full athena
-  const Trk::TrackParameters* extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track);
+  const Trk::TrackParameters* extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track) const;
 #endif
 
   // Utility method to handle extrapolation and decoration for one TrackParticle. 
@@ -48,7 +48,7 @@ class MuonTPExtrapolationTool
   // Returns success (true) or failure (false) of the procedure, fills eta and phi coordinates via reference
   // If the extrapolation fails or the decoration is missing in AthAnalysis, it will *not* change eta and phi
   // So you can set them to defaults before calling this guy, and they will be preserved in case of failure. 
-  bool extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi);
+  bool extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi) const;
   
  private:
 
@@ -58,7 +58,7 @@ class MuonTPExtrapolationTool
 
   // utility method: Obtains the track particle which we want to extrapolate into the MS. 
   // Works for all kinds of probes. 
-  const xAOD::TrackParticle* getPreferredTrackParticle (const xAOD::IParticle* probe);
+  const xAOD::TrackParticle* getPreferredTrackParticle (const xAOD::IParticle* probe) const;
 
   // these define the surfaces that we extrapolate to. 
   // We approximate the pivot plane in the form of a cylinder surface and two disks

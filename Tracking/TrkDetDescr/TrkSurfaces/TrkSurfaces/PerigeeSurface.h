@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -221,8 +221,8 @@ namespace Trk {
 
     protected: //!< data members
     
-      mutable Amg::Vector3D*                      m_lineDirection;  //!< cache of the line direction (speeds up)
-      static NoBounds                             s_perigeeBounds;
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>    m_lineDirection;  //!< cache of the line direction (speeds up)
+      static const NoBounds                        s_perigeeBounds;
       
   };
 
@@ -238,7 +238,7 @@ namespace Trk {
   inline const Amg::Vector3D& PerigeeSurface::center() const
   {
     if (!Surface::m_center && !Surface::m_transform) return(s_origin);
-    else if (!Surface::m_center) m_center = new Amg::Vector3D(m_transform->translation());
+    else if (!Surface::m_center) m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
     return(*Surface::m_center);
   }
   
@@ -283,7 +283,7 @@ namespace Trk {
        if (m_lineDirection)
            return (*m_lineDirection);
        if (!m_lineDirection && Surface::m_transform) {
-           m_lineDirection = new Amg::Vector3D(transform().rotation().col(2));
+           m_lineDirection.set(std::make_unique<Amg::Vector3D>(transform().rotation().col(2)));
            return (*m_lineDirection);
        }
        return Trk::s_zAxis;

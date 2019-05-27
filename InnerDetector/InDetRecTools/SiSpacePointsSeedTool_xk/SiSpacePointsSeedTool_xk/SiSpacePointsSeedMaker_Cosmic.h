@@ -32,6 +32,7 @@
 #include <iosfwd>
 #include <list>
 #include <map>
+#include <mutex>
 #include <vector>
 
 class MsgStream;
@@ -43,7 +44,7 @@ namespace Trk {
 namespace InDet {
 
   class SiSpacePointsSeedMaker_Cosmic : 
-    virtual public ISiSpacePointsSeedMaker, public AthAlgTool
+    public extends<AthAlgTool, ISiSpacePointsSeedMaker>
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -64,24 +65,24 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
-    virtual void newEvent(int iteration);
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT);
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& IRD);
+    virtual void newEvent(int iteration) const;
+    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const;
+    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& iRD) const;
       
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with two space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find2Sp(const std::list<Trk::Vertex>& lv);
+    virtual void find2Sp(const std::list<Trk::Vertex>& lv) const;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with three space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv);
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* ZVertex);
+    virtual void find3Sp(const std::list<Trk::Vertex>& lv) const;
+    virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* zVertex) const;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
@@ -89,15 +90,15 @@ namespace InDet {
     // Variable means (2,3,4,....) any number space points
     ///////////////////////////////////////////////////////////////////
  
-    virtual void findVSp(const std::list<Trk::Vertex>& lv);
+    virtual void findVSp(const std::list<Trk::Vertex>& lv) const;
       
     ///////////////////////////////////////////////////////////////////
     // Iterator through seeds pseudo collection produced accordingly
     // methods find    
     ///////////////////////////////////////////////////////////////////
       
-    virtual const SiSpacePointsSeed* next();
-      
+    virtual const SiSpacePointsSeed* next() const;
+
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
@@ -118,83 +119,97 @@ namespace InDet {
     ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
     PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
 
+    ///////////////////////////////////////////////////////////////////
+    // Space points container
+    ///////////////////////////////////////////////////////////////////
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
+    SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+
+    // Properties, which will not be changed after construction
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
-    bool m_endlist{true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", false};
     BooleanProperty m_useassoTool{this, "UseAssociationTool", false};
-    BooleanProperty m_checketa{this, "checkEta", false};
-    int                         m_outputlevel {};
-    int                         m_nprint {};
-    bool m_state{0};
-    int m_nspoint{2};
-    int m_mode{0};
-    int m_nlist{0};
     IntegerProperty m_maxsize{this, "maxSize", 100};
-    int                         m_nseeds {};
-    FloatProperty m_ptmin{this, "pTmin", 500.};
+    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
     FloatProperty m_drmin{this, "mindRadius", 5.};
     FloatProperty m_drmax{this, "maxdRadius", 1000.};
-    FloatProperty m_rapcut{this, "RapidityCut", 2.3};
-    float                       m_dzdrmin {};
-    float                       m_dzdrmax {};
-    FloatProperty m_zmin{this, "minZ", -10000.};
-    FloatProperty m_zmax{this, "maxZ", +10000.};
     FloatProperty m_r_rmax{this, "radMax", 600.};
     FloatProperty m_r_rstep{this, "radStep", 5.};
+
+    // Properties, which can be updated in initialize
+    FloatProperty m_ptmin{this, "pTmin", 500.};
+    FloatProperty m_rapcut{this, "RapidityCut", 2.3};
+
+    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_Cosmic class
+    BooleanProperty m_checketa{this, "checkEta", false};
+    FloatProperty m_zmin{this, "minZ", -10000.};
+    FloatProperty m_zmax{this, "maxZ", +10000.};
     FloatProperty m_diver{this, "maxdImpact", 10.};
-    float                       m_dazmax  {};
     FloatProperty m_diverpps{this, "maxdImpactPPS", 0.};
     FloatProperty m_diversss{this, "maxdImpactSSS", 0.};
     FloatProperty m_etamin{this, "etaMin", 0.};
     FloatProperty m_etamax{this, "etaMax", 0.};
-    int m_r_size {};
-    int m_rf_size {};
-    int m_rfz_size {};
-    std::vector<std::list<InDet::SiSpacePointForSeed*>> m_r_Sorted;
-    std::list<InDet::SiSpacePointForSeed*>  m_rf_Sorted[SizeRF];
-    std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted[SizeRFZ];
-    std::list<InDet::SiSpacePointForSeed> m_l_spforseed;
-    std::list<InDet::SiSpacePointForSeed>::iterator m_i_spforseed;
-    std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin;
 
-    int m_ns{} ,m_nsaz {};
-    int m_fNmax  {};
-    int m_fNmin{};
-    int m_zMin {};
-    int  m_nr{};
-    std::vector<int> m_r_index;
-    std::vector<int> m_r_map;
-    int  m_nrf{}     , m_rf_index[SizeRF], m_rf_map[SizeRF];
-    int  m_nrfz{}    , m_rfz_index[SizeRFZ], m_rfz_map[SizeRFZ];
-    int m_rfz_b[SizeRFZ],m_rfz_t[SizeRFZ],m_rfz_ib[SizeRFZ][SizeI],m_rfz_it[SizeRFZ][SizeI];
-    float m_sF {};
+    // Updated in only initialize
+    bool m_initialized{false};
+    int m_outputlevel{};
+    int m_r_size{};
+    int m_fNmax{};
+    int m_rfz_b[SizeRFZ];
+    int m_rfz_t[SizeRFZ];
+    int m_rfz_ib[SizeRFZ][SizeI];
+    int m_rfz_it[SizeRFZ][SizeI];
+    float m_dzdrmin{};
+    float m_dzdrmax{};
+    float m_sF{};
 
-    ///////////////////////////////////////////////////////////////////
-    // Tables for 3 space points seeds search
-    ///////////////////////////////////////////////////////////////////
-     
-    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
-    std::vector<InDet::SiSpacePointForSeed*> m_SP;
-    std::vector<float> m_R;
-    std::vector<float> m_Tz;
-    std::vector<float> m_Er;
-    std::vector<float> m_U;
-    std::vector<float> m_V;
-    std::vector<float> m_Zo;
-
-    std::multimap<float,InDet::SiSpacePointsSeed*>           m_l_seeds;
-    std::multimap<float,InDet::SiSpacePointsSeed*>::iterator m_i_seed;
-    std::multimap<float,InDet::SiSpacePointsSeed*>::iterator m_i_seede;
-    std::vector<InDet::SiSpacePointsSeed> m_seeds;
-
-    ///////////////////////////////////////////////////////////////////
-    // Space points container
-    ///////////////////////////////////////////////////////////////////
-      
-    SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
-    SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
-    SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+    mutable std::mutex m_mutex;
+    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    struct EventData { // To hold event dependent data
+      bool endlist{true};
+      int state{0};
+      int nprint{0};
+      int nspoint{2};
+      int mode{0};
+      int nlist{0};
+      int nseeds{0};
+      int ns{0};
+      int nsaz{0};
+      int nr{0};
+      int nrf{0};
+      int nrfz{0};
+      int fNmin{0};
+      int zMin{0};
+      int rf_index[SizeRF];
+      int rf_map[SizeRF];
+      int rfz_index[SizeRFZ];
+      int rfz_map[SizeRFZ];
+      std::vector<std::list<InDet::SiSpacePointForSeed*>> r_Sorted;
+      std::vector<int> r_index;
+      std::vector<int> r_map;
+      std::vector<InDet::SiSpacePointsSeed> seeds;
+      std::multimap<float,InDet::SiSpacePointsSeed*> l_seeds;
+      std::multimap<float,InDet::SiSpacePointsSeed*>::iterator i_seed;
+      std::multimap<float,InDet::SiSpacePointsSeed*>::iterator i_seede;
+      std::list<InDet::SiSpacePointForSeed*> rf_Sorted[SizeRF];
+      std::list<InDet::SiSpacePointForSeed*> rfz_Sorted[SizeRFZ];
+      std::list<InDet::SiSpacePointForSeed> l_spforseed;
+      std::list<InDet::SiSpacePointForSeed>::iterator i_spforseed;
+      std::list<InDet::SiSpacePointForSeed*>::iterator rMin;
+      ///////////////////////////////////////////////////////////////////
+      // Tables for 3 space points seeds search
+      ///////////////////////////////////////////////////////////////////
+      std::vector<InDet::SiSpacePointForSeed*> SP;
+      std::vector<float> R;
+      std::vector<float> Tz;
+      std::vector<float> Er;
+      std::vector<float> U;
+      std::vector<float> V;
+      std::vector<float> Zo;
+    };
+    mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
@@ -206,41 +221,47 @@ namespace InDet {
     SiSpacePointsSeedMaker_Cosmic &operator=(const SiSpacePointsSeedMaker_Cosmic&) = delete;
     //@}
 
-    MsgStream&    dumpConditions(MsgStream   & out) const;
-    MsgStream&    dumpEvent     (MsgStream   & out) const;
+    MsgStream& dumpConditions(MsgStream& out) const;
+    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
 
     void buildFrameWork();
 
     SiSpacePointForSeed* newSpacePoint
-    (const Trk::SpacePoint*const&);
+    (EventData& data, const Trk::SpacePoint*const&) const;
     SiSpacePointForSeed* newSpacePoint
-    (const Trk::SpacePoint*const&,const float*);
+    (EventData& data, const Trk::SpacePoint*const&, const float*) const;
     void newSeed
-    (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const float&);
+    (EventData& data,
+     const Trk::SpacePoint*&,const Trk::SpacePoint*&,
+     const float&) const;
     void newSeed
-    (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const Trk::SpacePoint*&,const float&);
-    void fillLists     ();
-    void erase         ();
-    void production2Sp ();
-    void production3Sp ();
+    (EventData& data,
+     const Trk::SpacePoint*&,const Trk::SpacePoint*&,
+     const Trk::SpacePoint*&,const float&) const;
+    void fillLists(EventData& data) const;
+    void erase(EventData& data) const;
+    void production2Sp(EventData& data) const;
+    void production3Sp(EventData& data) const;
     void production3Sp
-    (std::list<InDet::SiSpacePointForSeed*>::iterator*,
+    (EventData& data,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     int,int,float,float);
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     int,int,float,float) const;
 
-    void production3SpWithoutField();
+    void production3SpWithoutField(EventData& data) const;
     void production3SpWithoutField
-    (std::list<InDet::SiSpacePointForSeed*>::iterator*,
+    (EventData& data,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     int,int,float);
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     int,int,float) const;
 
-    bool isUsed(const Trk::SpacePoint*);
+    bool isUsed(const Trk::SpacePoint*) const;
+
+    EventData& getEventData() const;
   };
 
   MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_Cosmic&);

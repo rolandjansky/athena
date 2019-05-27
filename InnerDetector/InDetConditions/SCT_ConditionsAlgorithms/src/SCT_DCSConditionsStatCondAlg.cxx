@@ -12,8 +12,6 @@
 
 SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
-  , m_doState{true}
 {
 }
 

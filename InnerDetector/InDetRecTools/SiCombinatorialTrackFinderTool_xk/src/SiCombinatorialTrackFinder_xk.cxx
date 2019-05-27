@@ -36,9 +36,8 @@
 
 InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 (const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p)
+  : base_class(t, n, p)
 {
-  declareInterface<ISiCombinatorialTrackFinder>(this);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -76,7 +75,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
 
   // Get tool for track-prd association
   //
-  if (m_usePIX) {
+  if (not m_assoTool.empty()) {
     ATH_CHECK(m_assoTool.retrieve());
   } else {
     m_assoTool.disable();
@@ -227,7 +226,7 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   s8.append("|");
 
   std::string s9;
-  if (m_usePIX) {
+  if (not m_assoTool.empty()) {
     n     = 62-m_assoTool.type().size();
     for (int i=0; i<n; ++i) s9.append(" ");
     s9.append("|");
@@ -245,7 +244,7 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
   out<<"| Tool for rio  on track  | "<<m_riocreator .type()<<s5<<std::endl;
-  if (m_usePIX) {
+  if (not m_assoTool.empty()) {
     out<<"| Tool for track-prd assos| "<<m_assoTool   .type()<<s9<<std::endl;
   }
   out<<"| Magnetic field mode     | "<<fieldmode[mode]     <<s3<<std::endl;
@@ -583,8 +582,16 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL;
   detectorElementLinks(DE, DEL);
 
-  SG::ReadHandle<InDet::SiClusterContainer> pixcontainer(m_pixcontainerkey);
-  SG::ReadHandle<InDet::SiClusterContainer> sctcontainer(m_sctcontainerkey);
+  const InDet::SiClusterContainer* p_pixcontainer = nullptr;
+  if (m_usePIX) {
+    SG::ReadHandle<InDet::SiClusterContainer> pixcontainer(m_pixcontainerkey);
+    p_pixcontainer = pixcontainer.ptr();
+  }
+  const InDet::SiClusterContainer* p_sctcontainer = nullptr;
+  if (m_useSCT) {
+    SG::ReadHandle<InDet::SiClusterContainer> sctcontainer(m_sctcontainerkey);
+    p_sctcontainer = sctcontainer.ptr();
+  }
 
   // List cluster preparation
   //
@@ -597,22 +604,22 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
     }
     if (Sp.size()<=2) TWO = true;
   } else if (Gp.size() > 2) {
-    if (!data.trajectory.globalPositionsToClusters(pixcontainer.ptr(), sctcontainer.ptr(), Gp, DEL, PT, Cl)) return false;
+    if (!data.trajectory.globalPositionsToClusters(p_pixcontainer, p_sctcontainer, Gp, DEL, PT, Cl)) return false;
   } else {
-    if (!data.trajectory.trackParametersToClusters(pixcontainer.ptr(), sctcontainer.ptr(), Tp, DEL, PT, Cl)) return false;
+    if (!data.trajectory.trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
   }
   ++data.goodseeds;
 
   // Build initial trajectory
   //
   bool Qr;
-  bool Q = data.trajectory.initialize(m_usePIX, m_useSCT, pixcontainer.ptr(), sctcontainer.ptr(), Tp, Cl, DEL, Qr);
+  bool Q = data.trajectory.initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr);
 
   if (!Q && Sp.size() < 2 && Gp.size() > 3) {
 
     Cl.clear();
-    if (!data.trajectory.trackParametersToClusters(pixcontainer.ptr(), sctcontainer.ptr(), Tp, DEL, PT, Cl)) return false;
-    if (!data.trajectory.initialize(m_usePIX, m_useSCT, pixcontainer.ptr(), sctcontainer.ptr(), Tp, Cl, DEL, Qr)) return false;
+    if (!data.trajectory.trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
+    if (!data.trajectory.initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr)) return false;
     Q = Qr = true;
   }
 
@@ -823,10 +830,13 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
  std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
 {
-  SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
-  const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{*boundarySCTHandle};
-  if (boundarySCT==nullptr) {
-    ATH_MSG_FATAL(m_boundarySCTKey.fullKey() << " returns null pointer");
+  const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{nullptr};
+  if (m_useSCT) {
+    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
+    boundarySCT = *boundarySCTHandle;
+    if (boundarySCT==nullptr) {
+      ATH_MSG_FATAL(m_boundarySCTKey.fullKey() << " returns null pointer");
+    }
   }
 
   for (const InDetDD::SiDetectorElement* d: DE) {
@@ -916,10 +926,11 @@ InDet::SiCombinatorialTrackFinder_xk::EventData& InDet::SiCombinatorialTrackFind
     // Set SiTools and conditions
     //
     m_eventData[slot].tools.setTools(&*m_proptool, &*m_updatortool, &*m_riocreator,
-                                     (m_usePIX ? &*m_assoTool : nullptr),
+                                     ((not m_assoTool.empty()) ? &*m_assoTool : nullptr),
                                      &*m_fieldServiceHandle);
-    m_eventData[slot].tools.setTools(&*m_pixelCondSummaryTool, &*m_sctCondSummaryTool);    
-    m_eventData[slot].tools.setTools(m_fieldprop);
+    m_eventData[slot].tools.setTools(m_usePIX ? &*m_pixelCondSummaryTool : nullptr,
+                                     m_useSCT ? &*m_sctCondSummaryTool : nullptr);
+    m_eventData[slot].tools.setTools(&m_fieldprop);
 
     // Set tool to trajectory
     //

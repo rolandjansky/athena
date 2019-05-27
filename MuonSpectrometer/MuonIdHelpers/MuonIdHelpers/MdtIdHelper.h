@@ -212,9 +212,13 @@ CLASS_DEF(MdtIdHelper, 4170, 1)
 inline Identifier MdtIdHelper::elementID(int stationName,
 					 int stationEta, int stationPhi, bool check, bool* isValid) const
 {
+  bool val = false;
+  if (stationName<0) {
+      if (check && isValid) *isValid = val;
+      return (Identifier(-1));
+  }
   // pack fields independently
   Identifier result((Identifier::value_type)0);
-  bool val = false;
   m_muon_impl.pack(muon_field_value(),result);
   m_sta_impl.pack (stationName,result);
   m_eta_impl.pack (stationEta,result);

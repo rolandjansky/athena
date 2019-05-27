@@ -52,8 +52,6 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto dphi = std::abs(rj0.DeltaPhi(rj1));
 
 
-  typedef std::pair<std::string, double> CallHistoryElement;
-
   bool pass{true};
   
   if (m_dphiMin > dphi or dphi >= m_dphiMax){pass = false;}

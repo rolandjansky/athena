@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,40 +21,40 @@
 Trk::ConeSurface::ConeSurface() :
   Trk::Surface(),
   m_bounds(),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // copy constructor
 Trk::ConeSurface::ConeSurface(const ConeSurface& csf) :
   Trk::Surface(csf),
   m_bounds(csf.m_bounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // copy constructor with shift
 Trk::ConeSurface::ConeSurface(const ConeSurface& csf, const Amg::Transform3D& transf) :
   Trk::Surface(csf,transf),
   m_bounds(csf.m_bounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by opening angle and whether its symmetric or a single cone
 Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, bool symmetric) :
   Trk::Surface(htrans),
   m_bounds(new Trk::ConeBounds(alpha, symmetric)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by opening angle and its z values
 Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmin, double zmax, double halfPhi) :
   Trk::Surface(htrans),
   m_bounds(new Trk::ConeBounds(alpha, zmin, zmax, halfPhi)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 
@@ -62,8 +62,8 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, double alpha, double zmi
 Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds):
   Trk::Surface(htrans),
   m_bounds(cbounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {
   assert(cbounds);
 }
@@ -72,16 +72,14 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds
 Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans):
   Trk::Surface(std::move(htrans)),
   m_bounds(nullptr),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {
 }
 
 // destructor (will call destructor from base class which deletes objects)
 Trk::ConeSurface::~ConeSurface()
 {
-  delete m_referencePoint;
-  delete m_rotSymmetryAxis;
 }
 
 
@@ -90,10 +88,8 @@ Trk::ConeSurface& Trk::ConeSurface::operator=(const ConeSurface& csf)
   if (this!=&csf){
    Trk::Surface::operator=(csf);
    m_bounds =  csf.m_bounds;
-   delete m_referencePoint;
-   delete m_rotSymmetryAxis;
-   m_referencePoint = 0;
-   m_rotSymmetryAxis = 0;
+   m_referencePoint.store(nullptr);
+   m_rotSymmetryAxis.store(nullptr);
   }
   return *this;
 }
@@ -107,7 +103,7 @@ const Amg::Vector3D& Trk::ConeSurface::globalReferencePoint() const
       //double phi     = bounds().averagePhi();
       //Trk::GlobalPosition gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
     Amg::Vector3D gp(0.,0.,0.);
-    m_referencePoint = new Amg::Vector3D(transform()*gp);
+    m_referencePoint.set(std::make_unique<Amg::Vector3D>(transform()*gp));
    }
   return (*m_referencePoint);
 }
@@ -128,7 +124,7 @@ const Amg::Vector3D& Trk::ConeSurface::rotSymmetryAxis() const
 {
   if (!m_rotSymmetryAxis){
 	Amg::Vector3D zAxis(transform().rotation().col(2));
-    m_rotSymmetryAxis = new Amg::Vector3D(zAxis);
+    m_rotSymmetryAxis.set(std::make_unique<Amg::Vector3D>(zAxis));
   }
   return(*m_rotSymmetryAxis);
 }

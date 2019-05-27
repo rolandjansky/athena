@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #define LOOSETRACKVERTEXASSOCIATIONTOOL_CXX
@@ -27,6 +27,9 @@ namespace CP
   StatusCode LooseTrackVertexAssociationTool::initialize()
   {
     //    dz_cut=2;
+
+    ATH_MSG_WARNING("LooseTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
+
     return StatusCode::SUCCESS;
   }
 

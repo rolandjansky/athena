@@ -36,6 +36,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 
+#include "StoreGate/ReadHandleKey.h"
 
 
 
@@ -67,8 +68,6 @@ class EgammaPhysValMonitoringTool
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
 
-  int m_eventCounter;
-  bool is_MC;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -87,28 +86,35 @@ class EgammaPhysValMonitoringTool
   /// Default constructor: 
   EgammaPhysValMonitoringTool();
 
- StatusCode fillRecoElecHistograms();
- StatusCode fillRecoFrwdElecHistograms();
- StatusCode fillRecoPhotHistograms();
+  StatusCode fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles);
+  StatusCode fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles);
+  StatusCode fillRecoPhotHistograms(const xAOD::TruthParticleContainer* truthParticles);
 
- const xAOD::TruthParticle* Match(const xAOD::Egamma* particle, int pdg);
+  const xAOD::TruthParticle* Match(const xAOD::Egamma* particle, int pdg,
+				   const xAOD::TruthParticleContainer* truthParticles) const;
 
 
   // Containers
-  std::string m_photonContainerName;
-  std::string m_electronContainerName;
-  std::string m_electronContainerFrwdName;
-  std::string m_truthParticleContainerName;
-  std::string m_egammaTruthContainerName;
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_photonContainerKey {this,
+      "PhotonContainerName", "Photons", "Input photon container"};
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerKey {this,
+      "ElectronContainerName", "Electrons", "Input electron container"};
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerFrwdKey {this,
+      "ElectronContainerFrwdName", "ForwardElectrons", "Input forward electron container"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey {this,
+      "TruthParticleContainerName", "TruthParticles", "Input global truth particles"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_egammaTruthContainerKey {this,
+      "EgammaTruthContainerName", "egammaTruthParticles", "Input egamma truth particles"};
+
+  Gaudi::Property<bool> m_isMC {this, "isMC", false, "Should be set from file peeking"};
 
   // Hists
   ElectronValidationPlots m_oElectronValidationPlots;
   PhotonValidationPlots m_oPhotonValidationPlots;
   
-  ToolHandle<IMCTruthClassifier>        m_truthClassifier;
+  ToolHandle<IMCTruthClassifier>  m_truthClassifier {this,
+      "MCTruthClassifier", "EMMCTruthClassifier", "Handle of MCTruthClassifier"};
 
-  const xAOD::TruthParticleContainer* m_truthallParticles;
-  const xAOD::TruthParticleContainer* m_truthParticles;
 }; 
 
 // I/O operators

@@ -29,10 +29,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 TgcDigitizationTool::TgcDigitizationTool(const std::string& type, 
 					 const std::string& name,
 					 const IInterface* parent) : 
@@ -43,12 +39,10 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   m_mdManager(0),
   m_digitizer(0),
   m_thpcTGC(0),
-  m_inputHitCollectionName("TGC_Hits"),
-  m_vetoThisBarcode(crazyParticleBarcode) 
+  m_inputHitCollectionName("TGC_Hits")
 {
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //--------------------------------------------

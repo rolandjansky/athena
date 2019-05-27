@@ -277,7 +277,7 @@ muonCombinedRecFlags.doMuonSegmentTagger = True
 #muonCombinedRecFlags.doxAOD = True
 muonCombinedRecFlags.doAOD = False
 muonCombinedRecFlags.doCaloTrkMuId = True
-muonCombinedRecFlags.doMuGirlLowBeta = False
+muonCombinedRecFlags.doMuGirlLowBeta = True
 
 muonRecFlags.doCreateClusters = False 
 muonRecFlags.prdToxAOD = False

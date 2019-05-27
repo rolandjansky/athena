@@ -18,7 +18,6 @@
 class opt :
     setupForMC       = None           # force MC setup
     setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
-    setL1TopoXML     = 'TriggerMenuMT/L1Topoconfig_LS2_v1.xml'
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
@@ -43,7 +42,7 @@ class opt :
     doBJetSlice       = None
     doTauSlice        = None
     doComboSlice      = None
-    doBLSSlice        = None
+    doBphysicsSlice   = None
 #
 ################################################################################
 
@@ -275,12 +274,20 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.ShowDataDependencies( True )
     AlgScheduler.EnableVerboseViews( True )
 
-# EventInfo creation if needed
-from RecExConfig.ObjKeyStore import objKeyStore
-if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
+#--------------------------------------------------------------
+# Event Info setup
+#--------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file or we are reading BS, schedule conversion from old EventInfo
+if globalflags.InputFormat.is_pool():
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence += xAODMaker__EventInfoCnvAlg()
-
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -338,14 +345,9 @@ elif globalflags.InputFormat.is_bytestream():
 TriggerFlags.inputLVL1configFile = opt.setLVL1XML
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-TriggerFlags.inputL1TopoConfigFile = opt.setL1TopoXML
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, L1TopoConfigSvc, findFileInXMLPATH
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-L1TopoConfigSvc = L1TopoConfigSvc()
-L1TopoConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputL1TopoConfigFile())
-svcMgr += L1TopoConfigSvc
-
 
 if opt.doL1Sim:
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
@@ -419,11 +421,15 @@ if opt.doL1Sim:
     from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
     from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
 
-    l1muctpiTool = L1MuctpiTool("L1MuctpiTool")
-
-    ToolSvc += l1muctpiTool
+    ToolSvc += L1MuctpiTool("L1MuctpiTool")
     ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
     
+    ToolSvc += L1MuctpiTool("LVL1MUCTPI__L1MuctpiTool") # one for topo, no idea why we need two
+    ToolSvc.LVL1MUCTPI__L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+    
+    
+
+
     muctpi             = L1Muctpi()
     muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
     
@@ -466,10 +472,9 @@ if opt.doL1Sim:
     ctp.DoL1Topo    = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
-    l1topoSim = L1TopoSimulation()
-    l1topoSim.MuonInputProvider.MuctpiSimTool = l1muctpiTool
     
-    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim, l1topoSim ] )
+    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+    
     topSequence += l1Sim
 
 if opt.doL1Unpacking:

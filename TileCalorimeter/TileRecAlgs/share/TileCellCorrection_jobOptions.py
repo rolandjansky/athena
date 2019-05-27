@@ -6,14 +6,8 @@
 
 TccName = "TileCellCorrection"
 
-from AthenaCommon.AppMgr import ToolSvc
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theNoiseTool
-
 from TileRecUtils.TileRecUtilsConf import TileCellNoiseFilter
 theTileCellNoiseFilter = TileCellNoiseFilter()
-theTileCellNoiseFilter.CaloNoiseTool = theNoiseTool
 theTileCellNoiseFilter.UseTwoGaussNoise = False
 ToolSvc += theTileCellNoiseFilter
  

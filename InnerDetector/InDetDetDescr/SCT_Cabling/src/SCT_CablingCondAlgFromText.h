@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -50,9 +52,9 @@ private:
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const;
   StringProperty m_source{this, "DataSource", "SCT_MC_FullCabling_svc.dat", "a plain text file for the SCT Cabing"};
   SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions folder"};
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-  const SCT_ID* m_idHelper;
+  const SCT_ID* m_idHelper{nullptr};
 };//end of class
 
 #endif // SCT_CablingCondAlgFromText_H

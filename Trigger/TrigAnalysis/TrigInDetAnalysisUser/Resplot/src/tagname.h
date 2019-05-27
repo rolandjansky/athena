@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         tagname.h  
+ **   @file         tagname.h  
  **
- **   Description:  noddy struct to add integer tokens to a tag   
+ **                 noddy struct to add integer tokens to a tag   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Wed Jun  9 19:44:29 BST 2004
- **   Modified:     
+ **   @date         Wed Jun  9 19:44:29 BST 2004
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __TAGNAME_H
-#define __TAGNAME_H
+#ifndef RESPLOT_TAGNAME_H
+#define RESPLOT_TAGNAME_H
 
 
 #include <string>
@@ -74,7 +72,7 @@ private:
 };
 
 
-#endif  /* __TAGNAME_H */
+#endif  /* RESPLOT_TAGNAME_H */
 
 
 

@@ -526,14 +526,6 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 	else validInfo->setGeneration(-1);        // signal problem in the validation chain
 	regisp->setUserInformation(validInfo);
       }
-      // register TruthIncident
-      ISF::ISFParticleVector children(1, regisp);
-      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*m_isp),
-                                   children,
-                                   (isp->getUserInformation()) ? isp->getUserInformation()->process() : -2 /*!< @TODO fix non-static */,
-                                   m_isp->nextGeoID(),
-                                   ISF::fKillsPrimary );
-      m_truthRecordSvc->registerTruthIncident( truth);
       //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
       if (!regisp->getTruthBinding()) {
 	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));

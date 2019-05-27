@@ -20,11 +20,7 @@
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_id_sct{nullptr},
-  m_moduleId{0},
-  m_waferId{0},
-  m_stripId{0}
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
