@@ -54,6 +54,7 @@ StatusCode MuonLayerHoughAlg::initialize()
   ATH_CHECK( m_keysTgc.initialize());
   ATH_CHECK( m_keyMM.initialize()  );
   ATH_CHECK( m_combis.initialize() );
+  ATH_CHECK( m_houghDataPerSectorVecKey.initialize() );
 
   return StatusCode::SUCCESS; 
 }
@@ -69,7 +70,8 @@ StatusCode MuonLayerHoughAlg::execute()
   const Muon::MMPrepDataContainer* mmPrds =GetObject(m_keyMM);
 
   ATH_MSG_VERBOSE("calling layer tool ");
-  std::unique_ptr<MuonPatternCombinationCollection> combis(m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds));
+  auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds);
+
   if( combis ){
 
     SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
@@ -82,6 +84,10 @@ StatusCode MuonLayerHoughAlg::execute()
       }
     }
   }
+
+  // write hough data to SG
+  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+  ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
 
   return StatusCode::SUCCESS;
 } // execute

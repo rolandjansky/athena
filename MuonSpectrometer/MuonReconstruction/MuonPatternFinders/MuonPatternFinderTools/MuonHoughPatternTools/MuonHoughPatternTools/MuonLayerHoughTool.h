@@ -171,7 +171,8 @@ namespace Muon {
 
     virtual StatusCode finalize() override;
     
-    MuonPatternCombinationCollection* analyse( const MdtPrepDataContainer*  mdtCont,  
+    std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(
+                 const MdtPrepDataContainer*  mdtCont,  
 					       const CscPrepDataContainer*  cscCols,  
 					       const TgcPrepDataContainer*  tgcCont,  
 					       const RpcPrepDataContainer*  rpcCont,
@@ -214,7 +215,7 @@ namespace Muon {
       std::vector<TgcHitClusteringObj*> tgcClusteringObjs;
     };
   
-    MuonPatternCombinationCollection* analyse(State& state) const;
+    std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;
 
     void fillHitsPerSector(  State& state, 
            const CollectionsPerSector& hashes,
@@ -288,8 +289,6 @@ namespace Muon {
     TTree*     m_tree;
     mutable MuonHough::HitNtuple* m_ntuple;
 
-    SG::WriteHandleKey<HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
-        "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
     SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames; 
     SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey;
     SG::ReadHandleKey<xAOD::MuonSegmentContainer>       m_MuonTruthSegmentsKey;

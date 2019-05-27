@@ -116,8 +116,6 @@ namespace Muon {
       m_MuonTruthSegmentsKey="";
     }
 
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
-
     // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
     m_selectors.resize(MuonStationIndex::ChIndexMax);
     m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
@@ -171,8 +169,6 @@ namespace Muon {
     //     }
     //   }
     // }
-
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -313,15 +309,17 @@ namespace Muon {
       
     }
     
-    return analyse(state);
+    return analyse(state).first.release();
   }
 
-  MuonPatternCombinationCollection* MuonLayerHoughTool::analyse( const MdtPrepDataContainer*  mdtCont,
-                                                                 const CscPrepDataContainer*  cscCont,
-                                                                 const TgcPrepDataContainer*  tgcCont,
-                                                                 const RpcPrepDataContainer*  rpcCont,
-                                                                 const sTgcPrepDataContainer* stgcCont,  
-                                                                 const MMPrepDataContainer*   mmCont ) const {
+  auto MuonLayerHoughTool::analyse(
+      const MdtPrepDataContainer*  mdtCont,
+      const CscPrepDataContainer*  cscCont,
+      const TgcPrepDataContainer*  tgcCont,
+      const RpcPrepDataContainer*  rpcCont,
+      const sTgcPrepDataContainer* stgcCont,  
+      const MMPrepDataContainer*   mmCont ) const 
+      -> std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> {
     reset();
     State state; 
     ATH_MSG_DEBUG("MuonLayerHoughTool::analyse");
@@ -346,10 +344,11 @@ namespace Muon {
     return analyse(state);
   }
   
-  MuonPatternCombinationCollection* MuonLayerHoughTool::analyse(State& state) const {    
+  auto MuonLayerHoughTool::analyse(State& state) const 
+      -> std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> {    
 
-    MuonPatternCombinationCollection* patternCombis = new MuonPatternCombinationCollection();
-
+    auto patternCombis = std::make_unique<MuonPatternCombinationCollection>();
+    
     // loop over data and fill the hough transform
     for( auto& houghData : (*state.houghDataPerSectorVec) ){
 
@@ -480,11 +479,7 @@ namespace Muon {
       printTruthSummary(state.foundTruthHits,state.outputTruthHits);
     }
 
-    // write hough data to SG
-    SG::WriteHandle<HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
-    handle.record(std::move(state.houghDataPerSectorVec));
-
-    return patternCombis;
+    return {std::move(patternCombis), std::move(state.houghDataPerSectorVec)};
   }
 
   void MuonLayerHoughTool::buildRoads(State& state, std::vector<MuonLayerHoughTool::Road>& roads ) const {
