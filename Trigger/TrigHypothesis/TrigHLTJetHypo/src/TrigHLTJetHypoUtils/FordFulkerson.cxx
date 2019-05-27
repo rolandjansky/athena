@@ -105,7 +105,7 @@ void FordFulkerson::checkFeasibility(const FlowNetwork& G, int s, int t){
     
   // check that capacity constraints are satisfied
   for(auto v = 0; v < G.V(); v++) {
-    for(auto e : G.adj(v)) {
+    for(const auto& e : G.adj(v)) {
       if (e->flow() < -EPSILON || e->flow() > e->capacity() + EPSILON) {
 	m_hasError = true;
 	m_errMsg = "Ford Fulkerson: Edge does not satisfy capacity constraints";

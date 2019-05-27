@@ -20,7 +20,6 @@
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include <utility>  // std::pair
 #include <set>
 
 

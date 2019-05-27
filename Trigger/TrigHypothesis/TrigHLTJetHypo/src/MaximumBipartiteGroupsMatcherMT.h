@@ -22,7 +22,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 #include <optional>
-#include <map>
 
 class ITrigJetHypoInfoCollector;
 

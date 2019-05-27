@@ -16,7 +16,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <string>
 #include <memory>
-#include <ostream>
 
 class ITrigJetHypoInfoCollector;
 

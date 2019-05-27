@@ -109,7 +109,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
 
   // finally add the jet - sink edges.
 
-  for(const auto j: jets){
+  for(const auto& j: jets){
       edges.push_back(std::make_shared<FlowEdge>(j.second,
 						 V-1,
 						 unitCapacity));
