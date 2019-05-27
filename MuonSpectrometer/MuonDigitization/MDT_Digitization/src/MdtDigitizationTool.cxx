@@ -59,6 +59,8 @@
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 
+static constexpr double s_inv_c_light(1./Gaudi::Units::c_light);
+
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
 {
@@ -958,9 +960,9 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId) const {
     distanceToVertex = element->tubePos(DigitId).mag(); 
   }
   
-  ATH_MSG_DEBUG( "minimumTof calculated " << distanceToVertex*m_inv_c_light);
+  ATH_MSG_DEBUG( "minimumTof calculated " << distanceToVertex*s_inv_c_light);
   
-  return distanceToVertex*m_inv_c_light;
+  return distanceToVertex*s_inv_c_light;
 }
 
 
