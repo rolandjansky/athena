@@ -12,6 +12,7 @@ from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuName
 
 _flags = []
 
+
 # Define Default Flags
 class doLVL1(JobProperty):
     """ run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file) """
@@ -135,6 +136,22 @@ class doHLT(JobProperty):
 
             
 _flags.append(doHLT)
+
+# Define Default Flags
+class doMTHLT(JobProperty):
+    """ Run upgrade type of config """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=False
+
+    def __call__(self):
+        from AthenaCommon.ConcurrencyFlags import jobproperties
+        self.set_Value( jobproperties.ConcurrencyFlags.NumThreads >= 1 )
+        self.__call__ = lambda s: s.get_Value()
+        return jobproperties.ConcurrencyFlags.NumThreads >= 1
+
+        
+_flags.append(doMTHLT)
 
 
 class doMergedHLTResult(JobProperty):
