@@ -27,6 +27,12 @@ atlas_add_component( G4AtlasServices
                      src/components/*.cxx
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils G4AtlasInterfaces G4AtlasToolsLib MagFieldInterfaces)
+                      
+#test G4AtlasFieldServices
+atlas_add_test( G4AtlasFieldServices_test
+                SCRIPT test/G4AtlasFieldServices_test.py
+                PROPERTIES TIMEOUT 300 )
+
 
 # Install files from the package:
 atlas_install_headers( G4AtlasServices )
