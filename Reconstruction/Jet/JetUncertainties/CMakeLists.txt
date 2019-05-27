@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/AnalysisCommon/PATCore 
    Reconstruction/Jet/JetCPInterfaces
    Reconstruction/Jet/BoostedJetTaggers
    PRIVATE
@@ -38,7 +39,7 @@ atlas_add_library( JetUncertaintiesLib
    PUBLIC_HEADERS JetUncertainties
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces
-   JetCPInterfaces
+   JetCPInterfaces PATCoreLib
    PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver )
 
 if( NOT XAOD_STANDALONE )
