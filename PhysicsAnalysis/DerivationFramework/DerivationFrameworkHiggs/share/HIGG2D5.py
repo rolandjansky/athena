@@ -458,32 +458,47 @@ if not SkipTriggerRequirement:
         # 13 TeV data
         # TriggerJPSI               = ["HLT_mu26_imedium", "HLT_mu50", "HLT_2mu14", "HLT_mu24_mu8noL1"]
         # TriggerJPSI               = ["HLT_mu24_imedium", "HLT_mu26_imedium", "HLT_mu50", "HLT_2mu10", "HLT_2mu14", "HLT_mu24_mu8noL1", "HLT_g35_loose_L1EM22VHI_mu18noL1", "HLT_g25_medium_mu24", "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1", "HLT_g15_loose_2mu10_msonly", "HLT_mu18_mu8noL1", "HLT_mu22_mu8noL1"]
-        TriggerJPSI = ["HLT_g25_medium_mu24", "HLT_mu26_ivarmedium", "HLT_g35_loose_L1EM22VHI_mu18noL1", "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1"]
+        TriggerJPSI = ["HLT_g25_medium_mu24", "HLT_mu26_ivarmedium", "HLT_g35_loose_L1EM22VHI_mu18noL1", "HLT_g35_loose_L1EM22VHI_mu15noL1_mu2noL1",
+            "HLT_g35_loose_L1EM24VHI_mu18noL1",#2016
+            "HLT_g35_tight_icalotight_L1EM24VHIM_mu18noL1", #2017-18
+            "HLT_g35_tight_icalotight_L1EM24VHIM_mu15noL1_mu2noL1", #2017-18
+            "HLT_g35_tight_icalotight_L1EM24VHI_mu18noL1", #2017-18
+            "HLT_g35_tight_icalotight_L1EM24VHI_mu15noL1_mu2noL1"] #2017-18
         TriggerPHI  = ["HLT_g35_medium_tau25_dikaontight_tracktwo_L1TAU12",  #2015
                        "HLT_g35_medium_tau25_dikaonmasstight_tracktwo_L1TAU12",  #2016
                        "HLT_g25_medium_tau25_dikaonmasstight_tracktwo_60mVis10000", #2016
                        "HLT_g25_medium_tau25_dikaonmass_tracktwo_50mVis10000", #2016 
                        "HLT_g25_medium_L1EM24VHI_tau25_dikaonmass_tracktwo_50mVis10000" #2016+2017
-                       "HLT_g25_medium_L1EM24VHIM_tau25_dikaonmass_tracktwo_50mVis10000", #2017
-                       "HLT_g25_medium_tau25_dikaonmass_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                       "HLT_g25_medium_L1EM24VHIM_tau25_dikaonmass_tracktwo_50mVis10000", #2017 + 2018
+                       "HLT_g25_medium_tau25_dikaonmass_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017 (with L1Topo)
+                       "HLT_g25_medium_L1EM24VHI_tau25_dikaonmass_tracktwoEF_50mVis10000", #2018
+                       "HLT_g25_medium_L1EM24VHI_tau25_dikaonmass_tracktwoMVA_50mVis10000"] #2018
         TriggerRHO  = ["HLT_g35_medium_tau25_dipion1_tracktwo_L1TAU12", #2016
                        "HLT_g25_medium_tau25_dipion1loose_tracktwo_50mVis10000", #2016
                        "HLT_g25_medium_L1EM24VHI_tau25_dipion1loose_tracktwo_50mVis10000", #2016+2017
                        "HLT_g25_medium_L1EM24VHIM_tau25_dipion1loose_tracktwo_50mVis10000", #2017
-                       "HLT_g25_medium_tau25_dipion1loose_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                       "HLT_g25_medium_tau25_dipion1loose_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017+2018
+                       "HLT_g25_medium_L1EM24VHI_tau25_dipion1loose_tracktwoEF_50mVis10000", #2018
+                       "HLT_g25_medium_L1EM24VHI_tau25_dipion1loose_tracktwoMVA_50mVis10000"] #2018
         TriggerKSHORT = ["HLT_g35_medium_tau25_dipion2_tracktwo_L1TAU12", #2016
                          "HLT_g25_medium_tau25_dipion2_tracktwo_50mVis10000", #2016
                          "HLT_g25_medium_L1EM24VHI_tau25_dipion2_tracktwo_50mVis10000", #2016+2017
                          "HLT_g25_medium_L1EM24VHIM_tau25_dipion2_tracktwo_50mVis10000", #2017
-                         "HLT_g25_medium_tau25_dipion2_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                         "HLT_g25_medium_tau25_dipion2_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017
+                         "HLT_g25_medium_L1EM24VHI_tau25_dipion2_tracktwoEF_50mVis10000", #2018
+                         "HLT_g25_medium_L1EM24VHI_tau25_dipion2_tracktwoMVA_50mVis10000"] #2018
         TriggerKSTAR= ["HLT_g35_medium_tau25_kaonpi1_tracktwo_L1TAU12", #2016
                        "HLT_g25_medium_L1EM24VHI_tau25_kaonpi1_tracktwo_50mVis10000",  #2016+2017
                        "HLT_g25_medium_L1EM24VHIM_tau25_kaonpi1_tracktwo_50mVis10000", #2017
-                       "HLT_g25_medium_tau25_kaonpi1_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                       "HLT_g25_medium_tau25_kaonpi1_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017
+                       "HLT_g25_medium_L1EM24VHI_tau25_kaonpi1_tracktwoEF_50mVis10000",
+                       "HLT_g25_medium_L1EM24VHI_tau25_kaonpi1_tracktwoMVA_50mVis10000"] #2017
         TriggerD0   = ["HLT_g35_medium_tau25_kaonpi2_tracktwo_L1TAU12", #2016
                        "HLT_g25_medium_L1EM24VHI_tau25_kaonpi2_tracktwo_50mVis10000", #2016+2017
                        "HLT_g25_medium_L1EM24VHIM_tau25_kaonpi2_tracktwo_50mVis10000", #2017
-                       "HLT_g25_medium_tau25_kaonpi2_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                       "HLT_g25_medium_tau25_kaonpi2_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017
+                       "HLT_g25_medium_L1EM24VHI_tau25_kaonpi2_tracktwoEF_50mVis10000",#2018
+                       "HLT_g25_medium_L1EM24VHI_tau25_kaonpi2_tracktwoMVA_50mVis10000"] #2018
         TriggerRHO+=TriggerKSHORT
         TriggerRHO+=TriggerKSTAR
         TriggerRHO+=TriggerD0
@@ -492,7 +507,9 @@ if not SkipTriggerRequirement:
                              "HLT_g25_medium_tau25_singlepion_tracktwo_50mVis10000", #2016
                              "HLT_g25_medium_L1EM24VHI_tau25_singlepion_tracktwo_50mVis10000", #2016+2017
                              "HLT_g25_medium_L1EM24VHIM_tau25_singlepion_tracktwo_50mVis10000", #2017
-                             "HLT_g25_medium_tau25_singlepion_tracktwo_50mVis10000_L130M-EM20ITAU12"] #2017
+                             "HLT_g25_medium_tau25_singlepion_tracktwo_50mVis10000_L130M-EM20ITAU12", #2017
+                             "HLT_g25_medium_L1EM24VHI_tau25_singlepion_tracktwoEF_50mVis10000", #2018
+                             "HLT_g25_medium_L1EM24VHI_tau25_singlepion_tracktwoMVA_50mVis10000"] #2018
 
 
 #print "HIGG2D5.py TriggerJPSI", TriggerJPSI
