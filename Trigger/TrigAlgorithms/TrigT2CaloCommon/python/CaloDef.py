@@ -30,7 +30,7 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='Cells
 def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
-   algo.CaloClusters="caloclusters"
+   algo.CaloClusters="HLT_TopoCaloCluster"
    algo.OutputLevel=OutputLevel
    return algo
 

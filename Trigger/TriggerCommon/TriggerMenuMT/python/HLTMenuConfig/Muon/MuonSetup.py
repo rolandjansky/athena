@@ -599,7 +599,6 @@ def muEFCBRecoSequence( RoIs, name ):
 
   #Get last tracks from the list as input for other alg
 
-  ##Not added to the sequence! Causing stall
   PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   muEFCBRecoSequence += PTSeq
 
@@ -683,9 +682,9 @@ def muEFCBRecoSequence( RoIs, name ):
   return muEFCBRecoSequence, eventAlgs, sequenceOut
 
 
-def efmuisoRecoSequence( RoIs ):
+def efmuisoRecoSequence( RoIs, Muons ):
 
-  from AthenaCommon.CFElements import parOR
+  from AthenaCommon.CFElements import parOR, seqAND
 
   efmuisoRecoSequence = parOR("efmuIsoViewNode")
 
@@ -713,12 +712,16 @@ def efmuisoRecoSequence( RoIs ):
   from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso")
 
+  PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )
+  efmuisoRecoSequence += PTSeq
+
   # set up algs
   from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
   trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso")
-  trigEFmuIso.MuonEFContainer = muEFCBInfo
+  trigEFmuIso.MuonEFContainer = Muons
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
+  trigEFmuIso.MuonContName = "MuonsIso"
 
   efmuisoRecoSequence += trigEFmuIso
 

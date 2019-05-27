@@ -55,7 +55,7 @@ def generatePhotonsCfg( flags ):
     l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
 
 
-    from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg
+    from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg
     
     
     l2CaloReco = RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags )

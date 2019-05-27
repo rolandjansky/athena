@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "McEventSelector/McEventCnv.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "McEventSelector/McAddress.h"
 #include "McEventSelector/McCnvSvc.h"
 #include "EventInfo/EventInfo.h"

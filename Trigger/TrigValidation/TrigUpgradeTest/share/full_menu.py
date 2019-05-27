@@ -17,7 +17,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 
 testChains = []
 
@@ -32,17 +32,20 @@ inDetSetup()
 if opt.doElectronSlice == True:
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    fastCaloStep=fastCaloMenuSequence("Ele")
-    electronStep=electronMenuSequence()
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, electronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloStep = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
+    electronStep = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    precisionCaloStep = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    step1=ChainStep("ElectronFastCalo", [fastCaloStep])
+    step2=ChainStep("ElectronFastTrack", [electronStep])
+    step3=ChainStep("ElectronPrecisionCalo", [precisionCaloStep])
 
     egammaChains  = [
         Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
         ]
     testChains += egammaChains
 
@@ -157,8 +160,6 @@ if opt.doJetSlice == True:
     testChains += jetChains
 
 
-
-
 ##################################################################
 # bjet chains
 ##################################################################
@@ -175,8 +176,11 @@ if opt.doBJetSlice == True:
         ]
     testChains += bjetChains
     
+##################################################################
+# tau chains
+##################################################################
 if opt.doTauSlice == True:
-  from TrigUpgradeTest.tauMenuDefs import getTauSequence
+  from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
   step1=ChainStep("Step1_tau", [getTauSequence('calo')])
   step2=ChainStep("Step2_tau", [getTauSequence('track_core')])
   
