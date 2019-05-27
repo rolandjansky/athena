@@ -8,8 +8,7 @@ atlas_subdir( IdDictDetDescrCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/AtlasDetDescr
@@ -29,7 +28,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( IdDictDetDescrCnv
                      src/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps CxxUtils SGTools StoreGateLib SGtests AtlasDetDescr DetDescrCnvSvcLib GeoModelUtilities IdDictDetDescr IdDictParser Identifier GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr DetDescrCnvSvcLib GeoModelUtilities IdDictDetDescr IdDictParser Identifier GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( IdDictDetDescrCnv )
