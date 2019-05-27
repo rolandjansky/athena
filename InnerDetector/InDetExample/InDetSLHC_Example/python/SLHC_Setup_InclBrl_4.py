@@ -71,6 +71,7 @@ class SLHC_Setup_XMLReader :
               SLHC_Flags.LayoutOption == "InclinedDuals_fudgeStSup30pct" or SLHC_Flags.LayoutOption == "InclinedDuals_fudgeStSupInner30pct" or SLHC_Flags.LayoutOption == "InclinedDuals_fudgeStSupOuter30pct"):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_InclinedDuals",
                                  PixelEndcapLayout = "ECRing4Ref_InclinedDuals",
+                                 PixelModules = "ITK_PixelModules",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
                                  dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                                  createXML = True,
@@ -331,8 +332,8 @@ class SLHC_Setup :
           from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
           geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
           toolSvc+=geoLayerOuterTool
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
+          geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
           toolSvc+=geoLayerInnerTool
   
           print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
