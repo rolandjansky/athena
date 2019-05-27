@@ -34,6 +34,7 @@ atlas_depends_on_subdirs(
    Tools/PathResolver
    PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+   PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools
    Reconstruction/egamma/egammaInterfaces
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools)
 
@@ -48,7 +49,7 @@ atlas_add_component( DerivationFrameworkHiggs
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
    xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth FourMomUtils TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
-   GaudiKernel VxVertex xAODTrigger PhotonVertexSelection AthContainers
+   GaudiKernel VxVertex xAODTrigger PhotonVertexSelection GammaORToolsLib AthContainers
    TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib)
 
 # Install files from the package:

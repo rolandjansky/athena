@@ -6,7 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets,addQGTaggerTool
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -536,14 +536,14 @@ ToolSvc += HIGG3D3SkimmingTool
 
 skimmingTools = []
 
-HIGG33D1DSIDList = [361020, 361021, 361022, 361023, 361024, 361025, 361026, 361027, 361028, 361029, 361030, 361031, 361032,
-                    361000, 361001, 361002, 361003, 361004, 361005, 361006, 361007, 361008, 361009, 361010, 361011, 361012,
-                    426131, 426132, 426133, 426134, 426135, 426136, 426137, 426138, 426139, 426140, 426141, 426142,
-                    426040, 426041, 426042, 426043, 426044, 426045, 426046, 426047, 426048, 426049, 426050, 426051, 426052,
-                    364430, 364431, 364432, 364433, 364434, 364435, 364436, 364437, 364438, 364439, 364440, 364441, 364442, 364443, 364444, 364445, 364446, 364447, 364448, 364449, 364450, 364451, 364452, 364453,
-                    363701, 363702, 363703, 363704, 363705, 363706, 363707, 363708, 363709, 363710, 363711, 363712, 363713, 363714, 363715,
-                    426101, 426102, 426103, 426104, 426105, 426106, 426107, 426108, 426109,
-                    426001, 426002, 426003, 426004, 426005, 426006, 426007, 426008, 426009]
+HIGG3D3DSIDList = [361020, 361021, 361022, 361023, 361024, 361025, 361026, 361027, 361028, 361029, 361030, 361031, 361032,
+                   361000, 361001, 361002, 361003, 361004, 361005, 361006, 361007, 361008, 361009, 361010, 361011, 361012,
+                   426131, 426132, 426133, 426134, 426135, 426136, 426137, 426138, 426139, 426140, 426141, 426142,
+                   426040, 426041, 426042, 426043, 426044, 426045, 426046, 426047, 426048, 426049, 426050, 426051, 426052,
+                   364430, 364431, 364432, 364433, 364434, 364435, 364436, 364437, 364438, 364439, 364440, 364441, 364442, 364443, 364444, 364445, 364446, 364447, 364448, 364449, 364450, 364451, 364452, 364453,
+                   363701, 363702, 363703, 363704, 363705, 363706, 363707, 363708, 363709, 363710, 363711, 363712, 363713, 363714, 363715,
+                   426101, 426102, 426103, 426104, 426105, 426106, 426107, 426108, 426109,
+                   426001, 426002, 426003, 426004, 426005, 426006, 426007, 426008, 426009]
 
 if globalflags.DataSource()=='geant4':
     import PyUtils.AthFile as af
@@ -552,7 +552,7 @@ if globalflags.DataSource()=='geant4':
     # Apply a prescale to mc in order to keep the overall format size under control
     if len(f.mc_channel_number) > 0:
         # but only if it's not dijet
-        if(int(f.mc_channel_number[0]) not in HIGG33D1DSIDList):
+        if(int(f.mc_channel_number[0]) not in HIGG3D3DSIDList):
             from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
             mcPrescaleTool = DerivationFramework__PrescaleTool(name = "HIGG3D3MCPrescaleTool",
                                                                Prescale = 5)
@@ -569,6 +569,8 @@ higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
 #====================================================================
 # needed for non-prompt lepton tagging below
 reducedJetList = ["AntiKt4PV0TrackJets"]
+if globalflags.DataSource()=='geant4':
+    reducedJetList += ["AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 
 #===================================================================
@@ -578,27 +580,30 @@ replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
 
 #====================================================================
+# QG tagging
+#====================================================================
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d3Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d3Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets')
+
+#====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
 # import the JetTagNonPromptLepton config and add to the private sequence
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg3d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-#========================================
-# CREATE THE DERIVATION KERNEL ALGORITHMS
-#========================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-higg3d3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_skimming",
-                                                              SkimmingTools     = skimmingTools,
-                                                              AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool] # needed by skimming
-                                                              )
-
-DerivationFrameworkJob += higg3d3PreSeq
-higg3d3PreSeq += higg3d3Seq
-
-higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_thinning",
-                                                           ThinningTools = thinningTools
+#====================================================================
+# Truth decoration tool
+#====================================================================
+augmentationTools=[]
+if globalflags.DataSource()=='geant4':
+    from DerivationFrameworkHiggs.HIGG3DxAugmentation import getHIGG3TruthDecoratorTool
+    HIGG3D3TruthDecoratorTool = getHIGG3TruthDecoratorTool(outputStream = HIGG3D3Stream,
+                                                           toolNamePrefix = "HIGG3D3"
                                                            )
+    ToolSvc += HIGG3D3TruthDecoratorTool
+    augmentationTools.append(HIGG3D3TruthDecoratorTool)
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -651,6 +656,26 @@ if globalflags.DataSource()=='geant4':
                                                }
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
+    HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3TruthDecoratorVariables)
+
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+higg3d3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_skimming",
+                                                              SkimmingTools     = skimmingTools,
+                                                              AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool] # needed by skimming
+                                                              )
+
+DerivationFrameworkJob += higg3d3PreSeq
+higg3d3PreSeq += higg3d3Seq
+
+higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_thinning",
+                                                           ThinningTools = thinningTools
+                                                           )
+higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_augmentation",
+                                                           AugmentationTools = augmentationTools
+                                                           )
 
 # Add Trigger content
 HIGG3D3SlimmingHelper.IncludeMuonTriggerContent = True
