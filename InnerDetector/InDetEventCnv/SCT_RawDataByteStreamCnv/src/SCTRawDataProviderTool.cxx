@@ -44,22 +44,20 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
-  StatusCode sc{StatusCode::SUCCESS};
-
   // Retrieve or prepare the already decoded ROBIDs in this thread.
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
   std::lock_guard<std::mutex> lock{m_mutex};
   if (slot<m_cache.size() and m_cache[slot]==evt) {
     // Cache is valid. Do nothing
-  } else {
+  }
+  else {
     // Expand cache if necessary
     static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
     if (slot>=m_cache.size()) {
       m_cache.resize(slot+1, invalidValue);
       m_robIDSet.resize(slot+1);
     }
-
     // Set event number and clear cache for the new event
     m_cache[slot] = evt;
     m_robIDSet[slot].clear();
@@ -67,13 +65,14 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   //  m_robIDSet[slot] is the already decoded ROBIDs in this thread.
 
   // loop over the ROB fragments
+  StatusCode sc{StatusCode::SUCCESS};
   std::set<uint32_t> tmpROBIDSet;
   for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
     uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
     if (m_robIDSet[slot].count(robid) or tmpROBIDSet.count(robid)) {
-      ATH_MSG_DEBUG(" ROB Fragment with ID  "
+      ATH_MSG_DEBUG(" ROB Fragment with ID "
                     << std::hex<<robid << std::dec
                     << " already decoded, skip");
       continue;
