@@ -157,8 +157,6 @@ if opt.doJetSlice == True:
     testChains += jetChains
 
 
-
-
 ##################################################################
 # bjet chains
 ##################################################################
@@ -175,8 +173,11 @@ if opt.doBJetSlice == True:
         ]
     testChains += bjetChains
     
+##################################################################
+# tau chains
+##################################################################
 if opt.doTauSlice == True:
-  from TrigUpgradeTest.tauMenuDefs import getTauSequence
+  from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
   step1=ChainStep("Step1_tau", [getTauSequence('calo')])
   step2=ChainStep("Step2_tau", [getTauSequence('track_core')])
   

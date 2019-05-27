@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 
