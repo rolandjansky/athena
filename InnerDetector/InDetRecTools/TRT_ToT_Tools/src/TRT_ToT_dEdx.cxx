@@ -729,13 +729,13 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool DivideByL, bool useHThit
 
 	if(DivideByL) SwitchOnDivideByL();
 	else{
-	  ATH_MSG_Warning("dEdx(): DivideByL=false is an unused option. DivideByL is set to true.");
+	  ATH_MSG_WARNING("dEdx(): DivideByL=false is an unused option. DivideByL is set to true.");
 	  SwitchOnDivideByL();
 	}
 
 	if(useHThits) SwitchOnUseHThits();
 	else{
-	  ATH_MSG_Warning("dEdx(): useHThits=false is an unused option. useHThits is set to true.");
+	  ATH_MSG_WARNING("dEdx(): useHThits=false is an unused option. useHThits is set to true.");
 	  SwitchOnUseHThits();
 	}
 
@@ -925,13 +925,13 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool DivideByL, bool useH
 {
         if(DivideByL) SwitchOnDivideByL();
 	else{
-	  ATH_MSG_Warning("usedHits(): DivideByL=false is an unused option. DivideByL is set to true.");
+	  ATH_MSG_WARNING("usedHits(): DivideByL=false is an unused option. DivideByL is set to true.");
 	  SwitchOnDivideByL();
 	}
 
 	if(useHThits) SwitchOnUseHThits();
 	else{
-	  ATH_MSG_Warning("usedHits(): useHThits=false is an unused option. useHThits is set to true.");
+	  ATH_MSG_WARNING("usedHits(): useHThits=false is an unused option. useHThits is set to true.");
 	  SwitchOnUseHThits();
 	}
 
