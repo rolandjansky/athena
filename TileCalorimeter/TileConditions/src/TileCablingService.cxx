@@ -5,8 +5,6 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -14,14 +12,10 @@
 // Singleton method
 
 //------------------------------------------------------------
-TileCablingService * TileCablingService::instance(bool del)
+TileCablingService * TileCablingService::getInstance()
 {
-    static  TileCablingService * cablingService = new TileCablingService();
-    if (del) {
-        delete cablingService;
-        cablingService = 0;
-    }
-    return cablingService;
+    static TileCablingService cablingService ATLAS_THREAD_SAFE;
+    return &cablingService;
 }
 
 // default constructor
@@ -41,7 +35,6 @@ TileCablingService::TileCablingService()
   , m_run3(false)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_maxGains(TileCalibUtils::MAX_GAIN)
-  , m_msg("TileCablingService")
 {
   m_testBeam = false;
   // old cabling for simulation - no special EB modules, wrong numbers for E1-E4
@@ -217,7 +210,7 @@ TileCablingService::setTestBeam (bool testBeam)
   }
 }
 
-void
+bool
 TileCablingService::setCablingType(TileCablingService::TileCablingType type)
 { 
 // cabling type can be:
@@ -229,8 +222,6 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
   m_cablingType = type;
 
   m_maxGains = std::round(((double) m_tileID->adc_hash_max()) / m_tileID->pmt_hash_max());
-
-  ATH_MSG_DEBUG("Detected maximum number of gains: " << m_maxGains);
 
   if (TileCablingService::TestBeam == type || TileCablingService::OldSim == type) {
     // old cabling for simulation - no special EB modules, wrong numbers for E1-E4
@@ -322,12 +313,12 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
         }
         
       } else {
-        ATH_MSG_ERROR("Tile ID helpers should be set up before setting UpgradeABC cabling type!");
+        return false;
       }
-
     }
 
   }
+  return true;
 }
 
 void
@@ -1999,7 +1990,7 @@ TileCablingService::hwid2tbtype ( int drawer )
   // #define ADD_FADC_FRAG 0x006
   // #define ECAL_ADC_FRAG 0x007
   //
-   static int tbtype[8] = {
+   static const int tbtype[8] = {
      TileTBID::TDC_TYPE,
      TileTBID::ADC_TYPE,
      TileTBID::ADC_TYPE,
@@ -2017,7 +2008,7 @@ TileCablingService::hwid2tbtype ( int drawer )
 int
 TileCablingService::hwid2tbmodule ( int drawer, int /* channel */ )
 {
-  static int tbmodule[8] = {
+  static const int tbmodule[8] = {
     0,
     TileTBID::CRACK_WALL,
     TileTBID::BACK_WALL,

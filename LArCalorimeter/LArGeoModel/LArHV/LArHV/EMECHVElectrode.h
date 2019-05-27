@@ -7,6 +7,10 @@
 
 class EMECHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class EMECHVElectrode
 {
  public:
@@ -34,7 +38,11 @@ class EMECHVElectrode
   void voltage_current(int iGap, double& v, double& i) const;
 
   // HVLine no
+#ifndef SIMULATIONBASE
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo(int iGap) const;
+#endif
 
  private:
   EMECHVElectrode(const EMECHVElectrode& right);

@@ -368,13 +368,10 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
         }
         if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
         Identifier chId = m_idHelperTool->chamberId(id);
-        //Identifier layId = m_idHelperTool->layerId(id);
+	// for is summary sTGC split STGC1 and STGC2 
+        if(issTgc) chId = m_idHelperTool->detElId(id);
         bool isFirst =  isFirstProjection(id);
         bool isMdt = m_idHelperTool->isMdt(id);
-
-// 	if( m_idHelperTool->isTrigger(id) ){
-// 	  ATH_MSG_INFO("Found trigger hole " << m_idHelperTool->toString(id) );
-// 	}
 
 	// check whether first chamber or new chamber
         if( !currentChamberSummary || currentChamberSummary->m_chId != chId ){
@@ -513,6 +510,9 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     }
 
     Identifier chId = m_idHelperTool->chamberId(id);
+    // for is summary sTGC split STGC1 and STGC2 
+    bool issTgc = m_idHelperTool->issTgc(id);
+    if(issTgc) chId = m_idHelperTool->detElId(id);
     bool isFirst =  isFirstProjection(id);
     bool isMdt = m_idHelperTool->isMdt(id);
     ATH_MSG_VERBOSE(" Adding hit " << m_idHelperTool->toString(id));

@@ -7,6 +7,10 @@
 
 class FCALHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class FCALHVLine
 {
  public:
@@ -25,8 +29,11 @@ class FCALHVLine
   // Voltage and current at the same time:
   void voltage_current(double& v, double& i) const;
 
-  // HVLine no
+#ifndef SIMULATIONBASE
+  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo() const;
+#endif
 
  private: 
   FCALHVLine(const FCALHVLine& right);

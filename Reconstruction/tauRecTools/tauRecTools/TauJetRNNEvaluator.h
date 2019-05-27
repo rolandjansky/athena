@@ -61,7 +61,6 @@ private:
     std::string m_weightfile_0p;
     std::string m_weightfile_1p;
     std::string m_weightfile_3p;
-    std::size_t m_min_charged_tracks;
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
     float m_max_cluster_dr;

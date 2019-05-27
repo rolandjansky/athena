@@ -78,15 +78,6 @@ private:
   int m_nTwoSideEndcapC_ev[SCT_Monitoring::N_DISKS]{};
   int m_nNonGoodModulesEndcapC_ev[SCT_Monitoring::N_DISKS]{};
   
-  float m_d1{0.0f};
-  float m_n1{0.0f};
-  float m_n1Barrel[SCT_Monitoring::N_BARRELS]{};
-  float m_n1EndcapA[SCT_Monitoring::N_DISKS]{};
-  float m_n1EndcapC[SCT_Monitoring::N_DISKS]{};
-  float m_d1Barrel[SCT_Monitoring::N_BARRELS]{};
-  float m_d1EndcapA[SCT_Monitoring::N_DISKS]{};
-  float m_d1EndcapC[SCT_Monitoring::N_DISKS]{};
-  
   bool m_noSidesHit{false};
   bool m_oneSideHit{false};
   bool m_twoSidesHit{false};
@@ -159,7 +150,6 @@ private:
   TH1F_LW* m_NOEVECC[SCT_Monitoring::N_DISKS]{};
   TH1F_LW* m_NOEVECA[SCT_Monitoring::N_DISKS]{};
   TH2F_LW* m_NOEV_RDO{nullptr};
-  TH2F_LW* m_NOEV_Eventnum{nullptr};
   TH1F_LW* m_side{nullptr};
   TH1F_LW* m_num_RDO{nullptr};
   TH1F_LW* m_NZ1{nullptr};

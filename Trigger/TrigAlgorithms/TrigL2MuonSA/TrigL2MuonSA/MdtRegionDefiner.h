@@ -9,8 +9,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
-
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "TrigL2MuonSA/TgcFit.h"

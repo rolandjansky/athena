@@ -1,18 +1,19 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Random.h        
-//            singleton random number generator wrapper, for the 
-//            root TRandom3 Mersenne Twistor generator, 
-//            623-diminsionally equidistributed uniform generator.                
-//               from ACM Trans. Mod. Comp. Sim. Vol 8-1 (1998) 3.
-//            This wrapper is to avoid global variables cluttering 
-//            up the place - root is bad enough as it is.
-//
-//
-//   $Id: Random.h, v0.0   Fri 27 Jan 2012 11:39:47 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Random.h
+ **
+ **       singleton random number generator wrapper, for the 
+ **       root TRandom3 Mersenne Twistor generator, 
+ **       623-diminsionally equidistributed uniform generator.                
+ **       from ACM Trans. Mod. Comp. Sim. Vol 8-1 (1998) 3.
+ **       This wrapper is to avoid global variables cluttering 
+ **       up the place - root is bad enough as it is.
+ **
+ **     @author  mark sutton
+ **     @date    Fri 27 Jan 2012 11:39:47 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef   RANDOM_H

@@ -193,7 +193,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
            for (unsigned int i=0;i<nelec;i++) {
              const EMBHVElectrode& electrode = cell->getElectrode(i);
              for (unsigned int igap=0;igap<2;igap++) {
-               if ((unsigned)electrode.hvLineNo(igap)==HVline) {
+               if ((unsigned)electrode.hvLineNo(igap,hvCabling)==HVline) {
                   list.push_back(2*i+igap);
                }
              } 
@@ -214,7 +214,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
            for (unsigned int i=0;i<nelec;i++) {
              const EMECHVElectrode& electrode = cell->getElectrode(i);
              for (unsigned int igap=0;igap<2;igap++) {
-               if ((unsigned)electrode.hvLineNo(igap)==HVline) {
+               if ((unsigned)electrode.hvLineNo(igap,hvCabling)==HVline) {
                   list.push_back(2*i+igap);
                }       
              }       
@@ -233,7 +233,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
           list.clear();
           HVline = m_hvlineHelper->hv_line(hwid);
           for (unsigned int igap=0;igap<2;igap++) {
-            if ((unsigned)hvmodule.hvLineNo(igap)==HVline) {
+            if ((unsigned)hvmodule.hvLineNo(igap,hvCabling)==HVline) {
               list.push_back(igap);
             }
           }
@@ -251,7 +251,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
          list.clear();
          HVline = m_hvlineHelper->hv_line(hwid);
          for (unsigned int igap=0;igap<2;igap++) {
-           if ((unsigned)hvmodule.hvLineNo(igap)==HVline) {
+           if ((unsigned)hvmodule.hvLineNo(igap,hvCabling)==HVline) {
              list.push_back(igap);
            }
          }
@@ -273,7 +273,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
         HVline = m_hvlineHelper->hv_line(hwid);
         for (unsigned int i=0;i<nsubgaps;i++) {
           const HECHVSubgap& subgap = cell->getSubgap(i);
-          if ((unsigned)subgap.hvLineNo()==HVline) {
+          if ((unsigned)subgap.hvLineNo(hvCabling)==HVline) {
             list.push_back(i);
           }
         }
@@ -295,7 +295,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
          for (unsigned int i=0;i<nlines;i++) {
            const FCALHVLine* line2 = tile->getHVLine(i);
            if (line2) {
-             if ((unsigned)line2->hvLineNo()==HVline) {
+             if ((unsigned)line2->hvLineNo(hvCabling)==HVline) {
                list.push_back(i);
              }
            }

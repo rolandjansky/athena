@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -28,8 +29,8 @@ class SCT_MonitorCondAlg : public AthReentrantAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/Derived/Monitoring", "Key of input (raw) noisy strip conditions folder"};
   SG::WriteCondHandleKey<SCT_MonitorCondData> m_writeKey{this, "WriteKey", "SCT_MonitorCondData", "Key of output (derived) noisy strip conditions data"};
-  const SCT_ID* m_helper;
-  ServiceHandle<ICondSvc> m_condSvc; 
+  const SCT_ID* m_helper{nullptr};
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_MONITORCONDALG

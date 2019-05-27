@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,18 +15,21 @@
  * @author A. R-Veronneau 26/02/07, Shaun Roe 4/4/2008
  **/
 
-//
+// Athena
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
-//
+
+// Gaudi
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventContext.h"
-//STL
+
+// STL
 #include <string>
 
 class SCT_ID;
@@ -74,15 +79,15 @@ public:
     
 private:
   //Key for DataHandle
-  BooleanProperty m_readAllDBFolders;
-  BooleanProperty m_returnHVTemp;
-  float m_barrel_correction;
-  float m_ecInner_correction;
-  float m_ecOuter_correction;
+  BooleanProperty m_readAllDBFolders{this, "ReadAllDBFolders", true};
+  BooleanProperty m_returnHVTemp{this, "ReturnHVTemp", true};
+  FloatProperty m_barrel_correction{this, "TempBarrelCorrection", -3.7};
+  FloatProperty m_ecInner_correction{this, "TempEcInnerCorrection", -13.1};
+  FloatProperty m_ecOuter_correction{this, "TempEcOuterCorrection", -15.5};
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState{this, "CondKeyState", "SCT_DCSStatCondData", "SCT DCS state"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_DCSHVCondData", "SCT DCS HV"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0{this, "CondKeyTemp0", "SCT_DCSTemp0CondData", "SCT DCS temperature on side 0"};
-  const SCT_ID* m_pHelper;
+  const SCT_ID* m_pHelper{nullptr};
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;

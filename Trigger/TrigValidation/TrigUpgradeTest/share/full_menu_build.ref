@@ -203,10 +203,18 @@ TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut ID#607
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
+TrigSignatureMoniMT                                INFO HLT_2mu4_bBmumu_L12MU4        20        20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bBmumu_L12MU4 decisions                    0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4     20        20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4     20        20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4 decisions                    0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6                      20        20        0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6 decisions                                0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb                  20        20        0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb decisions                            0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu6_bJpsimumu_L12MU6     20        20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu6_bJpsimumu_L12MU6 decisions                    0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_3j200                     20        20        0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_3j200 decisions                               0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240              20        20        0         0         0         0         0         
@@ -250,7 +258,7 @@ TrigSignatureMoniMT                                INFO HLT_mu6fast decisions   
 TrigSignatureMoniMT                                INFO HLT_mu6msonly                 20        20        3         0         2         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6msonly decisions                           3         0         2         0         
 TrigSignatureMoniMT                                INFO HLT_mu6nol1                   20        20        4         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6nol1 decisions                             6         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu6nol1 decisions                             5         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe30_L1XE10               20        20        12        0         0         0         12        
 TrigSignatureMoniMT                                INFO HLT_xe30_L1XE10 decisions                         12        0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe65_L1XE50               20        20        3         0         0         0         3         

@@ -44,7 +44,6 @@ public:
   ConditionsMT getConditions() const noexcept override;
 private:
   ConditionsMT m_conditions;
-  bool m_pass;
   FlowNetwork m_G;
 };
 

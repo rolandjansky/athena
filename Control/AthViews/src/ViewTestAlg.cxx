@@ -15,6 +15,7 @@
 
 // FrameWork includes
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthViews/View.h"
 
 namespace AthViews {
 
@@ -59,7 +60,19 @@ StatusCode ViewTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  ATH_MSG_INFO( name() << " running with store " << getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
+  auto theStore = getContext().getExtension<Atlas::ExtendedEventContext>().proxy();
+  ATH_MSG_INFO( name() << " running with store " << theStore->name() );
+
+  // Identify if this is a view
+  SG::View* theView = dynamic_cast< SG::View* >( theStore );
+  if ( theView )
+  {
+    ATH_MSG_INFO( theView->dump() );
+  }
+  else
+  {
+    ATH_MSG_INFO( "This is not an EventView" );
+  }
 
   return StatusCode::SUCCESS;
 }

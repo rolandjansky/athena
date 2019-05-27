@@ -80,11 +80,15 @@ public:
   /** Method to return the calo layers crossed  (CaloExtension)
    * by the IParticle track or the IParticle itself 
    * if it is  neutral/TruthParticle.
-   * An alg using the same IParticle multiple times can use a local  cache of
-   * the form std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>, 
-   * where the key is the  value of IParticle::index().
+   *
+   * An alg looping over a single collection of IParticles  
+   * re-using them multiple times can use a local  cache of
+   * the form 
+   * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>.
+   * The key is the  value of IParticle::index() 
+   *
    * This method adds the relevant extension to the cache look-up table 
-   * that retains their ownership. 
+   * which retains ownership. 
    *
    * @param particle      reference to the Particle
    * @param cache         the look-up table cache 

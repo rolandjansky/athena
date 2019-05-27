@@ -1274,7 +1274,8 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
 
   m_radlengthN = s*m_radlength; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
-  double covarianceAzim = covariancePola/((1.-m_A[2])*(1.+m_A[2]));
+  double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
+  double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
 
   if(Model==1) {

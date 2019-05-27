@@ -74,8 +74,8 @@ def CscBroadClusterOnTrackCreator(name="CscBroadClusterOnTrackCreator",**kwargs)
 
 def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
-    getService("MdtCalibrationSvc")
-    getService("MdtCalibrationDbSvc")
+    from MuonCnvExample import MuonCalibConfig
+    MuonCalibConfig.setupMdtCondDB()
     
     kwargs.setdefault("DoMagneticFieldCorrection", mdtCalibFlags.correctMdtRtForBField())
     kwargs.setdefault("DoWireSag", muonRecFlags.useWireSagCorrections())
@@ -340,7 +340,8 @@ def MuonSegmentMomentum(name="MuonSegmentMomentum",**kwargs):
 
 def MdtSegmentT0Fitter(name="MdtSegmentT0Fitter",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
-    getService("MdtCalibrationDbSvc")
+    from MuonCnvExample import MuonCalibConfig
+    MuonCalibConfig.setupMdtCondDB()
     return CfgMgr.TrkDriftCircleMath__MdtSegmentT0Fitter(name,**kwargs)
 
 def MdtMathSegmentFinder(name="MdtMathSegmentFinder",extraFlags=None,**kwargs):

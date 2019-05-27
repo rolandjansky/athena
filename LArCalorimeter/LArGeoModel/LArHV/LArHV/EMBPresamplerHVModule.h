@@ -5,14 +5,18 @@
 #ifndef LARHV_EMBPRESAMPLERHVMODULE_H
 #define LARHV_EMBPRESAMPLERHVMODULE_H
 
-class EMBPresamplerHVManager;
-
 /**
  * @class EMBPresamplerHVModule
  *
  * @brief Describes one HV Module within the EMB Presampler
  *
  */
+
+class EMBPresamplerHVManager;
+
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
 
 class EMBPresamplerHVModule
 {
@@ -43,7 +47,11 @@ class EMBPresamplerHVModule
   // Voltage and current at the same time...
   void voltage_current(int iGap, double& v, double& i) const;
   
+#ifndef SIMULATIONBASE
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo(int iGap) const;
+#endif
 
   const EMBPresamplerHVManager& getManager() const;
   

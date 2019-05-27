@@ -306,12 +306,6 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::setupEventST()
-{
-  return setupEvent();
-}
-
-//________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::releaseEvent()
 {
   ATH_MSG_DEBUG ( "release Event" );
@@ -355,12 +349,6 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::releaseEventST()
-{
-  return releaseEvent();
 }
 
 //________________________________________________________________________

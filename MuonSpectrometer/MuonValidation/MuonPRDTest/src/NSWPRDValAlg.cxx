@@ -118,7 +118,7 @@ StatusCode NSWPRDValAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ) );
 
-  ATH_CHECK( detStore()->retrieve( m_CscIdHelper ) );
+  if (m_doCSCDigit) ATH_CHECK( detStore()->retrieve( m_CscIdHelper ) );
 
   if (m_doTruth){
      m_TruthVar = new TruthVariables(&(*(evtStore())), m_detManager,

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -35,7 +37,7 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
  public:
   //@name Tool methods
   //@{
-  SCT_ModuleVetoTool(const std::string &type, const std::string &name, const IInterface *parent);
+  SCT_ModuleVetoTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_ModuleVetoTool() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
@@ -53,14 +55,14 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
  private:
-  StringArrayProperty m_badElements; //list of bad detector elements (= module sides)
-  SCT_ModuleVetoCondData m_localCondData;
-  const SCT_ID* m_pHelper;
-  bool m_useDatabase;
-  bool m_maskLayers;
-  int m_maskSide;
-  std::vector<int> m_layersToMask; 
-  std::vector<int> m_disksToMask; 
+  StringArrayProperty m_badElements{this, "BadModuleIdentifiers", {}, "list of bad detector elements (= module sides)"};
+  SCT_ModuleVetoCondData m_localCondData{};
+  const SCT_ID* m_pHelper{nullptr};
+  bool m_useDatabase{false};
+  BooleanProperty m_maskLayers{this, "MaskLayers", false, "Mask full layers/disks in overlay"};
+  IntegerProperty m_maskSide{this, "MaskSide", -1, "Mask full modules (-1), inner (0) or outer (1) sides"};
+  IntegerArrayProperty m_layersToMask{this, "LayersToMask", {}, "Which barrel layers to mask out, goes from 0 to N-1"};
+  IntegerArrayProperty m_disksToMask{this, "DisksToMask", {}, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero"}; 
 
   // ReadCondHandleKey
   SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey{this, "CondKey", "SCT_ModuleVetoCondData", "SCT modules to be vetoed"};

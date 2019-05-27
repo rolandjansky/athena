@@ -72,13 +72,13 @@ namespace Trk {
   inline bool SubtractedDiscSurface::insideBounds(const Amg::Vector2D& locpos, double tol1, double tol2) const
   {
     // no subtracted Volume exists
-    if (!m_subtrVol.getPtr()) return (this->bounds().inside(locpos,tol1,tol2)); 
+    if (!m_subtrVol.get()) return (this->bounds().inside(locpos,tol1,tol2)); 
     // subtracted Volume exists, needs to be checked
     double rPos   = locpos[Trk::locR];
     double phiPos = locpos[Trk::locPhi];
     Amg::Vector3D gp(rPos*cos(phiPos),rPos*sin(phiPos),0.);
-    if (m_shared) return (this->bounds().inside(locpos,tol1,tol2) && m_subtrVol.getPtr()->inside(gp,0.) );
-    bool in(this->bounds().inside(locpos,tol1,tol2) && !m_subtrVol.getPtr()->inside(gp,0.)) ;
+    if (m_shared) return (this->bounds().inside(locpos,tol1,tol2) && m_subtrVol.get()->inside(gp,0.) );
+    bool in(this->bounds().inside(locpos,tol1,tol2) && !m_subtrVol.get()->inside(gp,0.)) ;
 
     return in;
   }

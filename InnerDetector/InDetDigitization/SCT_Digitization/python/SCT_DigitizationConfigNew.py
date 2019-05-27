@@ -87,14 +87,9 @@ def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
 def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
-    if flags.Overlay.Legacy.MT:
-        kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
-        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
-    else:
-        acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-        kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+SCT_SDO_Map")
+    kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)

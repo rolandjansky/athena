@@ -80,10 +80,10 @@ namespace Reco {
         const Trk::VxCandidate* vertex() const { return m_vertex; }
       
         // Return the local position
-        const Amg::Vector2D* impactParameterBeamLineFrame() const { return (m_impactParameterBLFrame.getPtr()); };
+        const Amg::Vector2D* impactParameterBeamLineFrame() const { return (m_impactParameterBLFrame.get()); };
 
         // Return the Covariance Matrix*
-        const Amg::MatrixX* covarianceMatrixBeamLineFrame() const { return (m_covarianceMatrixBlFrame.getPtr()); }
+        const Amg::MatrixX* covarianceMatrixBeamLineFrame() const { return (m_covarianceMatrixBlFrame.get()); }
 
         // distances (1) : transverse
         double transverseDistance() const { return m_transverseDistance; }

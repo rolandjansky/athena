@@ -209,6 +209,15 @@ StatusCode TileBadChannelsCondAlg::execute() {
       ATH_MSG_INFO( "No TileBchStatus::isBadTiming() definition found in DB, using defaults" );
     }
 
+    //=== TileBchStatus.isWrongBCID() definition
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::WRONGBCID_DEFINITION_CHAN, 0, adcBits, channelBits);
+    channelStatus = m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
+    if (channelStatus.isAffected()) {
+      ATH_MSG_INFO( "Updating TileBchStatus::isWrongBCID() definition from DB" );
+      TileBchStatus::defineWrongBCID(channelStatus);
+    } else {
+      ATH_MSG_INFO( "No TileBchStatus::isWrongBCID() definition found in DB, using defaults" );
+    }
 
     //=== report current definitions
     ATH_MSG_INFO( "TileBchStatus::isBad() is defined by: "
@@ -219,7 +228,8 @@ StatusCode TileBadChannelsCondAlg::execute() {
                  << TileBchStatus::getDefinitionNoGainL1().getString() );
     ATH_MSG_INFO( "TileBchStatus::isBadTiming() is defined by: "
                  << TileBchStatus::getDefinitionBadTiming().getString() );
-
+    ATH_MSG_INFO( "TileBchStatus::isWrongBCID() is defined by: "
+                  << TileBchStatus::getDefinitionWrongBCID().getString() );
 
     // Find Tile drawers masked completely
     std::vector<int> maskedDrawers;

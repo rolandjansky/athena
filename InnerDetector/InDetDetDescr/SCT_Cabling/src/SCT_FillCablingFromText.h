@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -73,7 +75,7 @@ class SCT_FillCablingFromText: public extends<AthAlgTool, ISCT_FillCabling> {
 
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
 
-  mutable std::atomic_bool m_filled;
+  mutable std::atomic_bool m_filled{false};
   std::string m_source;
 };//end of class
 

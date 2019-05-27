@@ -18,8 +18,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_sctId{nullptr}
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 

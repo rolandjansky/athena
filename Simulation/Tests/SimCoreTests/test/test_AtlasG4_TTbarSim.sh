@@ -23,12 +23,16 @@ AtlasG4_tf.py \
 --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;' \
 --imf False
 
-echo  "art-result: $? simulation"
 
-ArtPackage=$1
-ArtJobName=$2
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-# TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"

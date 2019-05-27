@@ -37,6 +37,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_allowMetaDataStop(false),
+        m_outputPreprared(false),
 	m_persToClid(),
 	m_toolForClid(),
 	m_streamForKey() {
@@ -324,16 +325,20 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 StatusCode MetaDataSvc::prepareOutput()
 {
    StatusCode rc(StatusCode::SUCCESS);
-   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
-      if ( (*it)->metaDataStop().isFailure() ) {
-         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
-         rc = StatusCode::FAILURE;
+   // Check if already called
+   if (!m_outputPreprared) { 
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
+         if ( (*it)->metaDataStop().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+            rc = StatusCode::FAILURE;
+         }
+      }
+      if (!m_metaDataTools.release().isSuccess()) {
+         ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
    }
-   if (!m_metaDataTools.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-   }
+   m_outputPreprared=true;
    return rc;
 }
 
@@ -402,7 +407,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
 
-   // Set to be listener for end of event
+   // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 
    Incident metaDataStopIncident(name(), "MetaDataStop");
@@ -414,6 +419,8 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }
+   // Reset flag to allow calling prepareOutput again at next transition
+   m_outputPreprared = false;
 
    return(StatusCode::SUCCESS);
 }
@@ -426,6 +433,7 @@ StatusCode MetaDataSvc::io_reinit() {
  	     last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attached MetadDataTool: " << (*iter)->name());
    }
+   m_outputPreprared = false;
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

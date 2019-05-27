@@ -17,68 +17,67 @@
 #include <iostream>
 #include <iomanip>
 
-Trk::NoBounds Trk::StraightLineSurface::s_boundless;
+const Trk::NoBounds Trk::StraightLineSurface::s_boundless;
 
 // default constructor
 Trk::StraightLineSurface::StraightLineSurface() :
   Surface(),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds()
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans) :
   Surface(htrans),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds()
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans) :
   Surface(std::move(htrans)),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds()
 {}
 
 // constructors by arguments
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez) :
   Surface(htrans),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds(new Trk::CylinderBounds(radius, halez))
 {}
 
 // dummy implementation
 Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
   Surface(detelement,id),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds()
 {}
 
 //copy constructor
 Trk::StraightLineSurface::StraightLineSurface(const Trk::StraightLineSurface& slsf):
   Surface(slsf),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds(slsf.m_bounds)
 {}
 
 // copy constructor with shift
 Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, const Amg::Transform3D& transf) :
   Surface(csf, transf),
-  m_lineDirection(0),
+  m_lineDirection(nullptr),
   m_bounds(csf.m_bounds)
 {}
 
 // destructor (will call destructor from base class which deletes objects)
 Trk::StraightLineSurface::~StraightLineSurface()
 {
-    delete m_lineDirection;
 }
 
 // assignment operator
 Trk::StraightLineSurface& Trk::StraightLineSurface::operator=(const Trk::StraightLineSurface& slsf)
 {
   if (this!=&slsf){
-   delete m_lineDirection; m_lineDirection = 0;      
+   m_lineDirection.store(nullptr);      
    Trk::Surface::operator=(slsf);
    m_bounds = slsf.m_bounds;
   }
@@ -140,7 +139,7 @@ bool Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo,
 {
    if (!bchk) return true;
    // check whether this is a boundless surface
-   if (!(m_bounds.getPtr()) && !Surface::m_associatedDetElement) return true;
+   if (!(m_bounds.get()) && !Surface::m_associatedDetElement) return true;
    // get the standard bounds
    Amg::Vector3D loc3Dframe = (transform().inverse())*glopo;
    Amg::Vector2D locCand(loc3Dframe.perp(), loc3Dframe.z());
@@ -205,9 +204,9 @@ Trk::DistanceSolution Trk::StraightLineSurface::straightLineDistanceEstimate
   //
   double Rm = 20., Lzm = 1.e+10;
 
-  if (m_bounds.getPtr()) {
-    Rm  = m_bounds.getRef().r();
-    Lzm = m_bounds.getRef().halflengthZ();
+  if (m_bounds.get()) {
+    Rm  = m_bounds.get()->r();
+    Lzm = m_bounds.get()->halflengthZ();
   }
   else if (Surface::m_associatedDetElement) {
 

@@ -38,7 +38,7 @@ def _is_exit_early():
                   help='name of the TTree to compare')
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
-                  default=('Token',),
+                  default=('Token', 'index_ref',),
                   help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (without any trailing dots)')
 @acmdlib.argument('--enforce-leaves',
                   nargs='*',

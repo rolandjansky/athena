@@ -119,8 +119,10 @@ atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfi
                 PROPERTIES TIMEOUT 500 
               )
 
+atlas_add_test( ViewCFTest     SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest POST_EXEC_SCRIPT nopost.sh )
+
 atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
-                PROPERTIES TIMEOUT 1000 
+                PROPERTIES TIMEOUT 4000 
               )
 
 #----------------------------------

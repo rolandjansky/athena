@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -9,8 +9,8 @@
 //
 // ************************************************
 
-#include "src/TrigJetSplitterMT.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "TrigJetSplitterMT.h"
+#include "CxxUtils/phihelper.h"
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
@@ -19,13 +19,7 @@ TrigJetSplitterMT::TrigJetSplitterMT(const std::string& name, ISvcLocator* pSvcL
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-TrigJetSplitterMT::~TrigJetSplitterMT() {}
-
-// ----------------------------------------------------------------------------------------------------------------- 
-
 StatusCode TrigJetSplitterMT::initialize() {
-  ATH_MSG_INFO( "Initializing " << name() );
-
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_inputJetsKey     );
   ATH_MSG_DEBUG(  "   " << m_outputJetsKey    );
@@ -122,11 +116,6 @@ StatusCode TrigJetSplitterMT::execute() {
 
 
 
-StatusCode TrigJetSplitterMT::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode TrigJetSplitterMT::shortListJets( const xAOD::JetContainer* jetCollection,
 					     std::unique_ptr< xAOD::JetContainer >& outputJets,
 					     std::unique_ptr< TrigRoiDescriptorCollection >& roiContainer,
@@ -158,8 +147,8 @@ StatusCode TrigJetSplitterMT::shortListJets( const xAOD::JetContainer* jetCollec
     *toBeAdded = *jet;
 
     // Create RoI (we may require here PVz constraint)
-    double phiMinus = HLT::wrapPhi(jet->phi() - m_phiHalfWidth);
-    double phiPlus  = HLT::wrapPhi(jet->phi() + m_phiHalfWidth);
+    double phiMinus = CxxUtils::wrapToPi(jet->phi() - m_phiHalfWidth);
+    double phiPlus  = CxxUtils::wrapToPi(jet->phi() + m_phiHalfWidth);
 
     double etaMinus = jet->eta() - m_etaHalfWidth;
     double etaPlus  = jet->phi() + m_etaHalfWidth;

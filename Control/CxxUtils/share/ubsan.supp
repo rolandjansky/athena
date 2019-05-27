@@ -12,3 +12,11 @@ vptr_check:ToolHandle
 
 # Suppress downcast warnings from boost::any.
 vptr_check:holder
+
+# Suppress warning
+# /cvmfs/sft.cern.ch/lcg/releases/gcc/8.3.0.1-0a5ad/x86_64-centos7/include/c++/8.3.0/bits/stl_iterator.h:797:17: runtime error: reference binding to null pointer of type 'unsigned int'
+# caused in TStreamerInfoActions::VectorLooper::ReadCollectionBasicType<unsigned int>
+# when reading an empty vector:
+#         T *begin = &(*vec->begin());
+#         buf.ReadFastArray(begin, nvalues);
+null:stl_iterator.h

@@ -18,7 +18,7 @@
 void SurfaceCnv_p1::persToTrans( const Trk::Surface_p1 *persObj, Trk::Surface *transObj, MsgStream &) {
    transObj->m_associatedDetElementId = Identifier(Identifier32(persObj->m_associatedDetElementId)); 
    if( persObj->m_transform.size() ) {
-      transObj->m_transform = new Amg::Transform3D();
+      transObj->m_transform = std::make_unique<Amg::Transform3D>();
       // const std::vector<float>& vec = persObj->m_transform;
       // Amg::Transform3D& transform = *(transObj->m_transform);
       // std::cout<<"SurfaceCnv_p1::persToTrans - making Amg::Transform3D from vector:"<<std::endl;

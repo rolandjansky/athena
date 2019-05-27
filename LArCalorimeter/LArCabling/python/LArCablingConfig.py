@@ -43,6 +43,14 @@ def LArFebRodMappingCfg(configFlags):
 def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
 
+def LArIdMapCfg(configFlags):
+    """Return ComponentAccumulator configured with Identifier Map in POOL/COOL"""
+    # replaces LArIdMap_MC_jobOptions.py or LArIdMap_comm_jobOptions.py
+    result = LArOnOffIdMappingCfg(configFlags)
+    result.merge(LArFebRodMappingCfg(configFlags))
+    result.merge(LArCalibIdMappingCfg(configFlags))
+    return result
+
 
 if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator

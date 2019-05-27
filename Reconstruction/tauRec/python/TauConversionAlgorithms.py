@@ -117,7 +117,7 @@ def getPhotonConversionTool():
                                                     name = "MyInDetTrackSummaryTool",
                                                     InDetSummaryHelperTool = tauInDetTrackSummaryHelperTool,
                                                     doSharedHits           = False,
-                                                    InDetHoleSearchTool    = tauInDetHoleSearchTool)
+                                                    doHolesInDet           = True)
         ToolSvc += MyInDetTrackSummaryTool
 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter

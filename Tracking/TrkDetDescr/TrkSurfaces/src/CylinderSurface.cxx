@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,48 +21,48 @@
 Trk::CylinderSurface::CylinderSurface() :
   Trk::Surface(),
   m_bounds(),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // copy constructor
 Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf) :
   Trk::Surface(csf),
   m_bounds(csf.m_bounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // copy constructor with shift
 Trk::CylinderSurface::CylinderSurface(const CylinderSurface& csf, const Amg::Transform3D& transf) :
   Trk::Surface(csf, transf),
   m_bounds(csf.m_bounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by radius and halflength
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength) :
   Trk::Surface(htrans),
   m_bounds(new Trk::CylinderBounds(radius, hlength)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by radius, halflenght and phisector
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, double radius, double hphi, double hlength) :
   Trk::Surface(htrans),
   m_bounds(new Trk::CylinderBounds(radius, hphi, hlength)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by CylinderBounds
 Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBounds* cbounds):
   Trk::Surface(htrans),
   m_bounds(cbounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {
   assert(cbounds);
 }
@@ -71,8 +71,8 @@ Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBou
 Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans):
   Trk::Surface(std::move(htrans)),
   m_bounds(nullptr),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {
 }
 
@@ -80,24 +80,24 @@ Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans):
 Trk::CylinderSurface::CylinderSurface(double radius, double hlength) :
   Trk::Surface(0),
   m_bounds(new Trk::CylinderBounds(radius, hlength)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by radius, halflenght and phisector
 Trk::CylinderSurface::CylinderSurface(double radius, double hphi, double hlength) :
   Trk::Surface(0),
   m_bounds(new Trk::CylinderBounds(radius, hphi, hlength)),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {}
 
 // constructor by CylinderBounds
 Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds):
   Trk::Surface(),
   m_bounds(cbounds),
-  m_referencePoint(0),
-  m_rotSymmetryAxis(0)
+  m_referencePoint(nullptr),
+  m_rotSymmetryAxis(nullptr)
 {
   assert(cbounds);
 }
@@ -105,8 +105,6 @@ Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds):
 // destructor (will call destructor from base class which deletes objects)
 Trk::CylinderSurface::~CylinderSurface()
 {
-  delete m_referencePoint;
-  delete m_rotSymmetryAxis;
 }
 
 Trk::CylinderSurface& Trk::CylinderSurface::operator=(const CylinderSurface& csf)
@@ -114,10 +112,8 @@ Trk::CylinderSurface& Trk::CylinderSurface::operator=(const CylinderSurface& csf
   if (this!=&csf){
    Trk::Surface::operator=(csf);
    m_bounds =  csf.m_bounds;
-   delete m_referencePoint;
-   delete m_rotSymmetryAxis;
-   m_referencePoint = 0;
-   m_rotSymmetryAxis = 0;
+   m_referencePoint.store(nullptr);
+   m_rotSymmetryAxis.store(nullptr);
   }
   return *this;
 }
@@ -127,7 +123,7 @@ const Amg::Vector3D& Trk::CylinderSurface::globalReferencePoint() const
       double rMedium = bounds().r();
       double phi     = bounds().averagePhi();
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
-      m_referencePoint = new Amg::Vector3D(transform()*gp);
+      m_referencePoint.set(std::make_unique<Amg::Vector3D>(transform()*gp));
    }
   return (*m_referencePoint);
 }
@@ -165,7 +161,7 @@ const Amg::Vector3D& Trk::CylinderSurface::rotSymmetryAxis() const
 {
   if (!m_rotSymmetryAxis){
 	  Amg::Vector3D zAxis(transform().rotation().col(2));
-	  m_rotSymmetryAxis = new Amg::Vector3D(zAxis);
+	  m_rotSymmetryAxis.set(std::make_unique<Amg::Vector3D>(zAxis));
   }
   return(*m_rotSymmetryAxis);
 }

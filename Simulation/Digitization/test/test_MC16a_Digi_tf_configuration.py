@@ -175,7 +175,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___MergeTruthJetsTool_properties(self):
-        tested_configurable_name = 'ToolSvc.MergeTruthJetsTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeTruthJetsTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InTimeOutputTruthJetCollKey', 'LastXing', 'OutOfTimeTruthJetCollKey']
         expected_nonstring_properties = {'LastXing': '100', 'FirstXing': '-500'}
         expected_string_properties = {} # Not checking any specific property values
@@ -187,7 +187,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___MergeMuonEntryLayerTool_properties(self):
-        tested_configurable_name = 'ToolSvc.MergeMuonEntryLayerTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeMuonEntryLayerTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'TrackRecordCollKey', 'TrackRecordCollOutputKey']
         expected_nonstring_properties = {'LastXing': '1', 'FirstXing': '-1'}
         expected_string_properties = {} # Not checking any specific property values
@@ -199,7 +199,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___MergeCalibHitsTool_properties(self):
-        tested_configurable_name = 'ToolSvc.MergeCalibHitsTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeCalibHitsTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing']
         expected_nonstring_properties = {'LastXing': '1', 'FirstXing': '-1'}
         expected_string_properties = {} # Not checking any specific property values
@@ -211,7 +211,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___BCM_DigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.BCM_DigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.BCM_DigitizationTool'
         expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
         expected_nonstring_properties = {'LastXing': '0', 'FirstXing': '-25'}
         expected_string_properties = {'HitCollName': 'BCMHits'}
@@ -223,7 +223,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___SignalOnlyMcEventCollTool_properties(self):
-        tested_configurable_name = 'ToolSvc.SignalOnlyMcEventCollTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.SignalOnlyMcEventCollTool'
         expected_property_list = ['KeepUnstable', 'SaveInTimeMinBias', 'AddBackgroundCollisionVertices', 'zRange', 'TruthCollInputKey', 'TruthCollOutputKey', 'OnlySaveSignalTruth', 'OutOfTimeAbsEtaMax', 'rRange', 'CompressOutputCollection', 'ExtraOutputs', 'AbsEtaMax', 'LastXing', 'SaveOutOfTimeMinBias', 'ExtraInputs', 'DetStore', 'SaveCavernBackground', 'FirstXing', 'SaveRestOfMinBias', 'EvtStore', 'HighTimeToKeep', 'LowTimeToKeep']
         expected_nonstring_properties = {'KeepUnstable': 'False', 'SaveInTimeMinBias': 'True', 'AddBackgroundCollisionVertices': 'True', 'zRange': '200.0', 'OnlySaveSignalTruth': 'True', 'OutOfTimeAbsEtaMax': '3.0', 'rRange': '20.0', 'CompressOutputCollection': 'False', 'ExtraOutputs': '[]', 'AbsEtaMax': '5.0', 'LastXing': '0', 'SaveOutOfTimeMinBias': 'True', 'ExtraInputs': '[]', 'SaveCavernBackground': 'True', 'FirstXing': '0', 'SaveRestOfMinBias': 'False', 'HighTimeToKeep': '50.5', 'LowTimeToKeep': '-50.5'}
         expected_string_properties = {'TruthCollInputKey': 'TruthEvent', 'TruthCollOutputKey': 'TruthEvent'}
@@ -235,7 +235,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___PixelDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.PixelDigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.PixelDigitizationTool'
         expected_property_list = ['ChargeTools', 'DetStore', 'EnergyDepositionTool', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEndSimTools', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'RDOCollName', 'RndmSvc', 'SDOCollName']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-25'}
         expected_string_properties = {'InputObjectName': 'PixelHits'}
@@ -247,7 +247,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___SCT_DigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.SCT_DigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.SCT_DigitizationTool'
         expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RandomDisabledCellGenerator', 'RndmSvc', 'SurfaceChargesGenerator']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-50'}
         expected_string_properties = {'InputObjectName': 'SCT_Hits', 'OutputObjectName': 'SCT_RDOs', 'OutputSDOName': 'SCT_SDO_Map'}
@@ -259,7 +259,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___TRTDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.TRTDigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TRTDigitizationTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
         expected_nonstring_properties = {'LastXing': '50', 'FirstXing': '-50'}
         expected_string_properties = {'OutputObjectName': 'TRT_RDOs', 'OutputSDOName': 'TRT_SDO_Map'} # No Input name property
@@ -271,7 +271,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___LArPileUpTool_properties(self):
-        tested_configurable_name = 'ToolSvc.LArPileUpTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
         expected_property_list = ['DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4', 'EmBarrelHitContainerName': '["LArHitEMB"]', 'EmEndCapHitContainerName': '["LArHitEMEC"]', 'ForWardHitContainerName': '["LArHitFCAL"]', 'HecHitContainerName': '["LArHitHEC"]'}
         expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
@@ -283,7 +283,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___TileHitVecToCntTool_properties(self):
-        tested_configurable_name = 'ToolSvc.TileHitVecToCntTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TileHitVecToCntTool'
         expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'RndmSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-200', 'TileHitVectors': '["TileHitVec", "MBTSHits"]'}
         expected_string_properties = {'TileHitContainer': 'TileHitCnt'}
@@ -295,7 +295,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___CscDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.CscDigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.CscDigitizationTool'
         expected_property_list = ['CSCSimDataCollectionOutputName', 'DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'isPileUp', 'pedestal']
         expected_nonstring_properties = {'LastXing': '175', 'FirstXing': '-375'}
         expected_string_properties = {'InputObjectName': 'CSC_Hits', 'OutputObjectName': 'CSC_DIGITS'}
@@ -307,8 +307,8 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___MdtDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.MdtDigitizationTool'
-        expected_property_list = ['DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MDTCondSummarySvc', 'MaskedStations', 'MdtCalibrationDbSvc', 'OutputObjectName', 'OutputSDOName', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MdtDigitizationTool'
+        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MDTCondSummarySvc', 'MaskedStations', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-800'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -319,7 +319,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___RpcDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.RpcDigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.RpcDigitizationTool'
         expected_property_list = ['ClusterSize1_2uncorr', 'ClusterSize_fromCOOL', 'CutProjectedTracks', 'DeadTime', 'DetStore', 'DumpFromDbFirst', 'EfficiencyPatchForBMShighEta', 'Efficiency_fromCOOL', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FracClusterSize1_A', 'FracClusterSize1_C', 'FracClusterSize2_A', 'FracClusterSize2_C', 'FracClusterSizeTail_A', 'FracClusterSizeTail_C', 'IgnoreRunDependentConfig', 'LastXing', 'MeanClusterSizeTail_A', 'MeanClusterSizeTail_C', 'OnlyEtaEff_A', 'OnlyEtaEff_C', 'OnlyPhiEff_A', 'OnlyPhiEff_C', 'OutputObjectName', 'OutputSDOName', 'PanelId_OFF_fromlist', 'PanelId_OK_fromlist', 'PatchForRpcTime', 'PatchForRpcTimeShift', 'PhiAndEtaEff_A', 'PhiAndEtaEff_C', 'PrintCalibrationVector', 'RPCCondSummarySvc', 'RPCInfoFromDb', 'RndmSvc', 'testbeam_clustersize', 'turnON_clustersize', 'turnON_efficiency']
         expected_nonstring_properties = {'LastXing': '125', 'FirstXing': '-150'}
         expected_string_properties = {} # Not checking any specific property values
@@ -331,7 +331,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___TgcDigitizationTool_properties(self):
-        tested_configurable_name = 'ToolSvc.TgcDigitizationTool'
+        tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TgcDigitizationTool'
         expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'OutputObjectName', 'OutputSDOName', 'RndmSvc']
         expected_nonstring_properties = {'LastXing': '75', 'FirstXing': '-50'}
         expected_string_properties = {} # Not checking any specific property values

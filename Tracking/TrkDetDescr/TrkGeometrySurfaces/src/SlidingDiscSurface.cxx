@@ -21,7 +21,7 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
-Trk::NoBounds Trk::DiscSurface::s_boundless;
+const Trk::NoBounds Trk::DiscSurface::s_boundless;
 
 // default constructor
 Trk::SlidingDiscSurface::SlidingDiscSurface() :

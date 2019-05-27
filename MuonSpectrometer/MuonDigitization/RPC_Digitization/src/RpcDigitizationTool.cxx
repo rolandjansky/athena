@@ -59,10 +59,6 @@ using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
 static double time_correction(double, double, double);
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 					 const std::string& name,
 					 const IInterface* pIID)
@@ -74,7 +70,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_rSummarySvc("RPCCondSummarySvc", name)
   , m_cs3Para(0)
   , m_validationSetup(false)
-  , m_vetoThisBarcode(crazyParticleBarcode) 
   , m_SetPhiOn(false)
   , m_SetEtaOn(false)
   , m_mergeSvc(0)
@@ -134,7 +129,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("RPCCondSummarySvc"         ,  m_rSummarySvc                      );
   declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
   declareProperty("IncludePileUpTruth"        ,  m_includePileUpTruth     = true    );
-  declareProperty("ParticleBarcodeVeto"       ,  m_vetoThisBarcode = crazyParticleBarcode);
 }
 
 // member function implementation

@@ -6,6 +6,11 @@
 #define LARHV_EMBPRESAMPLERHVMANAGER_H
 
 #include "LArHV/EMBPresamplerHVModule.h"
+
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class EMBPresamplerHVDescriptor;
 struct EMBPresamplerHVPayload;
 
@@ -54,6 +59,13 @@ class EMBPresamplerHVManager
 
   // Get the database payload
   EMBPresamplerHVPayload *getPayload(const EMBPresamplerHVModule &) const;
+
+#ifndef SIMULATIONBASE
+  // Get hvLine for a module
+  int hvLineNo(const EMBPresamplerHVModule& module
+               , int gap
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
  private:
   // Illegal operations

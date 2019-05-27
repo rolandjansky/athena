@@ -238,7 +238,7 @@ TrackStateOnSurface::isSane() const {
   void TrackStateOnSurface::setHint  ( const TrackStateOnSurfaceType& type ) {
     if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
       // allowed to modify persistification flags although this is const
-      m_typeFlags.reset(type);
+      m_typeFlags.set(type);
     }
     else {
       throw std::logic_error("Can only use TrackStateOnSurface::mark to set persistification flags");

@@ -169,8 +169,7 @@ namespace{
 
 // Constructor
 SCT_FillCablingFromCoraCool::SCT_FillCablingFromCoraCool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_filled{false} {
+  base_class(type, name, parent) {
   //nop
 }
 

@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Calorimeter/CaloDetDescr
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           GaudiKernel
@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_poolcnv_library( LArAthenaPoolPoolCnv
                            src/*.cxx
                            FILES LArRawEvent/LArRawChannelContainer.h LArRawEvent/LArDigitContainer.h LArRawEvent/LArTTL1Container.h LArRawEvent/LArFebErrorSummary.h LArRecEvent/LArNoisyROSummary.h
-                           LINK_LIBRARIES AthenaPoolUtilities CaloDetDescrLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel LArTPCnv LArRawEvent LArRecEvent )
+                           LINK_LIBRARIES AthenaPoolUtilities CaloDetDescrLib AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel LArTPCnv LArRawEvent LArRecEvent )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

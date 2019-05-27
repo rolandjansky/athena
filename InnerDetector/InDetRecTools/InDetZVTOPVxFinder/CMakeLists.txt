@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Event/xAOD/xAODTracking
                           PRIVATE
-                          External/AtlasCLHEP
                           Control/AthContainers
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkExtrapolation/TrkExInterfaces

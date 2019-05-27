@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -77,7 +77,7 @@ namespace xAOD {
 
     unsigned int ibin = ibin_y*(nbinsX()+TrigHisto2D_v1::EXTRA_BINS) + ibin_x;
    
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
 
     acc_contents(*this).at(ibin)+= weight;
   }
@@ -85,7 +85,7 @@ namespace xAOD {
   std::vector<float> TrigHisto2D_v1::profileX() const {
     std::vector<float> contentsX(nbinsX()+TrigHisto2D_v1::EXTRA_BINS,0.);
     
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
     
     for(unsigned int ix = 0 ; ix < nbinsX() + TrigHisto2D_v1::EXTRA_BINS; ix++){
       for(unsigned int iy = 0; iy < nbinsY() + TrigHisto2D_v1::EXTRA_BINS; iy++){
@@ -98,7 +98,7 @@ namespace xAOD {
   std::vector<float> TrigHisto2D_v1::profileY() const {
     std::vector<float> contentsY(nbinsY()+TrigHisto2D_v1::EXTRA_BINS);
     
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
     
     for(unsigned int iy = 0 ; iy < nbinsY() + TrigHisto2D_v1::EXTRA_BINS; iy++){
       for(unsigned int ix = 0; ix < nbinsX() + TrigHisto2D_v1::EXTRA_BINS; ix++){
@@ -113,7 +113,7 @@ namespace xAOD {
     unsigned int ibin, ibin_x, ibin_y, ibin_x_selected, ibin_y_selected;
     double entries;
     
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
     
     // Find the x bin index that the cut corresponds to.
     ibin_x_selected = findBinX(value_x);
@@ -205,14 +205,14 @@ namespace xAOD {
   }
   
   void TrigHisto2D_v1::clear() {
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
     
     for(std::vector<float>::iterator contents_iter = acc_contents(*this).begin(); contents_iter !=acc_contents(*this).end(); ++contents_iter)
       *contents_iter = 0;
   }
   
   void TrigHisto2D_v1::dump(){
-    static Accessor< std::vector<float> > acc_contents( "contents" );
+    static const Accessor< std::vector<float> > acc_contents( "contents" );
     
     std::cout<<"Dump contets vector of size:: "<<acc_contents(*this).size()<<std::endl;
     for( unsigned int i = 0 ; i < acc_contents(*this).size(); i++)

@@ -11,15 +11,15 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -47,90 +47,90 @@ ReadData             INFO Hit x = 30.1 y = -53.4 z = 43.8 detector = DummyHitDet
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 3
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 4
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 5
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 1
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 1
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 6
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -158,45 +158,45 @@ ReadData             INFO Hit x = 630.1 y = -53.4 z = -556.1 detector = DummyHit
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 2
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 2
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 8
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 2
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 2
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 2
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 9
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 3
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 3
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -224,45 +224,45 @@ ReadData             INFO Hit x = 930.1 y = -53.4 z = -856.1 detector = DummyHit
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 3
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 3
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 11
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 3
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 3
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 3
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 12
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 4
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 4
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -290,45 +290,45 @@ ReadData             INFO Hit x = 1230.1 y = -53.4 z = -1156.1 detector = DummyH
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 4
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 4
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 14
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 4
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 4
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 4
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 15
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 5
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 5
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 5
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 5
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -356,15 +356,15 @@ ReadData             INFO Hit x = 1530.1 y = -53.4 z = -1456.1 detector = DummyH
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 6
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 6
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 6
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 6
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -392,30 +392,30 @@ ReadData             INFO Hit x = 1630.1 y = -53.4 z = -1556.1 detector = DummyH
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 6
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 6
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 6
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 6
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 18
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 7
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 7
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Accepting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 7
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 7
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -443,17 +443,17 @@ ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyH
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector1: For  'SelectedStream':Stream1 cutflow events = 7
+EventSelector.S...  DEBUG EventSelector.Selector1: For [Stream1] cutflow events = 7
 EventSelector        INFO Request skipping event from: EventSelector.Selector1
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  DEBUG Rejecting event
-EventSelector.S...  DEBUG EventSelector.Selector2: For  'SelectedStream':Stream1 cutflow events = 7
+EventSelector.S...  DEBUG EventSelector.Selector2: For [Stream1] cutflow events = 7
 EventSelector        INFO Request skipping event from: EventSelector.Selector2
 EventSelector.S...   INFO StreamSelectorTool::postNext
 EventSelector.S...  DEBUG Found attribute list
-EventSelector.S...  ERROR Stream decision for  'SelectedStream':StreamX does not exist in input
-EventSelector.S...  DEBUG EventSelector.SelectorX: For  'SelectedStream':StreamX cutflow events = 0
+EventSelector.S...  ERROR Stream decision for [StreamX] does not exist in input
+EventSelector.S...  DEBUG EventSelector.SelectorX: For [StreamX] cutflow events = 0
 EventSelector        INFO skipping event 20
-EventSelector        INFO Disconnecting input sourceID: CBEBAF1B-3CC8-4542-99CA-F7E385012325
+EventSelector        INFO Disconnecting input sourceID: 0E8E08EE-13D0-BF40-BB78-56E53AEBF449
 ReadData             INFO in finalize()

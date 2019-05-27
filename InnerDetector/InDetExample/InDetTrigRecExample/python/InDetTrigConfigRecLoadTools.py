@@ -786,8 +786,8 @@ if InDetTrigFlags.loadSummaryTool():
   from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
   InDetTrigTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryTool",
                                                     InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                    InDetHoleSearchTool    = InDetTrigHoleSearchTool,
                                                     doSharedHits           = False,
+                                                    doHolesInDet           = True,
                                                     #this may be temporary #61512 (and used within egamma later)
                                                     #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
                                                     TRT_ElectronPidTool    = None, 
@@ -822,7 +822,7 @@ if InDetTrigFlags.loadSummaryTool():
     InDetTrigTrackSummaryToolSharedHits = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHits",
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
-                                                                InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                                                                doHolesInDet           = True,
                                                                 TRT_ElectronPidTool    = None)
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits

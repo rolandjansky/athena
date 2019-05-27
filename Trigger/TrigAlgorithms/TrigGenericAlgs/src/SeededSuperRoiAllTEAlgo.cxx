@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 #include "IRegionSelector/IRegSelSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 using namespace PESA;
 
@@ -124,8 +124,12 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
 	else { 
 	  double eta = roiDescriptor->eta();
 	  double phi = roiDescriptor->phi();
-	  TrigRoiDescriptor* tmpRoiDescriptor = new TrigRoiDescriptor( eta, eta-m_etaHalfWidth, eta+m_etaHalfWidth, 
-								       phi, HLT::wrapPhi(phi-m_phiHalfWidth), HLT::wrapPhi(phi+m_phiHalfWidth) ); 
+	  TrigRoiDescriptor* tmpRoiDescriptor = new TrigRoiDescriptor( eta,
+                                                                   eta-m_etaHalfWidth,
+                                                                   eta+m_etaHalfWidth,
+                                                                   phi,
+                                                                   CxxUtils::wrapToPi(phi-m_phiHalfWidth),
+                                                                   CxxUtils::wrapToPi(phi+m_phiHalfWidth) );
        
 	  if ( tmpRoiDescriptor ) superRoi->push_back(tmpRoiDescriptor);
 	}

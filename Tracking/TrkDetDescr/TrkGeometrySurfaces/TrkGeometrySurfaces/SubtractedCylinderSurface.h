@@ -72,14 +72,14 @@ namespace Trk {
   inline bool SubtractedCylinderSurface::insideBounds(const Amg::Vector2D& locpos, double tol1, double tol2) const
   {
     // no subtracted volume exists
-    if (!m_subtrVol.getPtr()) return (this->bounds().inside(locpos,tol1,tol2));
+    if (!m_subtrVol.get()) return (this->bounds().inside(locpos,tol1,tol2));
     // subtracted volume exists, needs to be checked
     double rCyl    = bounds().r();
     double phiPos  = locpos[Trk::locRPhi]/rCyl;
     const Amg::Vector3D gp(rCyl*cos(phiPos),rCyl*sin(phiPos),locpos[Trk::locZ]);
 
-    bool inside_shared(this->bounds().inside(locpos,tol1,tol2) && m_subtrVol.getPtr()->inside(gp,0.) );
-    bool inside(this->bounds().inside(locpos,tol1,tol2) && !m_subtrVol.getPtr()->inside(gp,0.) );
+    bool inside_shared(this->bounds().inside(locpos,tol1,tol2) && m_subtrVol.get()->inside(gp,0.) );
+    bool inside(this->bounds().inside(locpos,tol1,tol2) && !m_subtrVol.get()->inside(gp,0.) );
 
     if (m_shared) return inside_shared;
     return inside;

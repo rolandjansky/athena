@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrkObserverTool.h 
@@ -22,38 +22,32 @@
 
 
 namespace Trk {
-	static const InterfaceID IID_ITrkObserverTool("ITrkObserverTool", 1, 0);
+  class ITrkObserverTool
+    : virtual public ::IAlgTool
+  { 
 
-	class ITrkObserverTool
-  	: virtual public ::IAlgTool
-	{ 
+  public: 
 
-		public: 
+    DeclareInterfaceID(ITrkObserverTool, 1, 0);
 
-		  /** Destructor: 
-  		 */
-  		virtual ~ITrkObserverTool() {};
+    /** Destructor: 
+     */
+    virtual ~ITrkObserverTool() = default;
 
-			static const InterfaceID& interfaceID();
+    virtual void saveTracksToxAOD() const =0;
+    virtual void storeInputTracks(const TrackCollection& trackCollection) = 0;
+    virtual void dumpTrackMap() const = 0;
 
-			virtual void saveTracksToxAOD()=0;
-			virtual void storeInputTracks(const TrackCollection& trackCollection) = 0;
-			virtual void dumpTrackMap() = 0;
+    virtual void updateTrackMap(const Trk::Track& track, double score, int rejectPlace) = 0;
+    virtual void updateScore(const Trk::Track& track, double score) = 0;
+    virtual void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const = 0;
+    virtual void rejectTrack(const Trk::Track& track, int rejectPlace) const = 0;
 
-			virtual void updateTrackMap(const Trk::Track& track, double score, int rejectPlace) = 0;
-			virtual void updateScore(const Trk::Track& track, double score) = 0;
-			virtual void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const = 0;
-			virtual void rejectTrack(const Trk::Track& track, int rejectPlace) const = 0;
+    virtual void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) = 0;
+    virtual void reset() = 0;
 
-			virtual void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) = 0;
-			virtual void reset() = 0;
+  }; 
 
-
-	}; 
-
-	inline const InterfaceID& Trk::ITrkObserverTool::interfaceID()  { 
-		return IID_ITrkObserverTool; 
-	}
 }
 
 #endif //> !TRK_ITRKOBSERVERINTERACE

@@ -95,6 +95,5 @@ private:
 
   //pileup truth veto
   bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
 };
 #endif // MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IToolSvc.h"
@@ -7,13 +7,11 @@
 #include "TrigL2LongLivedParticles/TrigJetSplitter.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
 #include "FourMomUtils/P4DescendingSorters.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
@@ -21,6 +19,7 @@
 #include "xAODJet/JetContainer.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CxxUtils/fpcompare.h"
+#include "CxxUtils/phihelper.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -223,7 +222,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 	  if (lambda > 500) continue;
 
 	  double d_eta = aCluster->rawEta() - jetEta;
-	  double d_phi = HLT::wrapPhi(aCluster->rawPhi() - jetPhi);
+	  double d_phi = CxxUtils::wrapToPi(aCluster->rawPhi() - jetPhi);
 
 	  double d_R2 = d_eta*d_eta + d_phi*d_phi;
 
@@ -288,7 +287,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     	
     //-dPhi
     //-dR
-    float d_phi = HLT::wrapPhi((*celliter)->phi() - jetPhi);
+    float d_phi = CxxUtils::wrapToPi((*celliter)->phi() - jetPhi);
     float d_eta = (*celliter)->eta() - jetEta;
 
     if(fabs(d_phi) < 0.2 && sqrt(d_eta*d_eta + d_phi*d_phi) > 0.3){
@@ -321,8 +320,8 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     // Make deep copy of vertex and attach to output TE
 
     /// create RoI correspondinding to the jet
-    double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-    double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+    double phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth);
+    double phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth);
 
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth; 

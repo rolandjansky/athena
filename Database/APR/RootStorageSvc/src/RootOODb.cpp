@@ -64,7 +64,7 @@ IDbContainer* RootOODb::createContainer(const DbType& typ) {
     return new RootTreeIndexContainer();
   }
   else if ( typ.match(ROOT_StorageType) )    {
-    return new RootTreeContainer();
+    return new RootTreeIndexContainer();
   }
   return 0;
 }

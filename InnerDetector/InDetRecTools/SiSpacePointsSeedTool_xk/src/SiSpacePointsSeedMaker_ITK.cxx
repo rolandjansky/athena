@@ -25,10 +25,9 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
-(const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p)
+(const std::string& t, const std::string& n, const IInterface* p)
+  : base_class(t, n, p)
 {
-  declareInterface<ISiSpacePointsSeedMaker>(this);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -102,7 +101,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration) 
+void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration) const
 {
   EventData& data{getEventData()};
 
@@ -235,7 +234,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
+(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   EventData& data{getEventData()};
 
@@ -340,7 +339,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,const IRoiDescriptor& IRD)
+(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& IRD) const
 {
   EventData& data{getEventData()};
 
@@ -366,7 +365,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 // with two space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv) 
+void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv) const
 {
   EventData& data{getEventData()};
 
@@ -403,7 +402,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv) 
+void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv) const
 {
   EventData& data{getEventData()};
 
@@ -440,7 +439,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv,const double* ZVertex) 
+void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv, const double* ZVertex) const
 {
   EventData& data{getEventData()};
 
@@ -480,7 +479,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::findVSp(const std::list<Trk::Vertex>& lv)
+void InDet::SiSpacePointsSeedMaker_ITK::findVSp(const std::list<Trk::Vertex>& lv) const
 {
   EventData& data{getEventData()};
 
@@ -2002,7 +2001,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds(EventData& data) const
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ITK::next()
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ITK::next() const
 {
   EventData& data{getEventData()};
 
