@@ -146,17 +146,45 @@ runArgsFromTrfOptional = {'curreg': 32,
                           'FixEndcapL0' : 0,
 			  'pconst_overlap': 2,
 			  'trials': 100000,              # Number of trials of the trackInvertion function
-			  'phi_min': -999,
-			  'phi_max': 999,
-			  'c_min': -0.00104,
-			  'c_max': 0.00104,
-			  'd0_min': -999,
-			  'd0_max': 999,
-			  'z0_min': -999,
-			  'z0_max': 999,
-			  'eta_min': -999,
-			  'eta_max': 999,
-			  'd0_alpha': 0.0,
+ # The following parameters have to be CONSISTENT with sector & constant production
+# if min==max, hard-coded defaults are used in class FTKSectorSlice
+# For new sector & constant production, the correct parameters will be stored
+# in the slice files. In that case the settings below will be ignored
+			  'slice_phi_min': 0.,
+			  'slice_phi_max': 0.,
+			  'slice_c_min': 0.,
+			  'slice_c_max': 0.,
+			  'slice_d0_min': 0.,
+			  'slice_d0_max': 0.,
+			  'slice_z0_min': 0.,
+			  'slice_z0_max': 0.,
+			  'slice_cot_min': 0.,
+			  'slice_cot_max': 0.,
+# the following parameters specify which slices are used to select sector candidates for a given track
+# the "c" slice is disabled because there were some ambiguities with
+# its definition for the slices [whether c=1/pt or c=1/(2pt) ],
+# potetially leading to inefficiencies
+                          'usePhiSlice' : True,
+                          'useCSlice' : False,
+                          'useD0Slice' : True,
+                          'useZ0Slice' : True,
+                          'useCotSlice' : True,
+# the following parameters choose the track parameter ranges in which patterns are created
+# if min==max, tracks are created to cover the range given by the slice file
+# it is important to specify the range for c=1/pt because there are ambiguities with the slice definition for this parameter
+                          'track_phi_min': 0.,
+                          'track_c_min': 0.,
+                          'track_d0_min': 0.,
+                          'track_z0_min': 0.,
+                          'track_eta_min': 0.,
+                          'track_phi_max': 0.,
+                          'track_c_max': 0.,
+                          'track_d0_max': 0.,
+                          'track_z0_max': 0.,
+                          'track_eta_max': 0.,
+# define whether patterns are generated flat in eta or or in cot(theta)
+                          'flat_in_cot' : False,
+# beamspot, relative to which the patterns are generated
 			  'beamspotX': 0.0,
 			  'beamspotY': 0.0,
                           'ITkMode': False,
@@ -172,7 +200,7 @@ skipArgs = []
 
 # --- Set the PattBankGenRoot properties
 for runArgName in runArgsFromTrfOptional.keys():
-	print 'Setting PattBankGenRoot argument'+runArgName
+	print 'Setting PattBankGenRoot argument '+runArgName
 	if runArgName in skipArgs:
 		print 'Skipping ' + runArgName
 		continue
