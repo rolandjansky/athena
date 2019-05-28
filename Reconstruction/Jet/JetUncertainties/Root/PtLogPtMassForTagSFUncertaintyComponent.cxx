@@ -73,6 +73,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     
     static SG::AuxElement::ConstAccessor<Root::TAccept> accResult(m_result_name.Data());
     Root::TAccept m_accept;
+    float mOverPt=jet.m()/jet.pt();
     if ( m_result_name!="" ) {
       // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
       
@@ -84,6 +85,9 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	  // TCC 2Var tagger
 	  bool passMass=(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh"));
 	  bool passD2  =(m_accept.getCutResult("PassD2"));
+	  if ( m_result_name.Contains("SmoothZ") ){
+	    mOverPt=(jet.m()-10803.)/jet.pt();
+	  }
 	  if ( ! ((passMass && passD2 && m_region.Contains("passMpassD2")) ||
 		  (passMass && !passD2 && m_region.Contains("passMfailD2")) ||
 		  (!passMass && passD2 && m_region.Contains("failMpassD2")) ||
@@ -103,7 +107,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       return 0.0;
     }
     
-    return m_uncHist->getValue(jet.pt()*m_energyScale,log(getMassOverPt(jet,m_massDef)));
+    return m_uncHist->getValue(jet.pt()*m_energyScale,log(mOverPt));
 }
 
 } // end jet namespace
