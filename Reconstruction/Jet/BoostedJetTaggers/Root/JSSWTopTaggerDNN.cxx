@@ -354,7 +354,7 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   float jet_weight=1.0;
   if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
-      ATH_MSG_WARNING("decorateTruthLabel() is failed.");
+      ATH_MSG_DEBUG("decorateTruthLabel() is failed.");
     }
   }
   if( acc_truthLabel.isAvailable(jet) && (jet_score > cut_score) && m_calcSF) {
