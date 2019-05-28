@@ -7,7 +7,7 @@
 # art-output: *.txt
 # art-output: *.root
 
-export INPUT="run2mc_ttbar"
+export INPUT="ttbar"
 export EVENTS=1000
 export THREADS=1
 export SLOTS=1
