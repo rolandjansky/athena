@@ -94,9 +94,6 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"ErrorSlopeFolderName","/TRT/Calib/slopes","slope of error in-key"};
   SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0FolderName","/TRT/Calib/T0","t0 in-key"};
 
-  /// True if simulation
-  bool m_isGEANT4;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

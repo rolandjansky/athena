@@ -112,8 +112,8 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
 
             # Calibration DB Service
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                          isGEANT4=(globalflags.DataSource == 'geant4'))
+            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
             # Straw status DB Tool
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
             InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",

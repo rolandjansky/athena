@@ -22,11 +22,8 @@
 
 TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_trtId(0),
-    m_isGEANT4(true)
-{
-  declareProperty("isGEANT4",m_isGEANT4);
-}
+    m_trtId(0)
+{}
 
 
 StatusCode TRT_CalDbTool::initialize() 
