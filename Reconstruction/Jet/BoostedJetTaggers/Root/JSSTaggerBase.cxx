@@ -116,18 +116,24 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
   int countStatus3=0;
   TLorentzVector p_1(0,0,0,0);
   TLorentzVector p_2(0,0,0,0);
+  TLorentzVector truthWZcand(0,0,0,0);
+  bool isWcand=false;
+  bool isZcand=false;
   for ( unsigned int ipart = 0; ipart < truthParts->size(); ipart++ ){
     const xAOD::TruthParticle* part1=truthParts->at(ipart);
     if ( part1->status()!=3 ) continue;
+    if ( fabs(part1->pdgId()) > 5 ) continue;
     countStatus3++;
+    if ( countStatus3 > 3 ) continue; // want to look at first 2 partons except beam particles. sometimes beam particles are dropped from DxAODs...
     p_1=part1->p4();    
     
     // Find the next particle in the list with status==3.
-    bool isWcand=false;
-    bool isZcand=false;
+    isWcand=false;
+    isZcand=false;
     for ( unsigned int jpart = ipart+1; jpart < truthParts->size(); jpart++ ){
       const xAOD::TruthParticle* part2=truthParts->at(jpart);
       if ( part2->status()!=3 ) continue;
+      if ( fabs(part2->pdgId()) > 5 ) continue;
       p_2=part2->p4();
       if ( part1->pdgId() + part2->pdgId() == 0 ) {
 	isZcand=true; // daughters of Z decay should be same-flavor but opposite charge
@@ -136,12 +142,13 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
       }
       break; // if p_1 is a daughter of W/Z decay, the next one is the other daughter
     }
-    TLorentzVector truthWZcand=p_1+p_2;
-    if ( truthWZcand.M() < 60000. || truthWZcand.M() > 140000. ) continue; // ~98% efficiency to W/Z signals. (95% if it is changed to [65, 105]GeV and 90% if [70,100]GeV)
-    if ( truthWZcand.DeltaR(jet.p4()) < dRmax ) {
-      if ( isWcand ) return 1;
-      if ( isZcand ) return 2;
-    }
+    truthWZcand=p_1+p_2;
+    if ( 60000 < truthWZcand.M() && truthWZcand.M() < 140000. ) break; // ~98% efficiency to W/Z signals. (95% if it is changed to [65, 105]GeV and 90% if [70,100]GeV)
+  }
+
+  if ( truthWZcand.DeltaR(jet.p4()) < dRmax ) {
+    if ( isWcand ) return 1;
+    if ( isZcand ) return 2;
   }
   return 0;
 }

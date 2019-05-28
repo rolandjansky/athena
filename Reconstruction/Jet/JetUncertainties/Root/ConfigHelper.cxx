@@ -56,6 +56,8 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
     FatjetTruthLabelForSF = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
+    RegionForSF = settings.GetValue(compPrefix+"RegionForSF","");
+    ResultName = settings.GetValue(compPrefix+"ResultName","");
 
     // Get enums where appropriate
     // Leave interpreting/checking the enums to others
