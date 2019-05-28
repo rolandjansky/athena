@@ -163,13 +163,13 @@ int main( int argc, char* argv[] ) {
   m_jetUncToolSF->initialize();
 
   std::vector<std::string> pulls = {"__1down", "__1up"};
-  CP::SystematicSet jetUnc_sysSet2 = m_jetUncToolSF->recommendedSystematics();
-  const std::set<std::string> sysNames2 = jetUnc_sysSet2.getBaseNames();
-  std::vector<CP::SystematicSet> m_jetUnc_sysSets2;
-  for (auto sysName: sysNames2) {
+  CP::SystematicSet jetUnc_sysSet = m_jetUncToolSF->recommendedSystematics();
+  const std::set<std::string> sysNames = jetUnc_sysSet.getBaseNames();
+  std::vector<CP::SystematicSet> m_jetUnc_sysSets;
+  for (auto sysName: sysNames) {
     for (auto pull : pulls) {
       std::string sysPulled = sysName + pull;
-      m_jetUnc_sysSets2.push_back(CP::SystematicSet(sysPulled));
+      m_jetUnc_sysSets.push_back(CP::SystematicSet(sysPulled));
     }
   }
 
@@ -249,7 +249,7 @@ int main( int argc, char* argv[] ) {
 	  validForUncTool &= (fabs(eta) < 2);
 	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb)" << std::endl;
 	  if( validForUncTool ){
-	    for ( auto sysSet : m_jetUnc_sysSets2 ){
+	    for ( auto sysSet : m_jetUnc_sysSets ){
 	      m_Tagger->tag( **jet_itr );
 	      m_jetUncToolSF->applySystematicVariation(sysSet);
 	      m_jetUncToolSF->applyCorrection(**jet_itr);

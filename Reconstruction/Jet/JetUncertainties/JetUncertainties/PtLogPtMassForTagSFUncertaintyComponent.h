@@ -29,6 +29,8 @@ class PtLogPtMassForTagSFUncertaintyComponent : public UncertaintyComponent
         PtLogPtMassForTagSFUncertaintyComponent(const std::string& name = "");
         const CompMassDef::TypeEnum m_massDef;
 	const TString m_label;
+	const TString m_region;
+	const TString m_result_name;
 };
 
 } // end jet namespace
