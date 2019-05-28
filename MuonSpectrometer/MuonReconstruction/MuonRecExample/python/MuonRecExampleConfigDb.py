@@ -57,7 +57,7 @@ addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator")
 addTool("Trk::STEP_Propagator", "MuonStraightLinePropagator")
 
 addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonExtrapolator")
-addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonStraightLineExtrapolator")
+addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraightLineExtrapolator")
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
@@ -145,7 +145,7 @@ addTool("MuonRecExample.MooreTools.MCTBFitter",  "MCTBFitter")
 addTool("MuonRecExample.MooreTools.MCTBSLFitter","MCTBSLFitter")
 
 addTool("MuonRecExample.MooreTools.MCTBFitter",   "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
-addTool("MuonRecExample.MooreTools.MCTBSLFitter", "MCTBSLFitterMaterialFromTrack", GetMaterialFromTrack=True)
+addTool("MuonRecExample.MooreTools.MCTBSLFitterMaterialFromTrack", "MCTBSLFitterMaterialFromTrack")
 
 addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5 )
 

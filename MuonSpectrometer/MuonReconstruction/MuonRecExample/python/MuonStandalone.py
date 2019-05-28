@@ -91,6 +91,8 @@ class MuonStandalone(ConfiguredMuonRec):
             if not muonStandaloneFlags.patternsOnly():
                 SegmentFinder = getPublicTool("MuonClusterSegmentFinderTool")
                 Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
+                Cleaner.Extrapolator = getPublicTool("MuonStraightLineExtrapolator")
+                Cleaner.Fitter = getPublicTool("MCTBSLFitterMaterialFromTrack")
                 Cleaner.PullCut = 3
                 Cleaner.PullCutPhi = 3
                 SegmentFinder.TrackCleaner = Cleaner
