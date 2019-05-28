@@ -6,7 +6,7 @@
 atlas_subdir( TrigTauHypo )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Control/AthenaBaseComps
                           GaudiKernel
@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigTopoEvent
                           Trigger/TrigSteer/TrigInterfaces
 			              Event/xAOD/xAODTrigger
-                          PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthViews
                           Control/AthContainers
@@ -42,22 +41,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
-find_package( AIDA )
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( TrigTauHypoLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigTauHypo
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent xAODTrigger  VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent StoreGateLib SGtests TrigInterfacesLib AthViews
-                   PRIVATE_LINK_LIBRARIES CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure DecisionHandlingLib )
-
 atlas_add_component( TrigTauHypo
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure TrigTauHypoLib DecisionHandlingLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure DecisionHandlingLib AthViews )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

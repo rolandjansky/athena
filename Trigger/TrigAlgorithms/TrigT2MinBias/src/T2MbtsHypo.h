@@ -6,7 +6,7 @@
 #define T2_MBTS_HYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigT2MinBias/T2MbtsUtils.h"
+#include "T2MbtsUtils.h"
 #include <map>
 
 // namespace xAOD {

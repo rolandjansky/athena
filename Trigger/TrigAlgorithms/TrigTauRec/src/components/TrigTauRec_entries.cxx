@@ -1,4 +1,4 @@
-#include "TrigTauRec/TrigTauRecMerged.h"
+#include "../TrigTauRecMerged.h"
 #include "../TrigTauRecMergedMT.h"
 
 

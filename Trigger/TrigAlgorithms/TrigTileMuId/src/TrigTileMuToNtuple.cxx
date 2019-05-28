@@ -17,7 +17,7 @@
 //TileCalo include
 
 #include "TileEvent/TileMuContainer.h"
-#include "TrigTileMuId/TrigTileMuToNtuple.h"
+#include "TrigTileMuToNtuple.h"
 
 //const int max_ntag=50;
 

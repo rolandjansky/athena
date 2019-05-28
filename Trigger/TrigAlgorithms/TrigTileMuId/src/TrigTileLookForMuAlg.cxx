@@ -18,7 +18,7 @@
 #include "CaloIdentifier/TileID.h"
 #include "ByteStreamData/ROBData.h"
 #include "TrigMuonEvent/TileMuFeature.h"
-#include "TrigTileMuId/TrigTileLookForMuAlg.h"
+#include "TrigTileLookForMuAlg.h"
 
 class ISvcLocator;
 

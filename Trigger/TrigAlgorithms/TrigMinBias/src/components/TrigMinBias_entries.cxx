@@ -1,7 +1,7 @@
-#include "TrigMinBias/TrigTrackCounter.h"
-#include "TrigMinBias/TrigTrackCounterHypo.h"
-#include "TrigMinBias/TrigVertexCounter.h"
-#include "TrigMinBias/TrigVertexCounterHypo.h"
+#include "../TrigTrackCounter.h"
+#include "../TrigTrackCounterHypo.h"
+#include "../TrigVertexCounter.h"
+#include "../TrigVertexCounterHypo.h"
 
 DECLARE_COMPONENT( TrigTrackCounter )
 DECLARE_COMPONENT( TrigTrackCounterHypo )

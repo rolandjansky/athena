@@ -29,7 +29,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/HLTTrackPreSelHypo.h"
+#include "HLTTrackPreSelHypo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CxxUtils/phihelper.h"
