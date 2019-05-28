@@ -101,23 +101,24 @@ for alg in muonSequenceTight:
     pass
 
 # Add ntuple dumper algorithms:
-treeMaker = AnaAlgorithmConfig( 'CP::TreeMakerAlg/TreeMaker' )
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
 treeMaker.TreeName = 'muons'
 job.algsAdd( treeMaker )
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMakerEvetInfo' )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerEventInfo' )
 ntupleMaker.TreeName = 'muons'
 ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                          'EventInfo.eventNumber   -> eventNumber', ]
 ntupleMaker.systematicsRegex = '(^$)'
 job.algsAdd( ntupleMaker )
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMakerMuons' )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
 ntupleMaker.TreeName = 'muons'
 ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                          'AnalysisMuons_NOSYS.phi -> mu_phi',
                          'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
 ntupleMaker.systematicsRegex = '(^MUON_.*)'
 job.algsAdd( ntupleMaker )
-treeFiller = AnaAlgorithmConfig( 'CP::TreeFillerAlg/TreeFiller' )
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
 treeFiller.TreeName = 'muons'
 job.algsAdd( treeFiller )
 
