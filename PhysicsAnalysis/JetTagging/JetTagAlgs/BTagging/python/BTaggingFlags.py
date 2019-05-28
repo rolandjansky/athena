@@ -195,6 +195,9 @@ class _BTaggingFlags:
           'rnnipflip_p' + x for x in rnnip_outputs
       ]
 
+      # master switch for 2019 retraining
+      self.Do2019Retraining = False
+
       # you can force the NN tool off with this flag (avoids loading
       # old jetfitter nns which sometimes crash
       self.RunJetFitterNNTool = True

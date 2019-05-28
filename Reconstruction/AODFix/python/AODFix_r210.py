@@ -83,7 +83,8 @@ class AODFix_r210(AODFix_base):
             # infromation is needed.
             from BTagging.JetCollectionToTrainingMaps import (
                 preTagDL2JetToTrainingMap)
-            if preTagDL2JetToTrainingMap:
+            from BTagging.BTaggingFlags import BTaggingFlags
+            if preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
                 self.btagTracking_postSystemRec(topSequence)
 
             if "btagging" not in oldMetadataList and not self.isHI:
