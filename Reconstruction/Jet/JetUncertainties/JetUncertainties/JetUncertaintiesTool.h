@@ -7,7 +7,6 @@
 
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetUncertainties/UncertaintyEnum.h"
-#include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "AsgTools/AsgTool.h"
 
 #include <string>

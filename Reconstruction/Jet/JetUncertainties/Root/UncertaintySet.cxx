@@ -153,6 +153,7 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
 {
     // See getUncertainty for discussion
     // This is not just calling the other two methods for speed, O(n) instead of O(2n)
+    
     if (!m_groups.size())
     {
         unc = 0;
@@ -167,7 +168,7 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
         ATH_MSG_ERROR("Asked for valid uncertainty of a multi-scale-variable set without specifying any scale variable: " << m_name);
         return false;
     }
-
+    
     // Checked conditions, now get the uncertainty and validity
     double localUnc = 0;
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
