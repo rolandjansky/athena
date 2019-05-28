@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -7,14 +7,11 @@
 //===================================================================
 
 // Include files.
-#include "ByteStreamEmonSvc/ByteStreamEmonInputSvc.h"
+#include "ByteStreamEmonInputSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "eformat/Version.h"
 #include "eformat/HeaderMarker.h"
 #include "eformat/DetectorMask.h"
-
-#include "GaudiKernel/IIncidentSvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "oh/OHRootProvider.h"
@@ -24,7 +21,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
-#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
 
 #include "rc/RunParamsNamed.h"
@@ -37,15 +35,14 @@
 
 namespace {
 
-
     // pure madness...
 
 #define PARSE_ITEM(z, n, unused) \
     {  \
-        vector<string> result;  \
-        split(result, l1info.Item##n, algorithm::is_space()); \
+        std::vector<std::string> result;  \
+        split(result, l1info.Item##n, boost::algorithm::is_space());    \
         if(!result.empty()) { \
-            trim_if(result[0], algorithm::is_any_of("'"));      \
+            boost::trim_if(result[0], boost::algorithm::is_any_of("'"));  \
             l1map[result[0]] = n;                               \
         } \
     }
@@ -53,10 +50,7 @@ namespace {
     std::map<std::string,int> 
     convert_names_bits(const ByteStreamEmon::TrigConfL1ItemsNamed& l1info)
     {
-        using namespace std;
-        using namespace boost;
-
-        map<string,int> l1map;
+        std::map<std::string,int> l1map;
         BOOST_PP_REPEAT(256, PARSE_ITEM, ~)
         return l1map;
     }
@@ -66,7 +60,7 @@ namespace {
 
 namespace {
     
-    void handle_terminate(int)
+    void handle_terminate ATLAS_NOT_THREAD_SAFE (int)
     {
         // online wants 
         ::exit(0);
@@ -74,85 +68,20 @@ namespace {
 }
 
 // Constructor.
-ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLocator* svcloc)
-    :   
-    ByteStreamInputSvc(name,svcloc), 
-    m_totalEventCounter(0),
-    m_re(0),
-    m_key_count(0),
-    m_publish("Athena"),
-    m_exit(false),
-    m_frequency(60),
-    m_updatePeriod(0),
-    m_updatePeriodRange(0.2),
-    m_clearHistograms(true),
-    m_l1logic("Ignore"),
-    m_l1origin("TAV"),
-    m_stream_type("physics"),
-    m_stream_logic("Ignore"),
-    m_trigger_type(256),
-    m_buffer_size(2),
-    m_readDetectorMask(true),
-    m_timeout(3600000),
-    m_corrupted_events(false),
-    m_state("None"),
-    m_connect(false),
-    m_histSvc(0),
-    m_provider(0),
-    m_frequency_counter(60),
-    m_publish_target(0),
+ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLocator* svcloc) :
+    ByteStreamInputSvc(name,svcloc),
     m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name ),
     m_sgSvc("StoreGateSvc", name),
     m_robProvider("ROBDataProviderSvc", name)
 {
-
-    declareProperty("Partition", m_partition, "Partitin name, default taken from $TDAQ_PARTITION if not set")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("Key", m_key , "EMON Selection key, e.g. SFI")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("KeyValue", m_value, "EMON key values, e.g. [SFI-1, SFI-2]; if empty all SFIs")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("KeyCount", m_key_count, "EMON key count, e.g. 5 to get five random SFIs")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("ExitOnPartitionShutdown", m_exit, "If true, exit if partition shuts down")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("ISServer", m_is_server ,"IS Server to publish histograms to")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("PublishName", m_publish, "Name under which to publish histograms")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("Include", m_include, "Regular expression to select histograms to publish")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("Exclude", m_exclude, "Regular expression to select histograms not to publish")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("Frequency", m_frequency, "Frequency (in number of events) of publishing histograms")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("UpdatePeriod", m_updatePeriod, "Frequency (in secods) of publishing histograms")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("UpdatePeriodRange", m_updatePeriodRange, "A percentage number to determine how close we have to be to the next update time to publish now");
-    declareProperty("ClearHistograms", m_clearHistograms, "If true, clear histograms when new run starts (default: True)")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("LVL1Names", m_l1names, "A list of L1 bit names")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("LVL1Items", m_l1items, "A list of L1 bit numbers")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("LVL1Logic", m_l1logic, "'And', 'Or' or 'Ignore' (default: Ignore)")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("LVL1Origin", m_l1origin, "TBP, TAP, TAV (default: TAV")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("StreamType", m_stream_type, "HLT stream type (e.g. physics or calibration)")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("StreamNames", m_stream_names, "List of HLT stream names")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("StreamLogic", m_stream_logic, "'And', 'Or' or 'Ignore' (default: Ignore)")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-
-    declareProperty("TriggerType", m_trigger_type, "LVL1 8 bit trigger type")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-
-    declareProperty("GroupName", m_groupName, "Name of the monitoring group")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("BufferSize", m_buffer_size, "Number of buffers");
-    declareProperty("ReadDetectorMaskFromIS", m_readDetectorMask, "Read detector mask from IS");
-    declareProperty("Timeout", m_timeout, "Timeout in seconds, -1 == infinity")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("ProcessCorruptedEvents", m_corrupted_events, "Process corrupted events not passing check_tree()")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("State",m_state,"Read-only property showing the state");
-}
-
-// Destructor.
-ByteStreamEmonInputSvc::~ByteStreamEmonInputSvc()
-{
-    delete m_re; 
 }
 
 // Open the first input file and read the first event.
 StatusCode ByteStreamEmonInputSvc::initialize()
 {
-
     setProperty("State", "Init");
 
-    StatusCode sc = ByteStreamInputSvc::initialize();
-    if(!sc.isSuccess())   return sc;
-
-    MsgStream log(msgSvc(), name() );
+    ATH_CHECK( ByteStreamInputSvc::initialize() );
 
     // check properties
     if(m_partition.empty() && getenv("TDAQ_PARTITION") != 0) {
@@ -160,23 +89,23 @@ StatusCode ByteStreamEmonInputSvc::initialize()
     }
 
     if(m_partition.empty()){
-        log << MSG::ERROR << " initialize: No partition name specified" << endmsg;
+        ATH_MSG_ERROR("initialize: No partition name specified");
         return StatusCode::FAILURE;
     }
 	 
     if(m_key.empty()) {
-        log << MSG::ERROR << " initialize: No emon key " <<endmsg;
+        ATH_MSG_ERROR("initialize: No emon key ");
         return StatusCode::FAILURE;
     } 
 
     m_connect = true;
 
     if (service("THistSvc", m_histSvc, true).isFailure()) {
-        log << MSG::ERROR << "Unable to locate THistSvc" << endmsg;
+        ATH_MSG_ERROR("Unable to locate THistSvc");
         m_is_server.clear();
     } else {
-        if(!m_include.empty()) m_include_rex = m_include;
-        if(!m_exclude.empty()) m_exclude_rex = m_exclude;
+        if(!m_include.empty()) m_include_rex = m_include.value();
+        if(!m_exclude.empty()) m_exclude_rex = m_exclude.value();
         if(m_frequency < 0) m_frequency = 100000;
         m_frequency_counter = m_frequency;
 
@@ -189,67 +118,41 @@ StatusCode ByteStreamEmonInputSvc::initialize()
         }
     }
 
-    {
-        // register incident handler for begin run
-        IIncidentSvc* incsvc;
-      
-        if (StatusCode::SUCCESS!=service("IncidentSvc",incsvc)) {
-            log << MSG::FATAL << "Incident service not found" << endmsg;
-            return StatusCode::FAILURE;
-        }
-      
-        long int prio = 100;
-        incsvc->addListener(this,"BeginRun", prio);
-    }
-
     //-------------------------------------------------------------------------
     // Setup the InputMetaDataStore
     //-------------------------------------------------------------------------
-    sc = m_inputMetaDataStore.retrieve();
-    if( !sc.isSuccess() ) {
-        log << MSG::FATAL << "Error retrieving InputMetaDataStore"+m_inputMetaDataStore << endmsg;
-        return sc;
-    }
-
-    if(!m_robProvider.retrieve().isSuccess()) {
-        ATH_MSG_FATAL("Cannot get rob data provider");
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_inputMetaDataStore.retrieve() );
+    ATH_CHECK( m_robProvider.retrieve() );
 
     signal(SIGTERM, handle_terminate);
 
-    log << MSG::INFO << " initialized for: " << m_partition << " " << m_key << "/" << m_value << endmsg;
+    ATH_MSG_INFO("initialized for: " << m_partition << " " << m_key << "/" << m_value);
 
     return StatusCode::SUCCESS;
 }
 
 bool ByteStreamEmonInputSvc::getIterator()
 {
-    using namespace std;
-
-    MsgStream log(msgSvc(), name() );
     setProperty("State", "Init");
 
-    // log << MSG::INFO << "getIterator(): " << m_partition << endmsg;
-
     if(!IPCCore::isInitialised()) {
-	static char *argv[2] = { 0 };
-	int argc = 0;
-	IPCCore::init(argc, argv);
+        char* argv[2] = { 0 };
+        int argc = 0;
+        IPCCore::init(argc, argv);
     }
 
     IPCPartition partition(m_partition);
     while(!partition.isValid()) {
-	if(m_exit) {
-	    log << MSG::ERROR << "No such partition: " << m_partition << endmsg;
-	    return false;
-	} 
-        log << MSG::INFO << "No such partition (yet?): " << m_partition << endmsg;
+        if(m_exit) {
+            ATH_MSG_ERROR("No such partition: " << m_partition);
+            return false;
+        }
+        ATH_MSG_INFO("No such partition (yet?): " << m_partition);
         sleep(20);
     }
 
     delete m_provider;
-    m_provider = 0;
+    m_provider = nullptr;
 
     std::auto_ptr<emon::SamplingAddress> address;
 
@@ -278,7 +181,7 @@ bool ByteStreamEmonInputSvc::getIterator()
     } else if(m_l1origin == "TAV") {
         l1_origin = emon::origin::AFTER_VETO;
     } else {
-        log << MSG::FATAL << "Invalid L1 origin" << endmsg;
+        ATH_MSG_FATAL("Invalid L1 origin");
     }
 
     if(m_stream_logic == "Or") {
@@ -292,7 +195,7 @@ bool ByteStreamEmonInputSvc::getIterator()
     // now put together the bit mask from all
     // three sources: l1 bit mask, l1 names, l1 items
 
-    vector<unsigned short> l1bits(m_l1items.begin(), m_l1items.end());
+    std::vector<unsigned short> l1bits(m_l1items.begin(), m_l1items.end());
 
     // if names are given, try to read information from IS.
     if(m_l1names.size() > 0) {
@@ -305,22 +208,20 @@ bool ByteStreamEmonInputSvc::getIterator()
                 retry = false;
             } catch(...) {
                 // might not exist yet...
-                log << MSG::INFO << "No L1CT information, waiting 5 sec" << endmsg;
+                ATH_MSG_INFO("No L1CT information, waiting 5 sec");
                 sleep(5);
             }
         }
 
         // Now translate names into bits. 
-        map<string,int> l1mapping = convert_names_bits(l1info);
+        std::map<std::string,int> l1mapping = convert_names_bits(l1info);
 
-        for(vector<string>::const_iterator it = m_l1names.begin();
-            it != m_l1names.end();
-            ++it) {
-            if(l1mapping.find(*it) == l1mapping.end()) {
-                log << MSG::ERROR << "Invalid L1 name in trigger mask: " << *it << endmsg;
+        for(const std::string& l1name : m_l1names) {
+            if(l1mapping.find(l1name) == l1mapping.end()) {
+                ATH_MSG_ERROR("Invalid L1 name in trigger mask: " << l1name);
                 continue;
             }
-            int bit = l1mapping[*it];
+            int bit = l1mapping[l1name];
             l1bits.push_back(bit);
         }
     }
@@ -340,21 +241,21 @@ bool ByteStreamEmonInputSvc::getIterator()
     while (true) {
 
         if (partition.name() != m_partition) {
-            log << MSG::INFO << "Partition name changed - reconnecting to " << m_partition << endmsg;
+            ATH_MSG_INFO("Partition name changed - reconnecting to " << m_partition);
             return getIterator();
         }
 
 	try {
             m_eventIt.reset(0);
-	    m_eventIt.reset(new emon::EventIterator(partition, *address, criteria, m_buffer_size, m_groupName));
+            m_eventIt.reset(new emon::EventIterator(partition, *address, criteria, m_buffer_size, m_groupName));
             if(m_readDetectorMask) {
                 get_runparams();
             }
             setProperty("State", "Connected");
 	    return true;
 	} catch(ers::Issue& ex) {
-	    log << MSG::INFO << "Cannot connect to sampler (will wait 20s): " << m_key << "/" << m_value 
-                << " Reason: " << ex.what() << endmsg;
+	    ATH_MSG_INFO("Cannot connect to sampler (will wait 20s): " << m_key << "/" << m_value
+                     << " Reason: " << ex.what());
 	    sleep(20);
 	}
     }
@@ -363,43 +264,36 @@ bool ByteStreamEmonInputSvc::getIterator()
 // Read previous event should not be called for this version of input svc
 const RawEvent* ByteStreamEmonInputSvc::previousEvent()
 {
-  MsgStream log(msgSvc(), name() );
-  log << MSG::WARNING << "previousEvent not implemented for ByteStreamEmonInputSvc" << endmsg;
+    ATH_MSG_WARNING("previousEvent not implemented for ByteStreamEmonInputSvc");
 
-  return 0;
+    return nullptr;
 }
 
 // Read the next event.
 const RawEvent* ByteStreamEmonInputSvc::nextEvent()
 {
-    MsgStream log(msgSvc(), name() );
-
     if (m_re) {
-        OFFLINE_FRAGMENTS_NAMESPACE::PointerType st = 0;
+        OFFLINE_FRAGMENTS_NAMESPACE::PointerType st = nullptr;
         m_re->start(st);
         if (st) delete [] st;
-        delete m_re;
-        m_re = 0 ;
+        m_re.reset();
     }
 
-    // log << MSG::INFO << " nextEvent()" << endmsg;
-
-    while(m_re == 0) {
+    while(m_re == nullptr) {
 
         if(m_connect) {
 	   
             if(!getIterator()) {
-                // log << MSG::WARNING << "No iterator..." << endmsg;
-                return 0;
+                return nullptr;
             }  else {
-                log << MSG::INFO << "Got sampler..." << endmsg;
+                ATH_MSG_INFO("Got sampler...");
                 m_connect = false;
             }
         }
        
         emon::Event event;
         try {
-            unsigned int timeout = m_timeout;
+            int timeout = m_timeout;
             if(m_updatePeriod) {
                 // try to hit lower end of update period
                 timeout = (m_publish_target - time(0) - int(m_updatePeriodRange * m_updatePeriod)) * 1000;
@@ -408,7 +302,7 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             event = m_eventIt->nextEvent(timeout);
         } catch(emon::NoMoreEvents& ex) {
             if(m_exit) {
-                return 0;
+                return nullptr;
             }
             check_publish();
             continue;
@@ -425,30 +319,29 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
 
         if (buf[0] == eformat::FULL_EVENT) {
 
-            // We got a full levent
-            m_re = new RawEvent(buf);
+            // We got a full event
+            m_re = std::make_unique<RawEvent>(buf);
             try {
                 m_re->check_tree();
-                log << MSG::INFO << "nextEvent: Got valid fragment of size:" << event.size() << endmsg;
-                m_robProvider->setNextEvent(m_re);
+                ATH_MSG_INFO("nextEvent: Got valid fragment of size:" << event.size());
+                m_robProvider->setNextEvent(m_re.get());
                 m_robProvider->setEventStatus(0);
             } catch (ers::Issue& ex) {
                 // log in any case
-                log << MSG::ERROR << "nextEvent: Invalid event fragment" << endmsg;
+                ATH_MSG_ERROR("nextEvent: Invalid event fragment");
                
                 if(!m_corrupted_events) {
 
                     delete [] buf;
-                    delete m_re;
-                    m_re = 0;
+                    m_re.reset();
                     continue;
                 } // else fall through
             }
 
         } else {
             // We got something we didn't expect.
-            log << MSG::ERROR << "nextEvent: Got invalid fragment of unknown type: 0x" 
-                << std::hex << buf[0] << std::dec << endmsg;
+            ATH_MSG_ERROR("nextEvent: Got invalid fragment of unknown type: 0x"
+                          << std::hex << buf[0] << std::dec);
             delete [] buf;
             continue;
         }
@@ -482,20 +375,18 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
     // we got an event, check if we have to publish
     check_publish();
 
-    return m_re; 
+    return m_re.get();
 
 }
    
 // Get a pointer to the current event. 
 const RawEvent* ByteStreamEmonInputSvc::currentEvent() const 
 {
-    return m_re;
+    return m_re.get();
 }
 
 void ByteStreamEmonInputSvc::check_publish()
 {
-    using namespace std;
-
     // is a server specified ?
     if(m_is_server.empty()) return;
 
@@ -517,8 +408,7 @@ void ByteStreamEmonInputSvc::check_publish()
             }
 
             // do NOT publish, but print a warning
-            MsgStream log(msgSvc(), name() );
-            log << MSG::WARNING << " check_publish: missed " << missed_publications << " publications to OH" << endmsg;
+            ATH_MSG_WARNING(" check_publish: missed " << missed_publications << " publications to OH");
 
             return;
         }
@@ -531,35 +421,31 @@ void ByteStreamEmonInputSvc::check_publish()
 
     try { 
 
-	if(m_provider == 0) {
-	    IPCPartition part(m_partition);
-	    if(!part.isValid()) return;
-	    // might throw...
-	    m_provider = new OHRootProvider(part, m_is_server, m_publish);
-	}
+        if(m_provider == nullptr) {
+            IPCPartition part(m_partition);
+            if(!part.isValid()) return;
+            // might throw...
+            m_provider = new OHRootProvider(part, m_is_server, m_publish);
+        }
 
-	vector<string> histnames = m_histSvc->getHists();
-	for(vector<string>::iterator it = histnames.begin();
-	    it != histnames.end();
-	    ++it) {
+        for(const std::string name : m_histSvc->getHists()) {
 
-	    if(!m_include.empty() && !regex_match(*it, m_include_rex)) {
-		continue;
-	    }
+            if(!m_include.empty() && !regex_match(name, m_include_rex)) {
+                continue;
+            }
 
-	    if(!m_exclude.empty() && regex_match(*it, m_exclude_rex)) {
-		continue;
-	    }
+            if(!m_exclude.empty() && regex_match(name, m_exclude_rex)) {
+                continue;
+            }
 
-	    TH1 *h = 0;
-	    if(m_histSvc->getHist(*it, h)) {
-		// might throw...
-		m_provider->publish(*h, *it);
-	    };
-	}
+            TH1 *h = nullptr;
+            if(m_histSvc->getHist(name, h)) {
+                // might throw...
+                m_provider->publish(*h, name);
+            };
+        }
     } catch (daq::oh::Exception& ex) {
-	MsgStream log(msgSvc(), name() );
-	log << MSG::ERROR << ex.what() << endmsg;
+        ATH_MSG_ERROR(ex.what());
     } 
 
     m_publish_target += m_updatePeriod;
@@ -567,18 +453,13 @@ void ByteStreamEmonInputSvc::check_publish()
 
 void ByteStreamEmonInputSvc::get_runparams()
 {
-    using namespace std;
-
-    MsgStream log(msgSvc(), name() );
-
     IPCPartition p(m_partition);
     
     RunParamsNamed runParams(p, "RunParams.RunParams");
     try {
         runParams.checkout();
 
-
-	eformat::helper::DetectorMask mask(runParams.det_mask);
+        eformat::helper::DetectorMask mask(runParams.det_mask);
         
         ByteStreamMetadata* metadata = new ByteStreamMetadata( runParams.run_number,
                                                                0,
@@ -588,53 +469,42 @@ void ByteStreamEmonInputSvc::get_runparams()
                                                                mask.serialize().second,
                                                                runParams.beam_type,
                                                                runParams.beam_energy,
-                                                               std::string(),
-							       std::string(""),
-							       runParams.T0_project_tag,
-							       0,
-                                                               std::vector<std::string>() );
+                                                               {},
+                                                               {},
+                                                               runParams.T0_project_tag,
+                                                               0,
+                                                               {} );
         m_inputMetaDataStore->clearStore().ignore();
-
-
 
         if (m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure()) {
             delete metadata;
-            metadata = 0;
-            log << MSG::WARNING << " Unable to record MetaData in InputMetaDataStore." << endmsg;
+            metadata = nullptr;
+            ATH_MSG_WARNING(" Unable to record MetaData in InputMetaDataStore.");
         } else {
-            log << MSG::INFO << " Recorded MetaData in InputMetaDataStore." << endmsg;
+            ATH_MSG_INFO(" Recorded MetaData in InputMetaDataStore.");
         }
     } catch(ers::Issue& ex) {
-        log << MSG::ERROR << "Cannot get run parameters:" << ex.what() << endmsg;
+        ATH_MSG_ERROR("Cannot get run parameters:" << ex.what());
     }
 }
 
-//
-// BeginRun incident handler
-//
-void ByteStreamEmonInputSvc::handle(const Incident& /* incident */)
+// start of run
+StatusCode ByteStreamEmonInputSvc::start()
 {
-    using namespace std;
-
-    MsgStream log(msgSvc(), name() );
-
     if(m_readDetectorMask) {
         get_runparams();
     }
 
     if(m_clearHistograms) {
-        log << MSG::INFO << "Resetting histograms at BeginRun incidient" << endmsg;
-        vector<string> histnames = m_histSvc->getHists();
-        for(vector<string>::iterator it = histnames.begin();
-            it != histnames.end();
-            ++it) {
-            
-            TH1 *h = 0;
-            if(m_histSvc->getHist(*it, h)) {
+        ATH_MSG_INFO("Resetting histograms...");
+        for(const std::string& name : m_histSvc->getHists()) {
+            TH1 *h = nullptr;
+            if(m_histSvc->getHist(name, h)) {
                 h->Reset();
             };
-        }    
+        }
     }
+    return StatusCode::SUCCESS;
 }
 
 void ByteStreamEmonInputSvc::updateHandler(Property& /* p */)
