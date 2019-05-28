@@ -112,7 +112,7 @@ bool UncertaintySet::getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eI
         ATH_MSG_ERROR("Asked for validity of a multi-scale variable set without specifying any scale variable: " << m_name);
         return false;
     }
-    
+
     // Checked conditions, now get the validity
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
         if (!m_groups.at(iGroup)->getValidity(jet,eInfo,scaleVariable))
@@ -168,7 +168,7 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
         ATH_MSG_ERROR("Asked for valid uncertainty of a multi-scale-variable set without specifying any scale variable: " << m_name);
         return false;
     }
-
+    
     // Checked conditions, now get the uncertainty and validity
     double localUnc = 0;
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
