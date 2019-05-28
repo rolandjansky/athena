@@ -353,11 +353,12 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
   float jet_weight=1.0;
   if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
-    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::SUCCESS ){
-      if( (jet_score > cut_score) && m_calcSF) {
-	jet_weight = getWeight(jet);
-      }
+    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
+      ATH_MSG_WARNING("decorateTruthLabel() is failed.");
     }
+  }
+  if( acc_truthLabel.isAvailable(jet) && (jet_score > cut_score) && m_calcSF) {
+    jet_weight = getWeight(jet);
   }
 
   // decorate the cut value if needed;
