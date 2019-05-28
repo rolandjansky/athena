@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "./FlowNetworkBuilderBase.h"
 #include <map>
 #include <algorithm>
@@ -48,7 +52,7 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
   //               (node - m_conditions.size()).
 
   std::vector<std::vector<int>> result;
-  // result.reserve(m_conditions.size());
+
   if(collector){collector->collect("FlowNetworkBuilder", "start satisfsaction checks");}
      
   for(const auto& cond : m_conditions){
