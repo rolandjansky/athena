@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -1035,8 +1035,7 @@ namespace xAOD {
 
       // Check if a name re-mapping should be applied or not:
       std::string keyToUse = key;
-      std::map< std::string, std::string >::const_iterator remap_itr =
-         m_nameRemapping.find( key );
+      auto remap_itr = m_nameRemapping.find( key );
       if( ( remap_itr != m_nameRemapping.end() ) &&
           ( ! m_inputEventFormat.exists( key ) ) &&
           m_inputEventFormat.exists( remap_itr->second ) ) {
@@ -1075,8 +1074,7 @@ namespace xAOD {
 
       // Check if we have a filtering rule for the store:
       const std::set< std::string >* filter = 0;
-      std::map< std::string, std::set< std::string > >::const_iterator fitr =
-         m_auxItemList.find( key + "Aux." );
+      auto fitr = m_auxItemList.find( key + "Aux." );
       if( fitr != m_auxItemList.end() ) {
          filter = &( fitr->second );
       }
@@ -1909,8 +1907,7 @@ namespace xAOD {
 
       // Check if a name remapping should be applied or not:
       std::string keyToUse = key;
-      std::map< std::string, std::string >::const_iterator remap_itr =
-         m_nameRemapping.find( key );
+      auto remap_itr = m_nameRemapping.find( key );
       if( ( remap_itr != m_nameRemapping.end() ) &&
           ( ! m_inputEventFormat.exists( key ) ) &&
           m_inputEventFormat.exists( remap_itr->second ) ) {
@@ -3091,8 +3088,7 @@ namespace xAOD {
       // Check if we have rules defined for which auxiliary properties
       // to write out:
       if( ! metadata ) {
-         std::map< std::string, std::set< std::string > >::const_iterator
-            item_itr = m_auxItemList.find( mgr->branch()->GetName() );
+         auto item_itr = m_auxItemList.find( mgr->branch()->GetName() );
          if( item_itr != m_auxItemList.end() ) {
             aux->selectAux( item_itr->second );
          }
