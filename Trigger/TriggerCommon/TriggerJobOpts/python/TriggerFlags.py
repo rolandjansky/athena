@@ -142,14 +142,8 @@ class doMTHLT(JobProperty):
     """ Run upgrade type of config """
     statusOn=True
     allowedType=['bool']
-    StoredValue=False
-
-    def __call__(self):
-        from AthenaCommon.ConcurrencyFlags import jobproperties
-        self.set_Value( jobproperties.ConcurrencyFlags.NumThreads >= 1 )
-        self.__call__ = lambda s: s.get_Value()
-        return jobproperties.ConcurrencyFlags.NumThreads >= 1
-
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
         
 _flags.append(doMTHLT)
 
