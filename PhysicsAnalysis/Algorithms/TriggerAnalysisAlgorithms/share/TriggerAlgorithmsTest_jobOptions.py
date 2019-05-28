@@ -42,7 +42,7 @@ triggerSequence = makeTriggerAnalysisSequence( dataType, triggerChains=triggerCh
 algSeq += triggerSequence
 
 # Set up an ntuple to check the job with:
-treeMaker = CfgMgr.CP__TreeMakerAlg( 'TreeMaker' )
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
 treeMaker.TreeName = 'events'
 athAlgSeq += treeMaker
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
@@ -54,7 +54,7 @@ ntupleMaker.Branches = [
 ntupleMaker.Branches += ['EventInfo.trigPassed_' + t + ' -> trigPassed_' + t for t in triggerChains]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
-treeFiller = CfgMgr.CP__TreeFillerAlg( 'TreeFiller' )
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
 treeFiller.TreeName = 'events'
 athAlgSeq += treeFiller
 
