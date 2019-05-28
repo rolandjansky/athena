@@ -9,9 +9,6 @@
 // Trk
 #include "TrkAlignableSurfaces/AlignableSurface.h"
 
-Trk::AlignableSurface::AlignableSurface()
-{}
+Trk::AlignableSurface::AlignableSurface() {}
 
-Trk::AlignableSurface::~AlignableSurface()
-{}
-
+Trk::AlignableSurface::~AlignableSurface() {}
