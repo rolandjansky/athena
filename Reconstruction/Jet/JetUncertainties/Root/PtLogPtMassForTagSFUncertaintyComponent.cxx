@@ -95,6 +95,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	    return 0.0;
 	  }
 	} else {
+	  ATH_MSG_ERROR("RegionForSF is specified in the config file, but it is not available for this tagger.");
 	  return 0.0;
 	}
       }
