@@ -23,8 +23,8 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PATCore 
    Reconstruction/Jet/JetCPInterfaces
-   Reconstruction/Jet/BoostedJetTaggers
    PRIVATE
+   Reconstruction/Jet/BoostedJetTaggers
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
    Tools/PathResolver

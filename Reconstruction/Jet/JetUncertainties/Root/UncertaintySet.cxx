@@ -153,6 +153,7 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
 {
     // See getUncertainty for discussion
     // This is not just calling the other two methods for speed, O(n) instead of O(2n)
+    
     if (!m_groups.size())
     {
         unc = 0;
