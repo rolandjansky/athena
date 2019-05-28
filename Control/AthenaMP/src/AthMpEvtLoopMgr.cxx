@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthMpEvtLoopMgr.h"
@@ -242,7 +242,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   ATH_MSG_DEBUG("Successfully finalized I/O before forking");
 
   // Extract process file descriptors
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
 
   // Flush stream buffers
   fflush(NULL);
@@ -462,11 +462,11 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
   return StatusCode::SUCCESS;
 }
 
-boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
+std::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
 {
   ATH_MSG_DEBUG("Extracting file descriptors");
   using namespace boost::filesystem;
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry(new AthenaInterprocess::FdsRegistry());
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry(new AthenaInterprocess::FdsRegistry());
 
   // Extract file descriptors associated with the current process
   // 1. Store only those regular files in the registry, which

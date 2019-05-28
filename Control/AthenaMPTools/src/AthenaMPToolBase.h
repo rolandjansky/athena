@@ -16,7 +16,6 @@
 #include "AthenaInterprocess/IMessageDecoder.h"
 
 #include <boost/filesystem.hpp>
-#include <memory>
 
 class IEvtSelector;
 
@@ -40,7 +39,7 @@ class AthenaMPToolBase : public AthAlgTool
   virtual void reportSubprocessStatuses() override;
   virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() override;
 
-  virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>) override;
+  virtual void useFdsRegistry(std::shared_ptr<AthenaInterprocess::FdsRegistry>) override;
   virtual void setRandString(const std::string& randStr) override;
 
   virtual void killChildren() override;
@@ -92,7 +91,7 @@ class AthenaMPToolBase : public AthAlgTool
   ServiceHandle<IIoComponentMgr> m_ioMgr;
   IEvtSelector*                  m_evtSelector;
   std::string                    m_fileMgrLog;
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> m_fdsRegistry;
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> m_fdsRegistry;
   std::string                    m_randStr;
 
  private:

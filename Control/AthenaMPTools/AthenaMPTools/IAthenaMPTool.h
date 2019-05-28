@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaInterprocess/FdsRegistry.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -24,7 +24,7 @@ namespace AthenaMP {
   typedef std::map<std::string,SingleWorkerOutputs> AllWorkerOutputs;
   typedef AllWorkerOutputs::iterator                AllWorkerOutputsIterator;
 
-  typedef boost::shared_ptr<AllWorkerOutputs>       AllWorkerOutputs_ptr;
+  typedef std::unique_ptr<AllWorkerOutputs>         AllWorkerOutputs_ptr;
 }
 
 static const InterfaceID IID_IAthenaMPTool( "IAthenaMPTool", 1, 0 );
@@ -46,7 +46,7 @@ class IAthenaMPTool : virtual public IAlgTool
   virtual void subProcessLogs(std::vector<std::string>&) = 0;
   virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() = 0; 
 
-  virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>) = 0;
+  virtual void useFdsRegistry(std::shared_ptr<AthenaInterprocess::FdsRegistry>) = 0;
   virtual void setRandString(const std::string& randStr) = 0;
 
   // Brute force: kill all children

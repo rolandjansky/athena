@@ -206,7 +206,7 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
   return jobOutputs;
 }
 
-void AthenaMPToolBase::useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry)
+void AthenaMPToolBase::useFdsRegistry(std::shared_ptr<AthenaInterprocess::FdsRegistry> registry)
 {
   m_fdsRegistry = registry;
 }
@@ -402,9 +402,7 @@ int AthenaMPToolBase::reopenFds()
   }
   
   // Check the FdsRegistry
-  AthenaInterprocess::FdsRegistry::const_iterator it(m_fdsRegistry->begin()), itEnd(m_fdsRegistry->end());
-  for(;it!=itEnd;++it) {
-    AthenaInterprocess::FdsRegistryEntry regEntry = *it;
+  for(const AthenaInterprocess::FdsRegistryEntry& regEntry : *m_fdsRegistry) {
     if(fdLog.find(regEntry.fd)!=fdLog.end()) {
       ATH_MSG_DEBUG("The file from FdsRegistry " << regEntry.name << " was registered with FileMgr. Skip reopening");
     }
