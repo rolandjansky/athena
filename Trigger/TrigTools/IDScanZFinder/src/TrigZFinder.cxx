@@ -13,8 +13,8 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "IDScanZFinder/TrigZFinder.h"
-#include "IDScanZFinder/ZFinderConstants.h"
+#include "TrigZFinder.h"
+#include "ZFinderConstants.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
