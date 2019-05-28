@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,11 +27,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigInDetToolInterfaces/ITrigRun1ZFinder.h"
-// #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "IDScanZFinderInternal.h"
-// for some reason it cannot find the header with the usual cmt path resolution
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
 class TrigVertex;
@@ -46,8 +44,7 @@ class IDScanZFinder: public Run1::IDScanZFinderInternal<TrigSiSpacePoint>, publi
   IDScanZFinder( const std::string&, const std::string&, const IInterface* );
   virtual ~IDScanZFinder(){};
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
 
   TrigVertexCollection* findZ( const std::vector<const TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi);
 

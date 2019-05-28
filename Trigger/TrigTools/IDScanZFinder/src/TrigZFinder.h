@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
-// #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigZFinderInternal.h"
@@ -45,8 +44,7 @@ class TrigZFinder: public TrigZFinderInternal, public AthAlgTool, virtual public
   TrigZFinder( const std::string&, const std::string&, const IInterface* );
   virtual ~TrigZFinder(){};
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
 
   TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi);
 
