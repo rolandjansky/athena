@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGERECTIMINGOBJTOOL_H
@@ -9,10 +9,10 @@
 
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <string>
 
-class PileUpMergeSvc;
 class RecoTimingObj;
 /** @class MergeRecoTimingObjTool
  *  @brief an algorithm to merge MC track record collTool in the overlay store
@@ -26,6 +26,8 @@ public:
   MergeRecoTimingObjTool(const std::string& type,
                            const std::string& name,
                            const IInterface* parent);
+  ///
+  virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
   virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
@@ -45,9 +47,9 @@ public:
 private:
   /// share code between two approaches
   virtual StatusCode processRecoTimingObj(const RecoTimingObj *inputObj);
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  StringProperty m_recTimingObjInputKey;
-  StringProperty m_recTimingObjOutputKey;
-  bool m_firstSubEvent;
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  StringProperty m_recTimingObjInputKey{this, "RecoTimingObjInputKey", "EVNTtoHITS_timings", ""};
+  StringProperty m_recTimingObjOutputKey{this, "RecoTimingObjOutputKey", "EVNTtoHITS_timings", ""};
+  bool m_firstSubEvent{true};
 };
 #endif
