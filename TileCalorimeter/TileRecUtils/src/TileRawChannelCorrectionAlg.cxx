@@ -13,16 +13,6 @@
 
 #include <memory>
 
-TileRawChannelCorrectionAlg::TileRawChannelCorrectionAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator)
-{
-}
-
-
-TileRawChannelCorrectionAlg::~TileRawChannelCorrectionAlg() {
-}
-
-
 StatusCode TileRawChannelCorrectionAlg::initialize() {
 
   ATH_MSG_DEBUG( "Input raw channel container: '" << m_inputRawChannelContainerKey.key()
@@ -60,14 +50,6 @@ StatusCode TileRawChannelCorrectionAlg::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "TileRawChannelContainer registered successfully (" 
                  << m_outputRawChannelContainerKey.key() << ")");
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TileRawChannelCorrectionAlg::finalize() {
-
-  ATH_MSG_DEBUG( "in finalize()" );
 
   return StatusCode::SUCCESS;
 }

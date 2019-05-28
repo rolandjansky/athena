@@ -24,12 +24,12 @@
 class TileRawChannelCorrectionAlg: public AthReentrantAlgorithm {
   public:
 
-    TileRawChannelCorrectionAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileRawChannelCorrectionAlg();
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
+
+    virtual ~TileRawChannelCorrectionAlg() override = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    virtual StatusCode finalize() override;
 
   private:
 
