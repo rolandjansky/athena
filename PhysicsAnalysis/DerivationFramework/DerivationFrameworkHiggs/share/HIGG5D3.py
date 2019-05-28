@@ -193,7 +193,8 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_j80_bmv2c2070_split_j60_bmv2c2085_split_j45_320eta490',
                   'HLT_j80_0eta240_j60_j45_320eta490', # added on May 2016
                   'HLT_j80_0eta240_j60_j45_320eta490_AND_2j45_bmv2c2070_split', # added on Nov 2016
-                  'HLT_2j35_bmv2c2060_split_2j35_L14J15'] # added on Dec 2016
+                  'HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25',
+                  'HLT_2j35_bmv2c2060_split_2j35_L14J15'] 
 
 
 
