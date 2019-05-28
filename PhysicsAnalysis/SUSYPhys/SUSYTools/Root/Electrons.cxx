@@ -439,7 +439,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
     //ECIS SF 
     if( m_runECIS ){
-      ATH_MSG_WARNING ("Be aware that ECIS SF is not provided in R21 yet. Use at your own risk!");
       result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
