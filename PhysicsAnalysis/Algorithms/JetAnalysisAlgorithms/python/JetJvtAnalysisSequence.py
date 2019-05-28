@@ -36,11 +36,10 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         from JetAnalysisSequence import jvtSysts, fjvtSysts
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
-        alg.preselection = preselection
+        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorInputDecorationRegex = jvtSysts
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
-        alg.preselection = 'no_jvt'
 
         seq.append( alg,
                     affectingSystematics = jvtSysts,
@@ -48,11 +47,10 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                       'eventInfo' : 'eventInfo' } )
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-        alg.preselection = preselection
+        alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
         alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
         alg.scaleFactorInputDecorationRegex = fjvtSysts
         alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
-        alg.preselection= 'no_fjvt'
 
         seq.append( alg,
                     affectingSystematics = fjvtSysts,
