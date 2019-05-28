@@ -94,6 +94,8 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 		  (!passMass && !passD2 && m_region.Contains("failMfailD2"))) ){
 	    return 0.0;
 	  }
+	} else {
+	  return 0.0;
 	}
       }
     }
