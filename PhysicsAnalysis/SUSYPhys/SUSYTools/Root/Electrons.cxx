@@ -151,7 +151,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   }
 
   // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
+  if ( input.pt() < 4e3 || !input.caloCluster() ) return StatusCode::SUCCESS;
 
   if (!input.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return StatusCode::SUCCESS;
 

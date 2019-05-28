@@ -154,6 +154,8 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( !dec_baseline(input) )  return false;
 
+  if(!input.vertex()) return false;
+
   if ( !m_egammaAmbiguityTool->accept(input) ) return false;
 
   if ( input.pt() < ptcut ) return false;
