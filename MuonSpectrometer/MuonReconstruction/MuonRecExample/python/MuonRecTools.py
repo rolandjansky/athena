@@ -230,6 +230,11 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
+def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
+    kwargs.setdefault("Propagators",["Trk::STEP_Propagator/MuonStraightLinePropagator"])
+    kwargs.setdefault("STEP_Propagator","Trk::STEP_Propagator/MuonStraightLinePropagator")
+    return MuonExtrapolator(name,**kwargs)
+
 def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
     getPublicTool("MuonIdHelperTool")
@@ -304,9 +309,8 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
 
     # take propagator and navigator from the extrapolator
     Extrapolator = getPublicTool(kwargs["ExtrapolationTool"])
-    kwargs["ExtrapolationTool"] = Extrapolator
-    kwargs["PropagatorTool"]    = getPublicTool(Extrapolator.Propagators[0].getName())
-    kwargs["NavigatorTool"]     = getPublicTool(Extrapolator.Navigator.getName())
+    kwargs.setdefault("PropagatorTool",Extrapolator.Propagators[0].getName())
+    kwargs.setdefault("NavigatorTool",Extrapolator.Navigator.getName())
 
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
@@ -371,6 +375,7 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
     return MdtMathSegmentFinder(name,extraFlags,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
+    kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 

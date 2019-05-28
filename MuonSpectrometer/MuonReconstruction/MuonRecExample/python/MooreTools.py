@@ -28,7 +28,7 @@ from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 
-from MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator
+from MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
 from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 
@@ -312,6 +312,12 @@ def MCTBSLFitter(name="MCTBSLFitter", **kwargs):
     kwargs.setdefault("Momentum", muonStandaloneFlags.straightLineFitMomentum()) #only set if not yet set
     return MCTBFitter(name, **kwargs)
 
+def MCTBSLFitterMaterialFromTrack(name="MCTBSLFitterMaterialFromTrack", **kwargs):
+    kwargs["GetMaterialFromTrack"]=True
+    kwargs.setdefault("ExtrapolationTool", "Trk::Extrapolator/MuonStraightLineExtrapolator")
+    #kwargs.setdefault("PropagatorTool", "Trk::STEP_Propagator/MuonStraightLinePropagator") #will switch to this once it's ready
+    kwargs["PropagatorTool"]=getPublicTool("MuonRK_Propagator")
+    return MCTBSLFitter(name, **kwargs)
 
 def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
@@ -496,7 +502,6 @@ if beamFlags.beamType() == 'cosmics':
 getPublicTool("MCTBFitter")
 getPublicTool("MCTBSLFitter")
 getPublicTool("MCTBFitterMaterialFromTrack")
-getPublicTool("MCTBSLFitterMaterialFromTrack")
 getPublicTool("MuonSeededSegmentFinder")
 getPublicTool("MuonChamberHoleRecoveryTool")
 getPublicTool("MuonTrackSelectorTool")
