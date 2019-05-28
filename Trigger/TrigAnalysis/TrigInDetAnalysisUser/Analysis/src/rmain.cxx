@@ -67,6 +67,9 @@
 ///  globals for communicating with *Analyses
 #include "globals.h"
 
+///  TagNProbe routine class
+#include "TagNProbe.h"
+
 // in ConfAnalysis
 
 extern bool PRINT_BRESIDUALS;
@@ -136,10 +139,10 @@ int GetChainAuthor(std::string chainName) {
 
 // Function to allow creation of an RoI for reference tracks, with custom widths, and which defaults to trigger roi values if none are specifed
 TIDARoiDescriptor makeCustomRefRoi( const TIDARoiDescriptor& roi, 
-				    double etaHalfWidth=-999, 
-				    double phiHalfWidth=-999, 
-				    double zedHalfWidth=-999 ) { 
-				    
+                                    double etaHalfWidth=-999, 
+                                    double phiHalfWidth=-999, 
+                                    double zedHalfWidth=-999 ) { 
+                                    
   double roi_eta = roi.eta();
   double roi_phi = roi.phi();
   double roi_zed = roi.zed();
@@ -169,8 +172,8 @@ TIDARoiDescriptor makeCustomRefRoi( const TIDARoiDescriptor& roi,
   }
 
   return TIDARoiDescriptor( roi_eta, etaMinus, etaPlus,
-			    roi_phi, phiMinus, phiPlus, // do wrap phi here (done within TIDARoiDescriptor already)			   
-			    roi_zed, zedMinus, zedPlus );
+                            roi_phi, phiMinus, phiPlus, // do wrap phi here (done within TIDARoiDescriptor already)                        
+                            roi_zed, zedMinus, zedPlus );
 }
 
 
@@ -266,7 +269,7 @@ const std::vector<TIDA::Track> replaceauthor( const std::vector<TIDA::Track>& tv
   return tr;
 
 }
-	
+        
 
 
 struct event_list { 
@@ -398,6 +401,7 @@ int main(int argc, char** argv)
 
   bool useoldrms = true;
   bool nofit     = false;
+  bool doTnP     = false;  // added for tagNprobe
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" ) {
@@ -413,6 +417,7 @@ int main(int argc, char** argv)
       refChain = argv[i];
     }
     else if ( std::string(argv[i])=="--rms" )   useoldrms = false;
+    else if ( std::string(argv[i])=="--tnp" )   doTnP = true;
     else if ( std::string(argv[i])=="-n" || std::string(argv[i])=="--nofit" ) nofit = true;
     else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--testChain" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -1056,7 +1061,7 @@ int main(int argc, char** argv)
     if ( chainConfig[i].values().size()>0 ) { 
       std::cout << "chain:: " << chainname << "\t(" << chainConfig[i] << " : size " << chainConfig[i].values().size() << ")" << std::endl; 
       for ( unsigned ik=chainConfig[i].values().size() ; ik-- ; ) {
-	std::cout << "\tchainconfig: " << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
+        std::cout << "\tchainconfig: " << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
       }
     }
   
@@ -1068,10 +1073,10 @@ int main(int argc, char** argv)
     analyses.push_back(analy_conf);
 
     std::cout << "analysis: " << chainname << "\t" << analy_conf  
-	      << "\n" 
-	      << "---------------------------------" 
-	      << "---------------------------------" 
-	      << "---------------------------------" << std::endl;
+              << "\n" 
+              << "---------------------------------" 
+              << "---------------------------------" 
+              << "---------------------------------" << std::endl;
 
     if ( doPurity ) {
       PurityAnalysis* analp = new PurityAnalysis(chainnames[0]+"-purity"); 
@@ -1113,8 +1118,8 @@ int main(int argc, char** argv)
 
   NtupleTrackSelector truthTracks( truthFilter );
 
-  //  	NtupleTrackSelector  refTracks( &filter_passthrough );
-  //  	NtupleTrackSelector  testTracks( refFilter );
+  //    NtupleTrackSelector  refTracks( &filter_passthrough );
+  //    NtupleTrackSelector  testTracks( refFilter );
   //    NtupleTrackSelector  refTracks(  &filter_pdgtruth);
   //    NtupleTrackSelector  testTracks( &filter_off );
   //    NtupleTrackSelector testTracks(&filter_roi);
@@ -1255,25 +1260,25 @@ int main(int argc, char** argv)
 
 
       if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
-	std::cerr << "Error: could not open input file: " << filenames[i] << std::endl;
-	exit(-1);
+        std::cerr << "Error: could not open input file: " << filenames[i] << std::endl;
+        exit(-1);
       }
   
       TTree*   dataTree    = (TTree*)finput->Get("dataTree");
       TString* releaseData = new TString("");
       
       if ( dataTree ) { 
-	dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
-	
-	for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
-	  dataTree->GetEntry(i);      
-	  release_data.push_back( releaseData->Data() );
-	  if (  release_data_save != release_data.back() ) { 
-	    std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
-	  }
-	  first = false;
-	  release_data_save = release_data.back();
-	}
+        dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
+        
+        for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
+          dataTree->GetEntry(i);      
+          release_data.push_back( releaseData->Data() );
+          if (  release_data_save != release_data.back() ) { 
+            std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
+          }
+          first = false;
+          release_data_save = release_data.back();
+        }
       }
 
       if ( finput ) delete finput;
@@ -1293,15 +1298,15 @@ int main(int argc, char** argv)
       TString* releaseData = new TString("");
 
       if ( dataTree ) { 
-	dataTree->Branch( "ReleaseMetaData", "TString", &releaseData);
-	
-	for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) {  
-	  *releaseData = release_data[ird];
-	  dataTree->Fill();
-	}
-	
-	dataTree->Write("", TObject::kOverwrite);
-	delete dataTree;
+        dataTree->Branch( "ReleaseMetaData", "TString", &releaseData);
+        
+        for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) {  
+          *releaseData = release_data[ird];
+          dataTree->Fill();
+        }
+        
+        dataTree->Write("", TObject::kOverwrite);
+        delete dataTree;
       }
     }   
   
@@ -1409,8 +1414,8 @@ int main(int argc, char** argv)
 
       
       //      if ( _Nentries<Nentries ) { 
-      //	run = false;
-      //	break;
+      //        run = false;
+      //        break;
       //     }
       //    Nentries++;
 
@@ -1469,13 +1474,13 @@ int main(int argc, char** argv)
 
     if ( filenames.size()<2 ) { 
       if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
-	std::cout << "run "      << track_ev->run_number() 
-		  << "\tevent "  << track_ev->event_number() 
-		  << "\tlb "     << track_ev->lumi_block() 
-		  << "\tchains " << track_ev->chains().size()
-		  << "\ttime "   << track_ev->time_stamp();
-	std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
-	//   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
+        std::cout << "run "      << track_ev->run_number() 
+                  << "\tevent "  << track_ev->event_number() 
+                  << "\tlb "     << track_ev->lumi_block() 
+                  << "\tchains " << track_ev->chains().size()
+                  << "\ttime "   << track_ev->time_stamp();
+        std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
+        //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
       }
     }  
 
@@ -1489,15 +1494,15 @@ int main(int argc, char** argv)
       if ( data->GetEntries()<100 )   std::cout << " ";
       if ( data->GetEntries()<1000 )  std::cout << " ";
       if ( data->GetEntries()<10000 ) std::cout << " ";
-	
+        
       std::cout << "\t";
 
 
       std::cout << "run "      << track_ev->run_number() 
-		<< "\tevent "  << track_ev->event_number() 
-		<< "\tlb "     << track_ev->lumi_block() 
-		<< "\tchains " << track_ev->chains().size()
-		<< "\ttime "   << track_ev->time_stamp();
+                << "\tevent "  << track_ev->event_number() 
+                << "\tlb "     << track_ev->lumi_block() 
+                << "\tchains " << track_ev->chains().size()
+                << "\ttime "   << track_ev->time_stamp();
       
       std::cout << "\t : processed " << ifile << " files so far (" << int((1e3*ifile)/pfiles)*0.1 << "%)\t" << time_str() << std::endl;
 
@@ -1505,7 +1510,7 @@ int main(int argc, char** argv)
     }
 
 
-    //		if ( printflag )  std::cout << *track_ev << std::endl;   
+    //          if ( printflag )  std::cout << *track_ev << std::endl;   
     
     r = track_ev->run_number();
 
@@ -1527,10 +1532,10 @@ int main(int argc, char** argv)
     //// get the truth tracks if required
     if ( truthMatch ) { 
       for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
-	if ( chains[ic].name()=="Truth" ) {
- 	  truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
-	  break;
-	}
+        if ( chains[ic].name()=="Truth" ) {
+          truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
+          break;
+        }
       }
     }
 
@@ -1538,10 +1543,10 @@ int main(int argc, char** argv)
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
         offTracks.selectTracks( chains[ic].rois()[0].tracks() );
-	//extract beamline position values from rois
-	beamline_ref = chains[ic].rois()[0].user();
-	// std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
-	break;
+        //extract beamline position values from rois
+        beamline_ref = chains[ic].rois()[0].user();
+        // std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
+        break;
       }
     }
 
@@ -1559,19 +1564,19 @@ int main(int argc, char** argv)
      
     if ( bestPTVtx || bestPT2Vtx )  {  
       for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-	if ( mv[iv].Ntracks()==0 ) continue;
-	double selection_ = 0.0;
-	for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
-	  TIDA::Track* tr = offTracks.tracks().at(itr);
-	  if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
-	    if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
-	    else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
-	  }
-	}
-	if( selection_>selection){
-	  selection = selection_;
-	  selectvtx = iv;
-	}
+        if ( mv[iv].Ntracks()==0 ) continue;
+        double selection_ = 0.0;
+        for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
+          TIDA::Track* tr = offTracks.tracks().at(itr);
+          if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
+            if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
+            else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+          }
+        }
+        if( selection_>selection){
+          selection = selection_;
+          selectvtx = iv;
+        }
       }
       if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
     }
@@ -1596,8 +1601,8 @@ int main(int argc, char** argv)
     for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
       int Ntracks = mv[iv].Ntracks();
       if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
-	Nvtxtracks += Ntracks;
-	//	vertices.push_back( mv[iv] );
+        Nvtxtracks += Ntracks;
+        //      vertices.push_back( mv[iv] );
         NvtxCount++;
       }
     }
@@ -1622,21 +1627,21 @@ int main(int argc, char** argv)
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) { 
       if ( chains[ic].name()==refChain ) { 
 
-	refchain = &chains[ic];
-     	foundReference = true;
+        refchain = &chains[ic];
+        foundReference = true;
 
-	//Get tracks from within reference roi
+        //Get tracks from within reference roi
         //        ibl_filter( chains[ic].rois()[0].tracks() ); 
 
-	refTracks.selectTracks( chains[ic].rois()[0].tracks() );
+        refTracks.selectTracks( chains[ic].rois()[0].tracks() );
 
-	/// get objects if requested
+        /// get objects if requested
 
-	if ( chains[ic].rois()[0].objects().size()>0 ) { 
-	  tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectETovPT );
-	}
+        if ( chains[ic].rois()[0].objects().size()>0 ) { 
+          tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectETovPT );
+        }
 
-	break;
+        break;
 
       }
     }
@@ -1663,411 +1668,515 @@ int main(int argc, char** argv)
 
 
       if ( debugPrintout ) { 
-	std::cout << "test chain:\n" << chain << std::endl;
+        std::cout << "test chain:\n" << chain << std::endl;
       }
-      
-      
-      for (unsigned int ir=0 ; ir<chain.size() ; ir++ ) { 
+     
 
-	/// get the rois and filter on them if required 
+      /// the following lines have been added for tagNprobe analysis
 
-	TIDA::Roi& troi = chain.rois()[ir]; 
+      std::vector<TIDA::Roi*> rois; /// these are the rois to process
+
+      /// declaration of TnP tool
+      TagNProbe * tNp = 0;
+
+      /// if in tagNprobe mode, look for corresponding tagNprobe chain
+      if ( doTnP ) {
+       
+        tNp = new TagNProbe();
+ 
+        TIDA::Chain * chain_tnp = 0;
+
+        /// looking for corresponding chain;DTE (if any)
+        for ( size_t icp=0 ; icp<chains.size() ; icp++ ) {
+
+          std::string ichain_name = chains[icp].name();
+
+          /// ok for now, but in the future the condition in the if statement below
+          /// can be replaced to allow probes to be searched in chains which are
+          /// not only the corresponding DTE chain
+          if ( ichain_name == chain.name()+";DTE" ) {
+            chain_tnp = &track_ev->chains()[icp];
+            break;
+          }
+        } 
+
+        if ( chain_tnp==0 ) {
+          std::cerr << "Chain for TagNProbe was not found!" << std::endl;
+          //return -1;
+          continue;
+        }
+
+        /// Setting the offline an filter to the TagNProbe tool
+        tNp->SetOfflineTracks( &refTracks, refFilter );
+
+        /// setting tag and probe chains for TagNProbe tool
+        tNp->SetChains( &chain, chain_tnp );
+
+        /// if true is passed allows to loop over multiple tags when one has already been found
+        tNp->SetUniqueFlag( true );
+
+        if ( !tNp->FindProbes() ) {
+          std::cerr << "No Probes were found!" << std::endl;
+          //return -1;
+          continue;
+        }
+
+        /// getting the vector of rois to process
+        rois = tNp->GetProbes();
+
+        /// now the tNp object contains all the info on the good probes that have been found 
+        /// including, for each one of them, the invariant mass(es) calculated with the 
+        /// corresponding tag(s). One can access to these info at any time in the following lines
+
+      } /// end of if( doTnP )
+      else {
+
+        /// if doTnP==false, do std analysis and fill the rois vector from chain
+        rois.reserve( chain.size() );
+        for ( size_t ir=0 ; ir<chain.size() ; ir++ )
+          rois.push_back( &(chain.rois()[ir]) );
+
+      }
+ 
+      /// debug printout
+      if ( false )
+        std::cout << "++++++++++++ rois size = " << rois.size() << " +++++++++++" << std::endl;
+ 
+      //for (unsigned int ir=0 ; ir<chain.size() ; ir++ ) { 
+      for (unsigned int ir=0 ; ir<rois.size() ; ir++ ) {  // changed for tagNprobe
+
+        /// get the rois and filter on them if required 
+
+        //TIDA::Roi& troi = chain.rois()[ir]; 
+        TIDA::Roi& troi = *rois[ir]; // changed for tagNprobe
         TIDARoiDescriptor roi( troi.roi() );
 
-	/// do we want to filter on the RoI properties? 
-	/// If so, if the RoI fails the cuts, then skip this roi
+        /// example: retrieve additional info on probe roi for tNp analysis
+        std::vector<double> probeInvM;
+        std::vector<TIDA::Roi*> tags;
+        if ( doTnP ) {
+          /// this vectors will have more than one element when the current probe 
+          /// is selected for more than one tags
 
-	if ( filterRoi && !roiFilter.filter( roi ) ) continue; 
-	
-	/// select the test sample (trigger) vertices
-	const std::vector<TIDA::Vertex>& mvt = troi.vertices();
+          /// retrieve the list of invariant masses for probe ir
+          probeInvM = tNp->GetInvMasses(ir);
 
+          /// retrieve list of tag indices for probe ir
+          tags = tNp->GetTags(ir);
 
-	std::vector<TIDA::Vertex> vertices_test;
-	
-	int     selectvtx = -1;
-	double  selection = 0;
-	
-	if ( bestPTVtx_rec || bestPT2Vtx_rec )  {  
-	  
-	  const std::vector<TIDA::Track>& recTracks = troi.tracks();
-	  
-	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
-	    double selection_ = 0.0;
-	    for (unsigned itr=0; itr<recTracks.size(); itr++){
-	      const TIDA::Track* tr = &recTracks[itr];
-	      if( std::fabs(mvt[iv].z()-tr->z0()) < 1.5 ) { 
-		if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
-		else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
-	      }
-	    }
-	    if( selection_>selection){
-	      selection = selection_;
-	      selectvtx = iv;
-	    }
-	  }
-	  if ( selectvtx!=-1 ) vertices_test.push_back( mvt[selectvtx] );
-	}
-	else if ( vtxind_rec!=-1 ) {
-	  if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
-	}
-	else { 
-	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
-	}
+          /// debug printout
+          if ( true ) {
+            std::cout << "---------------------------------" << std::endl;
+            std::cout << "--- Event N " << track_ev->event_number() << " ---" << std::endl;
+            std::cout << "---------------------------------" << std::endl;
+            std::cout << "Probe " << ir << " (eta:" << roi.eta() << ") for (N=" << tags.size() << ") tags with eta= ";
+            for ( size_t it=0 ; it<tags.size() ; it++ )
+              std::cout << (tags[it])->roi().eta() << "\t";
+            std::cout << "\nInvariant masses (N=" << probeInvM.size() << ") are = ";
+            for ( size_t im=0 ; im<probeInvM.size() ; im++ )
+              std::cout << probeInvM[im] << "\t";
+            std::cout << std::endl;
+            std::cout << "---------------------------------END" << std::endl;
+          }
+
+        }
 
 
+        /// do we want to filter on the RoI properties? 
+        /// If so, if the RoI fails the cuts, then skip this roi
+
+        if ( filterRoi && !roiFilter.filter( roi ) ) continue; 
+        
+        /// select the test sample (trigger) vertices
+        const std::vector<TIDA::Vertex>& mvt = troi.vertices();
 
 
-	
-	
-	//extract beamline position values from rois
-	//	const std::vector<double>& beamline = chain.rois()[ir].user();
-	beamline_test = chain.rois()[ir].user();
-	
-	//	std::cout << "beamline: " << chain.name() << "  " << beamline_test << std::endl; 
+        std::vector<TIDA::Vertex> vertices_test;
+        
+        int     selectvtx = -1;
+        double  selection = 0;
+        
+        if ( bestPTVtx_rec || bestPT2Vtx_rec )  {  
+          
+          const std::vector<TIDA::Track>& recTracks = troi.tracks();
+          
+          for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
+            double selection_ = 0.0;
+            for (unsigned itr=0; itr<recTracks.size(); itr++){
+              const TIDA::Track* tr = &recTracks[itr];
+              if( std::fabs(mvt[iv].z()-tr->z0()) < 1.5 ) { 
+                if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
+                else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+              }
+            }
+            if( selection_>selection){
+              selection = selection_;
+              selectvtx = iv;
+            }
+          }
+          if ( selectvtx!=-1 ) vertices_test.push_back( mvt[selectvtx] );
+        }
+        else if ( vtxind_rec!=-1 ) {
+          if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
+        }
+        else { 
+          for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
+        }
 
-	//set values of track analysis to these so can access elsewhere
-	for ( size_t i=analyses.size() ; i-- ; ) {
+
+
+
+        
+        
+        //extract beamline position values from rois
+        //      const std::vector<double>& beamline = chain.rois()[ir].user();
+        //beamline_test = chain.rois()[ir].user();
+        beamline_test = rois[ir]->user(); // changed for tagNprobe
+        
+        //      std::cout << "beamline: " << chain.name() << "  " << beamline_test << std::endl; 
+
+        //set values of track analysis to these so can access elsewhere
+        for ( size_t i=analyses.size() ; i-- ; ) {
 
           TrackAnalysis* analy_track = analyses[i];
-	  
-	  if ( correctBeamlineTest ) { 
-	    if      ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
-	    //	    else if ( beamTest.size()==3 ) analy_track->setBeamTest( beamTest[0], beamTest[1], beamTest[2] );
-	    else { 
-	      if ( !inputdata.isTagDefined("BeamTest") ) {
-		if      ( beamline_test.size()==2 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1] );
-		//		else if ( beamline_test.size()==3 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1], beamline_test[2] );
-	      }
-	    }
-	  }
-	  
-	  if ( correctBeamlineRef ) { 
-	    if      ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
-	    //	    else if ( beamRef.size()==3 ) analy_track->setBeamRef( beamRef[0], beamRef[1], beamRef[2] );
-	    else { 
-	      if ( !inputdata.isTagDefined("BeamRef") ) { 
-		if      ( beamline_ref.size()==2 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1] );
-		//		else if ( beamline_ref.size()==3 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1], beamline_ref[2] );
-	      }
-	    }
-	  }
-	  
-	}
-	
-	testTracks.clear();
+          
+          if ( correctBeamlineTest ) { 
+            if      ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
+            //      else if ( beamTest.size()==3 ) analy_track->setBeamTest( beamTest[0], beamTest[1], beamTest[2] );
+            else { 
+              if ( !inputdata.isTagDefined("BeamTest") ) {
+                if      ( beamline_test.size()==2 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1] );
+                //              else if ( beamline_test.size()==3 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1], beamline_test[2] );
+              }
+            }
+          }
+          
+          if ( correctBeamlineRef ) { 
+            if      ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
+            //      else if ( beamRef.size()==3 ) analy_track->setBeamRef( beamRef[0], beamRef[1], beamRef[2] );
+            else { 
+              if ( !inputdata.isTagDefined("BeamRef") ) { 
+                if      ( beamline_ref.size()==2 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1] );
+                //              else if ( beamline_ref.size()==3 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1], beamline_ref[2] );
+              }
+            }
+          }
+          
+        }
+        
+        testTracks.clear();
 
-	testTracks.selectTracks( troi.tracks() );
-	
-	/// trigger tracks already restricted by roi - so no roi filtering required 
+        testTracks.selectTracks( troi.tracks() );
+        
+        /// trigger tracks already restricted by roi - so no roi filtering required 
         std::vector<TIDA::Track*> testp = testTracks.tracks();
-	
-	/// here we set the roi for the filter so we can request only those tracks 
-	/// inside the roi
+        
+        /// here we set the roi for the filter so we can request only those tracks 
+        /// inside the roi
 
-	TIDARoiDescriptor refRoi;
-	
-	if ( select_roi ) {
+        TIDARoiDescriptor refRoi;
+        
+        if ( select_roi ) {
 
-	  bool customRefRoi_thisChain = false;
+          bool customRefRoi_thisChain = false;
 
-	  if ( use_custom_ref_roi ) { // Ideally just want to say ( use_custom_ref_roi && (chain.name() in custRefRoi_chain]sist) )
-	    if ( customRoi_chains.size() ) { 
-	      if ( customRoi_chains.find( chain.name() )!=customRoi_chains.end() ) customRefRoi_thisChain = true;
-	    }
-	    else customRefRoi_thisChain = true;  // Apply custom ref roi to all chains
-	  }
-	  
-	  if ( use_custom_ref_roi && customRefRoi_thisChain ) { 
-	    refRoi = makeCustomRefRoi( roi, custRefRoi_params[0], custRefRoi_params[1], custRefRoi_params[2] ); 
-	  }
-	  else refRoi = roi;
+          if ( use_custom_ref_roi ) { // Ideally just want to say ( use_custom_ref_roi && (chain.name() in custRefRoi_chain]sist) )
+            if ( customRoi_chains.size() ) { 
+              if ( customRoi_chains.find( chain.name() )!=customRoi_chains.end() ) customRefRoi_thisChain = true;
+            }
+            else customRefRoi_thisChain = true;  // Apply custom ref roi to all chains
+          }
+          
+          if ( use_custom_ref_roi && customRefRoi_thisChain ) { 
+            refRoi = makeCustomRefRoi( roi, custRefRoi_params[0], custRefRoi_params[1], custRefRoi_params[2] ); 
+          }
+          else refRoi = roi;
 
-	  dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&refRoi);
-	}
-	
-	//	if ( debugPrintout ) { 
-	//	  std::cout << "refTracks.size() " << refTracks.size() << " before roi filtering" << std::endl; 
-	//	  std::cout << "filter with roi " << roi << std::endl; 
-	//	}
+          dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&refRoi);
+        }
+        
+        //      if ( debugPrintout ) { 
+        //        std::cout << "refTracks.size() " << refTracks.size() << " before roi filtering" << std::endl; 
+        //        std::cout << "filter with roi " << roi << std::endl; 
+        //      }
 
-	
-	// Now filterng ref tracks by refFilter, and performing any further filtering and selecting,
-	// before finally creating the const reference object refp
+        
+        // Now filterng ref tracks by refFilter, and performing any further filtering and selecting,
+        // before finally creating the const reference object refp
 
-	std::vector<TIDA::Track*>  refp_vec = refTracks.tracks( refFilter );
-	
+        std::vector<TIDA::Track*>  refp_vec = refTracks.tracks( refFilter );
+        
 
-	// Selecting only truth matched reference tracks
-	if ( truthMatch ) { 	  
-	  /// get the truth particles ...
-	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
-	  const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
-	  const std::vector<TIDA::Track*>&  refp_tmp = refp_vec;
+        // Selecting only truth matched reference tracks
+        if ( truthMatch ) {       
+          /// get the truth particles ...
+          if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
+          const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
+          const std::vector<TIDA::Track*>&  refp_tmp = refp_vec;
 
-	  /// truth_matcher match against current reference selection 
-	  truth_matcher->match( refp_tmp, truth );
+          /// truth_matcher match against current reference selection 
+          truth_matcher->match( refp_tmp, truth );
 
-	  std::vector<TIDA::Track*>  refp_matched;
+          std::vector<TIDA::Track*>  refp_matched;
 
-	  /// which truth tracks have a matching reference track ?
-	  for ( unsigned i=0 ; i<refp_vec.size() ; i++ ) { 
-	    if ( truth_matcher->matched( refp_vec[i] ) ) refp_matched.push_back( refp_vec[i] );
-	  }
+          /// which truth tracks have a matching reference track ?
+          for ( unsigned i=0 ; i<refp_vec.size() ; i++ ) { 
+            if ( truth_matcher->matched( refp_vec[i] ) ) refp_matched.push_back( refp_vec[i] );
+          }
 
-	  refp_vec.clear();
-	  refp_vec = refp_matched;
-	}
-	
-	// Choose the pT ordered refp tracks that have been asked for by the user
-	if ( use_pt_ordered_ref ) {
-	  std::sort(refp_vec.begin(), refp_vec.end(), trackPtGrtr); // Should this sorting be done to a temporary copied object, instead of the object itself?
-	  
-	  int nRefTracks = refp_vec.size();
+          refp_vec.clear();
+          refp_vec = refp_matched;
+        }
+        
+        // Choose the pT ordered refp tracks that have been asked for by the user
+        if ( use_pt_ordered_ref ) {
+          std::sort(refp_vec.begin(), refp_vec.end(), trackPtGrtr); // Should this sorting be done to a temporary copied object, instead of the object itself?
+          
+          int nRefTracks = refp_vec.size();
 
-	  std::vector<TIDA::Track*> refp_chosenPtOrd;
+          std::vector<TIDA::Track*> refp_chosenPtOrd;
 
-	  // Checking if any user specifed track indices are out of bounds for this event
-	  for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
-	    if (refPtOrd_indices.at(indexIdx) > nRefTracks) {
-	      std::cout << "WARNING: for event " << event << ", pT ordered reference track at vector position " << refPtOrd_indices.at(indexIdx) << " requested but not found" << std::endl;
-	    }
-	  }
-	  
-	  for (int trackIdx = 0; trackIdx < nRefTracks; ++trackIdx) {
-	    for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
-	      if ( trackIdx == refPtOrd_indices.at(indexIdx) ) {
-	        refp_chosenPtOrd.push_back(refp_vec.at(trackIdx));
-		break;
-	      }
-	    }
-	  }
+          // Checking if any user specifed track indices are out of bounds for this event
+          for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
+            if (refPtOrd_indices.at(indexIdx) > nRefTracks) {
+              std::cout << "WARNING: for event " << event << ", pT ordered reference track at vector position " << refPtOrd_indices.at(indexIdx) << " requested but not found" << std::endl;
+            }
+          }
+          
+          for (int trackIdx = 0; trackIdx < nRefTracks; ++trackIdx) {
+            for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
+              if ( trackIdx == refPtOrd_indices.at(indexIdx) ) {
+                refp_chosenPtOrd.push_back(refp_vec.at(trackIdx));
+                break;
+              }
+            }
+          }
 
-	  refp_vec.clear();
-	  refp_vec = refp_chosenPtOrd; // Note: not necessarily pT ordered.
-	                                     //       Ordered by order of indices the user has passed
-	                                     //       (which is ideally pT ordered e.g. 0, 1, 3)
-	}
-
-
-	/// remove any tracks below the pt threshold if one is specifed for the analysis
-
-	ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>( analitr->second );
-
-	if ( cf ) { 
-	  std::string ptconfig = cf->config().postvalue("pt");
-	  if ( ptconfig!="" ) { 
-	    double pt = std::atof( ptconfig.c_str() );
-	    if ( pt>0 ) { 
-	      std::vector<TIDA::Track*> reft; reft.reserve(refp_vec.size());
-	      for ( std::vector<TIDA::Track*>::const_iterator itr=refp_vec.begin() ; itr!=refp_vec.end() ; itr++ ) { 
-		if ( std::fabs((*itr)->pT())>=pt ) reft.push_back( *itr );
-	      }
-	      refp_vec = reft;
-	    }
- 	  }
-	}    
-	
-	/// if requesting an object match, remove any tracks which correspond to an object
-	/// below the object PT threshold 
-
-	/// only bother is objects actual exists
-
-	if ( tom.status() ) {  
-	
-	  std::string objectET = cf->config().postvalue("ET");
-
-	  if ( objectET != "" ) {  
-	    
-	    double ETconfig = std::atof( objectET.c_str() );
-	    
-	    if ( ETconfig>0 ) {
-
-	      std::vector<TIDA::Track*>::iterator itr=refp_vec.begin() ; 
-
-	      while (  itr!=refp_vec.end() ) { 
-		const TrackTrigObject* tobj = tom.object( (*itr)->id() );
-
-		if ( tobj==0 || tobj->pt()<ETconfig ) refp_vec.erase( itr );
-		else itr++;
-	      }
-	    }
-	  }
-	}
-
-	const std::vector<TIDA::Track*>&  refp  =  refp_vec;
-
-	
-	//	if ( debugPrintout ) { 
-	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
-	//	}	    
+          refp_vec.clear();
+          refp_vec = refp_chosenPtOrd; // Note: not necessarily pT ordered.
+                                             //       Ordered by order of indices the user has passed
+                                             //       (which is ideally pT ordered e.g. 0, 1, 3)
+        }
 
 
-	//	std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
-	//	std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
+        /// remove any tracks below the pt threshold if one is specifed for the analysis
 
-	groi = &roi;
+        ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>( analitr->second );
 
+        if ( cf ) { 
+          std::string ptconfig = cf->config().postvalue("pt");
+          if ( ptconfig!="" ) { 
+            double pt = std::atof( ptconfig.c_str() );
+            if ( pt>0 ) { 
+              std::vector<TIDA::Track*> reft; reft.reserve(refp_vec.size());
+              for ( std::vector<TIDA::Track*>::const_iterator itr=refp_vec.begin() ; itr!=refp_vec.end() ; itr++ ) { 
+                if ( std::fabs((*itr)->pT())>=pt ) reft.push_back( *itr );
+              }
+              refp_vec = reft;
+            }
+          }
+        }    
+        
+        /// if requesting an object match, remove any tracks which correspond to an object
+        /// below the object PT threshold 
 
+        /// only bother is objects actual exists
 
+        if ( tom.status() ) {  
+        
+          std::string objectET = cf->config().postvalue("ET");
 
-	/// now found all the tracks within the RoI - *now* if required find the 
-	/// the count how many of these reference tracks are on each of the 
-	/// offline vertices
+          if ( objectET != "" ) {  
+            
+            double ETconfig = std::atof( objectET.c_str() );
+            
+            if ( ETconfig>0 ) {
 
+              std::vector<TIDA::Track*>::iterator itr=refp_vec.begin() ; 
 
-	std::vector<TIDA::Vertex> vertices_roi;
+              while (  itr!=refp_vec.end() ) { 
+                const TrackTrigObject* tobj = tom.object( (*itr)->id() );
 
+                if ( tobj==0 || tobj->pt()<ETconfig ) refp_vec.erase( itr );
+                else itr++;
+              }
+            }
+          }
+        }
 
-	if ( chain.name().find("SuperRoi") ) { 
-	  
-	  /// select the reference offline vertices
-	  
-	  vertices_roi.clear();
-	  
-	  const std::vector<TIDA::Vertex>& mv = vertices;
-	    
-	  //	  std::cout << "vertex filtering " << mv.size() << std::endl;  
+        const std::vector<TIDA::Track*>&  refp  =  refp_vec;
 
-	  for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-
-	    const TIDA::Vertex& vx = mv[iv];
-
-	    //	    std::cout << "\t" << iv << "\t" << vx << std::endl;
-
-	    int trackcount = 0;
-
-	    for (unsigned itr=0; itr<refp.size(); itr++){
-	      TIDA::Track* tr = refp[itr];
-	      double theta_     = 2*std::atan(std::exp(-tr->eta())); 
-	      double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
-	      if( dzsintheta < 1.5 ) trackcount++;
-	    }
-	    
-	    /// don't add vertices with no matching tracks - remember the 
-	    /// tracks are filtered by Roi already so some vertices may have 
-	    /// no tracks in the Roi - ntracks set to 0 by default
-	    if ( trackcount>=ntracks ) { 
-	      vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
-						    vx.dx(), vx.dy(), vx.dz(),
-						    trackcount, 
-						    vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
-	      
-	      //	    std::cout << "\t \t" << vertices_roi.back() << std::endl;
-	    }
-	  }
-	  
-	}
-	else vertices_roi = vertices;
+        
+        //      if ( debugPrintout ) { 
+        //        std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
+        //      }           
 
 
-	foutdir->cd();
+        //      std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
+        //      std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
-	// do analysing
-	
-	if ( monitorZBeam ) { 
-	  if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
-	    refz.push_back(  zpair( lb, beamline_ref[2]) );
-	    testz.push_back( zpair( lb, beamline_test[2]) );
-	  }
-	}
+        groi = &roi;
 
-	_matcher->match( refp, testp);
-	
-	if ( tom.status() ) analitr->second->execute( refp, testp, _matcher, &tom );
-	else                analitr->second->execute( refp, testp, _matcher );
 
-	ConfVtxAnalysis* vtxanal = 0;
-	analitr->second->store().find( vtxanal, "rvtx" );
 
-	/// NB: because ntracks = 0 by default, this second clause should 
-	///     always be true unless ntracks has been set to some value
-	if ( vtxanal && ( refp.size() >= size_t(ntracks) ) ) {	  
 
-	  /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
-	  ///  we first need to copy the actual elements from the const vector, to a normal
-	  ///  vector. This is because if we take the address of elements of a const vector<T>
-	  ///  they will by of type const T*, so we can only add them to a vector<const T*>
-	  ///  and all our functions are using const vector<T>&, so we would need to duplicate
-	  ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
-	  ///  to get this nonsense to work
-	  
-	  std::vector<TIDA::Vertex> vtxcck = vertices_roi;           
-	  std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
-	  
-	  vtxp.reserve( vtxcck.size() );
-	  for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
-	  
-	  std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
-	  std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
-	  
-	  vtxp_test.reserve( vtxcck_test.size() );
-	  for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
-	  
-	  //	  std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
+        /// now found all the tracks within the RoI - *now* if required find the 
+        /// the count how many of these reference tracks are on each of the 
+        /// offline vertices
 
-	  if ( vtxp.size()>0 ) vtxanal->execute( vtxp, vtxp_test, track_ev );
 
-	}
+        std::vector<TIDA::Vertex> vertices_roi;
 
-	
-	if ( debugPrintout ) { 
-	  //	std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
-	  std::cout << "\nselected tracks:" << chain.name() << std::endl;
-	  std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
-	  std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
-	  
-	  TrackAssociator::map_type::const_iterator titr = _matcher->TrackAssociator::matched().begin();
-	  TrackAssociator::map_type::const_iterator tend = _matcher->TrackAssociator::matched().end();
-	  int im=0;
-	  std::cout << "track matches:\n";
-	  while (titr!=tend) { 
-	    std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
-	    ++titr;
-	  }
-	  
-	  
-	  std::cout << "completed : " << chain.name() << "\n";
-	  std::cout << "-----------------------------------" << std::endl;
-	  
-	}
-	
+
+        if ( chain.name().find("SuperRoi") ) { 
+          
+          /// select the reference offline vertices
+          
+          vertices_roi.clear();
+          
+          const std::vector<TIDA::Vertex>& mv = vertices;
+            
+          //      std::cout << "vertex filtering " << mv.size() << std::endl;  
+
+          for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+
+            const TIDA::Vertex& vx = mv[iv];
+
+            //      std::cout << "\t" << iv << "\t" << vx << std::endl;
+
+            int trackcount = 0;
+
+            for (unsigned itr=0; itr<refp.size(); itr++){
+              TIDA::Track* tr = refp[itr];
+              double theta_     = 2*std::atan(std::exp(-tr->eta())); 
+              double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
+              if( dzsintheta < 1.5 ) trackcount++;
+            }
+            
+            /// don't add vertices with no matching tracks - remember the 
+            /// tracks are filtered by Roi already so some vertices may have 
+            /// no tracks in the Roi - ntracks set to 0 by default
+            if ( trackcount>=ntracks ) { 
+              vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
+                                                    vx.dx(), vx.dy(), vx.dz(),
+                                                    trackcount, 
+                                                    vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
+              
+              //            std::cout << "\t \t" << vertices_roi.back() << std::endl;
+            }
+          }
+          
+        }
+        else vertices_roi = vertices;
+
+
+        foutdir->cd();
+
+        // do analysing
+        
+        if ( monitorZBeam ) { 
+          if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
+            refz.push_back(  zpair( lb, beamline_ref[2]) );
+            testz.push_back( zpair( lb, beamline_test[2]) );
+          }
+        }
+
+        _matcher->match( refp, testp);
+        
+        if ( tom.status() ) analitr->second->execute( refp, testp, _matcher, &tom );
+        else                analitr->second->execute( refp, testp, _matcher );
+
+        ConfVtxAnalysis* vtxanal = 0;
+        analitr->second->store().find( vtxanal, "rvtx" );
+
+        /// NB: because ntracks = 0 by default, this second clause should 
+        ///     always be true unless ntracks has been set to some value
+        if ( vtxanal && ( refp.size() >= size_t(ntracks) ) ) {    
+
+          /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
+          ///  we first need to copy the actual elements from the const vector, to a normal
+          ///  vector. This is because if we take the address of elements of a const vector<T>
+          ///  they will by of type const T*, so we can only add them to a vector<const T*>
+          ///  and all our functions are using const vector<T>&, so we would need to duplicate
+          ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
+          ///  to get this nonsense to work
+          
+          std::vector<TIDA::Vertex> vtxcck = vertices_roi;           
+          std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
+          
+          vtxp.reserve( vtxcck.size() );
+          for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
+          
+          std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
+          std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
+          
+          vtxp_test.reserve( vtxcck_test.size() );
+          for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
+          
+          //      std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
+
+          if ( vtxp.size()>0 ) vtxanal->execute( vtxp, vtxp_test, track_ev );
+
+        }
+
+        
+        if ( debugPrintout ) { 
+          //    std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
+          std::cout << "\nselected tracks:" << chain.name() << std::endl;
+          std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
+          std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
+          
+          TrackAssociator::map_type::const_iterator titr = _matcher->TrackAssociator::matched().begin();
+          TrackAssociator::map_type::const_iterator tend = _matcher->TrackAssociator::matched().end();
+          int im=0;
+          std::cout << "track matches:\n";
+          while (titr!=tend) { 
+            std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
+            ++titr;
+          }
+          
+          
+          std::cout << "completed : " << chain.name() << "\n";
+          std::cout << "-----------------------------------" << std::endl;
+          
+        }
+        
 #if 0
-	if ( _matcher->size()<refp.size() ) { 
-	  
-	  if ( refp.size()==1 && testp.size()==0 ) { 
-	    std::cout << track_ev->chains()[ic] <<std::endl;
-	    std::cout << "roi\n" << track_ev->chains()[ic].rois()[ir] << endl; 
-	  }
+        if ( _matcher->size()<refp.size() ) { 
+          
+          if ( refp.size()==1 && testp.size()==0 ) { 
+            std::cout << track_ev->chains()[ic] <<std::endl;
+            std::cout << "roi\n" << track_ev->chains()[ic].rois()[ir] << endl; 
+          }
  
-	}
+        }
 #endif
 
         /// run the analysis for this chain
 
-	if ( doPurity ) { 
-	  
-	  const std::vector<TIDA::Track*>&  refpp = refPurityTracks.tracks( refFilter );
+        if ( doPurity ) { 
+          
+          const std::vector<TIDA::Track*>&  refpp = refPurityTracks.tracks( refFilter );
 
-	  testPurityTracks.clear();
+          testPurityTracks.clear();
 
-	  testPurityTracks.selectTracks( troi.tracks() );
-	  std::vector<TIDA::Track*> testpp = testPurityTracks.tracks();
+          testPurityTracks.selectTracks( troi.tracks() );
+          std::vector<TIDA::Track*> testpp = testPurityTracks.tracks();
 
-	  _matcher->match(refpp, testpp); /// ???
-	    
+          _matcher->match(refpp, testpp); /// ???
+            
 
-	  std::map<std::string,TrackAnalysis*>::iterator analitrp = analysis.find(chain.name()+"-purity");
-	  
-	  if ( analitrp == analysis.end() ) continue;
+          std::map<std::string,TrackAnalysis*>::iterator analitrp = analysis.find(chain.name()+"-purity");
+          
+          if ( analitrp == analysis.end() ) continue;
 
 
-	  analitrp->second->execute( refpp, testpp, _matcher );
-	  
+          analitrp->second->execute( refpp, testpp, _matcher );
+          
 
-	  static int ecounter = 0;
-	  ecounter++;
-	}
+          static int ecounter = 0;
+          ecounter++;
+        }
       }
       
     }
@@ -2082,8 +2191,8 @@ int main(int argc, char** argv)
   }
 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events"
-	    << "\ttimes "  << mintime << " " << maxtime 
-	    << "\t( grl: " << grl_counter << " / " << pregrl_events << " )" << std::endl;
+            << "\ttimes "  << mintime << " " << maxtime 
+            << "\t( grl: " << grl_counter << " / " << pregrl_events << " )" << std::endl;
 
   if ( monitorZBeam ) zbeam _zbeam( refz, testz );
 
