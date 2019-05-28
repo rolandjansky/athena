@@ -74,18 +74,20 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     static SG::AuxElement::ConstAccessor<Root::TAccept> accResult(m_result_name.Data());
     Root::TAccept m_accept;
     if ( m_result_name!="" ) {
-      if ( m_result_name!="" && !accResult.isAvailable(jet) ){
+      // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
+      
+      if ( !accResult.isAvailable(jet) ){
 	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
       } else {
 	m_accept=accResult(jet);
-	if ( m_region!="" ) {
-	  // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
+	if ( m_region.Contains("2Var_") ) {
+	  // TCC 2Var tagger
 	  bool passMass=(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh"));
 	  bool passD2  =(m_accept.getCutResult("PassD2"));
-	  if ( ! ((passMass && passD2 && m_region=="passMpassD2") ||
-		  (passMass && !passD2 && m_region=="passMfailD2") ||
-		  (!passMass && passD2 && m_region=="failMpassD2") ||
-		  (!passMass && !passD2 && m_region=="failMfailD2")) ){
+	  if ( ! ((passMass && passD2 && m_region.Contains("passMpassD2")) ||
+		  (passMass && !passD2 && m_region.Contains("passMfailD2")) ||
+		  (!passMass && passD2 && m_region.Contains("failMpassD2")) ||
+		  (!passMass && !passD2 && m_region.Contains("failMfailD2"))) ){
 	    return 0.0;
 	  }
 	}
