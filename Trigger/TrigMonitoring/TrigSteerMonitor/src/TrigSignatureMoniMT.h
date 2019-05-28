@@ -48,14 +48,16 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
 
   TH2* m_passHistogram;
   TH2* m_countHistogram;
+  TH2* m_rateHistogram;
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX() const;
   int nBinsY() const;
   StatusCode initHist(TH2*);
-  StatusCode fillCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
-  StatusCode fillPass(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
+  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
+  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, TH2* histogram);
+  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
 }; 
 
 inline int TrigSignatureMoniMT::nBinsX() const { 
