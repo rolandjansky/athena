@@ -150,6 +150,12 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   //   m_MVACalibSvc.disable();
   // }
 
+  if (!m_egammaCheckEnergyDepositTool.empty()) {
+    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
+  } else {
+    m_egammaCheckEnergyDepositTool.disable();
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -277,32 +283,31 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
     }
   }
 
-  //
+  // Apply SW-style summation of TileGap3 cells (if necessary).
+  if (addTileGap3CellsinWindow(newCluster.get()).isFailure()) {
+    ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
+    return nullptr;
+  }
+
   //Set the link from the super cluster to the constituents (accumulated) clusters used. 
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
-  caloClusterLinks(*newCluster.get()) = constituentLinks;
-  //
+  caloClusterLinks(*newCluster) = constituentLinks;
+
   ///Calculate the kinematics of the new cluster, after all cells are added
   CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
-  //
-  //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
-  if (!newCluster->hasSampling(CaloSampling::EMB2) && !newCluster->hasSampling(CaloSampling::EME2)) {
-    ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
-    return nullptr;     
-  }
-  //
+
   //If adding all EM cells I am somehow below the seed threshold then remove 
   //this one
   if(newCluster->et()<m_EtThresholdCut ){
     return nullptr;
   }
 
-  // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (addTileGap3CellsinWindow(newCluster.get()).isFailure()) {
-    ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
+  //Check to see if cluster pases basic requirements. If not, kill it.
+  if( !m_egammaCheckEnergyDepositTool.empty() && 
+      !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( newCluster.get() ) ) {
+    ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
     return nullptr;
   }
-  CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
 
   // Apply correction  calibration
   if (calibrateCluster(newCluster.get(), egType).isFailure()) {
