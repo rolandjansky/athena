@@ -43,7 +43,8 @@ namespace xAODMaker {
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true ) = 0;
+                                  bool copyPileUpLinks = true,
+				  bool forceMCInfoCopy = false) = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {
