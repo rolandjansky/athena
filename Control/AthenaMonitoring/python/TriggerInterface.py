@@ -60,7 +60,7 @@ def getTrigConfigSvc(inputFlags):
 def getTrigDecisionTool(inputFlags):
     ''' Setup a TrigDecisionTool. Short-cuts deduplication with memoization.'''
     if getTrigDecisionTool.rv:
-        return rv
+        return getTrigDecisionTool.rv
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
  
