@@ -176,8 +176,8 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electr
 
 bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Electron *ele) const
 {
-  if (ele->pt() < m_electronPtCut) return false;
-  if (fabs(ele->eta()) > m_electronEtaMax) return false;
+  if( ele->pt() < m_electronPtCut           ) return false;
+  if( fabs(ele->eta()) > m_electronEtaMax   ) return false;
   bool passID(false);
   for (unsigned int i=0; i<m_electronIDKeys.size(); i++) {
     if (ele->passSelection(passID, m_electronIDKeys[i])) {
@@ -187,6 +187,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Ele
     }
   }
   if (!passID) return false;
+
   return true;
 }
 

@@ -41,7 +41,7 @@ m_AlphaMaxCut(0.03),
 m_CHFCut(0.3),
 m_nJetsReq(0),
 m_electronSGKey("Electrons"),
-m_electronIDKey("Medium"),
+m_electronIDKey("LHMedium"),
 m_electronPtCut(0),
 m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
 m_muonSGKey("Muons"),
@@ -164,21 +164,6 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  //muon portion
-  int qflag=0;
-  if (m_muonIDKey == "VeryLoose") {
-    qflag = xAOD::Muon::VeryLoose;
-  } else if (m_muonIDKey == "Loose") {
-    qflag = xAOD::Muon::Loose;
-  } else if (m_muonIDKey == "Medium") {
-    qflag = xAOD::Muon::Medium;
-  } else if (m_muonIDKey == "Tight") {
-    qflag = xAOD::Muon::Tight;
-  } else {
-    ATH_MSG_FATAL("Cannot find the muon quality flag " << m_muonIDKey << ".");
-    return false;
-  }
-  
   const xAOD::MuonContainer* muons(0);
   sc = evtStore()->retrieve(muons,m_muonSGKey);
   if (sc.isFailure()) {
@@ -189,8 +174,10 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for(auto muon : *muons){
     if (muon->pt()<m_muonPtCut) continue;
     if (fabs(muon->eta())>2.5) continue;
-    if (!(m_muonSelectionTool->getQuality(*muon) <= qflag)) continue;
-    if (muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3) continue;
+
+    if( !m_muonSelectionTool->passedMuonCuts(*muon)             ) continue;
+    if( muon->muonType() != xAOD::Muon::Combined                ) continue;
+    if( muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3 ) continue;
     
     for (auto vertex : *vertices) {	// Select good primary vertex
       if (vertex->vertexType() == xAOD::VxType::PriVtx) {
