@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -206,10 +206,6 @@ StatusCode Trk::MaterialMapping::execute()
            // end the parameters if there
            if (eCode.isSuccess()){
                // name of passive surfaces found
-               size_t nLayersHit = ecc.extrapolationSteps.size();
-               ATH_MSG_VERBOSE("[+] Extrapolation to layers did succeed and found " << nLayersHit << " layers.");
-               // reserve the size of the vectors
-               layersAndHits.reserve(nLayersHit);
                // for screen output
                size_t ilayer = 0;
                // find all the intersected material - remember the last parameters
@@ -234,6 +230,8 @@ StatusCode Trk::MaterialMapping::execute()
                       delete parameters;
                   }
                 }
+               size_t nLayersHit = layersAndHits.size();
+               ATH_MSG_VERBOSE("[+] Extrapolation to layers did succeed and found " << nLayersHit << " layers.");
                 // cleanup of the final hits
                 if (ecc.endParameters != parameters) delete ecc.endParameters;
                 
@@ -264,13 +262,13 @@ StatusCode Trk::MaterialMapping::execute()
                    // (a) if the currentLayer is the last layer and the hit is still inside -> assign
                    if (currentLayer < nLayersHit-1) {
                        // search through the layers - this is the reference distance for projection
-                       double currentDistance = (pos-layersAndHits[currentLayer].second).mag();
-                       ATH_MSG_VERBOSE("- current distance is " << currentDistance << " from " << Amg::toString(pos) << " and " << Amg::toString(layersAndHits[currentLayer].second) );
+                       double currentDistance = (pos-layersAndHits.at(currentLayer).second).mag();
+                       ATH_MSG_VERBOSE("- current distance is " << currentDistance << " from " << Amg::toString(pos) << " and " << Amg::toString(layersAndHits.at(currentLayer).second) );
                        for (size_t testLayer = (currentLayer+1); testLayer < nLayersHit; ++testLayer){
-                           // calculate teh distance to the testLayer
-                           double testDistance = (pos-layersAndHits[testLayer].second).mag();
+                           // calculate the distance to the testLayer
+                           double testDistance = (pos-layersAndHits.at(testLayer).second).mag();
                            ATH_MSG_VERBOSE("[L] Testing layer " << testLayer << " from layer collection for this step.");
-                           ATH_MSG_VERBOSE("- test    distance is " << testDistance << " from " << Amg::toString(pos) << " and " << Amg::toString(layersAndHits[testLayer].second) );
+                           ATH_MSG_VERBOSE("- test    distance is " << testDistance << " from " << Amg::toString(pos) << " and " << Amg::toString(layersAndHits.at(testLayer).second) );
                            if ( testDistance < currentDistance ){
                                // screen output
                                ATH_MSG_VERBOSE("[L] Skipping over to current layer " << testLayer << " because " << testDistance << " < " << currentDistance); 
@@ -284,8 +282,8 @@ StatusCode Trk::MaterialMapping::execute()
                        }
                    }
                    // the currentLayer *should* be correct now 
-                   const Trk::Layer* assignedLayer =  layersAndHits[currentLayer].first;
-                   Amg::Vector3D assignedPosition  = layersAndHits[currentLayer].second;
+                   const Trk::Layer* assignedLayer =  layersAndHits.at(currentLayer).first;
+                   Amg::Vector3D assignedPosition  = layersAndHits.at(currentLayer).second;
                    // associate the hit 
                    // (1) count it 
                    ++associatedSteps;

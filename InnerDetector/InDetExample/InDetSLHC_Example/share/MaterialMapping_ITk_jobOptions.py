@@ -31,19 +31,43 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
-include("InDetSLHC_Example/preInclude.SLHC.py")
-include("InDetSLHC_Example/preInclude.SiliconOnly.py")
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
-if 'DetDescrVersion' not in dir():
-   DetDescrVersion = 'ATLAS-P2-ITK-01-00-00'
+if 'myGeo' not in dir():
+  DetDescrVersion = 'ATLAS-P2-ITK-20-03-00'
+  print "=== 'myGeo' not specified, defaulting to",DetDescrVersion," geometry! ==="
+else: DetDescrVersion = myGeo
+
+if 'myInDir' not in dir():
+  myInDir = "." 
+  print "=== 'myInDir' not specified, defaulting to",myInDir," directory for input files! ==="
+
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion = DetDescrVersion
+
+## Need to set the layout option up front
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20'):
+   SLHC_Flags.LayoutOption="InclinedDuals"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
+   SLHC_Flags.LayoutOption="InclinedQuads"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
+
+
+SLHC_Flags.doGMX.set_Value_and_Lock(True)
+include("InDetSLHC_Example/preInclude.SLHC.py")
+include("InDetSLHC_Example/preInclude.SiliconOnly.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
+
 
 from AtlasGeoModel import GeoModelInit 
 
@@ -55,14 +79,16 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += GeoModelSvc
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag("OFLCOND-MC12-ITK-21-80-25")
+conddb.setGlobalTag("OFLCOND-MC15c-SDR-14-03")
 
 # Tracking specifications ####################################
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
-TrkDetFlags.MaterialVersion = 17
-TrkDetFlags.MaterialSource = 'None'
+
 TrkDetFlags.SLHC_Geometry = True
+TrkDetFlags.MaterialSource = 'None'
+# This will end up in the database tag that will be created! 20 is looked for by default in tracking 
+TrkDetFlags.MaterialVersion = 20              
 
 # material binning for ID
 # - longitudinal
@@ -71,41 +97,39 @@ TrkDetFlags.PixelBarrelLayerMaterialBinsZ           = 100
 TrkDetFlags.PixelEndcapLayerMaterialBinsR           = 50
 TrkDetFlags.SCT_BarrelLayerMaterialBinsZ            = 100
 TrkDetFlags.SCT_EndcapLayerMaterialBinsR            = 50
-# TrkDetFlags.TRT_BarrelLayerMaterialBinsZ            = 100
-# TrkDetFlags.TRT_EndcapLayerMaterialBinsR            = 50
 TrkDetFlags.InDetPassiveLayerMaterialBinsRz         = 100
 # - phi
-TrkDetFlags.PixelBarrelLayerMaterialBinsPhi         = 50
-TrkDetFlags.PixelEndcapLayerMaterialBinsPhi         = 50
-TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi          = 50
-TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi          = 50
-# TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi          = 50
-# TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi          = 50
-TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 50
-
-print TrkDetFlags
-
-doWriteToCool    = True
-
-#ImputPath = 'MaterialStep'
+TrkDetFlags.PixelBarrelLayerMaterialBinsPhi         = 1
+TrkDetFlags.PixelEndcapLayerMaterialBinsPhi         = 1
+TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi          = 1
+TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi          = 1
+TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 1
 
 import glob
-#FileList = glob.glob("/afs/cern.ch/user/s/salzburg/atlas/workspace2/atlas_id_material/user.salzburg.GeantinoMapping.p1.ATLAS-R1-2012-10M.140520174400_MaterialStream/*root*") #/tmp/salzburg/*/*.root*")
-FileList = glob.glob("./MaterialStepCollection.root")
+FileList = glob.glob(myInDir+"/MaterialStepCollection*.root*")
 
 import AthenaPoolCnvSvc.ReadAthenaPool 
 ServiceMgr.EventSelector.InputCollections = FileList
+if not hasattr(svcMgr, theApp.EventLoop): 
+     svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+evtloop = getattr(svcMgr, theApp.EventLoop) 
+try: 
+  evtloop.EventPrintoutInterval = 50000 
+except Exception, err: 
+  msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.') 
+  pass 
+
+print "FileList = ", FileList
 
 # Number of events to be processed
-theApp.EvtMax = -1 # 50000 #5000 #00 #0
-#ServiceMgr.EventSelector.SkipEvents = 2
+theApp.EvtMax = -1 
 
-# splitGeo = DetDescrVersion.split('-')
-# MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
 MaterialMagicTag = DetDescrVersion
 
 ############ Configure the output #####################################
-
+# set to False if you just want to have the ntuple, but no local DB
+doWriteToCool    = True
+# this determines what will be written to the DB
 if doWriteToCool:
    MaterialStoreGateKey  = TrkDetFlags.MaterialStoreGateKey.get_Value()
    MaterialTag           = TrkDetFlags.MaterialTagBase.get_Value()+str(TrkDetFlags.MaterialVersion.get_Value())+'_'+MaterialMagicTag
@@ -114,8 +138,9 @@ if doWriteToCool:
 # get the TrackingGeometry Service
 TrackingGeometrySvc = None
 
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+include("InDetSLHC_Example/SLHC_Setup_ITk_TrackingGeometry.py")
 AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False
+
 
 ###############################################################
 
@@ -124,22 +149,28 @@ MaterialMapper = Trk__MaterialMapper(name='MaterialMapper')
 MaterialMapper.OutputLevel = INFO
 ToolSvc += MaterialMapper
 
-# Full job is a list of algorithms
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+# the magnetic field
+from MagFieldServices import SetupField
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09-solTil3')
+
+from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
+ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=INFO)
+ToolSvc += ExtrapolationEngine
+
 
 from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__LayerMaterialAnalyser
 LayerMaterialRecordAnalyser =Trk__LayerMaterialAnalyser('LayerMaterialRecordAnalyser')
 ToolSvc += LayerMaterialRecordAnalyser
 
 
-# 0 - Material plain out of the box
-# 0 - a) the creator
 from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__BinnedLayerMaterialCreator
 BinnedLayerMaterialCreator = Trk__BinnedLayerMaterialCreator('BinnedLayerMaterialCreator')
-BinnedLayerMaterialCreator.LayerMaterialName         = 'LayerMaterialITK'
+# NOTE that the following determines the DB folder we will be writing to. 
+# the reco will look for maps in /GLOBAL/TrackingGeo/LayerMaterialITK by default  
+BinnedLayerMaterialCreator.LayerMaterialName         = 'LayerMaterialITK'    
 BinnedLayerMaterialCreator.LayerMaterialDirectory    = '/GLOBAL/TrackingGeo/'
-BinnedLayerMaterialCreator.OutputLevel = VERBOSE
+BinnedLayerMaterialCreator.OutputLevel = INFO
 ToolSvc += BinnedLayerMaterialCreator
 # 0 - b) the analyser
 BinnedLayerMaterialAnalyser = Trk__LayerMaterialAnalyser('BinnedLayerMaterialAnalyser')
@@ -149,75 +180,26 @@ BinnedLayerMaterialAnalyser.ValidationTreeDescription = 'Output of the BinnedLay
 BinnedLayerMaterialAnalyser.ValidationTreeFolder      = '/val/BinnedLayerMaterialAnalyser'
 ToolSvc += BinnedLayerMaterialAnalyser
 
-# # 1 - Compressed Layer material
-# # 1 - a) the creator
-# from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CompressedLayerMaterialCreator
-# CompressedLayerMaterialCreator = Trk__CompressedLayerMaterialCreator('CompressedLayerMaterialCreator')
-# CompressedLayerMaterialCreator.LayerMaterialName         = 'CompressedLayerMaterial'
-# CompressedLayerMaterialCreator.LayerMaterialDirectory    = '/GLOBAL/TrackingGeo/'
-# CompressedLayerMaterialCreator.OutputLevel = VERBOSE
-# ToolSvc += CompressedLayerMaterialCreator
-
-# # 1 - b) the analyser
-# CompressedLayerMaterialAnalyser = Trk__LayerMaterialAnalyser('CompressedLayerMaterialAnalyser')
-# CompressedLayerMaterialAnalyser.LayerMaterialName         = CompressedLayerMaterialCreator.LayerMaterialName
-# CompressedLayerMaterialAnalyser.ValidationTreeName        = 'CompressedLayerMaterialAnalyser'
-# CompressedLayerMaterialAnalyser.ValidationTreeDescription = 'Output of the CompressedLayerMaterialAnalyser'
-# CompressedLayerMaterialAnalyser.ValidationTreeFolder      = '/val/CompressedLayerMaterialAnalyser'
-# ToolSvc += CompressedLayerMaterialAnalyser
-
-# # 2 - Compound Layer material (mixed)
-# # 2 - a) the creator
-# from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CompoundLayerMaterialCreator
-# CompoundLayerMaterialCreator = Trk__CompoundLayerMaterialCreator('CompoundLayerMaterialCreator')
-# CompoundLayerMaterialCreator.LayerMaterialName           = 'CompoundLayerMaterial'
-# CompoundLayerMaterialCreator.LayerMaterialDirectory      = '/GLOBAL/TrackingGeo/'
-# CompoundLayerMaterialCreator.OutputLevel = VERBOSE
-# ToolSvc += CompoundLayerMaterialCreator
-# # 2 - b) the analyser
-# CompoundLayerMaterialAnalyser = Trk__LayerMaterialAnalyser('CompundLayerMaterialAnalyser')
-# CompoundLayerMaterialAnalyser.LayerMaterialName         = CompoundLayerMaterialCreator.LayerMaterialName
-# CompoundLayerMaterialAnalyser.ValidationTreeName        = 'CompoundLayerMaterialAnalyser'
-# CompoundLayerMaterialAnalyser.ValidationTreeDescription = 'Output of the CompoundLayerMaterialAnalyser'
-# CompoundLayerMaterialAnalyser.ValidationTreeFolder      = '/val/CompoundLayerMaterialAnalyser'
-# ToolSvc += CompoundLayerMaterialAnalyser
-
-# # 2 - Full Compound Layer material (full)
-# # 2 - a) the creator
-# FullCompoundLayerMaterialCreator = Trk__CompoundLayerMaterialCreator('FullCompoundLayerMaterialCreator')
-# FullCompoundLayerMaterialCreator.OutputLevel             = VERBOSE
-# FullCompoundLayerMaterialCreator.LayerMaterialName       = 'FullCompoundLayerMaterial'
-# FullCompoundLayerMaterialCreator.LayerMaterialDirectory  = '/GLOBAL/TrackingGeo/'
-# FullCompoundLayerMaterialCreator.FullCompoundCalculation = True
-# ToolSvc += FullCompoundLayerMaterialCreator
-# # 2 - b) the analyser
-# FullCompoundLayerMaterialAnalyser = Trk__LayerMaterialAnalyser('FullCompundLayerMaterialAnalyser')
-# FullCompoundLayerMaterialAnalyser.ValidationTreeName        = 'FullCompoundLayerMaterialAnalyser'
-# FullCompoundLayerMaterialAnalyser.LayerMaterialName         = FullCompoundLayerMaterialCreator.LayerMaterialName
-# FullCompoundLayerMaterialAnalyser.ValidationTreeDescription = 'Output of the FullCompoundLayerMaterialAnalyser'
-# FullCompoundLayerMaterialAnalyser.ValidationTreeFolder      = '/val/FullCompoundLayerMaterialAnalyser'
-# ToolSvc += FullCompoundLayerMaterialAnalyser
 
 # create the lists of MaterialCreators & Analysers
-LayerMaterialCreators  = [ BinnedLayerMaterialCreator ] #, CompressedLayerMaterialCreator, CompoundLayerMaterialCreator, FullCompoundLayerMaterialCreator ]
-LayerMaterialAnalysers = [ BinnedLayerMaterialAnalyser ] #, CompressedLayerMaterialAnalyser, CompoundLayerMaterialAnalyser, FullCompoundLayerMaterialAnalyser ]
-
+LayerMaterialCreators  = [ BinnedLayerMaterialCreator ] 
+LayerMaterialAnalysers = [ BinnedLayerMaterialAnalyser ] 
 
 # set up the Material Mapping
 from TrkDetDescrAlgs.TrkDetDescrAlgsConf import Trk__MaterialMapping
 MaterialMapping = Trk__MaterialMapping(name ='MaterialMapping')
 MaterialMapping.TrackingGeometrySvc          = AtlasTrackingGeometrySvc
 MaterialMapping.MappingVolumeName            = 'InDet::Containers::InnerDetector'
-#MaterialMapping.MappingVolumeName            = 'InDet::BeamPipe'
+MaterialMapping.ExtrapolationEngine          = ExtrapolationEngine
 MaterialMapping.MaterialMapper               = MaterialMapper
 MaterialMapping.EtaCutOff                    = 6.
-MaterialMapping.OutputLevel                  = DEBUG
+MaterialMapping.OutputLevel                  = INFO
 MaterialMapping.LayerMaterialRecordAnalyser  =  LayerMaterialRecordAnalyser
 MaterialMapping.LayerMaterialCreators        =  LayerMaterialCreators
 MaterialMapping.LayerMaterialAnalysers       =  LayerMaterialAnalysers
 # screen output level [ Default : 0 |  0, 1, 2 )
 MaterialMapping.MaterialScreenOutputLevel    = 0
-topSequence += MaterialMapping
+job += MaterialMapping
 
 #################################################################
 theApp.Dlls += [ 'RootHistCnv' ]
@@ -258,4 +240,4 @@ if doWriteToCool:
   # and create the database connection
   ServiceMgr.IOVDbSvc.dbConnection = 'sqlite://schema='+LocalDataBaseName+';dbname=OFLP200'
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
+include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
