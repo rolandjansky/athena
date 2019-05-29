@@ -121,7 +121,7 @@ StatusCode NSWPRDValAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ) );
 
-  ATH_CHECK( detStore()->retrieve( m_CscIdHelper ) );
+  if (m_doCSCDigit) ATH_CHECK( detStore()->retrieve( m_CscIdHelper ) );
 
   if (m_doTruth){
      m_TruthVar = new TruthVariables(&(*(evtStore())), m_detManager,
@@ -485,7 +485,7 @@ StatusCode NSWPRDValAlg::setDataAdress (EDM_object &oData, TString branch_name) 
   if (branch_name.EndsWith("stationPhi")) { m_tree->SetBranchAddress(branch_name, &oData.m_stationPhi); setBranch = true; }
   if (branch_name.EndsWith("multiplet")) { m_tree->SetBranchAddress(branch_name, &oData.m_multiplet); setBranch = true; }
   if (branch_name.EndsWith("gas_gap")) { m_tree->SetBranchAddress(branch_name, &oData.m_gas_gap); setBranch = true; }
-  if (branch_name.EndsWith("channel")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
+  if (branch_name.EndsWith("channel") && !branch_name.Contains("rdos")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
   if (branch_name.EndsWith("channel_type")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel_type); setBranch = true; }
   if (setBranch) { ATH_MSG_DEBUG("Set data adress of branch " << branch_name); }
   

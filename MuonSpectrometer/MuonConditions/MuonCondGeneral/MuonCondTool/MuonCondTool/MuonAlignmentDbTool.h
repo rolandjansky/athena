@@ -11,14 +11,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
+
 class Identifier; 
 class StoreGateSvc; 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 class IIOVSvc;
 class StatusCode;
+namespace Muon {
+    class MuonIdHelperTool;
+}
 
 class MuonAlignmentDbTool: public AthAlgTool, public IMuonAlignmentDbTool
 {
@@ -73,10 +73,7 @@ private:
   void setLastIOVforThisFolder(std::string& folderName, long int iov);
     
   IIOVSvc* m_IOVSvc;
-  const MdtIdHelper* m_mdtIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
   std::string m_geometryVersion;    
     

@@ -105,8 +105,8 @@ class MuonStandalone(ConfiguredMuonRec):
                     getPublicTool("Csc2dSegmentMaker")
                     getPublicTool("Csc4dSegmentMaker")
                 else:
-                    MuonSegmentFinderAlg.Csc2dSegmentMaker = None
-                    MuonSegmentFinderAlg.Csc4dSegmentMaker = None
+                    MuonSegmentFinderAlg.Csc2dSegmentMaker = ""
+                    MuonSegmentFinderAlg.Csc4dSegmentMaker = ""
                 self.addAlg( MuonSegmentFinderAlg )
         else:
             getPublicTool("MuonLayerHoughTool")
@@ -125,16 +125,17 @@ class MuonStandalone(ConfiguredMuonRec):
 
 
 
-            self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
+            if muonRecFlags.doCSCs():
+                self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
                                                                                         DoSummary=False,
-                                                                                        Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
+                                                                                        Csc2dSegmentMaker = (getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
                                                                                                                                segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
                                                                                                                                                                 "CscSegmentUtilTool",
                                                                                                                                                                 TightenChi2 = False, 
-                                                                                                                                                                IPconstraint=False)),
-                                                                                        Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                                                               segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
+                                                                                                                                                                IPconstraint=False))) if muonRecFlags.doCSCs() else "",
+                                                                                        Csc4dSegmentMaker = (getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
+                                                                                                                               segmentTool = getPublicTool("CscSegmentUtilTool_NCB"))) if muonRecFlags.doCSCs() else "",
                                                                                         DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
@@ -147,7 +148,7 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseTGCNextBC  = False,
                                                      doTGCClust = False,
                                                      doRPCClust = False) )
-            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
+                self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
 
 
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )

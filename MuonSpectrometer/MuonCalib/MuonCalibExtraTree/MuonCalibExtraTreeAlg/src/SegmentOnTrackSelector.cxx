@@ -22,8 +22,8 @@ SegmentOnTrackSelector::SegmentOnTrackSelector(const std::string &type,const std
   m_min_hits_on_track(3),
   m_max_hits_not_on_track(1),
   m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
-  m_muonIdHelperTool("Muon::MuonIdHelperTool") 
+  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/IdToFixedIdTool"),
+  m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<ISegmentOnTrackSelector>(this);
   declareProperty("PattternLocation", m_pattern_location);

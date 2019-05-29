@@ -13,6 +13,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 
 namespace egammaMonitoring{
 
@@ -32,9 +33,11 @@ namespace egammaMonitoring{
 
     std::map<std::string, TH1D* > histoMap;
     std::map<std::string, TH2D* > histo2DMap;
+    std::map<std::string, TH3D* > histo3DMap;
 
     StatusCode initializePlots();
     void fill(const xAOD::Egamma& egamma);
+    void fill(const xAOD::Egamma& egamma, float mu);
 
   protected:
     std::string m_name;

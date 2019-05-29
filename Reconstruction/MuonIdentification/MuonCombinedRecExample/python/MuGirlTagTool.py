@@ -6,6 +6,7 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getService
 
 from RecExConfig.RecFlags import rec
+from MuonRecExample.MuonRecFlags import muonRecFlags
 
 from MuGirl.MuGirlRecoConfig import MuGirlRecoConfig
 from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTrackBuilder,CombinedMuonTrackBuilderFit,MuidSegmentRegionRecoveryTool
@@ -56,6 +57,9 @@ def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):
    kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
+   if not muonRecFlags.doCSCs():
+      kwargs.setdefault("CscRotCreator", "" )
+      kwargs.setdefault("CscPrepDataContainer", "" )
    return MuonChamberHoleRecoveryTool(name,**kwargs)
 
 def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):

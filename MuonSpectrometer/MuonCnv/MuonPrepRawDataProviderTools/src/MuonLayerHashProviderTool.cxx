@@ -132,7 +132,7 @@ namespace Muon {
     // add technologies
     insertTechnology(m_idHelper->mdtIdHelper());
     insertTechnology(m_idHelper->rpcIdHelper());
-    insertTechnology(m_idHelper->cscIdHelper());
+    if (&(m_idHelper->cscIdHelper())) insertTechnology(m_idHelper->cscIdHelper());
     if( m_ntechnologies > 4 ){
       insertTechnology(m_idHelper->mmIdHelper());
       insertTechnology(m_idHelper->stgcIdHelper());
