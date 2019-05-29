@@ -16,6 +16,24 @@ def getTrigConfigSvc(inputFlags):
     from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg
 
     rv = ComponentAccumulator()
+    # is MC ? then set up XML reading and get out of here
+    if inputFlags.Input.isMC:
+        from TrigConfigSvc.TrigConfigSvcConfig import (HLTConfigSvc, LVL1ConfigSvc, L1TopoConfigSvc, 
+                                                       findFileInXMLPATH, TrigConfigSvc)
+        hltcs = HLTConfigSvc("HLTConfigSvc")
+        hltcs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.HLTConfigFile)
+        print 'hltcs', hltcs.XMLMenuFile
+        rv.addService(hltcs)
+        lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
+        lvl1cs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.LVL1ConfigFile)
+        rv.addService(lvl1cs)
+        l1topocs = L1TopoConfigSvc()
+        l1topocs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.LVL1TopoConfigFile)
+        rv.addService(l1topocs)
+        ts = TrigConfigSvc("TrigConfigSvc")
+        ts.PriorityList = ['xml']
+        rv.addService(ts)
+        return rv
     rv.addService(DSConfigSvc('DSConfigSvc'))
     tcs = SetupTrigConfigSvc()
     tcs.SetStates(["ds"])
