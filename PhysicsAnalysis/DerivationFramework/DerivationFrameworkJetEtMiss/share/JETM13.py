@@ -70,8 +70,9 @@ if DerivationFrameworkIsMonteCarlo:
 jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
-runTCCReconstruction(jetm13Seq,ToolSvc)
+
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+runTCCReconstruction(jetm13Seq,ToolSvc, outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
