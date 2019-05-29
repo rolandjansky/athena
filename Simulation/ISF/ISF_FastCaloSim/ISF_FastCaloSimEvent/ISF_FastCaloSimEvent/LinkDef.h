@@ -40,8 +40,11 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
 #include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
+#include "ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
@@ -148,8 +151,11 @@
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
 #pragma link C++ class TFCSCenterPositionCalculation+;
+#pragma link C++ class TFCSFlatLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrizationFCal+;
+#pragma link C++ class TFCSHistoLateralShapeWeight+;
+#pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;
 #pragma link C++ class TFCSHitCellMappingFCal+;

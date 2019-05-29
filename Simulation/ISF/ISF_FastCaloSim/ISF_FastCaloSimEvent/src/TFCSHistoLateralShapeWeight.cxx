@@ -1,0 +1,84 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "CLHEP/Random/RandFlat.h"
+
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+
+#include "TH1.h"
+#include "TVector2.h"
+#include "TMath.h"
+
+//=============================================
+//======= TFCSHistoLateralShapeWeight =========
+//=============================================
+
+TFCSHistoLateralShapeWeight::TFCSHistoLateralShapeWeight(const char* name, const char* title) :
+  TFCSLateralShapeParametrizationHitBase(name,title)
+{
+}
+
+TFCSHistoLateralShapeWeight::~TFCSHistoLateralShapeWeight()
+{
+  if(m_hist) delete m_hist;
+}
+
+FCSReturnCode TFCSHistoLateralShapeWeight::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+{
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
+
+  const double center_eta = hit.center_eta(); 
+  const double center_phi = hit.center_phi();
+  const double center_r   = hit.center_r();
+  const double center_z   = hit.center_z();
+
+  const float dist000    = TMath::Sqrt(center_r * center_r + center_z * center_z);
+  const float eta_jakobi = TMath::Abs(2.0 * TMath::Exp(-center_eta) / (1.0 + TMath::Exp(-2 * center_eta)));
+
+  const float delta_eta = hit.eta()-center_eta;
+  const float delta_phi = hit.phi()-center_phi;
+  const float delta_eta_mm = delta_eta * eta_jakobi * dist000;
+  const float delta_phi_mm = delta_phi * center_r;
+  const float delta_r_mm = TMath::Sqrt(delta_eta_mm*delta_eta_mm+delta_phi_mm*delta_phi_mm);
+  
+  //TODO: delta_r_mm should perhaps be cached in hit
+
+  Int_t bin=m_hist->FindBin(delta_r_mm);
+  if(bin<1) bin=1;
+  if(bin>m_hist->GetNbinsX()) bin=m_hist->GetNbinsX();
+  float weight=m_hist->GetBinContent(bin);
+  hit.E()*=weight;
+
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" dR_mm="<<delta_r_mm<<" weight="<<weight);
+  return FCSSuccess;
+}
+
+
+bool TFCSHistoLateralShapeWeight::Initialize(TH1* hist)
+{
+  if(!hist) return false;
+  if(m_hist) delete m_hist;
+	m_hist=(TH1*)hist->Clone(TString("TFCSHistoLateralShapeWeight_")+hist->GetName());
+	m_hist->SetDirectory(0);
+
+  return true;
+}
+
+void TFCSHistoLateralShapeWeight::Print(Option_t *option) const
+{
+  TString opt(option);
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
+  TFCSLateralShapeParametrizationHitBase::Print(option);
+
+  if(longprint) {
+    if(m_hist) ATH_MSG_INFO(optprint <<"  Histogram: "<<m_hist->GetNbinsX()<<" bins ["<<m_hist->GetXaxis()->GetXmin()<<","<<m_hist->GetXaxis()->GetXmax()<<"]");
+     else ATH_MSG_INFO(optprint <<"  no Histogram");
+  }  
+}
+
