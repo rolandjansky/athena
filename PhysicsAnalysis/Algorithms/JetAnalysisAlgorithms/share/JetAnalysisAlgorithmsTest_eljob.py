@@ -102,6 +102,9 @@ for alg in jvtSequence:
 
 # Set up an ntuple to check the job with:
 from AnaAlgorithm.DualUseConfig import createAlgorithm
+treeMaker = AnaAlgorithmConfig( 'CP::TreeMakerAlg/TreeMaker' )
+treeMaker.TreeName = 'jets'
+job.algsAdd( treeMaker )
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'jets'
 ntupleMaker.Branches = [
@@ -118,6 +121,9 @@ if dataType != 'data':
     ]
 ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
 job.algsAdd( ntupleMaker )
+treeFiller = AnaAlgorithmConfig( 'CP::TreeFillerAlg/TreeFiller' )
+treeFiller.TreeName = 'jets'
+job.algsAdd( treeFiller )
 
 # Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )

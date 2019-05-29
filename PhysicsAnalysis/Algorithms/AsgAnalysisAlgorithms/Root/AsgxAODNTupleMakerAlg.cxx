@@ -309,8 +309,6 @@ namespace CP {
       // Declare the algorithm's properties.
       declareProperty( "TreeName", m_treeName = "physics",
                        "Name of the tree to write" );
-      declareProperty( "TreeAutoFlush", m_treeAutoFlush = 200,
-                       "AutoFlush value for the output tree" );
       declareProperty( "Branches", m_branches,
                        "Branches to write to the output tree" );
    }
@@ -324,15 +322,12 @@ namespace CP {
       }
 
       // Create the output tree.
-      ATH_CHECK( book( TTree( m_treeName.c_str(), "xAOD->NTuple tree" ) ) );
       m_tree = tree( m_treeName );
       if( ! m_tree ) {
-         ATH_MSG_ERROR( "Could not create output tree \"" << m_treeName
+         ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
                         << "\"" );
          return StatusCode::FAILURE;
       }
-      m_tree->SetAutoFlush( m_treeAutoFlush );
-      ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
 
       // Set up the systematics list.
       ATH_CHECK( m_systematicsList.initialize() );
@@ -384,12 +379,6 @@ namespace CP {
          }
          // Process it.
          ATH_CHECK( container_itr.second.process( *vec ) );
-      }
-
-      // Fill the tree.
-      if( m_tree->Fill() < 0 ) {
-         ATH_MSG_ERROR( "Error while filling TTree" );
-         return StatusCode::FAILURE;
       }
 
       // Return gracefully.
