@@ -22,7 +22,10 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
-#include "xAODEventInfo/EventInfo.h"
+
+#include "PATInterfaces/ISystematicsTool.h"
+#include <PATInterfaces/SystematicRegistry.h>
+#include <PATInterfaces/SystematicVariation.h>
 
 #include "TMath.h"
 #include <string>
@@ -32,6 +35,11 @@
 class TProfile;
 class TH1F_LW;
 class TH2F_LW;
+
+namespace xAOD{
+  class EventInfo_v1; typedef EventInfo_v1 EventInfo; 
+  class TruthParticle_v1; typedef TruthParticle_v1 TruthParticle;
+}
 
 namespace CP {
   class IMuonSelectionTool;
@@ -66,20 +74,41 @@ private:
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
   void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
+  void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
-//----- Electron START -----//
-  void doEleTriggerTP(const xAOD::Electron*,const xAOD::Electron*);
+  //----- Electron START -----//
+  void doEleTriggerTP(const xAOD::Electron* el1, const xAOD::Electron* el2, bool os, bool ss);
   void doEleTP(const xAOD::Electron*, const xAOD::Electron*, const xAOD::Vertex*, const xAOD::EventInfo*, bool);
+  void doEleContainerTP(std::vector<const xAOD::Electron*>, std::vector<const xAOD::Electron*>);
+
   bool goodElectrons(const xAOD::EventInfo*, const xAOD::Electron*, const xAOD::Vertex*, bool); 
+  bool antiGoodElectrons(const xAOD::EventInfo* thisEventInfo, const xAOD::Electron* electron_itr,
+                         const xAOD::Vertex* pVtx, bool isBad);
+  bool kinematicCuts(const xAOD::Electron*);
 
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
 
-  TH1F_LW *m_eltrigtp_matches;
+  TH1F *m_ZBosonCounter_El_os;
+  TH1F *m_ZBosonCounter_El_ss;
+
+  TH1F_LW *m_eltrigtp_matches_os;
+  TH1F_LW *m_eltrigtp_matches_ss;
+
 
   TH1F_LW *m_ele_tight_bad_os;
   TH1F_LW *m_ele_tight_bad_ss;
   TH1F_LW *m_ele_tight_good_os;
   TH1F_LW *m_ele_tight_good_ss;
+  TH1F_LW *m_ele_template_os;
+  TH1F_LW *m_ele_template_ss;
+
+  //TH1F_LW *m_elContainertp_match;
+  TH1F_LW *m_elContainertp_nomatch;
+  TH1F_LW *m_ele_tight_passkine;
+
+  TH1F_LW *m_totalSumWeights;
+  TH1F_LW *m_fiducialSumWeights_el;
+  TH1F_LW *m_fiducialSumWeights_mu;
 
 //----- Electron END ------//
 
@@ -118,15 +147,11 @@ private:
 
       TH1F_LW *m_JPsiCounter_Mu;
       TH1F_LW *m_UpsilonCounter_Mu;
-      TH1F *m_ZBosonCounter_El;
       TH1F *m_ZBosonCounter_Mu;
-      TH1F *m_ZBosonCounter_Mu_CMS;
 
 
       //Trigger T&P
       TH1F_LW *m_mutrigtp_matches;
-      TH1F_LW *m_mutrigtp_matches_CMS;
-
 
       //Reco T&P
       TH1F_LW *m_muloosetp_match_os;
@@ -134,11 +159,11 @@ private:
       TH1F_LW *m_muloosetp_nomatch_os;
       TH1F_LW *m_muloosetp_nomatch_ss;
 
-      TH1F_LW *m_muloosetp_match_os_CMS;
-      TH1F_LW *m_muloosetp_match_ss_CMS;
-      TH1F_LW *m_muloosetp_nomatch_os_CMS;
-      TH1F_LW *m_muloosetp_nomatch_ss_CMS;
-
+      // Inner detector T&P
+      TH1F_LW *m_mu_InDet_tp_match_os;
+      TH1F_LW *m_mu_InDet_tp_match_ss;
+      TH1F_LW *m_mu_InDet_tp_nomatch_os;
+      TH1F_LW *m_mu_InDet_tp_nomatch_ss;
 
       // MC truth
       TH1F_LW *m_mcmatch;
@@ -174,7 +199,6 @@ private:
       std::string m_tracksName;
       Float_t m_electronEtCut;
       Float_t m_muonPtCut;
-      Float_t m_muonPtCut_CMS;
 
       Float_t m_metCut;
       Float_t m_zCutLow;
