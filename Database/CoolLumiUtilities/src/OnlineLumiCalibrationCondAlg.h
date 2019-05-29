@@ -1,14 +1,12 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/*
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CoolLumiUtilities/src/OnlineLumiCalibrationCondAlg.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2018
- * @brief 
+ * @brief Produce lumi calibration data from COOL.
  */
 
 
@@ -23,20 +21,33 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 
+/**
+ * @brief Produce lumi calibration data from COOL.
+ */
 class OnlineLumiCalibrationCondAlg
   : public AthReentrantAlgorithm
 {
 public:
-  OnlineLumiCalibrationCondAlg (const std::string& name, ISvcLocator* svcloc);
+  /// Forward base class ctor.
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
 
+  /// Gaudi initialize method.
   virtual StatusCode initialize() override;
+
+
+  /// Algorithm execute method.
   virtual StatusCode execute (const EventContext& ctx) const override;
 
 
 private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_calibrationFolderName { this, "CalibrationFolderName", "" };
-  SG::WriteCondHandleKey<OnlineLumiCalibrationCondData> m_condDataName {this, "CondDataName", "" };
+  /// Input conditions object.
+  SG::ReadCondHandleKey<CondAttrListCollection> m_calibrationFolderInputKey
+  { this, "CalibrationFolderInputKey", "", "" };
+
+  /// Output conditions object.
+  SG::WriteCondHandleKey<OnlineLumiCalibrationCondData> m_lumiCalibOutputKey
+  {this, "LumiCalibOutputKey", "OnlineLumiCalibrationCondData", "" };
 };
 
 
