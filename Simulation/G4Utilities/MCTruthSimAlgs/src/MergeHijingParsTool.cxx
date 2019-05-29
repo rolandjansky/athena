@@ -39,7 +39,7 @@ StatusCode MergeHijingParsTool::processBunchXing(int,
   SubEventIterator iEvt = bSubEvents;
   for (; iEvt!=eSubEvents; iEvt++)
     {
-      StoreGateSvc& seStore(*bSubEvents->ptr()->evtStore());
+      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       if (seStore.contains<HijingEventParams>(m_outputObject.name()))
         {
           const HijingEventParams *hijing_pars(nullptr);
