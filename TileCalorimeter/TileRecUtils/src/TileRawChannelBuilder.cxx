@@ -87,6 +87,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("RunType", m_runType = 0);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
+  declareProperty("FirstSample",m_firstSample = 0); 
 
 }
 
@@ -115,7 +116,7 @@ StatusCode TileRawChannelBuilder::initialize() {
   m_rawChannelCnt = nullptr;
   m_nChL = m_nChH = 0;
   m_RChSumL = m_RChSumH = 0.0;
-
+  m_evtCounter = -1; 
   // retrieve TileID helpers and TileIfno from det store
   ATH_CHECK( detStore()->retrieve(m_tileID, "TileID") );
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
