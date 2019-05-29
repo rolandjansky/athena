@@ -21,7 +21,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_primaries_ftk_grid"
+export NAME="physics_pp_v7_primaries_ftk_grid"
 export MENU="Physics_pp_v7_primaries"
 export INPUT="ftk"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
