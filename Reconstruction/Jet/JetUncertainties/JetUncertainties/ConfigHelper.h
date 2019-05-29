@@ -45,8 +45,8 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
-        TString FatjetTruthLabelForSF;
-        TString RegionForSF;
+        TString FatjetTruthLabelForSFstr;
+        TString RegionForSFstr;
 	TString ResultName;
 
         // Derived values to parse from the raw values
@@ -62,6 +62,8 @@ class ComponentHelper
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;
+	CompFlavorLabelVar::TypeEnum FatjetTruthLabelForSF;
+	CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 
 class GroupHelper

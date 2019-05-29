@@ -120,6 +120,36 @@ namespace CompScaleVar
     bool isRelResolutionType(const TypeEnum type);
 }
 
+namespace CompFlavorLabelVar
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,  // error state
+        t_qqb,      // full-contained top
+        t,          // inclusive top
+        V_qq,       // W/Z->qq
+        W_qq,       // W->qq
+        Z_qq,       // Z->qq
+	q           // background jet
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
+namespace CompTaggerRegionVar
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,  // error state
+        passMpassD2_2Var,// passing both mass and D2 cuts
+        passMfailD2_2Var,// passing mass cut but failing D2
+        failMpassD2_2Var,// failing mass cut but passing D2
+	failMfailD2_2Var // failing both mass and D2 cuts
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
 namespace PileupComp
 {
     enum TypeEnum

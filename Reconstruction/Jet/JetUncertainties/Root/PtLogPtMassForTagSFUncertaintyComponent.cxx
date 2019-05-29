@@ -81,7 +81,10 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
       } else {
 	m_accept=accResult(jet);
-	if ( m_region.Contains("2Var_") ) {
+	if ( m_region==CompTaggerRegionVar::passMpassD2_2Var ||
+	     m_region==CompTaggerRegionVar::passMfailD2_2Var ||
+	     m_region==CompTaggerRegionVar::failMpassD2_2Var ||
+	     m_region==CompTaggerRegionVar::failMfailD2_2Var) {
 	  // TCC 2Var tagger
 	  bool passMass=(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh"));
 	  bool passD2  =(m_accept.getCutResult("PassD2"));
@@ -90,10 +93,10 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	    const double WtoZmassShift = 10803;
 	    mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
 	  }
-	  if ( ! ((passMass && passD2 && m_region.Contains("passMpassD2")) ||
-		  (passMass && !passD2 && m_region.Contains("passMfailD2")) ||
-		  (!passMass && passD2 && m_region.Contains("failMpassD2")) ||
-		  (!passMass && !passD2 && m_region.Contains("failMfailD2"))) ){
+	  if ( ! ((passMass && passD2 && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
+		  (passMass && !passD2 && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
+		  (!passMass && passD2 && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
+		  (!passMass && !passD2 && m_region==CompTaggerRegionVar::failMfailD2_2Var)) ){
 	    return 0.0;
 	  }
 	} else {
@@ -102,12 +105,12 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	}
       }
     }
-    if ( (m_label=="t_qqb" && jetFlavorLabel!=FatjetTruthLabel::tqqb) ||
-	 (m_label=="t" && jetFlavorLabel!=FatjetTruthLabel::tqqb && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t && jetFlavorLabel!=FatjetTruthLabel::other_From_t) ||
-	 (m_label=="V_qq" && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
-	 (m_label=="W_qq" && jetFlavorLabel!=FatjetTruthLabel::Wqq) ||
-	 (m_label=="Z_qq" && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
-	 (m_label=="q" && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::unknown) ) {
+    if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel!=FatjetTruthLabel::tqqb) ||
+	 (m_label==CompFlavorLabelVar::t && jetFlavorLabel!=FatjetTruthLabel::tqqb && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t && jetFlavorLabel!=FatjetTruthLabel::other_From_t) ||
+	 (m_label==CompFlavorLabelVar::V_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
+	 (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq) ||
+	 (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
+	 (m_label==CompFlavorLabelVar::q && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::unknown) ) {
       // if the type of uncertainty is not match to the jet truth label, return 0% uncertainty
       return 0.0;
     }

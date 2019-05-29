@@ -374,6 +374,85 @@ namespace CompScaleVar
 
 //////////////////////////////////////////////////
 //                                              //
+//  Component parametrization type enum methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace CompFlavorLabelVar
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch (type)
+        {
+    	    case t_qqb:         return "t_qqb";
+    	    case t:             return "t";
+	    case V_qq:          return "V_qq";
+    	    case W_qq:          return "W_qq";
+    	    case Z_qq:          return "Z_qq";
+	    case q:             return "q";
+            default:            return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (type=="t_qqb")
+	  return t_qqb;
+	if (type=="t")
+	  return t;
+	if (type=="V_qq")
+	  return V_qq;
+	if (type=="W_qq")
+	  return W_qq;
+	if (type=="Z_qq")
+	  return Z_qq;
+	if (type=="q")
+	  return q;
+        return UNKNOWN;
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Component parametrization type enum methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace CompTaggerRegionVar
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch (type)
+        {
+    	    case passMpassD2_2Var:  return "2Var_passMpassD2";
+	    case passMfailD2_2Var:  return "2Var_passMfailD2";
+    	    case failMpassD2_2Var:  return "2Var_failMpassD2";
+    	    case failMfailD2_2Var:  return "2Var_failMfailD2";
+            default:            return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+      if (type.Contains("2Var",TString::kIgnoreCase))
+      {
+	if (type.Contains("passMpassD2",TString::kIgnoreCase))
+	  return passMpassD2_2Var;
+        if (type.Contains("passMfailD2",TString::kIgnoreCase))
+	  return passMfailD2_2Var;
+        if (type.Contains("failMpassD2",TString::kIgnoreCase))
+	  return failMpassD2_2Var;
+        if (type.Contains("failMfailD2",TString::kIgnoreCase))
+	  return failMfailD2_2Var;
+      }
+      return UNKNOWN;
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
 //  Pileup component enumeration methods        //
 //                                              //
 //////////////////////////////////////////////////
