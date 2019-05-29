@@ -1,5 +1,33 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+"""
+    ------ Documentation on HLT Tree creation -----
+
+++ Filter creation strategy
+
+++ Connections between InputMaker/HypoAlg/Filter
+
+++ Seeds
+
+++ Combined chains
+
+- The combined chains use duplicates of the single-object-HypoAlg, called HypoAlgName_for_stepName.
+  These duplicates are connected to a dedicated ComboHypoAlg (added by the framework), able to count object multiplicity
+     -- This is needed for two reasons:
+           -- the HypoAlg is designed to have only one input TC (that is already for the single object)
+           -- otherwise the HypoAlg would be equipped with differnt HypoTools with the same name (see for example e3_e8)
+     -- If the combined chain is symmetric (with multiplicity >1), the Hypo is duplicated only once, 
+        equipped with a HypoTool configured as single object and followed by one ComboHypoAlg
+
+
+
+
+
+"""
+
+
+
+
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
 from AthenaCommon.Logging import logging
@@ -176,6 +204,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     flatDecisions=[]
     for step in finalDecisions: 
         flatDecisions.extend (step)
+
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
@@ -309,7 +338,7 @@ def createDataFlow(chains, allDicts):
         for nstep in range(0,len(chain.steps)):
             stepCF_name =  CFNaming.stepName(nstep)
             chain_step=chain.steps[nstep]
-            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
+            log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
 
             filter_input =[]
             if nstep == 0: # L1 seeding

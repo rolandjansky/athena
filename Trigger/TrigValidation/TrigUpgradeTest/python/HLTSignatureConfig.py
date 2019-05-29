@@ -30,9 +30,10 @@ def makeSequence(ConfigFlags, name,step, signature):
     else:
         sys.exit("ERROR, in configuration of sequence "+name+step+signature)
 
-    Alg.Output=name+signature+"Alg"+step+"_out"
+    Alg.Output = name+signature+"Alg"+step+"_out"
     Alg.Input  = IM.Output
-    Sequence = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
+    Sequence   = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
+
     return (Sequence, IM, Alg.Output)
 
 
@@ -98,3 +99,10 @@ def muMenuSequence(step, reconame, hyponame):
     return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
     
         
+def genMenuSequence(step, reconame, hyponame):
+    (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
+    elHypo = ElGamHypo(hyponame+"Hypo")
+    elHypo.Input = seqOut
+    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    
+ 
