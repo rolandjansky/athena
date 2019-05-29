@@ -1031,6 +1031,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
      }
 	  }
    }
+  
 
     (void) m_sctClusterMap->insert(SCT_DetElClusterMap.begin(), SCT_DetElClusterMap.end());
   }

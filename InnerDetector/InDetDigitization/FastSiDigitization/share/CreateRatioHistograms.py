@@ -8,9 +8,9 @@ directories={
 		"sct":directories_sct
 		}
 list_histograms_pixel_pileup=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_barrel_high_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_endcap_high_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_barrel_med_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_endcap_med_pileup"]
-list_histograms_pixel_ttbar=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_barrel","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_endcap"]
+list_histograms_pixel_ttbar=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_barrel_low_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_pix_endcap_low_pileup"]
 list_histograms_sct_pileup=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_barrel_high_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_endcap_high_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_barrel_med_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_endcap_med_pileup"]
-list_histograms_sct_ttbar=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_barrel","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_endcap"]
+list_histograms_sct_ttbar=["IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_barrel_low_pileup","IDPerformanceMon/CombinedInDetTracks/SelectedGoodTracks/eff_hit_vs_eta_sct_endcap_low_pileup"]
 ##############################
 
 def CreateOutputFileStructure(outputfile):
@@ -139,20 +139,20 @@ def DrawRatio(ratio_collection):
 if __name__ == '__main__':
 
   gROOT.SetBatch()
-  Full_pileup_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_FullNewPlot_FullNewPlot/InDetStandardPlots.root"
+  Full_pileup_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_Full_Full_NewPlot_052019/InDetStandardPlots.root"
   Full_pileup=TFile(Full_pileup_name)
-  Full_ttbar_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_Full_Full/InDetStandardPlots.root"
+  Full_ttbar_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_Full_Full_NewPlot_052019/InDetStandardPlots.root"
   Full_ttbar=TFile(Full_ttbar_name)
 
-  Fast_pileup_pixel_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_Pixel_inefficiency0.0_0105_NewPlot/InDetStandardPlots.root"
+  Fast_pileup_pixel_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_Pixel_inefficiency0.0_Inefficiency_NewPlot_052019/InDetStandardPlots.root"
   Fast_pileup_pixel=TFile(Fast_pileup_pixel_name)
-  Fast_ttbar_pixel_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_Pixel_90/InDetStandardPlots.root"
+  Fast_ttbar_pixel_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_Pixel_inefficiency0.0_Inefficiency_NewPlot_052019/InDetStandardPlots.root"
   Fast_ttbar_pixel=TFile(Fast_ttbar_pixel_name)
 
-  Fast_pileup_sct_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_barrel4.0_endcap2.0_NewPlot/InDetStandardPlots.root"
-  Fast_pileup_sct=TFile(Fast_pileup_pixel_name)
-  Fast_ttbar_sct_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_barrel4.0_1.0/InDetStandardPlots.root"
-  Fast_ttbar_sct=TFile(Fast_ttbar_pixel_name)
+  Fast_pileup_sct_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/pileup/Scan_barrel4.0_endcap2.0_ineffSF0.0_NewPlot_052019/InDetStandardPlots.root"
+  Fast_pileup_sct=TFile(Fast_pileup_sct_name)
+  Fast_ttbar_sct_name="/afs/cern.ch/work/f/ffabbri/FastDigi/Post2018Validation/run/InDetRoots/ttbar_allhad/Scan_barrel4.0_endcap2.0_ineff0.0_052019_NewPlot/InDetStandardPlots.root"
+  Fast_ttbar_sct=TFile(Fast_ttbar_sct_name)
 
   outputfile_name="fast_pixel_inefficiency_SF.root"
   outputfile=TFile(outputfile_name,"RECREATE")
@@ -170,11 +170,11 @@ if __name__ == '__main__':
   histograms_fast=ReadHistograms(Fast_pileup_pixel,histograms_fast,"pixel",list_histograms_pixel_pileup)  
 
   histograms_full=ReadHistograms(Full_ttbar,histograms_full,"sct",list_histograms_sct_ttbar)
-  histograms_fast=ReadHistograms(Fast_ttbar_pixel,histograms_fast,"sct",list_histograms_sct_ttbar)
+  histograms_fast=ReadHistograms(Fast_ttbar_sct,histograms_fast,"sct",list_histograms_sct_ttbar)
   
 
   histograms_full=ReadHistograms(Full_pileup,histograms_full,"sct",list_histograms_sct_pileup)
-  histograms_fast=ReadHistograms(Fast_pileup_pixel,histograms_fast,"sct",list_histograms_sct_pileup) 
+  histograms_fast=ReadHistograms(Fast_pileup_sct,histograms_fast,"sct",list_histograms_sct_pileup) 
 
   ratio_collection= CreateRatio(histograms_full,histograms_fast,outputfile)
   DrawRatio(ratio_collection)
