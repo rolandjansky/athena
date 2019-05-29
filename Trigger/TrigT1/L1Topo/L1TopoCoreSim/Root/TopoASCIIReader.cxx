@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  TopoASCIIReader.cpp
 
@@ -24,8 +24,7 @@ TCS::TopoASCIIReader::~TopoASCIIReader() {
 // load input file
 void TCS::TopoASCIIReader::loadInput(const std::string & input) {
    if(input=="") {
-      cout << "Specify the location of the ascii input file" << endl;
-      exit(0);
+      TCS_EXCEPTION("Specify the location of the ascii input file");
    }
   
    cout << "TopoASCIIReader: Opening file " << input << endl;

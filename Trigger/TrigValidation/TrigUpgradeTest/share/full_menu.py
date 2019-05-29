@@ -17,7 +17,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 
 testChains = []
 
@@ -32,17 +32,20 @@ inDetSetup()
 if opt.doElectronSlice == True:
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    fastCaloStep=fastCaloMenuSequence("Ele")
-    electronStep=electronMenuSequence()
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, electronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloStep = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
+    electronStep = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    precisionCaloStep = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    step1=ChainStep("ElectronFastCalo", [fastCaloStep])
+    step2=ChainStep("ElectronFastTrack", [electronStep])
+    step3=ChainStep("ElectronPrecisionCalo", [precisionCaloStep])
 
     egammaChains  = [
         Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
-        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
         ]
     testChains += egammaChains
 
@@ -86,10 +89,10 @@ if opt.doMuonSlice == True:
 
 
     # 2muons
-    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()])
-    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()])
-    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()])
-    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()])
+    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()], multiplicity=2)
+    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()], multiplicity=2)
+    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()], multiplicity=2)
+    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()], multiplicity=2)
     
 
     emptyStep=ChainStep("Step2_empty")
@@ -157,8 +160,6 @@ if opt.doJetSlice == True:
     testChains += jetChains
 
 
-
-
 ##################################################################
 # bjet chains
 ##################################################################
@@ -175,8 +176,11 @@ if opt.doBJetSlice == True:
         ]
     testChains += bjetChains
     
+##################################################################
+# tau chains
+##################################################################
 if opt.doTauSlice == True:
-  from TrigUpgradeTest.tauMenuDefs import getTauSequence
+  from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
   step1=ChainStep("Step1_tau", [getTauSequence('calo')])
   step2=ChainStep("Step2_tau", [getTauSequence('track_core')])
   
@@ -233,7 +237,7 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doComboSlice == True:
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()])
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()], multiplicity=2)
 
     comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains

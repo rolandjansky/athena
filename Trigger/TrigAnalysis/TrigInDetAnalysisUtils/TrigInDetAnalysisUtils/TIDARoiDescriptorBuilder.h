@@ -16,7 +16,6 @@
 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 
 class TIDARoiDescriptorBuilder : public /*TrigInDetAnalysis::*/TIDARoiDescriptor {

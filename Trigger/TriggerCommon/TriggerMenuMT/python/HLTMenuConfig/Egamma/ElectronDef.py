@@ -20,7 +20,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 #----------------------------------------------------------------
 
 def fastCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence("Electron")
+    return fastCaloMenuSequence("ElectronFastCalo")
     
 def electronSequenceCfg( flags ):    
     inDetSetup()

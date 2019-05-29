@@ -12,8 +12,7 @@ InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool( name = "InDetTRTStr
 #ServiceMgr += InDetTRTStrawStatusSummarySvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-                                            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                            isGEANT4=!(globalflags.DataSource == 'data') )
+                                            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
 from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
 InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy( name = "InDet_TRT_LocalOccupancy",

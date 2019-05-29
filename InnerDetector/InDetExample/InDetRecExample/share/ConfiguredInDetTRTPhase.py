@@ -38,15 +38,19 @@ class ConfiguredInDetTRTPhase:
             cutWindowCenter  = -8.5
             numberIterations = 5
             cutWindowSize    = 7
+            # CalDb tool
+            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
                                                     
             #    
             # --- load tool
             #
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetCosmicsEventPhaseTool
             InDetCosmicsEventPhaseTool = InDet__InDetCosmicsEventPhaseTool(name              = "InDetCosmicsEventPhaseTool",
-                                                                           UseTRTCalibration = True,
                                                                            UseNewEP          = useNewEP,
-                                                                           GlobalOffset      = globalOffset
+                                                                           GlobalOffset      = globalOffset,
+                                                                           TRTCalDbTool      = InDetTRTCalDbTool
                                                                            )
                                                                            
             ToolSvc += InDetCosmicsEventPhaseTool
@@ -55,11 +59,11 @@ class ConfiguredInDetTRTPhase:
             
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetFixedWindowTrackTimeTool
             InDetFixedWindowTrackTimeTool = InDet__InDetFixedWindowTrackTimeTool(name              = "InDetFixedWindowTrackTimeTool",
-                                                                                 UseTRTCalibration = True,
                                                                                  UseNewEP          = useNewEP,
                                                                                  GlobalOffset      = globalOffset,
                                                                                  WindowCenter      = cutWindowCenter,
-                                                                                 WindowSize        = cutWindowSize
+                                                                                 WindowSize        = cutWindowSize,
+                                                                                 TRTCalDbTool      = InDetTRTCalDbTool
                                                                                  )
                                                                            
             ToolSvc += InDetFixedWindowTrackTimeTool
@@ -69,11 +73,11 @@ class ConfiguredInDetTRTPhase:
             
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetSlidingWindowTrackTimeTool
             InDetSlidingWindowTrackTimeTool = InDet__InDetSlidingWindowTrackTimeTool(name              = "InDetSlidingWindowTrackTimeTool",
-                                                                                     UseTRTCalibration = True,
                                                                                      UseNewEP          = useNewEP,
                                                                                      GlobalOffset      = globalOffset,
                                                                                      NumberIterations  = numberIterations,
-                                                                                     WindowSize        = cutWindowSize
+                                                                                     WindowSize        = cutWindowSize,
+                                                                                     TRTCalDbTool      = InDetTRTCalDbTool
                                                                                      )
                                                                            
             ToolSvc += InDetSlidingWindowTrackTimeTool
@@ -87,6 +91,7 @@ class ConfiguredInDetTRTPhase:
             InDetCosmicsEventPhase = InDet__InDetCosmicsEventPhase(name              = "InDetCosmicsEventPhase",
                                                                    InputTracksNames  = InputTrackCollections,
                                                                    TrackSummaryTool  = InDetTrackSummaryTool,
+                                                                   TRTCalDbTool      = InDetTRTCalDbTool,
                                                                    #EventPhaseTool    = InDetCosmicsEventPhaseTool)
                                                                    #EventPhaseTool    = InDetFixedWindowTrackTimeTool)
                                                                    EventPhaseTool    = InDetSlidingWindowTrackTimeTool)

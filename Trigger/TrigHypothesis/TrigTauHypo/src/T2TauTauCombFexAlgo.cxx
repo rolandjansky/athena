@@ -16,7 +16,7 @@
  **************************************************************************/
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigTauHypo/T2TauTauCombFexAlgo.h"
+#include "T2TauTauCombFexAlgo.h"
 
 #include <math.h>
 

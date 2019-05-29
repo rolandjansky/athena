@@ -63,26 +63,40 @@ StatusCode TrigSignatureMoniMT::initialize() {
 StatusCode TrigSignatureMoniMT::finalize() {
   
   auto collToString = [&]( int xbin, const TH2* hist, int startOfset=0, int endOffset=0){ 
-			std::string v;
-			for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
-			  if ( ybin > startOfset ) {
-			    v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
-			    v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
-			  } else {
-			    v += std::string( 10, ' ');
-			  }
-			}
-			
-			return v;
-		      };
+    std::string v;
+    for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
+      if ( ybin > startOfset ) {
+	v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
+	v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
+      } else {
+	v += std::string( 10, ' ');
+      }
+    }
+    
+    return v;
+  };
   
-  ATH_MSG_INFO( "Chains passing step (1st row events & 2nd row decision counts" );  
-  ATH_MSG_INFO( "Chain name                   L1,      AfterPS, [... steps ...], Output"  );
-
-
+  
   auto fixedWidth = [](const std::string& s, size_t sz) {
-		      return s.size() < sz ?
-					s+ std::string(sz - s.size(), ' ') : s; };
+    return s.size() < sz ?
+    s+ std::string(sz - s.size(), ' ') : s; };
+
+
+  std::string v;
+  for ( int bin = 1; bin <= m_passHistogram->GetYaxis()->GetNbins()-3; ++bin ) {
+    v += "step";
+    v += std::to_string(bin);
+    v += std::string( 10*bin - v.size(),  ' ' );
+  }
+  
+  ATH_MSG_INFO( "Chains passing step (1st row events & 2nd row decision counts):" );  
+  ATH_MSG_INFO( "Chain name                   L1,      AfterPS,  "<<v<<"Output"  );
+
+
+  /*
+    comment for future dev:
+    for combined chains we find x2 the number of decisions, because we count both the HypoAlg and the combo Alg decisions
+  */
   
   for ( int bin = 1; bin <= m_passHistogram->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(bin);
@@ -91,7 +105,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
       ATH_MSG_INFO( fixedWidth(chainName +" decisions", 30) << collToString( bin, m_countHistogram, 2, 1 ) );
     }
   }		 
-    
+
   
   return StatusCode::SUCCESS;
 }

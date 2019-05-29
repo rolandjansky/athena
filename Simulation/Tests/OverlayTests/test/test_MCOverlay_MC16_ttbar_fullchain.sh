@@ -18,9 +18,16 @@ Reco_tf.py \
 --outputAODFile MC_plus_MC.AOD.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
 --imf False
-echo "art-result: $? reco"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo "art-result: $? regression"
+rc=$?
+echo "art-result: $rc reco"
+
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+echo "art-result: $rc2 regression"

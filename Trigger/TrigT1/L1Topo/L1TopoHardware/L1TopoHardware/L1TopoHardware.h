@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoHardware_L1TopoHardware
@@ -13,16 +13,17 @@
 
 namespace TCS {
 
-   class HardwareParam {
-   public:
-      HardwareParam(const std::string & name, uint32_t value, const std::string & description, const std::string & rule);
+   struct HardwareParam {
       std::string name{""};
       uint32_t    value{0};
       std::string description{""};
       std::string rule{""};
    };
 
-   extern std::map<std::string, HardwareParam> L1TopoHardwareParameters;
+   struct L1TopoHWParameters {
+      static const std::map<std::string, HardwareParam>& get();
+   };
+
 
    const uint32_t InputWidthEM                = 120;
    const uint32_t InputWidthTAU               = 120;

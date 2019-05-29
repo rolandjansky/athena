@@ -321,7 +321,11 @@ if TriggerFlags.doMuon():
 if globalflags.InputFormat.is_pool():
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
-    svcMgr.PoolSvc.AttemptCatalogPatch=True 
+    svcMgr.PoolSvc.AttemptCatalogPatch=True
+    # enable transient BS 
+    if TriggerFlags.writeBS():
+        log.info("setting up transient BS")
+        include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
      
 # ----------------------------------------------------------------
 # ByteStream input

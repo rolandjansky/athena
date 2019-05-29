@@ -1,12 +1,12 @@
-Sat Feb 23 22:50:51 CET 2019
+Wed May 22 16:20:29 CEST 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.22/2840e19] -- built on [2019-02-22T2103]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-dbg] [atlas-work3/a2d84b85b4c] -- built on [2019-05-22T0547]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/AuxDataTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5463 configurables from 40 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5470 configurables from 64 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
@@ -17,27 +17,27 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on lxplus057.cern.ch on Sat Feb 23 22:51:02 2019
+                                          running on lxplus729.cern.ch on Wed May 22 16:20:51 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3112 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7169 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-ClassIDSvc           INFO  getRegistryEntries: read 9864 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7481 CLIDRegistry entries for module ALL
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-02-22T2138/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus057.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-20T2152/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus729.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:AuxDataTestRead_catalog.xml
@@ -51,7 +51,7 @@ PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61408
+RootDatabase.open    INFO auxdata.root File version:61600
 auxdata.root         INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -60,16 +60,16 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61408
+RootDatabase.open    INFO auxdata.root File version:61600
 auxdata.root         INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D5AA9EF7-65C9-5F4D-9597-2B63984316FE
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D0542784-805C-E641-A80E-739FD09611C4
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61408
-ClassIDSvc           INFO  getRegistryEntries: read 909 CLIDRegistry entries for module ALL
+RootDatabase.open    INFO auxdata.root File version:61600
+ClassIDSvc           INFO  getRegistryEntries: read 858 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
@@ -82,20 +82,20 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 auxdata.root         INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D5AA9EF7-65C9-5F4D-9597-2B63984316FE
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D0542784-805C-E641-A80E-739FD09611C4
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D5AA9EF7-65C9-5F4D-9597-2B63984316FE
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D0542784-805C-E641-A80E-739FD09611C4
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61408
+RootDatabase.open    INFO auxdata.root File version:61600
 ApplicationMgr       INFO Application Manager Started successfully
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-1
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 1
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 1100 aFloat1: 1200.5 pInt: 2 pFloat: 0.01 aB: 1300 dFloat1: 1400.5
   pvInt: []
   pvFloat: []
@@ -129,14 +129,14 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 9999 aFloat1: 9999.5 anEL: bauxvec[1] aB: 10099 dFloat1: 10199.5
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 1C316D49-0822-244D-8C81-3F6E80C5F836
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 5168526D-742A-1A4B-BAB8-7C1DDA2BE5CE
 Domain[ROOT_All]     INFO                           auxdata2.root
-RootDatabase.open    INFO auxdata2.root File version:61408
+RootDatabase.open    INFO auxdata2.root File version:61600
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
-2
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 2
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 2100 aFloat1: 2200.5 pInt: 1 pFloat: 0.02 aB: 2300 dFloat1: 2400.5
   pvInt: []
   pvFloat: []
@@ -170,8 +170,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 19998 aFloat1: 19998.5 anEL: bauxvec[2] aB: 20098 dFloat1: 20198.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
-3
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 3
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 3100 aFloat1: 3200.5 pInt: 0 pFloat: 0.03 aB: 3300 dFloat1: 3400.5
   pvInt: []
   pvFloat: []
@@ -205,8 +205,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 29997 aFloat1: 29997.5 anEL: bauxvec[3] aB: 30097 dFloat1: 30197.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
-4
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 4
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 4100 aFloat1: 4200.5 pInt: 2 pFloat: 0.04 aB: 4300 dFloat1: 4400.5
   pvInt: []
   pvFloat: []
@@ -240,8 +240,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 39996 aFloat1: 39996.5 anEL: bauxvec[4] aB: 40096 dFloat1: 40196.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-5
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 5
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 5100 aFloat1: 5200.5 pInt: 1 pFloat: 0.05 aB: 5300 dFloat1: 5400.5
   pvInt: []
   pvFloat: []
@@ -275,8 +275,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 49995 aFloat1: 49995.5 anEL: bauxvec[5] aB: 50095 dFloat1: 50195.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
-6
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 6
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 6100 aFloat1: 6200.5 pInt: 0 pFloat: 0.06 aB: 6300 dFloat1: 6400.5
   pvInt: []
   pvFloat: []
@@ -310,8 +310,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 59994 aFloat1: 59994.5 anEL: bauxvec[6] aB: 60094 dFloat1: 60194.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
-7
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 7
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 7100 aFloat1: 7200.5 pInt: 2 pFloat: 0.07 aB: 7300 dFloat1: 7400.5
   pvInt: []
   pvFloat: []
@@ -345,8 +345,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 69993 aFloat1: 69993.5 anEL: bauxvec[7] aB: 70093 dFloat1: 70193.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
-8
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 8
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 8100 aFloat1: 8200.5 pInt: 1 pFloat: 0.08 aB: 8300 dFloat1: 8400.5
   pvInt: []
   pvFloat: []
@@ -380,8 +380,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 79992 aFloat1: 79992.5 anEL: bauxvec[8] aB: 80092 dFloat1: 80192.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
-9
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 9
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 9100 aFloat1: 9200.5 pInt: 0 pFloat: 0.09 aB: 9300 dFloat1: 9400.5
   pvInt: []
   pvFloat: []
@@ -415,8 +415,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 89991 aFloat1: 89991.5 anEL: bauxvec[9] aB: 90091 dFloat1: 90191.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
-10
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 10
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 10100 aFloat1: 10200.5 pInt: 2 pFloat: 0.10 aB: 10300 dFloat1: 10400.5
   pvInt: []
   pvFloat: []
@@ -450,8 +450,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 99990 aFloat1: 99990.5 anEL: bauxvec[0] aB: 100090 dFloat1: 100190
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
-11
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 11
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 11100 aFloat1: 11200.5 pInt: 1 pFloat: 0.11 aB: 11300 dFloat1: 11400.5
   pvInt: []
   pvFloat: []
@@ -485,8 +485,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 109989 aFloat1: 109989.5 anEL: bauxvec[1] aB: 110089 dFloat1: 110190
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
-12
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 12
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 12100 aFloat1: 12200.5 pInt: 0 pFloat: 0.12 aB: 12300 dFloat1: 12400.5
   pvInt: []
   pvFloat: []
@@ -520,8 +520,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 119988 aFloat1: 119988.5 anEL: bauxvec[2] aB: 120088 dFloat1: 120188
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
-13
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 13
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 13100 aFloat1: 13200.5 pInt: 2 pFloat: 0.13 aB: 13300 dFloat1: 13400.5
   pvInt: []
   pvFloat: []
@@ -555,8 +555,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 129987 aFloat1: 129987.5 anEL: bauxvec[3] aB: 130087 dFloat1: 130188
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
-14
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 14
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 14100 aFloat1: 14200.5 pInt: 1 pFloat: 0.14 aB: 14300 dFloat1: 14400.5
   pvInt: []
   pvFloat: []
@@ -590,8 +590,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 139986 aFloat1: 139986.5 anEL: bauxvec[4] aB: 140086 dFloat1: 140186
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
-15
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 15
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 15100 aFloat1: 15200.5 pInt: 0 pFloat: 0.15 aB: 15300 dFloat1: 15400.5
   pvInt: []
   pvFloat: []
@@ -625,8 +625,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 149985 aFloat1: 149985.5 anEL: bauxvec[5] aB: 150085 dFloat1: 150186
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
-16
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 16
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 16100 aFloat1: 16200.5 pInt: 2 pFloat: 0.16 aB: 16300 dFloat1: 16400.5
   pvInt: []
   pvFloat: []
@@ -660,8 +660,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 159984 aFloat1: 159984.5 anEL: bauxvec[6] aB: 160084 dFloat1: 160184
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
-17
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 17
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 17100 aFloat1: 17200.5 pInt: 1 pFloat: 0.17 aB: 17300 dFloat1: 17400.5
   pvInt: []
   pvFloat: []
@@ -695,8 +695,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 169983 aFloat1: 169983.5 anEL: bauxvec[7] aB: 170083 dFloat1: 170184
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
-18
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 18
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 18100 aFloat1: 18200.5 pInt: 0 pFloat: 0.18 aB: 18300 dFloat1: 18400.5
   pvInt: []
   pvFloat: []
@@ -730,8 +730,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 179982 aFloat1: 179982.5 anEL: bauxvec[8] aB: 180082 dFloat1: 180182
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
-19
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 19
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 19100 aFloat1: 19200.5 pInt: 2 pFloat: 0.19 aB: 19300 dFloat1: 19400.5
   pvInt: []
   pvFloat: []
@@ -765,8 +765,8 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 189981 aFloat1: 189981.5 anEL: bauxvec[9] aB: 190081 dFloat1: 190182
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
-20
-aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
+AuxDataTestRead      INFO 20
+AuxDataTestRead      INFO aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 20100 aFloat1: 20200.5 pInt: 1 pFloat: 0.20 aB: 20300 dFloat1: 20400.5
   pvInt: []
   pvFloat: []
@@ -801,9 +801,9 @@ b anInt1: 199980 aFloat1: 199980.5 anEL: bauxvec[0] aB: 200080 dFloat1: 200180
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 Stream1              INFO Records written: 21
 auxdata.root         INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D5AA9EF7-65C9-5F4D-9597-2B63984316FE
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D0542784-805C-E641-A80E-739FD09611C4
 auxdata2.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 1C316D49-0822-244D-8C81-3F6E80C5F836
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 5168526D-742A-1A4B-BAB8-7C1DDA2BE5CE
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize

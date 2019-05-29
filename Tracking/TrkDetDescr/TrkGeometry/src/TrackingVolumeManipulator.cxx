@@ -45,7 +45,7 @@ void Trk::TrackingVolumeManipulator::setInsideVolume(const Trk::TrackingVolume& 
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                           Trk::BoundarySurfaceFace face,
                                                           Trk::BinnedArray<Trk::TrackingVolume>* insidevolarray) const
-{   ((*tvol.m_boundarySurfaces)[face])->m_insideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray,false); }
+{   ((*tvol.m_boundarySurfaces)[face])->m_insideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray); }
       
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                           Trk::BoundarySurfaceFace face,
@@ -61,7 +61,7 @@ void Trk::TrackingVolumeManipulator::setOutsideVolume(const Trk::TrackingVolume&
 void Trk::TrackingVolumeManipulator::setOutsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                            Trk::BoundarySurfaceFace face,
                                                            Trk::BinnedArray<Trk::TrackingVolume>* outsidevolarray) const         
-{  ((*tvol.m_boundarySurfaces)[face])->m_outsideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray,false); } 
+{  ((*tvol.m_boundarySurfaces)[face])->m_outsideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray); } 
 
 void Trk::TrackingVolumeManipulator::setOutsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                            Trk::BoundarySurfaceFace face,
@@ -74,7 +74,7 @@ void Trk::TrackingVolumeManipulator::confineVolume(const TrackingVolume& tvol,
 {
   const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = tvol.boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    if ( bounds[ib].getPtr()->m_outsideVolume == 0 )  bounds[ib].getPtr()->m_outsideVolume = outsideVol; 
-    if ( bounds[ib].getPtr()->m_insideVolume == 0 )  bounds[ib].getPtr()->m_insideVolume = outsideVol; 
+    if ( bounds[ib].get()->m_outsideVolume == 0 )  bounds[ib].get()->m_outsideVolume = outsideVol; 
+    if ( bounds[ib].get()->m_insideVolume == 0 )  bounds[ib].get()->m_insideVolume = outsideVol; 
   }
 }

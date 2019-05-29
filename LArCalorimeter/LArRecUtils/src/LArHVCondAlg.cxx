@@ -155,7 +155,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   const LArHVIdMapping* hvCabling{nullptr};
 
   if(doHVData || (doAffected && m_doAffectedHV) ) {
-    SG::ReadCondHandle<LArHVIdMapping> cHdl{m_hvMappingKey};
+    SG::ReadCondHandle<LArHVIdMapping> cHdl{m_hvMappingKey, ctx};
     hvCabling = *cHdl;
     if(!hvCabling) {
       ATH_MSG_ERROR("Unable to access LArHVIdMapping Cond Object");

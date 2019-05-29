@@ -122,7 +122,7 @@ const Trk::DiscSurface& Trk::DiscLayer::surfaceRepresentation() const
 double Trk::DiscLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                Trk::PropDirection dir) const
 {
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     //const Amg::Vector3D& parmPos = parm.position(); 
     if (Trk::DiscSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
@@ -133,7 +133,7 @@ double Trk::DiscLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
 double Trk::DiscLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                 Trk::PropDirection dir) const 
 {
-   if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+   if (!Trk::Layer::m_layerMaterialProperties.get())
      return 0.;
    //const Amg::Vector3D& parmPos = parm.position(); 
    if (Trk::DiscSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
@@ -176,7 +176,7 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         const_cast<Trk::SharedObject<const Trk::SurfaceBounds>&> (Trk::DiscSurface::m_bounds) 
         = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
         // (1) resize the material properties by updating the BinUtility, assuming r/phi binning
-        if (Trk::Layer::m_layerMaterialProperties.getPtr() ){
+        if (Trk::Layer::m_layerMaterialProperties.get() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
             if (layerMaterialBU && layerMaterialBU->binningValue(0) == Trk::binR ){
                 size_t binsR = layerMaterialBU->max(0)+1;
@@ -255,7 +255,7 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
     const Amg::Vector3D aspPosition(center()+halfThickness);
     const Amg::Vector3D asnPosition(center()-halfThickness);
     // create the new surfaces
-    const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.getPtr());
+    const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.get());
     if (db){ 
         // create new surfaces
         Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));   

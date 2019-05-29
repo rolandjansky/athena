@@ -31,7 +31,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/HLTCaloPreSelHypo.h"
+#include "HLTCaloPreSelHypo.h"
 //
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 //

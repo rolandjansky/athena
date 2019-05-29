@@ -8,7 +8,7 @@
 #include "GaudiKernel/SmartDataPtr.h"
 
 #include "AthenaMonitoring/MonitorToolBase.h"
-#include "TrigTileMuId/TrigTileMonAlg.h"
+#include "TrigTileMonAlg.h"
 
 TrigTileMonAlg::TrigTileMonAlg(std::string name, ISvcLocator* pSvcLocator)
     : HLT::FexAlgo(name, pSvcLocator),

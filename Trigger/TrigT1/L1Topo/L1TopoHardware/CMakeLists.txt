@@ -5,9 +5,13 @@
 # Declare the package name:
 atlas_subdir( L1TopoHardware )
 
+# External dependencies:
+find_package( Boost )
+
 # Component(s) in the package:
 atlas_add_library( L1TopoHardware
    L1TopoHardware/*.h Root/*.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PUBLIC_HEADERS L1TopoHardware )
 
 atlas_add_executable( TrigConfL1TopoGenPyHardware

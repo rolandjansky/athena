@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -17,7 +17,6 @@
 #include "Particle/TrackParticleContainer.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
@@ -25,6 +24,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
+#include "CxxUtils/phihelper.h"
 
 #include <cmath>
 #include <algorithm>
@@ -476,7 +476,7 @@ namespace InDet
       m_roiEta = roi->eta();
       m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
       m_roiPhi = roi->phi();
-      m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
+      m_roiPhiWidth = CxxUtils::wrapToPi(roi->phiPlus() - roi->phiMinus());
       m_roiZ = roi->zed();
       m_roiZ_Width = roi->zedPlus() - roi->zedMinus();    
     }

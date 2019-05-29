@@ -207,8 +207,7 @@ TRTCalibDBSvc=TRT_CalDbSvc()
 ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool",
-                             isGEANT4=(globalflags.DataSource == 'geant4'))
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
 InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",

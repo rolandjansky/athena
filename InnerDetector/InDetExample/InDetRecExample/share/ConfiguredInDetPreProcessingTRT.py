@@ -42,12 +42,6 @@ class ConfiguredInDetPreProcessingTRT:
          InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
 
-         # --- set Data/MC flag
-         if globalflags.DataSource != 'geant4' :
-             InDetTRTCalDbTool.isGEANT4 = False
-         else :
-             InDetTRTCalDbTool.isGEANT4 = True
-
          #
          # --- TRT_DriftFunctionTool
          #
@@ -91,7 +85,6 @@ class ConfiguredInDetPreProcessingTRT:
          # Second calibration DB Service in case pile-up and physics hits have different calibrations
          if DetFlags.overlay.TRT_on() :
              InDetTRTCalDbTool2 = TRT_CalDbTool(name = "TRT_CalDbTool2")
-             InDetTRTCalDbTool2.isGEANT4 = True
              InDetTRTCalDbTool2.RtFolderName = "/TRT/Calib/MC/RT"             
              InDetTRTCalDbTool2.T0FolderName = "/TRT/Calib/MC/T0"             
              InDetTRT_DriftFunctionTool.TRTCalDbTool2 = InDetTRTCalDbTool2
@@ -169,9 +162,6 @@ class ConfiguredInDetPreProcessingTRT:
          if jobproperties.Beam.beamType()=="cosmics": 
             InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False 
 
-# --- overwrite for phase usage
-         if usePhase:
-            InDetTRT_DriftCircleTool.ComTimeName = "TRT_Phase"
 
          ToolSvc += InDetTRT_DriftCircleTool
          if (InDetFlags.doPrintConfigurables()):

@@ -224,20 +224,22 @@ class ComboMaker(AlgNode):
         log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chain)
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
         dictDecoding = DictFromChainName.DictFromChainName()
-        allMultis = dictDecoding.getChainMultFromName(chain)
+        allMultis = [int(mult) for mult in dictDecoding.getChainMultFromName(chain)]       
         newdict = {chain : allMultis}
 
-        for i in range(1, len(allMultis)):
-            cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
-            if type(cval) is dict:
-                ##cval[chain] = allMultis
-                if chain in cval.keys():
-                    cval[chain].append(allMultis[i])
-                else:
-                    cval[chain]=[allMultis[i]]
+        cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
+        if type(cval) is dict:
+            if chain in cval.keys():
+                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", self.name, chain)
+                sys.exit("ERROR, in chain configuration")
             else:
-                cval=newdict
-            setattr(self.Alg, self.prop, cval)
+                cval[chain]=[allMultis]
+        else:
+            cval=newdict
+
+        setattr(self.Alg, self.prop, cval)
+        log.debug("Added chain %s to ComboAlg %s", self.getPar(self.prop), self.name)
+
 
 
 
@@ -390,12 +392,15 @@ class Chain(object):
         # in practice it is the L1Decoder Decision output
         self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
-        log.debug("Chain %s with seeds: %s ", name, self.vseeds)
 
+        isCombo=False
         for step in self.steps:
             if step.isCombo:
                 step.combo.addChain(self.name)
+                isCombo=True
 
+        log.debug("Made %s Chain %s with seeds: %s ", "combo" if isCombo else "", name, self.vseeds)
+                
     def setSeedsToSequences(self):
         # set the seed to the menusequences
         sequences1=self.steps[0].sequences
@@ -425,18 +430,26 @@ class Chain(object):
         for step in self.steps:
             if len(step.sequences) == 0:
                 continue
-            if len(chainDict['chainParts']) != len(step.sequences):
+
+            if len(chainDict['chainParts']) != len(step.sequences):              
                 log.error("Error in step %s: found %d chain parts and %d sequences", step.name, len(chainDict['chainParts']), len(step.sequences))
                 sys.exit("ERROR, in chain configuration")
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
                 if seq.ca is not None: # The CA merging took care of everything
                     continue
+
                 onePartChainDict = copy.deepcopy( chainDict )
                 onePartChainDict['chainParts'] = [ chainDictPart ]
 
                 seq.hypoToolConf.setConf( onePartChainDict )
                 seq.hypo.addHypoTool(seq.hypoToolConf) #this creates tge HypoTools
+
+                
+    def __str__(self):
+        return "--- Chain %s ---\n + Seed: %s \n + Steps: %s \n"%(\
+                    self.name, self.seed, ' '.join(map(str, self.steps)))
+
 
 ##
 class CFSequence(object):
@@ -503,12 +516,8 @@ class CFSequence(object):
             combo_output=CFNaming.comboHypoOutputName (combo_input)
             self.step.combo.addOutput(combo_output)
             seq.outputs.append(combo_output)
-            log.debug("Adding outputs %s to combo %s", combo_output, self.step.combo.Alg.name())
+            log.debug("CFSequence.connectCombo: Adding outputs %s to combo %s", combo_output, self.step.combo.Alg.name())
 
-
-    ## def __str__(self):
-    ##     return "--- CFSequence ---\n + Filter: %s \n +  %s \n "%(\
-    ##         self.filter, self.step )
 
     def __str__(self):
         return "--- CFSequence ---\n + Filter: %s \n +  %s \n + decisions: %s\n"%(\
@@ -517,11 +526,12 @@ class CFSequence(object):
 
 
 class ChainStep(object):
-    """Class to describe one step of a chain; if more than one menuSequence, then the step is combo"""
-    def __init__(self, name,  Sequences=[]):
+    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined"""
+    def __init__(self, name,  Sequences=[], multiplicity=1):
         self.name = name
         self.sequences=[]
-        self.isCombo=len(Sequences)>1
+        self.isCombo=multiplicity>1
+        #self.isCombo=len(Sequences)>1
         self.combo=None
         if self.isCombo:
             self.makeCombo(Sequences)

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_TOKENSCATTERER_H
-#define ATHENAMPTOOLS_TOKENSCATTERER_H 1
+#define ATHENAMPTOOLS_TOKENSCATTERER_H
 
 #include "AthenaMPToolBase.h"
 #include "yampl/Exceptions.h"
@@ -15,29 +15,29 @@ namespace yampl {
   class ISocket;
 }
 
-class EvtRangeScatterer : public AthenaMPToolBase
+class EvtRangeScatterer final : public AthenaMPToolBase
 {
  public:
   EvtRangeScatterer(const std::string& type
 		    , const std::string& name
 		    , const IInterface* parent);
 
-  virtual ~EvtRangeScatterer();
+  virtual ~EvtRangeScatterer() override;
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
-  virtual int makePool(int maxevt, int nprocs, const std::string& topdir);
-  virtual StatusCode exec();
+  virtual int makePool(int maxevt, int nprocs, const std::string& topdir) override;
+  virtual StatusCode exec() override;
 
-  virtual void subProcessLogs(std::vector<std::string>&);
-  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport();
+  virtual void subProcessLogs(std::vector<std::string>&) override;
+  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() override;
 
   // _____ Actual working horses ________
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func() override;
 
  private:
   EvtRangeScatterer();

@@ -45,7 +45,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
         if _parOR(seq): 
             return "red"
         if _seqAND(seq): 
-            return "blue"
+            return "dodgerblue3"
 
         return "black"
 
@@ -55,6 +55,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%stepCF.name())
@@ -75,6 +76,7 @@ def all_DataFlow_to_dot(name, step_list):
     with open('%s.dot'%(name), mode="wt") as file:
         file.write( 'digraph step  {\n'\
                         +'\n'\
+                        +' rankdir="LR";\n'
                         +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                         +'  edge [ fontname=Helvetica ]\n'
                         +'  %s   [shape=Mdiamond]\n'%name)
@@ -143,6 +145,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%name)

@@ -86,25 +86,25 @@ else()
       util/JetCalibTools_Example.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODEventShape xAODCore POOLRootAccess xAODRootAccess JetCalibToolsLib )
+      xAODEventShape xAODCore POOLRootAccessLib xAODRootAccess JetCalibToolsLib )
 
    atlas_add_executable( JetCalibTools_PlotJESFactors
       util/JetCalibTools_PlotJESFactors.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
 
    atlas_add_executable( JetCalibTools_PlotJMSFactors
       util/JetCalibTools_PlotJMSFactors.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
 
    atlas_add_executable( JetCalibTools_SmearingPlots
       util/JetCalibTools_SmearingPlots.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
 
 endif()
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGETRUTHJETSTOOL_H
@@ -12,10 +12,11 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 
-class PileUpMergeSvc;
 /** @class MergeTruthJetsTool
  *  @brief an algorithm to merge truth jet collections in the overlay store
  */
@@ -50,18 +51,18 @@ private:
   /// JetContainer Loop
   virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
   StatusCode record(const xAOD::JetContainer* pjets, std::string jetcontainername) const;
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  xAOD::JetContainer *m_inTimeOutputJetContainer;
-  xAOD::JetContainer *m_outOfTimeOutputJetContainer;
-  std::string m_inputJetCollKey;
-  std::string m_inTimeOutputJetCollKey;
-  std::string m_outOfTimeOutputJetCollKey;
-  double m_inTimePtCut;
-  double m_outOfTimePtCut;
-  bool m_activateFilter;
-  bool m_includeSignalJets;
-  bool m_first_event;
-  double m_signal_max_pT;
-  double m_pileup_max_pT;
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  Gaudi::Property<std::string> m_inputJetCollKey{this, "InputTruthJetCollKey", "AntiKt4TruthJets", ""};
+  Gaudi::Property<std::string> m_inTimeOutputJetCollKey{this, "InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets", ""};
+  Gaudi::Property<std::string> m_outOfTimeOutputJetCollKey{this, "OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt4TruthJets", ""};
+  Gaudi::Property<double> m_inTimePtCut{this, "InTimePtCut", 10.0*Gaudi::Units::GeV, ""};
+  Gaudi::Property<double> m_outOfTimePtCut{this, "OutOfTimePtCut", 15.0*Gaudi::Units::GeV, ""};
+  Gaudi::Property<bool> m_activateFilter{this, "ActivateFilter",  false, ""};
+  Gaudi::Property<bool> m_includeSignalJets{this, "IncludeSignalJets", false, ""};
+  xAOD::JetContainer *m_inTimeOutputJetContainer{};
+  xAOD::JetContainer *m_outOfTimeOutputJetContainer{};
+  bool m_first_event{true};
+  double m_signal_max_pT{-1.0};
+  double m_pileup_max_pT{-1.0};
 };
 #endif //MCTRUTHSIMALGS_MERGETRUTHJETSTOOL_H

@@ -34,7 +34,7 @@ AthenaPoolAddressProviderSvc::AthenaPoolAddressProviderSvc(const std::string& na
 	m_clidSvc("ClassIDSvc", name),
 	m_guid() {
    declareProperty("DataHeaderKey",       m_dataHeaderKey = "EventSelector");
-   declareProperty("DataHeaderIterator",  m_dataHeaderIterator = true);
+   declareProperty("DataHeaderIterator",  m_dataHeaderIterator = false);
    declareProperty("AttributeListKey",    m_attrListKey = "");
 }
 //________________________________________________________________________________
