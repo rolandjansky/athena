@@ -89,10 +89,10 @@ if opt.doMuonSlice == True:
 
 
     # 2muons
-    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()])
-    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()])
-    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()])
-    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()])
+    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()], multiplicity=2)
+    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()], multiplicity=2)
+    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()], multiplicity=2)
+    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()], multiplicity=2)
     
 
     emptyStep=ChainStep("Step2_empty")
@@ -237,7 +237,7 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doComboSlice == True:
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()])
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()], multiplicity=2)
 
     comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains

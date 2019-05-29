@@ -124,6 +124,8 @@ class DictFromChainName(object):
                 m_groupdict = m.groupdict()
                 if m_groupdict['multiplicity'] == '':
                     multiplicity = 1
+                else:
+                    multiplicity = m_groupdict['multiplicity']
                 allMultis.append(multiplicity)
         return allMultis
 
