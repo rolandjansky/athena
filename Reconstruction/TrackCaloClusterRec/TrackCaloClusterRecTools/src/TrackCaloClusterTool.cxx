@@ -11,9 +11,11 @@
 
 
 namespace {
-
-  typedef TrackCaloClusterInfo::FourMom_t FourMom_t; // this is actually xAOD::IParticle::FourMom_t
+  // helper functions needed only in this file are defined in this anonymous namespace
   
+  typedef TrackCaloClusterInfo::FourMom_t FourMom_t; // this is actually xAOD::IParticle::FourMom_t
+
+  // update the given eta and phi coordinates by shifting the origin to the position of vertex
   void computeVertexCorr(double& eta, double& phi, const Amg::Vector3D& vertex, double radius) {
   
     if (radius<1.) return;
@@ -25,10 +27,6 @@ namespace {
     eta += (-vertex[2]/std::cosh(eta) + sc.apply (vertex[1], vertex[0])*std::tanh(eta)) * iradius;
     phi += sc.apply (vertex[0], -vertex[1]) * iradius;
   }
-
-  // SG::Accessor<int> CorrectedAcc("Corrected");
-  // SG::Accessor<float> CaloEntryPosEtaCorrAcc("CaloEntryPosEtaCorr");
-  // SG::Accessor<float> CaloEntryPosPhiCorrAcc("CaloEntryPosPhiCorr");  
 }
 
 
@@ -76,7 +74,6 @@ TCCCombinedTool::TCCCombinedTool(const std::string& t, const std::string& n, con
 {
   declareProperty("DoOriginCorrection"    , m_doOriginCorrection);
   declareProperty("StoreCorrectedPosition", m_storeCorrectedPosition );
-
 }
 
 

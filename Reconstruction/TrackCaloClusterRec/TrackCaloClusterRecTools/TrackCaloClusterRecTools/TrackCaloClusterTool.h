@@ -9,7 +9,7 @@
 ///
 /// Defines implementions of ITrackCaloClusterTool in charge of building different taste of TCC or UFO
 /// 
-/// authors : Naomie Calace, P-A Delsart
+/// \authors : Naomie Calace, P-A Delsart, Jennifer Roloff
 ///////////////////////////////////////////////////////////////////////
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TRACKCALOCLUSTER_H

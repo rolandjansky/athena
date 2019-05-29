@@ -18,6 +18,7 @@
 /// Builds a TrackCaloClusterInfo map which contains the weights needed to build TrackCaloCluster objects.
 /// This TrackCaloClusterInfo is then expected to be used by a TrackCaloClusterAlg and its tools.
 ///
+/// \authors : Naomie Calace, P-A Delsart
 
 class TrackCaloClusterInfoAlg: public ::AthAlgorithm { 
 public: 
@@ -54,6 +55,13 @@ protected:
 
 };
 
+
+////////////////////////////////////////////////////////
+/// \class TrackCaloClusterInfoUFOAlg
+///
+/// Builds a TrackCaloClusterInfo map using PFO as input.
+///
+/// \authors : P-A Delsart, Jennifer Roloff
 
 class TrackCaloClusterInfoUFOAlg: public TrackCaloClusterInfoAlg { 
 public: 
