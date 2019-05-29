@@ -108,8 +108,9 @@ def createTriggerFlags():
     def _deriveTopoConfigName(prevFlags):
         import re
         menuSetup = prevFlags.Trigger.triggerMenuSetup
-        m = re.match('(.*v\d).*', menuSetup)
-        if m: menuSetup = m.groups()[0]
+        m = re.match(r'(.*v\d).*', menuSetup)
+        if m:
+            menuSetup = m.groups()[0]
         return "L1Topoconfig_" + menuSetup + "_" + prevFlags.Trigger.menuVersion + ".xml"
     flags.addFlag('Trigger.LVL1TopoConfigFile', _deriveTopoConfigName)
 
