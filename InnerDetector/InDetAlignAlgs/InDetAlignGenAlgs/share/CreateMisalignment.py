@@ -26,16 +26,15 @@ ROOToutput = True
 createFreshDB = not(ReadDBPoolFile or MisalignmentOnTopOfExistingSet)
 
 if not 'MisalignmentMode' in dir():
-    MisalignmentMode = 3
+    MisalignmentMode = 11 # Radial
 
-MaximumShift = 200*micrometer
+MaximumShift = 100*micrometer
 if MisalignmentMode in [11, 12,31]:
     MaximumShift = 500*micrometer
 
-InFile = 'alignment_nominal'
-#InFile = 'NominalAlignment'
-#InFile = 'MisalignmentSet11'
-OutFiles = 'MisalignmentSet%s' % MisalignmentMode
+InFile = 'NominalAlignment'
+userSuffix = "_p01"
+OutFiles = 'MisalignmentSet%s%s' % (MisalignmentMode, userSuffix)
 
 #####################################################################
 
