@@ -450,7 +450,9 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
 
     double logmOverPt=log(jet.m()/jet.pt());
     if ( m_decorationName.find("SmoothZ") != std::string::npos ) {
-      logmOverPt=log((jet.m()-10803.)/jet.pt()); // to apply SF estimated for W-tagger to Z-tagger, shift the mass value by 10GeV
+      // to apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10GeV
+      const double WtoZmassShift = 10803;
+      logmOverPt=log((jet.m()-WtoZmassShift)/jet.pt());
     }
     if ( logmOverPt > 0 ) logmOverPt=0;
     double SF=1.0;

@@ -86,7 +86,9 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	  bool passMass=(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh"));
 	  bool passD2  =(m_accept.getCutResult("PassD2"));
 	  if ( m_result_name.Contains("SmoothZ") ){
-	    mOverPt=(jet.m()-10803.)/jet.pt();
+	    // to apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10GeV
+	    const double WtoZmassShift = 10803;
+	    mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
 	  }
 	  if ( ! ((passMass && passD2 && m_region.Contains("passMpassD2")) ||
 		  (passMass && !passD2 && m_region.Contains("passMfailD2")) ||
