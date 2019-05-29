@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput ):
+def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
 
     itemList = []
 
