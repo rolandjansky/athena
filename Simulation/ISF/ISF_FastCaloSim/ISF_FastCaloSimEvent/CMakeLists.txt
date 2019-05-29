@@ -36,9 +36,13 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionSpline.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHelpers.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateInterpolationHistogram.h 
                            ISF_FastCaloSimEvent/TFCS2DFunction.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
