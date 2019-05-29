@@ -1164,7 +1164,7 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext& ctx){
     	return -1;
           }
           // Build the old-style Event Info object for those clients that still need it
-          std::unique_ptr<EventInfo> pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(pXEvent))
+          std::unique_ptr<EventInfo> pEventPtr = std::make_unique<EventInfo>(new EventID(eventIDFromxAOD(pXEvent))
     									      , new EventType(eventTypeFromxAOD(pXEvent)));
           pEvent = pEventPtr.get();
           sc = eventStore()->record(std::move(pEventPtr),"");
