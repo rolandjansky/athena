@@ -326,7 +326,7 @@ class SLHC_Setup :
           geoBarrelTool.PixelServicesTool = serviceTool
           toolSvc+=geoBarrelTool
         
-        else :
+        elif SLHC_Flags.LayoutOption == "InclinedDuals" :
           print "******************************************************************************************"
           print "PixelGeoModel - import GeoPixelLayerInclRefTool"
           from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
@@ -334,6 +334,24 @@ class SLHC_Setup :
           toolSvc+=geoLayerOuterTool
           from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
           geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
+          toolSvc+=geoLayerInnerTool
+  
+          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
+          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
+          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
+          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
+          geoBarrelTool.MaxInnerLayerMax = 2
+          geoBarrelTool.PixelServicesTool = serviceTool
+          toolSvc+=geoBarrelTool
+        else :
+          print "******************************************************************************************"
+          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
+          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
+          toolSvc+=geoLayerOuterTool
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
+          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
           toolSvc+=geoLayerInnerTool
   
           print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
