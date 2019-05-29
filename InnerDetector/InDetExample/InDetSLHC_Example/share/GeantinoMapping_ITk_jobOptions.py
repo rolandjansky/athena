@@ -5,12 +5,8 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-# This job options requires Tracking/TrkG4Components/TrkG4UserActions-01-00-03.
 # Modified version of Tracking/TrkG4Components/TrkG4UserActions/share/GeantinoMapping_jobOptions.py
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/UpgradeSimulationInnerTrackerMigrationRel20p3p3#Submission_of_jobs
 #
-__version__="$Revision: 621824 $"
-#==============================================================
 
 #--- Algorithm sequence ---------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
@@ -42,25 +38,52 @@ if 'myRandomSeed2' not in dir() :
     myRandomSeed2 = int(random.uniform(0,time.time()))
 
 if 'myMaxEvent' not in dir() :
-    myMaxEvent = 10
+    print "=== 'myMaxEvent' not specificed, defaulting to 100 events === " 
+    myMaxEvent = 100
 
 if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-    myGeo = 'ATLAS-P2-ITK-01-00-00_VALIDATION'
+    print "=== 'myGeo' not specificed, defaulting to ATLAS-P2-ITK-20-03-00 === " 
+    myGeo = 'ATLAS-P2-ITK-20-03-00'
+
+# We need both the GeoTag and the sim layout. 
+# Allow the user to be able to provide either with or w/o "_VALIDATION" transparently. 
+myGeo = myGeo.rstrip("_VALIDATION")
+mySimLayout = myGeo + "_VALIDATION"
 
 print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion = myGeo
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
+
+
+
+## Need to set the layout option up front
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20'):
+   SLHC_Flags.LayoutOption="InclinedDuals"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
+   SLHC_Flags.LayoutOption="InclinedQuads"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
+print "SLHC_Flags.LayoutOption = ",SLHC_Flags.LayoutOption
+
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
 # the global flags
-globalflags.ConditionsTag = 'OFLCOND-MC12-ITK-26-80-25'
+globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
 print globalflags.ConditionsTag
 
 
@@ -73,7 +96,7 @@ athenaCommonFlags.EvtMax = myMaxEvent
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import SimFlags
 SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout = myGeo
+SimFlags.SimLayout = mySimLayout
 SimFlags.EventFilter.set_Off()
 
 myMinEta = -6.0
@@ -102,44 +125,31 @@ myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-
-## Add an action
-try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    # NB the migrated MaterialStepRecorder does not have any special
-    # properties, hence these are not set here.
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    UAStore.addAction('MaterialStepRecorder',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-except:
-    # Pre UserAction Migration
-    def geantino_action():
-        from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-        GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-        GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                        "recordELoss"  : "1",
-                                        "recordMSc"    : "1" })
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
-
-    SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
+## add the material step recording action
+SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['Run','Event','Step'])
 
 ############### The Material hit collection ##################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 # --- check dictionary
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
+ServiceMgr.AthenaPoolCnvSvc.OutputLevel = INFO
 # --- commit interval (test)
-ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
+#output stream to write our material 
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
 MaterialStream.OutputFile   =   "MaterialStepCollection.root"
 MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 
-##############################################################
+# Add the beam effects algorithm
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
+topSeq.BeamEffectsAlg.GenEventManipulators=[]
 
-## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
-#--- End jobOptions.GeantinoMapping.py file  ------------------------------
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=False)
 
+include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")

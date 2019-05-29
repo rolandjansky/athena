@@ -71,34 +71,18 @@ globalflags.DetDescrVersion = inputFileSummary['geometry']
 # than x-check with:
 # GetTfCommand.py --AMI your-recodigi-tag 
 # that pre- and post- includes we schedule are the right ones
-xmlTags = [ ["ATLAS-P2-SFCAL-01-05-01","ExtBrl_32",""],
-            ["ATLAS-P2-SFCAL-01-06-01","ExtBrl_4",""],
-            ["ATLAS-P2-SFCAL-01-07-01","IExtBrl_4",""],
-            ["ATLAS-P2-SFCAL-01-08-01","InclBrl_4",""],
-            ["ATLAS-P2-ITK-10-00-00","InclBrl_4",""],
-            ["ATLAS-P2-ITK-09-00-00","ExtBrl_4",""],
-            ["ATLAS-P2-ITK-10-00-01","InclBrl_4",""],
-            ["ATLAS-P2-ITK-09-00-01","ExtBrl_4",""],
-            ["ATLAS-P2-ITK-11-00-01","ExtBrl_4_33mm",""],
-            ["ATLAS-P2-ITK-12-00-01","IExtBrl_4",""],
-            # step 1.6 with BCL
-            ["ATLAS-P2-ITK-10-04-01","InclBrl_4",""],
-            # step 1.6 with all long strips 
-            ["ATLAS-P2-ITK-10-03-01","InclBrl_4",""],
+xmlTags = [
             # step 1.7
-            ["ATLAS-P2-ITK-09-00-03","ExtBrl_4",""],
-            ["ATLAS-P2-ITK-10-00-03","InclBrl_4",""],
+            ["ATLAS-P2-ITK-09","ExtBrl_4",""],
+            ["ATLAS-P2-ITK-10","InclBrl_4",""],
             # step 1.8 and step 1.9, nominal (run4) beam-pipe
-            ["ATLAS-P2-ITK-13-00-00","InclBrl_4_OptRing",""],
             # step 1.9, run2 beam-pipe
-            ["ATLAS-P2-ITK-13-00-02","InclBrl_4_OptRing",""],
-            # step 2
-            ["ATLAS-P2-ITK-13-00-02","InclBrl_4_OptRing",""],
-            ["ATLAS-P2-ITK-19-00-00","InclBrl_4","InclinedQuads"],
-            ["ATLAS-P2-ITK-20-00-00","InclBrl_4","InclinedDuals"],
+            ["ATLAS-P2-ITK-13","InclBrl_4_OptRing",""],
             # step 3
-            ["ATLAS-P2-ITK-17-00-00","InclBrl_4","InclinedAlternative"],
-            ["ATLAS-P2-ITK-17-00-01","InclBrl_4","InclinedAlternative"]
+            ["ATLAS-P2-ITK-17","InclBrl_4","InclinedAlternative"],
+            # step 2
+            ["ATLAS-P2-ITK-19","InclBrl_4","InclinedQuads"],
+            ["ATLAS-P2-ITK-20","InclBrl_4","InclinedDuals"],
             ]
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
@@ -112,7 +96,7 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
       include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
       include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
-      if geoTag=="ATLAS-P2-ITK-10-00-00" or geoTag=="ATLAS-P2-ITK-09-00-00" :
+      if geoTag=="ATLAS-P2-ITK-10" or geoTag=="ATLAS-P2-ITK-09" :
          include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
       else:
          include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')

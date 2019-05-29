@@ -4,33 +4,51 @@ import AthenaCommon.AtlasUnixGeneratorJob
 # Private Application Configuration options
 #--------------------------------------------------------------
 
-
-DetDescrVersion = 'ATLAS-P2-ITK-05-01-00'
-
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = DetDescrVersion
-
-
-
 # the global detflags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 
+
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+from AthenaCommon.GlobalFlags import globalflags
+# globalflags.DetDescrVersion = "ATLAS-P2-ITK-17-00-01"
+# build GeoModel
+
+# build GeoModel
+if 'myGeo' not in dir():
+  DetDescrVersion = 'ATLAS-P2-ITK-20-03-00'
+  print "=== 'myGeo' not specified, defaulting to",DetDescrVersion," geometry! ==="
+else: DetDescrVersion = myGeo
+
+globalflags.DetDescrVersion = DetDescrVersion
+
+## Need to set the layout option up front
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20'):
+   SLHC_Flags.LayoutOption="InclinedDuals"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
+   SLHC_Flags.LayoutOption="InclinedQuads"
+
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
+
+SLHC_Flags.doGMX.set_Value_and_Lock(True)
+
+
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
-include("InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_32.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
 include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
-
-
-
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
+
 
 from AtlasGeoModel import GeoModelInit 
 
@@ -42,13 +60,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += GeoModelSvc
 
 svcMgr.MessageSvc.OutputLevel  = INFO
-# increase the number of letter reserved to the alg/tool name from 18 to 30
-svcMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"
 # to change the default limit on number of message
 svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('OFLCOND-RUN12-SDR-25')
+conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 
 # switch the material loading off
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
@@ -60,37 +76,21 @@ TrkDetFlags.SCT_BuildingOutputLevel  = INFO
 TrkDetFlags.TRT_BuildingOutputLevel  = INFO
 TrkDetFlags.ConfigurationOutputLevel = INFO
 TrkDetFlags.TRT_BuildStrawLayers     = False
-#TrkDetFlags.InDetTrackingGeometryBuilderName = 'InDetTrackingGeometryBuilder'
-#TrkDetFlags.SLHC_Geometry            = True
 
 TrkDetFlags.MaterialDatabaseLocal        = True
 if TrkDetFlags.MaterialDatabaseLocal() is True :
     # prepare the magic tag
-    splitGeo = DetDescrVersion.split('-')
-    MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
+    MaterialMagicTag = DetDescrVersion
     # now say where the file is
-    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMaterial'
-    TrkDetFlags.MaterialDatabaseLocalPath    = '' # '/tmp/wlukas/'
+    # Make sure the key and DB local name match what you prepared earlier
+    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/LayerMaterialITK'
     TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
     TrkDetFlags.MaterialMagicTag             = MaterialMagicTag
 TrkDetFlags.MagneticFieldCallbackEnforced         = False
 
-
-
-TrackingGeometrySvc = None
-
-#from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder
-#GeometryBuilder = ConfiguredSLHC_InDetTrackingGeometryBuilder(name='InDetTrackingGeometryBuilder')
-#ToolSvc += GeometryBuilder
-
-#from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-#AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False
-
-
+## The TrackingGeometrySvc
 include("InDetSLHC_Example/SLHC_Setup_ITk_TrackingGeometry.py")
-AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False
-
-
+#ToolSvc.AtlasMaterialProvider.OutputLevel                 = VERBOSE
 
 ###############################################################
 
@@ -115,23 +115,13 @@ MaterialValidation.OutputLevel                 = INFO
 job += MaterialValidation   # 1 alg, named "MaterialValidation"
 
 #--------------------------------------------------------------
-# Set output level threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
-#--------------------------------------------------------------
-
-# You can set the global output level on the message svc (not
-# recommended) or by using the -l athena CLI parameter
-
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-if 'myMaxEvent' in dir() :
-    theApp.EvtMax = myMaxEvent
-else:
-    theApp.EvtMax = 10000  
+theApp.EvtMax = 100000
 
 #################################################################
 theApp.Dlls += [ 'RootHistCnv' ]
@@ -151,4 +141,5 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='"+ValidationOutputNameString+DetD
 # End of job options file
 #
 ###############################################################
-include("InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_32.py")
+
+include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
