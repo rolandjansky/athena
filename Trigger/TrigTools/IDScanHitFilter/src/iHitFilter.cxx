@@ -10,11 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // IdScan stuff
-#include "IDScanHitFilter/GC_Constants.h"
-#include "IDScanHitFilter/IdScanSpPoint.h"
-#include "IDScanHitFilter/Group.h"
-#include "IDScanHitFilter/FilterBin.h"
-#include "IDScanHitFilter/iHitFilter.h"
+#include "GC_Constants.h"
+#include "IdScanSpPoint.h"
+#include "Group.h"
+#include "FilterBin.h"
+#include "iHitFilter.h"
 
 #include <iostream>
 #include <algorithm>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,11 @@
 #if ! defined( IDSCAN_FILTERBIN_H )
 #define IDSCAN_FILTERBIN_H
 
-#include "IDScanHitFilter/FixedBitSet.h"
-#include "IDScanHitFilter/IdScanSpPoint.h"
+#include "FixedBitSet.h"
+#include "IdScanSpPoint.h"
+
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 #include <list>
 #include <map>
@@ -46,8 +49,8 @@ class FilterBin
   std::list<IdScanSpPoint* >&       hitList();
   const std::list<IdScanSpPoint* >& hitList() const;
 
-  static void setMaxLayers(long layer)      { m_maxLayers = layer; }
-  static void setMaxBarrelLayer(long layer) { m_maxBarrelLayer = layer; }
+  static void setMaxLayers ATLAS_NOT_THREAD_SAFE (long layer)      { m_maxLayers = layer; }
+  static void setMaxBarrelLayer ATLAS_NOT_THREAD_SAFE (long layer) { m_maxBarrelLayer = layer; }
 
 private:
   void neighborKeys( long key, long* np ) const; 
@@ -58,8 +61,9 @@ private:
   FixedBitSet m_Ldirect;                        // keeps direct layers
   FixedBitSet m_Ltotal;                         // keeps direct+indirect layers
 
-  static long m_maxLayers;
-  static long m_maxBarrelLayer;
+  // statics set once during initialize() via the above non-thread-safe methods:
+  static long m_maxLayers ATLAS_THREAD_SAFE;
+  static long m_maxBarrelLayer ATLAS_THREAD_SAFE;
 };
 
 

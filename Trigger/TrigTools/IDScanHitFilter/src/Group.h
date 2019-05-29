@@ -27,7 +27,7 @@
 #include <iomanip>
 
 
-#include "IDScanHitFilter/IdScanSpPoint.h"
+#include "IdScanSpPoint.h"
 
 typedef std::vector<IdScanSpPoint*> hitVec;
 
