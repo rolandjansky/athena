@@ -33,7 +33,9 @@
 #include "CaloRec/CaloTowerxAODAlgoBase.h"
 #include "CaloRec/CaloTopoClusterFromTowerMaker.h"
 #include "CaloRec/CaloTopoClusterFromTowerCalibrator.h"
- 
+#include "CaloRec/CaloTopoClusterFromTowerMonitor.h"
+#include "CaloRec/CaloTowerGeometrySvc.h"
+#include "CaloRec/CaloTopoClusterTowerMerger.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -57,6 +59,8 @@ DECLARE_ALGORITHM_FACTORY( CaloClusterCellLinksUpdater )
 DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromCells )
 DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromClusters )
 DECLARE_ALGORITHM_FACTORY( CaloTowerxAODAlgoBase )
+DECLARE_ALGORITHM_FACTORY( CaloTopoClusterFromTowerMonitor )
+
 DECLARE_TOOL_FACTORY ( CaloTopoClusterFromTowerMaker )
 DECLARE_TOOL_FACTORY ( CaloTopoClusterFromTowerCalibrator )
  
@@ -96,6 +100,7 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_ALGORITHM( CaloTowerxAODAlgoBase )
     DECLARE_ALGORITHM( CaloTowerxAODFromCells )
     DECLARE_ALGORITHM( CaloTowerxAODFromClusters )
+    DECLARE_ALGORITHM( CaloTopoClusterFromTowerMonitor )
     DECLARE_TOOL( CaloTopoClusterFromTowerMaker )
     DECLARE_TOOL( CaloTopoClusterFromTowerCalibrator )
 
@@ -116,3 +121,7 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_TOOL( CaloCellFastCopyTool ) 
     DECLARE_TOOL( CaloClusterSnapshot )
 }
+
+DECLARE_COMPONENT( CaloTowerGeometrySvc )
+DECLARE_COMPONENT( CaloTopoClusterTowerMerger )
+
