@@ -8,7 +8,7 @@
 @brief Simple new configuration framework functions for getting a TrigDecisionTool. Probably do not work except for reading ESD and AOD. Will be superseded by proper code from Trigger.
 '''
 
-def getTrigConfigSvc(inputFlags):
+def getTrigConfigSvc(flags):
     ''' Setup a TrigConfigSvc with DS information. Works on AOD, not vetted for anything else! '''
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from TrigConfigSvc.TrigConfigSvcConfig import DSConfigSvc, SetupTrigConfigSvc
@@ -17,18 +17,18 @@ def getTrigConfigSvc(inputFlags):
 
     rv = ComponentAccumulator()
     # is MC ? then set up XML reading and get out of here
-    if inputFlags.Input.isMC:
+    if flags.Input.isMC:
         from TrigConfigSvc.TrigConfigSvcConfig import (HLTConfigSvc, LVL1ConfigSvc, L1TopoConfigSvc, 
                                                        findFileInXMLPATH, TrigConfigSvc)
         hltcs = HLTConfigSvc("HLTConfigSvc")
-        hltcs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.HLTConfigFile)
+        hltcs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.HLTConfigFile)
         print 'hltcs', hltcs.XMLMenuFile
         rv.addService(hltcs)
         lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
-        lvl1cs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.LVL1ConfigFile)
+        lvl1cs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
         rv.addService(lvl1cs)
         l1topocs = L1TopoConfigSvc()
-        l1topocs.XMLMenuFile = findFileInXMLPATH(inputFlags.Trigger.LVL1TopoConfigFile)
+        l1topocs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1TopoConfigFile)
         rv.addService(l1topocs)
         ts = TrigConfigSvc("TrigConfigSvc")
         ts.PriorityList = ['xml']
@@ -40,7 +40,7 @@ def getTrigConfigSvc(inputFlags):
     tcssvc = tcs.GetConfigurable()
     rv.addService(tcssvc)
 
-    rv.merge(addFolders(inputFlags, ['/TRIGGER/HLT/Menu',
+    rv.merge(addFolders(flags, ['/TRIGGER/HLT/Menu',
                                      '/TRIGGER/HLT/HltConfigKeys',
                                      '/TRIGGER/LVL1/Lvl1ConfigKey',
                                      '/TRIGGER/LVL1/Menu',
@@ -54,10 +54,10 @@ def getTrigConfigSvc(inputFlags):
                         'TRIGGER', tag='HEAD'))
     
     # the following should probably be set up by IOVDbSvc configuration?
-    rv.merge(TagInfoMgrCfg(inputFlags)[0])
+    rv.merge(TagInfoMgrCfg(flags)[0])
     return rv
 
-def getTrigDecisionTool(inputFlags):
+def getTrigDecisionTool(flags):
     ''' Setup a TrigDecisionTool. Short-cuts deduplication with memoization.'''
     if getTrigDecisionTool.rv:
         return getTrigDecisionTool.rv
@@ -65,7 +65,7 @@ def getTrigDecisionTool(inputFlags):
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
  
     rv = ComponentAccumulator()
-    rv.merge(getTrigConfigSvc(inputFlags))
+    rv.merge(getTrigConfigSvc(flags))
     
     tdt = Trig__TrigDecisionTool('TrigDecisionTool', TrigConfigSvc=rv.getService('TrigConfigSvc'))
     from TrigEDMConfig.TriggerEDM import EDMLibraries
