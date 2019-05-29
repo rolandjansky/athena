@@ -12,8 +12,7 @@ include( "TrackInCaloTools/TrackInCaloTools_jobOptions.py" )
 
 # CalDb tool
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                      isGEANT4 = DetFlags.simulate.any_on() )
+InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
 # set up TRT tool
 InDetSlidingWindowTrackTimeToolMCP = CfgMgr.InDet__InDetSlidingWindowTrackTimeTool \

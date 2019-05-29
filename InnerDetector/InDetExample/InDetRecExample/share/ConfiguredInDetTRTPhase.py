@@ -40,8 +40,7 @@ class ConfiguredInDetTRTPhase:
             cutWindowSize    = 7
             # CalDb tool
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                      isGEANT4 = DetFlags.simulate.any_on())
+            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
                                                     
             #    
