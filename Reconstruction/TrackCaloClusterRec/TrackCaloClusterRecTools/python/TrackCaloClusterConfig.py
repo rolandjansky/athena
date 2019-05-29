@@ -1,4 +1,9 @@
-def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles"):
+def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC"):
+    """ Schedule a TrackParticleClusterAssociationAlg in the top sequence, taking as input clusters and tracks defined 
+    by the keys caloClusterName and trackParticleName.
+
+    The output map is set in the evt store under the key : trackParticleName+"ClusterAssociations"+assocPostfix
+    """
     ###################################
 
     #Configure the extrapolator
@@ -30,11 +35,11 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
     print      particleCaloClusterAssociation
 
     from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConf import TrackParticleClusterAssociationAlg
-    trackParticleClusterAssociation = TrackParticleClusterAssociationAlg("TrackParticleClusterAssociationInDet",
+    trackParticleClusterAssociation = TrackParticleClusterAssociationAlg("TrackClusterAssociationAlg"+assocPostfix,
                                                                          ParticleCaloClusterAssociationTool = particleCaloClusterAssociation,
                                                                          TrackParticleContainerName = trackParticleName,
                                                                          PtCut = 400.,
-                                                                         OutputCollectionPostFix = "TCC",
+                                                                         OutputCollectionPostFix = assocPostfix,
                                                                          CaloClusterLocation = caloClusterName)
     sequence += trackParticleClusterAssociation
     print trackParticleClusterAssociation
@@ -45,19 +50,29 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
         ToolSvc+=loosetrackvertexassotool 
 
     
-def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles"):
+def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
+                         assocPostfix="TCC", doCombined=True, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
+    """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
+    Depending on options, the collection contains combined, neutral and/or charged TCC.
+    This functions schedules 2 algs : 
+       * a TrackCaloClusterInfoAlg to build the TrackCaloClusterInfo object
+       * a TrackCaloClusterAlg to build the TCC
+    If no TrackClusterAssociationAlg is found in the sequence, setupTrackCaloAssoc() is called to create the needed association.
+    """
 
     
 
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TCCCombinedTool, TCCChargedTool, TCCNeutralTool
 
+    if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix)
     
     ###################################
     # Schedule the TrackCaloClusterInfoAlg to create the weights for clusters/tracks and store them in a TrackCaloClusterInfo object.
     from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterAlg, TrackCaloClusterInfoAlg
     tccInfoAlg = TrackCaloClusterInfoAlg("TCCInfoAlg",
                                          TCCInfoName = "TCCInfo",
-                                         InputTrackCaloAssoc = trackParticleName+"ClusterAssociationsTCC",
+                                         InputTrackCaloAssoc = trackParticleName+"ClusterAssociations"+assocPostfix,
                                          InputTracks = trackParticleName,
                                          InputClusters = caloClusterName,
                                          VertexContainer = "PrimaryVertices",
@@ -68,28 +83,42 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
     ###################################
     # Create the TCC creator alg. TrackCaloClusterAlg makes use of the TrackCaloClusterInfo object
     # and a list of tools to build the various TCC types.
-    tccCombined = TCCCombinedTool("TCCcombined",
-                                  LooseTrackVertexAssoTool = ToolSvc.LooseTrackVertexAssociationTool,
-                                  SaveDetectorEta           = True,
-    )
-    tccCharged = TCCChargedTool("TCCCharged" )
-    tccNeutral = TCCNeutralTool("TCCNeutral",
-                                ApplyClusterFilter        = False,
-    )
+    tccTools = []
+    if doCombined:
+        tccCombined = TCCCombinedTool("TCCcombined",
+                                      LooseTrackVertexAssoTool = ToolSvc.LooseTrackVertexAssociationTool,
+                                      SaveDetectorEta           = True,)
+        tccTools.append(tccCombined)
+    if doCharged:
+        tccCharged = TCCChargedTool("TCCCharged" )
+        tccTools.append(tccCharged)
+    if doNeutral:
+        tccNeutral = TCCNeutralTool("TCCNeutral",
+                                    ApplyClusterFilter        = False,)
+        tccTools.append(tccNeutral)
 
     tccAlg = TrackCaloClusterAlg(name = "TrackCaloClusterAlg",
-                                 OutputTCCName           = "TrackCaloClusters",
+                                 OutputTCCName           = outputTCCName,
                                  TCCInfo = "TCCInfo",
-                                 TCCTools = [tccCombined,  tccNeutral, ] #tccCharged,]
+                                 TCCTools = tccTools,
                                  )
     sequence += tccAlg
 
-    print tccAlg    
     return tccAlg
 
 
-def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="CaloCalTopoClusters", trackParticleName="InDetTrackParticles"):
+def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="CaloCalTopoClusters", trackParticleName="InDetTrackParticles",
+                         assocPostfix="TCC", ):
+    """Create a TrackCaloCluster collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
+    This functions schedules 2 algs : 
+       * a TrackCaloClusterInfoUFOAlg to build the TrackCaloClusterInfo object
+       * a TrackCaloClusterAlg to build the UFO
+    If no TrackClusterAssociationAlg is found in the sequence, setupTrackCaloAssoc() is called to create the needed association.
+    """
 
+    if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix)
+    
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import UFOTool
 
     from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterAlg, TrackCaloClusterInfoUFOAlg
