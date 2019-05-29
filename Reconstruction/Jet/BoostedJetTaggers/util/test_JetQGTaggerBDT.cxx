@@ -112,7 +112,8 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
-  xAOD::Init( APP_NAME );
+  if(! xAOD::Init( APP_NAME ) )
+    return 1;
   xAOD::TReturnCode::enableFailure();
 
   // Open the input file:
@@ -122,13 +123,10 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
   ifile->Close();
-  ifile.reset();
-
-  TChain chain( "CollectionTree" );
-  chain.Add(fileName);
+  ifile.reset( TFile::Open( fileName, "READ" ) );
 
   // Create a TEvent object:
-  xAOD::TEvent event( &chain, xAOD::TEvent::kAthenaAccess );
+  xAOD::TEvent event( ifile.get(), xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   // Create a transient object store. Needed for the tools.
@@ -154,12 +152,13 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing QG BDT Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
-  m_Tagger.setType("CP::JetQGTaggerBDT");
+  asg::AnaToolHandle<CP::JetQGTaggerBDT> m_Tagger; //!
+  m_Tagger.setType("IJetSelectorTool");
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "JetQGTaggerBDT/JetQGTaggerBDT50Gluon.dat");
-  m_Tagger.retrieve();
+  if(! m_Tagger.setProperty( "ConfigFile", "JetQGTaggerBDT/JetQGTaggerBDT50Gluon.dat") )  return 1;
+  if(! m_Tagger.setProperty( "UseJetVars", 0) )  return 1;
+  if(! m_Tagger.retrieve() )  return 1;
 
   ////////////////////////////////////////////////////
   // Loop over the events
