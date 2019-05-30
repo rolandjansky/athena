@@ -61,13 +61,20 @@ class ApplySCQual(JobProperty):
 _caloflags.append(ApplySCQual)
 
 
-
 class RunFexAlgorithms(JobProperty):
     """ ComputeClusters """
     statusOn = True
     allowedType = ['bool']
     StoredValue = True
 _caloflags.append(RunFexAlgorithms)
+
+
+class StoreSuperCellsInAODFULL(JobProperty):
+    """ SuperCells collections are too large to be saved in the AODFULL by default """
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = False
+_caloflags.append(StoreSuperCellsInAODFULL)
 
 
 class RunTopoAlgorithms(JobProperty):
