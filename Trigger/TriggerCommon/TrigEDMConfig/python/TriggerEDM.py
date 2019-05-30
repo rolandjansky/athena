@@ -962,10 +962,10 @@ TriggerLvl1List=[
     ( 'xAOD::JetRoIAuxContainer#jRoundJetsAux.',               'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIContainer#jRoundLargeRJets',                'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsAux.',         'ESD AODFULL', 'L1'),
-    # gFEX jets                                                             ,
+    # gFEX jets
     ( 'xAOD::JetRoIContainer#gL1Jets',                         'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIAuxContainer#gL1JetsAux.',                  'ESD AODFULL', 'L1'),
-    # gFEX MET                                                              ,
+    # gFEX MET
     ( 'xAOD::EnergySumRoI#gXEJWOJ_MET',                        'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#gXEJWOJ_METAux.',             'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoI#gXEPUFIT_MET',                       'ESD AODFULL', 'L1'),
@@ -973,14 +973,8 @@ TriggerLvl1List=[
     ( 'xAOD::EnergySumRoI#gXERHO_MET',                         'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#gXERHO_METAux.',              'ESD AODFULL', 'L1'),
     # eFEX electrons
-    ("xAOD::TrigEMClusterContainer#SCluster" ,                 'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#SClusterAux." ,          'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterContainer#SClusterCl" ,               'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#SClusterClAux." ,        'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterContainer#SClusterSimple" ,           'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#SClusterSimpleAux." ,    'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterContainer#SClusterBCIDCl" ,           'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#SClusterBCIDClAux." ,    'ESD AODFULL', 'L1'),
     # eFEX taus
     ('xAOD::EmTauRoIContainer#SClusterTau',                    'ESD AODFULL', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#SClusterTauAux.',             'ESD AODFULL', 'L1'),
@@ -1729,7 +1723,15 @@ def getLvl1AODList():
     """
     Gives back the Python dictionary  with the lvl1 trigger result content of AOD which can be inserted in OKS.
     """
-    return getTriggerObjList('AODFULL',[TriggerLvl1List])
+
+    l1list = TriggerLvl1List
+
+    from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
+    if simflags.Calo.StoreSuperCellsInAODFULL() == False:
+        #remove SuperCell containers
+        l1list = filter( lambda x : x[0] not in ["CaloCellContainer#SCell", "CaloCellContainer#SimpleSCell"], l1list )
+
+    return getTriggerObjList('AODFULL',[l1list])
  
 
 def getTriggerEDMList(key, runVersion):
