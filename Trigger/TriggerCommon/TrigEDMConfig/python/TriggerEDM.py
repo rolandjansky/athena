@@ -981,12 +981,6 @@ TriggerLvl1List=[
     ("xAOD::TrigEMClusterAuxContainer#SClusterSimpleAux." ,    'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterContainer#SClusterBCIDCl" ,           'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#SClusterBCIDClAux." ,    'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterContainer#LArLayer1Vars1Sig" ,        'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars1SigAux." , 'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterContainer#LArLayer1Vars2Sig" ,        'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars2SigAux." , 'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterContainer#LArLayer1Vars3Sig" ,        'ESD AODFULL', 'L1'),
-    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars3SigAux." , 'ESD AODFULL', 'L1'),
     # eFEX taus
     ('xAOD::EmTauRoIContainer#SClusterTau',                    'ESD AODFULL', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#SClusterTauAux.',             'ESD AODFULL', 'L1'),
