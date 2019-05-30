@@ -437,17 +437,20 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                // For Metadata, before moving to next client, fire file incidents
                if (m_metadataClient != num) {
                   if (m_metadataClient != 0) {
-                     FileIncident beginInputIncident(name(), "BeginInputFile", "SHM");
+                     std::ostringstream oss1;
+                     oss1 << std::dec << m_metadataClient;
+                     std::string memName = "SHM[NUM=" + oss1.str() + "]";
+                     FileIncident beginInputIncident(name(), "BeginInputFile", memName);
                      incSvc->fireIncident(beginInputIncident);
-                     FileIncident endInputIncident(name(), "EndInputFile", "SHM");
+                     FileIncident endInputIncident(name(), "EndInputFile", memName);
                      incSvc->fireIncident(endInputIncident);
                   }
                   m_metadataClient = num;
                }
-               std::ostringstream oss;
-               oss << std::dec << num;
+               std::ostringstream oss2;
+               oss2 << std::dec << num;
                // For Metadata fire incident to read object into store
-               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss.str() + "]");
+               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss2.str() + "]");
                incSvc->fireIncident(proxyIncident); // Object will be pulled out of shared memory by setObjPtr()
             } else {
                Token readToken;
@@ -513,9 +516,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          return(StatusCode::RECOVERABLE);
       } else {
          ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
-         FileIncident beginInputIncident(name(), "BeginInputFile", "SHM");
+         std::ostringstream oss1;
+         oss1 << std::dec << m_metadataClient;
+         std::string memName = "SHM[NUM=" + oss1.str() + "]";
+         FileIncident beginInputIncident(name(), "BeginInputFile", memName);
          incSvc->fireIncident(beginInputIncident);
-         FileIncident endInputIncident(name(), "EndInputFile", "SHM");
+         FileIncident endInputIncident(name(), "EndInputFile", memName);
          incSvc->fireIncident(endInputIncident);
          ATH_MSG_INFO("Failed to get Data for client: " << num);
          return(StatusCode::FAILURE);
