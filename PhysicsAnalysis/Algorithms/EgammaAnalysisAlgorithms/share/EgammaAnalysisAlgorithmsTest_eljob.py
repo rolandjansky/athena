@@ -56,7 +56,7 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-from EgammaAnalysisAlgorithmsTest_sequence import makeSequence
+from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
 print algSeq # For debugging
 for alg in algSeq :

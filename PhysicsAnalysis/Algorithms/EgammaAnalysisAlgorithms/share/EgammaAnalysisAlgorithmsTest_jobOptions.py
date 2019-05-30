@@ -14,7 +14,7 @@ dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
 
-from EgammaAnalysisAlgorithmsTest_sequence import makeSequence
+from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
 makeSequence (dataType)
 print algSeq # For debugging
 
