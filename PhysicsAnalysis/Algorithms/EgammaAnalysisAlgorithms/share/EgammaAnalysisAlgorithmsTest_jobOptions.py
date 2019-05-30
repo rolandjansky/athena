@@ -15,7 +15,7 @@ dataType = "data"
 #dataType = "afii"
 
 from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
-algSeq += makeSequence (dataType)
+algSeq = makeSequence (dataType)
 print algSeq # For debugging
 
 # Set up a histogram output file for the job:
