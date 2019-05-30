@@ -45,10 +45,10 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
 def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result = ComponentAccumulator()
     #add Services to G4AtlasAlg
-    acc, DetGeoSvc = DetectorGeometrySvcCfg(ConfigFlags)
+    acc = DetectorGeometrySvcCfg(ConfigFlags)
     print "TESTTTTT" #check if it runs!
-    kwargs.setdefault('DetGeoSvc', DetGeoSvc)
-    result.addService(DetGeoSvc)
+    kwargs.setdefault('DetGeoSvc', acc.getService("DetectorGeometrySvc"))
+    #result.addService(DetGeoSvc)
     tools = result.popToolsAndMerge(acc)
     result.setPrivateTools(tools)
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
   acc, Alg  = G4AtlasAlgCfg(ConfigFlags)
   cfg.addEventAlgo(Alg) 
   tools = cfg.popToolsAndMerge(acc)
-  cfg.setPrivateTools(tools)
+  #cfg.setPrivateTools(tools)
 
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True

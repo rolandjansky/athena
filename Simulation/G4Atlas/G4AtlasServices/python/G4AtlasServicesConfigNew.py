@@ -225,12 +225,13 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
-            print "TESTTT" 
             acc, fieldMgrList = getATLAS_FieldMgrList(ConfigFlags)
             kwargs.setdefault("FieldManagers", fieldMgrList ) #causing issues...!
             tool = result.popToolsAndMerge(acc)
             result.setPrivateTools(tool)
-    return result, DetectorGeometrySvc(name, **kwargs)
+
+    result.addService(DetectorGeometrySvc(name, **kwargs))
+    return result
 
 def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
     if ConfigFlags.Concurrency.NumThreads > 0:
@@ -288,20 +289,14 @@ if __name__ == '__main__':
   cfg = MainServicesSerialCfg()
 
   #add the algorithm
-  acc1, Svc1 = DetectorGeometrySvcCfg(ConfigFlags)
-  #Svc5 = G4AtlasSvcCfg(ConfigFlags)
-  #Svc6 = G4GeometryNotifierSvcCfg(ConfigFlags)
+  acc = DetectorGeometrySvcCfg(ConfigFlags)
 
-  cfg.addService(Svc1)
-  #cfg.addService(Svc5)
-  #cfg.addService(Svc6)
+  cfg.addService(acc.getService("DetectorGeometrySvc"))
 
-  tool = cfg.popToolsAndMerge(acc1)
-  cfg.setPrivateTools(tool)
+  tool = cfg.popToolsAndMerge(acc)
+  #cfg.setPrivateTools(tool) #need to set private tools?
 
-  #cfg.addEventAlgo(Alg) #Event algo?
-  #cfg.merge(acc)
-  #cfg.addPublicTool(Alg)
+
 
   # Dump config
   #cfg.getService("StoreGateSvc").Dump = True
