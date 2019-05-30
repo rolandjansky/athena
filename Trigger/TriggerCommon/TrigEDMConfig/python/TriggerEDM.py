@@ -948,6 +948,52 @@ TriggerLvl1List=[
     ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD AODFULL AODBLSSLIM', 'L1'),
     ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD AODFULL AODBLSSLIM', 'L1'),
 
+# Run 3 performance studies
+    # SuperCells
+    ("CaloCellContainer#SCell",                                'ESD AODFULL', 'L1'),
+    ("CaloCellContainer#SimpleSCell",                          'ESD AODFULL', 'L1'),
+    # JTowers and GTowers
+    ( 'xAOD::JGTowerContainer#JTower',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerAuxContainer#JTowerAux.',                  'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerContainer#GTower',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerAuxContainer#GTowerAux.',                  'ESD AODFULL', 'L1'),
+    # jFEX jets
+    ( 'xAOD::JetRoIContainer#jRoundJets',                      'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundJetsAux.',               'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundLargeRJets',                'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsAux.',         'ESD AODFULL', 'L1'),
+    # gFEX jets                                                             ,
+    ( 'xAOD::JetRoIContainer#gL1Jets',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#gL1JetsAux.',                  'ESD AODFULL', 'L1'),
+    # gFEX MET                                                              ,
+    ( 'xAOD::EnergySumRoI#gXEJWOJ_MET',                        'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXEJWOJ_METAux.',             'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXEPUFIT_MET',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXEPUFIT_METAux.',            'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXERHO_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXERHO_METAux.',              'ESD AODFULL', 'L1'),
+    # eFEX electrons
+    ("xAOD::TrigEMClusterContainer#SCluster" ,                 'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#SClusterAux." ,          'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#SClusterCl" ,               'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#SClusterClAux." ,        'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#SClusterSimple" ,           'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#SClusterSimpleAux." ,    'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#SClusterBCIDCl" ,           'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#SClusterBCIDClAux." ,    'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#LArLayer1Vars1Sig" ,        'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars1SigAux." , 'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#LArLayer1Vars2Sig" ,        'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars2SigAux." , 'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterContainer#LArLayer1Vars3Sig" ,        'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#LArLayer1Vars3SigAux." , 'ESD AODFULL', 'L1'),
+    # eFEX taus
+    ('xAOD::EmTauRoIContainer#SClusterTau',                    'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#SClusterTauAux.',             'ESD AODFULL', 'L1'),
+    # CTP
+    ('CTP_RDO#CTP_RDO_L1Run3' ,                                'ESD', 'Steer'),
+
+
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
     ('DataVector<LVL1::CPMTower>#CPMTowers' ,            'ESD', 'L1'),
@@ -1523,6 +1569,13 @@ EDMDetails['xAOD::RODHeaderAuxContainer']                 = {'persistent': "", '
 
 EDMDetails['xAOD::CMXRoIContainer']                       = {'persistent': "", 'typealias':'' }                                
 EDMDetails['xAOD::CMXRoIAuxContainer']                    = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXRoIContainer' }  
+
+# objects for Run 3 L1Calo
+EDMDetails['xAOD::JGTowerContainer']                      = {'persistent': "", 'typealias':'' }
+EDMDetails['xAOD::JGTowerAuxContainer']                   = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JGTowerContainer' }
+
+
+
 # =============================================================================
 
 #

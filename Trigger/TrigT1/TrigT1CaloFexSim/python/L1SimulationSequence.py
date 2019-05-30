@@ -2,7 +2,7 @@
 
 from AthenaCommon.Include import include  # to include old style job options
 
-def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False):
+def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False, setupOutput = False):
 
     outputCollections = list()
 
@@ -180,19 +180,21 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         dumpSequence(sequence)
 
 
-    ## Configure the output content
-    if rec.doWriteAOD():
-        from TrigT1CaloFexSim.SetupOutput import fillAOD
-        stream = fillAOD( SuperCellContainer=SCIn,
-                          WriteAllCalo=False, otherOutput = outputCollections)
+    ## Configure the output content if requested
+    # usually this is done as part of the framework according to TrigEDMConfig/TriggerEDM.py
+    if setupOutput:
+        if rec.doWriteAOD():
+            from TrigT1CaloFexSim.SetupOutput import fillAOD
+            stream = fillAOD( SuperCellContainer=SCIn,
+                              WriteAllCalo=False, otherOutput = outputCollections)
 
-    if rec.doRDOTrigger():
-        from TrigT1CaloFexSim.SetupOutput import fillRDO
-        stream = fillRDO( SuperCellContainer=SCIn,
-                          WriteAllCalo=False, otherOutput = outputCollections)
+        if rec.doRDOTrigger():
+            from TrigT1CaloFexSim.SetupOutput import fillRDO
+            stream = fillRDO( SuperCellContainer=SCIn,
+                              WriteAllCalo=False, otherOutput = outputCollections)
 
-    if simflags.EnableDebugOutput():
-        from TrigT1CaloFexSim.SetupOutput import printStreamingInfo
-        printStreamingInfo()
+        if simflags.EnableDebugOutput():
+            from TrigT1CaloFexSim.SetupOutput import printStreamingInfo
+            printStreamingInfo()
 
     log.info("Finished setup of L1 Calo Run 3 simulation chain")
