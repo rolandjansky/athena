@@ -146,6 +146,35 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e3_etcut"] = "L1_EM3";
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM7";
+      // for menu test
+      dummyChains["HLT_2mu4_bBmumu_L12MU4"] = "L1_2MU4";
+      dummyChains["HLT_2mu4_bJpsimumu_L12MU4"] = "L1_2MU4";
+      dummyChains["HLT_2mu4_bUpsimumu_L12MU4"] = "L1_2MU4";
+      dummyChains["HLT_2mu6"] = "L1_2MU6";
+      dummyChains["HLT_2mu6Comb"] = "L1_2MU6";
+      dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
+      dummyChains["HLT_3j200"] = "L1_J50";
+      dummyChains["HLT_5j70_0eta240"] = "L1_J50";
+      dummyChains["HLT_e3_etcut1step"] = "L1_EM3";
+      dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
+      dummyChains["HLT_g5_etcut"] = "L1_EM3";
+      dummyChains["HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet20"] = "L1_RD0_FILLED";
+      dummyChains["HLT_j225_gsc420_boffperf_split20"] = "L1_J100";
+      dummyChains["HLT_j260_320eta490"] = "L1_J100";
+      dummyChains["HLT_j420"] = "L1_J100";
+      dummyChains["HLT_j45"] = "L1_J20";
+      dummyChains["HLT_j460_a10_lcw_subjes"] = "L1_J100";
+      dummyChains["HLT_j460_a10r"] = "L1_J100";
+      dummyChains["HLT_j85"] = "L1_J20";
+      dummyChains["HLT_mu20_ivar"] = "L1_MU20";
+      dummyChains["HLT_mu6"] = "L1_MU6";
+      dummyChains["HLT_mu6Comb"] = "L1_MU6";
+      dummyChains["HLT_mu6fast"] = "L1_MU6";
+      dummyChains["HLT_mu6msonly"] = "L1_MU6";
+      dummyChains["HLT_mu6nol1"] = "L1_MU6";
+      dummyChains["HLT_xe30_L1XE10"] = "L1_XE20";
+      dummyChains["HLT_xe65_L1XE50"] = "L1_XE20";
+
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {
          const std::string& chainName = mapPair.first;

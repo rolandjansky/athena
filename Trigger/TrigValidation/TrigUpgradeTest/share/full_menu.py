@@ -2,6 +2,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Logging import logging
+__log = logging.getLogger('full_menu')
+
 # import flags
 from RecExConfig.RecFlags  import rec
 rec.doESD=True
@@ -265,8 +268,8 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(topSequence)
-filters = collectFilters(topSequence)
+hypos = collectHypos(AthSequencer("HLTAllSteps"))
+filters = collectFilters(AthSequencer("HLTAllSteps"))
 
 # try to find L1Decoder
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
@@ -276,7 +279,8 @@ if not l1decoder:
 
 if l1decoder:
     decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    print decObj
+    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug(decObj)
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
     ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]

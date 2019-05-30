@@ -60,20 +60,20 @@ namespace TrigCompositeUtils {
   }
 
   template<class CONTAINER>
-  ElementLinkVector<CONTAINER> getFeaturesOfType(const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg) {
-    ElementLinkVector<CONTAINER> features;
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg) {
+    std::vector< LinkInfo<CONTAINER> > features;
     // For each unique path through the navigation for a given chain
     for (const ElementLinkVector<DecisionContainer>& decisionPath : linkVector) {
       // For each step along this path, starting at the terminus and working back towards L1
       for (const ElementLink<DecisionContainer>& decisionLink : decisionPath) {
         const Decision* decision = (*decisionLink);
-        if (decision->hasObjectLink("feature", ClassID_traits< CONTAINER >::ID())) {
+        if (decision->hasObjectLink(featureString(), ClassID_traits< CONTAINER >::ID())) {
 
           // This try block protects against ExcCLIDMismatch throws from 
           // features which do not derive from IParticle, when an IParticle interface is requested.
           try {
-            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>("feature");
-            features.push_back( featureLink );
+            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureString() );
+            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
             if (oneFeaturePerLeg) {
               break;
             }

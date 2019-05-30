@@ -166,13 +166,22 @@ namespace xAOD {
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
-      /// Raw access to the persistent link labels
+      /// Raw access to the persistent link labels. Will use remapped data, if available.
       const std::vector< uint32_t >& linkColKeys() const;
-      /// Raw access to the persistent link indices
+      /// Raw access to the persistent link indices. Will use remapped data, if available.
       const std::vector< uint16_t >& linkColIndices() const;
       /// Raw access to the persistent link CLIDs
       const std::vector< uint32_t >& linkColClids() const;
 
+      /// Information on if linkColKeys() and linkColIndices() are able to access remapped link data
+      /// Remapping happens at the end of HLT execution when EDM objects are copied out of their per-EventView
+      /// containers and into the global Trigger EDM containers.
+      bool isRemapped() const;
+
+      /// Raw access to the persistent link labels. Will not attempt to access remapped link data.
+      const std::vector< uint32_t >& linkColKeysNoRemap() const;
+      /// Raw access to the persistent link indices. Will not attempt to access remapped link data.
+      const std::vector< uint16_t >& linkColIndicesNoRemap() const;
 
       /// @}
 

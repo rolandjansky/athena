@@ -215,11 +215,37 @@ namespace xAOD {
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,
                            linkColNames )
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< uint32_t >,
-                           linkColKeys )
-   AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< uint16_t >,
-                           linkColIndices )
-   AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< uint32_t >,
                            linkColClids )
+
+   const std::vector< uint32_t >& TrigComposite_v1::linkColKeys() const {
+      if (isRemapped()) {
+        static const Accessor< std::vector< uint32_t > > acc_remap( "remap_linkColKeys" );
+        return acc_remap( *this );
+      }
+      static const Accessor< std::vector< uint32_t > > acc_builtin( "linkColKeys" );
+      return acc_builtin( *this );
+   }
+
+   const std::vector< uint16_t >& TrigComposite_v1::linkColIndices() const {
+      if (isRemapped()) {
+        static const Accessor< std::vector< uint16_t > > acc_remap( "remap_linkColIndices" );
+        return acc_remap( *this );
+      }
+      static const Accessor< std::vector< uint16_t > > acc_builtin( "linkColIndices" );
+      return acc_builtin( *this );
+   }
+
+   const std::vector< uint32_t >& TrigComposite_v1::linkColKeysNoRemap() const {
+      static const Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
+      return acc( *this );
+   }
+
+   const std::vector< uint16_t >& TrigComposite_v1::linkColIndicesNoRemap() const {
+      static const Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
+      return acc( *this );
+   }
+
+   ////////
 
    std::vector< std::string >& TrigComposite_v1::linkColNamesNC() {
 
@@ -314,18 +340,28 @@ namespace xAOD {
      }
    }
 
+   bool TrigComposite_v1::isRemapped() const {
+      static const Accessor< std::vector< uint32_t > > key_remap( "remap_linkColKeys" );
+      static const Accessor< std::vector< uint16_t > > index_remap( "remap_linkColIndices" );
+      return (key_remap.isAvailable( *this ) && index_remap.isAvailable( *this ) );
+   }
+
+
    //
    /////////////////////////////////////////////////////////////////////////////
 
 
 std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
   os << "TrigComposite_v1 name:'" << tc.name() << "'" << std::endl;
-  os << "  N Lnks:" << tc.linkColNames().size();
+  const bool isRemapped = tc.isRemapped();
+  os << "  N Links:" << tc.linkColNames().size() << ", isRemapped:" << (isRemapped ? "YES" : "NO");
   for (size_t i=0; i<tc.linkColNames().size(); ++i){
     if (!i) os << std::endl;
     os << "    Link Name:"  << tc.linkColNames()[i];
     os << ", Key:"   << tc.linkColKeys()[i];
+    if (isRemapped) os << ", OldKey:"   << tc.linkColKeysNoRemap()[i];
     os << ", Index:" << tc.linkColIndices()[i];
+    if (isRemapped) os << ", OldIndex:" << tc.linkColIndicesNoRemap()[i];
     os << ", CLID:"  << tc.linkColClids()[i];
     if (i != tc.linkColNames().size() - 1) os << std::endl;
   }
