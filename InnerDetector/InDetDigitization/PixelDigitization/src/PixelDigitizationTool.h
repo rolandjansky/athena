@@ -66,7 +66,6 @@ class PixelDigitizationTool : public PileUpToolBase {
     Gaudi::Property<int>                       m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, "Control pileup & signal splitting"};
     bool                                       m_HardScatterSplittingSkipper{false};
     Gaudi::Property<bool>                      m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
-    IntegerProperty                            m_vetoThisBarcode{this, "ParticleBarcodeVeto", crazyParticleBarcode, "Barcode of particle to ignore"};
 
     const PixelID            *m_detID{};
 
