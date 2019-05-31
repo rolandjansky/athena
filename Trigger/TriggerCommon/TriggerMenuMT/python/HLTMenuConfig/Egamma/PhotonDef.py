@@ -15,8 +15,8 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import photonMenuSeq
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
 #----------------------------------------------------------------
-def fastCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence("Gamma")
+def gammaFastCaloCfg( flags ):
+    return fastCaloMenuSequence("GammaFastCalo")
     
 def photonSequenceCfg( flags ):    
     return photonMenuSequence()
@@ -60,7 +60,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getFastCalo(self):
         stepName = "Step1_g5_etcut"
         log.debug("Configuring step " + stepName)
-        fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
+        fastCalo = RecoFragmentsPool.retrieve( gammaFastCaloCfg, None ) # the None will be used for flags in future
         return ChainStep(stepName, [fastCalo])
         
     def getPhoton(self):

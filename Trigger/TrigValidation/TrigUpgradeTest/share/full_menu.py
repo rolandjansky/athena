@@ -30,37 +30,44 @@ inDetSetup()
 # egamma chains
 ##################################################################
 if opt.doElectronSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, electronSequenceCfg, precisionCaloSequenceCfg
-    fastCaloStep = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
-    electronStep = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
-    precisionCaloStep = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, electronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("ElectronFastCalo", [fastCaloStep])
-    step2=ChainStep("ElectronFastTrack", [electronStep])
-    step3=ChainStep("ElectronPrecisionCalo", [precisionCaloStep])
+    FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
+    step2        = ChainStep("ElectronFastTrackStep", [electronSeq])
+    step3        = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
     egammaChains  = [
-        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
+        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[FastCaloStep]  ),
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  )
         ]
+
+#    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
+#    DiEleStep2=ChainStep("DiEleStep2",[electronSeq, electronSeq], multiplicity=2) #need to be: one leg with only one step, one with 3 steps!
+    
+#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut', Seed="L1_EM3_EM3",  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
     testChains += egammaChains
 
 ##################################################################
 # photon chains
 ##################################################################
 if opt.doPhotonSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import photonMenuSequence
 
-    fastCaloStep = fastCaloMenuSequence("Gamma")
-    photonstep   = photonMenuSequence()
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import gammaFastCaloCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import photonSequenceCfg
+
+    fastCaloSeq = RecoFragmentsPool.retrieve( gammaFastCaloCfg, None )
+    PhotonSeq = RecoFragmentsPool.retrieve( photonSequenceCfg, None )
+    
+    FastCaloStep = ChainStep("PhotonFastCaloStep", [fastCaloSeq])
+    photon_step2 = ChainStep("PhotonStep2", [PhotonSeq])
 
     photonChains = [
-        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ ChainStep("Step1_g5_etcut", [fastCaloStep]),  ChainStep("Step2_g5_etcut", [photonstep])]  )
+        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ FastCaloStep,  photon_step2]  )
         ]
 
     testChains += photonChains
@@ -86,9 +93,6 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-
-
-   
 
     emptyStep=ChainStep("Step2_empty")
 
@@ -237,9 +241,16 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doComboSlice == True:
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()], multiplicity=2)
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
 
-    comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+
+    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
+    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
+
+
+    comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep_et_mufast ])]
+ #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step', Seed="L1_MU6_EM7",  ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
     testChains += comboChains
 
 
