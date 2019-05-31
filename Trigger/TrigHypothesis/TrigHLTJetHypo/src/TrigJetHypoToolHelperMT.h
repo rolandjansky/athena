@@ -38,10 +38,11 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                           const std::string& name,
                           const IInterface* parent);
 
-  virtual StatusCode initialize() override;
-  virtual bool  pass(HypoJetVector&,
-                     ITrigJetHypoInfoCollector*) const override;
-
+  StatusCode initialize() override;
+  virtual bool
+    pass(HypoJetVector&,
+	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
@@ -76,9 +77,8 @@ Gaudi::Property<bool>
 
 
  void collectData(const std::string& exetime,
-                  ITrigJetHypoInfoCollector* collector,
-                  std::unique_ptr<IConditionVisitor>&,
-                  bool pass) const;
+                  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+                  const std::optional<bool>& pass) const;
 
  std::string toString() const;
 };
