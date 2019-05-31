@@ -695,6 +695,9 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
+                    if str(filename).startswith("root"):
+                        msg.debug('Found input file name starting with "root," setting XRD_RUNFORKHANDLER=1, which enables fork handlers for xrootd in direct I/O')
+                        os.environ["XRD_RUNFORKHANDLER"] = "1"
                     if str(filename).startswith("https") or str(filename).startswith("davs") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
                         msg.debug('Seems that only one file was given: {0}'.format(filename))
                         newValue.extend(([filename]))
