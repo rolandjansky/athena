@@ -175,7 +175,8 @@ int main( int argc, char* argv[] ) {
   ST::ISUSYObjDef_xAODTool::DataSource datasource = (isData ? ST::ISUSYObjDef_xAODTool::Data : (isAtlfast ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim));
 
   ///
-  static SG::AuxElement::Accessor<int> acc_susyid("SUSY_procID");
+  // -- Deprecated usage
+  //  static SG::AuxElement::Accessor<int> acc_susyid("SUSY_procID");
 
   // Initialise the application:
   //ANA_CHECK( xAOD::Init( APP_NAME ) );  //NOT WORKING? //MT,WB
@@ -496,7 +497,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     else {
       // Check SUSY Proc. ID for signal MC (only for first event for now!)
       if(entry<5){
-        UInt_t  procID = 0;
+	// --- Deprecated usage of procID
+	//        UInt_t  procID = 0;
         int pdgid1 = 0;
         int pdgid2 = 0;
 
@@ -506,18 +508,20 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
 
         if( pdgid1!=0 && pdgid2!=0){ //(just to avoid warnings)
-          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
+	  // --- Deprecated usage of procID
+	  //          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
           Info(APP_NAME , "--- SIGNAL ID1     : %d", pdgid1);
           Info(APP_NAME , "    SIGNAL ID2     : %d", pdgid2);
-          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
-
-	  if ( acc_susyid.isAvailable(*ei)  )
-	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
+	  // --- Deprecated usage of procID
+	  //          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
+	  // --- Deprecated usage of procID
+	  //	  if ( acc_susyid.isAvailable(*ei)  )
+	  //	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
 
           Info(APP_NAME , "--- XSECTION DETAILS");
-          Info(APP_NAME , "    Xsec (high order)    : %f", my_XsecDB->xsectTimesEff(ei->mcChannelNumber(),procID));
-          Info(APP_NAME , "    kfactor (high order) : %f", my_XsecDB->kfactor(ei->mcChannelNumber(),procID));
-          Info(APP_NAME , "    filter efficiency    : %f", my_XsecDB->efficiency(ei->mcChannelNumber(),procID));
+          Info(APP_NAME , "    Xsec (high order)    : %f", my_XsecDB->xsectTimesEff(ei->mcChannelNumber(),0));
+          Info(APP_NAME , "    kfactor (high order) : %f", my_XsecDB->kfactor(ei->mcChannelNumber(),0));
+          Info(APP_NAME , "    filter efficiency    : %f", my_XsecDB->efficiency(ei->mcChannelNumber(),0));
 
         }
       }

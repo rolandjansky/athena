@@ -17,6 +17,12 @@ ExtraContentTrk=["InDetTrackParticles.definingParametersCovMatrixVec.theta.z0.d0
 
 ExtraContentJets=["AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt"]
 
+ExtraContentJets_EMTopo=["AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000"]
+
+ExtraContentJets_PFlow=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000"]
+
+ExtraContentJets_STDM11=ExtraContentJets_EMTopo+ExtraContentJets_PFlow
+
 ExtraContentAll=ExtraContentElectrons+ExtraContentPhotons+ExtraContentMuons+ExtraContentTaus+ExtraContentBtag+ExtraContentVtx+ExtraContentTrk+ExtraContentJets
 
 # These are only added if running on MC

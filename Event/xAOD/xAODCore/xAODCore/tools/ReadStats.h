@@ -1,15 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadStats.h 642099 2015-01-27 16:43:18Z krasznaa $
 #ifndef XAODCORE_TOOLS_READSTATS_H
 #define XAODCORE_TOOLS_READSTATS_H
 
 // System include(s):
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -36,9 +35,6 @@ namespace xAOD {
    /// access pattern.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 642099 $
-   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
    class BranchStats : public ::TNamed {
 
@@ -117,19 +113,16 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 642099 $
-   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
-   ///
    class ReadStats : public ::TNamed {
 
    public:
       /// Type of the internal vectors describing one auxiliary store
       typedef std::vector< BranchStats* > Vector_t;
       /// Type of the internal object gathering information on aux branches
-      typedef std::map< std::string, Vector_t > Map_t;
+      typedef std::unordered_map< std::string, Vector_t > Map_t;
 
       /// Type of the internal object gathering information on containers
-      typedef std::map< std::string, BranchStats > MapC_t;
+      typedef std::unordered_map< std::string, BranchStats > MapC_t;
 
       /// Constructor just specifying the name of the object
       ReadStats( const char* name = "xAODReadStats",

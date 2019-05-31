@@ -82,8 +82,6 @@ namespace CP {
 
       /// The name of the output tree to write
       std::string m_treeName;
-      /// Flust setting for the output tree
-      int m_treeAutoFlush;
       /// The branches to write into this output tree
       std::vector< std::string > m_branches;
 

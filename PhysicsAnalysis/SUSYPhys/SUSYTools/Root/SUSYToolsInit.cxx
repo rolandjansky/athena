@@ -908,10 +908,21 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
   }
 
-   // Electron ChargeID Selector tool SF (No SF yet for R21 as of 2019.02.17)
    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
+   std::string tmpIsoWP = m_eleIso_WP;
+   std::string tmpIDWP = m_eleId;
+   // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
+   if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
+     ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for ECID SFs, falling back to MediumLLH for SF purposes");
+     tmpIDWP = "MediumLLH";
+   }
+   if (tmpIsoWP != "FCTight" && tmpIsoWP != "Gradient") {
+     ATH_MSG_WARNING("Your Electron Iso WP ("+tmpIsoWP+") is not supported for ECID SFs, falling back to Gradient for SF purposes");
+     tmpIsoWP = "Gradient";
+   }
+
    toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
-   CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolGradient_MediumCFT.root");
+   CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
    m_runECIS = m_eleChID_WP.empty() ? false : true;
 
   // Electron charge mis-identification SFs
@@ -920,13 +931,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if ( !m_elecChargeEffCorrTool.isUserConfigured() ) {
     m_elecChargeEffCorrTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/"+toolName);
 
-    std::string tmpIDWP = m_eleId;
-    if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
-      ATH_MSG_WARNING( "** Only MediumLLH & TightLLH ID WP are supported for ChargeID SFs at the moment. Falling back to MediumLLH, be aware! **");
-      tmpIDWP = "MediumLLH";
-    }
-
-    std::string tmpIsoWP = m_eleIso_WP;
+    // Reset this variable as more Iso WPs are supported for the below
+   std::string tmpIsoWP = m_eleIso_WP; 
     if ( !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
 	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
 			 << " is no longer supported. This will almost certainly cause a crash now.");
@@ -1079,7 +1085,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_egammaCalibTool.isUserConfigured()) {
     m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool");
     ATH_MSG_DEBUG( "Initialising EgcalibTool " );
-    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v1") ); //used for analysis using data processed with 21.0
+    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2018_R21_v0") ); //used for analysis using data processed with 21.0
     ATH_CHECK( m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1") );
     ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", isAtlfast()?1:0) );
     ATH_CHECK( m_egammaCalibTool.setProperty("OutputLevel", this->msg().level()) );

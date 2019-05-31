@@ -512,7 +512,7 @@ class Configuration:
               FlavorTagDiscriminants__BTagAugmenterTool as AugTool)
           from os.path import splitext, basename
           options.setdefault("preBtagToolModifiers", [])
-          if jetcol in preTagDL2JetToTrainingMap:
+          if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
               ToolSvc += aug
               options['preBtagToolModifiers'].append(aug)
@@ -525,7 +525,7 @@ class Configuration:
 
           # add dl1 tools
           options.setdefault("postBtagToolModifiers", [])
-          if jetcol in postTagDL2JetToTrainingMap:
+          if jetcol in postTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               modifiers = options['postBtagToolModifiers']
               aug = AugTool(
                   name=get_training_name('BTagAugmenterTool'),

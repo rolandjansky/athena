@@ -42,6 +42,9 @@ triggerSequence = makeTriggerAnalysisSequence( dataType, triggerChains=triggerCh
 algSeq += triggerSequence
 
 # Set up an ntuple to check the job with:
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'events'
+athAlgSeq += treeMaker
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'events'
 ntupleMaker.Branches = [
@@ -51,6 +54,9 @@ ntupleMaker.Branches = [
 ntupleMaker.Branches += ['EventInfo.trigPassed_' + t + ' -> trigPassed_' + t for t in triggerChains]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'events'
+athAlgSeq += treeFiller
 
 # For debugging.
 print( algSeq )

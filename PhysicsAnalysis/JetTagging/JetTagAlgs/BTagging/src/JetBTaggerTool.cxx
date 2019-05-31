@@ -143,6 +143,15 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   //modify can be called twice by standalone btagging algorithm for PFlow jets, the first one is tagged with EMTopo calibration (keeping same name as before)
   //the second one is tagged with PFlow calibration ("_timestamp" added to the names of all containers)
   bool pflow = false;
+
+  // in general we have augmentation tools that we can run before and
+  // after the BTagTool, but since this tool now has hard-coded
+  // behavior for a few jet collections, (and only one set of
+  // augmenters) we have to hack in some additional hardcoded behavior
+  // here.
+  //
+  bool run_augmenters = true;
+
   std::string jetName = m_JetName;
   if (m_JetName == "AntiKt4EMPFlow") {
     //check if we are tagging AntiKt4EMPFlow only once
@@ -161,6 +170,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
         bTaggingContName += "_201810";
         jetName += "_BTagging201810";
         pflow = true;
+        run_augmenters = false;
       }
       else { //we tag AntiKt4EMPFlow only once
         ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " not in store, emtopo tune scenario");
@@ -380,15 +390,19 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
       }
     }
-    for (const auto& tool: m_preBtagToolModifiers) {
-      tool->modifyJet(jetToTag);
+    if (run_augmenters) {
+      for (const auto& tool: m_preBtagToolModifiers) {
+        tool->modifyJet(jetToTag);
+      }
     }
     StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag, jetName );
     if (sc.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call for "<< jetName);
     }
-    for (const auto& tool: m_postBtagToolModifiers) {
-      tool->modifyJet(jetToTag);
+    if (run_augmenters) {
+      for (const auto& tool: m_postBtagToolModifiers) {
+        tool->modifyJet(jetToTag);
+      }
     }
   }
 

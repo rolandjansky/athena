@@ -55,7 +55,11 @@ algSeq += jetSequence
 algSeq += jvtSequence
 
 # Set up an ntuple to check the job with:
-ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'jets'
+algSeq += treeMaker
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'jets'
 ntupleMaker.Branches = [
     'EventInfo.runNumber   -> runNumber',
@@ -71,6 +75,9 @@ if dataType != 'data':
     ]
 ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
 algSeq += ntupleMaker
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'jets'
+algSeq += treeFiller
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

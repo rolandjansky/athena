@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ReadStats.cxx 642099 2015-01-27 16:43:18Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -673,13 +671,16 @@ namespace xAOD {
    BranchStats* ReadStats::container( const std::string& name ) {
 
       // If it doesn't exist yet, create it now:
-      if( m_containers.find( name ) == m_containers.end() ) {
+      MapC_t::iterator itr = m_containers.find( name );
+      if( itr == m_containers.end() ) {
          // Give it a starting value:
-         m_containers[ name ] = BranchStats( name.c_str(), "CONTAINER" );
+	 itr = m_containers.insert(
+	    MapC_t::value_type( name, BranchStats( name.c_str(),
+						   "CONTAINER" ) ) ).first;
       }
 
       // Return a pointer to the object:
-      return &( m_containers[ name ] );
+      return &( itr->second );
    }
 
    const BranchStats* ReadStats::container( const std::string& name ) const {

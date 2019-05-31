@@ -72,7 +72,10 @@ print( metSequence ) # For debugging
 algSeq += metSequence
 
 # Write the freshly produced MET object(s) to an output file:
-ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'met'
+algSeq += treeMaker
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'met'
 ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                          'EventInfo.eventNumber   -> eventNumber',
@@ -82,6 +85,9 @@ ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                          'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'met'
+algSeq += treeFiller
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
