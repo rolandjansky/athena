@@ -1,12 +1,12 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// filename: TrigZFinder.h
+// filename: IDScanZFinder.h
 // 
 // author: Nikos Konstantinidis <n.konstantinidis@ucl.ac.uk>
 //         
@@ -18,39 +18,37 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef   __TRIGZFINDER_H__
-#define   __TRIGZFINDER_H__
+#ifndef   IDSCANZFINDER_H__
+#define   IDSCANZFINDER_H__
 
 #include <string>
 #include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigInDetToolInterfaces/ITrigZFinder.h"
-// #include "GaudiKernel/AlgTool.h"
+#include "TrigInDetToolInterfaces/ITrigRun1ZFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "IDScanZFinder/TrigZFinderInternal.h"
+#include "IDScanZFinderInternal.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
 class TrigVertex;
-class TrigSiSpacePointBase;
+class TrigSiSpacePoint;
 class IRoiDescriptor;
 
 
-class TrigZFinder: public TrigZFinderInternal, public AthAlgTool, virtual public ITrigZFinder
+class IDScanZFinder: public Run1::IDScanZFinderInternal<TrigSiSpacePoint>, public AthAlgTool, virtual public ITrigRun1ZFinder
 {
  public:
  
-  TrigZFinder( const std::string&, const std::string&, const IInterface* );
-  virtual ~TrigZFinder(){};
+  IDScanZFinder( const std::string&, const std::string&, const IInterface* );
+  virtual ~IDScanZFinder(){};
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
 
-  TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi);
+  TrigVertexCollection* findZ( const std::vector<const TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi);
 
-  /// no private data members - all inherited from the TrigZFinderInternal class
+  /// no private data members - all inherited from the IDScanZFinderInternal class
   /// NB: BE CAREFUL !!! Nothing set with a job option should EVER be changed 
   ///     inside the ZFinderInternal code  
 

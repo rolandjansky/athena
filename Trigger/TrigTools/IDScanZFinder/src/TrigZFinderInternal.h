@@ -25,7 +25,7 @@
 #include <vector>
 #include <string>
 
-#include "IDScanZFinder/ZFinderConstants.h"
+#include "ZFinderConstants.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
 

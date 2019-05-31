@@ -25,8 +25,8 @@
 #include <vector>
 #include <string>
 
-#include "IDScanZFinder/ZFinderConstants.h"
-#include "IDScanZFinder/PhiSlice.h"
+#include "ZFinderConstants.h"
+#include "PhiSlice.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
 static const std::string mZFIVER("$Id: IDScanZFinderInternal.h 700483 2015-10-14 09:37:16Z sutt $");
