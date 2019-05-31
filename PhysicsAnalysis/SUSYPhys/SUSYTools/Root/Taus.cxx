@@ -260,7 +260,7 @@ double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const b
 
   double sf(1.);
 
-  for (const auto& tau : taus) {
+  for (const xAOD::TauJet* tau : taus) {
     // Call this for all taus, which will add the decoration
     double tmpSF = GetSignalTauSF(*tau, idSF, triggerSF, trigExpr);
     if (dec_signal(*tau) && dec_passOR(*tau)) {

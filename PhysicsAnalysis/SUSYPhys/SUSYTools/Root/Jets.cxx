@@ -615,7 +615,7 @@ namespace ST {
   float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets) const {
 
     float totalSF = 1.;
-    for ( const auto& jet : *jets ) {
+    for ( const xAOD::Jet* jet : *jets ) {
 
       float sf = 1.;
 
@@ -699,7 +699,7 @@ namespace ST {
   float SUSYObjDef_xAOD::BtagSF_trkJet(const xAOD::JetContainer* trkjets) const {
 
     float totalSF = 1.;
-    for ( const auto& trkjet : *trkjets ) {
+    for ( const xAOD::Jet* trkjet : *trkjets ) {
 
       float sf = 1.;
 
@@ -786,7 +786,7 @@ namespace ST {
     if (!m_applyJVTCut) return totalSF;
 
     ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
-    for (const auto& jet : *jets) {
+    for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
       if (acc_signal_less_JVT(*jet) && acc_passOR(*jet)) {
         jvtjets.push_back(jet);
@@ -839,7 +839,7 @@ namespace ST {
     float totalSF = 1.;
 
     ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
-    for (const auto& jet : *jets) {
+    for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
       if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
         fjvtjets.push_back(jet);

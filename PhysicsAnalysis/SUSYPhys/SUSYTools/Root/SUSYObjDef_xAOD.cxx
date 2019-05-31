@@ -927,8 +927,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
     if (RPVLLmode) prwConfigFile = TString(prwConfigFile).ReplaceAll(".root","_rpvll.root").Data();
 
-    // Patch for MC16e Znunu metadata bug  (2018.12.21)
-    if (!HFFilter.empty() && mcCampaignMD == "mc16e" && dsid>=366001 && dsid<= 366008) {
+    // Patch for MC16 Znunu metadata bug  (updated 2019.05.30)
+    if (!HFFilter.empty() && dsid>=366001 && dsid<= 366008) {
       ATH_MSG_WARNING ("Samples metadata for Znunu samples is corrupted! Remapping to grab the correct RPW file. Only MC16e is supported for now.");
       if (HFFilter == "BFilter") { 
         prwConfigFile = TString(prwConfigFile).ReplaceAll(std::to_string(DSID_INT),std::to_string(DSID_INT+9)).Data();

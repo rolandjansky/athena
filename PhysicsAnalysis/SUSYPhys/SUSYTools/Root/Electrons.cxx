@@ -546,7 +546,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
   float sf(1.);
 
-  for (const auto& electron : electrons) {
+  for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
     else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
