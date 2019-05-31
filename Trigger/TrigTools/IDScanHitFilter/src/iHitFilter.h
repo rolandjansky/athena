@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,11 @@
 
 #include <vector>
 
-#include "IDScanHitFilter/HF_Constants.h"
+#include "HF_Constants.h"
 
-#include "IDScanHitFilter/FilterBin.h"
-#include "IDScanHitFilter/Group.h"
-#include "IDScanHitFilter/IdScanSpPoint.h"
+#include "FilterBin.h"
+#include "Group.h"
+#include "IdScanSpPoint.h"
 
 struct groupCleanerParams;
 struct GCP_loose;

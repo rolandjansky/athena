@@ -25,7 +25,7 @@
 #include <vector>
 #include <iostream>
 
-#include "IDScanHitFilter/tIdScanSpPoint.h"
+#include "tIdScanSpPoint.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
 

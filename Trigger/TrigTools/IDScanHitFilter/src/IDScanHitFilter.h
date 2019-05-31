@@ -31,7 +31,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "IDScanHitFilter/iHitFilter.h"
+#include "iHitFilter.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetToolInterfaces/ITrigHitFilter.h"
 
@@ -54,9 +54,8 @@ class IDScanHitFilter: public iHitFilter, public AthAlgTool, virtual public ITri
   IDScanHitFilter( const std::string&, const std::string&, const IInterface* );
   virtual ~IDScanHitFilter(){ };
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
-  
+  virtual StatusCode initialize() override;
+
   void findTracks( std::vector<const TrigSiSpacePoint* >, 
 		   TrigInDetTrackCollection&, 
 		   const IRoiDescriptor*, double zvertex,
