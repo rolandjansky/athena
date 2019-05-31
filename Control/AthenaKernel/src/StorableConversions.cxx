@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file StorableConversions.cxx
+/** @file AthenaKernel/src/StorableConversions.cxx
  *  @brief convert to and from a SG storable
  * $Id: StorableConversions.cxx,v 1.2 2008-04-08 16:05:32 ssnyder Exp $
  * @author ATLAS Collaboration
  **/
 
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 
 namespace SG {
