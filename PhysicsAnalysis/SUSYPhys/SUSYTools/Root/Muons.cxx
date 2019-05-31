@@ -442,7 +442,7 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
       double dataFactor = 1.;
       double mcFactor   = 1.;
       
-      for (const auto& mu : sfmuons) {
+      for (const xAOD::Muon* mu : sfmuons) {
         // No need for additional trigger matching
         dataFactor *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, true));
         mcFactor   *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, false));
@@ -461,7 +461,7 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   double sf(1.);
 
   ConstDataVector<xAOD::MuonContainer> sfmuons(SG::VIEW_ELEMENTS);
-  for (const auto& muon : muons) {
+  for (const xAOD::Muon* muon : muons) {
     if( !acc_passOR(*muon) ) continue;
     if (acc_signal(*muon)) {
       sfmuons.push_back(muon);
