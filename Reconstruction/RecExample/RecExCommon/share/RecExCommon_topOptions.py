@@ -96,6 +96,10 @@ excludeTracePattern.append("*AthFile/impl.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
+if (jobproperties.ConcurrencyFlags.NumThreads() > 0):
+    logRecExCommon_topOptions.info("MT mode: Not scheduling RecoTiming")    
+    rec.doRecoTiming.set_Value_and_Lock(False)
+
 if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
 
     from RecAlgs.RecAlgsConf import TimingAlg

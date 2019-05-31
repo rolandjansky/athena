@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -28,7 +30,7 @@ class SCT_MajorityCondAlg : public AthReentrantAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DCS/MAJ", "Key of input (raw) conditions folder"};
   SG::WriteCondHandleKey<SCT_MajorityCondData> m_writeKey{this, "WriteKey", "SCT_MajorityCondData", "Key of output (derived) conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_MAJORITYCONDALG

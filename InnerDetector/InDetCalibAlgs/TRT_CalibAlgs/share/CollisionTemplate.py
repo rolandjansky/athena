@@ -218,14 +218,17 @@ ServiceMgr.EventSelector.InputCollections = [ """
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
 
 
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
-                                                   TRTCalDbTool=TRTCalibDBSvc,
+                                                   TRTCalDbTool=InDetCalDbTool,
                                                    IsMC=(globalflags.DataSource == 'geant4'))
 
 ToolSvc += InDetTRT_DriftFunctionTool
@@ -258,7 +261,9 @@ FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits',
                                       minTimebinsOverThreshold=0, 
                                       NeighbourSvc=TRTStrawNeighbourSvc,
                                       TRTDriftFunctionTool            = "InDetTRT_DriftFunctionTool",
-                                      TRTCalDbSvc=TRTCalibDBSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 
@@ -278,7 +283,7 @@ InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                      
                                     TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
                                     TrtDescrManageLocation          = InDetKeys.TRT_Manager(),
                                     #ConditionsSummaryTool           = InDetTRTConditionsSummaryService,
-                                    ConditionsSummaryTool           = InDetTRTStrawStatusSummarySvc,
+                                    ConditionsSummaryTool           = InDetTRTStrawSummaryTool,
 				    #HighGateArgon                   = 75.0,
 				    #LowGateArgon                    = 0,
 				    #MaxDriftTimeArgon               = 99.0,
@@ -324,7 +329,6 @@ RecalibrationFitter = Trk__GlobalChi2Fitter(name = 'RecalibrationFitter',
                                                  NavigatorTool         = InDetNavigator,
                                                  PropagatorTool        = InDetPropagator,
                                                  RotCreatorTool        = InDetRefitRotCreator,
-         #                                        RotCreatorTool        = InDetRotCreator,
                                                  BroadRotCreatorTool   = BroadInDetRotCreator,
                                                  MeasurementUpdateTool = InDetUpdator,
                                                  StraightLine          = not InDetFlags.solenoidOn(),
@@ -380,7 +384,9 @@ TRTCondWrite = TRTCondWrite( name = \"TRTCondWrite\")
 topSequence+=TRTCondWrite 
 
 
-
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+TRTCalibDBSvc=TRT_CalDbSvc()
+ServiceMgr += TRTCalibDBSvc
 
 TRTCalibDBSvc.StreamTool=TRTCondStream
 

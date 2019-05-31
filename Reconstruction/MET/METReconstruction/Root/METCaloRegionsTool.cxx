@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METCaloRegionsTool.cxx 
@@ -19,7 +19,7 @@
 #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
 #else
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
 #endif
 
 namespace met {
@@ -54,18 +54,10 @@ namespace met {
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
     AsgTool(name)
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    ,m_caloNoiseTool("CaloNoiseToolDefault")
-    #endif
   {
     declareProperty( "InputCollection", m_input_data_key            );
     declareProperty( "UseCells"       , m_calo_useCells      = true );
     declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
-    #endif
   }
 
   // Destructor
@@ -79,19 +71,12 @@ namespace met {
   {
     ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-    StatusCode sc = StatusCode::SUCCESS;
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
-    sc = m_caloNoiseTool.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING("Unable to find tool for CaloNoiseTool");
-    }
-    else {
-      ATH_MSG_INFO("CaloNoiseTool retrieved");
-    }
+    ATH_CHECK( m_noiseCDOKey.initialize() );
     #endif
 
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode METCaloRegionsTool::finalize()
@@ -249,17 +234,18 @@ namespace met {
     #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     ATH_MSG_WARNING("Cell information is only available in athena framework");
     #else
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
     // Loop over all cells
-    for( CaloCellContainer::const_iterator iCell=caloCellContainer->begin();
-       iCell!=caloCellContainer->end(); ++iCell ) {
+    for (const CaloCell* cell : *caloCellContainer) {
 
       // Retrieve the sampling 
-      CaloSampling::CaloSample sample = (CaloSampling::CaloSample) (*iCell)->caloDDE()->getSampling();
+      CaloSampling::CaloSample sample = (CaloSampling::CaloSample) cell->caloDDE()->getSampling();
 
       // Calculate Et/phi
-      double e_cell   = (*iCell)->energy();
-      double et_cell  = e_cell/cosh((*iCell)->eta());
-      double phi_cell = (*iCell)->phi();
+      double e_cell   = cell->energy();
+      double et_cell  = e_cell/cosh(cell->eta());
+      double phi_cell = cell->phi();
      
       // Find the associated MET 
       MissingET* metTerm  = findMetTerm(metContainer, sample); 
@@ -278,7 +264,7 @@ namespace met {
         #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
         double noise_cell = 0;
         #else
-        double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));
+        double noise_cell = noiseCDO->getNoise(cell->ID(),cell->gain());
         #endif
         // All cells
         metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),

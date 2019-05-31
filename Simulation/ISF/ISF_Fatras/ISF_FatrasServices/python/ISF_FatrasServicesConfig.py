@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
-Tools configurations for ISF for ISF_FatrasServicesConfig
+Serivce and Tool configurations for ISF for ISF_FatrasServicesConfig
 KG Tan, 04/12/2012
 """
 
@@ -715,8 +715,8 @@ def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
 def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
     kwargs.setdefault("Identifier"      , "Fatras")
     kwargs.setdefault("SimulatorTool"  , "ISF_FatrasSimulatorToolST")
-    from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
-    return iFatras__FatrasSimSvc(name, **kwargs )
+    from AthenaCommon import CfgMgr
+    return CfgMgr.ISF__LegacySimSvc(name, **kwargs )
 
 
 def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):

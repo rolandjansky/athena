@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,12 +16,14 @@
 #ifndef ISiDetElementsRoadMaker_H
 #define ISiDetElementsRoadMaker_H
 
-#include <list>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
 
 class MsgStream;
 
@@ -31,10 +33,6 @@ namespace InDetDD {
 
 namespace InDet {
 
- 
-  static const InterfaceID IID_ISiDetElementsRoadMaker
-    ("InDet::ISiDetElementsRoadMaker",1,0);
-
   class ISiDetElementsRoadMaker : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -43,37 +41,32 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiDetElementsRoadMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for road builder
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual void detElementsRoad
 	(const std::list<const Trk::SpacePoint*>&,
-	std::list<const InDetDD::SiDetectorElement*>&)=0;
+	std::list<const InDetDD::SiDetectorElement*>&) const=0;
 
       virtual void detElementsRoad
 	(std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&)=0;
-    
+	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
+
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<const InDetDD::SiDetectorElement*>&)=0;
-      
+	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
+ 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-     
+
       virtual MsgStream&    dump(MsgStream&    out) const=0;
       virtual std::ostream& dump(std::ostream& out) const=0;
-     
+
     };
   
   ///////////////////////////////////////////////////////////////////
@@ -86,11 +79,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiDetElementsRoadMaker::interfaceID()
-    {
-      return IID_ISiDetElementsRoadMaker;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream

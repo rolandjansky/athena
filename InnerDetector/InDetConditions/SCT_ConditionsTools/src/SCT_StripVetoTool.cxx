@@ -19,9 +19,7 @@
 
 // Constructor
 SCT_StripVetoTool::SCT_StripVetoTool(const std::string& type, const std::string& name, const IInterface* parent) : 
-  base_class(type, name, parent),
-  m_pHelper{nullptr} {
-  declareProperty("BadStripIdentifiers", m_badElements); // Identifiers should be given as strings and decimal.
+  base_class(type, name, parent) {
 }
 
 //Initialize

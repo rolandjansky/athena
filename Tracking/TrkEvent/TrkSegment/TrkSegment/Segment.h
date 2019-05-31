@@ -19,7 +19,7 @@
 
 #include "AthContainers/DataVector.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-
+#include <atomic>
 class MsgStream;
 class SegmentCnv_p1;
 
@@ -58,19 +58,19 @@ class FitQuality;
 	  If you update this don't forget to update the dump method.
       */
       enum Author {
-	AuthorUnknown = 0,
-	MooMdtSegmentMakerTool = 1,
-	MooCscSegmentMakerTool = 2,
-	Muonboy = 3,
-	DCMathSegmentMaker = 4,
-	MDT_DHoughSegmentMakerTool = 5,
-	CSC_DHoughSegmentMakerTool = 6,
-	Csc2dSegmentMaker = 7,
-	Csc4dSegmentMaker = 8,
-	TRT_SegmentMaker = 9,
-	CTBTracking = 10,
-	DCMathSegmentMakerCurved = 11,
-	NumberOfAuthors = 12
+        AuthorUnknown = 0,
+        MooMdtSegmentMakerTool = 1,
+        MooCscSegmentMakerTool = 2,
+        Muonboy = 3,
+        DCMathSegmentMaker = 4,
+        MDT_DHoughSegmentMakerTool = 5,
+        CSC_DHoughSegmentMakerTool = 6,
+        Csc2dSegmentMaker = 7,
+        Csc4dSegmentMaker = 8,
+        TRT_SegmentMaker = 9,
+        CTBTracking = 10,
+        DCMathSegmentMakerCurved = 11,
+        NumberOfAuthors = 12
       }; 
 
 
@@ -95,8 +95,13 @@ class FitQuality;
       virtual ~Segment();
   
       /** Pseudo-constructor:  needed to avoid excessive RTTI*/
-      virtual Segment* clone() const = 0;
-     
+      virtual Segment* clone() const override = 0;
+      
+      /** Extended method checking the type*/
+      virtual bool type(MeasurementBaseType::Type type) const override {
+        return (type==MeasurementBaseType::Segment);
+      }
+
       /** returns the vector of Trk::MeasurementBase objects 
         - specific for this TrackSegment: Trk::MeasurementBase (generic)
         */
@@ -134,7 +139,7 @@ class FitQuality;
       DataVector<const MeasurementBase>* m_containedMeasBases;   
   
       /** number of objects of this type in memory */
-      static unsigned int  s_numberOfInstantiations;
+      static std::atomic<unsigned int>  s_numberOfInstantiations;
 
       /** segment author */
       Author m_author;

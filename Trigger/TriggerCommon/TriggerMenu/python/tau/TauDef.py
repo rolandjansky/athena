@@ -196,7 +196,6 @@ class L2EFChain_tau(L2EFChainDef):
         theTrigFTK_VxPrimary_EF.useRawTracks = False
         theTrigFTK_VxPrimary_EF.useRefittedTracks = False
         theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        theTrigFTK_VxPrimary_EF.getVertexContainer = True
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
 
         self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]

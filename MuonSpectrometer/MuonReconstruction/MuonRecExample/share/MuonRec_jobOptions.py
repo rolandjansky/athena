@@ -99,14 +99,18 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
+   from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
    from AthenaCommon import CfgGetter
-   topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool("MCTruthClassifier")
+   topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
+   if muonRecFlags.doNSWNewThirdChain():
+       topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","sTGC_SDO"]
 
    try:
-       from RecExConfig.InputFilePeeker import inputFileSummary
-       truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
+       from PyUtils.MetaReaderPeeker import metadata
+       truthStrategy = metadata['TruthStrategy']
        if truthStrategy in ['MC15','MC18','MC18LLP']:
-           topSequence.MuonTruthDecorationAlg.BarcodeOffset=10000000
+           topSequence.MuonTruthDecorationAlg.BarcodeOffset = 10000000
+
    except:
        print "Failed to read /Simulation/Parameters/ metadata"
        pass
@@ -147,10 +151,10 @@ if muonRecFlags.doStandalone():
             topSequence.MuonStandaloneDetailedTrackTruthMaker.doNSW=True
 
         try:
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
-            if truthStrategy in ['MC15','MC18','MC18LLP']:
-                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset=10000000
+            from PyUtils.MetaReaderPeeker import metadata
+            truthStrategy = metadata['TruthStrategy']
+            if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
+                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
         except:
             print "Failed to read /Simulation/Parameters/ metadata"
             pass

@@ -18,7 +18,6 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 // Storegate
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
@@ -88,39 +87,12 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   
  private:
   const TRT_ID* m_trtId;                 //!< id helper
-  ServiceHandle<StoreGateSvc> m_detstore;
-
-  /// mutex to protect cache updates
-  mutable std::mutex m_mutex;
-  /// Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_Rtcache;
-  mutable std::vector<EventContext::ContextEvt_t> m_T0cache;
-  mutable std::vector<EventContext::ContextEvt_t> m_Errcache;
-  mutable std::vector<EventContext::ContextEvt_t> m_Slopecache;
-  /// Pointers to conditions data
-  mutable Gaudi::Hive::ContextSpecificPtr<const RtRelationContainer> m_condRt;
-  mutable Gaudi::Hive::ContextSpecificPtr<const StrawT0Container> m_condT0;
-  mutable Gaudi::Hive::ContextSpecificPtr<const RtRelationContainer> m_condErr;
-  mutable Gaudi::Hive::ContextSpecificPtr<const RtRelationContainer> m_condSlope;
 
   ///  ReadHandle  keys
   SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtFolderName","/TRT/Calib/RT","r-t relation in-key"};
   SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorFolderName","/TRT/Calib/errors2d","error on r in-key"};
   SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"ErrorSlopeFolderName","/TRT/Calib/slopes","slope of error in-key"};
   SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0FolderName","/TRT/Calib/T0","t0 in-key"};
-
-  /// Used in simulation jobs
-  bool m_isGEANT4;
-
-  std::string m_par_rtcontainerkey;
-  std::string m_par_errcontainerkey;
-  std::string m_par_slopecontainerkey;
-  std::string m_par_t0containerkey;
-
-  const DataHandle<RtRelationContainer> m_rtContainerG4;
-  const DataHandle<RtRelationContainer> m_errContainerG4;
-  const DataHandle<RtRelationContainer> m_slopeContainerG4;
-  const DataHandle<StrawT0Container> m_t0ContainerG4;
 
 };
 

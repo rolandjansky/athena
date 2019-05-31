@@ -126,7 +126,7 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_tile_eep->SetEnergy5(0.);
   m_tile_eep->SetEscapedEnergy(0.);
 
-  // @TODO : Watch out for this!!  Is it a singleton or something??
+  // @UPDATE: this is thread-safe now. EscapedEnergyRegistry is not a singleton in MT mode
   CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
   registry->AddAndAdoptProcessing("Tile", m_tile_eep);
 

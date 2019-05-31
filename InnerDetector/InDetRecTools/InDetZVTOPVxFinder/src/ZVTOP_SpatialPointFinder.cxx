@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,10 +19,8 @@ InDet::ZVTOP_SpatialPointFinder::ZVTOP_SpatialPointFinder(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  base_class(t,n,p)
 {
-  declareInterface<IZVTOP_SpatialPointFinder>(this);
-
   //  template for property declaration
   declareProperty("Chi2_cut_value", m_chi2);
 }
@@ -48,7 +46,7 @@ StatusCode InDet::ZVTOP_SpatialPointFinder::finalize()
   return StatusCode::SUCCESS;
 }
 //============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::Track* trk_1, const Trk::Track* trk_2)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::Track* trk_1, const Trk::Track* trk_2) const
 {
   const Trk::TrackParameters* perigee_1(dynamic_cast<const Trk::TrackParameters*>(trk_1->perigeeParameters()));
   const Trk::TrackParameters* perigee_2(dynamic_cast<const Trk::TrackParameters*>(trk_2->perigeeParameters()));
@@ -62,7 +60,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::Track*
 }
 
 //===============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::Track* trk_1)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::Track* trk_1) const
 {
   const Trk::TrackParameters *perigee_1(dynamic_cast<const Trk::TrackParameters*>(trk_1->perigeeParameters()));
   if (!perigee_1) {
@@ -75,7 +73,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
 }
 
 //============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Rec::TrackParticle* trk_1, const Rec::TrackParticle* trk_2)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Rec::TrackParticle* trk_1, const Rec::TrackParticle* trk_2) const
 {
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   const Trk::TrackParameters* perigee_2(trk_2->measuredPerigee());
@@ -89,7 +87,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Rec::TrackP
 }
 
 //============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Rec::TrackParticle* trk_1)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Rec::TrackParticle* trk_1) const
 {
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   if (!perigee_1) {
@@ -101,7 +99,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
   }
 }
 //============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackParticleBase* trk_1, const Trk::TrackParticleBase* trk_2)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackParticleBase* trk_1, const Trk::TrackParticleBase* trk_2) const
 {
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&trk_1->definingParameters());
   const Trk::TrackParameters* perigee_2 = dynamic_cast<const Trk::TrackParameters*>(&trk_2->definingParameters());
@@ -115,7 +113,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackP
 }
 
 //============================================================================================
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::TrackParticleBase* trk_1)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::TrackParticleBase* trk_1) const
 {
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&trk_1->definingParameters());
   if (!perigee_1) {
@@ -130,7 +128,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
 //===============================================================================================
 
 
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackParameters* param_1, const Trk::TrackParameters* param_2)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackParameters* param_1, const Trk::TrackParameters* param_2) const
 {
   Amg::Vector3D spatialPoint;
   const Trk::Perigee* perigee_1 =dynamic_cast<const Trk::Perigee*>(param_1);
@@ -202,7 +200,7 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackP
 
 //============================================================================================
 
-Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::TrackParameters* param_1)
+Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::TrackParameters* param_1) const
 {
   Amg::Vector3D spatialPoint;
   const Trk::Perigee* perigee_1 =dynamic_cast<const Trk::Perigee*>(param_1);

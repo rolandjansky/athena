@@ -319,7 +319,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
      StoredPhysVol *vol;
      if (StatusCode::SUCCESS==m_detectorStore->retrieve(vol,"HEC_POS")) {
         try {
-           hecDetManager = new  HECDetectorManager(true);
+           hecDetManager = new  HECDetectorManager(nullptr,true);
            for (unsigned int s=0;s<3;s++) {
             for (unsigned int r=0;r<2;r++) {
 	     unsigned int nPhi    = r==0? 2:1;

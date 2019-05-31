@@ -78,7 +78,7 @@ StatusCode xAODTestWrite::execute (const EventContext& ctx) const
 {
   unsigned int count = ctx.eventID().event_number() + 1;
 
-  SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey);
+  SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
 
   auto trig_coll = std::make_unique<DMTest::CVec>();
   auto trig_store = std::make_unique<DMTest::CTrigAuxContainer>();

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #----------phy--------------------------------------------------------------#
 #------------------------------------------------------------------------#
@@ -85,16 +85,13 @@ def setupMenu():
 
     if TriggerFlags.doFTK():
         TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-            ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20MU21_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+
+            ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
             ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
             ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
 #            ['mu22_mu8noL1_FTKFS_L1MU20MU21_FTK',    'L1_MU20MU21_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
           ['mu22_mu8noL1_FTKFS_L1MU20_FTK',    'L1_MU20_FTK', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
-
             ]
-
 
 
 
@@ -169,14 +166,22 @@ def setupMenu():
         ['j175',                   'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         ['j45_320eta490', 'L1_J15.31ETA49', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j260_nojcalib',           'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j35_nojcalib',           'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+#        ['j460_a10t_lcw_jes_L1J100',        'L1_J100', [], [PhysicsStream], ['Primary:17000','RATE:SingleJet', 'BW:Jet'], -1],
+#        ['2j330_a10t_lcw_jes_35smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         
     ]
 
+    if TriggerFlags.doFTK():
+        TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [        
+            ['j0_perf_ftk_L1RD0_FILLED',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+            ['j0_perf_ftkrefit_L1RD0_FILLED',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+            
+        ]
+        
     TriggerFlags.BjetSlice.signatures = [
-        ['j35_boffperf_split_FTK_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j35_boffperf_split_FTKVtx_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j35_boffperf_split_FTKRefit_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j45_gsc55_boffperf_split', 'L1_J15', [], [PhysicsStream,'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j35_boffperf_split',  'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j175_gsc225_bmv2c2050_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
@@ -309,22 +314,21 @@ def setupMenu():
 			 ]
 
     TriggerFlags.BphysicsSlice.signatures = [
-        ['2mu4_bBmumuxv2',                'L1_2MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         # ATR-19062
-        ['mu6_mu4_bJpsimumu',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_mu4_bUpsimumu',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['mu6_2mu4_bJpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [PhysicsStream], ['RATE:Bphysics', 'BW:Bphys'], -1],
-        ['mu11_mu6_bDimu', 'L1_MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
+        ['2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',  'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',     ['L1_2MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1, False],
+        ['2mu4_bBmumuxv2',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
+        ['2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',     ['L1_2MU6'], [PhysicsStream, 'express'], ['Primary:20000','RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu6_bBmumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',     'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',     ['L1_2MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1, False],
+        ['mu6_2mu4_bJpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream, 'express'], [RATE_BphysTag, BW_BphysTag], -1],
+        ['mu11_mu6_bDimu',                 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
 
-        ['mu11_mu6_bTau',  'L1_MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
-        ['2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',     ['L1_2MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-        ['2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',  'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',     ['L1_2MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+    ]
 
-]
 
     if TriggerFlags.doFTK():
         TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-            ['2mu4_bBmumuxv2_Ftk',                'L1_2MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+            ['2mu4_bBmumuxv2_Ftk',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
             ]
 
 
@@ -427,10 +431,8 @@ def setupMenu():
 
     if TriggerFlags.doFTK():
         TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures() + [
-
             ['beamspot_idperf_FTK_L14J20_FTK',      'L1_4J20_FTK', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
             ['beamspot_idperf_FTKRefit_L14J20_FTK', 'L1_4J20_FTK', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
-
 ]
 
 
@@ -521,6 +523,14 @@ class Prescales:
     #     the default value of pass-through (=0) will be used
     #----------------------------------------------------------
     HLTPrescales = {}
+    chain_list=[ #chains that can't be ported to 21.3 but produce crash if removed from master
+        'g300_etcut_L1EM26VHI',
+        'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo',
+        'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+        'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50',
+        'e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50',
+        ]
+    HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}

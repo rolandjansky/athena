@@ -39,7 +39,7 @@ namespace InDet{
       
     private:
       
-      SG::ReadCondHandleKey<TRTCond::ActiveFraction> m_strawReadKey{this,"ActiveWriteKey","ActiveFraction","ActiveFraction in-key"};
+      SG::ReadCondHandleKey<TRTCond::ActiveFraction> m_strawReadKey{this,"ActiveReadKey","ActiveFraction","ActiveFraction in-key"};
       /** Properties for track selection:all cuts are ANDed */
       int  m_minOffset;  //!< Minimum number of TRT drit circles required
       bool m_param;      //!< Use the new or the old parameterization

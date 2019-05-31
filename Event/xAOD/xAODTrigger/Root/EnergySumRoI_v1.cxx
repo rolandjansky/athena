@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoI_v1.cxx 711888 2015-12-01 13:36:40Z watsona $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -107,7 +106,7 @@ namespace xAOD {
    //
 
    /// Accessor for the names of the passed thresholds
-   static SG::AuxElement::Accessor< std::vector< std::string > >
+   static const SG::AuxElement::Accessor< std::vector< std::string > >
       names( "thrNames" );
 
    void EnergySumRoI_v1::addThreshold( const std::string& name ) {

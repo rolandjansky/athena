@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,13 +15,15 @@
 #ifndef ISiCombinatorialTrackFinder_H
 #define ISiCombinatorialTrackFinder_H
 
-#include <list>
-#include <map>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
+#include <map>
 
 class MsgStream;
 
@@ -33,9 +35,6 @@ namespace InDet {
 
   class TrackQualityCuts;
 
-  static const InterfaceID IID_ISiCombinatorialTrackFinder
-    ("InDet::ISiCombinatorialTrackFinder",1,0);
-
   class ISiCombinatorialTrackFinder : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -44,13 +43,8 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiCombinatorialTrackFinder, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
@@ -62,27 +56,27 @@ namespace InDet {
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&)=0;
+	 const TrackQualityCuts&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracks
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 bool)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+	 bool) const =0;
 
-      virtual void newEvent()=0;
-      virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&)=0;
+      virtual void newEvent() const =0;
+      virtual void newEvent(Trk::TrackInfo, const TrackQualityCuts&) const =0;
 
-      virtual void endEvent()=0;
+      virtual void endEvent() const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -103,11 +97,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiCombinatorialTrackFinder::interfaceID()
-    {
-      return IID_ISiCombinatorialTrackFinder;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream

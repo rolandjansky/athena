@@ -17,7 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 //
-
+#include "TrkVKalVrtCore/ForCFT.h"
 
 namespace {
 static const int NTRMAXTRIG=300;
@@ -228,7 +228,7 @@ private:
 
    TrigAtlasMagFld *  m_fitField;
    Trk::VKalVrtControl  *  m_vkalFitControl;
-
+   Trk::ForCFT      m_coreFit;
    //      
    // Private functions (technicalities)
    //

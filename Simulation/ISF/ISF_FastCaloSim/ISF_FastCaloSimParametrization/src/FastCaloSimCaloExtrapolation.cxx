@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimCaloExtrapolation.h"
@@ -12,8 +12,6 @@
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
-#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -21,7 +19,6 @@
 FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t,n,p)
   , m_extrapolator("TimedExtrapolator")
-  , m_caloSurfaceHelper("CaloSurfaceHelper")
   , m_CaloGeometryHelper("FastCaloSimGeometryHelper")
 {
   declareInterface<IFastCaloSimCaloExtrapolation>(this);
@@ -39,7 +36,6 @@ FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t,
   declareProperty("Surfacelist",                    m_surfacelist );
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
-  declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
   declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
 }
 
@@ -78,9 +74,6 @@ StatusCode FastCaloSimCaloExtrapolation::initialize()
       ATH_CHECK(m_extrapolator.retrieve());
       ATH_MSG_INFO("Extrapolator retrieved "<< m_extrapolator);
     }
-
-  // Get CaloSurfaceHelper
-  ATH_CHECK(m_caloSurfaceHelper.retrieve());
 
   ATH_MSG_INFO("m_CaloBoundaryR="<<m_CaloBoundaryR<<" m_CaloBoundaryZ="<<m_CaloBoundaryZ<<" m_caloEntranceName "<<m_caloEntranceName);
 

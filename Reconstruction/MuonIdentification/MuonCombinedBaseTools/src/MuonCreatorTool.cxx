@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,8 +52,6 @@
 #include "MuGirlInterfaces/CandidateSummary.h"
 
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
-#include "RecoToolInterfaces/IParticleCaloClusterAssociationTool.h"
-#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
@@ -72,6 +70,8 @@
 #include "TrackSegmentAssociationTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
+#include "StoreGate/ReadCondHandle.h"
+
 //#include "xAODTruth/TruthEventContainer.h"
 
 
@@ -87,9 +87,9 @@ namespace MuonCombined {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
-    m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+    m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
-    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonSimpleAmbiProcessorTool"),
+    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
     m_muonDressingTool("MuonCombined::MuonDressingTool/MuonDressingTool"),
     m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignificanceTool"),
@@ -97,8 +97,7 @@ namespace MuonCombined {
     m_selectorTool("CP::MuonSelectionTool/MuonSelectionTool"),
     m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"),
     m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
-    m_caloNoiseTool(""),
-    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
+    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
     m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
     m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery")
 
@@ -125,8 +124,6 @@ namespace MuonCombined {
     declareProperty("PrintSummary", m_printSummary=false);
     declareProperty("UseUpdatedExtrapolatedTrack", m_useUpdatedExtrapolatedTrack = true );
     //Default data source for the calocells
-    declareProperty("CaloNoiseTool", m_caloNoiseTool);
-    declareProperty("DoCaloNoiseCut", m_applyCaloNoiseCut=false);
     declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
@@ -167,17 +164,11 @@ namespace MuonCombined {
     else m_selectorTool.disable();
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
     else m_meanMDTdADCTool.disable();
-    if(m_applyCaloNoiseCut) {
-        // apply CaloNoiseTool to cell collected for ET_Core
-        if(!m_caloNoiseTool.empty()) ATH_CHECK(m_caloNoiseTool.retrieve());
-        else {
-            if (m_applyCaloNoiseCut) ATH_MSG_WARNING("YOU MUST PROVIDE NAME of CaloNoiseTool for ET_Core cell collection.");
-            m_applyCaloNoiseCut = false;
-        }
-    }
-    else m_caloNoiseTool.disable();
-    ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
-                 << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
+
+    ATH_CHECK( m_caloNoiseKey.initialize (SG::AllowEmpty) );
+
+    ATH_MSG_INFO("ET_Core calculation: doNoiseCut, sigma - " 
+                 << !m_caloNoiseKey.empty() << " " << m_sigmaCaloNoiseCut);
 
     if(!m_doSA){
       ATH_CHECK(m_caloMaterialProvider.retrieve());
@@ -397,6 +388,22 @@ namespace MuonCombined {
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
+
+    //make sure we can extrapolate the track back through the calo, otherwise it's not a muon
+    //shouldn't above requirement that an extrapolated track exist do this, though?
+    //difference between different ways of extrapolating probably needs to be investigated
+    //the muons that are rejected by this all seem to be useless low-pT SA muons with 2 precision layers that would never make it into analyses, though
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(**muon->extrapolatedMuonSpectrometerTrackParticleLink());
+    if(!caloExtension){
+      ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
+    if( caloExtension->caloLayerIntersections().empty()){
+      ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
       outputData.muonContainer->pop_back();
       return 0;
     }
@@ -1665,20 +1672,25 @@ namespace MuonCombined {
     ElementLink< xAOD::CaloClusterContainer >   clusterLink(*clusterContainer,clusterContainer->size()-1);
     muon.setClusterLink(clusterLink);
 
+    const CaloNoise* caloNoise = nullptr;
+    if (!m_caloNoiseKey.empty()) {
+      SG::ReadCondHandle<CaloNoise> noiseH (m_caloNoiseKey);
+      caloNoise = noiseH.cptr();
+    }
+
     // collect the core energy
     std::vector<float> etcore(4, 0);
-    m_cellCollector.collectEtCore( *cluster, etcore, m_caloNoiseTool, m_applyCaloNoiseCut, m_sigmaCaloNoiseCut );
+    m_cellCollector.collectEtCore( *cluster, etcore, caloNoise, m_sigmaCaloNoiseCut );
     muon.auxdata< float >("ET_Core")     = etcore[Rec::CaloCellCollector::ET_Core];
     muon.auxdata< float >("ET_EMCore")   = etcore[Rec::CaloCellCollector::ET_EMCore];
     muon.auxdata< float >("ET_TileCore") = etcore[Rec::CaloCellCollector::ET_TileCore];
     muon.auxdata< float >("ET_HECCore")  = etcore[Rec::CaloCellCollector::ET_HECCore];  
 
-    if( m_caloNoiseTool.empty() )
-      ATH_MSG_DEBUG("NO Tool for calo noise,apply,sigma: " << "/" << m_applyCaloNoiseCut << "/"
+    if( m_caloNoiseKey.empty() )
+      ATH_MSG_DEBUG("NO Tool for calo noise,sigma: "
                     << m_sigmaCaloNoiseCut);
     else
-      ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
-                    << m_sigmaCaloNoiseCut);
+      ATH_MSG_DEBUG("sigma: " << m_sigmaCaloNoiseCut);
 
     ATH_MSG_DEBUG("Etcore: tot/em/tile/hec " << etcore[Rec::CaloCellCollector::ET_Core] << "/"    
                   << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"    

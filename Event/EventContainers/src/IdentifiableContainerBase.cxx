@@ -4,6 +4,7 @@
 #include "EventContainers/IdentifiableContainerBase.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
   IdentifiableContainerBase::IdentifiableContainerBase(EventContainers::IdentifiableCacheBase *cache, bool online)
   {
@@ -47,10 +48,10 @@
     m_waitNeeded.store(false);
   }
 
-  bool IdentifiableContainerBase::tryFetch(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock)
+  bool IdentifiableContainerBase::tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock)
   {
     if(!m_OnlineMode){
-       return tryFetch(hashId);//No point calling expensive lock method
+       return tryAddFromCache(hashId);//No point calling expensive lock method
     }
     int flag = m_cacheLink->tryLock(hashId, lock, m_waitlist);
     //Relaxed since this should not be running in threaded situation.
@@ -62,7 +63,7 @@
     return false;
   }
 
-  bool IdentifiableContainerBase::tryFetch(IdentifierHash hashId)
+  bool IdentifiableContainerBase::tryAddFromCache(IdentifierHash hashId)
   {
     auto ptr = m_cacheLink->find(hashId);
     if(ptr==nullptr){
@@ -95,14 +96,14 @@
   }
 
   StatusCode IdentifiableContainerBase::fetchOrCreate(IdentifierHash hashId){
-    if(!m_cacheLink->IMakerPresent()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!m_cacheLink->IMakerPresent())) return StatusCode::FAILURE;
     auto ptr = m_cacheLink->get(hashId);
     m_mask[hashId] = ptr !=nullptr;
     return StatusCode::SUCCESS;
   }
 
   StatusCode IdentifiableContainerBase::fetchOrCreate(const std::vector<IdentifierHash> &hashIds){
-    if(!m_cacheLink->IMakerPresent()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!m_cacheLink->IMakerPresent())) return StatusCode::FAILURE;
     m_cacheLink->createSet(hashIds, m_mask);
     return StatusCode::SUCCESS;
   }

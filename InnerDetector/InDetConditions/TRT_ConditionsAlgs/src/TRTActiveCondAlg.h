@@ -5,7 +5,7 @@
 #ifndef TRTACTIVECONDALG_H
 #define TRTACTIVECONDALG_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -19,7 +19,7 @@ namespace InDetDD {
 class TRT_ID;
 
 //* Fills a eta,phi binned map of the fraction of straws, and posts it on CondStore 
-class TRTActiveCondAlg : public AthReentrantAlgorithm
+class TRTActiveCondAlg : public AthAlgorithm
 {
  public:
   typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer ;
@@ -27,7 +27,7 @@ class TRTActiveCondAlg : public AthReentrantAlgorithm
   virtual ~TRTActiveCondAlg() override;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
  private:

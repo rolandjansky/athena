@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file EventCommonTPCnv/test/INav4MomAssocsCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -71,12 +69,12 @@ void test1()
 
   INavigable4MomentumCollection* in4mc = new INavigable4MomentumCollection;
   for (int i=0; i < 10; i++)
-    in4mc->push_back (CxxUtils::make_unique<Part>());
+    in4mc->push_back (std::make_unique<Part>());
   SGTest::store.record (in4mc, "in");
 
   INavigable4MomentumCollection* xn4mc = new INavigable4MomentumCollection;
   for (int i=0; i < 10; i++)
-    xn4mc->push_back (CxxUtils::make_unique<Part>());
+    xn4mc->push_back (std::make_unique<Part>());
   SGTest::store.record (xn4mc, "xn");
 
   // Get proxies created.

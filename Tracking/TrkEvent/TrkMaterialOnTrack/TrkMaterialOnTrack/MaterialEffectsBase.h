@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ class MaterialEffectsBase
       two cases are distinguished by the presence of a pointer from
       the Trk::Surface to a Trk::DetectorElement, if not present it is
       a custom-made surface. */
-  mutable const Surface* m_associatedSurface;
+  const Surface* m_associatedSurface;
   
   //! the flags (bits) telling what information this ME are based on
   long m_typeFlags;

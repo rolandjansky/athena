@@ -36,9 +36,9 @@ atlas_add_component( SCT_RawDataByteStreamCnv
 
 # Run tests:
 atlas_add_test( TestSCTDecode
-                SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTDecode.py
+                SCRIPT athena.py --threads=3 SCT_RawDataByteStreamCnv/testSCTDecode.py
                 PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
+                ENVIRONMENT THREADS=3 )
 atlas_add_test( TestSCTEncodeSerial
                 SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
                 PROPERTIES TIMEOUT 300 )

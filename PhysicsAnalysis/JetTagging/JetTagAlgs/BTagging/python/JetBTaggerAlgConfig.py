@@ -39,7 +39,7 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
 
     # Set remaining options
     btagname = ConfInstance.getOutputFilesPrefix() + jetcol
-    options.setdefault('name', 'FTAG')
+    options.setdefault('name', 'btagging_antikt4emtopo')
     options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
     options.setdefault('BTaggingCollectionName', btagname)
 

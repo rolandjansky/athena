@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METCaloRegionsTool.h 
@@ -23,7 +23,7 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 
 // MET EDM
@@ -36,9 +36,15 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
-class ICaloNoiseTool;
-
 class CaloCellContainer;
+
+// MET EDM
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+#else
+#include "CaloConditions/CaloNoise.h"
+#endif
+
+
 
 namespace met{
 
@@ -117,11 +123,9 @@ namespace met{
     // Default constructor: 
     METCaloRegionsTool();
 
-    // Tool handle for CaloNoiseTool
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
-    // FIXME: mutable
-    mutable ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
+    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
     #endif
   }; 
 

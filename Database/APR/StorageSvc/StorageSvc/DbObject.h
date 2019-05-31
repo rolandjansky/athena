@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObject.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbObject definition
 //--------------------------------------------------------------------
@@ -142,15 +141,8 @@ namespace pool {
     Token::OID_t& oid() const;
     /// Add persistent association entry
     DbStatus makeLink(const Token* pToken, Token::OID_t& linkH) const;
-    /// Validate an object association
-    DbStatus getLink(const Token::OID_t& lnkH, Token* p)  const;
-
-    static DbStatus openEx( const DbContainer&  cntH,
-                            const Token&        tokenH, 
-                            void**              ptr,
-                            ShapeH              shape,
-                            DbAccessMode        mod = pool::READ);
   };
+
 
   template <class USER> class DbHandle : public DbObjectHandle< USER> {
     typedef DbObjectHandle< USER> Handle;
@@ -204,15 +196,6 @@ namespace pool {
 namespace pool {
 #ifndef __no_inline
 
-  /// Open handle
-  template <> inline
-  DbStatus DbObjectHandle<DbObject>::openEx(const DbContainer&  cntH,  
-                                            const Token&        tokenH,
-                                            void**              ptr,
-                                            ShapeH              shape,
-                                            DbAccessMode        mod)
-  { return DbObjectAccessor::open(ptr, shape, cntH, tokenH, mod);        }
-
   /// Retrieve hosting container
   template <class T> inline
   const DbContainer& DbObjectHandle<T>::containedIn() const  
@@ -228,19 +211,6 @@ namespace pool {
   DbStatus DbObjectHandle<T>::makeLink(const Token* pToken, Token::OID_t& linkH) const 
   { return DbObjectAccessor::makeObjectLink(Base::ptr(), pToken, linkH); }
 
-  /// Validate an object association
-  template <class T> inline
-  DbStatus DbObjectHandle<T>::getLink(const Token::OID_t& linkH, Token* pToken) const 
-  { return DbObjectAccessor::getObjectLink(Base::ptr(), linkH, pToken);  }
-
-  /// Open handle
-  template <class T> inline
-  DbStatus DbObjectHandle<T>::openEx(const DbContainer& cntH,
-                                     const Token&       tokenH,
-                                     void**             ptr,
-                                     ShapeH             shape,
-                                     DbAccessMode       mod)
-  { return DbObjectAccessor::open(ptr, shape, cntH, tokenH, mod);        }
 #endif
 }       // End namespace pool
 #endif  // POOL_DBOBJECT_H

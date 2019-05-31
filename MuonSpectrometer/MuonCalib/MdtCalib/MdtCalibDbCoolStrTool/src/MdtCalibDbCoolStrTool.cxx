@@ -161,18 +161,9 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
 
   ATH_CHECK( m_idToFixedIdTool.retrieve() );
 
-  ServiceHandle<MdtCalibrationDbSvc> dbSvc("MdtCalibrationDbSvc", name());
-  ATH_CHECK( dbSvc.retrieve() );
-  ATH_MSG_DEBUG( "Retrieved MdtCalibrationDbSvc" );
-
-  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadTube,
-				dynamic_cast<IMdtCalibDBTool*>(this),
-				&MdtCalibrationDbSvc::loadTube,
-				dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
-  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadRt,
-				dynamic_cast<IMdtCalibDBTool*>(this),
-				&MdtCalibrationDbSvc::loadRt,
-				dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
+  //In 2019 for the AthenaMT migration,
+  //old callback functions and member data cache were removed from MdtCalibrationDbSvc
+  //Please use MdtCalibDbAlg to provide derived data via the condition store
 
   // initialize MdtTubeCalibContainers 
   ATH_CHECK( defaultT0s() );
@@ -274,12 +265,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
   StatusCode sc = detStore()->retrieve( m_tubeData, m_tubeDataLocation );
   if(sc.isSuccess()) {
     sc = detStore()->removeDataAndProxy( m_tubeData );
-    if( msgLvl(MSG::DEBUG) ) {
-      ATH_MSG_DEBUG( "Tube Collection found " << m_tubeData );
-      if(sc.isSuccess()) {
-	ATH_MSG_DEBUG( "Tube Collection at " << m_tubeData << " removed ");
-      }
-    }
+    ATH_MSG_DEBUG( "Tube Collection found " << m_tubeData );
+    if(sc.isSuccess()) ATH_MSG_DEBUG( "Tube Collection at " << m_tubeData << " removed ");
   }
 
   // reinitialize the MdtTubeCalibContainerCollection
@@ -353,14 +340,29 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     delete [] parameters;
 
     // find chamber ID
-    Identifier chId = m_mdtIdHelper->elementID(name,ieta,iphi);
- 
+    bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
+    Identifier chId = m_mdtIdHelper->elementID(name,ieta,iphi,true,&isValid);
+    if (!isValid) {
+    	ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
+    	continue;
+    }
+
     MuonCalib::MdtTubeCalibContainer *tubes = NULL;
 
     // get chamber hash
     IdentifierHash hash;
     IdContext idCont = m_mdtIdHelper->module_context();
-    m_mdtIdHelper->get_hash( chId , hash, &idCont );
+    if (m_mdtIdHelper->get_hash( chId , hash, &idCont )) ATH_MSG_WARNING("Retrieving module hash for Identifier " << chId.get_compact() << " failed");
+
+    // we have to check whether the retrieved Identifier is valid. The problem is that the is_valid() function of the Identifier class does only check
+    // for the size of the number, not for the physical validity. The get_detectorElement_hash function of the MuonIdHelper however returns 
+    // an error in case the Identifier is not part of the vector of physically valid Identifiers (the check could also be done using the module hash)
+    // It is important that the methods from MuonIdHelper are called which are not overwritten by the MdtIdHelper
+    IdentifierHash detElHash;
+    if (m_mdtIdHelper->MuonIdHelper::get_detectorElement_hash(chId, detElHash )) {
+    	ATH_MSG_WARNING("Retrieving detector element hash for Identifier " << chId.get_compact() << " failed, thus Identifier is not valid, skipping...");
+        continue;
+    }
 
     if( msgLvl(MSG::VERBOSE) ) {
       ATH_MSG_VERBOSE( "name of chamber is " << pch << " station name is " << name );
@@ -391,7 +393,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     int ntubesLay = tubes->numTubes();
     int size      = nml*nlayers*ntubesLay;
     if(size!=ntubes) {
-      ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size does not match the one found in DB ");
+      ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId.get_compact()<< " size (" << size << ") does not match the one found in DB (" << ntubes << ")");
       return StatusCode::FAILURE;
     }
 

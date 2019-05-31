@@ -42,7 +42,7 @@ class opt :
     doBJetSlice       = None
     doTauSlice        = None
     doComboSlice      = None
-    doBLSSlice        = None
+    doBphysicsSlice   = None
 #
 ################################################################################
 
@@ -272,13 +272,22 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.EnableVerboseViews( True )
 
-# EventInfo creation if needed
-from RecExConfig.ObjKeyStore import objKeyStore
-if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
+#--------------------------------------------------------------
+# Event Info setup
+#--------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file or we are reading BS, schedule conversion from old EventInfo
+if globalflags.InputFormat.is_pool():
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence += xAODMaker__EventInfoCnvAlg()
-
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -312,7 +321,11 @@ if TriggerFlags.doMuon():
 if globalflags.InputFormat.is_pool():
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
-    svcMgr.PoolSvc.AttemptCatalogPatch=True 
+    svcMgr.PoolSvc.AttemptCatalogPatch=True
+    # enable transient BS 
+    if TriggerFlags.writeBS():
+        log.info("setting up transient BS")
+        include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
      
 # ----------------------------------------------------------------
 # ByteStream input

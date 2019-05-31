@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,12 +15,15 @@
 #ifndef ISiTrackMaker_H
 #define ISiTrackMaker_H
 
-#include <list>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
 
 class MsgStream;
 
@@ -41,27 +44,22 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiTrackMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
       ///////////////////////////////////////////////////////////////////
 
-      virtual const std::list<Trk::Track*>& 
-	getTracks(const std::list<const Trk::SpacePoint*>&)=0;
-      virtual const std::list<Trk::Track*>& 
-	getTracks(const Trk::TrackParameters&,const std::list<Amg::Vector3D>&)=0;
+      virtual std::list<Trk::Track*>
+	getTracks(const std::list<const Trk::SpacePoint*>&) const =0;
+      virtual std::list<Trk::Track*>
+	getTracks(const Trk::TrackParameters&, const std::list<Amg::Vector3D>&) const =0;
       
-      virtual void newEvent    (bool,bool)=0;
-      virtual void newTrigEvent(bool,bool)=0;
+      virtual void newEvent(bool, bool) const =0;
+      virtual void newTrigEvent(bool, bool) const =0;
       
-      virtual void endEvent()=0;
+      virtual void endEvent() const =0;
      
 
       ///////////////////////////////////////////////////////////////////
@@ -83,11 +81,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiTrackMaker::interfaceID()
-    {
-      return IID_ISiTrackMaker;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream

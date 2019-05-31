@@ -37,8 +37,7 @@ using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_idHelper{nullptr} {
+  AthReentrantAlgorithm(name, pSvcLocator) {
   //nop
 }
 

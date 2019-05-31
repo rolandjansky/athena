@@ -91,7 +91,7 @@ function( _add_test testName toExecute )
    # Set up the test:
    atlas_add_test( ${testName}
       SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 600
       ${_options} )
 
 endfunction( _add_test )

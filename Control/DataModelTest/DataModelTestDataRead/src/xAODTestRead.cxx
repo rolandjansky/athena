@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,6 +23,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include <memory>
+#include <sstream>
 
 
 namespace DMTest {
@@ -58,7 +59,7 @@ StatusCode xAODTestRead::initialize()
 StatusCode xAODTestRead::execute()
 {
   ++m_count;
-  std::cout << m_count << "\n";
+  ATH_MSG_INFO (m_count);
 
   static const C::Accessor<int> anInt2 ("anInt2");
   static const C::Accessor<int> anInt10 ("anInt10");
@@ -78,25 +79,27 @@ StatusCode xAODTestRead::execute()
   for (SG::auxid_t auxid : ctrig->getAuxIDs())
     names.push_back (r.getName(auxid));
   std::sort (names.begin(), names.end());
-  std::cout << "ctrig aux items: ";
+  std::ostringstream ost1;
+  ost1 << "ctrig aux items: ";
   for (const std::string& n : names)
-    std::cout << n << " ";
-  std::cout << "\n";
+    ost1 << n << " ";
+  ATH_MSG_INFO (ost1.str());
 
   for (const C* c : *ctrig) {
-    std::cout << " anInt1 " << c->anInt()
-              << " aFloat: " << c->aFloat()
-              << " anInt2: " << anInt2(*c)
-              << " dInt1: " << dInt1(*c);
-      if (dInt100.isAvailable(*c))
-        std::cout << " dInt100: " << dInt100(*c);
-      if (dInt150.isAvailable(*c))
-        std::cout << " dInt150: " << dInt150(*c);
-      if (dInt200.isAvailable(*c))
-        std::cout << " dInt200: " << dInt200(*c);
-      if (anInt10.isAvailable(*c))
-        std::cout << " anInt10: " << anInt10(*c);
-    std::cout << "\n";
+    std::ostringstream ost;
+    ost << " anInt1 " << c->anInt()
+        << " aFloat: " << c->aFloat()
+        << " anInt2: " << anInt2(*c)
+        << " dInt1: " << dInt1(*c);
+    if (dInt100.isAvailable(*c))
+      ost << " dInt100: " << dInt100(*c);
+    if (dInt150.isAvailable(*c))
+      ost << " dInt150: " << dInt150(*c);
+    if (dInt200.isAvailable(*c))
+      ost << " dInt200: " << dInt200(*c);
+    if (anInt10.isAvailable(*c))
+      ost << " anInt10: " << anInt10(*c);
+    ATH_MSG_INFO (ost.str());
   }
 
   const GVec* gvec = 0;
@@ -107,14 +110,16 @@ StatusCode xAODTestRead::execute()
     for (SG::auxid_t auxid : gvec->getAuxIDs())
       names.push_back (r.getName(auxid));
     std::sort (names.begin(), names.end());
-    std::cout << "gvec aux items: ";
+    std::ostringstream ost3;
+    ost3 << "gvec aux items: ";
     for (const std::string& n : names)
-      std::cout << n << " ";
-    std::cout << "\n";
+      ost3 << n << " ";
+    ost3 << "\n";
     for (const G* g : *gvec) {
-      std::cout << " anInt " << g->anInt();
-      std::cout << "\n";
+      ost3 << " anInt " << g->anInt();
+      ost3 << "\n";
     }
+    ATH_MSG_INFO (ost3.str());
   }
 
   if (!m_writePrefix.empty()) {
@@ -158,14 +163,15 @@ StatusCode xAODTestRead::read_cvec_with_data() const
   const CVecWithData* vec = 0;
   CHECK( evtStore()->retrieve (vec, m_readPrefix + "cvecWD") );
 
-  static C::Accessor<int> anInt10 ("anInt10");
-  std::cout << m_readPrefix << "cvecWD " << vec->meta1 << ":";
+  static const C::Accessor<int> anInt10 ("anInt10");
+  std::ostringstream ost;
+  ost << m_readPrefix << "cvecWD " << vec->meta1 << ":";
   for (const C* c : *vec) {
-    std::cout << " " << c->anInt();
+    ost << " " << c->anInt();
     if (anInt10.isAvailable(*c))
-      std::cout << "(" << anInt10(*c) << ")";
+      ost << "(" << anInt10(*c) << ")";
   }
-  std::cout << "\n";
+  ATH_MSG_INFO (ost.str());
 
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.
@@ -193,20 +199,21 @@ StatusCode xAODTestRead::read_cvec_with_data() const
 StatusCode xAODTestRead::read_cview() const
 {
   if (!evtStore()->contains<CView> (m_readPrefix + "cview")) {
-    std::cout << "(No " << m_readPrefix << "cview view container.)\n";
+    ATH_MSG_INFO( "(No " << m_readPrefix << "cview view container.)" );
     return StatusCode::SUCCESS;
   }
 
   const CView* cview = nullptr;
-  static C::Accessor<int> anInt10 ("anInt10");
+  static const C::Accessor<int> anInt10 ("anInt10");
   CHECK( evtStore()->retrieve (cview, m_readPrefix + "cview") );
-  std::cout << m_readPrefix << "cview:";
+  std::ostringstream ost;
+  ost << m_readPrefix << "cview:";
   for (const C* c : *cview) {
-    std::cout << " " << c->anInt();
+    ost << " " << c->anInt();
     if (anInt10.isAvailable(*c))
-      std::cout << "(" << anInt10(*c) << ")";
+      ost << "(" << anInt10(*c) << ")";
   }
-  std::cout << "\n";
+  ATH_MSG_INFO (ost.str());
 
   if (!m_writePrefix.empty()) {
     bool LOCKED = false;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //CaloClusterROI.cxx
@@ -8,7 +8,6 @@
 //Trk
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkEventPrimitives/LocalParameters.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkSurfaces/Surface.h"
 
 
@@ -81,7 +80,10 @@ const Amg::Vector3D Trk::CaloClusterROI::globalPosition() const
     if(m_localParams){
       return *(m_surface->localToGlobal(*m_localParams));
     }
-    return Amg::Vector3D(m_surface->center());
+    if(m_surface){
+      return Amg::Vector3D(m_surface->center());
+    }
+    return Amg::Vector3D();
 }
 
 

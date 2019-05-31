@@ -235,7 +235,7 @@ TrackStateOnSurface::isSane() const {
 }
 
 
-  void TrackStateOnSurface::setHint( const TrackStateOnSurfaceType& type ) const {
+  void TrackStateOnSurface::setHint  ( const TrackStateOnSurfaceType& type ) {
     if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
       // allowed to modify persistification flags although this is const
       m_typeFlags.set(type);
@@ -245,7 +245,7 @@ TrackStateOnSurface::isSane() const {
     }
   }
 
-  void TrackStateOnSurface::resetHint( const TrackStateOnSurfaceType& type ) const {
+  void TrackStateOnSurface::resetHint ( const TrackStateOnSurfaceType& type ) {
     if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
       // allowed to modify persistification flags although this is const
       m_typeFlags.reset(type);

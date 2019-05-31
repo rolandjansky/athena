@@ -12,7 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
 from TrigUpgradeTest.InDetSetup import inDetSetup
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.precisionCaloSequenceSetup import precisionCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -20,8 +20,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.precisionCaloSequenceSetup impo
 #----------------------------------------------------------------
 
 def fastCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence("Electron")
-
+    return fastCaloMenuSequence("ElectronFastCalo")
     
 def electronSequenceCfg( flags ):    
     inDetSetup()
@@ -55,7 +54,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif 'etcut' in self.chainPart['addInfo']:            
             myStepNames += ["Step1_etcut"]
             myStepNames += ["Step2_etcut"]            
-            myStepNames += ["Step3_etcut"]
+            #myStepNames += ["Step3_etcut"]
             for step in myStepNames:
                 chainSteps += [self.getEtCutStep(step)]
         else:
@@ -76,10 +75,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
           log.debug("Configuring step " + stepName)
           electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
           chainStep=ChainStep(stepName, [electronReco])
-        elif stepName == "Step3_etcut":
-          log.debug("Configuring step " + stepName)
-          precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-          chainStep=ChainStep(stepName, [precisionReco])
+        #elif stepName == "Step3_etcut":
+        #  log.debug("Configuring step " + stepName)
+        #  precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        #  chainStep=ChainStep(stepName, [precisionReco])
         else:            
           raise RuntimeError("chainStepName unknown: " + stepName )
                         

@@ -21,11 +21,9 @@ using namespace SCT_ReadCalibChipUtilities;
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_id_sct{nullptr}
-  {
-    declareProperty("NoiseLevel",          m_noiseLevel = 1800.0,        "Noise Level for isGood if ever used");
-  }
+  base_class(type, name, parent)
+{
+}
 
 //----------------------------------------------------------------------
 StatusCode 

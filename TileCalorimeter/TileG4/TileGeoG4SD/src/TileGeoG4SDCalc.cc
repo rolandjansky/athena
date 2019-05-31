@@ -50,6 +50,7 @@
 #include <stdexcept>
 #include <memory>
 
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 namespace
 {
@@ -59,7 +60,7 @@ namespace
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
 TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocator)
-  : AthService(name, pSvcLocator)
+  : base_class(name, pSvcLocator)
   , m_detStore("DetectorStore",name)
   , m_geoModSvc("GeoModelSvc",name)
   , m_keepHitTime(false)
@@ -218,16 +219,6 @@ StatusCode TileGeoG4SDCalc::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileGeoG4SDCalc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( ITileCalculator::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<ITileCalculator*>(this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  // Interface is not directly available : try out a base class
-  return AthService::queryInterface(riid, ppvInterface);
-}
 
 int TileGeoG4SDCalc::getUshapeFromGM() const {
   const TileDetectorTool* tileDetectorTool =
@@ -256,7 +247,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   auto lookup = GetLookupBuilder();
 
   // Determine touchablehistory for the step
-  G4TouchableHistory* theTouchable = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory* theTouchable = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
   // Find level of TileCal envelope
   G4int level = theTouchable->GetHistoryDepth();
@@ -451,7 +442,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   const double ref_ind_tile = 1.59;
   const double ref_ind_fiber = 1.59;  //refraction indexes of tiles and fibers
 
-  const G4TouchableHistory* theTouchable = (G4TouchableHistory*) (aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory* theTouchable = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
   const G4VPhysicalVolume* physVol = theTouchable->GetVolume();
   const G4LogicalVolume* logiVol = physVol->GetLogicalVolume();
 

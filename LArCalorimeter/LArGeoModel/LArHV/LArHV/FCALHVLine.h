@@ -1,65 +1,46 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALHVLINE_H_HEADER_INCLUDED_B7B4E2E0
-#define FCALHVLINE_H_HEADER_INCLUDED_B7B4E2E0
-#include "GeoModelKernel/RCBase.h"
-#include "LArHV/FCALHVModuleConstLink.h"
+#ifndef LARHV_FCALHVLINE_H
+#define LARHV_FCALHVLINE_H
 
 class FCALHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
 
-//  
-//##ModelId=47ABB4D9030F
-class FCALHVLine : public RCBase
+class FCALHVLine
 {
-  public:
-    // Constructor
-    //##ModelId=47ABB4D90312
-    FCALHVLine(FCALHVModuleConstLink module, unsigned int iLine);
+ public:
+  FCALHVLine(const FCALHVModule* module, unsigned int iLine);
+  ~FCALHVLine();
 
-    // returns a pointer to the module that owns this electrode.
-    //##ModelId=47ABB4D90315
-    FCALHVModuleConstLink getModule() const;
+  // returns a pointer to the module that owns this electrode.
+  const FCALHVModule& getModule() const;
 
-    // Returns the index of this electrode.
-    //##ModelId=47ABB4D90317
-    unsigned int getLineIndex() const;
+  unsigned int getLineIndex() const;
 
-    // HV Status
-    bool hvOn() const;
-    
-    // Voltage
-    double voltage() const;
+  bool hvOn() const;
+  double voltage() const;
+  double current() const;
 
-    // Current
-    double current() const;
+  // Voltage and current at the same time:
+  void voltage_current(double& v, double& i) const;
 
-    // Voltage and current at the same time:
-    void voltage_current(double& v, double& i) const;
+#ifndef SIMULATIONBASE
+  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
+  int hvLineNo() const;
+#endif
 
-    // HVLine no
-    int hvLineNo() const;
+ private: 
+  FCALHVLine(const FCALHVLine& right);
+  FCALHVLine& operator=(const FCALHVLine& right);
 
-  private:
-    // Destructor
-    //##ModelId=47ABB4D9031B
-    virtual ~FCALHVLine();
-
-    // Illegal operation
-    //##ModelId=47ABB4D9031D
-    FCALHVLine(const FCALHVLine& right);
-
-    // Illegal operation
-    //##ModelId=47ABB4D9031F
-    FCALHVLine& operator=(const FCALHVLine& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* FCALHVLINE_H_HEADER_INCLUDED_B7B4E2E0 */
+#endif

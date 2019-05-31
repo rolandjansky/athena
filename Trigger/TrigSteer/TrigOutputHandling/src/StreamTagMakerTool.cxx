@@ -65,6 +65,9 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     } else if (d->name() == "HLTRerun") {
       rerunChains = d;
     }
+    if (passRawChains && rerunChains) {
+      break;
+    }
   }
 
   if (passRawChains == nullptr || rerunChains == nullptr) {
@@ -72,11 +75,14 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     return StatusCode::FAILURE;
   }
 
+  DecisionIDContainer passRawIDs;
+  decisionIDs(passRawChains, passRawIDs);
+
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo));
 
   // for each accepted chain lookup the map of chainID -> ST
-  for ( DecisionID chain: decisionIDs( passRawChains ) ) {
+  for ( DecisionID chain: passRawIDs ) {
 
     // Note: The default is to NOT allow rerun chains to add a stream tag
     if (!m_allowRerunChains) {

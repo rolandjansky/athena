@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,7 @@
 #undef NDEBUG
 #include "AthLinks/DataLink.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "AthenaKernel/ClassID_traits.h"

@@ -66,7 +66,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "TrigBphysInDetTrackSummaryTool",
                                               InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                               doSharedHits           = False,
-                                              InDetHoleSearchTool    = InDetHoleSearchTool)
+                                              doHolesInDet           = True)
 ToolSvc += InDetTrackSummaryTool
 
 # =====================================================

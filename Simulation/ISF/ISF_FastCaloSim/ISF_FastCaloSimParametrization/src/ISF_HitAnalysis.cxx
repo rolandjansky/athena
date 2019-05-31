@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -57,8 +57,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/DiscBounds.h"
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
-#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -198,7 +196,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
-  declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
 
   declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
 
@@ -347,10 +344,6 @@ StatusCode ISF_HitAnalysis::initialize()
         return StatusCode::FAILURE;
 
       else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-
-      // Get CaloSurfaceHelper
-      if(m_caloSurfaceHelper.retrieve().isFailure())
-        ATH_MSG_INFO("CaloSurfaceHelper not found ");
 
       std::string CaloCoordinateTool_name="TBCaloCoordinate";
       ListItem CaloCoordinateTool(CaloCoordinateTool_name);

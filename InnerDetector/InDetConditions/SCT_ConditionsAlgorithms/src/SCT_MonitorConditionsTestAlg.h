@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -39,7 +41,7 @@ class SCT_MonitorConditionsTestAlg : public AthReentrantAlgorithm {
 
  private:
   ToolHandle<ISCT_MonitorConditionsTool> m_pMonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
-  const SCT_ID* m_sctId;
+  const SCT_ID* m_sctId{nullptr};
 }; // end of class
 
 #endif // SCT_MonitorConditionsTestAlg_H

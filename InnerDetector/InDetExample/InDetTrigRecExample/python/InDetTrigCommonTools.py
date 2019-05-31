@@ -24,12 +24,6 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
 InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
 
-if(isMC) :
-    InDetTRTCalDbTool.isGEANT4 = True
-else :
-    InDetTRTCalDbTool.isGEANT4 = False
-
-
 # TRT_DriftFunctionTool
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 
@@ -43,7 +37,6 @@ InDetTrigTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTrigTRT_Drif
 if DetFlags.overlay.TRT_on() :
 
     InDetTrigTRTCalDbTool2 = TRT_CalDbTool(name = "TRT_CalDbSvc2")
-    InDetTrigTRTCalDbTool2.isGEANT4 = True
     InDetTrigTRTCalDbTool2.RtFolderName = "/TRT/Calib/MC/RT"             
     InDetTrigTRTCalDbTool2.T0FolderName = "/TRT/Calib/MC/T0"             
     InDetTrigTRT_DriftFunctionTool.TRTCalDbTool2 = InDetTrigTRTCalDbTool2

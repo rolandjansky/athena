@@ -7,11 +7,16 @@
 
 class EMECHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class EMECHVElectrode
 {
  public:
   // The ownership of the EMBHVModule pointer NOT transferred to EMECHVElectrode
   EMECHVElectrode(const EMECHVModule* module, unsigned int iElectrode);
+  ~EMECHVElectrode();
 
   unsigned int getElectrodeIndex() const;
 
@@ -33,11 +38,13 @@ class EMECHVElectrode
   void voltage_current(int iGap, double& v, double& i) const;
 
   // HVLine no
+#ifndef SIMULATIONBASE
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo(int iGap) const;
+#endif
 
  private:
-  ~EMECHVElectrode();
-
   EMECHVElectrode(const EMECHVElectrode& right);
   EMECHVElectrode& operator=(const EMECHVElectrode& right);
 

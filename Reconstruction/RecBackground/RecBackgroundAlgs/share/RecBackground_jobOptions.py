@@ -15,3 +15,4 @@ if rec.doInDet() and rec.doMuon() and rec.doCalo() and \
   from RecBackgroundAlgs.RecBackgroundAlgsConf import BackgroundWordFiller
   BackgroundWordFiller=BackgroundWordFiller()
   topSequence+=BackgroundWordFiller
+  BackgroundWordFiller.IsMC = (globalflags.DataSource.get_Value() != 'data')

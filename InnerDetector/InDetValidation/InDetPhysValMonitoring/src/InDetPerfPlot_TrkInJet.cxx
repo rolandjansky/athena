@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -69,7 +69,6 @@ InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::stri
   m_dRNBins(40), m_jetPtNBins(45),
   m_dRMin(0.), m_dRMax(0.2), m_jetPtMin(100), m_jetPtMax(1000),
   m_dRWidth{},
-  m_etaMin(-2.5), m_etaMax(2.5),
   m_tracksVsDr{},
   m_sumPtVsDr{},
   m_tracksVsDr_reco{},

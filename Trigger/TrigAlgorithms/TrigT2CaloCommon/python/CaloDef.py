@@ -27,24 +27,24 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='Cells
    algo.CellsName=outputEDM
    return algo
 
-def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
+def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-   algo = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False, cells=inputEDM)
+   algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
+   algo.CaloClusters="HLT_TopoCaloCluster"
+   algo.OutputLevel=OutputLevel
+   return algo
+
+def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
+   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+   algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
    algo.CaloClusters="caloclusters"
    algo.OutputLevel=OutputLevel
    return algo
 
-def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR) :
-   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-   algo = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=True, cells=inputEDM)
-   algo.CaloClusters="caloclusters"
-   algo.OutputLevel=OutputLevel
-   return algo
-
-def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
+def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
     setMinimalCaloSetup()
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg")
+    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
     algo.RoIs=inputEDM
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable("HLT_L2CaloEMClusters")
@@ -56,8 +56,8 @@ def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
 ##### SEQUENCES
 ####################################
 
-def fastCaloRecoSequence(InViewRoIs):
-    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs)
+def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -74,14 +74,14 @@ def fastCaloEVCreator():
     return (fastCaloViewsMaker, InViewRoIs)
 
 
-def createFastCaloSequence(EMRoIDecisions):
+def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
     """Used for standalone testing"""
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
     # connect to RoIs
     fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
     fastCaloViewsMaker.InputMakerOutputDecisions = [ EMRoIDecisions + "IMOUTPUT"]
 
-    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs)
+    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
      
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, sequenceOut)
@@ -99,27 +99,31 @@ def clusterFSInputMaker( ):
   return InputMakerAlg
 
 
-def HLTCellMaker(RoIs='FSJETRoI'):
-    # in standalone mode: FSRoI
-    CellsClusters = 'CaloCells'
-    # setting this value does not work: 'CellsClusters'
-    cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM=RoIs, outputEDM=CellsClusters, RoIMode=True)
+def HLTCellMaker(RoIs='FSJETRoI', outputName="CaloCells", algSuffix=""):
+    cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker"+algSuffix, inputEDM=RoIs, outputEDM=outputName, RoIMode=True)
     return cellMakerAlgo
 
 def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
-    cellMake = HLTCellMaker(RoIs)
-    RecoSequence = parOR("ClusterRecoSequence", [cellMake])
+    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+    RecoSequence = parOR("ClusterRecoSequenceFS", [cellMake])
     return (RecoSequence, cellMake.CellsName)
    
  
-def HLTFSTopoRecoSequence(RoIs='FSJETRoI'):
-    cellMake = HLTCellMaker(RoIs)
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName)
-    RecoSequence = parOR("TopoClusterRecoSequence", [cellMake, topoClusterMaker])
+def HLTFSTopoRecoSequence(RoIs):
+    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName, algSuffix="FS")
+    RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMake, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
+def HLTRoITopoRecoSequence(RoIs):
+    cellMake = HLTCellMaker(RoIs, algSuffix="RoI")
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName, algSuffix="RoI")
+    RecoSequence = parOR("TopoClusterRecoSequenceRoI", [cellMake, topoClusterMaker])
+    return (RecoSequence, topoClusterMaker.CaloClusters)
+  
+  
 def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
-    cellMake = HLTCellMaker(RoIs)
-    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMake.CellsName)
-    RecoSequence = parOR("LCTopoClusterRecoSequence",[cellMake,topoClusterMaker])
+    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
+    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMake.CellsName, algSuffix="LC")
+    RecoSequence = parOR("LCTopoClusterRecoSequenceFS",[cellMake,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

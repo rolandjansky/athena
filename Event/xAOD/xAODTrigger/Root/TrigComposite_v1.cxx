@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.cxx 784384 2016-11-15 16:37:49Z tamartin $
 
 // System include(s):
 #include <algorithm>
@@ -160,24 +159,42 @@ namespace xAOD {
    //               Implementation for the link accessor functions
    //
 
-   bool TrigComposite_v1::hasObjectLink( const std::string& name ) const {
+   bool TrigComposite_v1::hasObjectLink( const std::string& name, const CLID clid ) const {
 
       // Since this function shouldn't throw exceptions too easily,
       // let's be super careful here...
-      static Accessor< std::vector< std::string > > accNames( "linkColNames" );
-      if( ! accNames.isAvailable( *this ) ) {
+      static const ConstAccessor< std::vector< std::string > > accNames( "linkColNames" );
+      static const ConstAccessor< std::vector< uint32_t > >    accCLIDs( "linkColClids" );
+      if( ! (accNames.isAvailable( *this ) || accCLIDs.isAvailable( *this) ) ) {
          return false;
       }
 
       // The check itself is pretty simple:
       const std::vector< std::string >& names = accNames( *this );
-      return ( std::find( names.begin(), names.end(), name ) != names.end() );
+      const std::vector< uint32_t >&    clids = accCLIDs( *this );
+      
+      std::vector<std::string>::const_iterator vecIt = std::find( names.begin(), names.end(), name );
+      if (vecIt == names.end()) {
+         return false; // Could not find name
+      }
+
+      if (clid != CLID_NULL) { // Also check against clid
+         const uint32_t storedCLID = clids.at( std::distance( names.begin(), vecIt ) );
+         if (clid == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+            return derivesFromIParticle(storedCLID);
+         } else if (storedCLID != clid) { // Otherwise we require the ID to match
+            return false; // Type missmatch
+         }
+      }
+
+      return true; // Satisfied
    }
 
-   bool TrigComposite_v1::hasObjectCollectionLinks( const std::string& collectionName ) const {
+   bool TrigComposite_v1::hasObjectCollectionLinks( const std::string& collectionName, const CLID clid ) const {
       const std::string mangledName = collectionName + s_collectionSuffix;
-      return hasObjectLink( mangledName );
+      return hasObjectLink( mangledName, clid );
    }
+
 
    bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const {
       for (size_t i = 0; i < this->linkColNames().size(); ++i) {
@@ -188,6 +205,11 @@ namespace xAOD {
          return true;
       } 
       return false;
+   }
+
+   bool TrigComposite_v1::derivesFromIParticle(const CLID /*clid*/) const {
+      // It would be nice to include some logic here.
+      return true; 
    }
 
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,
@@ -201,25 +223,25 @@ namespace xAOD {
 
    std::vector< std::string >& TrigComposite_v1::linkColNamesNC() {
 
-      static Accessor< std::vector< std::string > > acc( "linkColNames" );
+      static const Accessor< std::vector< std::string > > acc( "linkColNames" );
       return acc( *this );
    }
 
    std::vector< uint32_t >& TrigComposite_v1::linkColKeysNC() {
 
-      static Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
+      static const Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
       return acc( *this );
    }
 
    std::vector< uint16_t >& TrigComposite_v1::linkColIndicesNC() {
 
-      static Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
+      static const Accessor< std::vector< uint16_t > > acc( "linkColIndices" );
       return acc( *this );
    }
 
    std::vector< uint32_t >& TrigComposite_v1::linkColClidsNC() {
 
-      static Accessor< std::vector< uint32_t > > acc( "linkColClids" );
+      static const Accessor< std::vector< uint32_t > > acc( "linkColClids" );
       return acc( *this );
    }
 
@@ -308,7 +330,7 @@ std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
     if (i != tc.linkColNames().size() - 1) os << std::endl;
   }
   if (tc.decisions().size()) {
-    os << std::endl << "  N Decisions: '" << tc.decisions().size() << std::endl << "    ";
+    os << std::endl << "  N Decisions:" << tc.decisions().size() << std::endl << "    ";
     for (const TrigCompositeUtils::DecisionID id : tc.decisions()) os << id << ", ";
   }
   return os;

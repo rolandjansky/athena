@@ -37,7 +37,11 @@ typedef enum e_JETID
   JETIDBDTVERYLOOSE      = 15,
   JETBDTBKGLOOSE         = 16,
   JETBDTBKGMEDIUM        = 17,
-  JETBDTBKGTIGHT         = 18 
+  JETBDTBKGTIGHT         = 18,
+  JETIDRNNVERYLOOSE      = 19,
+  JETIDRNNLOOSE          = 20,
+  JETIDRNNMEDIUM         = 21,
+  JETIDRNNTIGHT          = 22
 } JETID;
 
 typedef enum e_ELEID

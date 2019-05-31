@@ -982,10 +982,11 @@ void MuGirlRecoTool::doHoughTransformForNtuple(const xAOD::TrackParticle* pTrack
 void MuGirlRecoTool::doSAFit(const Trk::Track* RefittedTrack, MuGirlNS::CandidateSummary& summary) {
   ATH_MSG_DEBUG("RunFromID: looking for an ms track ...");
   std::unique_ptr<const Trk::Track> msTrack =
-    std::unique_ptr<const Trk::Track>
-      (m_pGlobalFitTool->standAloneRefit(*RefittedTrack));
+    std::unique_ptr<const Trk::Track> (m_pGlobalFitTool->standAloneRefit(*RefittedTrack));
   if (msTrack) {
-    msTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuGirl);
+    /* This needs to be revisited, in practice this is writing to a const msTrack*/
+    const_cast<Trk::TrackInfo&>(msTrack->info()).setPatternRecognitionInfo(Trk::TrackInfo::MuGirl);
+
     ATH_MSG_DEBUG("MS refit Trk::Track p " << fabs(1. / (msTrack->perigeeParameters()->parameters())[Trk::qOverP])
                                            << " pt " << msTrack->perigeeParameters()->pT()
                                            << " eta " << msTrack->perigeeParameters()->eta());

@@ -25,4 +25,7 @@ It is a DataVector. It can be saved to storegate.
 typedef DataVector<MuonCalib::MdtCorFuncSet> MdtCorFuncSetCollection;
 CLASS_DEF(MdtCorFuncSetCollection , 1176811704 , 1 )
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( MdtCorFuncSetCollection, 1338477494 );
+
 #endif

@@ -169,7 +169,7 @@ class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffect
 
  private:
   int                     m_outputlevel;                      //!< to cache current output level
-  PublicToolHandle< IMultipleScatteringUpdator > m_msUpdator
+  ToolHandle< IMultipleScatteringUpdator > m_msUpdator
      {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!< AlgoTool for MultipleScatterin effects
  
   bool                    m_multipleScatterLogTermOn;

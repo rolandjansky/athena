@@ -39,7 +39,7 @@ template<class T> Trk::ExtrapolationCode Trk::StepEngine::targetSurfacesT(Trk::E
     // count number of non-trivial solutions
     unsigned int iInt=0;
     for (unsigned int ib=0; ib< bounds.size(); ib++ ){
-      const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+      const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
       Trk::TargetSurface bb(&surf,true,Trk::SurfNavigType::BoundaryFrame,ib,eCell.leadVolume,Trk::TVNavigType::Frame);
       evaluateDistance(bb,gp,mom*dir,ts,trueOrderedIntersections);  
       if (ts.size() && ts.back().surf==&surf && ts.back().distanceAlongPath>m_tolerance) iInt++;
@@ -81,7 +81,7 @@ template<class T> Trk::ExtrapolationCode Trk::StepEngine::resolveFrameBoundaryT(
 
    EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "","current lead volume:"<<eCell.leadVolume->volumeName());
    
-   const Trk::TrackingVolume* nextVolume = bounds[bIndex].getPtr()->attachedVolume(gp, 
+   const Trk::TrackingVolume* nextVolume = bounds[bIndex].get()->attachedVolume(gp, 
 										   eCell.leadParameters->momentum(), 
 									           eCell.propDirection);  
 

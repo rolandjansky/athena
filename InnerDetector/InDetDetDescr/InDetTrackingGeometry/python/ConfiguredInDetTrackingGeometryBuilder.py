@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # ConfiguredInDetTrackingGeometry module
@@ -75,6 +75,7 @@ class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuild
        
         if DetFlags.SCT_on():
           # SCT building
+          from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilder
           SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
           SCT_LayerBuilder.PixelCase                       = False
           SCT_LayerBuilder.Identification                  = 'SCT'

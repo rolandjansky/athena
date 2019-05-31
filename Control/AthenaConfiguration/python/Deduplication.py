@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 
 #Functions used by the ComponentAccumulator to de-duplicate componentes defined multiple times
 from GaudiKernel.GaudiHandles import GaudiHandleArray, PublicToolHandle, PublicToolHandleArray, ServiceHandle, ServiceHandleArray, PrivateToolHandle
@@ -7,7 +9,7 @@ from AthenaCommon.Configurable import ConfigurableAlgTool
 import collections
 from AthenaCommon.Logging import logging
 
-from UnifyProperties import unifyProperty 
+from AthenaConfiguration.UnifyProperties import unifyProperty 
 
 _msg=logging.getLogger('ComponentAccumulator') #'Deduplication' would the better name but breaks tons of unit-test log comparison
 
@@ -46,7 +48,7 @@ def deduplicate(newComp,compList):
 
 def deduplicateComponent(newComp,comp):
     #print "Checking ", comp, comp.getType(), comp.getJobOptName()
-    allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
+    allProps=frozenset(list(comp.getValuedProperties().keys())+list(newComp.getValuedProperties().keys()))
     for prop in allProps:
         if not prop.startswith('_'):
             try:
@@ -76,7 +78,7 @@ def deduplicateComponent(newComp,comp):
                         continue
                     else:
                         raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
-                                                  (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
+                                                  (comp.getType(),comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                         pass
                     #Case 2: A list of public tools (PublicToolHandleArray) or a list of service (ServiceHandelArray):
                 elif isinstance(oldprop,PublicToolHandleArray) or isinstance(oldprop,ServiceHandleArray):

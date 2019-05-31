@@ -1,76 +1,68 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBPresamplerHVMODULE_H_HEADER_INCLUDED_C40C54F8
-#define EMBPresamplerHVMODULE_H_HEADER_INCLUDED_C40C54F8
-#include "GeoModelKernel/RCBase.h"
-#include "GeoModelKernel/ConstLink.h"
+#ifndef LARHV_EMBPRESAMPLERHVMODULE_H
+#define LARHV_EMBPRESAMPLERHVMODULE_H
+
+/**
+ * @class EMBPresamplerHVModule
+ *
+ * @brief Describes one HV Module within the EMB Presampler
+ *
+ */
+
 class EMBPresamplerHVManager;
 
-class EMBPresamplerHVModule : public RCBase
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
+class EMBPresamplerHVModule
 {
-  public:
+ public:
+  EMBPresamplerHVModule(const EMBPresamplerHVManager *manager
+			, unsigned int iSide
+			, unsigned int iEta
+			, unsigned int iPhi);
+ ~EMBPresamplerHVModule();
 
-  // Constructor:
-  EMBPresamplerHVModule(const EMBPresamplerHVManager *manager, unsigned int iSide, unsigned int iEta, unsigned int iPhi);
+  unsigned int getEtaIndex() const;
+  unsigned int getPhiIndex() const;
 
-    // Get eta Index
-    unsigned int getEtaIndex() const;
+  // Side Index (0=Negative, 1=Positive)
+  unsigned int getSideIndex() const;
 
-    // Get phi index
-    unsigned int getPhiIndex() const;
+  double getEtaMin() const;
+  double getEtaMax() const;
+  double getPhiMin() const;
+  double getPhiMax() const;
 
-    // Side Index (0=Negative, 1=Positive)
-    unsigned int getSideIndex() const;
-
-    double getEtaMin() const;
-
-
-    double getEtaMax() const;
-
-
-    double getPhiMin() const;
-
+  // HV Status
+  bool hvOn(int iGap) const;
   
-    double getPhiMax() const;
+  double voltage(int iGap) const;
+  double current(int iGap) const;
 
-    // HV Status
-    bool hvOn(int iGap) const;
-    
-    // Voltage
-    double voltage(int iGap) const;
-
-    // Current
-    double current(int iGap) const;
-
-    // Both at the same time...
-    void voltage_current(int iGap, double& v, double& i) const;
-
-    // HVLine no
-    int hvLineNo(int iGap) const;
-
-    const EMBPresamplerHVManager *getManager() const;
+  // Voltage and current at the same time...
+  void voltage_current(int iGap, double& v, double& i) const;
   
+#ifndef SIMULATIONBASE
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
+  int hvLineNo(int iGap) const;
+#endif
 
-  private:
+  const EMBPresamplerHVManager& getManager() const;
+  
+ private:
+  // Illegal operations
+  EMBPresamplerHVModule& operator=(const EMBPresamplerHVModule& right);
+  EMBPresamplerHVModule(const EMBPresamplerHVModule& right);
 
-    // Destructor
-    virtual ~EMBPresamplerHVModule();
-
-
-    // Illegal operation
-    EMBPresamplerHVModule& operator=(const EMBPresamplerHVModule& right);
-
-    // Illegal operation
-    EMBPresamplerHVModule(const EMBPresamplerHVModule& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
-    friend class ImaginaryFriend;
-
-
+  friend class ImaginaryFriend;  
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-#endif /* EMBPresamplerHVMODULE_H_HEADER_INCLUDED_C40C54F8 */
+#endif 

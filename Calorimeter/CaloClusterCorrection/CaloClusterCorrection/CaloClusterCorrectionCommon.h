@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloClusterCorrectionCommon.h,v 1.7 2008-01-25 04:14:20 ssnyder Exp $
@@ -16,10 +16,16 @@
 
 
 #include "CaloClusterCorrection/CaloClusterCorrection.h"
+#include "CxxUtils/CachedUniquePtr.h"
 #include "GaudiKernel/EventContext.h"
 #include <vector>
 class CaloDetDescrManager;
 class CaloDetDescrElement;
+
+
+namespace CaloClusterCorr {
+class DDHelper;
+}
 
 
 /**
@@ -158,49 +164,21 @@ public:
                               const CaloRec::Array<1>& energies,
                               int energy_degree) const;
 
-  /**
-   * @brief Find the detector descriptor element for a given position,
-   *        correcting for DD edge bugs.
-   * @param region A region code, as defined in the header.
-   * @param dd_man Detector descriptor manager.
-   * @param cluster The cluster being corrected.
-   * @param eta    The @f$\eta@f$ coordinate to find.
-   * @param phi    The @f$\phi@f$ coordinate to find.
-   * @param dummy_elts Vector of dummy elements for the innermost strip.
-   *
-   * Looks up the DD element containing @c eta, @c phi in the region
-   * specified by @c region.  Returns 0 if there's no such cell.
-   *
-   * Sometimes when you look up a position near the edge of a cell,
-   * DD can erroneously return an adjacent cell.
-   * This routine attempts to work around this bug.
-   * After we get an element, we test to see if it in fact contains
-   * the position requested.  If not, we shift the request by half
-   * a cell and try again.
-   */
-  static
-  const CaloDetDescrElement*
-  find_dd_elt (int region,
-               const CaloDetDescrManager* dd_man,
-               const xAOD::CaloCluster* cluster,
-               float eta,
-               float phi,
-               const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts);
 
 
 private:
+  /// Retrieve the detector description helper,
+  /// creating it if needed.
+  const CaloClusterCorr::DDHelper& ddhelper() const;
+
   /// Calibration constant: The calorimeter region for which this correction
   /// is intended.  This should be one of the constants above.
   /// This affects the meaning of the @c eta and @c phi arguments
   /// passed to @c makeTheCorrection, as well as the @c samp argument.
   int m_region;
 
-  // Save a pointer to the DD manager.
-  const CaloDetDescrManager* m_calo_dd_man;
-
-  // Hold dummy DD elements we've created to work around DD innermost
-  // layer 1 strip problem.
-  std::vector<std::unique_ptr<const CaloDetDescrElement> > m_dummy_elts;
+  /// Helper for detector description lookup.
+  CxxUtils::CachedUniquePtr<const CaloClusterCorr::DDHelper> m_ddhelper;
 };
 
 

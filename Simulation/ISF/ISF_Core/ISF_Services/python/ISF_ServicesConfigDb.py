@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_Services
@@ -30,4 +30,4 @@ addService("ISF_Services.ISF_ServicesConfig.getMC16LLPTruthService", "ISF_MC16LL
 addService("ISF_Services.ISF_ServicesConfig.getMC18TruthService", "ISF_MC18TruthService")
 addService("ISF_Services.ISF_ServicesConfig.getMC18LLPTruthService", "ISF_MC18LLPTruthService")
 addService("ISF_Services.ISF_ServicesConfig.getValidationTruthService", "ISF_ValidationTruthService")
-addService("ISF_Services.ISF_ServicesConfig.getParticleKillerSvc", "ISF_ParticleKillerSvc")
+addService("ISF_Services.LegacySimServicesConfig.getParticleKillerSvc", "ISF_ParticleKillerSvc")

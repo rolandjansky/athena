@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCHitAnalysis.h"
@@ -11,8 +11,8 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "TH1.h"
@@ -125,14 +125,14 @@ StatusCode sTGCHitAnalysis::initialize() {
 StatusCode sTGCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In sTGCHitAnalysis::execute()" );
 
-  const DataHandle<GenericMuonSimHitCollection> p_collection;
+  const DataHandle<sTGCSimHitCollection> p_collection;;
   if ((evtStore()->retrieve(p_collection,"sTGCSensitiveDetector"))==StatusCode::SUCCESS) {
-    for (GenericMuonSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
+    for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
 
       Amg::Vector3D p = (*i_hit).globalPosition();
       //Get station names and make plots for each wedge
       sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
-      int simId = (*i_hit).GenericId();
+      int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 
       static std::string TS11("TS11");

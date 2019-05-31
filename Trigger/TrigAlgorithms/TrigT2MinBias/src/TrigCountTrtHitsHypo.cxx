@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/TrigCountTrtHitsHypo.h"
+#include "TrigCountTrtHitsHypo.h"
 #include "TrigInDetEvent/TrigTrtHitCounts.h"
 
 #include "xAODEventInfo/EventInfo.h"

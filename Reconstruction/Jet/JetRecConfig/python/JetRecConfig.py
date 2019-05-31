@@ -58,13 +58,16 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     # 
     # To facilitate running in serial mode, we also prepare
     # the constituent PseudoJetGetter here (needed for rho)
-    inputcomps, constitpjkey = JetInputCfgAndConstitPJName(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    constitpjalg = inputcomps.getPrimary()
+    constitpjkey = constitpjalg.PJGetter.OutputContainer
+
     components.merge(inputcomps)
     pjs = [constitpjkey]
 
     # Schedule the ghost PseudoJetGetterAlgs
     for ghostdef in deps["ghosts"]:
-        ghostpjalg = GhostPJGAlg( ghostdef )
+        ghostpjalg = getGhostPJGAlg( ghostdef )
         components.addEventAlgo( ghostpjalg, sequencename )
         ghostpjkey = ghostpjalg.PJGetter.OutputContainer
         pjs.append( ghostpjkey )
@@ -206,7 +209,7 @@ def expandPrereqs(reqtype,prereqs):
 #
 # This includes constituent modifications, track selection, copying of
 # input truth particles and event density calculations
-def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
+def JetInputCfg(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
@@ -230,13 +233,16 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
             # May need to generate constituent modifier sequences to
             # produce the input collection
             import ConstModHelpers
-            constitalg = ConstModHelpers.ConstitModAlg(constit.basetype,constit.modifiers)
-            components.addEventAlgo(constitalg)
+            constitalg = ConstModHelpers.getConstitModAlg(constit)
+            if constitalg:
+                components.addEventAlgo(constitalg)
 
     # Schedule the constituent PseudoJetGetterAlg
-    constitpjalg = ConstitPJGAlg( constit )
+    constitpjalg = getConstitPJGAlg( constit )
     constitpjkey = constitpjalg.PJGetter.OutputContainer
-    components.addEventAlgo( constitpjalg )
+    # Mark the constit PJGAlg as the primary so that the caller
+    # can access the output container name
+    components.addEventAlgo( constitpjalg, primary=True )
 
     # Track selection and vertex association kind of go hand in hand, though it's not
     # completely impossible that one might want one and not the other
@@ -308,7 +314,7 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
                 eventshapealg.EventDensityTool = rhotool
                 components.addEventAlgo(eventshapealg)
 
-    return components, constitpjkey
+    return components
 
 ########################################################################
 # Functions for generating PseudoJetGetters, including determining
@@ -335,7 +341,7 @@ def getGhostPrereqs(ghostdef):
         prereqs = ["input:JetInputTruthParticles"]
     return prereqs
 
-def ConstitPJGAlg(basedef):
+def getConstitPJGAlg(basedef):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
     # 
     getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
@@ -352,7 +358,7 @@ def ConstitPJGAlg(basedef):
         )
     return pjgalg
 
-def GhostPJGAlg(ghostdef):
+def getGhostPJGAlg(ghostdef):
     label = "Ghost"+ghostdef.inputtype
     kwargs = {
         "OutputContainer":    "PseudoJet"+label,

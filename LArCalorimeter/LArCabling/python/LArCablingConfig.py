@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFolders
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolders
 from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
 
 def _larCablingCfg(configFlags,algo,folder):
     result=ComponentAccumulator()
+
+    result.merge(IOVDbSvcCfg(configFlags))
 
     #MC folder-tag hack (See also ATCONDDB-49)
     tagsperFolder={"/LAR/Identifier/OnOffIdMap":"LARIdentifierOnOffIdMap-012",
@@ -40,6 +42,14 @@ def LArFebRodMappingCfg(configFlags):
 
 def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
+
+def LArIdMapCfg(configFlags):
+    """Return ComponentAccumulator configured with Identifier Map in POOL/COOL"""
+    # replaces LArIdMap_MC_jobOptions.py or LArIdMap_comm_jobOptions.py
+    result = LArOnOffIdMappingCfg(configFlags)
+    result.merge(LArFebRodMappingCfg(configFlags))
+    result.merge(LArCalibIdMappingCfg(configFlags))
+    return result
 
 
 if __name__ == "__main__":

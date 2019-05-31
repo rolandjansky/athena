@@ -55,6 +55,9 @@ def setupMenu(flags):
 
 
 if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True    
+
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Constants import VERBOSE
     from AthenaCommon.Logging import logging

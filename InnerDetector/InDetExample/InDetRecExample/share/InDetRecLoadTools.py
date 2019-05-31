@@ -235,11 +235,6 @@ if InDetFlags.loadRotCreator():
 
     ToolSvc += InDetRotCreator
 
-    if InDetFlags.doStoreTrackSeeds():
-        from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
-        InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
-        ToolSvc += InDet_SeedToTrackConversion
-    
     if PixelClusterOnTrackToolDigital != None :
         InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
                                                          ToolPixelCluster = PixelClusterOnTrackToolDigital,
@@ -944,8 +939,8 @@ if InDetFlags.loadSummaryTool():
             and not InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
 
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-        InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                          isGEANT4=(globalflags.DataSource == 'geant4'))
+        InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
         # Straw status DB Tool
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
         InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
@@ -1045,7 +1040,7 @@ if InDetFlags.loadSummaryTool():
     InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,
-                                                  InDetHoleSearchTool    = InDetHoleSearchTool,
+                                                  doHolesInDet           = True,
                                                   TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
                                                   TRT_ToT_dEdxTool       = None,         # dito
                                                   PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
@@ -1097,7 +1092,7 @@ if InDetFlags.loadSummaryTool():
     InDetTrackSummaryToolSharedHits = Trk__TrackSummaryTool(name = "InDetTrackSummaryToolSharedHits",
                                                             InDetSummaryHelperTool = InDetTrackSummaryHelperToolSharedHits,
                                                             doSharedHits           = InDetFlags.doSharedHits(),
-                                                            InDetHoleSearchTool    = InDetHoleSearchTool,
+                                                            doHolesInDet           = True,
                                                             TRT_ElectronPidTool    = InDetTRT_ElectronPidTool,
                                                             TRT_ToT_dEdxTool       = InDetTRT_dEdxTool,
                                                             TRTdEdx_DivideByL      = True, # default is True
@@ -1206,7 +1201,6 @@ if InDetFlags.doPattern():
                                                                         MagneticFieldMode     = "NoField",
                                                                         TrackQualityCut       = 9.3
                                                                         )
-        ToolSvc += InDetSiComTrackFinderDBM
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
@@ -1214,7 +1208,6 @@ if InDetFlags.doPattern():
     else:
       InDetSiComTrackFinder.SctSummaryTool = None
 
-    ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):
       print InDetSiComTrackFinder
       if InDetFlags.doDBM():

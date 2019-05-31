@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
 from TrigUpgradeTest.InDetSetup import inDetSetup
 
@@ -43,6 +43,9 @@ def FSmuEFSASequenceCfg(flags):
 def FSmuEFCBSequenceCfg(flags):
     return muEFCBFSSequence()
 
+def muEFIsoSequenceCfg(flags):
+    return muEFIsoSequence()
+
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -72,7 +75,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "Comb":[self.getmuFast(), self.getmuComb()],
             "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
             "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
-            "msonly":[self.getmuFast(), self.getmuEFMS()],
+            "msonly":[self.getmuFast(), self.getmuMSEmpty(), self.getmuEFMS()],
+            "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
         }
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
@@ -140,6 +144,19 @@ class MuonChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
         return ChainStep(stepName, [muSeq])
+
+    #---------------------
+    def getmuEFIso(self):
+        stepName = 'Step1_muEFIso'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
+        return ChainStep(stepName, [muSeq])
+
+    #--------------------
+    def getmuMSEmpty(self):
+        stepName = 'Step_muMS_empty'
+        log.debug("Configuring empty step")
+        return ChainStep(stepName)
 
 
 

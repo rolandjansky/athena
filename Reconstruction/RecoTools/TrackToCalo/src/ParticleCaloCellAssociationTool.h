@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 /***************************************************************************
-ParticleCaloCellAssociationTool.h  -  Description
--------------------
+  ParticleCaloCellAssociationTool.h 
 begin   : Summer 2014
-authors : Niels van Eldik (CERN PH-ATC)
-***************************************************************************/
+authors : Niels van Eldik (CERN PH-ATC),Christos (MT)
+ ***************************************************************************/
 #ifndef TRKPARTICLECREATOR_PARTICLECALOCELLASSOCIATION_H
 #define TRKPARTICLECREATOR_PARTICLECALOCELLASSOCIATION_H
 
@@ -23,60 +22,77 @@ authors : Niels van Eldik (CERN PH-ATC)
 #include "StoreGate/ReadHandle.h"
 
 namespace Trk {
-  class IParticleCaloExtensionTool;
-  class CaloExtension;
+class IParticleCaloExtensionTool;
+class CaloExtension;
 }
 
 class CaloCellContainer;
 
 namespace Rec {
 
-  class ParticleCaloCellAssociationTool : virtual public IParticleCaloCellAssociationTool, public AthAlgTool {
-  public:
-    
-    ParticleCaloCellAssociationTool(const std::string&,const std::string&,const IInterface*);
+class ParticleCaloCellAssociationTool : virtual public IParticleCaloCellAssociationTool, public AthAlgTool {
+public:
 
-    virtual ~ParticleCaloCellAssociationTool();
+  ParticleCaloCellAssociationTool(const std::string&,const std::string&,const IInterface*);
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+  virtual ~ParticleCaloCellAssociationTool() override;
 
-    /** Method to get the ParticleCellAssociation of a given TrackParticle
-        @param trackParticle  input track particle
-        @param extension      reference to a pointer to a ParticleCellAssociation, will be updated if call is successfull
-                              NEVER delete the pointer, you will cause a crash! 
-        @param dr             cone size used for the association
-                              If caching is enabled, the cells associated to the association contain at least all cells
-                              in dr but could contain more. Users ALWAYS have to recalculate the associated cells in their cone.
-        @param container      cell container to be used if provided 
-        @param useCaching     configure whether the tool caches the result on the track particle
-                              The default behavior is 'true' to ensure optimal performance
-                              If caching is enabled, the code will perform a consistency check on the container pointer
-                              If the function is called twice on the same particle with different containers, the call will fail.
-                              The same is true if the function is called once without container and once with on the same particle.
-        @return true if the call was successful
-    */
-    bool particleCellAssociation( const xAOD::IParticle& particle,  const ParticleCellAssociation*& association, float dr, 
-                                  const CaloCellContainer* container = 0, bool useCaching = true ) const final;
-    
-  private:
-
-    void getCellIntersections( const Trk::CaloExtension& caloExtension,
-                               const std::vector<const CaloCell*>& cells,
-                               ParticleCellAssociation::CellIntersections& cellIntersections) const;
-
-    void associateCells( const CaloCellContainer& container, const Trk::CaloExtension& caloExtension, float dr,
-                         std::vector<const CaloCell*>& cells ) const;
-
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
-    SG::ReadHandleKey<CaloCellContainer> m_cellContainerName;
-    double      m_coneSize;
-    mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;
-
-    mutable PathLengthUtils m_pathLenUtil;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final ;
+  /** Method to get the ParticleCellAssociation for a given Particle
+   * @param particle       input particle
+   * @param dr             cone size used for the association
+   * @param container      cell container to be used if provided 
+   * @return std::unique_ptr<ParticleCellAssociation>  
+   */
+  virtual std::unique_ptr< ParticleCellAssociation > particleCellAssociation( const xAOD::IParticle& particle, float dr, 
+                                                                              const CaloCellContainer* container = nullptr) const override final;
 
 
-  };
+  /** Method to get the ParticleCellAssociation for a given Particle
+   * @param particle       input particle
+   * @param dr             cone size used for the association
+   * @ param cache         cache for keeping previous results
+   * @param container      cell container to be used if provided 
+   * @return ParticleCellAssociation* (plain ptr cache has ownership)
+   *
+   * An alg looping over a single collection of IParticles  
+   * re-using them multiple times can use a local  cache of
+   * the form 
+   * std::unordered_map<size_t,std::unique_ptr<ParticleCellAssociation >>.
+   * where the key is the  value of IParticle::index() 
+   *
+   * This method adds the ParticleCellAssociation to the cache look-up table 
+   * which retains ownership. 
+   */  
+
+  virtual ParticleCellAssociation* particleCellAssociation( const xAOD::IParticle& particle, float dr, 
+                                                            IParticleCaloCellAssociationTool::Cache& cache,
+                                                            const CaloCellContainer* container = nullptr) const override final;
+
+private:
+
+  void getCellIntersections( const Trk::CaloExtension& caloExtension,
+                             const std::vector<const CaloCell*>& cells,
+                             ParticleCellAssociation::CellIntersections& cellIntersections) const;
+
+  void associateCells( const CaloCellContainer& container, const Trk::CaloExtension& caloExtension, float dr,
+                       std::vector<const CaloCell*>& cells ) const;
+
+  ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool {this,
+    "ParticleCaloExtensionTool", ""};
+
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerName {this, 
+    "CaloCellContainer", "AllCalo"};
+
+  Gaudi::Property<double> m_coneSize {this, "ConeSize", 0.2};
+
+  Trk::CaloCellSelectorLayerdR m_defaultSelector;
+
+  PathLengthUtils m_pathLenUtil;
+
+
+};
 
 
 }

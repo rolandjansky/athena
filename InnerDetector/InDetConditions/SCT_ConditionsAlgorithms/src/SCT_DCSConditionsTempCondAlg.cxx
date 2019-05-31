@@ -12,7 +12,6 @@
 
 SCT_DCSConditionsTempCondAlg::SCT_DCSConditionsTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
 {
 }
 

@@ -35,6 +35,7 @@
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileL2Algs/TileL2Builder.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -57,7 +58,6 @@
 
 class TileRawChannelBuilder;
 class TileCellBuilder;
-class TileL2Builder;
 class TileHid2RESrcID;
 
 namespace TileROD_Helper {
@@ -500,39 +500,56 @@ class TileROD_Decoder: public AthAlgTool {
     TileRawChannel2Bytes m_rc2bytes;
     TileDigits2Bytes m_d2Bytes;
 
-//    std::string m_infoName; 
-
     const TileHWID* m_tileHWID;
-//    const TileInfo* m_tileInfo;
 
-    bool m_useFrag0;
-    bool m_useFrag1;
-    bool m_useFrag4;
-    bool m_useFrag5Raw;
-    bool m_useFrag5Reco;
-    bool m_ignoreFrag4HLT;
+    Gaudi::Property<bool> m_useFrag0{this, "useFrag0", true, "Use frag0"};
+    Gaudi::Property<bool> m_useFrag1{this, "useFrag1", true, "Use frag1"};
+    Gaudi::Property<bool> m_useFrag4{this, "useFrag4", true, "User frag4"};
+    Gaudi::Property<bool> m_useFrag5Raw{this, "useFrag5Raw", false, "Use frag5 raw"};
+    Gaudi::Property<bool> m_useFrag5Reco{this, "useFrag5Reco", false, "Use frag5 reco"};
+    Gaudi::Property<bool> m_ignoreFrag4HLT{this, "ignoreFrag4HLT", false, "Ignore frag4 HLT"};
 
-    // thresholds for parabolic amplitude correction
-    float m_ampMinThresh; //!< correct amplitude if it's above amplitude threshold (in ADC counts)
-    float m_ampMinThresh_pC; //!< correct amplitude if it's above amplitude threshold (in pC)
-    float m_ampMinThresh_MeV; //!< correct amplitude if it's above amplitude threshold (in MeV)
-    float m_timeMinThresh; //!< correct amplitude is time is above time min threshold
-    float m_timeMaxThresh; //!< correct amplitude is time is below time max threshold
-    void updateAmpThreshold(float ampMinThresh);
+    // Outside this time withdow, all amplitudes taken from Reco fragment will be set to zero
+    Gaudi::Property<float> m_allowedTimeMin{this, "AllowedTimeMin", -50.0,
+        "Set amplitude to zero if time is below allowed time minimum"};
+    Gaudi::Property<float> m_allowedTimeMax{this, "AllowedTimeMax", 50.0,
+        "Set amplitude to zero if time is above allowed time maximum"};
 
-    // outsize this time withdow, all amplitudes taken from Reco fragment
-    // will be set to zero 
-    float m_allowedTimeMin; //!< set amp to zero if time is below allowed time min
-    float m_allowedTimeMax; //!< set amp to zero if time is above allowed time max
+    // Thresholds for parabolic amplitude correction
+    Gaudi::Property<float> m_ampMinThresh{this, "AmpMinForAmpCorrection", 15.0,
+        "Correct amplitude if it's above amplitude threshold (in ADC counts)"};
+    Gaudi::Property<float> m_timeMinThresh{this, "TimeMinForAmpCorrection", -12.5,
+        "Correct amplitude is time is above time minimum threshold"};
+    Gaudi::Property<float> m_timeMaxThresh{this, "TimeMaxForAmpCorrection", 12.5,
+        "Correct amplitude is time is below time maximum threshold"};
+
+    Gaudi::Property<unsigned int> m_fullTileRODs{this, "fullTileMode", 320000,
+        "Run from which to take the cabling (for the moment, either 320000 - full 2017 mode (default) - or 0 - 2016 mode)"};
+
+    Gaudi::Property<bool> m_verbose{this, "VerboseOutput", false, "Print extra information"};
+    Gaudi::Property<bool> m_calibrateEnergy{this, "calibrateEnergy", true, "Convert ADC counts to pCb for RawChannels"};
+    Gaudi::Property<bool> m_suppressDummyFragments{this, "suppressDummyFragments", false, "Suppress dummy fragments"};
+    Gaudi::Property<bool> m_maskBadDigits{this, "maskBadDigits", false,
+        "Put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0"};
+
+    Gaudi::Property<int> m_maxWarningPrint{this, "MaxWarningPrint", 1000, "Maximum warning messages to print"};
+    Gaudi::Property<int> m_maxErrorPrint{this, "MaxErrorPrint", 1000, "Maximum error messages to print"};
 
     ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
-          "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
     ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool{this,
-          "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OFC tool"};
+        "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OFC tool"};
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
-          "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-	        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    ToolHandle<TileL2Builder> m_L2Builder{this,
+        "TileL2Builder", "TileL2Builder", "Tile L2 builder tool"};
+
+    // thresholds for parabolic amplitude correction
+    float m_ampMinThresh_pC; //!< correct amplitude if it's above amplitude threshold (in pC)
+    float m_ampMinThresh_MeV; //!< correct amplitude if it's above amplitude threshold (in MeV)
+    void updateAmpThreshold();
 
     // OFWeights for different units and different drawers:
     // every element contains OFC for single drawer and one of 4 different units
@@ -544,28 +561,12 @@ class TileROD_Decoder: public AthAlgTool {
     // Mutex protecting access to weight vectors.
     mutable std::mutex m_OFWeightMutex;
 
-    float m_TileCellEthreshold;
-    bool m_verbose;
-    bool m_suppressDummyFragments;
-    // next three are needed to handle automatic conversion digits->channels->cells,
-    // when HLT request for cells, and finds only digits.
-    //TileRawChannelBuilder* m_RCBuilder;
-    std::string m_TileDefaultChannelBuilder;
-    bool m_calibrateEnergy;
-    // next two are needed to handle automatic conversion channels->cells,
-    // when HLT request for cells,which are not normally present in ByteStream
-    // TileCellBuilder* m_CellBuilder;
-    std::string m_TileDefaultCellBuilder;
-
     // fast decoding
     std::vector<int> m_Rw2Cell[4];
     std::vector<int> m_Rw2Pmt[4];
 
     TileFragHash m_hashFunc;
-
     bool m_of2Default;
-
-    bool m_maskBadDigits;
 
     // FIXME: Non-MT safe members --- used only by trigger, not offline.
     // Pointer to a MBTS cell collection
@@ -574,13 +575,6 @@ class TileROD_Decoder: public AthAlgTool {
     std::map<unsigned int, unsigned int> m_mapMBTS;
     // index of the MBTS channel
     int m_MBTS_channel;
-
-    int m_maxWarningPrint;
-    int m_maxErrorPrint;
-
-    // Pointer to TileL2Builder
-    const TileL2Builder* m_L2Builder;
-    std::string m_TileDefaultL2Builder;
 
     mutable std::atomic<int> m_WarningCounter;
     mutable std::atomic<int> m_ErrorCounter;
@@ -594,8 +588,6 @@ class TileROD_Decoder: public AthAlgTool {
     void initTileMuRcvHid2re();
 
     unsigned int m_maxChannels;
-    unsigned int m_fullTileRODs;
-
     bool m_checkMaskedDrawers;
 
     const uint32_t * get_data(const ROBData * rob) const {

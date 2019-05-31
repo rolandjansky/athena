@@ -35,7 +35,7 @@ namespace Trk
     this->m_parameters[qOverP] = parameters[6]/this->momentum().mag();
 
     /* we need all the above to be there for the surfac*/ 
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
   
   // Constructor with TP arguments
@@ -69,7 +69,7 @@ namespace Trk
     this->m_momentum = Amg::Vector3D(p*cos(tphi)*sin(ttheta),p*sin(tphi)*sin(ttheta),p*cos(ttheta));
 
     /* we need all the above for the surface*/
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
 
   // full global constructor
@@ -99,7 +99,7 @@ namespace Trk
     this->m_momentum = mom;
   
     /* we need all the above to be there for the surfac*/ 
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
 
   // copy constructor
@@ -225,7 +225,7 @@ namespace Trk
   // Dedicated update method for non-curvilinear parameters - private and controlled by friendship 
   template <int DIM,class T,class S>
   void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-							      AmgSymMatrix(DIM)* updatedCovariance)
+                                                              AmgSymMatrix(DIM)* updatedCovariance)
   {
     // valid to use != here, because value is either copied or modified,
     bool updateMomentum = (updatedParameters[Trk::phi] != this->m_parameters[Trk::phi]) ||
@@ -235,8 +235,9 @@ namespace Trk
     // update the covariance
     if (updatedCovariance)
     {
-      if (updatedCovariance != this->m_covariance)
+      if (updatedCovariance != this->m_covariance){
         delete this->m_covariance;
+      }
       this->m_covariance = updatedCovariance;
     }
     
@@ -251,17 +252,20 @@ namespace Trk
       this->m_parameters[Trk::theta]  = theta;
       this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
       this->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-						       p*sin(phi)*sin(theta),
-						       p*cos(theta));
+                                       p*sin(phi)*sin(theta),
+                                       p*cos(theta));
     }
     // position update if needed -  loc1
-    if (updatedParameters[Trk::loc1] != 0.) 
+    if (updatedParameters[Trk::loc1] != 0.){ 
       this->m_position += updatedParameters[Trk::loc1] * curvilinearFrame().curvU();
+    }
     // position update if needed -  loc2
-    if (updatedParameters[Trk::loc2] != 0.) 
+    if (updatedParameters[Trk::loc2] != 0.){ 
       this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
-    // in any case, the (eventually existing) surface is invalidated
-    delete this->m_surface;
-    this->m_surface = 0;
+    }
+    
+    //Reset also the surface
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
+    
   }
 } // end of namespace Trk

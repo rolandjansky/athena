@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODRingSetConfWriter.h 713521 2015-12-09 08:53:41Z wsfreund $
@@ -15,7 +15,7 @@ extern "C" {
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"

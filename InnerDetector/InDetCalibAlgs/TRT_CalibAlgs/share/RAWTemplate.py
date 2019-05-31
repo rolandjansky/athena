@@ -20,6 +20,13 @@ TRTCalFitTool = FitTool (name = 'TRTCalFitTool')
 ToolSvc += TRTCalFitTool
 print      TRTCalFitTool
 
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
+
 
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 TRTCondStream=AthenaOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.pool.root")
@@ -37,40 +44,12 @@ from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits',
                                       minTimebinsOverThreshold=0, 
                                       NeighbourSvc=TRTStrawNeighbourSvc,
-                                      TRTCalDbSvc=TRTCalibDBSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 
-# select good quality tracks
-#from TRT_AlignAlgs.TRT_AlignAlgsConf import TRTTrackSelectionAlg
-#SelectTRTAlignTracks = TRTTrackSelectionAlg(    name = "SelectTRTAlignTracks",
-#                                                inputTrackList = "CombinedInDetTracks",
-#                                                inputTrackList = "StandaloneTRTTracks",
-#                                                outputTrackList = "TRTCalibTracks",
-#                                                SummaryTool = InDetTrackSummaryTool,
-#                                                MaxChisqPerDof = 50.,
-#                                                D0Max                   = 30       ,
-#                                                D0Min                   = -30      ,
-#                                                DoPtCut                 = True     ,
-#                                                PtMax                   = 9.9999999999999998e+23,
-#                                                PtMin                   = 1000          ,
-#                                                EtaMax                  = 10000         ,
-#                                                EtaMin                  = -10000        ,
-#                                                PhiMax                  = 10000         ,
-#                                                PhiMin                  = -10000        ,
-#                                                MaxEventPhase           = 10000         ,
-#                                                MinEventPhase           = -10000        ,
-#                                                MinTRTHits              = 20            ,
-#                                                MinBarrelHits           = 0            ,
-#                                                MinEndcapHits           = 0             ,
-#                                                RequireEndcapHits       = False         ,
-#                                                MinPixelHits            = -1000         ,
-#                                                MinSCTHits              = 6         ,
-##                                                MinSCTHits              = -1000         ,
-#                                                UseBeamSpotConstraint   = False         )
-#
-#topSequence += SelectTRTAlignTracks
-#print          SelectTRTAlignTracks
 
 
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool

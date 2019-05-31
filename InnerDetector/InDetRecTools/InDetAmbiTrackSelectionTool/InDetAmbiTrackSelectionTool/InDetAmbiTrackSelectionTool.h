@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,16 +13,20 @@
 #define INDETINDETAMBITRACKSELECTIONTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
+
+#include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
 #include <map>
 #include <vector>
 
 class SiliconID;
 class Identifier;
-class IBLParameterSvc;
 namespace Trk {
   class Track;
 }
@@ -37,56 +43,55 @@ namespace InDet
       
       @author  Martin Siebel <Martin.Siebel@CERN.ch>
   */  
-  class ITrtDriftCircleCutTool;
 
-  class InDetAmbiTrackSelectionTool : virtual public Trk::IAmbiTrackSelectionTool, public AthAlgTool
-    {
-    public:
-      InDetAmbiTrackSelectionTool(const std::string&,const std::string&,const IInterface*);
+  class InDetAmbiTrackSelectionTool : public extends<AthAlgTool, Trk::IAmbiTrackSelectionTool>
+  {
+  public:
+    InDetAmbiTrackSelectionTool(const std::string&,const std::string&,const IInterface*);
       
-      /** default destructor */
-      virtual ~InDetAmbiTrackSelectionTool ();
+    /** default destructor */
+    virtual ~InDetAmbiTrackSelectionTool () = default;
       
-      /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
-      /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+    /** standard Athena-Algorithm method */
+    virtual StatusCode initialize() override;
+    /** standard Athena-Algorithm method */
+    virtual StatusCode finalize() override;
+
+    virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) override;
+    virtual StatusCode registerPRDs(const Trk::Track* ptrTrack) override;
+    virtual void reset() override;
+    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const override;
       
-      virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) ;
-      virtual StatusCode registerPRDs(const Trk::Track* ptrTrack);
-      virtual void reset();
-      virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack);
       
+  private:
       
-    private:
+    /** method to create a new track from a vector of TSOS's */
+    Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
       
-      /** method to create a new track from a vector of TSOS's */
-      const Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
-      
-      /**Association tool - used to work out which (if any) PRDs are shared between 
+    /**Association tool - used to work out which (if any) PRDs are shared between 
        tracks*/
-      ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
-      /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
-      ToolHandle<ITrtDriftCircleCutTool>    m_selectortool;
-      ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc; 
+    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "Trk::PRD_AssociationTool/PRD_AssociationTool"};
+    /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
+    PublicToolHandle<ITrtDriftCircleCutTool> m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
+    ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+    /**atlas id helper*/
+    const SiliconID* m_detID{nullptr};
       
-      /**atlas id helper*/
-      const SiliconID* m_detID;
-      
-      /** some cut values */
-      int m_minHits;
-      int m_minTRT_Hits;
-      int m_maxShared;
-      int m_maxSharedModules;
-      int m_maxTracksPerPRD;
-      int m_minNotShared;
-      float m_minScoreShareTracks;
-      bool m_cosmics;      
-      bool m_parameterization; // Use table of min number DCs
-      bool m_doPixelClusterSplitting;
-      float m_sharedProbCut;
-      int   m_maxSplitSize; //!< A.S.: to be removed once EDM is updated
-    }; 
+    /** some cut values */
+    IntegerProperty m_minHits{this, "minHits", 5};
+    IntegerProperty m_minTRT_Hits{this, "minTRTHits", 0};
+    int m_maxShared{0};
+    IntegerProperty m_maxSharedModules{this, "maxShared", 1};
+    IntegerProperty m_maxTracksPerPRD{this, "maxTracksPerSharedPRD", 2};
+    IntegerProperty m_minNotShared{this, "minNotShared", 6};
+    FloatProperty m_minScoreShareTracks{this, "minScoreShareTracks", 0.0};
+    BooleanProperty m_cosmics{this, "Cosmics", false};
+    BooleanProperty m_parameterization{this, "UseParameterization", true}; // Use table of min number DCs
+    BooleanProperty m_doPixelClusterSplitting{this, "doPixelSplitting", false};
+    FloatProperty m_sharedProbCut{this, "sharedProbCut", 0.02};
+    IntegerProperty m_maxSplitSize{this, "MaximalSplitSize", 49, "A.S.: remove that when solved properly by updating the SplitProb info with isExcluded. A.S.: to be removed once EDM is updated"};
+  }; 
 } // end of namespace
 
 inline StatusCode InDet::InDetAmbiTrackSelectionTool::registerPRDs(const Trk::Track* ptrTrack)
@@ -98,7 +103,7 @@ inline void InDet::InDetAmbiTrackSelectionTool::reset()
 {
   m_assoTool->reset();
 }
-inline std::vector<const Trk::PrepRawData*> InDet::InDetAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack)
+inline std::vector<const Trk::PrepRawData*> InDet::InDetAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack) const
 {
   return m_assoTool->getPrdsOnTrack(*ptrTrack);
 }

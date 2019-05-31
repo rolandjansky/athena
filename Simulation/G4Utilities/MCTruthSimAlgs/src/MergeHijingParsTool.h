@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGEHIJINGPARSTOOL_H
@@ -9,12 +9,12 @@
 
 #include "GeneratorObjects/HijingEventParams.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
-
-class PileUpMergeSvc;
 
 /** @class MergeHijingParsTool
  * @brief an algorithm to propagate HijingPars to the overlay store
@@ -28,6 +28,7 @@ public:
   MergeHijingParsTool(const std::string& type,
                            const std::string& name,
                            const IInterface* parent);
+  virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
   virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
@@ -47,8 +48,9 @@ public:
      */
   virtual StatusCode processAllSubEvents() override final;
 private:
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  SG::WriteHandleKey<HijingEventParams> m_outputObjectKey{this, "HijingParamsKey", "Hijing_event_params", ""};
   SG::WriteHandle<HijingEventParams> m_outputObject;
-  bool m_firstSubEvent;
+  bool m_firstSubEvent{true};
 };
 #endif //MCTRUTHSIMALGS_MERGEHIJINGPARSTOOL_H

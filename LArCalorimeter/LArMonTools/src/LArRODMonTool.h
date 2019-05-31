@@ -160,7 +160,14 @@ private:
 
   bool FebStatus_Check();
 
-  StatusCode compareChannels(const HWIdentifier chid, const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig=NULL);
+  StatusCode compareChannels(const CaloDetDescrManager* ddman,
+                             const LArOnOffIdMapping* cabling,
+                             const ILArOFC* ofcs,
+                             const ILArShape* shapes,
+                             const ILArHVScaleCorr* hvScaleCorrs,
+                             const ILArPedestal* pedestals,
+                             const LArADC2MeV* adc2mev,
+                             const HWIdentifier chid, const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig=NULL);
 
   class ERRCOUNTER {
   public:
@@ -216,7 +223,6 @@ private:
   ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
-  const CaloDetDescrManager *m_calo_description_mgr;
 
   // Output files names
   std::string m_DigitsFileName;

@@ -16,10 +16,7 @@ atlas_depends_on_subdirs(
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
-   FILES TRT_ConditionsData/TRTRtFloat.h
-   TRT_ConditionsData/TRTWeiFloat.h
-   TRT_ConditionsData/TRTAliFloat.h
-   TRT_ConditionsData/TRTStrawStatusData.h
+   FILES TRT_ConditionsData/TRTStrawStatusData.h
    TRT_ConditionsData/FloatArrayStore.h
    TRT_ConditionsData/StrawT0Container.h
    TRT_ConditionsData/RtRelationContainer.h

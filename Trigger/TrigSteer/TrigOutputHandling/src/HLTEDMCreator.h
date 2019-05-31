@@ -30,6 +30,8 @@
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
@@ -39,6 +41,9 @@
 #include "xAODTrigMuon/L2IsoMuonAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing
@@ -98,11 +103,12 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigElectronContainer );
   DEF_XAOD_KEY( TrigPhotonContainer );
   DEF_XAOD_KEY( TrackParticleContainer );
-
+  DEF_XAOD_KEY( TrigMissingETContainer );
   DEF_XAOD_KEY( L2StandAloneMuonContainer );
   DEF_XAOD_KEY( L2CombinedMuonContainer );
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
+  DEF_XAOD_KEY( TauJetContainer );
 
 #undef DEF_VIEWS
 #undef DEF_KEY

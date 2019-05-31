@@ -128,38 +128,56 @@ void Muon::sTgcPrepDataContainerCnv_p1::transToPers(const Muon::sTgcPrepDataCont
         
         unsigned int lastPRDIdHash = 0;
         for (unsigned int i = 0; i < collection.size(); ++i) {
-            unsigned int pchanIndex=i+pcollBegin;
-            const sTgcPrepData* chan = collection[i]; // channel being converted
-            sTgcPrepData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
-            chanCnv.transToPers(chan, pchan, log); // convert from sTgcPrepData to sTgcPrepData_p1
+	  unsigned int pchanIndex=i+pcollBegin;
+	  const sTgcPrepData* chan = collection[i]; // channel being converted
+	  sTgcPrepData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
+	  chanCnv.transToPers(chan, pchan, log); // convert from sTgcPrepData to sTgcPrepData_p1
+          
+	  unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
+	  unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
+	  
+	  /// for STGC, in order to remain within the 16-bits limit of the difference, we can 
+	  /// shift by one bit to the right without loosing information ( the channel starts from the
+	  /// second bit ). 
+	  /// But, check that the first but is really not used before doing that ( to be safe in the future )
+	  
+	  ///
+	  /// compute the difference and shift it by one bit in order to remain within the 16-bits 
+	  unsigned int diff = clusIdCompact - collIdCompact;
+	  
+	  if ( (diff & 0x1) != 0 ) {
+	    log << MSG::WARNING << "The least significant bit is used: information will be lost in persistifying " << endmsg;
+	  } 
+	  diff = diff >> 1;
+	  
+	  if ( diff > 0xffff ) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endmsg;
+	  
+	  persCont->m_prdDeltaId[pchanIndex]=diff;
+	  
+	  
+	  if(log.level() <= MSG::DEBUG){
+	    log << MSG::DEBUG<<i<<":\t clusId: "<<clusIdCompact<<", \t collectionId="<<collIdCompact<<"\t delta="<<persCont->m_prdDeltaId[pchanIndex]<<endmsg;
+	    Identifier temp(pcollection.m_id + persCont->m_prdDeltaId[pchanIndex]);
+	    if (temp!=chan->identify() ) 
+	      log << MSG::WARNING << "PRD ids differ! Transient:"<<chan->identify()<<", From persistent:"<<temp<<" diff = "<<chan->identify().get_compact()-temp.get_compact()<<endmsg;
+	    else 
+	      log << MSG::DEBUG <<" PRD ids match."<<endmsg;
+	    if (lastPRDIdHash && lastPRDIdHash != chan->collectionHash() )  log << MSG::WARNING << "Collection Identifier hashes differ!"<<endmsg;
+	    lastPRDIdHash = chan->collectionHash();
+	    log << MSG::DEBUG<<"Collection hash = "<<lastPRDIdHash<<endmsg;
             
-            unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
-            unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
-
-            persCont->m_prdDeltaId[pchanIndex]=clusIdCompact - collIdCompact; //store delta identifiers, rather than full identifiers
-            if(log.level() <= MSG::DEBUG){
-              log << MSG::DEBUG<<i<<":\t clusId: "<<clusIdCompact<<", \t collectionId="<<collIdCompact<<"\t delta="<<persCont->m_prdDeltaId[pchanIndex]<<endmsg;
-              Identifier temp(pcollection.m_id + persCont->m_prdDeltaId[pchanIndex]);
-              if (temp!=chan->identify() ) 
-                log << MSG::WARNING << "PRD ids differ! Transient:"<<chan->identify()<<", From persistent:"<<temp<<" diff = "<<chan->identify().get_compact()-temp.get_compact()<<endmsg;
-              else 
-                log << MSG::DEBUG <<" PRD ids match."<<endmsg;
-              if (lastPRDIdHash && lastPRDIdHash != chan->collectionHash() )  log << MSG::WARNING << "Collection Identifier hashes differ!"<<endmsg;
-              lastPRDIdHash = chan->collectionHash();
-              log << MSG::DEBUG<<"Collection hash = "<<lastPRDIdHash<<endmsg;
-              
-              if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
-              if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(chan->identify())) 
-                log << MSG::WARNING << "Getting de from identity didn't work!"<<endmsg;
-              else 
-                log << MSG::DEBUG<<"Getting de from identity did work "<<endmsg;
-              if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
-              log << MSG::DEBUG<<"Finished loop"<<endmsg;
-            }
+	    if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
+	    if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(chan->identify())) 
+	      log << MSG::WARNING << "Getting de from identity didn't work!"<<endmsg;
+	    else 
+	      log << MSG::DEBUG<<"Getting de from identity did work "<<endmsg;
+	    if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
+	    log << MSG::DEBUG<<"Finished loop"<<endmsg;
+	  }
         }
     }
     if (log.level() <= MSG::DEBUG) 
-        log << MSG::DEBUG<< " ***  Writing sTgcPrepDataContainer ***" <<endmsg;
+      log << MSG::DEBUG<< " ***  Writing sTgcPrepDataContainer ***" <<endmsg;
 }
 
 void  Muon::sTgcPrepDataContainerCnv_p1::persToTrans(const Muon::sTgcPrepDataContainer_p1* persCont, Muon::sTgcPrepDataContainer* transCont, MsgStream &log) 
@@ -187,68 +205,68 @@ void  Muon::sTgcPrepDataContainerCnv_p1::persToTrans(const Muon::sTgcPrepDataCon
     if (log.level() <= MSG::DEBUG) 
         log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endmsg;
     for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
-        const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
-        IdentifierHash collIDHash(pcoll.m_hashId);
-        coll = new Muon::sTgcPrepDataCollection(collIDHash);
-        // Identifier firstChanId = persCont->m_prds[collBegin].m_clusId;
-        // Identifier collId = m_TgcId->parentID(firstChanId);
-        coll->setIdentifier(Identifier(pcoll.m_id)); 
-
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
+      const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
+      IdentifierHash collIDHash(pcoll.m_hashId);
+      coll = new Muon::sTgcPrepDataCollection(collIDHash);
+      // Identifier firstChanId = persCont->m_prds[collBegin].m_clusId;
+      // Identifier collId = m_TgcId->parentID(firstChanId);
+      coll->setIdentifier(Identifier(pcoll.m_id)); 
+      
+      unsigned int pchanEnd = pchanIndex+pcoll.m_size;
+      unsigned int chanIndex = 0; // transient index
+      
+      coll->reserve(pcoll.m_size);
+      // Fill with channels
+      for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
+	const sTgcPrepData_p1* pchan = &(persCont->m_prds[pchanIndex]);
+	
+	/// get the cluster Identifier from the collection Id + the difference between cluster Id and collection Id
+	/// please note that the difference has been shifted by one bit to the right so it needs to be shifted back
+	/// before summing to the collection Id
+	/// also need to go from the 32 bits identifier to the 64-bits one
+	unsigned int diff = persCont->m_prdDeltaId[pchanIndex] << 1;
+	Identifier clusId( (pcoll.m_id + diff) );
+	
+	if ( m_sTgcId->valid(clusId)!=true ) {
+	  // have invalid PRD
+	  log << MSG::WARNING  << "Tgc PRD has invalid Identifier of "<< m_sTgcId->show_to_string(clusId)<< " - are you sure you have the correct geometry loaded, and NSW enabled?"<<endmsg;
+	} 
+	
+	// The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
+	IdentifierHash deIDHash;
+	int result = m_sTgcId->get_detectorElement_hash(clusId, deIDHash);
+	if (result&&log.level() <= MSG::WARNING) 
+	  log << MSG::WARNING<< " Muon::sTgcPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
+	const MuonGM::sTgcReadoutElement* detEl =
+	  m_muonDetMgr->getsTgcReadoutElement(clusId); 
+	if (!detEl) {
+	  log << MSG::WARNING<< "Muon::sTgcPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<clusId<<". Skipping."<<endmsg;
+	  continue;
+	}
         
-        // FIXME - really would like to remove Identifier from collection, but cannot as there is :
-        // a) no way (apparently - find it hard to believe) to go from collection IdHash to collection Identifer.
-        
-        unsigned int pchanEnd = pchanIndex+pcoll.m_size;
-        unsigned int chanIndex = 0; // transient index
-        
-        coll->reserve(pcoll.m_size);
-        // Fill with channels
-        for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
-            const sTgcPrepData_p1* pchan = &(persCont->m_prds[pchanIndex]);
-
-            Identifier clusId(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]);
-
-            if ( m_sTgcId->valid(clusId)!=true ) {
-              // have invalid PRD
-              log << MSG::WARNING  << "Tgc PRD has invalid Identifier of "<< m_sTgcId->show_to_string(clusId)<< " - are you sure you have the correct geometry loaded, and NSW enabled?"<<endmsg;
-            } 
-
-            // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
-            IdentifierHash deIDHash;
-            int result = m_sTgcId->get_detectorElement_hash(clusId, deIDHash);
-            if (result&&log.level() <= MSG::WARNING) 
-              log << MSG::WARNING<< " Muon::sTgcPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
-            const MuonGM::sTgcReadoutElement* detEl =
-              m_muonDetMgr->getsTgcReadoutElement(clusId); 
-            if (!detEl) {
-              log << MSG::WARNING<< "Muon::sTgcPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<clusId<<". Skipping."<<endmsg;
-              continue;
-            }
-            
-            auto chan = CxxUtils::make_unique<sTgcPrepData>
-              (chanCnv.createsTgcPrepData (pchan,
-                                           clusId,
-                                           detEl,
-                                           log));
-            
-            chan->setHashAndIndex(collIDHash, chanIndex); 
-            coll->push_back(std::move(chan));
-        }
-
-        // register the rdo collection in IDC with hash - faster addCollection
-        StatusCode sc = transCont->addCollection(coll, collIDHash);
-        if (sc.isFailure()) {
-            throw std::runtime_error("Failed to add collection to Identifiable Container");
-        }
-        if (log.level() <= MSG::DEBUG) {
-            log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
-        }
+	auto chan = CxxUtils::make_unique<sTgcPrepData>
+	  (chanCnv.createsTgcPrepData (pchan,
+				       clusId,
+				       detEl,
+				       log));
+	
+	chan->setHashAndIndex(collIDHash, chanIndex); 
+	coll->push_back(std::move(chan));
+      }
+      
+      // register the rdo collection in IDC with hash - faster addCollection
+      StatusCode sc = transCont->addCollection(coll, collIDHash);
+      if (sc.isFailure()) {
+	throw std::runtime_error("Failed to add collection to Identifiable Container");
+      }
+      if (log.level() <= MSG::DEBUG) {
+	log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
+	  coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
+      }
     }
-
+    
     if (log.level() <= MSG::DEBUG) 
-        log << MSG::DEBUG<< " ***  Reading sTgcPrepDataContainer ***" << endmsg;
+      log << MSG::DEBUG<< " ***  Reading sTgcPrepDataContainer ***" << endmsg;
 }
 
 

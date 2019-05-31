@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm> 
@@ -409,6 +409,26 @@ void DataProxy::setAddress(IOpaqueAddress* address)
   m_tAddress.setAddress(address);
 }
 //////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Read in a new copy of the object referenced by this proxy.
+ *
+ * If this proxy has an associated loader and address, then load
+ * a new copy of the object and return it.  Any existing copy
+ * held by the proxy is unaffected.
+ *
+ * This will fail if the proxy does not refer to an object read from an
+ * input file.
+ *
+ * Returns a null pointer on failure.
+ */
+std::unique_ptr<DataObject> DataProxy::readData() const
+{
+  // Public wrapper for readData().
+  objLock_t objLock (m_objMutex);
+  return readData (objLock, nullptr);
+}
 
 
 /**

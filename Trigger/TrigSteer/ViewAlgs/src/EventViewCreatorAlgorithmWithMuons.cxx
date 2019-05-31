@@ -20,6 +20,7 @@ EventViewCreatorAlgorithmWithMuons::EventViewCreatorAlgorithmWithMuons( const st
 
   declareProperty("RoIEtaWidth", m_roiEtaWidth=0.1);
   declareProperty("RoIPhiWidth", m_roiPhiWidth=0.1);
+  declareProperty("LinkToParent", m_linkToParent=true);
 }
 
 EventViewCreatorAlgorithmWithMuons::~EventViewCreatorAlgorithmWithMuons() {}
@@ -38,7 +39,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
 
   // make the views
-  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context ); 
   auto viewVector1 = std::make_unique< ViewContainer >();
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
@@ -91,7 +92,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
 	outputDecision->setObjectLink( "muons", muonELInfo.link );
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
-	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
+	if(m_linkToParent) ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
 	ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );
 	ATH_CHECK( placeMuonInView( muon, viewVector->back(), contexts.back() ) );
       }// loop over previous inputs

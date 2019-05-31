@@ -270,7 +270,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
     "MuCTPI_RIO/MUCTPI_RIO",

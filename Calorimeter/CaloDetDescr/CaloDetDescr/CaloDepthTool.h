@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,7 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
+#include "CxxUtils/CachedPointer.h"
 
 class CaloDetDescrManager;
 class IMessageSvc;
@@ -52,7 +53,7 @@ public:
 		  const IInterface* parent); 
   /** @brief Destructor
    */
-  ~CaloDepthTool();
+  virtual ~CaloDepthTool();
 
   /** @brief Query interface
    */
@@ -60,11 +61,11 @@ public:
 
   /** @brief Tool Initialize
    */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** @brief Tool Finalize
    */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 public:
 
@@ -225,6 +226,7 @@ public:
    CaloDepthTool& operator= (const CaloDepthTool&); //> not implemented
 
 private:
+   const CaloDetDescrManager* caloMgr() const;
 
   std::string m_depth_choice;
 
@@ -234,21 +236,13 @@ private:
 
   /** DD manager
    */
-  const CaloDetDescrManager* m_calo_dd;
+  CxxUtils::CachedPointer<CaloDetDescrManager> m_calo_dd;
 
   /** Phi range helper object
    */
   CaloPhiRange m_range;
 
   double m_default;
-
-  /** Tool Service
-   */
-  IToolSvc* m_toolsvc;
-
-  /** Mesaage Service
-   */
-  IMessageSvc*  m_msgSvc;
 };
 
  

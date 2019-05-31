@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTests/AnalysisCal.h"
@@ -59,7 +59,7 @@ namespace MyAnalysisCal {
 
 // loop over generated particles
 
-      SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollName);
+      SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollName, ctx);
       double e_true=0.;
       double eta_true=-999.;
       double phi_true=-999.;

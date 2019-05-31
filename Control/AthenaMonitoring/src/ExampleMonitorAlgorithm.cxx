@@ -6,7 +6,7 @@
 
 ExampleMonitorAlgorithm::ExampleMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_doRandom(false)
+,m_doRandom(true)
 {}
 
 
@@ -26,6 +26,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto lb = Monitored::Scalar<int>("lb",0);
     auto run = Monitored::Scalar<int>("run",0);
     auto random = Monitored::Scalar<float>("random",0.0);
+    auto testweight = Monitored::Scalar<float>("testweight",1.0);
 
     // Two variables (value and passed) needed for TEfficiency
     auto pT = Monitored::Scalar<float>("pT",0.0);
@@ -35,6 +36,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     lumiPerBCID = lbAverageInteractionsPerCrossing();
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
+    testweight = 2.0;
     
     TRandom3 r(ctx.eventID().event_number());
     // Example of using flags
@@ -47,7 +49,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     pT_passed = pT>r.Poisson(15);
 
     // Fill. First argument is the tool name, all others are the variables to be saved.
-    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed);
+    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed,testweight);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     auto tool = getGroup("ExampleMonitor");

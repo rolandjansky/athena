@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -53,8 +55,8 @@ class SCT_MajorityConditionsTool: public extends<AthAlgTool, ISCT_DetectorLevelC
   virtual bool isGood(int bec, const EventContext& ctx) const override;
 
  private:
-  bool m_overall; //!< Use overall vvalue or ECA/B/ECC
-  float m_majorityFraction; //!< Required fraction in majority state
+  BooleanProperty m_overall{this, "UseOverall", false, "Use overall value or ECA/B/ECC"};
+  FloatProperty m_majorityFraction{this, "MajorityFraction", 0.9, "Required fraction in majority state"};
 
   SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey{this, "CondKey", "SCT_MajorityCondData", "Majority of SCT status"};
   const SCT_MajorityCondData* getCondData(const EventContext& ctx) const;

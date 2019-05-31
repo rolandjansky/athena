@@ -723,7 +723,6 @@ namespace ChainGroup_impl {
    }
 }// eof namespace
 
-
 const Trig::FeatureContainer 
 Trig::ChainGroup::features(unsigned int condition) const {
    using namespace ChainGroup_impl;

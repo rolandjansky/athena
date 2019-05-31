@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/FCALHVManager.h"
-#include "LArHV/FCALHVModule.h"
 #include "LArHV/FCALHVLine.h"
-#include "LArHV/FCALHVDescriptor.h"
 
 #include "FCALHVPayload.h"
 
@@ -21,57 +19,76 @@
 #include "LArCabling/LArHVCablingTool.h"
 #include "Identifier/HWIdentifier.h"
 
+#ifndef SIMULATIONBASE
+#include "LArRecConditions/LArHVIdMapping.h"
+#endif
+
 #include <atomic>
 
 class FCALHVManager::Clockwork {
 public:
-  FCALHVDescriptor *descriptor;
-  FCALHVModuleConstLink linkArray[2][16][3];
+  Clockwork(const FCALHVManager* manager)
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iSector=0; iSector<16; ++iSector) {
+	for(int iSampling=0; iSampling<3; ++iSampling) {
+	  moduleArray[iSide][iSector][iSampling] = new FCALHVModule(manager,iSide,iSector,iSampling);
+	}
+      }
+    }
+
+    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) {
+      throw std::runtime_error("FCALHVManager failed to retrieve LArElectrodeID");
+    }
+
+    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID")) {
+      throw std::runtime_error("FCALHVManager failed to retrieve LArHVLineID");
+    }
+  }
+  ~Clockwork()
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iSector=0; iSector<16; ++iSector) {
+	for(int iSampling=0; iSampling<3; ++iSampling) {
+	  delete moduleArray[iSide][iSector][iSampling];
+	}
+      }
+    }
+  }
+  const FCALHVModule* moduleArray[2][16][3];
   std::atomic<bool>          init{false};
   std::mutex                 mtx;
   std::vector<FCALHVPayload> payloadArray;
+  const LArElectrodeID* elecId;
+  const LArHVLineID* hvId;
 };
 
-//##ModelId=47ABAE9302D3
-FCALHVManager::FCALHVManager():m_c(new Clockwork())
+FCALHVManager::FCALHVManager()
+  : m_c(new Clockwork(this))
 {
-  m_c->descriptor = new FCALHVDescriptor();
-  m_c->init=false;
 }
 
-
-//##ModelId=47ABAE930373
 FCALHVManager::~FCALHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-//##ModelId=47ABAF5E0079
-const FCALHVDescriptor *FCALHVManager::getDescriptor() const
-{
-  return m_c->descriptor;
-}
-
-//##ModelId=47ABAF5E0092
 unsigned int FCALHVManager::beginSideIndex() const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E009F
 unsigned int FCALHVManager::endSideIndex() const
 {
   return 2;
 }
 
-//##ModelId=47ABAF5E00AD
 unsigned int FCALHVManager::beginSectorIndex(unsigned int /*iSampling*/) const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E00BB
 unsigned int FCALHVManager::endSectorIndex(unsigned int iSampling) const
 {
   if (iSampling==0) return 16;
@@ -80,23 +97,19 @@ unsigned int FCALHVManager::endSectorIndex(unsigned int iSampling) const
   return 0;
 }
 
-//##ModelId=47ABAF5E00C9
 unsigned int FCALHVManager::beginSamplingIndex() const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E00D9
 unsigned int FCALHVManager::endSamplingIndex() const
 {
   return 3;
 }
 
-//##ModelId=47ABAF5E00E8
-FCALHVModuleConstLink FCALHVManager::getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const
+const FCALHVModule& FCALHVManager::getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const
 {
-  if (!m_c->linkArray[iSide][iSector][iSampling]) m_c->linkArray[iSide][iSector][iSampling]=FCALHVModuleConstLink(new FCALHVModule(this,iSide,iSector, iSampling));
-  return m_c->linkArray[iSide][iSector][iSampling];
+  return *(m_c->moduleArray[iSide][iSector][iSampling]);
 }
 
 void FCALHVManager::update() const {
@@ -109,13 +122,6 @@ void FCALHVManager::update() const {
     }
 
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-
-    const LArElectrodeID* elecId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) return;
-
-    const LArHVLineID* hvId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID"))
-      return;
 
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     IToolSvc* toolSvc;
@@ -150,14 +156,14 @@ void FCALHVManager::update() const {
         //std::cout << " cannode,line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
+        HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
         for(size_t i=0;i<electrodeIdVec.size();i++) {
 
           HWIdentifier& elecHWID = electrodeIdVec[i];
-          int detector = elecId->detector(elecHWID);
+          int detector = m_c->elecId->detector(elecHWID);
           if (detector==5) {
 
             //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
@@ -169,10 +175,10 @@ void FCALHVManager::update() const {
             unsigned int status = 0;
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>();
 	    
-            unsigned int sideIndex=1-elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
-            unsigned int samplingIndex=elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
-            unsigned int sectorIndex=elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
-            unsigned int lineIndex=elecId->gap(elecHWID);            // 0-3
+            unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
+            unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
+            unsigned int sectorIndex=m_c->elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
+            unsigned int lineIndex=m_c->elecId->gap(elecHWID);            // 0-3
 
             //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
 
@@ -197,18 +203,55 @@ void FCALHVManager::update() const {
   }   // m_c->init
 }
 
+void FCALHVManager::reset() const {
+  m_c->init=false;
+}
+
 FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
   update();
   unsigned int lineIndex         = line.getLineIndex();
-  FCALHVModuleConstLink module = line.getModule();
-  unsigned int sectorIndex       = module->getSectorIndex();
-  unsigned int sideIndex         = module->getSideIndex();
-  unsigned int samplingIndex     = module->getSamplingIndex();
+  const FCALHVModule& module     = line.getModule();
+  unsigned int sectorIndex       = module.getSectorIndex();
+  unsigned int sideIndex         = module.getSideIndex();
+  unsigned int samplingIndex     = module.getSamplingIndex();
   unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
   //std::cout << "in Fcal getPayload: " << this << ' ' << index << ' ' << sideIndex << ' ' << sectorIndex << ' ' << samplingIndex << ' ' << lineIndex << std::endl;
   return &m_c->payloadArray[index];
 }
 
-void FCALHVManager::reset() const {
-  m_c->init=false;
+
+#ifndef SIMULATIONBASE
+int FCALHVManager::hvLineNo(const FCALHVLine& line
+			    , const LArHVIdMapping* hvIdMapping) const
+{
+  const FCALHVModule& module     = line.getModule();
+  int sideIndex         = module.getSideIndex();
+  int sectorIndex       = module.getSectorIndex();
+  int samplingIndex     = module.getSamplingIndex();
+  int lineIndex         = line.getLineIndex();
+
+  // ________________________ Construct ElectrodeID ________________________________
+  int id_detector = 5;
+  int id_zside = 1-sideIndex;
+  int id_module = sectorIndex;
+  int id_hv_phi{0};
+  int id_hv_eta = samplingIndex + 1;
+  int id_gap = lineIndex;
+  int id_electrode{0};
+
+  HWIdentifier elecHWID = m_c->elecId->ElectrodeId(id_detector
+						   , id_zside
+						   , id_module
+						   , id_hv_phi
+						   , id_hv_eta
+						   , id_gap
+						   , id_electrode);
+  // ________________________  ________________________________
+
+  // Get LArHVLineID corresponding to a given LArElectrodeId
+  HWIdentifier id = hvIdMapping->getLArHVLineID(elecHWID);
+
+  // Extract HV Line No
+  return m_c->hvId->can_node(id)*1000 + m_c->hvId->hv_line(id);
 }
+#endif

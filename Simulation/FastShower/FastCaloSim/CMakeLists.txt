@@ -27,7 +27,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           Simulation/FastShower/FastCaloSimAthenaPool
                           PRIVATE
-                          Calorimeter/CaloTrackingGeometry
                           Control/AthAllocators
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/AtlasDetDescr

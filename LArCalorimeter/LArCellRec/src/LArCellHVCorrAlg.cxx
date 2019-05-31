@@ -30,7 +30,7 @@ StatusCode LArCellHVCorrAlg::initialize() {
 StatusCode LArCellHVCorrAlg::execute(CaloCellContainer* cellCollection, const EventContext& ctx) const {
 
    // get offline HVScaleCorr
-   SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey);
+   SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
    const ILArHVScaleCorr *oflHVCorr = *oflHVCorrHdl;
    if(!oflHVCorr) {
        ATH_MSG_ERROR("Do not have ofline HV corr. conditions object !!!!");
@@ -58,16 +58,16 @@ StatusCode LArCellHVCorrAlg::execute(CaloCellContainer* cellCollection, const Ev
 
 
 void LArCellHVCorrAlg::MakeCorrection (CaloCell* theCell,
-                                    const EventContext& /*ctx*/) const // this method will be removed soon, but kept to make CI happy
+                                    const EventContext& ctx) const // this method will be removed soon, but kept to make CI happy
 {
    // get offline HVScaleCorr
-   SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey);
+   SG::ReadCondHandle<ILArHVScaleCorr> oflHVCorrHdl(m_offlineHVScaleCorrKey, ctx);
    const ILArHVScaleCorr *oflHVCorr = *oflHVCorrHdl;
    if(!oflHVCorr) {
        ATH_MSG_ERROR("Do not have ofline HV corr. conditions object !!!!");
        return;
    }
-   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
    const LArOnOffIdMapping* cabling{*cablingHdl};
    if(!cabling){
          ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );

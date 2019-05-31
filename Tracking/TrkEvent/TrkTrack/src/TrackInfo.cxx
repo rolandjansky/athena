@@ -212,19 +212,3 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackInfo& info)
     return sl;
 }
 
-
-//new mathod, allowing to merge properties and pattern reco info
-//from different TrackInfo's
-
-void Trk::TrackInfo::addPatternRecoAndProperties(const TrackInfo& rhs) const
-{
-//merging information by means of bitwise "or"
-  addPatternReco(rhs);
-  m_properties = m_properties | rhs.m_properties;
-}//end addPatternRecoaAndProperties method
-
-void Trk::TrackInfo::addPatternReco(const TrackInfo& rhs) const
-{
-//merging information by means of bitwise "or"
-  m_patternRecognition = m_patternRecognition | rhs.m_patternRecognition;
-}//end addPatternReco method

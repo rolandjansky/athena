@@ -97,7 +97,7 @@ StatusCode CaloLCWeightTool::initialize()
 StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster, const EventContext& ctx) const
 {
   const CaloLocalHadCoeff* data(0);
-  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
+  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key, ctx);
 
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
   const CaloNoise* noiseCDO=*noiseHdl;

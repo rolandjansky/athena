@@ -12,8 +12,8 @@
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
-extern vkalMagFld      myMagFld;
+extern const vkalPropagator  myPropagator;
+extern const vkalMagFld      myMagFld;
 
 
 void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, double *vrtref, double *covvrtref, 

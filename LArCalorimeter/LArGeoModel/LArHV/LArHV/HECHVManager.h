@@ -1,76 +1,76 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECHVMANAGER_H_HEADER_INCLUDED_B88C423D
-#define HECHVMANAGER_H_HEADER_INCLUDED_B88C423D
-#include "GeoModelKernel/RCBase.h"
-class HEECHVManager;
-class HECHVDescriptor;
-#include "HECHVModule.h"
-typedef ConstLink<HECHVModule> HECHVModuleConstLink;
+#ifndef LARHV_HECHVMANAGER_H
+#define LARHV_HECHVMANAGER_H
+
+#include "LArHV/HECHVDescriptor.h"
+#include "LArHV/HECHVModule.h"
+
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
 
 struct HECHVPayload;
 
-//##ModelId=4753077F00A0
-class HECHVManager : public RCBase
+/**
+ * @class HECHVManager
+ *
+ * @brief  This class provides direct access to information on the HV
+ * electrodes within the barrels.  The information may be accessed either
+ * directly or iteratively.  Direct access is provided by the getHVModule()
+ * method.  Iterative access
+ * is by looping over valid side, eta, phi, and sector indices to
+ * retrieve a HV module.  From the high voltage modules one
+ * can obtain a list of electrodes (iteratively or directly).
+ *
+ * The manager owns the pointers to the HV Modules.
+ */
+
+class HECHVManager
 {
-  public:
-    //##ModelId=47A07A0C016B
-    HECHVManager();
+ public:
+  HECHVManager();
+  ~HECHVManager();
 
-    //##ModelId=47A07A0C0176
-    const HECHVDescriptor *getDescriptor() const;
+  const HECHVDescriptor& getDescriptor() const;
 
-    // Begin side index (0=negative and 1= positive)
-    //##ModelId=47A07AC901D3
-    unsigned int beginSideIndex() const;
+  // Begin/End side index (0=negative and 1= positive)
+  unsigned int beginSideIndex() const;
+  unsigned int endSideIndex() const;
 
-    // End side index (0=negative and 1= positive)
-    //##ModelId=47A07AC901E4
-    unsigned int endSideIndex() const;
+  unsigned int beginPhiIndex() const;
+  unsigned int endPhiIndex() const;
 
-    //##ModelId=47A07A0C01A1
-    unsigned int beginPhiIndex() const;
+  unsigned int beginSamplingIndex() const;
+  unsigned int endSamplingIndex() const;
 
-    //##ModelId=47A07A0C01AD
-    unsigned int endPhiIndex() const;
+  const HECHVModule& getHVModule(unsigned int iSide
+				 , unsigned int iPhi
+				 , unsigned int iSampling) const;
 
-    //##ModelId=47A07A0C01BA
-    unsigned int beginSamplingIndex() const;
+  // Refresh from the database if needed
+  void update() const;
 
-    //##ModelId=47A07A0C01C9
-    unsigned int endSamplingIndex() const;
+  // Make the data stale.  Force update of data.
+  void reset() const;
 
-    //##ModelId=47A07A0C01D7
-    HECHVModuleConstLink getHVModule(unsigned int iSide, unsigned int iPhi, unsigned int iSampling) const;
+  // Get the database payload
+  HECHVPayload *getPayload(const HECHVSubgap &) const;
 
-    // Refresh from the database if needed
-    void update() const;
+#ifndef SIMULATIONBASE
+  // Get hvLine for a subgap
+  int hvLineNo(const HECHVSubgap& subgap
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
-    // Make the data stale.  Force update of data.
-    void reset() const;
+ private:
+  HECHVManager(const HECHVManager& right);
+  HECHVManager& operator=(const HECHVManager& right);
 
-    // Get the database payload
-    HECHVPayload *getPayload(const HECHVSubgap &) const;
-
-  private:
-
-
-    //##ModelId=47A07A0C01E5
-    virtual ~HECHVManager();
-
-    //##ModelId=47A07A0C01F3
-    HECHVManager(const HECHVManager& right);
-
-    //##ModelId=47A07A0C0210
-    HECHVManager& operator=(const HECHVManager& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* HECHVMANAGER_H_HEADER_INCLUDED_B88C423D */
+#endif

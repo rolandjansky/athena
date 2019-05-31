@@ -52,8 +52,6 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto dphi = std::abs(rj0.DeltaPhi(rj1));
 
 
-  typedef std::pair<std::string, double> CallHistoryElement;
-
   bool pass{true};
   
   if (m_dphiMin > dphi or dphi >= m_dphiMax){pass = false;}
@@ -61,21 +59,29 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   if (m_detaMin > adeta or adeta >= m_detaMax){pass = false;}
 
    if(visitor){
-    visitor->visit(this,
-                   std::to_string(dphi)+ " " +
-                   std::to_string(mass) + " " +
-                   std::to_string(adeta) + " " +
-                   std::to_string(pass) +
-                   '\n');
+     std::stringstream ss;
+     const void* address = static_cast<const void*>(this);
+     ss << "Condition: " << address << " "
+        << dphi <<  " " <<  mass <<  " "  << adeta <<  " " 
+        <<std::boolalpha << pass <<  " jets: ";
+     for(auto ip : ips){
+       address = static_cast<const void*>(ip);
+       ss << address << " ";  
+     }
+     ss << '\n';
+     visitor->visit(this, ss.str());
    }
   return pass;
 
 }
 
 std::string DijetConditionMT::toString() const noexcept {
-  std::stringstream ss;
-  ss << "DijetConditionMT: "
 
+
+  std::stringstream ss;
+  const void* address = static_cast<const void*>(this);
+  ss << "DijetConditionMT: " << address << " "
+    
      << " mass min: " 
      << m_massMin
      << " mass max: " 

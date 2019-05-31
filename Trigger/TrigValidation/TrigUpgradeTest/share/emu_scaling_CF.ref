@@ -1,0 +1,64 @@
+TriggerSummaryStep1                     0   0     DEBUG In summary 10 chains passed:
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain4 ID#358123928
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain9 ID#387583265
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain10 ID#662230103
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain7 ID#710571069
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain6 ID#1033203007
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain8 ID#1187715900
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain5 ID#1843043181
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain1 ID#1907864882
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain3 ID#3498693660
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_TestChain2 ID#4025901193
+TriggerSummaryStep2                     0   0     DEBUG In summary 10 chains passed:
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain4 ID#358123928
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain9 ID#387583265
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain10 ID#662230103
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain7 ID#710571069
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain6 ID#1033203007
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain8 ID#1187715900
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain5 ID#1843043181
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain1 ID#1907864882
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain3 ID#3498693660
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_TestChain2 ID#4025901193
+TriggerSummaryStep1                     1   0     DEBUG In summary 10 chains passed:
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain4 ID#358123928
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain9 ID#387583265
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain10 ID#662230103
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain7 ID#710571069
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain6 ID#1033203007
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain8 ID#1187715900
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain5 ID#1843043181
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain1 ID#1907864882
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain3 ID#3498693660
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_TestChain2 ID#4025901193
+TriggerSummaryStep2                     1   0     DEBUG In summary 10 chains passed:
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain4 ID#358123928
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain9 ID#387583265
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain10 ID#662230103
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain7 ID#710571069
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain6 ID#1033203007
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain8 ID#1187715900
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain5 ID#1843043181
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain1 ID#1907864882
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain3 ID#3498693660
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_TestChain2 ID#4025901193
+TrigSignatureMoniMT                                INFO HLT_TestChain1                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain1 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain10               2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain10 decisions                         4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain2                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain2 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain3                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain3 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain4                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain4 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain5                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain5 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain6                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain6 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain7                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain7 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain8                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain8 decisions                          4         4         
+TrigSignatureMoniMT                                INFO HLT_TestChain9                2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_TestChain9 decisions                          4         4         

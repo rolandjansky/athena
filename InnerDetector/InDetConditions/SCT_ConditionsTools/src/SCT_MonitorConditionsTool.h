@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -102,7 +104,7 @@ private:
   IntegerProperty              m_nhits_noisychip{this, "Nnoisychip", 64};
   IntegerProperty              m_nhits_noisywafer{this, "Nnoisywafer", 384};
   IntegerProperty              m_nhits_noisymodule{this, "Nnoisycmodule", 768};
-  const SCT_ID*                m_pHelper;
+  const SCT_ID*                m_pHelper{nullptr};
 
   SG::ReadCondHandleKey<SCT_MonitorCondData> m_condKey{this, "CondKey", "SCT_MonitorCondData", "SCT noisy strips"};
   const SCT_MonitorCondData* getCondData(const EventContext& ctx) const;

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
@@ -18,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           MagneticField/MagFieldInterfaces

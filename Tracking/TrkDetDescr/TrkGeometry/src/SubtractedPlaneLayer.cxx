@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ const Trk::SubtractedPlaneSurface& Trk::SubtractedPlaneLayer::surfaceRepresentat
 double Trk::SubtractedPlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                           Trk::PropDirection dir) const
 {
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     if (Trk::SubtractedPlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPreFactor();
@@ -61,7 +61,7 @@ double Trk::SubtractedPlaneLayer::preUpdateMaterialFactor(const Trk::TrackParame
 double Trk::SubtractedPlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                  Trk::PropDirection dir) const 
 {
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     if (Trk::SubtractedPlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPostFactor();
@@ -70,10 +70,13 @@ double Trk::SubtractedPlaneLayer::postUpdateMaterialFactor(const Trk::TrackParam
 
 void Trk::SubtractedPlaneLayer::moveLayer(Amg::Transform3D& shift) const {
        Amg::Transform3D transf = shift * (*m_transform);
-       delete m_transform;
-       m_transform = new Amg::Transform3D(transf);
-       delete m_center;
-       m_center = new Amg::Vector3D(m_transform->translation());
-       delete m_normal;
-       m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+        /*
+        * AthenaMT note . This method
+        * should not be probably const
+        * const_cast / mutable kind of issue
+        * Looks like a const "setter" 
+        */
+       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
+       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }

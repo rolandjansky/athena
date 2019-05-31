@@ -113,9 +113,9 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   coll = std::make_unique<TrigInDetTrackCollection>();
   for (int i=0; i<10; i++) {
     int o = i*10;
-    auto param = CxxUtils::make_unique<TrigInDetTrackFitPar>
+    auto param = std::make_unique<TrigInDetTrackFitPar>
       (2.5+o, 3.5+o, 4.5+o, 5.5+o, 6.5+o, TrigInDetTrackFitPar::PERIGEE, 7.5+o);
-    auto trk = CxxUtils::make_unique<TrigInDetTrack> (param.release());
+    auto trk = std::make_unique<TrigInDetTrack> (param.release());
     trk->algorithmId (static_cast<TrigInDetTrack::AlgoId>(i+1));
     coll->push_back (std::move (trk));
   }

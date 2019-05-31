@@ -6,7 +6,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
@@ -17,7 +17,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigTauHypo/EFPhotonTauFex.h"
+#include "EFPhotonTauFex.h"
 
 //Constructor
 EFPhotonTauFex::EFPhotonTauFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){

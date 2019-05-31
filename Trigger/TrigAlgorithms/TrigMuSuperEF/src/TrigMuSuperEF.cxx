@@ -109,7 +109,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
   m_stauCreatorTool("MuonCreatorTool"),
-  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
+  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", this),
   m_doMuonFeature(false),
   m_useL2Info(false),
   m_doCache(true)

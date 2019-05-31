@@ -9,10 +9,11 @@
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
 #include "LArHV/EMBHVManager.h"
+#include "LArHV/EMBPresamplerHVManager.h"
+
 class EMBDetDescr;
 class EMBDetectorRegion;
 class EMBBasicReadoutNumbers;
-class EMBPresamplerHVManager;
 
 /**
  * @class EMBDetectorManager
@@ -38,12 +39,12 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief Constructor
    */
-  EMBDetectorManager(const EMBHVManager& hvManager);
+  EMBDetectorManager(const EMBHVManager& hvManager, const EMBPresamplerHVManager& presamplerHVManager);
   
   /**
    * @brief Destructor
    */
-  ~EMBDetectorManager();
+  virtual ~EMBDetectorManager() override;
   
   /**
    * @brief	Iterate over detector regions
@@ -69,12 +70,12 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
   
   /**
    * @brief	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
   
   /**
    * @brief	Add a new Detector Region
@@ -84,7 +85,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
   
   /**
    * @brief	Collection of useful numerical data for the description of the barrel cells.
@@ -105,7 +106,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief       Get the HV Manager (Presampler)
    */
-  const EMBPresamplerHVManager *getPresamplerHVManager () const;
+  const EMBPresamplerHVManager& getPresamplerHVManager () const;
   
   
  private:
@@ -127,11 +128,11 @@ class EMBDetectorManager : public GeoVDetectorManager
    *	provide iterative  access to any EMBDetectorRegion held
    *	by this manager.
    */
-  EMBDetRegionArray m_DetRegionsRandom;
-  const EMBBasicReadoutNumbers *m_basicReadoutNumbers;
-  mutable EMBAccordionDetails *m_accordionDetails;
-  const EMBHVManager&         m_hvManager;
-  mutable const EMBPresamplerHVManager *m_presamplerHVManager;
+  EMBDetRegionArray             m_DetRegionsRandom;
+  const EMBBasicReadoutNumbers* m_basicReadoutNumbers;
+  mutable EMBAccordionDetails*  m_accordionDetails;
+  const EMBHVManager&           m_hvManager;
+  const EMBPresamplerHVManager& m_presamplerHVManager;
 };
 
 

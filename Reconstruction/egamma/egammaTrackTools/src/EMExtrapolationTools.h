@@ -136,10 +136,10 @@ private:
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool {this,
-    "LastCaloExtentionTool", "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"};
+    "LastCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"};
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_perigeeParticleCaloExtensionTool {this,
-    "PerigeeCaloExtentionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
+    "PerigeeCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
     "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};

@@ -660,8 +660,8 @@ class scriptExecutor(transformExecutor):
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
             if self._memMonitor:
                 try:
-                    self._memSummaryFile = 'mem.summary.' + self._name + '.json'
-                    memMonitorCommand = ['MemoryMonitor', '--pid', str(p.pid), '--filename', 'mem.full.' + self._name, 
+                    self._memSummaryFile = 'prmon.summary.' + self._name + '.json'
+                    memMonitorCommand = ['prmon', '--pid', str(p.pid), '--filename', 'prmon.full.' + self._name, 
                                          '--json-summary', self._memSummaryFile, '--interval', '30']
                     mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True)
                     # TODO - link mem.full.current to mem.full.SUBSTEP

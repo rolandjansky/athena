@@ -35,7 +35,6 @@ class ConfiguredxAODTrackParticleCreation:
                                                                       Extrapolator            = InDetExtrapolator,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                       BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
-                                                                      ForceTrackSummaryUpdate = False,
                                                                       KeepParameters          = True,
                                                                       KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
                                                                       PerigeeExpression       = _perigee_expression)
@@ -57,6 +56,10 @@ class ConfiguredxAODTrackParticleCreation:
          if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
              xAODTrackParticleCnvAlg.AddTruthLink = True
              xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackTruthCollection
+
+             from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+             xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
+
          elif (InDetFlags.doTruth() and InputTrackTruthCollection == ''):
              print "WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!"
          else:

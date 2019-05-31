@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -34,8 +34,6 @@ using std::string;
 
 TauPi0CreateROI::TauPi0CreateROI(   const string& name ) :
      TauRecToolBase(name)
-    , m_calo_dd_man(NULL)
-    , m_calo_id(NULL)
 {
 }
    
@@ -51,10 +49,6 @@ StatusCode TauPi0CreateROI::initialize() {
     // retrieve tools
     ATH_MSG_DEBUG( "Retrieving tools" );
     
-    // initialize calo cell geo
-    m_calo_dd_man  = CaloDetDescrManager::instance();
-    m_calo_id      = m_calo_dd_man->getCaloCell_ID();
-
     ATH_CHECK( m_caloCellInputContainer.initialize() );
 
     return StatusCode::SUCCESS;

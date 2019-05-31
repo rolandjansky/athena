@@ -52,8 +52,7 @@ TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvc
   :AthAlgorithm(name, pSvcLocator),
    m_tools(this),
    m_endtools(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-   m_beamSpotSvc("BeamCondSvc", name)
+   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
@@ -115,12 +114,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   }
 
   // Retrieve beam conditions
-  if(m_beamSpotSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve Beamspot service");
-  } 
-  else {
-    ATH_MSG_WARNING("Successfully retrieved Beamspot service");
-  }
+  CHECK(m_beamSpotKey.initialize());
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -188,13 +182,13 @@ StatusCode TrigTauRecMergedMT::execute()
   auto beamspot_x         = Monitored::Scalar<float>("EF_beamspot_x",-999.9);
   auto beamspot_y         = Monitored::Scalar<float>("EF_beamspot_y",-999.9);
   auto beamspot_z         = Monitored::Scalar<float>("EF_beamspot_z",-999.9);
-  auto EtaL1                 = Monitored::Scalar<float>("EtaL1",-99.9);
-  auto PhiL1                 = Monitored::Scalar<float>("PhiL1",-99.9);
-  auto EtaEF                 = Monitored::Scalar<float>("EtaEF",-99.9);
-  auto PhiEF                 = Monitored::Scalar<float>("PhiEF",-99.9);
+  auto EtaL1              = Monitored::Scalar<float>("EtaL1",-99.9);
+  auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
+  auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
+  auto PhiEF              = Monitored::Scalar<float>("PhiEF",-99.9);
 
-  auto EF_calo_errors        = Monitored::Collection("calo_errors",calo_errors);
-  auto EF_track_errors       = Monitored::Collection("track_errors",track_errors);
+  auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
+  auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
 				     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
@@ -291,17 +285,18 @@ StatusCode TrigTauRecMergedMT::execute()
   theBeamspot.makePrivateStore();
   const xAOD::Vertex* ptrBeamspot = nullptr;
 
-  if(m_beamSpotSvc){
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  if(beamSpotHandle.isValid()){
 	
     // Alter the position of the vertex
-    theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+    theBeamspot.setPosition(beamSpotHandle->beamPos());
 	
     beamspot_x=theBeamspot.x();
     beamspot_y=theBeamspot.y();
     beamspot_z=theBeamspot.z();
 
     // Create a AmgSymMatrix to alter the vertex covariance mat.
-    AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+    const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
     theBeamspot.setCovariancePosition(cov);
 
     ptrBeamspot = &theBeamspot;
@@ -384,7 +379,7 @@ StatusCode TrigTauRecMergedMT::execute()
   m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
   m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
   if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
   if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
 

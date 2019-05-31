@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,7 +40,7 @@ TruthClassDecoratorAlg::finalize() {
 // to migrate to AthReentrantAlgorithm later
 StatusCode
 TruthClassDecoratorAlg::execute(const EventContext &ctx) const {
-  SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
+  SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName, ctx);
   if ((not ptruth.isValid())) {
     return StatusCode::FAILURE;
   }

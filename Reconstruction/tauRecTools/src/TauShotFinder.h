@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUSHOTFINDER_H
@@ -63,7 +63,6 @@ private:
     
     /** @brief new shot PFO container and name */
     /** @brief calo cell navigation */
-    const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
 
     /** @brief readers */

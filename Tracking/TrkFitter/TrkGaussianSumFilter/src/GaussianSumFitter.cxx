@@ -310,7 +310,10 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
       }
 
       // Dynamic cast to a RIO_OnTrack object
-      const Trk::RIO_OnTrack* rioOnTrack = dynamic_cast< const Trk::RIO_OnTrack* >(*measurementOnTrack);
+      const Trk::RIO_OnTrack* rioOnTrack = nullptr;
+      if((*measurementOnTrack)->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+        rioOnTrack=static_cast< const Trk::RIO_OnTrack* >(*measurementOnTrack);
+      }
 
       if ( !rioOnTrack){
         msg(MSG::DEBUG) << "Measurement could not be cast as a RIO_OnTrack object... continuing" << endmsg;
@@ -507,8 +510,12 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   for ( ; itSet!=itSetEnd; ++itSet) {
     if (!(*itSet)) {
       msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
-    } else {
-      ccot = dynamic_cast<const Trk::CaloCluster_OnTrack*>(*itSet);
+    } 
+    else {
+      ccot = nullptr;
+      if((*itSet)->type(Trk::MeasurementBaseType::CaloCluster_OnTrack)){
+        ccot= static_cast <const Trk::CaloCluster_OnTrack*>(*itSet);
+      }  
       if (!ccot){
         cleanedMeasurementSet.push_back(*itSet);
       } else {
@@ -516,8 +523,6 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
       }
     }
   }
-
-
 
   // A const stl container cannot be sorted. This will re-cast it so that it can.
   Trk::MeasurementSet sortedMeasurementSet = MeasurementSet( cleanedMeasurementSet );
@@ -739,16 +744,20 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Track&             intrk1,
   Trk::MeasurementSet ms;
 
   for (;itStates!=endState;++itStates){
-    if ( !((*itStates)->type(Trk::TrackStateOnSurface::Measurement) || (*itStates)->type(Trk::TrackStateOnSurface::Outlier))) continue;
-    if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itStates)->measurementOnTrack())) continue;
+    if ( !((*itStates)->type(Trk::TrackStateOnSurface::Measurement) || 
+           (*itStates)->type(Trk::TrackStateOnSurface::Outlier))) {continue;}
+
+    if ((*itStates)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {continue;}
+    
     ms.push_back((*itStates)->measurementOnTrack());
   }
 
   for (;itStates2!=endState2;++itStates2){
 
-    if ( !((*itStates2)->type(Trk::TrackStateOnSurface::Measurement) || (*itStates2)->type(Trk::TrackStateOnSurface::Outlier))) continue;
+    if ( !((*itStates2)->type(Trk::TrackStateOnSurface::Measurement) || 
+           (*itStates2)->type(Trk::TrackStateOnSurface::Outlier))) {continue;}
 
-    if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itStates2)->measurementOnTrack())) continue;
+    if ((*itStates2)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {continue;}
 
     ms.push_back((*itStates2)->measurementOnTrack());
   }

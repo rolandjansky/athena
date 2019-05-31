@@ -47,7 +47,6 @@ MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for muon
 	           
 theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
 theAtlasExtrapolator.SubMEUpdators = MySubUpdators
-ToolSvc+=theAtlasExtrapolator
 	           
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 ClassifierParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(name="ClassifierParticleCaloExtensionTool",

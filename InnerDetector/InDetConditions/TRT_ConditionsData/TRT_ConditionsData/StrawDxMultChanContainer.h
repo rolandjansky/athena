@@ -16,6 +16,8 @@
 
 #include "TRT_ConditionsData/StrawDxContainer.h"
 #include "TRT_ConditionsData/MultChanContainer.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 namespace TRTCond 
 {
@@ -54,18 +56,23 @@ namespace TRTCond
     
     /** set dx */
     void setDx(const ExpandedIdentifier& id, float dx1, float dx2, float dxerr) {
-      if( id.level()==ExpandedIdentifier::DETECTOR ) 
+      if( id.level()==ExpandedIdentifier::DETECTOR ) {
 	findContainer(id)->setDx(dx1,dx2,dxerr) ; 
-      else if( id.level()==ExpandedIdentifier::BARRELEC ) 
-	std::cout << "Sorry: TRTCond::StrawDxMultChanContainer cannot store containers at BARREL_EC granularity" << std::endl ;
-      else 
+      } else if( id.level()==ExpandedIdentifier::BARRELEC ) {
+        MsgStream log(Athena::getMessageSvc(),"StrawDxMultChanContainer"); 
+        log << MSG::WARNING << "Sorry: cannot store containers at BARREL_EC granularity" << endmsg ;
+      }  else { 
 	findContainer(id)->setDx( id, dx1, dx2, dxerr) ;
+      }
     }
     
     /** method to unpack a StrawDx object */
     void unpack(const ExpandedIdentifier& id, float& dx1 , float& dx2, float& dxerr) const {
           const StrawDxLayerContainer* container = getContainer(channelId(id)) ;
-      if(container==0) std::cout << "ERRRRRRORRRRRR: cannot find container ..." << id << " " << channelId(id) << std::endl ;
+	  if(container==0) {
+             MsgStream log(Athena::getMessageSvc(),"StrawDxMultChanContainer"); 
+             log << MSG::ERROR << "cannot find container channel " << channelId(id) << endmsg;
+          }
       dx1 = container->getDx1(id);
       dx2 = container->getDx2(id);
       dxerr = container->getDxErr(id);

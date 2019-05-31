@@ -26,11 +26,9 @@ TriggerFlags.doEF   = False
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
 
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo",
-                                      "ROIB::RoIBResult",
                                       "HLT::HLTResult" ]
 
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult",
-                                                   "HLT::HLTResult/HLTResult_L2",
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_L2",
                                                    "HLT::HLTResult/HLTResult_EF" ]
 
 #----------------------------------------------------------------------

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -115,7 +115,6 @@
 #define ATHENAKERNEL_RCUOBJECT_H
 
 
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 #include "boost/dynamic_bitset.hpp"
@@ -220,7 +219,6 @@ protected:
   /**
    * @brief Declare that all slots are in a grace period.
    * @param Lock object (external locking).
-   * @param ctx Event context for the slot.
    *
    * The caller must be holding the mutex for this object.
    */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,6 @@
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "TrkParameters/TrackParameters.h" // Contains typedef to Trk::CurvilinearParameters
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include <cmath>
 
 // ref:
@@ -27,8 +26,8 @@
 
 
 InDetPhysValTruthDecoratorAlg::InDetPhysValTruthDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_beamSpotSvc("BeamCondSvc", name) {
+  AthReentrantAlgorithm(name, pSvcLocator)
+{
 }
 
 InDetPhysValTruthDecoratorAlg::~InDetPhysValTruthDecoratorAlg () {
@@ -38,7 +37,7 @@ InDetPhysValTruthDecoratorAlg::~InDetPhysValTruthDecoratorAlg () {
 StatusCode
 InDetPhysValTruthDecoratorAlg::initialize() {
   ATH_CHECK(m_extrapolator.retrieve());
-  ATH_CHECK(m_beamSpotSvc.retrieve());
+  ATH_CHECK(m_beamSpotKey.initialize());
   ATH_CHECK( m_truthSelectionTool.retrieve( EnableTool { not m_truthSelectionTool.name().empty() } ) );
   if (not m_truthSelectionTool.name().empty() ) {
     m_cutFlow = CutFlow(m_truthSelectionTool->nCuts() );
@@ -72,7 +71,7 @@ InDetPhysValTruthDecoratorAlg::finalize() {
 
 StatusCode
 InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
-  SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
+  SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName, ctx);
   if ((not ptruth.isValid())) {
     return StatusCode::FAILURE;
   }
@@ -80,20 +79,24 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
   std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer, float>,const SG::AuxElement::ConstAccessor<float> &> >
     float_decor( IDPVM::createDecoratorsWithAccessor(m_decor, ctx) );
 
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  ATH_CHECK(beamSpotHandle.isValid());
+  const auto& beamPos = beamSpotHandle->beamPos();
+
   if ( m_truthSelectionTool.get() ) {
     CutFlow tmp_cut_flow(m_truthSelectionTool->nCuts());
     for (const xAOD::TruthParticle *truth_particle : *ptruth) {
       auto passed = m_truthSelectionTool->accept(truth_particle);
       tmp_cut_flow.update( passed.missingCuts() );
       if (not passed) continue;
-      decorateTruth(*truth_particle, float_decor);
+      decorateTruth(*truth_particle, float_decor, beamPos);
     }
     std::lock_guard<std::mutex> lock(m_mutex);
     m_cutFlow.merge(std::move(tmp_cut_flow));
   }
   else {
     for (const xAOD::TruthParticle *truth_particle : *ptruth) {
-      decorateTruth(*truth_particle, float_decor);
+      decorateTruth(*truth_particle, float_decor, beamPos);
     }
   }
   return StatusCode::SUCCESS;
@@ -104,7 +107,8 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
 bool
 InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle,
                                               std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
-                                                                     const SG::AuxElement::ConstAccessor<float> &> > &float_decor) const {
+                                                                     const SG::AuxElement::ConstAccessor<float> &> > &float_decor,
+                                                                      const Amg::Vector3D& beamPos) const {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
     return false;
@@ -141,7 +145,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
   // delete ptruthVertex;ptruthVertex=0;
   const Trk::CurvilinearParameters cParameters(position, momentum, charge);
 
-  Trk::PerigeeSurface persf(m_beamSpotSvc->beamPos());
+  Trk::PerigeeSurface persf(beamPos);
 
   std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false) );
   if (tP) {

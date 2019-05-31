@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SpecialPixelMapCondAlg.h"
@@ -212,7 +212,7 @@ StatusCode SpecialPixelMapCondAlg::execute (const EventContext& ctx) const
 
         DetectorSpecialPixelMap* overlay =nullptr;
         DetectorSpecialPixelMap* maskoverlay=nullptr;
-        SG::ReadCondHandle<CondAttrListCollection> overlayfolder(m_overlayFolder);
+        SG::ReadCondHandle<CondAttrListCollection> overlayfolder(m_overlayFolder, ctx);
         std::vector<EventIDRange> overlayRanges;
         EventIDRange r;
         if(!overlayfolder.range(r)) {
@@ -234,7 +234,7 @@ StatusCode SpecialPixelMapCondAlg::execute (const EventContext& ctx) const
         }
         if( !m_overlayLongFolder.key().empty() ) {
             DetectorSpecialPixelMap* overlaylong = nullptr;
-            SG::ReadCondHandle<CondAttrListCollection> overlayfolder(m_overlayLongFolder);
+            SG::ReadCondHandle<CondAttrListCollection> overlayfolder(m_overlayLongFolder, ctx);
             EventIDRange r;
             if(!overlayfolder.range(r)) {
                ATH_MSG_ERROR("Failed to retrieve validity range for " << overlayfolder.key());

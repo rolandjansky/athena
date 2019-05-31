@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include <mutex>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -58,20 +59,23 @@ public:
     // add leading material effects to track
     void	addLeadingMaterial (std::vector<FitMeasurement*>&	measurements,
 				    ParticleHypothesis			particleHypothesis,
-				    FitParameters&			fitParameters) const;
+				    FitParameters&			fitParameters,
+                                    Garbage_t&                          garbage) const;
 
     // allocate material 
     void	allocateMaterial (std::vector<FitMeasurement*>&		measurements,
 				  ParticleHypothesis			particleHypothesis,
 				  const FitParameters&			fitParameters,
-				  const TrackParameters&		startParameters) const;
+				  const TrackParameters&		startParameters,
+                                  Garbage_t&                            garbage) const;
 
     // initialize scattering (needs to know X0 integral)
     void	initializeScattering (std::vector<FitMeasurement*>&	measurements) const;
 
     // material TSOS between spectrometer entrance surface and parameters given in spectrometer */
     std::vector<const TrackStateOnSurface*>*    leadingSpectrometerTSOS(
-	const TrackParameters& spectrometerParameters) const;
+	const TrackParameters& spectrometerParameters,
+        Garbage_t& garbage) const;
  
     // order measurements by distance from startPosition
     void	orderMeasurements(std::vector<FitMeasurement*>&	measurements,
@@ -80,17 +84,16 @@ public:
     
     // has material been reallocated? 
     bool	reallocateMaterial (std::vector<FitMeasurement*>&	measurements,
-				    const FitParameters&		fitParameters) const;
-
-    // clear temporary TSOS
-    void	clear (void);
+				    const FitParameters&		fitParameters,
+                                    Garbage_t&                          garbage) const;
 
 private:
     // add material delimiters to control aggregation
     void	addSpectrometerDelimiters (std::vector<FitMeasurement*>&	measurements) const;
 
     // memory management
-    void	deleteMaterial (const std::vector<const TrackStateOnSurface*>* material) const;
+    void	deleteMaterial (const std::vector<const TrackStateOnSurface*>* material,
+                                Garbage_t& garbage) const;
 
     // extrapolateM wrapper
     const std::vector<const TrackStateOnSurface*>*	extrapolatedMaterial (
@@ -99,12 +102,14 @@ private:
 	const Surface&				surface,
 	PropDirection				dir,
 	BoundaryCheck				boundsCheck,
-	ParticleHypothesis			particleHypothesis) const;
+	ParticleHypothesis			particleHypothesis,
+        Garbage_t&                              garbage) const;
 
     // allocate material in inner detector
     void	indetMaterial (std::vector<FitMeasurement*>&		measurements,
 			       ParticleHypothesis			particleHypothesis,
-			       const TrackParameters&			startParameters) const;
+			       const TrackParameters&			startParameters,
+                               Garbage_t& garbage) const;
     
     // material aggregation
     std::pair<FitMeasurement*,FitMeasurement*>	materialAggregation (
@@ -127,12 +132,15 @@ private:
     void	spectrometerMaterial (std::vector<FitMeasurement*>&	measurements,
 				      ParticleHypothesis		particleHypothesis,
 				      const FitParameters&		fitParameters,
-				      const TrackParameters&		startParameters) const;
+				      const TrackParameters&		startParameters,
+                                      Garbage_t& garbage) const;
+
+    // Makes sure m_spectrometerEntrance is created, once only, and thread-safe
+    void createSpectrometerEntranceOnce() const;
     
     // configurables (svc/tools then options)
     ToolHandle<IExtrapolator>				m_extrapolator;
     mutable ToolHandle<IIntersector>			m_intersector;
-    ToolHandle<IExtrapolator>				m_spectrometerExtrapolator;
     mutable ServiceHandle<ITrackingGeometrySvc> 	m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
     PublicToolHandle<IPropagator>			m_stepPropagator
@@ -157,10 +165,8 @@ private:
     Trk::MagneticFieldProperties                        m_stepField;
 
     // constant initialized the first time it's needed
-    mutable const Trk::TrackingVolume*			m_spectrometerEntrance;
-
-    // memory management
-    mutable std::vector<const TrackStateOnSurface*>*	m_temporaryTSOS;
+    mutable const Trk::TrackingVolume* m_spectrometerEntrance;
+    mutable std::once_flag m_spectrometerEntranceOnceFlag;
 
     // count warnings
     mutable MessageHelper*				m_messageHelper;

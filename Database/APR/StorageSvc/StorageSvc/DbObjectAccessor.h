@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObjectAccessor.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  @author      M.Frank
@@ -29,21 +28,20 @@ namespace pool  {
   */
   class DbObjectAccessor   {
   public:
-    /** Open object using either handle starting
-      * from the container handle of the originating object.
+    /** Read object from a container, using its OID
       *
-      * @param objH      [IN/OUT] Handle to the object to be loaded.
+      * @param ptr       [OUT]    Pointer to the retrieved object 
+      * @param shape     [IN]     Object type information
       * @param cntH      [IN]     Handle to source object's container.
-      * @param tokenH    [IN]     Reference to token of the target object.
-      * @param mod       [IN]     Desired opening mode.
+      * @param OID       [IN]     OID of the target object.
       *
       * @return DbStatus code indicating success or failure.
       */
-    static DbStatus open( void**                    ptr,
+    static DbStatus read( void**                    ptr,
                           ShapeH                    shape,
                           const DbContainer&        cntH,
-                          const Token&              tokenH, 
-                          DbAccessMode              mod);
+                          const Token::OID_t&       oid,
+                          int                       merge_section );
 
     /// Retrieve hosting container
     static const DbContainer& containedIn(const DbObject* pObj);
@@ -56,10 +54,6 @@ namespace pool  {
                                     const Token*        pToken,
                                     Token::OID_t&       tokenH);
     
-    /// Validate an object association
-    static DbStatus getObjectLink(  const DbObject*     pObj,
-                                    const Token::OID_t& tokenH,
-                                    Token*              pToken);
   };
 }       // End namespace pool
 #endif  // POOL_DBOBJECTACCESSOR_H

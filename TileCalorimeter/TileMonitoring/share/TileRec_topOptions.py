@@ -334,8 +334,7 @@ if doAtlantis:
         from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         svcMgr += ByteStreamAddressProviderSvc()
 
-    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ 'ROIB::RoIBResult/RoIBResult'
-                                                      , 'MuCTPI_RDO/MUCTPI_RDO'
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [  'MuCTPI_RDO/MUCTPI_RDO'
                                                       , 'MuCTPI_RIO/MUCTPI_RIO'
                                                       , 'LVL_ROI/LVL_ROI' ]
 

@@ -16,6 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Control/AthenaBaseComps
                           Control/CxxUtils
+                          Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODMuon
+                          Event/xAOD/xAODBase
                           Trigger/TrigConfiguration/TrigConfHLTData
                           AtlasTest/TestTools
                           Control/StoreGate
@@ -41,6 +44,11 @@ atlas_install_python_modules( python/*.py )
 atlas_add_test( TrigCompositeUtils_test
                 SOURCES test/TrigCompositeUtils_test.cxx
                 LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers SGtests )
+
+atlas_add_test( TrigTraversal_test
+                SOURCES test/TrigTraversal_test.cxx
+                LINK_LIBRARIES  TestTools xAODTrigger xAODEgamma xAODMuon xAODBase DecisionHandlingLib
+                AthContainers SGtests )
 
 atlas_add_test( Combinators_test
                 SOURCES test/Combinators_test.cxx

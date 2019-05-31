@@ -11,7 +11,7 @@
 // Athena includes
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 // Gaudi includes
 #include "GaudiKernel/ConcurrencyFlags.h"

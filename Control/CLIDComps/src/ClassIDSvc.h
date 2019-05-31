@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLIDCOMPS_CLASSIDSVC_H
@@ -26,7 +26,7 @@
 
 #include "AthenaKernel/IClassIDSvc.h"
 
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 
 
 /** @class ClassIDSvc 

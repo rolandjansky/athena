@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
@@ -22,6 +22,7 @@
 //forward declarations
 class IIncidentSvc;
 class TTree;
+
 
 namespace MuonGM {
 class MuonDetectorManager;
@@ -65,18 +66,13 @@ namespace NSWL1 {
         
         StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers);
 
-        /**
-        @brief simplified trigger: require 4 aligned pads on 4 subsequent layers
-        This is meant mainly to test the machinery.
-        See test/test_4on4padTrigger.cxx
-        */
+
         static std::vector<std::unique_ptr<PadTrigger>> build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads);
+
         /**
-        @brief transfer the geometric info from PadData to PadWithHits
+        @brief transfer the geometric info from PadData to std::shared_ptr<PadData>
         Note: it needs to access the MuonDetectorManager
         */
-        bool fillGeometricInformation(const PadData &pd, PadWithHits &pwh);
-        int Pad2BandId(const PadWithHits  &p, const float Yfrac);
         
         /// from TDR-style SectorTriggerCandidate to PadTrigger
         PadTrigger convert(const SectorTriggerCandidate &t);
@@ -85,27 +81,26 @@ namespace NSWL1 {
         /// get the output tree from the athena histogram service
         TTree* get_tree_from_histsvc();
 
-        // needed Servives, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
-        // hidden variables
         int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
         int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
 
 
-        // properties: configuration
+        StringProperty   m_rndmEngineName;                      //!< property, todo
+        StringProperty   m_sTgcDigitContainer;                  //!< property, todo
+        StringProperty   m_sTgcSdoContainer;                    //!< property, todo
         FloatProperty    m_PadEfficiency;                       //!< property, todo
 
-        // properties: steering flags
         BooleanProperty  m_useSimple4of4;                       //!< property, todo
         BooleanProperty  m_doNtuple;                            //!< property, todo
 
         PadTriggerValidationTree m_validation_tree;
-        size_t m_missingDetectorManagerErrorCounter;            ///< how many times we errored b/c of missing m_detManager
-        size_t m_missingReadoutElementErrorCounter;             ///< how many times we errored b/c of missing sTgcReadoutElement
+
+        void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&);
          L1TdrStgcTriggerLogic m_tdrLogic;
-    };  // end of PadTriggerLogicOfflineTool class
+    };  
 
 } // namespace NSWL1
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PFONEUTRALCREATORALGORITHM_H
 #define PFONEUTRALCREATORALGORITHM_H
@@ -29,8 +29,9 @@ public:
   StatusCode finalize();
 
 private:
+
   /** Create the chargedneutral PFO */ 
-  void createNeutralPFO(const eflowCaloObject& energyFlowCaloObject,SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle, SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle_nonModified);
+  void createNeutralPFO(const eflowCaloObject& energyFlowCaloObject,SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle, SG::WriteHandle<xAOD::PFOContainer>* neutralPFOContainerWriteHandle_nonModified);
 
   /** Function to add cluster moments onto PFO */
   void addMoment(const xAOD::CaloCluster::MomentType& momentType, const xAOD::PFODetails::PFOAttributes& pfoAttribute, const xAOD::CaloCluster& theCluster, xAOD::PFO& thePFO);
@@ -40,6 +41,9 @@ private:
 
   /** Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   Gaudi::Property<bool> m_LCMode{this,"LCMode",false,"Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input"};
+
+  /** Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
+  Gaudi::Property<bool> m_doClusterMoments{this,"DoClusterMoments",true,"Bool to toggle whether cluster moments are added to the PFOs"};
 
   /** Toggle usage of calibration hit truth - false by default */
   Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};

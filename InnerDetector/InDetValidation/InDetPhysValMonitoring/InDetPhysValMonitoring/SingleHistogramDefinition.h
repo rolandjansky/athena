@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -14,7 +14,8 @@
 #include "InDetPhysValMonitoring/IHistogramDefinitionSvc.h"
 #include <string>
 ///Almost-a-struct for holding the single histogram definition
-struct SingleHistogramDefinition{
+class SingleHistogramDefinition{
+public:
     typedef const std::string & Titles_t;
     typedef const unsigned int NBins_t;
     typedef const float Var_t;

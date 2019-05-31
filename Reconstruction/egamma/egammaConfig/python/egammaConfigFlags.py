@@ -37,7 +37,18 @@ def createEgammaConfigFlags():
     # one idea is to make the keys have tuples with type, name, etc
     ##################################################
 
-    egcf.addFlag("Egamma.Keys.Input.Cells","AllCalo") #should make a lambda
+    def _cellContainer(prevFlags):
+        if "AllCalo" in prevFlags.Input.Collections:
+            # if have all the cells in input file, return it
+            return "AllCalo"
+        elif "AODCellContainer" in prevFlags.Input.Collections:
+            # do we have the AOD cells?
+            return "AODCellContainer"
+        else:
+            # assume they will be created
+            return "AllCalo"
+
+    egcf.addFlag("Egamma.Keys.Input.CaloCells", lambda prevFlags: _cellContainer(prevFlags))
     egcf.addFlag("Egamma.Keys.Input.TopoClusters",'CaloTopoCluster') #input topoclusters
     egcf.addFlag("Egamma.Keys.Input.TruthParticles", 'TruthParticles')
     egcf.addFlag("Egamma.Keys.Input.TruthEvents", 'TruthEvents')

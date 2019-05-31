@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_InDetPhysHitDecoratorAlg_H
@@ -48,7 +48,7 @@ public:
   ~InDetPhysHitDecoratorAlg ();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize()   override;
-  virtual StatusCode execute(const EventContext &ctx) const;
+  virtual StatusCode execute(const EventContext &ctx) const override;
 
 private:
   bool

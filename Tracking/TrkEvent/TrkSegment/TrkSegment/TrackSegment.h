@@ -67,37 +67,37 @@ class FitQuality;
                     const Surface* sf,
                     DataVector<const MeasurementBase>* crots,
                     FitQuality* fqual,
-		    Segment::Author author = Segment::AuthorUnknown
-                    ); 
+                    Segment::Author author = Segment::AuthorUnknown
+                  ); 
   
      /** Destructor */
      virtual ~TrackSegment();
   
      /** needed to avoid excessive RTTI*/
-     TrackSegment* clone() const;
+     virtual TrackSegment* clone() const override final;
      
      /** returns the surface for the local to global transformation 
          - interface from MeasurementBase */
-     const Surface& associatedSurface() const;
+     const Surface& associatedSurface() const override final;
      
      /**Interface method to get the global Position
         - interface from MeasurementBase */
-     const Amg::Vector3D&  globalPosition() const;
+     const Amg::Vector3D&  globalPosition() const override final;
            
      /**returns some information about this MeasurementBase/TrackSegment. 
      It should be overloaded by any child classes*/
-     MsgStream&    dump( MsgStream& out ) const;  
+     MsgStream&    dump( MsgStream& out ) const override final;  
      /**returns some information about this MeasurementBase/TrackSegment.
      It should be overloaded by any child classes*/
-     std::ostream& dump( std::ostream& out ) const;
+     std::ostream& dump( std::ostream& out ) const override final;
     
   private:
     friend class ::TrackSegmentCnv_p1;
 
     /** The surface to which the segment parameters are expressed to */
-    mutable const Surface*                  m_associatedSurface;
+    const Surface*                  m_associatedSurface;
     /** The surface to which the segment parameters are expressed to */
-    mutable const Amg::Vector3D*            m_globalPosition;
+    const Amg::Vector3D*            m_globalPosition;
 
 };
 

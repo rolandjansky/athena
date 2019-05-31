@@ -124,6 +124,8 @@ class DictFromChainName(object):
                 m_groupdict = m.groupdict()
                 if m_groupdict['multiplicity'] == '':
                     multiplicity = 1
+                else:
+                    multiplicity = m_groupdict['multiplicity']
                 allMultis.append(multiplicity)
         return allMultis
 
@@ -446,9 +448,9 @@ class DictFromChainName(object):
 
 
             #---- Check if topo is a bphsyics topo -> change signature ----            
-            from SignatureDicts import AllowedTopos_bphys
+            from SignatureDicts import AllowedTopos_Bphysics
             for t in genchainDict['topo']:
-                if (t in AllowedTopos_bphys):
+                if (t in AllowedTopos_Bphysics):
                     chainProperties['signature'] = 'Bphysics'
 
 

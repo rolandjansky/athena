@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.cxx 696633 2015-09-24 14:59:50Z jwalder $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -187,7 +186,7 @@ namespace xAOD {
 
     /** accessor method: secondary decay particle */
     const TrigBphys_v1* TrigBphys_v1::secondaryDecay() const {
-        static Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "secondaryDecayLink" );
+        static const Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "secondaryDecayLink" );
         if( ! acc.isAvailable( *this ) ) {
            return 0;
         }
@@ -204,7 +203,7 @@ namespace xAOD {
                                       trackParticleLinks, setTrackParticleLinks )
 
     /// Accessor for the track particle links variable
-    static SG::AuxElement::Accessor< std::vector< ElementLink< TrackParticleContainer > > >
+    static const SG::AuxElement::Accessor< std::vector< ElementLink< TrackParticleContainer > > >
        trackAcc( "trackParticleLinks" );
 
     size_t TrigBphys_v1::nTrackParticles() const {
@@ -277,7 +276,7 @@ namespace xAOD {
 
     /** accessor method: lower chain particle */
     const TrigBphys_v1* TrigBphys_v1::lowerChain() const {
-        static Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "lowerChainLink" );
+        static const Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "lowerChainLink" );
         if( ! acc.isAvailable( *this ) ) {
            return nullptr;
         }
@@ -294,7 +293,7 @@ namespace xAOD {
                                       particleLinks, setParticleLinks )
     
     /// Accessor for the track particle links variable
-    static SG::AuxElement::Accessor< std::vector< ElementLink< IParticleContainer > > >
+    static const SG::AuxElement::Accessor< std::vector< ElementLink< IParticleContainer > > >
     particleAcc( "particleLinks" );
     
     size_t TrigBphys_v1::nParticles() const {
@@ -331,7 +330,7 @@ namespace xAOD {
                                       vecRoiIds, setVecRoiIds )
 
     /// Accessor for the vecRoiId variable
-    static SG::AuxElement::Accessor< std::vector< uint32_t > >
+    static const SG::AuxElement::Accessor< std::vector< uint32_t > >
     vRoiAcc( "vecRoiIds" );
     
     size_t TrigBphys_v1::nVecRoiIds() const {
@@ -362,7 +361,7 @@ namespace xAOD {
     // get pT, but check if is in the object
     float TrigBphys_v1::pt() const {
         // #FIXME - why doesn't this work as expected?
-        static SG::AuxElement::Accessor< float > ptAcc( "pt" );
+        static const SG::AuxElement::Accessor< float > ptAcc( "pt" );
         if( ! ptAcc.isAvailable( *this ) ) {
             return 0.;
         } 
@@ -370,16 +369,16 @@ namespace xAOD {
     }
     
     void TrigBphys_v1::setPt(float pt) {
-        static SG::AuxElement::Accessor< float > ptAcc( "pt" );
+        static const SG::AuxElement::Accessor< float > ptAcc( "pt" );
         ptAcc(*this) = pt;
         return;
     }
 
-    static SG::AuxElement::Accessor< float > fitmassErrorAcc( "fitmassError" );
-    static SG::AuxElement::Accessor< float > lxyAcc         ( "lxy"          );
-    static SG::AuxElement::Accessor< float > lxyErrorAcc    ( "lxyError"     );
-    static SG::AuxElement::Accessor< float > tauAcc         ( "tau"          );
-    static SG::AuxElement::Accessor< float > tauErrorAcc    ( "tauError"     );
+    static const SG::AuxElement::Accessor< float > fitmassErrorAcc( "fitmassError" );
+    static const SG::AuxElement::Accessor< float > lxyAcc         ( "lxy"          );
+    static const SG::AuxElement::Accessor< float > lxyErrorAcc    ( "lxyError"     );
+    static const SG::AuxElement::Accessor< float > tauAcc         ( "tau"          );
+    static const SG::AuxElement::Accessor< float > tauErrorAcc    ( "tauError"     );
 
     
     float TrigBphys_v1::fitmassError() const {

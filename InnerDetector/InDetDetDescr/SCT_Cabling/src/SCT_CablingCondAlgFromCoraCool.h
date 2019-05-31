@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -56,9 +58,9 @@ private:
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyGeo{this, "ReadKeyGeo", "/SCT/DAQ/Config/Geog", "Key of input (raw) conditions folder of Geography"};
   SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions folder"};
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-  const SCT_ID* m_idHelper;
+  const SCT_ID* m_idHelper{nullptr};
 };//end of class
 
 #endif // SCT_CablingCondAlgFromCoraCool_H

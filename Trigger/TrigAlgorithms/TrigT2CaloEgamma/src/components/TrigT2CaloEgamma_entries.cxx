@@ -9,6 +9,7 @@
 #include "../EgammaReEmEnFex.h"
 #include "../EgammaReHadEnFex.h"
 #include "../RingerFex.h"
+#include "../RingerReFex.h"
 #include "../EgammaAllFex.h"
 
 DECLARE_COMPONENT( T2CaloEgamma )
@@ -22,4 +23,5 @@ DECLARE_COMPONENT( EgammaReSamp1Fex )
 DECLARE_COMPONENT( EgammaReEmEnFex )
 DECLARE_COMPONENT( EgammaReHadEnFex )
 DECLARE_COMPONENT( RingerFex )
+DECLARE_COMPONENT( RingerReFex )
 DECLARE_COMPONENT( EgammaAllFex )

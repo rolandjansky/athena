@@ -1,74 +1,73 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALHVMANAGER_H_HEADER_INCLUDED_AC244FA8
-#define FCALHVMANAGER_H_HEADER_INCLUDED_AC244FA8
+#ifndef LARHV_FCALHVMANAGER_H
+#define LARHV_FCALHVMANAGER_H
 
-#include "GeoModelKernel/RCBase.h"
-#include "FCALHVModule.h"
-typedef ConstLink<FCALHVModule> FCALHVModuleConstLink;
-class FCALHVDescriptor;
+#include "LArHV/FCALHVModule.h"
+
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
 
 struct FCALHVPayload;
 
-//##ModelId=475307C201C5
-class FCALHVManager : public RCBase
+/**
+ * @class FCALHVManager
+ *
+ * @brief  This class provides direct access to information on the HV
+ * electrodes within the barrels.  The information may be accessed either
+ * directly or iteratively.  Direct access is provided by the getHVModule()
+ * method.  Iterative access
+ * is by looping over valid side, eta, phi, and sector indices to
+ * retrieve a HV module.  From the high voltage modules one
+ * can obtain a list of electrodes (iteratively or directly).
+ *
+ * The manager owns the pointers to the HV Modules.
+ */
+
+class FCALHVManager
 {
-  public:
-    //##ModelId=47ABAE9302D3
-    FCALHVManager();
+ public:
+  FCALHVManager();
+  ~FCALHVManager();
 
-    //##ModelId=47ABAE930373
-    virtual ~FCALHVManager();
+  // Begin/End side index (0=negative and 1= positive)
+  unsigned int beginSideIndex() const;
+  unsigned int endSideIndex() const;
 
-    //##ModelId=47ABAF5E0079
-    const FCALHVDescriptor *getDescriptor() const;
+  unsigned int beginSectorIndex(unsigned int iSampling) const;
+  unsigned int endSectorIndex(unsigned int iSampling) const;
 
-    // Begin side index (0=negative and 1= positive)
-    //##ModelId=47ABAF5E0092
-    unsigned int beginSideIndex() const;
+  unsigned int beginSamplingIndex() const;
+  unsigned int endSamplingIndex() const;
 
-    // End side index (0=negative and 1= positive)
-    //##ModelId=47ABAF5E009F
-    unsigned int endSideIndex() const;
+  const FCALHVModule& getHVModule(unsigned int iSide
+				  , unsigned int iSector
+				  , unsigned int iSampling) const;
 
-    //##ModelId=47ABAF5E00AD
-    unsigned int beginSectorIndex(unsigned int iSampling) const;
+  // Refresh from the database if needed
+  void update() const;
+  
+  // Make the data stale.  Force update of data.
+  void reset() const;
+  
+  // Get the database payload
+  FCALHVPayload *getPayload(const FCALHVLine &) const;
 
-    //##ModelId=47ABAF5E00BB
-    unsigned int endSectorIndex(unsigned int iSampling) const;
+#ifndef SIMULATIONBASE
+  // Get hvLine for a subgap
+  int hvLineNo(const FCALHVLine& line
+               , const LArHVIdMapping* hvIdMapping) const;
+#endif
 
-    //##ModelId=47ABAF5E00C9
-    unsigned int beginSamplingIndex() const;
+ private:
+  FCALHVManager(const FCALHVManager& right);
+  FCALHVManager& operator=(const FCALHVManager& right);
 
-    //##ModelId=47ABAF5E00D9
-    unsigned int endSamplingIndex() const;
-
-    //##ModelId=47ABAF5E00E8
-    FCALHVModuleConstLink getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const;
-
-    // Refresh from the database if needed
-    void update() const;
-
-    // Make the data stale.  Force update of data.
-    void reset() const;
-
-    // Get the database payload
-    FCALHVPayload *getPayload(const FCALHVLine &) const;
-
-
-  private:
-    //##ModelId=47ABAE93032E
-    FCALHVManager(const FCALHVManager& right);
-
-    //##ModelId=47ABAE930392
-    FCALHVManager& operator=(const FCALHVManager& right);
-
-    class Clockwork;
-    Clockwork *m_c;
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* FCALHVMANAGER_H_HEADER_INCLUDED_AC244FA8 */
+#endif

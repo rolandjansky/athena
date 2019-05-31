@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigPhotonContainerCnv.cxx
@@ -62,7 +62,7 @@ createPersistent( xAOD::TrigPhotonContainer* trans ) {
 xAOD::TrigPhotonContainer* xAODTrigPhotonContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "DA2CDAF5-B0E8-4502-89A3-E342DFA9C250" );
+   static const pool::Guid v1_guid( "DA2CDAF5-B0E8-4502-89A3-E342DFA9C250" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

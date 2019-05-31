@@ -69,6 +69,14 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPromptAll;
   std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPrompt10GeV;
 
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhoton;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSi;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSiSi;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonTRTTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSiTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterUnconvPhoton;
+
 
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapesAll;
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapes10GeV;

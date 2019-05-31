@@ -7,6 +7,7 @@
 #define EVENTCONTAINERS_IDENTIFIABLECONTAINERBASE_H
 
 #include "EventContainers/IdentifiableCacheBase.h"
+#include "CxxUtils/checker_macros.h"
 
 class IdentifiableContainerBase{
 
@@ -18,16 +19,16 @@ public:
 protected:
     EventContainers::IdentifiableCacheBase *m_cacheLink;
     bool m_OnlineMode;
-    mutable std::atomic<bool> m_waitNeeded;
+    mutable std::atomic<bool> m_waitNeeded ATLAS_THREAD_SAFE; //These mutables are carefully thought out, do not change
     typedef EventContainers::IdentifiableCacheBase IdentifiableCacheBase;
-    mutable std::vector< IdentifierHash > m_waitlist;
-    mutable std::mutex m_waitMutex;
-    mutable std::vector<bool> m_mask;
+    mutable std::vector< IdentifierHash > m_waitlist ATLAS_THREAD_SAFE;
+    mutable std::mutex m_waitMutex ATLAS_THREAD_SAFE;
+    mutable std::vector<bool> m_mask ATLAS_THREAD_SAFE;
     std::vector<IdentifierHash> GetAllCurrentHashes() const;
 
     void Wait() const;
-    bool tryFetch(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock);
-    bool tryFetch(IdentifierHash hashId);
+    bool tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock);
+    bool tryAddFromCache(IdentifierHash hashId);
     void cleanup();
     size_t numberOfCollections() const;
     void ResetMask();

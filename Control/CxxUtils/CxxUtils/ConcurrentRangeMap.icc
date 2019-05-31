@@ -1,9 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file CxxUtils/ConcurrentRangeMap.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -165,18 +162,29 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
  * @brief Add a new element to the map.
  * @param range Validity range for this element.
  * @param ptr Payload for this element.
+ * @param tryExtend If true, then allow an existing range to be extended
+ *                  (see below).
  * @param ctx Execution context.
  *
  * Returns SUCCESS if the new element was successfully inserted.
- * Returns DUPLICATE if the range compared equal to an existing one. In that case,
- * no new element is inserted (and @c ptr gets deleted).
+ * Returns DUPLICATE if the range compared equal to an existing one.
+ *         In that case, no new element is inserted (and @c ptr gets deleted).
+ * Returns EXTEND if the range of the last element was extended to @c range.
+ *         This happens if @c tryExtend is true, @c range is equal
+ *         to the range of the last element (according to @c m_compare),
+ *         and the range can be extended according to @c extendRange.
+ *         (This will generally mean that the start time of @c range
+ *         matches the last range, and end time of @c range is after
+ *         the end time of the last range.)  In this case, again no
+ *         new element is inserted and @c ptr is deleted.
  * Returns OVERLAP if the range of the new element overlaps
- * an existing element (the new element is still inserted).
+ *         an existing element (the new element is still inserted).
  */
 T_CONCURRENTRANGEMAP
 typename CONCURRENTRANGEMAP::EmplaceResult
 CONCURRENTRANGEMAP::emplace (const RANGE& range,
                              payload_unique_ptr ptr,
+                             bool tryExtend /*= false*/,
                              const typename Updater_t::Context_t& ctx
                                /*= Updater_t::defaultContext()*/)
 {
@@ -191,6 +199,11 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   // Make sure the new element is not a duplicate of the last.  Fail if so.
   if (last && !pastEnd && !m_compare (range, last->first)) {
     // Duplicate of the last entry.
+    if (tryExtend) {
+      if (extendImpl (lock, range, ctx) > 0) {
+        return EmplaceResult::EXTENDED;
+      }
+    }
     return EmplaceResult::DUPLICATE;
   }
 
@@ -361,33 +374,65 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
  * @c extendRange method of the @c COMPARE object:
  *
  *@code
- *  bool extendRange (Range& range, const Range& newRange) const;
+ *  int extendRange (Range& range, const Range& newRange) const;
  @endif
  *
  * This is called with the existing range and the end range, and returns
- * a success flag.
+ * a flag.  -1 indicates an error, 0 indicates that no change
+ * was made to the range, and 1 indicates that the range was extended.
  * It should generally be safe to extend a range by making the end later.
  * Suggested semantics are:
- *  - Return false if the start keys don't match.
+ *  - Return -1 if the start keys don't match.
  *  - If the end value of @c newRange is later then then end value of @c range,
  *    then update the end value of @c range to match @c newRange and
- *    return true.
- *  - Otherwise do nothing and return true.
+ *    return 1.
+ *  - Otherwise do nothing and return 0.
  *
- * If the extendRange call returns true, then this function returns an iterator
- * pointing at the last element.  Otherwise, it returns nullptr.
+ * Returns -1 if there was an error; 1 if the last range was extended;
+ * and 0 if nothing was changed.
  */
 T_CONCURRENTRANGEMAP
-typename CONCURRENTRANGEMAP::const_iterator
+int
 CONCURRENTRANGEMAP::extendLastRange (const RANGE& newRange,
                                      const typename Updater_t::Context_t& ctx
                                      /*= Updater_t::defaultContext()*/)
 {
   lock_t lock (m_mutex);
+  return extendImpl (lock, newRange, ctx);
+}
 
+
+/**
+ * @brief Extend the range of the last entry of the map.
+ * @param Lock object.
+ * @param newRange New range to use for the last entry.
+ * @param ctx Execution context.
+ *
+ * Implementation of @c extendLastRange; see there for details.
+ * Must be called with the lock held.
+ */
+T_CONCURRENTRANGEMAP
+int
+CONCURRENTRANGEMAP::extendImpl (lock_t& /*lock*/,
+                                const RANGE& newRange,
+                                const typename Updater_t::Context_t& ctx)
+{
   // Return if the container's empty.
   value_type* last = m_last;
-  if (last == nullptr) return nullptr;
+  if (last == nullptr) return -1;
+
+  // Test the range.
+  RANGE extendedRange = last->first;
+  int flag = m_compare.extendRange (extendedRange, newRange);
+
+  if (flag < 0) {
+    // Error.
+    return -1;
+  }
+  else if (flag == 0) {
+    // No-op.
+    return 0;
+  }
 
   // Make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
@@ -399,15 +444,12 @@ CONCURRENTRANGEMAP::extendLastRange (const RANGE& newRange,
   new_end = std::copy (begin, end, new_end);
 
   // Update the range of the last entry.
-  bool ret = m_compare.extendRange ((new_end-1)->first, newRange);
+  (new_end-1)->first = extendedRange;
 
   // Install the new implementation.
   installImpl (std::move (new_impl), new_begin, new_end, ctx);
 
-  if (ret) {
-    return new_end-1;
-  }
-  return nullptr;
+  return 1;
 }
 
                            

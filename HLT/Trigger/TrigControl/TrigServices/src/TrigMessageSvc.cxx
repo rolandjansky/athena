@@ -3,10 +3,12 @@
 */
 #include "TrigMessageSvc.h"
 #include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
+#include "TrigMonitorBase/TrigLockedHist.h"
 
 #include "ers/ers.h"
 
@@ -51,7 +53,7 @@ StatusCode TrigMessageSvc::initialize()
   StatusCode sc = Service::initialize();
   if (sc.isFailure()) return sc;
 
-  m_doSuppress = m_suppress;
+  m_doSuppress = m_suppress && (!m_suppressRunningOnly);
 
   if (m_color) {
     std::cout << "TrigMessageSvc WARNING: Colors are not supported by TrigMessageSvc" << std::endl;
@@ -62,8 +64,58 @@ StatusCode TrigMessageSvc::initialize()
 StatusCode TrigMessageSvc::reinitialize()
 {
   m_state = Gaudi::StateMachine::OFFLINE;
-  return initialize();
+  StatusCode sc = initialize();
+  if ( sc.isSuccess() ) m_state = Gaudi::StateMachine::INITIALIZED;
+  return sc;
 }
+
+StatusCode TrigMessageSvc::start()
+{
+  bookHistograms();
+  m_doPublish = true;
+  m_doSuppress = m_suppress;
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigMessageSvc::stop()
+{
+  m_doPublish = false;
+  m_doSuppress = m_suppress && (!m_suppressRunningOnly);
+  return StatusCode::SUCCESS;
+}
+
+void TrigMessageSvc::bookHistograms()
+{
+  ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
+  if ( histSvc.retrieve().isFailure() ) {
+    reportMessage(name(), MSG::WARNING, "Cannot find THistSvc. Message stats will not be published.");
+    m_doPublish = false;
+    return;
+  }
+
+  // monitoring information root directory
+  const std::string path = "/EXPERT/" + name() + "/";
+  const int nLevelBins = MSG::NUM_LEVELS - m_publishLevel;
+  m_msgCountHist = new TH1I("MessageCount", "Messages while RUNNING;Severity;Count",
+                            nLevelBins, 0, nLevelBins);
+
+  const int nSrcBins = 1;
+  m_msgCountSrcHist = new TH2I("MessageCountBySource", "Messages while RUNNING;Severity;Source",
+                               nLevelBins, 0, nLevelBins, nSrcBins, 0, nSrcBins);
+
+  for (int i=m_publishLevel; i<MSG::NUM_LEVELS; i++) {
+    m_msgCountHist->GetXaxis()->SetBinLabel(i-m_publishLevel+1, levelNames[i].c_str());
+    m_msgCountSrcHist->GetXaxis()->SetBinLabel(i-m_publishLevel+1, levelNames[i].c_str());
+  }
+
+  if ( histSvc->regHist(path + m_msgCountHist->GetName(), m_msgCountHist).isFailure() ) {
+    reportMessage(name(), MSG::WARNING, "Cannot register monitoring histogram 'MessageCount'");
+  }
+  if ( histSvc->regHist(path + m_msgCountSrcHist->GetName(), m_msgCountSrcHist).isFailure() ) {
+    reportMessage(name(), MSG::WARNING, "Cannot register monitoring histogram 'MessageCountBySource'");
+  }
+}
+
 
 void TrigMessageSvc::setupLimits(Gaudi::Details::PropertyBase& prop)
 {
@@ -188,6 +240,16 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
 {
   const int key = msg.getType();
   ++m_msgCount[key];
+
+  // Publish message statistics if enabled and only while RUNNING
+  if ( m_doPublish && key>=static_cast<int>(m_publishLevel) ) {
+    m_msgCountHist->Fill(key-m_publishLevel, 1);
+    { // Adding bins on the fly needs to be protected by mutex
+      scoped_lock_histogram lock;
+      m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
+      m_msgCountSrcHist->LabelsDeflate("Y");
+    }
+  }
 
   const Message* cmsg = &msg;
 

@@ -42,12 +42,13 @@ class EMECDetectorManager : public GeoVDetectorManager
    * @brief  Constructor
    */
   EMECDetectorManager(const EMECHVManager* hvManagerInner=nullptr
-		      , const EMECHVManager* hvManagerOuter=nullptr);
+		      , const EMECHVManager* hvManagerOuter=nullptr
+		      , const EMECPresamplerHVManager* presamplerHVManager=nullptr);
 
   /**
    * @brief  Destructor
    */
-  ~EMECDetectorManager();
+  virtual ~EMECDetectorManager() override;
       
   /**
    * @brief 	Iterate over detector regions
@@ -72,12 +73,12 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
       
   /**
    * @brief 	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
       
   /**
    * @brief 	This provides the distance in CLHEP::mm from the Focal Plane to
@@ -168,7 +169,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
 
   /**
    * @brief 	Get the HV Managers
@@ -178,7 +179,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Get the HV Manager (presampler)
    */
-  const EMECPresamplerHVManager * getPresamplerHVManager() const;
+  const EMECPresamplerHVManager&  getPresamplerHVManager() const;
 
  private:
     
@@ -238,9 +239,9 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	The HV Managers for the emec;
    */
-  mutable const EMECHVManager *m_HVManager[2];
+  mutable const EMECHVManager* m_HVManager[2];
 
-  mutable const EMECPresamplerHVManager *m_presamplerHVManager;
+  mutable const EMECPresamplerHVManager* m_presamplerHVManager;
 };
 
 /**

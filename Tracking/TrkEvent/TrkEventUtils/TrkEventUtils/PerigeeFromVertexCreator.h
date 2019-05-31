@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -50,10 +50,9 @@ namespace Trk {
         Trk::Perigee* createNewPerigee(Amg::Vector3D& gp, double phi, double theta, double qOverP) const;
 
       private:
-         double m_field;                  //!< magnetic field in tesla, can be set through constructor
-      
-         static double s_unitConversion;   //!< unit conversion factor
-         static double s_magField;         //!< default magnetic field value
+         double m_field;                  //!< magnetic field in tesla, can be set through constructor      
+         static const double s_unitConversion;   //!< unit conversion factor
+         static const double s_magField;         //!< default magnetic field value
                           
 
      };

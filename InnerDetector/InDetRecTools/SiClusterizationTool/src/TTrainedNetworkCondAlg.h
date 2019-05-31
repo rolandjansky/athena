@@ -30,7 +30,7 @@ class TTrainedNetworkCondAlg : public AthAlgorithm {
  public:
 
   TTrainedNetworkCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
-  ~TTrainedNetworkCondAlg();
+  ~TTrainedNetworkCondAlg() = default;
 
   StatusCode initialize();
   StatusCode execute();

@@ -10,7 +10,7 @@ atlas_depends_on_subdirs(
    PRIVATE AtlasTest/TestTools )
 
 # External dependencies:
-find_package( Boost COMPONENTS program_options regex filesystem thread system timer )
+find_package( Boost COMPONENTS program_options regex filesystem thread system timer unit_test_framework )
 find_package( TBB )
 
 # The main library of the package:
@@ -105,12 +105,13 @@ atlas_add_test( exctrace2_test
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
-      fpcompare_test StrFormat_test
+      fpcompare_test StrFormat_test phihelper_test
       prefetch_test ClassName_test make_unique_test ones_test
       exctrace1_test bitscan_test ConcurrentRangeMap_test
       CachedValue_test CachedPointer_test CachedUniquePtr_test
       atomic_fetch_minmax_test
-      MurmurHash2_test bitmask_test crc64_test Ring_test )
+      MurmurHash2_test bitmask_test crc64_test Ring_test
+      restrict_test vectorize_test get_unaligned_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       EXTRA_PATTERNS "no version information available"

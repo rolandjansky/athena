@@ -29,6 +29,14 @@ public:
       electrodes.push_back(new EMECHVElectrode(modulePtr, iElectrode));
     }
   }
+  ~Clockwork()
+  {
+    auto it=electrodes.begin();
+    auto itend=electrodes.end();
+    for(;it!=itend;++it) {
+      delete *it;
+    }
+  }
 
   const EMECHVManager *manager;
   unsigned int iSide;

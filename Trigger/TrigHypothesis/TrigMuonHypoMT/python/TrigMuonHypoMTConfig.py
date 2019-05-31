@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool
+from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool, TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool
 from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AppMgr import ToolSvc
@@ -175,6 +175,18 @@ muFastThresholdsForECWeakBRegion = {
     }
 
 
+# Working points for EF track isolation algorithm
+# syntax is:
+# 'WPname' : cut on 0.3 cone
+# put < 0 for no cut
+trigMuonEFTrkIsoThresholds = {
+    'ivarmedium'      : 0.07, #ivarmedium
+    'ivartight'       : 0.06, #ivartight
+    'ivarverytight'  : 0.04   #ivarverytight
+    }
+
+
+
 def addMonitoring(tool, monClass, name, thresholdHLT ):
     try:
         if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
@@ -185,7 +197,7 @@ def addMonitoring(tool, monClass, name, thresholdHLT ):
 
 
 def getThresholdsFromDict( chainDict ):    
-    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon' or i['signature'] is 'Bphysics']
     return sum( [ [part['threshold']]*int(part['multiplicity']) for part in cparts ], [])
 
 
@@ -463,6 +475,46 @@ class TrigMuonEFCombinerHypoConfig():
 
         return tool
 
+
+
+def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    thresholds = cparts[0]['isoInfo']
+    config = TrigMuonEFTrackIsolationHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    return tool
+
+class TrigMuonEFTrackIsolationHypoConfig() :
+
+    def ConfigurationHypoTool(self, toolName, isoCut):
+
+        tool=TrigMuonEFTrackIsolationHypoTool(toolName)
+
+        try:
+            ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
+
+            tool.PtCone02Cut = 0.0
+            tool.PtCone03Cut = ptcone03
+            tool.AcceptAll = False
+
+            if 'MS' in isoCut:
+                tool.RequireCombinedMuon = False
+            else:
+                tool.RequireCombinedMuon = True
+
+            tool.DoAbsCut = False
+            if 'var' in isoCut :
+                tool.useVarIso = True
+            else :
+                tool.useVarIso = False                                
+        except LookupError:
+            if(isoCut=='passthrough') :
+                print 'Setting passthrough'
+                tool.AcceptAll = True
+            else:
+                print 'isoCut = ', isoCut
+                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+        return tool
 
 
 

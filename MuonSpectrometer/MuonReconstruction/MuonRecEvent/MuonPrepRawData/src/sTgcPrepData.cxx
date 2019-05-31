@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/sTgcPrepData.h"
@@ -15,10 +15,12 @@ namespace Muon
 			      const Amg::MatrixX* locErrMat,
 			      const MuonGM::sTgcReadoutElement* detEl,
                               const int charge,
+                              const int time, 
 			      const uint16_t bcBitMap ) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_charge(charge),
+    m_time(time),
     m_bcBitMap(bcBitMap)
   { }
 
@@ -34,6 +36,7 @@ namespace Muon
     MuonCluster(),
     m_detEl(0),
     m_charge(0),
+    m_time(0),
     m_bcBitMap(0)
   { }
 
@@ -42,6 +45,7 @@ namespace Muon
     MuonCluster(RIO),
     m_detEl( RIO.m_detEl ),
     m_charge( RIO.m_charge ),
+    m_time(RIO.m_time),
     m_bcBitMap( RIO.m_bcBitMap )
   { }
 
@@ -50,6 +54,7 @@ namespace Muon
     MuonCluster(std::move(RIO)),
     m_detEl( RIO.m_detEl ),
     m_charge( RIO.m_charge ),
+    m_time(RIO.m_time),
     m_bcBitMap( RIO.m_bcBitMap )
   { }
 
@@ -62,6 +67,7 @@ namespace Muon
 	MuonCluster::operator=(RIO);
 	m_detEl =  RIO.m_detEl ;
         m_charge = RIO.m_charge;
+        m_time = RIO.m_time;
 	m_bcBitMap = RIO.m_bcBitMap;
       }
     return *this;
@@ -77,6 +83,7 @@ namespace Muon
 	MuonCluster::operator=(std::move(RIO));
 	m_detEl =  RIO.m_detEl ;
         m_charge = RIO.m_charge;
+        m_time = RIO.m_time;
 	m_bcBitMap = RIO.m_bcBitMap;
       }
     return *this;

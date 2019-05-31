@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # CondDB.py
 # Configuration for Athena conditions DB access
@@ -187,7 +187,8 @@ class CondDB:
                 self.iovdbsvc.CacheAlign=3
             # setup PoolSvc catalogues
             from PoolSvc.PoolSvcConf import PoolSvc
-            svcMgr+=PoolSvc()
+            if not hasattr (svcMgr, 'PoolSvc'):
+                svcMgr+=PoolSvc()
             # add the standard catalogues
             for i in self.poolcats:
                 svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_%s.xml" % i]

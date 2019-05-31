@@ -33,7 +33,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
 
   // make the views
-  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context ); 
   auto viewVector1 = std::make_unique< ViewContainer >();
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
@@ -96,6 +96,8 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           int iview = roiIt - RoIsFromDecision.begin();
           outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
+	  auto theview = viewVector->at(iview);
+	  ATH_CHECK( linkViewToParent( inputDecision, theview ) );
         }
       }// loop over previous inputs
     } // loop over decisions   

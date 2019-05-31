@@ -90,11 +90,9 @@ CaloDmEnergy::CaloDmEnergy(const CaloDmDescrManager *dmMgr):
   m_max_cluster(10000), m_apars_alpha(0.5), m_apars_r0(0.2),
   m_apars_clust_min_ener(200.0),m_apars_clust_min_ecalib(10.0), m_apars_cone_cut(0.5),
   m_caloDmNeighbours(0),
-  m_caloDetDescrManager(0),
   m_caloDM_ID(0),
   m_caloCell_ID(0),
-  m_id_helper(0),
-  m_detStore(0)
+  m_id_helper(0)
 {
   m_caloDmDescrManager = dmMgr;
   m_CalibrationContainerNamesDM.push_back("LArCalibrationHitDeadMaterial");
@@ -128,44 +126,14 @@ StatusCode CaloDmEnergy::initialize()
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
 
-  StatusCode sc = svcLoc->service("StoreGateSvc", m_storeGate);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( svcLoc->service("StoreGateSvc", m_storeGate) );
 
-  sc = svcLoc->service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endmsg;
-    return sc;
-  }
+  StoreGateSvc* detStore = nullptr;
+  ATH_CHECK( svcLoc->service("DetectorStore", detStore) );
 
-  // pointer to detector manager:
-  m_caloDetDescrManager  = CaloDetDescrManager::instance(); 
-
-  sc = m_detStore->retrieve(m_caloDM_ID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endmsg;
-    return sc;
-  }
-
-  sc = m_detStore->retrieve(m_caloCell_ID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve caloCell_ID helper from DetectorStore" << endmsg;
-    return sc;
-  }
-
-  // retrieve ID helpers from det store
-  sc = m_detStore->retrieve(m_id_helper);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( detStore->retrieve(m_caloDM_ID) );
+  ATH_CHECK( detStore->retrieve(m_caloCell_ID) );
+  ATH_CHECK( detStore->retrieve(m_id_helper) );
 
   // manager to get DM hash identifiers which are neighbours of given CaloCell
   m_caloDmNeighbours = new CaloDmNeighbours(m_caloDmDescrManager);
@@ -622,46 +590,5 @@ int CaloDmEnergy::get_area(Identifier id, float eta_in) const
   }
 
   return nsmp;
-}
-
-
-
-/* **************************************************************************
-Get eta and phi size of calorimeter cells. If cell belongs to FCAL, 
-then deta, dphi size will be calculated, since DetectorDescription has
-deta=0 and dphi=0 for FCAL cells.
-************************************************************************** */
-int CaloDmEnergy::get_calo_deta_dphi(Identifier &id_cel, double &deta_cel, double &dphi_cel)
-{
-  dphi_cel=0;
-  deta_cel=0;
-  const CaloDetDescrElement* theCDDE = m_caloDetDescrManager->get_element(id_cel);
-  if(!theCDDE){
-    std::cout << "CaloDmEnergy::get_calo_deta_dphi() -> WARNING. Absent CDDE for " << m_id_helper->show_to_string(id_cel) << std::endl;
-    return 1;
-  }
-  deta_cel = theCDDE->deta();
-  dphi_cel = theCDDE->dphi();
-  float eta_cel = fabs(theCDDE->eta());
-  int subcalo = m_caloCell_ID->sub_calo(id_cel);
-  if ( (CaloCell_ID::SUBCALO) subcalo  == CaloCell_ID::LARFCAL) {
-    int nfcal = m_caloCell_ID->sampling(id_cel) - 1;
-    float dsize[3]={7.5,8.0,9.0}; // tube size (x or y) in mm for fcal1-3
-                  // ssize = 2.0*dsize*dsize*sqrt(3.0)/4.0;
-    float ssize[3]={48.713928, 55.425625, 70.148056}; // cell area in mm*mm for fcal1-3
-    float z = fabs(theCDDE->z());
-    float volume = theCDDE->volume();
-    float N = volume/(ssize[nfcal]*450.0); // number of tubes for given FCAL cell, 450. it's fcal length
-    float dr = sqrt(N)*dsize[nfcal]; // cell size
-    float dr_z = dr/z;
-    dphi_cel = dr_z*sinh(eta_cel);
-    deta_cel = dr_z*cosh(eta_cel);
-    if( eta_cel < 3.3) deta_cel *= 1.5;
-  } else if ( (CaloCell_ID::SUBCALO) subcalo == CaloCell_ID::LARHEC && eta_cel > 3.1) {
-    deta_cel *= 1.5;
-  } else if ( (CaloCell_ID::SUBCALO) subcalo == CaloCell_ID::LAREM && eta_cel > 3.1) {
-    deta_cel *= 1.5;
-  }
-  return 0;
 }
 

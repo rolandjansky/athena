@@ -183,7 +183,9 @@ void test1()
   e->addElement (Trk::Material (11.5, 12.5, 13.5, 20, 14.5), "twenty");
   e->addElement (Trk::Material (21.5, 22.5, 23.5, 30, 24.5), "thirty");
 
-  Trk::LayerMaterialMap lmm (e);
+
+  Trk::SharedObject<const Trk::ElementTable> eShared(e);
+  Trk::LayerMaterialMap lmm(eShared);
 
   {
     Trk::MaterialPropertiesMatrix mm;

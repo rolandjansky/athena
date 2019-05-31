@@ -22,40 +22,17 @@
 
 TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_trtId(0),
-    m_detstore("DetectorStore",name),
-    m_mutex{},
-    m_Rtcache{},
-    m_T0cache{},
-    m_Errcache{},
-    m_Slopecache{},
-    m_isGEANT4(true),
-    m_par_rtcontainerkey("/TRT/Calib/RT"),
-    m_par_errcontainerkey("/TRT/Calib/errors2d"),
-    m_par_slopecontainerkey("/TRT/Calib/slopes"),
-    m_par_t0containerkey("/TRT/Calib/T0"),
-    m_rtContainerG4(nullptr),
-    m_errContainerG4(nullptr),
-    m_slopeContainerG4(nullptr),
-    m_t0ContainerG4(nullptr)
-{
-  declareProperty("DetectorStore",m_detstore);
-  declareProperty("isGEANT4",m_isGEANT4);
-}
+    m_trtId(0)
+{}
 
 
 StatusCode TRT_CalDbTool::initialize() 
 {
   ATH_MSG_DEBUG( " in initialize " );
 
-  // Get StoreGate access to DetectorStore
-  if (StatusCode::SUCCESS!=m_detstore.retrieve()) {
-    ATH_MSG_FATAL("Unable to retrieve " << m_detstore.name());
-    return StatusCode::FAILURE;
-  }
 
   // Get the TRT ID helper
-  StatusCode sc = m_detstore->retrieve(m_trtId,"TRT_ID");
+  StatusCode sc = detStore()->retrieve(m_trtId,"TRT_ID");
   if(sc.isFailure()) {
     ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
@@ -68,47 +45,8 @@ StatusCode TRT_CalDbTool::initialize()
   ATH_CHECK( m_slopeReadKey.initialize() );
   ATH_CHECK( m_t0ReadKey.initialize() );
  
-  if(m_isGEANT4) {
-    // processing GEANT4 simulation - revert to old non-MT style cond access
+  ATH_MSG_DEBUG(" TRT_CalDbTool::initialized ");
 
-      ATH_MSG_INFO("TRT_CalDbTool::initialize for simulation");
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_rtContainerG4,m_par_rtcontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_rtcontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_errcontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_slopecontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_t0ContainerG4,m_par_t0containerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_t0containerkey);
-        return StatusCode::FAILURE;
-      }
-
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_slopecontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
-        ATH_MSG_FATAL("Could not retrieve folder " << m_par_errcontainerkey);
-        return StatusCode::FAILURE;
-      }
-
-
-  } else {
-
-    ATH_MSG_INFO(" TRT_CalDbTool::initialize for data ");
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -123,111 +61,26 @@ StatusCode TRT_CalDbTool::finalize()
 
 const TRT_CalDbTool::RtRelationContainer* TRT_CalDbTool::getRtContainer() const {
 
-  if(!m_isGEANT4) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    EventContext::ContextID_t slot{ctx.slot()};
-    EventContext::ContextEvt_t evt{ctx.evt()};
-    if (slot>=m_Rtcache.size()) {              // new slot?
-      std::lock_guard<std::mutex> lock{m_mutex};
-      m_Rtcache.resize(slot+1, invalidValue); // Store invalid event id in order to pass the next IF statement.
-    }
-    if (m_Rtcache[slot]!=evt) {                // not same event as last call
-      std::lock_guard<std::mutex> lock{m_mutex};
-      SG::ReadCondHandle<RtRelationContainer> rtc(m_rtReadKey); // find the right conditions
-      if (not rtc.isValid()) {
-       ATH_MSG_ERROR("Failed to retrieve " << m_rtReadKey.key());
-      }
-      m_condRt.set(*rtc);                                      // cache the pointer
-      m_Rtcache[slot] = evt;                                   // store cached event id
-    }
-    return m_condRt.get();
-  } else {
-    return m_rtContainerG4;
-  }
+  SG::ReadCondHandle<RtRelationContainer> rtc(m_rtReadKey);
+  return *rtc;
 }
 
 const TRT_CalDbTool::RtRelationContainer* TRT_CalDbTool::getErrContainer() const {
 
-
-  if(!m_isGEANT4) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    EventContext::ContextID_t slot{ctx.slot()};
-    EventContext::ContextEvt_t evt{ctx.evt()};
-    if (slot>=m_Errcache.size()) {              // new slot?
-      std::lock_guard<std::mutex> lock{m_mutex};
-      m_Errcache.resize(slot+1, invalidValue); // Store invalid event id in order to pass the next IF statement.
-    }
-    if (m_Errcache[slot]!=evt) {                // not same event as last call
-      std::lock_guard<std::mutex> lock{m_mutex};
-      SG::ReadCondHandle<RtRelationContainer> rtc(m_errReadKey); // find the right conditions
-      if (not rtc.isValid()) {
-        ATH_MSG_ERROR("Failed to retrieve " << m_errReadKey.key());
-      }
-      m_condErr.set(*rtc);                                      // cache the pointer
-      m_Errcache[slot] = evt;                                   // store cached event id
-    }
-    return m_condErr.get();
-  } else {
-
-    return m_errContainerG4;
-  }
+  SG::ReadCondHandle<RtRelationContainer> rtc(m_errReadKey);
+  return *rtc;
 }
 
 const TRT_CalDbTool::RtRelationContainer* TRT_CalDbTool::getSlopeContainer() const {
 
-  if(!m_isGEANT4) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    EventContext::ContextID_t slot{ctx.slot()};
-    EventContext::ContextEvt_t evt{ctx.evt()};
-    if (slot>=m_Slopecache.size()) {              // new slot?
-      std::lock_guard<std::mutex> lock{m_mutex};
-      m_Slopecache.resize(slot+1, invalidValue); // Store invalid event id in order to pass the next IF statement.
-    }
-    if (m_Slopecache[slot]!=evt) {                // not same event as last call
-      std::lock_guard<std::mutex> lock{m_mutex};
-      SG::ReadCondHandle<RtRelationContainer> rtc(m_slopeReadKey); // find the right conditions
-      if (not rtc.isValid()) {
-        ATH_MSG_ERROR("Failed to retrieve " << m_slopeReadKey.key());
-      }
-      m_condSlope.set(*rtc);                                      // cache the pointer
-      m_Slopecache[slot] = evt;                                   // store cached event id
-    }
-    return m_condSlope.get();
-  } else {
-
-    return m_slopeContainerG4;
-  }
-
+  SG::ReadCondHandle<RtRelationContainer> rtc(m_slopeReadKey); // find the right conditions
+  return *rtc;
 }
 
 const TRT_CalDbTool::StrawT0Container* TRT_CalDbTool::getT0Container() const {
 
-  if(!m_isGEANT4) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    EventContext::ContextID_t slot{ctx.slot()};
-    EventContext::ContextEvt_t evt{ctx.evt()};
-    if (slot>=m_T0cache.size()) {              // new slot?
-      std::lock_guard<std::mutex> lock{m_mutex};
-      m_T0cache.resize(slot+1, invalidValue); // Store invalid event id in order to pass the next IF statement.
-    }
-    if (m_T0cache[slot]!=evt) {                // not same event as last call
-      std::lock_guard<std::mutex> lock{m_mutex};
-      SG::ReadCondHandle<StrawT0Container> rtc(m_t0ReadKey); // find the right conditions
-      if (not rtc.isValid()) {
-        ATH_MSG_ERROR("Failed to retrieve " << m_t0ReadKey.key());
-      }
-      m_condT0.set(*rtc);                                      // cache the pointer
-      m_T0cache[slot] = evt;                                   // store cached event id
-    }
-    return m_condT0.get();
-  } else {
-    return m_t0ContainerG4;
-  }
-
+  SG::ReadCondHandle<StrawT0Container> rtc(m_t0ReadKey); // find the right conditions
+  return *rtc;
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ClassIDSvc_test.cxx  
@@ -21,8 +21,8 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "../src/ClassIDSvc.h"
 
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CLIDRegistry.h"
 class Foo{};
 CLASS_DEF( Foo, 8101, 0) 
 class Bar{};
@@ -105,6 +105,8 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert(pClassIDSvc->getIDOfTypeName("Blu", id).isSuccess());
   assert(id == 9943);
   assert(pClassIDSvc->getIDOfTypeName("NotExist", id).isFailure());
+  assert(pClassIDSvc->getIDOfTypeName("12345", id).isSuccess());
+  assert(id == 12345);
 
   assert(pClassIDSvc->isIDInUse(9942));
   //  assert(!pClassIDSvc->isIDInUse(9945));

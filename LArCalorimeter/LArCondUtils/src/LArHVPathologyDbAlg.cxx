@@ -19,17 +19,13 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
 #include "LArHV/EMBHVElectrode.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
-#include "LArHV/HECHVSubgapConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 
 #include <fstream>
@@ -386,9 +382,9 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
      if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
        if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
         const EMBCellConstLink cell = embElement->getEMBCell();
-        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+        const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
         for (unsigned int igap=0;igap<2;igap++) {
-           if (hvmodule->hvLineNo(igap)==HVline) {
+           if (hvmodule.hvLineNo(igap)==HVline) {
              list.push_back(igap);
            }
         }
@@ -398,9 +394,9 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
        for (unsigned int igap=0;igap<2;igap++) {
-        if (hvmodule->hvLineNo(igap)==HVline) {
+        if (hvmodule.hvLineNo(igap)==HVline) {
           list.push_back(igap);
         }
        }
@@ -413,8 +409,8 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
       const HECCellConstLink cell = hecElement->getHECCell();
       unsigned int nsubgaps = cell->getNumSubgaps();
       for (unsigned int i=0;i<nsubgaps;i++) {
-          const HECHVSubgapConstLink subgap = cell->getSubgap(i);
-          if (subgap->hvLineNo()==HVline) {
+          const HECHVSubgap& subgap = cell->getSubgap(i);
+          if (subgap.hvLineNo()==HVline) {
             list.push_back(i);
           }
       }
@@ -426,12 +422,12 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
        const FCALTile* tile = fcalElement->getFCALTile();
        unsigned int nlines = tile->getNumHVLines();
        for (unsigned int i=0;i<nlines;i++) {
-         const FCALHVLineConstLink line2 = tile->getHVLine(i);
-         if (line2) {
-            if (line2->hvLineNo()==HVline) {
-               list.push_back(i);
-            }
-         }
+         const FCALHVLine* line2 = tile->getHVLine(i);
+	 if(line2) {
+	   if (line2->hvLineNo()==HVline) {
+	     list.push_back(i);
+	   }
+	 }
        }
     }
   }
@@ -480,12 +476,12 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
      if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
        if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
         const EMBCellConstLink cell = embElement->getEMBCell();
-        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+        const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
         if(ElectInd >= 2) {
             msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMBPS cell "<<id.get_identifier32().get_compact() <<endmsg;
             return -1;
         } else {
-            return hvmodule->hvLineNo(ElectInd);
+            return hvmodule.hvLineNo(ElectInd);
         }
        }
      }
@@ -493,12 +489,12 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
         if(ElectInd >= 2) {
             msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMECPS cell "<<id.get_identifier32().get_compact() <<endmsg;
             return -1;
         } else {
-            return hvmodule->hvLineNo(ElectInd);
+            return hvmodule.hvLineNo(ElectInd);
         }
       }
     }
@@ -512,7 +508,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
          msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for HEC cell "<<id.get_identifier32().get_compact() <<endmsg;
          return -1;
       } else {
-         return cell->getSubgap(ElectInd)->hvLineNo();
+         return cell->getSubgap(ElectInd).hvLineNo();
       }
     }
   }
@@ -525,13 +521,13 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
          msg(MSG::ERROR) << "Wrong line "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
          return -1;
       } else {
-         const FCALHVLineConstLink line2 = tile->getHVLine(ElectInd);
+         const FCALHVLine* line2 = tile->getHVLine(ElectInd);
          if(line2) {
-            return line2->hvLineNo();
+	   return line2->hvLineNo();
          } else {
-            msg(MSG::ERROR) << "Do not have HVLine for "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-         }
+	   msg(MSG::ERROR) << "Do not have HVLine for "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
+	   return -1;
+	 }
       }
     }
   }

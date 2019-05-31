@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -32,9 +34,9 @@ class SCT_DCSConditionsStatCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState{this, "ReadKeyState", "/SCT/DCS/CHANSTAT", "Key of input (raw) State conditions folder"};
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState{this, "WriteKeyState", "SCT_DCSStatCondData", "Key of output (derived) State conditions data"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-  bool m_doState;
+  bool m_doState{true};
   BooleanProperty m_readAllDBFolders{this, "ReadAllDBFolders", true};
   BooleanProperty m_returnHVTemp{this, "ReturnHVTemp", true};
   StringProperty m_chanstatCut{this, "StateCut", "NORM"};

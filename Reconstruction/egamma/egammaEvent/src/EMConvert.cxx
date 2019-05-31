@@ -954,9 +954,11 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
 
   Trk::ExtendedVxCandidate* evxCand = 0;
   Trk::VxCandidate* vxCand = 0;
+  std::vector<Trk::VxTrackAtVertex*> vxTrkAtVx;
 
   AmgSymMatrix(3)* posmat = getVxPosErrorMatrix();
-  const Trk::RecVertex* vx = new Trk::RecVertex(Amg::Vector3D(vertex_x(),vertex_y(),vertex_z()), *posmat, (double)vertex_ndf(), (double)vertex_chi2());
+  const Trk::RecVertex* vx = new Trk::RecVertex(Amg::Vector3D(vertex_x(),vertex_y(),vertex_z()), 
+                                                *posmat, (double)vertex_ndf(), (double)vertex_chi2());
   delete posmat;
 
   //perigee at vertex
@@ -964,39 +966,28 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
   AmgSymMatrix(5) *trk1EM = getTrk1ErrorMatrix();
     
   const Trk::PerigeeSurface   surface(globPos);
-  
-  Trk::Perigee* trkParams = const_cast<Trk::Perigee*>(surface.createParameters<5,Trk::Charged>( 
-                                                            0,
-                                                            0,
-                                                            vertex_track1_phi(),
-                                                            vertex_track1_theta(),
-                                                            vertex_track1_qOverP(),
-                                                            trk1EM ));
-   
+  Trk::Perigee* trkParams= new Trk::Perigee(0,
+                                            0,
+                                            vertex_track1_phi(),
+                                            vertex_track1_theta(),
+                                            vertex_track1_qOverP(),
+                                            surface,
+                                            trk1EM);
   Trk::VxTrackAtVertex* vxtrk1 = new Trk::VxTrackAtVertex(vertex_track1_chi2(), trkParams);
-
-
-
-
-  std::vector<Trk::VxTrackAtVertex*> vxTrkAtVx;
   vxTrkAtVx.push_back(vxtrk1);
 
-  Trk::VxTrackAtVertex* vxtrk2 = 0;
   if(vertex_numTracks()>1){
-    globPos = Amg::Vector3D(vertex_x(), vertex_y(), vertex_z());
+    Trk::VxTrackAtVertex* vxtrk2 = 0;
     AmgSymMatrix(5) *trk2EM = getTrk2ErrorMatrix();
-   
-    const Trk::PerigeeSurface   surface2(globPos);
-  
-    Trk::Perigee* trkParams2 = const_cast<Trk::Perigee*>(surface2.createParameters<5,Trk::Charged>( 
-                                                            0,
-                                                            0,
-                                                            vertex_track1_phi(),
-                                                            vertex_track1_theta(),
-                                                            vertex_track1_qOverP(),
-                                                            trk2EM ));
- 
-   
+    const Trk::PerigeeSurface surface2(globPos);
+    Trk::Perigee* trkParams2= new Trk::Perigee(0,
+                                              0,
+                                              vertex_track2_phi(),
+                                              vertex_track2_theta(),
+                                              vertex_track2_qOverP(),
+                                              surface,
+                                              trk2EM);
+
     vxtrk2 = new Trk::VxTrackAtVertex(vertex_track2_chi2(), trkParams2);
     vxTrkAtVx.push_back(vxtrk2);
     evxCand = new Trk::ExtendedVxCandidate(*vx, vxTrkAtVx, getVxErrorMatrix());

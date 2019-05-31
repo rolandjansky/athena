@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,8 +9,6 @@
 
 //<doc><file>   $Id: IdDictDetDescrCnv.cxx,v 1.21 2009-02-15 13:08:19 schaffer Exp $
 //<version>     $Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "IdDictDetDescrCnv.h"
 
@@ -29,17 +27,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGate.h" 
-#include "SGTools/StorableConversions.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+#include "AthenaKernel/StorableConversions.h"
 
 
 //--------------------------------------------------------------------

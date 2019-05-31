@@ -66,7 +66,8 @@ namespace InDet{
     m_phiHalfWidth(0.1),
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_doTimeOutChecks(true)
+    m_doTimeOutChecks(true),
+    m_skipBSDecoding(false)
   {  
     // Get parameter values from jobOptions file
     declareProperty("DetectorManagerName",     m_managerName);
@@ -82,6 +83,7 @@ namespace InDet{
     declareProperty("Pixel_RDOContainerName",  m_pixelRDOContainerName);
     declareProperty("RawDataProvider",         m_rawDataProvider);
     declareProperty("doTimeOutChecks",         m_doTimeOutChecks);
+    declareProperty("skipBSDecoding",          m_skipBSDecoding);
 
     declareMonitoredVariable("numPixClusters", m_numPixClusters    );
     declareMonitoredVariable("numPixIds", m_numPixIds    );
@@ -331,7 +333,6 @@ namespace InDet{
     //-------------------------------------------------------------------------
 
     //handling of decoding problems
-    StatusCode scdec = StatusCode::SUCCESS;
     m_bsErrorSvc->resetCounts();
 
 
@@ -373,21 +374,6 @@ namespace InDet{
 
     ATH_MSG_DEBUG( "REGTEST:" << *roi );
 
-    
-    if(doTiming()) m_timerDecoder->start();
-    scdec = m_rawDataProvider->decode(roi);
-    if(doTiming()) m_timerDecoder->stop();
-
-    
-    //   Get the Pixel RDO's:
-    //     - First get the Pixel ID's using the RegionSelector
-    //     - Retrieve from SG the RDOContainer: 
-    //       Identifiable Container that contains pointers to all the RDO 
-    //        collections (one collection per detector)
-    //     - Retrieve from StoreGate the RDO collections.
-    //       (the ByteStreamConvertors are called here).
-    
-    
     if (!(roi->isFullscan())){
       if(doTiming()) m_timerRegSel->start();
       m_regionSelector->DetHashIDList( PIXEL, *roi, m_listOfPixIds);
@@ -397,42 +383,55 @@ namespace InDet{
       
       if(doTiming()) m_timerRegSel->stop();
     }
-
-
-    if (scdec.isSuccess()){
-      //check for recoverable errors
-
-      int n_err_total = 0;
-       
-      int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
+    
+    if (!m_skipBSDecoding){
+      StatusCode scdec = StatusCode::SUCCESS;
+      if(doTiming()) m_timerDecoder->start();
+      scdec = m_rawDataProvider->decode(roi);
+      if(doTiming()) m_timerDecoder->stop();
+    
+      //   Get the Pixel RDO's:
+      //     - First get the Pixel ID's using the RegionSelector
+      //     - Retrieve from SG the RDOContainer: 
+      //       Identifiable Container that contains pointers to all the RDO 
+      //        collections (one collection per detector)
+      //     - Retrieve from StoreGate the RDO collections.
+      //       (the ByteStreamConvertors are called here).
       
-      for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
-	int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
-	n_err_total += n_errors;
-	bsErrors[idx] = n_errors;
-      }
-
-
-      ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
-
-      if (n_err_total){
-	for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
-	  //	  m_PixBSErr.push_back(bsErrors[idx]);
-	  if (bsErrors[idx])
-	    m_PixBSErr.push_back(idx);
-	  if(msgLvl(MSG::DEBUG))
-	     msg(MSG::DEBUG) << " " << bsErrors[idx];
+      
+      if (scdec.isSuccess()){
+	//check for recoverable errors
+	
+	int n_err_total = 0;
+	
+	int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
+	
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
+	  int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+	  n_err_total += n_errors;
+	  bsErrors[idx] = n_errors;
 	}
-      }	     
-      ATH_MSG_DEBUG( "" );
-
-    } else {
-      ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
+	
+	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
+	
+	if (n_err_total){
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
+	    if (bsErrors[idx])
+	      m_PixBSErr.push_back(idx);
+	    if(msgLvl(MSG::DEBUG))
+	      msg(MSG::DEBUG) << " " << bsErrors[idx];
+	  }
+	}	     
+	ATH_MSG_DEBUG( "" );
+	
+      } else {
+	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
+      }
     }
-
+    
     if(doTiming()) m_timerSGate->resume();
     
-    PixelRDO_Container* p_pixelRDOContainer;
+    const PixelRDO_Container* p_pixelRDOContainer = nullptr;
     if (store()->retrieve(p_pixelRDOContainer,  m_pixelRDOContainerName).isFailure() ) {
       ATH_MSG_WARNING( "Could not find the PixelRDO_Container " 
 		       << m_pixelRDOContainerName );
@@ -449,6 +448,7 @@ namespace InDet{
     }
     if(doTiming()) m_timerSGate->pause();
 
+    ATH_MSG_VERBOSE("Size of " << m_pixelRDOContainerName << ":" << p_pixelRDOContainer->size());
 
     if (!(roi->isFullscan())){
 
@@ -525,8 +525,6 @@ namespace InDet{
       PixelRDO_Container::const_iterator rdoCollections      = p_pixelRDOContainer->begin();
       PixelRDO_Container::const_iterator rdoCollectionsEnd   = p_pixelRDOContainer->end();
     
-      AtlasDetectorID detType;
-
       if(doTiming()) m_timerCluster->resume();
 
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections){

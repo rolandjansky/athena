@@ -65,11 +65,11 @@ StatusCode LArCellGainPathology::finalize()
 }
 
 StatusCode LArCellGainPathology::process (CaloCellContainer* theCont,
-                                          const EventContext& /*ctx*/) const
+                                          const EventContext& ctx) const
 {
   ATH_MSG_DEBUG (" in  LArCellGainPathology::process ");
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling=*cablingHdl;
 
 // loop over all Febs

@@ -45,7 +45,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
         if _parOR(seq): 
             return "red"
         if _seqAND(seq): 
-            return "blue"
+            return "dodgerblue3"
 
         return "black"
 
@@ -55,6 +55,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%stepCF.name())
@@ -75,6 +76,7 @@ def all_DataFlow_to_dot(name, step_list):
     with open('%s.dot'%(name), mode="wt") as file:
         file.write( 'digraph step  {\n'\
                         +'\n'\
+                        +' rankdir="LR";\n'
                         +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                         +'  edge [ fontname=Helvetica ]\n'
                         +'  %s   [shape=Mdiamond]\n'%name)
@@ -106,6 +108,9 @@ def all_DataFlow_to_dot(name, step_list):
                     else:
                         menuseq.reuse=False
 
+                if len(cfseq.step.sequences)==0:
+                    last_step_hypoNodes.append(cfseq.filter)
+
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs.append(menuseq.maker)
                     cfseq_algs.append(menuseq.sequence )
@@ -128,7 +133,7 @@ def all_DataFlow_to_dot(name, step_list):
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
 
-            file.write(findConnections(step_connections))
+            file.write(findConnections(step_connections))            
             nstep+=1
 
         file.write( '}')
@@ -140,6 +145,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%name)
@@ -201,7 +207,7 @@ def findConnections(alg_list):
         if len(dataIntersection) > 0:
             for line in dataIntersection:
                 lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-#                print 'Data connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+#                print "Data connections between %s and %s: %s"%(nodeA.Alg.name(), nodeB.Alg.name(), line)
     return lineconnect
 
 

@@ -40,15 +40,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const std::string& name, const IInterface* pInterface ) :
   AthAlgTool(type,name,pInterface),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
   m_cellContainer(0),
   m_solenoidRadius(1280)
   //m_solenoidHalfLength(2900)
 {
   declareInterface<ITrackDepositInCaloTool>(this);
-  declareProperty("ExtrapolatorHandle", m_extrapolator );   
   declareProperty("doExtrapolation",m_doExtr = true);
   declareProperty("doEDeposHist",m_doHist = false);
   declareProperty("DebugMode", m_debugMode = false);
@@ -250,11 +246,11 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
 
 // - associate calocells to trackparticle, cone size 0.2, use cache
 
-    const Rec::ParticleCellAssociation* association = 0;
-    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.2,NULL,true);
+    std::unique_ptr<const Rec::ParticleCellAssociation> association = 
+      m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,nullptr);
 
     if(!association) return result;
-       ATH_MSG_VERBOSE(" particleCellAssociation done  " << association );
+       ATH_MSG_VERBOSE(" particleCellAssociation done  " << association.get() );
 
 // - pick up the cell intersections
 

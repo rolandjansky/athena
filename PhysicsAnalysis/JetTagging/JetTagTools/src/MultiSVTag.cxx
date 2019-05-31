@@ -74,12 +74,10 @@ namespace Analysis
 
     // prepare readKey for calibration data:
     ATH_CHECK(m_readKey.initialize());
-    m_egammaBDTs.clear();
     return StatusCode::SUCCESS;
   }
 
   StatusCode MultiSVTag::finalize(){
-    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     return StatusCode::SUCCESS;
   }
 
@@ -94,9 +92,18 @@ namespace Analysis
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....
     std::string alias = readCdo->getChannelAlias(author);
-
-    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
     ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
+
+    //Retrieve BDT from cond object
+    MVAUtils::BDT *bdt(nullptr);
+    ATH_MSG_DEBUG("#BTAG# Getting MVAUtils::BDT for "<<m_taggerNameBase);
+    bdt = readCdo->retrieveBdt(m_taggerNameBase,author);
+    if (!bdt) {
+      ATH_MSG_WARNING("#BTAG# No BDT for " << m_taggerNameBase<<" exists in the condition object.. Disabling algorithm.");
+      m_disableAlgo=true;
+      return StatusCode::SUCCESS;
+    }
+
     /* check if calibration (neural net structure or weights) has to be updated: */
     TObject* calib=readCdo->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
 
@@ -108,18 +115,6 @@ namespace Analysis
     std::vector<float*>  inputPointers; inputPointers.clear();
     std::vector<std::string> inputVars; inputVars.clear();
     unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
-
-    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-
-    TTree *tree = readCdo->retrieveTObject<TTree>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
-    if (tree) {
-      bdt = new MVAUtils:: BDT(tree); 
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-      m_disableAlgo=true;
-      return StatusCode::SUCCESS;
-    }
 
     TObjArray* toa= readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
     std::string commaSepVars="";
@@ -142,18 +137,10 @@ namespace Analysis
     if ( calibNvars!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       m_disableAlgo=true;
-      delete bdt;
       return StatusCode::SUCCESS;
     }
 
     bdt->SetPointers(inputPointers);
-
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT!=m_egammaBDTs.end()) {
-      delete it_egammaBDT->second;
-      m_egammaBDTs.erase(it_egammaBDT);
-    }
-    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
     //the jet
     double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
@@ -359,20 +346,7 @@ namespace Analysis
     //compute BDT weight
     double msvW = -9.;
     if( nvtx2trk>1 ){
-	it_egammaBDT = m_egammaBDTs.find(alias);
-	if(it_egammaBDT==m_egammaBDTs.end()) {
-	  int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-	  if(0==alreadyWarned) {
-	    ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
-	    m_undefinedReaders.push_back(alias);
-	  }
-	}
-	else{
-	  if(it_egammaBDT->second !=0) {
-	    msvW = GetClassResponse(it_egammaBDT->second);
-	    ATH_MSG_DEBUG("#BTAG# BB weight: "<<m_taggerNameBase<<" "<< msvW);
-	  }else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
-	}
+      msvW = GetClassResponse(bdt);
     }
 
     if(m_runModus=="analysis") {

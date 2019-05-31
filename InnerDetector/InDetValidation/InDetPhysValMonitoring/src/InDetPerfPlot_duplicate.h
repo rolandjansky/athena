@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_DUPLICATE
@@ -36,9 +36,6 @@ private:
   TH1* m_duplicateDeltaPtZoomed;
   TH1* m_duplicateDeltaEta;
   TH1* m_duplicateDeltaPhi;
-  TH2* m_duplicateLPTvsHPT;
-  TH2* m_duplicateLEtavsHEta;
-  TH2* m_duplicateLPhivsHPhi;
   TH2* m_duplicateDeltaPTvsTruthPT;
   TH2* m_duplicateDeltaPTvsTruthPTZoomed;
   // spectrum plots

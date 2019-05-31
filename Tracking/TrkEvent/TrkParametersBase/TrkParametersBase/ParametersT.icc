@@ -40,10 +40,12 @@ namespace Trk
     m_parameters(),
     m_covariance(cov),
     m_position(),
-    m_momentum(),  
-    m_surface(surface.isFree() ? surface.clone() : &surface),
+    m_momentum(), 
+    m_surface(nullptr), 
     m_chargeDef(sgn(qop))
   {
+
+    m_surface.reset((surface.isFree() ? surface.clone() : &surface));
     // check qoverp is physical
     double p = 0.;
     if(qop != 0)
@@ -82,9 +84,10 @@ namespace Trk
     m_covariance(cov),
     m_position(),
     m_momentum(),  
-    m_surface(surface.isFree() ? surface.clone() : &surface),
+    m_surface(nullptr),
     m_chargeDef(sgn(parameters[Trk::qOverP]))
   {  
+    m_surface.reset((surface.isFree() ? surface.clone() : &surface));
     // decide the sign of the charge
     double qop = m_parameters[Trk::qOverP];
     // if(qop < 0.) 
@@ -187,9 +190,11 @@ namespace Trk
     m_covariance(0),
     m_position(rhs.position()),
     m_momentum(rhs.momentum()),  
-    m_surface(rhs.m_surface && rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface),
+    m_surface(nullptr),
     m_chargeDef(rhs.m_chargeDef)
   {
+
+    m_surface.reset((rhs.m_surface && rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface.get()));
     if(rhs.covariance())
       m_covariance = new AmgSymMatrix(DIM)(*rhs.covariance());
   }
@@ -202,11 +207,11 @@ namespace Trk
     m_covariance(rhs.m_covariance),
     m_position(std::move(rhs.position())),
     m_momentum(std::move(rhs.momentum())),  
-    m_surface(rhs.m_surface),
+    m_surface(std::move (rhs.m_surface)),
     m_chargeDef(std::move(rhs.m_chargeDef))
   {
-    rhs.m_covariance = 0;
-    rhs.m_surface = 0;
+    rhs.m_covariance = nullptr;
+    rhs.m_surface = nullptr;
   }
 
   // assignment operator
@@ -216,10 +221,7 @@ namespace Trk
     if(this != &rhs)
     {
       ParametersBase<DIM,T>::operator=(rhs);
-      
-      // delete surface
-      if(m_surface && m_surface->isFree()) delete m_surface;
-      
+     
       // delete the covariance if there
       if(m_covariance) delete m_covariance;
     
@@ -228,7 +230,7 @@ namespace Trk
       m_covariance = rhs.covariance() ? new AmgSymMatrix(DIM)(*rhs.covariance()) : 0;
       m_position   = rhs.position();
       m_momentum   = rhs.momentum();
-      m_surface    = (rhs.m_surface && rhs.m_surface->isFree()) ? rhs.m_surface->clone() : rhs.m_surface;
+      m_surface.reset( (rhs.m_surface && rhs.m_surface->isFree()) ? rhs.m_surface->clone() : rhs.m_surface.get());
       m_chargeDef  = rhs.m_chargeDef;
     }
   
@@ -243,17 +245,16 @@ namespace Trk
     {
       ParametersBase<DIM,T>::operator=(std::move(rhs));
 
-      if(m_surface && m_surface->isFree()) delete m_surface;
       
       if(m_covariance) delete m_covariance;
 
       m_parameters = std::move(rhs.m_parameters);
       m_covariance = rhs.m_covariance;
-      rhs.m_covariance = 0;
+      rhs.m_covariance = nullptr;
       m_position   = std::move(rhs.position());
       m_momentum   = std::move(rhs.momentum());
-      m_surface = rhs.m_surface;
-      rhs.m_surface = 0;
+      m_surface = std::move(rhs.m_surface);
+      rhs.m_surface = nullptr;
       m_chargeDef  = std::move(rhs.m_chargeDef);
     }
   
@@ -268,12 +269,6 @@ namespace Trk
     {
       delete m_covariance;
       m_covariance = 0;
-    }
-
-    if(m_surface && m_surface->isFree())
-    {
-      delete m_surface;
-      m_surface = 0;
     }
   }
 
