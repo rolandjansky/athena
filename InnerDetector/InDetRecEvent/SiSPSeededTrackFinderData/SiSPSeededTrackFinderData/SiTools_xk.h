@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,13 +15,13 @@
 #ifndef SiTools_xk_H
 #define SiTools_xk_H
 
-#include "TrkGeometry/MagneticFieldProperties.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "TrkToolInterfaces/IPatternParametersUpdator.h"
-#include "TrkExInterfaces/IPatternParametersPropagator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "TrkExInterfaces/IPatternParametersPropagator.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkToolInterfaces/IPatternParametersUpdator.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 namespace InDet{
 

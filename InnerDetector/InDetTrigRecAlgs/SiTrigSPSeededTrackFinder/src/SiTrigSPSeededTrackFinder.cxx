@@ -24,6 +24,7 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
 //
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -305,12 +306,13 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     //?
   }
  
+  InDet::SiTrackMakerEventData_xk trackEventData;
   if(doTiming()) m_timerTrackMaker->start();
   if (m_fastTracking){
-    m_trackmaker->newTrigEvent(PIX,SCT);
-    //m_trackmaker->newEvent(PIX,SCT);
+    m_trackmaker->newTrigEvent(trackEventData, PIX, SCT);
+    //m_trackmaker->newEvent(trackEventData, PIX, SCT);
   } else {
-    m_trackmaker->newEvent(PIX,SCT);
+    m_trackmaker->newEvent(trackEventData, PIX, SCT);
   }
 
   // Loop through all seeds and reconsrtucted tracks collection preparation
@@ -349,7 +351,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       if(doTiming()) m_timerSeedProcessing->start();
       ++m_nseeds;
-      std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+      std::list<Trk::Track*> T = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
       
       if (m_fastTracking){
 	      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -537,7 +539,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       
 	  
-      std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(*perig, gpList));//dummyp); //
+      std::list<Trk::Track*> T = m_trackmaker->getTracks(trackEventData, *perig, gpList);//dummyp); //
 	  
 	  
 	if(doTiming()){
@@ -623,7 +625,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     
   
   
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   if (m_fastTracking){
     // Remove shared tracks with worse quality

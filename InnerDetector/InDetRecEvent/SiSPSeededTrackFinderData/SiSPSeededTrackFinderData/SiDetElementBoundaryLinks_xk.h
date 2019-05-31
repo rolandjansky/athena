@@ -9,7 +9,7 @@
 #ifndef SiDetElementBoundaryLinks_xk_H
 #define SiDetElementBoundaryLinks_xk_H
 
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include <vector>
 
 namespace InDet {

@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "SiSPSeededTrackFinderData/SiTrajectory_xk.h"
+
+#include "TrkSurfaces/PlaneSurface.h"
 
 #include <iostream>
 #include <iomanip>
 #include <boost/io/ios_state.hpp>
-
-#include "TrkSurfaces/PlaneSurface.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
 
 ///////////////////////////////////////////////////////////////////
 // Set work information to trajectory

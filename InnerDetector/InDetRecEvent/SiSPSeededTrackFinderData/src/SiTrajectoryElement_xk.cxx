@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
 
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "TrkSurfaces/AnnulusBounds.h" 
@@ -9,10 +10,10 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTrajectoryElement_xk.h"
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
+
 #include <stdexcept>
 #include <math.h>//for sincos function
 

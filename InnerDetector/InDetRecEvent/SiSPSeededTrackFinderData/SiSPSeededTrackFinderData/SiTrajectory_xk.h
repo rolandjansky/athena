@@ -15,14 +15,14 @@
 #ifndef SiTrajector_xk_H
 #define SiTrajector_xk_H
 
-#include <map>
-
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTrajectoryElement_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiTools_xk.h"
+#include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
+
+#include <map>
 
 namespace InDet{
 
