@@ -4,6 +4,7 @@
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
@@ -123,7 +124,8 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 
   const bool PIX = true;
   const bool SCT = true;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   bool ERR = false;
   Counter_t counter{};
@@ -133,7 +135,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   //
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
-    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
     for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
@@ -143,7 +145,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //
@@ -201,7 +203,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 
   const bool PIX = true ;
   const bool SCT = true ;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   std::vector<int> nhistogram(m_histsize, 0);
   std::vector<double> zhistogram(m_histsize, 0.);
@@ -216,7 +219,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
     bool firstTrack{true};
-    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
     for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
@@ -232,7 +235,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
     }
   }
 
-  m_seedsmaker->newEvent(1); 
+  m_seedsmaker->newEvent(1);
 
   double ZB[2];
   if (not m_ITKGeometry) {
@@ -246,7 +249,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   //
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    for (Trk::Track* t: m_trackmaker->getTracks(trackEventData, seed->spacePoints())) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
@@ -255,7 +258,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //

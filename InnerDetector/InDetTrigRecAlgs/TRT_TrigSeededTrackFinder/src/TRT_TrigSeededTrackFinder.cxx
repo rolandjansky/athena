@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "EventPrimitives/EventPrimitives.h"
+
+#include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
 using namespace std;
 
@@ -204,12 +206,15 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
     if(doTiming()) m_timerRegSel->stop();
   }
 
+  // Event dependent data of SiCombinatorialTrackFinder_xk
+  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+
   ///Initialize the TRT seeded track tool's new event
   if(!m_doFullScan){
-    m_trackmaker->newRegion(listOfPixIds,listOfSCTIds); //RoI-based reconstruction
+    m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
   }
   else{
-    m_trackmaker->newEvent(); // FullScan mode
+    m_trackmaker->newEvent(combinatorialData); // FullScan mode
   }
 
   if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endmsg;
@@ -233,7 +238,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endmsg;
       if(trackTRT->numberOfMeasurementBases()>9){  //Ask for at least 10 TRT hits in order to process
         m_nTrtSegGood++;
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trackTRT); //Get the possible Si extensions
 
 	if(trackSi.size()==0){
 	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "No Si track candidates associated to the TRT track " << endmsg;

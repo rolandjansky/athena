@@ -16,13 +16,11 @@
 #define SiTrajectoryElement_xk_H
 
 #include "InDetPrepRawData/SiClusterCollection.h"
+#include "SiSPSeededTrackFinderData/SiClusterLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiTools_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
-
-#include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiClusterLink_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
-
 #include "TrkTrack/TrackStateOnSurface.h"
 
 

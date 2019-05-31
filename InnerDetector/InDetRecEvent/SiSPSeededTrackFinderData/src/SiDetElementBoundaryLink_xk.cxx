@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,10 +11,11 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include "TrkSurfaces/PlaneSurface.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
+
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 #include "TrkSurfaces/AnnulusBounds.h" 
+#include "TrkSurfaces/PlaneSurface.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
