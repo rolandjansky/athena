@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Generators/GeneratorObjects
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          Event/EventInfo )
 
 # External dependencies:
 find_package( FastJet )
@@ -32,12 +33,12 @@ atlas_add_library( Rivet_iLib
                    INCLUDE_DIRS ${RIVET_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${RIVET_LIBRARIES} AthenaBaseComps GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${YODA_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel GeneratorObjects PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${YODA_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel GeneratorObjects PathResolver EventInfo )
 
 atlas_add_component( Rivet_i
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${YODA_LIBRARIES} ${FASTJET_LIBRARIES} ${RIVET_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel GeneratorObjects PathResolver Rivet_iLib )
+                     LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${YODA_LIBRARIES} ${FASTJET_LIBRARIES} ${RIVET_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel GeneratorObjects PathResolver EventInfo Rivet_iLib )
 
 atlas_install_scripts(share/*.sh)
 

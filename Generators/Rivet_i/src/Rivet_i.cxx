@@ -13,6 +13,9 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -189,7 +192,7 @@ StatusCode Rivet_i::execute() {
   const HepMC::GenEvent* checkedEvent = checkEvent(event);
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
-
+  //
   if(!checkedEvent) {
     ATH_MSG_ERROR("Check on HepMC event failed!");
     return StatusCode::FAILURE;
@@ -281,6 +284,14 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
+
+  // overwrite the HEPMC dummy event number with the proper ATLAS event number
+  const DataHandle<EventInfo> eventInfo;
+  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
+    //int run=eventInfo->event_ID()->run_number();
+    int eventNumber = eventInfo->event_ID()->event_number();
+    modEvent->set_event_number(eventNumber);
+  }
 
   if(m_weightName != ""){
     if(event->weights().has_key(m_weightName)){
