@@ -28,6 +28,12 @@ file_name = buildFileName(derivationFlags.WriteDAOD_EXOT5Stream)
 EXOT5Stream = MSMgr.NewPoolRootStream(stream_name, file_name)
 EXOT5Stream.AcceptAlgs(['EXOT5Kernel'])
 
+#print "stream_name: ",stream_name," file_name:",file_name
+
+# add output stream for histograms
+#jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:outputZnnN23New.root"]
+jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:"+file_name.replace('pool','ana')]
+
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT5ThinningHelper = ThinningHelper('EXOT5ThinningHelper')
 thinningTools = []
@@ -241,6 +247,9 @@ if DerivationFrameworkIsMonteCarlo:
         particleIDsToDress    = [13])
     ToolSvc += EXOT5TruthMuonDressingTool
     augmentationTools.append(EXOT5TruthMuonDressingTool)
+
+    # Truth jets
+    #addAntiKt4TruthJets(exot5Seq,"EXOT5")
 
 #====================================================================
 # SKIMMING TOOLS
@@ -526,7 +535,6 @@ else:
 
 # BC ID info
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BCDistanceAugmentationTool
-
 EXOT5BCDistanceAugmentationTool = DerivationFramework__BCDistanceAugmentationTool(name="EXOT5BCDistanceAugmentationTool")
 
 if isMC:
@@ -534,22 +542,31 @@ if isMC:
 else:
   EXOT5BCDistanceAugmentationTool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
 ToolSvc += EXOT5BCDistanceAugmentationTool
-
 augmentationTools.append(EXOT5BCDistanceAugmentationTool)
 
+# adding the skimming code
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
-    'EXOT5Kernel_skim', SkimmingTools=skimmingTools)
-exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
-    'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
+# augment the setup
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Augment', AugmentationTools=augmentationTools)
+# add filtering information BEFORE skimming
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCAna
+EXOT5MergeMCAna = DerivationFramework__MergeMCAna(name="EXOT5MergeMCAna")
+EXOT5MergeMCAna.DebugPlots = 0
+
+exot5Seq += EXOT5MergeMCAna
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SumEvtWeightFilterAlg
+EXOT5SumEvtWeightFilterAlg = DerivationFramework__SumEvtWeightFilterAlg(name="EXOT5SumEvtWeightFilterAlg")
+exot5Seq += EXOT5SumEvtWeightFilterAlg
+
+# Skim & thin
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel_skim', SkimmingTools=skimmingTools)
+exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel', ThinningTools=thinningTools)
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
-#addJetPtAssociation(jetalg="AntiKt4EMTopo",truthjetalg="AntiKt4TruthJets",sequence=exot5Seq,algname="JetPtAssociationToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') #truthjetalg="AntiKt4TruthJets"
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') 
 
 #========================================
 # Add the containers to the output stream
