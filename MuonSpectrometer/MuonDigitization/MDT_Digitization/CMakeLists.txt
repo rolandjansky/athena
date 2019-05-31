@@ -41,10 +41,6 @@ atlas_add_component( MDT_Digitization
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel GeneratorObjects MdtCalibData MdtCalibSvcLib MuonCondInterface MuonReadoutGeometry MuonDigitContainer MDT_Response MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement PathResolver TrkDetDescrUtils EventPrimitives )
 
-atlas_add_test( MDT_DigitizationConfigNew_test
-                SCRIPT test/MDT_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 600 )
-
 # Install files from the package:
 atlas_install_headers( MDT_Digitization )
 atlas_install_python_modules( python/*.py )

@@ -70,8 +70,7 @@ def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(MDT_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
     return acc
 
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
@@ -82,7 +81,6 @@ def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**k
     kwargs.setdefault("GetT0FromBD", flags.Detector.Overlay)
     if not flags.Detector.Overlay:
         kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+MDT_SDO")
-    acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
 
 def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
@@ -91,7 +89,5 @@ def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
     return acc
 

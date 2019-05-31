@@ -104,7 +104,7 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
     return FEI3SimTool(name, **kwargs)
 
-def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationTool", **kwargs):
+def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return a ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
     acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
@@ -184,15 +184,19 @@ def PixelRangeCfg(flags, name="PixelRange", **kwargs):
     kwargs.setdefault("ItemList", ["SiHitCollection#PixelHits"])
     return PileUpXingFolder(name, **kwargs)
 
-def PixelDigitizationCfg(toolCfg, flags, name="PixelDigitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type Pixel digitization"""
+def PixelDigitizationBasicCfg(toolCfg, flags, name="PixelDigitizationBasic", **kwargs):
+    """Return a ComponentAccumulator with basic toolCfg type Pixel digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(toolCfg(flags))
         kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(PixelDigitization(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", PixelItemList()))
+    return acc
+
+def PixelDigitizationCfg(toolCfg, flags, name="PixelDigitization", **kwargs):
+    """Return a ComponentAccumulator with toolCfg type Pixel digitization and Output"""
+    acc = PixelDigitizationBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", PixelItemList()))
     return acc
 
 def PixelDigitizationHSCfg(flags, name="PixelDigitizationHS", **kwargs):
@@ -205,5 +209,5 @@ def PixelDigitizationPUCfg(flags, name="PixelDigitizationPU", **kwargs):
 
 def PixelDigitizationOverlayCfg(flags, name="PixelDigitizationOverlay", **kwargs):
     """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationCfg(PixelDigitizationOverlayToolCfg, flags, name, **kwargs)
+    return PixelDigitizationBasicCfg(PixelDigitizationOverlayToolCfg, flags, name, **kwargs)
 

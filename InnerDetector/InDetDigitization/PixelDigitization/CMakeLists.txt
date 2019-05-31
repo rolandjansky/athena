@@ -44,10 +44,6 @@ atlas_add_component( PixelDigitization
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver )
 
-atlas_add_test( PixelDigitizationConfigNew_test
-                SCRIPT test/PixelDigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_headers( PixelDigitization )
 atlas_install_python_modules( python/*.py )

@@ -119,17 +119,19 @@ def TRT_DigitizationOverlayToolCfg(flags, name="TRT_OverlayDigitizationTool", **
     acc.setPrivateTools(tool)
     return acc
 
-def TRT_DigitizationCfg(toolCfg, flags, name="TRT_Digitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type TRT digitization"""
+def TRT_DigitizationBasicCfg(toolCfg, flags, name="TRT_DigitizationBasic", **kwargs):
+    """Return a ComponentAccumulator with basic toolCfg type TRT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(toolCfg(flags))
         kwargs["DigitizationTool"] = tool
-        print("#"*200)
-        print(tool)
     acc.addEventAlgo(TRTDigitization(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", TRT_ItemList()))
+    return acc
+
+def TRT_DigitizationCfg(toolCfg, flags, name="TRT_Digitization", **kwargs):
+    """Return a ComponentAccumulator with toolCfg type TRT digitization and Output"""
+    acc = TRT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", TRT_ItemList()))
     return acc
 
 def TRT_DigitizationHSCfg(flags, name="TRT_DigitizationHS", **kwargs):
@@ -142,5 +144,5 @@ def TRT_DigitizationPUCfg(flags, name="TRT_DigitizationPU", **kwargs):
 
 def TRT_DigitizationOverlayCfg(flags, name="TRT_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator configured for Overlay TRT digitization"""
-    return TRT_DigitizationCfg(TRT_DigitizationOverlayToolCfg, flags, name, **kwargs)
+    return TRT_DigitizationBasicCfg(TRT_DigitizationOverlayToolCfg, flags, name, **kwargs)
 
