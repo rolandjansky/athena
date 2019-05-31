@@ -199,8 +199,8 @@ namespace xAOD {
    bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const {
       for (size_t i = 0; i < this->linkColNames().size(); ++i) {
          if (this->linkColNames().at(i) != name) continue;
-         if (this->linkColKeys().at(i) != key) continue;
-         if (this->linkColIndices().at(i) != index) continue;
+         if (this->linkColKeysNoRemap().at(i) != key) continue;
+         if (this->linkColIndicesNoRemap().at(i) != index) continue;
          if (this->linkColClids().at(i) != clid) continue;
          return true;
       } 
@@ -343,7 +343,14 @@ namespace xAOD {
    bool TrigComposite_v1::isRemapped() const {
       static const Accessor< std::vector< uint32_t > > key_remap( "remap_linkColKeys" );
       static const Accessor< std::vector< uint16_t > > index_remap( "remap_linkColIndices" );
-      return (key_remap.isAvailable( *this ) && index_remap.isAvailable( *this ) );
+      size_t nDecorations = 0;
+      if (key_remap.isAvailable( *this )) ++nDecorations;
+      if (index_remap.isAvailable( *this )) ++nDecorations;
+      if (nDecorations == 1) {
+        throw std::runtime_error("TrigComposite_v1::isRemapped Only one of the 'remap_linkColKeys' and 'remap_linkColIndices' "
+          "decorations were found on this object. This should never happen, a remapped element link must have both of these collections.");
+      }
+      return static_cast<bool>(nDecorations); //0=Fasle, 2=True
    }
 
 
