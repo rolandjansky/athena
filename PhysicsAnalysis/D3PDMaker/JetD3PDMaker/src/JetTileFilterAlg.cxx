@@ -82,8 +82,6 @@ StatusCode JetTileFilterAlg::execute(){
     }
     
     JetCollection* jout=new JetCollection(SG::VIEW_ELEMENTS);
-    //JetCollectionHelper jhelper;
-    //sc=jhelper.record_jets(evtStore(),jout, m_jetsOut);
     sc=evtStore()->record(jout, m_jetsOut);
     
     if(sc!=StatusCode::SUCCESS){

@@ -23,12 +23,34 @@ class ConfigurationError(RuntimeError):
 
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
+def printProperties(msg, c, nestLevel = 0):
+    for propname, propval in six.iteritems(c.getValuedProperties()):
+        # Ignore empty lists
+        if propval==[]:
+            continue
+        # Printing EvtStore could be relevant for Views?
+        if propname in ["DetStore","EvtStore"]:
+            continue
+
+        propstr = str(propval)
+        if isinstance(propval,GaudiHandles.PublicToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,ConfigurableAlgTool):
+            propstr = propval.getFullName()
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+    return
+
+
 class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
         if not Configurable.configurableRun3Behavior:
-            msg = "discoverd Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
+            msg = "discovered Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
             self._msg.error(msg)
             raise ConfigurationError(msg)
         
@@ -69,31 +91,20 @@ class ComponentAccumulator(object):
 
 
 
+    def printCondAlgs(self, summariseProps=False):
+        self._msg.info( "Condition Algorithms" )
+        for c in self._conditionsAlgs:
+            self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
+            if summariseProps:
+                printProperties(self._msg, c, 1)
+        return
+        
+
     def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
 
-        def printProperties(c, nestLevel = 0):
-            for propname, propval in six.iteritems(c.getValuedProperties()):
-                # Ignore empty lists
-                if propval==[]:
-                    continue
-                # Printing EvtStore could be relevant for Views?
-                if propname in ["DetStore","EvtStore"]:
-                    continue
-
-                propstr = str(propval)
-                if isinstance(propval,GaudiHandles.PublicToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,ConfigurableAlgTool):
-                    propstr = propval.getFullName()
-                self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
-            return
 
         if withDetails:
             self._msg.info( self._sequence )
@@ -113,14 +124,13 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
                         if summariseProps:
-                            printProperties(c, nestLevel)
+                            printProperties(self._msg, c, nestLevel)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
                 printSeqAndAlgs(s)
 
-        self._msg.info( "Condition Algorithms" )
-        self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
+        self.printCondAlgs (summariseProps = summariseProps)
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
@@ -131,7 +141,7 @@ class ComponentAccumulator(object):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
             if summariseProps:
-                printProperties(t)
+                printProperties(self._msg, t)
         self._msg.info( "]" )
 
 
@@ -449,9 +459,9 @@ class ComponentAccumulator(object):
                     if ourSeq:
                         mergeSequences(ourSeq, otherSeq)
                         found=True
-                        self._msg.debug("   Succeeded to merge sequence %s to %s", otherSeq.name(), ourSeq.name() )                                                
+                        self._msg.verbose("   Succeeded to merge sequence %s to %s", otherSeq.name(), ourSeq.name() )
                     else:
-                        self._msg.debug("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name() )
+                        self._msg.verbose("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name() )
                 if not found: # just copy the sequence as a dangling one
                     self._allSequences.append( copy.copy(otherSeq) )
                     mergeSequences( self._allSequences[-1], otherSeq )
@@ -562,6 +572,10 @@ class ComponentAccumulator(object):
             self.appendConfigurable(ch)
         return
 
+    def __verifyFinalSequencesStructure(self):
+        if len(self._allSequences) != 1:
+            raise ConfigurationError('It is not allowed for the storable CA to have more than one top sequence, now it has: {}'\
+                                         .format(','.join([ s.name() for s in self._allSequences])))
 
     def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
@@ -601,9 +615,8 @@ class ComponentAccumulator(object):
               basecfg = MainServicesSerialCfg()
               basecfg.merge(self)
               self = basecfg
-              if len(self._allSequences) != 1:
-                  raise ConfigurationError('It is not allowed for the storable CA to have more than one top sequence, now it has: {}'\
-                                           .format(','.join([ s.name() for s in self._allSequences])))
+              self.__verifyFinalSequencesStructure()
+
             self._jocat={}
             self._jocfg={}
             self._pycomps={}
@@ -781,9 +794,9 @@ class ComponentAccumulator(object):
 
         return app
 
-
     def run(self,maxEvents=None,OutputLevel=3):
         app = self.createApp (OutputLevel)
+        self.__verifyFinalSequencesStructure()
 
         #Determine maxEvents
         if maxEvents is None:

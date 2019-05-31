@@ -46,7 +46,7 @@
 
 #include "tauRecTools/TauJetRNN.h"
 
-#include "TrigTauRec/TrigTauRecMerged.h"
+#include "TrigTauRecMerged.h"
 
 using namespace std;
 

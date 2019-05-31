@@ -95,6 +95,8 @@ StatusCode TrackVertexAssociationTool::initialize()
   ATH_MSG_INFO("Allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit)");
   ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx)");
 
+  ATH_CHECK( m_vertexKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 

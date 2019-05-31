@@ -1,5 +1,5 @@
 //#include "TrigMissingETHypo/TrigL2MissingETHypo.h"
-#include "TrigMissingETHypo/TrigEFMissingETHypo.h"
+#include "../TrigEFMissingETHypo.h"
 #include "../TrigMissingETHypoAlgMT.h"
 #include "../TrigMissingETHypoToolMT.h"
 

@@ -17,7 +17,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigTauHypo/EFPhotonTauFex.h"
+#include "EFPhotonTauFex.h"
 
 //Constructor
 EFPhotonTauFex::EFPhotonTauFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){

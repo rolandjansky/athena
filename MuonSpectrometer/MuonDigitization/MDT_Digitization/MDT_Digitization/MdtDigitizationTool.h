@@ -51,7 +51,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -159,7 +159,7 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   //TDC ELECTRONICS
   Gaudi::Property<double> m_offsetTDC{this, "OffsetTDC", 800., "TDC offset"};
-  Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed", 299.792458, "Light speed" }; // TODO use Gaudi::Units contstant?
+  Gaudi::Property<double> m_signalSpeed{this, "SignalSpeed",Gaudi::Units::c_light, "Light speed" };
   Gaudi::Property<double> m_ns2TDCAMT{this, "ns2TDCAMT", 0.78125, "Conversion factor TDC/ns for AMT chips"};
   Gaudi::Property<double> m_ns2TDCHPTDC{this, "ns2TDCHPTDC", 0.1953125, "Conversion factor TDC/ns for HPTDC chips"};
   Gaudi::Property<double> m_resTDC{this, "ResolutionTDC", 0.5, "TDC resolution"};
@@ -186,8 +186,6 @@ class MdtDigitizationTool : public PileUpToolBase {
   Gaudi::Property<double> m_maskWindow{this, "MaskWindow", 250., "Masked window"};
   Gaudi::Property<double> m_deadTime{this, "DeadTime", 700., "MDT drift tube dead time"};
   Gaudi::Property<bool>   m_DiscardEarlyHits{this, "DiscardEarlyHits", true, ""};
-
-  const double m_inv_c_light{1./CLHEP::c_light};
 
   //COSMICS
   Gaudi::Property<bool> m_useOffSet1{this, "UseOffSet1", true, ""};

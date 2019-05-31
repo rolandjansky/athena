@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/T2ZdcFex.h"
+#include "T2ZdcFex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "ZdcIdentifier/ZdcID.h"

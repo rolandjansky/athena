@@ -18,7 +18,7 @@
 //
 // ********************************************************************
 
-#include "TrigMissingETMuon/TrigMissingETMuon.h"
+#include "TrigMissingETMuon.h"
 
 #include "xAODMuon/MuonContainer.h"
 

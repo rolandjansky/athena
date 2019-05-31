@@ -557,10 +557,12 @@ TileBadChannels...   INFO Updating TileBchStatus::isBad() definition from DB
 TileBadChannels...   INFO Updating TileBchStatus::isNoisy() definition from DB
 TileBadChannels...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults
 TileBadChannels...   INFO No TileBchStatus::isBadTiming() definition found in DB, using defaults
+TileBadChannels...   INFO No TileBchStatus::isWrongBCID() definition found in DB, using defaults
 TileBadChannels...   INFO TileBchStatus::isBad() is defined by: ADC masked (unspecified); ADC dead; Very large HF noise; No data; Wrong DSP configuration; Severe stuck bit; Severe data corruption; Channel masked (unspecified); No PMT connected; No HV; Wrong HV; 
 TileBadChannels...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise; Correlated noise; Large LF noise; 
 TileBadChannels...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; No PMT connected; No HV; Channel masked for LV1 (unspecified); LV1 channel no gain; LV1 channel noisy; Channel disabled for LV1; 
 TileBadChannels...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
+TileBadChannels...   INFO TileBchStatus::isWrongBCID() is defined by: Wrong BCID; Online wrong BCID; 
 TileBadChannels...   INFO No drawer trips probabilities found in DB
 ClassIDSvc           INFO  getRegistryEntries: read 1749 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO CaloEntrance not found 

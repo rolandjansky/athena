@@ -11,7 +11,7 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 
-#include "TrigMissingETHypo/ITrigMissingETHypoToolMT.h"
+#include "ITrigMissingETHypoToolMT.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 /**

@@ -192,11 +192,11 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
           }
 
 	  AthenaMP::WorkerOutput newOutput;
-          newOutput._filename = absolutename.string();
-          newOutput._technology = entries[1];
-          newOutput._description = entries[2];
-          newOutput._access_mode = entries[3];
-          newOutput._shared = (line.find("SHARED")!=std::string::npos);
+          newOutput.filename = absolutename.string();
+          newOutput.technology = entries[1];
+          newOutput.description = entries[2];
+          newOutput.access_mode = entries[3];
+          newOutput.shared = (line.find("SHARED")!=std::string::npos);
 
           (*jobOutputs)[basename.string()].push_back(newOutput);
         }
@@ -206,7 +206,7 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
   return jobOutputs;
 }
 
-void AthenaMPToolBase::useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry)
+void AthenaMPToolBase::useFdsRegistry(std::shared_ptr<AthenaInterprocess::FdsRegistry> registry)
 {
   m_fdsRegistry = registry;
 }
@@ -402,9 +402,7 @@ int AthenaMPToolBase::reopenFds()
   }
   
   // Check the FdsRegistry
-  AthenaInterprocess::FdsRegistry::const_iterator it(m_fdsRegistry->begin()), itEnd(m_fdsRegistry->end());
-  for(;it!=itEnd;++it) {
-    AthenaInterprocess::FdsRegistryEntry regEntry = *it;
+  for(const AthenaInterprocess::FdsRegistryEntry& regEntry : *m_fdsRegistry) {
     if(fdLog.find(regEntry.fd)!=fdLog.end()) {
       ATH_MSG_DEBUG("The file from FdsRegistry " << regEntry.name << " was registered with FileMgr. Skip reopening");
     }

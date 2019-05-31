@@ -33,7 +33,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 // INCLUDE HEADER FILES:
 
 // Trigger specific files
-#include "TrigEgammaRec/TrigEgammaRec.h"
+#include "TrigEgammaRec.h"
 #include "xAODEgammaCnv/xAODElectronMonFuncs.h"
 #include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
 

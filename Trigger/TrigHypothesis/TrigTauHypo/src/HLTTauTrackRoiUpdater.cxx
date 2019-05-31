@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-#include "TrigTauHypo/HLTTauTrackRoiUpdater.h"
+#include "HLTTauTrackRoiUpdater.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"

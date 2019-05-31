@@ -115,7 +115,6 @@
 #define ATHENAKERNEL_RCUOBJECT_H
 
 
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 #include "boost/dynamic_bitset.hpp"

@@ -10,8 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////
 #include "PixelDigitizationTool.h"
 
-#include "PileUpTools/PileUpMergeSvc.h"
-
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
@@ -22,29 +20,11 @@
 
 #include <limits>
 #include <cstdint>
+
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
-  PileUpToolBase(type,name,pIID),
-  m_rdoContainerKey("PixelRDOs"),
-  m_simDataCollKey("PixelSDO_Map"),
-  m_HardScatterSplittingMode(0),
-  m_HardScatterSplittingSkipper(false),
-  m_onlyHitElements(false),
-  m_detID(nullptr),
-  m_timedHits(nullptr),
-  m_mergeSvc("PileUpMergeSvc",name),
-  m_detManager(nullptr),
-  m_inputObjectName(""),
-  m_createNoiseSDO(false)
-{
-  declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
-  declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
-  declareProperty("CreateNoiseSDO",   m_createNoiseSDO,  "Set create noise SDO flag");
-  declareProperty("RDOCollName",      m_rdoContainerKey, "RDO collection name");
-  declareProperty("SDOCollName",      m_simDataCollKey,  "SDO collection name");
-  declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
-  declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
+  PileUpToolBase(type,name,pIID) {
 }
 
 //=======================================
