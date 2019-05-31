@@ -90,6 +90,7 @@ class SlimmingHelper:
                 self.AppendToDictionary = {}
                 self.NamesAndTypes = buildNamesAndTypes()
                 self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
+                self.IncludeAdditionalTriggerContent = False
                 self.IncludeMuonTriggerContent = False
                 self.IncludeEGammaTriggerContent = False
                 self.IncludeJetTauEtMissTriggerContent = False
@@ -147,6 +148,10 @@ class SlimmingHelper:
 
                 # Trigger objects: add them by hand to the smart collection list (to keep the previous interface)
                 triggerContent = False
+
+                if (self.IncludeAdditionalTriggerContent == True):
+                        triggerContent = True
+
                 if (self.IncludeMuonTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__MuonContainer_MuonEFInfo")
@@ -503,6 +508,10 @@ class SlimmingHelper:
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif self.IncludeAdditionalTriggerContent == True:
+                        from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
+                        items.extend(AdditionalTriggerContent)
+
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)
