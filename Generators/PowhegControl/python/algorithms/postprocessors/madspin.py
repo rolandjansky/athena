@@ -238,6 +238,14 @@ def __construct_inputs(input_LHE_events, process):
     with open("madspin_runcard.txt", "wb") as f_madspin_runcard:
         f_madspin_runcard.write("import {}\n".format(input_LHE_events))
         f_madspin_runcard.write("set spinmode {}\n".format(process.MadSpin_mode))
+        if (process.MadSpin_seed != -1):
+            f_madspin_runcard.write("set seed {}\n".format(process.MadSpin_seed))
+        if (process.MadSpin_seed != -1):
+            f_madspin_runcard.write("set seed {}\n".format(process.MadSpin_seed))
+        if (process.MadSpin_Nevents_for_max_weigth != -1):
+            f_madspin_runcard.write("set Nevents_for_max_weigth {} # number of events for the estimate of the max. weight\n".format(process.MadSpin_Nevents_for_max_weigth))
+        if (process.MadSpin_max_weight_ps_point != -1):
+            f_madspin_runcard.write("set max_weight_ps_point {} # number of PS to estimate the maximum for each event\n".format(process.MadSpin_max_weight_ps_point))
         for decay in process.MadSpin_decays:
             f_madspin_runcard.write("{0}\n".format(decay))
         f_madspin_runcard.write("launch\n")
