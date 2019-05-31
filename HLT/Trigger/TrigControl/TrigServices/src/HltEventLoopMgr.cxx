@@ -389,7 +389,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
       ATH_CHECK(ita->sysBeginRun());   // TEMPORARY: beginRun is deprecated
     }
     // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
-    m_coolHelper->readFolderInfo();
+    ATH_CHECK(m_coolHelper->readFolderInfo());
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
