@@ -53,7 +53,8 @@ def getTransform():
                                      literalRunargs = ['writeBS = runArgs.writeBS',
                                                        'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags',
                                                        'athenaCommonFlags.FilesInput = runArgs.inputBS_RDOFile',
-                                                       'EvtMax = runArgs.maxEvents',
+                                                       'athenaCommonFlags.EvtMax = runArgs.maxEvents',
+                                                       'athenaCommonFlags.SkipEvents = runArgs.skipEvents',
                                                        'if hasattr(runArgs,\'outputBSFile\'):',
                                                        '   athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )']))
 
