@@ -504,7 +504,8 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // count jets above threshold
     int nJets = 0;
     for (auto jet : *jets) {
-      if(jet->pt()/m_GeV > m_nJetPtThreshold)
+      xAOD::JetFourMom_t trigjetconstitP4 = jet->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
+      if(trigjetconstitP4.pt()/m_GeV > m_nJetPtThreshold)
         nJets += 1;
     }
     jetEventInfo.setNjet(nJets);
