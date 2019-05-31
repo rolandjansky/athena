@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCS2DFunctionLateralShapeParametrization_h
@@ -35,7 +35,7 @@ public:
   virtual double get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   /// default for this class is to simulate get_number_of_expected_hits() hits
-  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   /// simulated one hit position with weight that should be put into simulstate
   /// sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
@@ -48,7 +48,7 @@ public:
   TFCS2DFunction* function() {return m_function;};
   const TFCS2DFunction* function() const {return m_function;};
   
-  void Print(Option_t *option = "") const override;
+  virtual void Print(Option_t *option = "") const override;
 protected:
   /// Histogram to be used for the shape simulation
   TFCS2DFunction* m_function;
