@@ -33,6 +33,7 @@ else()
       GaudiKernel
       LumiBlock/LumiCalc
       PRIVATE
+      Control/CxxUtils
       DataQuality/GoodRunsLists
       Database/AthenaPOOL/AthenaPoolUtilities
       Database/AthenaPOOL/DBDataModel
@@ -81,3 +82,13 @@ atlas_add_executable( getLumi
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.txt )
+
+atlas_add_test( LBDurationCondAlg_test
+   SOURCES test/LBDurationCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
+atlas_add_test( LuminosityCondAlg_test
+   SOURCES test/LuminosityCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
