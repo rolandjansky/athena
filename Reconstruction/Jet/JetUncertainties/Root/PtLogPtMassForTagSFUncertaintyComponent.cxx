@@ -4,8 +4,6 @@
 
 #include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
 #include "JetUncertainties/Helpers.h"
-#include "BoostedJetTaggers/FatjetTruthLabel.h"
-#include "PATCore/TAccept.h"
 
 namespace jet
 {
@@ -65,14 +63,14 @@ bool PtLogPtMassForTagSFUncertaintyComponent::getValidityImpl(const xAOD::Jet& j
 
 double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    static SG::AuxElement::Accessor<FatjetTruthLabel> accLabel("FatjetTruthLabel");
+    static const SG::AuxElement::Accessor<int> accLabel("FatjetTruthLabel");
     if ( !accLabel.isAvailable(jet) ){
       ATH_MSG_ERROR("FatjetTruthLabel is not decorrated to the jet. Please call BoostedJetTaggers tag() function before calling this function.");
     }
-    FatjetTruthLabel jetFlavorLabel=accLabel(jet);
+    int jetFlavorLabelInt=accLabel(jet);
+    FatjetTruthLabel::TypeEnum jetFlavorLabel=FatjetTruthLabel::intToEnum(jetFlavorLabelInt);
     
-    static SG::AuxElement::ConstAccessor<Root::TAccept> accResult(m_result_name.Data());
-    Root::TAccept m_accept;
+    SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
     float mOverPt=jet.m()/jet.pt();
     if ( m_result_name!="" ) {
       // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
@@ -80,23 +78,21 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       if ( !accResult.isAvailable(jet) ){
 	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
       } else {
-	m_accept=accResult(jet);
+	FatjetCutResult::TypeEnum myCutResult=FatjetCutResult::intToEnum(accResult(jet));
 	if ( m_region==CompTaggerRegionVar::passMpassD2_2Var ||
 	     m_region==CompTaggerRegionVar::passMfailD2_2Var ||
 	     m_region==CompTaggerRegionVar::failMpassD2_2Var ||
 	     m_region==CompTaggerRegionVar::failMfailD2_2Var) {
 	  // TCC 2Var tagger
-	  bool passMass=(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh"));
-	  bool passD2  =(m_accept.getCutResult("PassD2"));
 	  if ( m_result_name.Contains("SmoothZ") ){
 	    // to apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10GeV
 	    const double WtoZmassShift = 10803;
 	    mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
 	  }
-	  if ( ! ((passMass && passD2 && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
-		  (passMass && !passD2 && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
-		  (!passMass && passD2 && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
-		  (!passMass && !passD2 && m_region==CompTaggerRegionVar::failMfailD2_2Var)) ){
+	  if ( ! ((myCutResult==FatjetCutResult::passMpassD2_2Var && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
+		  (myCutResult==FatjetCutResult::passMfailD2_2Var && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
+		  (myCutResult==FatjetCutResult::failMpassD2_2Var && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
+		  (myCutResult==FatjetCutResult::failMfailD2_2Var && m_region==CompTaggerRegionVar::failMfailD2_2Var)) ){
 	    return 0.0;
 	  }
 	} else {
@@ -110,7 +106,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	 (m_label==CompFlavorLabelVar::V_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
 	 (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq) ||
 	 (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
-	 (m_label==CompFlavorLabelVar::q && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::unknown) ) {
+	 (m_label==CompFlavorLabelVar::q && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::qcd) ) {
       // if the type of uncertainty is not match to the jet truth label, return 0% uncertainty
       return 0.0;
     }

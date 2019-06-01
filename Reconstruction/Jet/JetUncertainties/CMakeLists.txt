@@ -39,8 +39,8 @@ atlas_add_library( JetUncertaintiesLib
    PUBLIC_HEADERS JetUncertainties
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces
-   JetCPInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver )
+   JetCPInterfaces PATCoreLib 
+   PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetUncertainties

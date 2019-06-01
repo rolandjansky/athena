@@ -2831,8 +2831,8 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
 StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accTagScaleFactor(m_name_TagScaleFactor);
-    const static bool TagScaleFactorwasAvailable  = accTagScaleFactor.isAvailable(jet);
+    SG::AuxElement::Accessor<float> accTagScaleFactor(m_name_TagScaleFactor);
+    const bool TagScaleFactorwasAvailable  = accTagScaleFactor.isAvailable(jet);
     
     const xAOD::Jet& constJet = jet;
     if (TagScaleFactorwasAvailable)

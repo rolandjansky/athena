@@ -144,7 +144,7 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  std::unique_ptr<TFile> outputFile(new TFile("output_SmoothedWZTagger.root", "recreate"));
+  std::unique_ptr<TFile> outputFile(TFile::Open("output_SmoothedWZTagger.root", "recreate"));
   int pass,truthLabel;
   float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
@@ -154,8 +154,8 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "m", &m, "m/F" );
   Tree->Branch( "eta", &eta, "eta/F" );
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
-
-  JetUncertaintiesTool* m_jetUncToolSF = new JetUncertaintiesTool(("JetUncProvider_SF"));
+  
+  std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20");
   m_jetUncToolSF->setProperty("Path", "/eos/atlas/user/t/tnobe/temp/JetUncertainties/TakuyaTag/");
   m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/TagSFUncert_SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var.config");
@@ -166,8 +166,8 @@ int main( int argc, char* argv[] ) {
   CP::SystematicSet jetUnc_sysSet = m_jetUncToolSF->recommendedSystematics();
   const std::set<std::string> sysNames = jetUnc_sysSet.getBaseNames();
   std::vector<CP::SystematicSet> m_jetUnc_sysSets;
-  for (auto sysName: sysNames) {
-    for (auto pull : pulls) {
+  for (std::string sysName: sysNames) {
+    for (std::string pull : pulls) {
       std::string sysPulled = sysName + pull;
       m_jetUnc_sysSets.push_back(CP::SystematicSet(sysPulled));
     }
@@ -217,25 +217,25 @@ int main( int argc, char* argv[] ) {
 
     // Loop over jet container
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *myJets );
-    xAOD::JetContainer::iterator jet_itr = (jets_shallowCopy.first)->begin();
-    xAOD::JetContainer::iterator jet_end = (jets_shallowCopy.first)->end();    
-    for( ; jet_itr != jet_end; ++ jet_itr ){
+    std::unique_ptr<xAOD::JetContainer> shallowJets(jets_shallowCopy.first);
+    std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(jets_shallowCopy.second);
+    for( xAOD::Jet* jetSC : *shallowJets ){
 
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
-      const Root::TAccept& res = m_Tagger->tag( **jet_itr );
-      if(verbose) std::cout<<"jet pt              = "<<(*jet_itr)->pt()<<std::endl;
+      const Root::TAccept& res = m_Tagger->tag( *jetSC );
+      if(verbose) std::cout<<"jet pt              = "<<jetSC->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"result d2pass       = "<<res.getCutResult("PassD2")<<std::endl;
       if(verbose) std::cout<<"result ntrkpass     = "<<res.getCutResult("PassNtrk")<<std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = (int)(*jet_itr)->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
+      truthLabel = jetSC->auxdata<int>("FatjetTruthLabel");
 
       pass = res;
-      sf = (*jet_itr)->auxdata<float>("SmoothWContained2VarMaxSig_SF");
-      pt = (*jet_itr)->pt();
-      m  = (*jet_itr)->m();
-      eta = (*jet_itr)->eta();
+      sf = jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF");
+      pt = jetSC->pt();
+      m  = jetSC->m();
+      eta = jetSC->eta();
 
       Tree->Fill();
 
@@ -246,11 +246,11 @@ int main( int argc, char* argv[] ) {
 	if( validForUncTool ){
 	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb, 2: W->qq, 3: Z->qq, etc.)" << std::endl;
 	  std::cout << "passMass? " << (res.getCutResult("PassMassHigh") && res.getCutResult("PassMassLow")) << " passD2? " << res.getCutResult("PassD2") << std::endl;
-	  for ( auto sysSet : m_jetUnc_sysSets ){
-	    m_Tagger->tag( **jet_itr );
+	  for ( CP::SystematicSet sysSet : m_jetUnc_sysSets ){
+	    m_Tagger->tag( *jetSC );
 	    m_jetUncToolSF->applySystematicVariation(sysSet);
-	    m_jetUncToolSF->applyCorrection(**jet_itr);
-	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
+	    m_jetUncToolSF->applyCorrection(*jetSC);
+	    std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
 	  }
 	}
       }

@@ -206,7 +206,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     return StatusCode::FAILURE;
   }
   else if(m_calibarea_keras.compare("Local")==0){
-    std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/Rel21/";
+    std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
     m_kerasConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_kerasConfigFileName);
@@ -235,7 +235,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
   lwt::JSONConfig cfg = lwt::parse_json( input_cfg );
 
-  ATH_MSG_INFO( (m_APP_NAME+": Keras Network NLayers : "+std::to_string(cfg.layers.size()).c_str() ));
+  ATH_MSG_INFO( (m_APP_NAME+": Keras Network NLayers : "+cfg.layers.size() ));
 
   m_lwnn = std::unique_ptr<lwt::LightweightNeuralNetwork>
               (new lwt::LightweightNeuralNetwork(cfg.inputs, cfg.layers, cfg.outputs) );
@@ -283,7 +283,8 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    TFile* weightConfig=new TFile( m_weightConfigPath.c_str(), "OPEN" );
+    //std::unique_ptr<TFile> weightConfig(TFile::Open( m_weightConfigPath.c_str()));
+    TFile* weightConfig=TFile::Open( m_weightConfigPath.c_str() );
     if( !weightConfig ) {
       ATH_MSG_INFO( (m_APP_NAME+": Error openning config file : "+m_weightConfigPath.c_str()) );
       return StatusCode::FAILURE;
@@ -350,9 +351,9 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   float cut_score     = m_funcScoreCut   ->Eval(jet_pt);
 
   // decorate truth label for SF provider
-  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
+  const SG::AuxElement::ConstAccessor<int> acc_truthLabel(m_truthLabelDecorationName);
   float jet_weight=1.0;
-  if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
+  if ( !acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       ATH_MSG_DEBUG("decorateTruthLabel() is failed.");
     }
@@ -368,8 +369,8 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   }
 
   // evaluate the cut criteria on mass and score
-  ATH_MSG_VERBOSE(": CutsValues : MassWindow=["<<std::to_string(cut_mass_low)<<","<<std::to_string(cut_mass_high)<<"]  ,  scoreCut="<<std::to_string(cut_score) );
-  ATH_MSG_VERBOSE(": JetValues  : JetMass="<<std::to_string(jet_mass)<<"  ,  score="<<std::to_string(jet_score)<<"  ,  SF="<<std::to_string(jet_weight) );
+  ATH_MSG_VERBOSE(": CutsValues : MassWindow=["<<cut_mass_low<<","<<cut_mass_high<<"]  ,  scoreCut="<<cut_score );
+  ATH_MSG_VERBOSE(": JetValues  : JetMass="<<jet_mass<<"  ,  score="<<jet_score<<"  ,  SF="<<jet_weight );
 
   //set the TAccept depending on whether it is a W/Z or a top tag
   if(m_tagType.compare("WBoson")==0 || m_tagType.compare("ZBoson")==0){
@@ -420,14 +421,14 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
 	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
 
     std::string truthLabelStr;
-    FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
+    FatjetTruthLabel::TypeEnum jetContainment=FatjetTruthLabel::intToEnum(jet.auxdata<int>(m_truthLabelDecorationName));
     if( m_weightHistograms.count("t_qqb") ) {
       // full-contained top tagger
       if( jetContainment==FatjetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
       //}else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq ){
 	//truthLabelStr="V_qq";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }else{
@@ -436,7 +437,7 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
 	truthLabelStr="t";
       }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
 	truthLabelStr="V_qq";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }

@@ -80,7 +80,7 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     SG::AuxElement::Decorator<float>    m_dec_d2cut;
     SG::AuxElement::Decorator<float>    m_dec_ntrkcut;
     SG::AuxElement::Decorator<float>    m_dec_weight;
-    SG::AuxElement::Decorator<Root::TAccept> m_dec_accept;
+    SG::AuxElement::Decorator<int>      m_dec_accept;
 
 };
 

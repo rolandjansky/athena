@@ -122,6 +122,7 @@ namespace CompScaleVar
 
 namespace CompFlavorLabelVar
 {
+    // used to identify the jet flavor relevant for this NP
     enum TypeEnum
     {
         UNKNOWN=0,  // error state
@@ -138,6 +139,7 @@ namespace CompFlavorLabelVar
 
 namespace CompTaggerRegionVar
 {
+    // used to identify the region relevant for this NP
     enum TypeEnum
     {
         UNKNOWN=0,  // error state

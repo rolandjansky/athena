@@ -6,6 +6,7 @@
 #define JETUNCERTAINTIES_PTLOGPTMASSFORTAGSFUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
+#include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 namespace jet
 {

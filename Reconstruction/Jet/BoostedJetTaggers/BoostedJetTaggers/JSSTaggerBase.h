@@ -13,7 +13,7 @@
 #include "JetInterface/IJetSelector.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "BoostedJetTaggers/FatjetTruthLabel.h"
+#include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 #include "PATCore/TAccept.h"
 
@@ -65,7 +65,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
   void showCuts() const;
 
   public:
-  FatjetTruthLabel getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, bool isSherpa, double dRmax, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
+  int getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, bool isSherpa, double dRmax, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   int matchToWZ_Sherpa(const xAOD::Jet& jet,
 			const xAOD::TruthParticleContainer* truthParts,
 			double dRmax) const;

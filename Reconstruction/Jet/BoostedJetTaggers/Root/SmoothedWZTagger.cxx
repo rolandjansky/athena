@@ -121,7 +121,7 @@ StatusCode SmoothedWZTagger::initialize(){
       m_weightFlavors = configReader.GetValue("WeightFlavors", "");
       m_truthLabelDecorationName = configReader.GetValue("TruthLabelDecorationName", "");
       if ( m_calibarea.compare("Local") == 0 ){
-	m_weightConfigPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/SmoothedWZTaggers/Rel21/"+m_weightFileName).c_str());      
+	m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/SmoothedWZTaggers/Rel21/"+m_weightFileName).c_str());      
       } else if ( m_calibarea.find("eos") != std::string::npos) {
 	m_weightConfigPath = PathResolverFindCalibFile((m_calibarea+"/"+m_weightFileName).c_str());
       } else {
@@ -164,7 +164,7 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_accept";
-    m_dec_accept     = SG::AuxElement::Decorator<Root::TAccept>((dec_name).c_str());
+    m_dec_accept     = SG::AuxElement::Decorator<int>((dec_name).c_str());
   }
 
   // transform these strings into functions
@@ -212,7 +212,7 @@ StatusCode SmoothedWZTagger::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    TFile* weightConfig = new TFile(m_weightConfigPath.c_str(), "OPEN");
+    TFile* weightConfig = TFile::Open(m_weightConfigPath.c_str() );
     if( !weightConfig ) {
       ATH_MSG_INFO( ("SmoothedWZTagger: Error openning config file : "+m_weightConfigPath ) );
       return StatusCode::FAILURE;
@@ -378,19 +378,37 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   }
 
   // decorate truth label for SF provider
-  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
-  if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
+  FatjetCutResult::TypeEnum myCutResultForSF=FatjetCutResult::UNKNOWN;
+  if(m_strNtrkCut.empty()){
+    // 2Var tagger
+    if(m_accept.getCutResult("PassMassLow") && m_accept.getCutResult("PassMassHigh") ){
+      if(m_accept.getCutResult("PassD2")){
+	myCutResultForSF=FatjetCutResult::passMpassD2_2Var;
+      }else{
+	myCutResultForSF=FatjetCutResult::passMfailD2_2Var;
+      }
+    }else{
+      if(m_accept.getCutResult("PassD2")){
+	myCutResultForSF=FatjetCutResult::failMpassD2_2Var;
+      }else{
+	myCutResultForSF=FatjetCutResult::failMfailD2_2Var;
+      }
+    }
+  }
+
+  const SG::AuxElement::ConstAccessor<int> acc_truthLabel(m_truthLabelDecorationName);
+  if ( !acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       // data
       m_dec_weight(jet) = 1.0;
-      m_dec_accept(jet) = m_accept;
+      m_dec_accept(jet) = myCutResultForSF;
       return m_accept;
     }
   }
 
   if ( m_calcSF && m_decorate ){
     m_dec_weight(jet) = getWeight(jet);
-    m_dec_accept(jet) = m_accept;
+    m_dec_accept(jet) = myCutResultForSF;
   }
 
   // return the TAccept to be queried later
@@ -404,14 +422,14 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
 	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
 
     std::string truthLabelStr;
-    FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
+    FatjetTruthLabel::TypeEnum jetContainment=FatjetTruthLabel::intToEnum(jet.auxdata<int>(m_truthLabelDecorationName));
     if( m_weightHistograms.count("t_qqb") ) {
       // full-contained top tagger
       if ( !m_accept ) return 1.0;
 
       if( jetContainment==FatjetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }else if( m_weightHistograms.count("V_qq_passMpassD2") ){
@@ -421,7 +439,7 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
 	truthLabelStr="t_";
       }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
 	truthLabelStr="V_qq_";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q_";
       }
 
@@ -443,7 +461,7 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
 	truthLabelStr="t";
       }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
 	truthLabelStr="V_qq";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }
