@@ -58,21 +58,28 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
   decoratorBCIDDistance(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
 
   // add flavour filter
-std::vector<float> truth_results = {-1. -1, -1};
+  std::vector<float> truth_results; 
+  truth_results.push_back(-1);
+  truth_results.push_back(-1);
+  truth_results.push_back(-1);
   bool  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
   if(m_isMC){
     const xAOD::TruthEventContainer* xTruthEventContainer = nullptr;
     CHECK( evtStore()->retrieve( xTruthEventContainer, "TruthEvents"));
     truth_results = DerivationFramework::computeTruthInfo(xTruthEventContainer);
   }
+
   SG::AuxElement::Decorator< int >  decoratorFlavourFilter("FlavourFilter");
-  decoratorFlavourFilter(*eventInfo) = int(truth_results.at(0));
+  if(truth_results.size()>0)
+    decoratorFlavourFilter(*eventInfo) = int(truth_results.at(0));
 
   SG::AuxElement::Decorator< float >  decoratorMGVTruthPt("MGVTruthPt");
-  decoratorMGVTruthPt(*eventInfo) = truth_results.at(1);
+  if(truth_results.size()>1)
+    decoratorMGVTruthPt(*eventInfo) = truth_results.at(1);
 
   SG::AuxElement::Decorator< float >  decoratorSherpaVTruthPt("SherpaVTruthPt");
-  decoratorSherpaVTruthPt(*eventInfo) = truth_results.at(2);
+  if(truth_results.size()>2)
+    decoratorSherpaVTruthPt(*eventInfo) = truth_results.at(2);
 
   // store the photon overlap variables
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/VGammaORTool
