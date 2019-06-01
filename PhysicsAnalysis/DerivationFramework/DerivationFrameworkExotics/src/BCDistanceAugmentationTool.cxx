@@ -1,4 +1,4 @@
-/*
+ush/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -30,7 +30,7 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::initialize()
   ATH_MSG_VERBOSE("initialize() ..");
   ATH_CHECK( m_bcTool.retrieve() );
   ATH_MSG_INFO("Retrieved tool: " << m_bcTool);
-  //ATH_CHECK( 
+
   std::vector<float> ph_pt = std::vector<float>({15e3});
   ATH_CHECK( m_PhIsoTool->setProperty("photon_pt_cuts",ph_pt) );
   ATH_CHECK( m_PhIsoTool.retrieve() );
@@ -58,10 +58,7 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
   decoratorBCIDDistance(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
 
   // add flavour filter
-  std::vector<float> truth_results; 
-  truth_results.push_back(-1);
-  truth_results.push_back(-1);
-  truth_results.push_back(-1);
+  std::vector<float> truth_results(3,-1.0);
   bool  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
   if(m_isMC){
     const xAOD::TruthEventContainer* xTruthEventContainer = nullptr;
