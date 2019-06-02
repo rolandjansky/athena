@@ -9,14 +9,40 @@ Step 1: Decprate the truth labeling
 ===================
 
 SF is provided according to the jet truth labels.
-Truth labels are defined as enum in BoostedJetTaggers/FatjetTruthLabel.h
+Truth labels are defined as enum in BoostedJetTaggers/FatjetLabelEnum.h:
 ```
-enum class FatjetTruthLabel : int {tqqb = 1, Wqq = 2, Zqq = 3, Wqq_From_t = 4, other_From_t = 5, other_From_V = 6, notruth = 7, unknown = -1};
-const FatjetTruthLabel FatjetTruthLabel_types [] = {FatjetTruthLabel::tqqb, FatjetTruthLabel::Wqq, FatjetTruthLabel::Zqq, FatjetTruthLabel::Wqq_From_t, FatjetTruthLabel::other_From_t, FatjetTruthLabel::other_From_V, FatjetTruthLabel::notruth, FatjetTruthLabel::unknown};
+  enum TypeEnum
+  {
+    UNKNOWN=0, // Not tagged yet
+    tqqb,      // full-contained top->qqb
+    Wqq,       // full-contained W->qq
+    Zqq,       // full-contained Z->qq
+    Wqq_From_t,// full-contained W->qq (also mathced to top)
+    other_From_t, // matched to top
+    other_From_V, // matched to W/Z
+    notruth,   // failed to truth-jet matching (pileup)
+    qcd,       // not matched to top or W/Z (background jet)
+  };  
 ```
 
-
-It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJetTaggers/JSSTaggerBase.h, which is called inside the tag() function.
+I is decorated to the given jet as integer by decorateTruthLabel( ) function in BoostedJetTaggers/JSSTaggerBase.h, which is called inside the tag() function, with the following convention:
+```
+  inline int enumToInt(const TypeEnum type)
+  {
+    switch (type)
+      {
+      case tqqb:         return 1;
+      case Wqq:          return 2;
+      case Zqq:          return 3;
+      case Wqq_From_t:   return 4;
+      case other_From_t: return 5;
+      case other_From_V: return 6;
+      case notruth:      return 7;
+      case qcd:          return 8;
+      default:           return 0;
+      }
+  }  
+```
 * First of all, DecorateMatchedTruthJet( ) function, defined in BoostedJetTaggers/JSSTaggerBase.h, is called to decorate trimmed truth jet associated with the given jet by dR<0.75. The function automatically identifies the format of the truth particle container (TRUTH1 or TRUTH3).
 * If the matching to truth jet is failed, FatjetTruthLabel::notruth is docorated as the truth label.
 * Then getWTopContainment( ) function is called to decorate truth labeling according to the definitions below.
