@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolders
 from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
@@ -27,7 +29,7 @@ def _larCablingCfg(configFlags,algo,folder):
 
     result.addCondAlgo(algo(ReadKey=folder),primary=True)
     result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
-    #print result
+    #print (result)
     return result
 
 
@@ -66,4 +68,4 @@ if __name__ == "__main__":
     acc.merge(LArFebRodMappingCfg(ConfigFlags))
     acc.merge(LArCalibIdMappingCfg(ConfigFlags))
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    print ("All OK")
