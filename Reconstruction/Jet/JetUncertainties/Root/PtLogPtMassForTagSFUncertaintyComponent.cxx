@@ -70,11 +70,11 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     int jetFlavorLabelInt=accLabel(jet);
     FatjetTruthLabel::TypeEnum jetFlavorLabel=FatjetTruthLabel::intToEnum(jetFlavorLabelInt);
     
-    SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
     float mOverPt=jet.m()/jet.pt();
     if ( m_result_name!="" ) {
       // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
       
+      SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
       if ( !accResult.isAvailable(jet) ){
 	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
       } else {

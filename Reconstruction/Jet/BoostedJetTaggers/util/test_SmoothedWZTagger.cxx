@@ -47,6 +47,7 @@ int main( int argc, char* argv[] ) {
   int  m_DSID=361028;
   int  ievent=-1;
   int  nevents=-1;
+  bool m_IsMC=true;
   bool verbose=false;
 
 
@@ -57,6 +58,7 @@ int main( int argc, char* argv[] ) {
   Info( APP_NAME, " $> %s -n X  | X = number of events you want to run on", APP_NAME );
   Info( APP_NAME, " $> %s -e X  | X = specific number of the event to run on - for debugging", APP_NAME );
   Info( APP_NAME, " $> %s -d X  | X = dataset ID", APP_NAME );
+  Info( APP_NAME, " $> %s -m X  | X = isMC", APP_NAME );
   Info( APP_NAME, " $> %s -v    | run in verbose mode   ", APP_NAME );
   Info( APP_NAME, "==============================================" );
 
@@ -99,6 +101,16 @@ int main( int argc, char* argv[] ) {
       if(std::string(argv[ipos]).compare("-d")==0){
         m_DSID = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-d) : DSID = %i", m_DSID );
+        break;
+      }
+    }
+  }
+  
+  if(options.find("-m")!=std::string::npos){
+    for( int ipos=0; ipos<argc ; ipos++ ) {
+      if(std::string(argv[ipos]).compare("-m")==0){
+        m_IsMC = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_IsMC );
         break;
       }
     }
@@ -189,6 +201,7 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/SmoothedWZTaggers/Rel21/");
   m_Tagger.setProperty( "ConfigFile",   "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190525.dat");
   m_Tagger.setProperty( "DSID", m_DSID );
+  m_Tagger.setProperty( "IsMC", m_IsMC );
   m_Tagger.retrieve();
 
   ////////////////////////////////////////////////////

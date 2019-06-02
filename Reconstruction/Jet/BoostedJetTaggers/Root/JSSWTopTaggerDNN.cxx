@@ -52,6 +52,7 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "TruthTopQuarkContainerName",   m_truthTopQuarkContainerName="TruthTopQuarkWithDecayParticles");
 
     declareProperty( "DSID",             m_DSID = -1);
+    declareProperty( "IsMC",             m_IsMC = true);
 
 }
 
@@ -354,12 +355,19 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   // decorate truth label for SF provider
   float jet_weight=1.0;
   if ( !m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
-    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
-      ATH_MSG_DEBUG("decorateTruthLabel() is failed.");
+    if ( m_IsMC ){
+      if (decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE){
+	ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
+      }
     }
   }
-  if( m_acc_truthLabel.isAvailable(jet) && (jet_score > cut_score) && m_calcSF) {
-    jet_weight = getWeight(jet);
+
+  if( (jet_score > cut_score) && m_calcSF) {
+    if ( m_IsMC ){
+      jet_weight = getWeight(jet);
+    }else{
+      jet_weight = 1.0;
+    }
   }
 
   // decorate the cut value if needed;
@@ -446,9 +454,14 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
       int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
       SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
-    }  
-    if ( SF < 1e-3 ) return 1.0;
-    else return SF;
+    } else {
+      ATH_MSG_DEBUG("SF for truth label for "+truthLabelStr+" is not available. Just return 1.0");
+      return 1.0;      
+    }
+    if ( SF < 1e-3 ) {
+      ATH_MSG_DEBUG("(pt, m/pt) is out of range for SF calculation. Just return 1.0");
+      return 1.0;
+    } else return SF;
 }
 
 void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const{

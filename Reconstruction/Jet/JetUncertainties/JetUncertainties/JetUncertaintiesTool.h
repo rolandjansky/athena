@@ -258,6 +258,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual CP::SystematicCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
         virtual CP::SystematicCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
         virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);	
+
+	// accessor to taggign efficiency SF
+	SG::AuxElement::Accessor<float> m_accTagScaleFactor;
 };
     
 

@@ -122,8 +122,7 @@ namespace CompScaleVar
 
 namespace CompFlavorLabelVar
 {
-    // used to identify the jet flavor relevant for this NP
-    enum TypeEnum
+    enum TypeEnum // used to identify the jet flavor relevant for this NP
     {
         UNKNOWN=0,  // error state
         t_qqb,      // full-contained top
@@ -139,8 +138,7 @@ namespace CompFlavorLabelVar
 
 namespace CompTaggerRegionVar
 {
-    // used to identify the region relevant for this NP
-    enum TypeEnum
+    enum TypeEnum // used to identify the region relevant for this NP
     {
         UNKNOWN=0,  // error state
         passMpassD2_2Var,// passing both mass and D2 cuts

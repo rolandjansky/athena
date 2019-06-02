@@ -96,6 +96,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_isData(true)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
+    , m_accTagScaleFactor("")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
@@ -152,6 +153,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_isData(toCopy.m_isData)
     , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
+    , m_accTagScaleFactor(toCopy.m_accTagScaleFactor)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
 
@@ -449,6 +451,7 @@ StatusCode JetUncertaintiesTool::initialize()
     m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName",""));
     if ( m_name_TagScaleFactor != "") {
       ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
+      m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
     }
 
     // Get the NPV/mu reference values
@@ -2074,7 +2077,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         }
     }
 
-
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
     {
@@ -2831,19 +2833,17 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
 StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const double shift) const
 {
-    SG::AuxElement::Accessor<float> accTagScaleFactor(m_name_TagScaleFactor);
-    const bool TagScaleFactorwasAvailable  = accTagScaleFactor.isAvailable(jet);
-    
+    const bool TagScaleFactorwasAvailable  = m_accTagScaleFactor.isAvailable(jet);    
     const xAOD::Jet& constJet = jet;
     if (TagScaleFactorwasAvailable)
     {
-        if (!accTagScaleFactor.isAvailable(jet))
+        if (!m_accTagScaleFactor.isAvailable(jet))
         {
             ATH_MSG_ERROR("TagScaleFactor was previously available but is not available on this jet.  This functionality is not supported.");
             return StatusCode::FAILURE;
         }
-        const float value = accTagScaleFactor(constJet);
-        accTagScaleFactor(jet) = shift*value;
+        const float value = m_accTagScaleFactor(constJet);
+        m_accTagScaleFactor(jet) = shift*value;
         return StatusCode::SUCCESS;
     }
 
