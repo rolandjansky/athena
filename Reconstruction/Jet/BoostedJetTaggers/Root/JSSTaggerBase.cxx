@@ -152,22 +152,6 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
   }
   return 0;
 }
-void JSSTaggerBase::DecorateMatchedTruthJet(const xAOD::Jet& jet,
-					    const xAOD::JetContainer* truthJets,
-					    double dRmax,
-					    std::string decorName) const {
-  jet.auxdecor<const xAOD::Jet*>(decorName) = 0;
-  double dRmin=9999;
-  for ( const xAOD::Jet* truthjet : *truthJets ) {
-    double dR=jet.p4().DeltaR( truthjet->p4() );
-    if ( dRmax<0 || dR < dRmax ) { // if dRmax<0, the closest truth jet is used as matched jet. Otherwise, 
-      if( dR < dRmin ){
-	dRmin=dR;
-	jet.auxdecor<const xAOD::Jet*>(decorName) = truthjet;
-      }
-    }
-  }
-}
 
 StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
 
@@ -196,12 +180,22 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string d
 }
 
 StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ ) const {
-  DecorateMatchedTruthJet(jet, truthJets, /*dR*/dRmax_truthJet, "dRMatchedTruthJet");
-  const xAOD::Jet* truthjet=jet.auxdata<const xAOD::Jet*>("dRMatchedTruthJet");
+
+  double dRmin=9999;
+  const xAOD::Jet* m_truthjet=0;
+  for ( const xAOD::Jet* truthjet : *truthJets ) {
+    double dR=jet.p4().DeltaR( truthjet->p4() );
+    if ( dRmax_truthJet<0 || dR < dRmax_truthJet ) { // if dRmax<0, the closest truth jet is used as matched jet. Otherwise, 
+      if( dR < dRmin ){
+	dRmin=dR;
+	m_truthjet=truthjet;
+      }
+    }
+  }
   int jetContainment=FatjetTruthLabel::enumToInt(FatjetTruthLabel::notruth);
   bool isSherpa=getIsSherpa(m_DSID);
-  if ( truthjet ) {
-    jetContainment=getFatjetContainment(*truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+  if ( m_truthjet ) {
+    jetContainment=getFatjetContainment(*m_truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
   }
   jet.auxdecor<int>(decorName) = jetContainment;
   

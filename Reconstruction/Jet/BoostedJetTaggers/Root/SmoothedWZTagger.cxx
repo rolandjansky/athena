@@ -19,7 +19,8 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   m_dec_d2cut("d2cut"),
   m_dec_ntrkcut("ntrkcut"),
   m_dec_weight("weightdec"),
-  m_dec_accept("acceptdec")
+  m_dec_accept("acceptdec"),
+  m_acc_truthLabel("FatjetTruthLabel")
 {
 
   declareProperty( "ConfigFile",   m_configFile="");
@@ -165,6 +166,7 @@ StatusCode SmoothedWZTagger::initialize(){
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_accept";
     m_dec_accept     = SG::AuxElement::Decorator<int>((dec_name).c_str());
+    m_acc_truthLabel = SG::AuxElement::ConstAccessor<int>((m_truthLabelDecorationName).c_str());
   }
 
   // transform these strings into functions
@@ -212,8 +214,9 @@ StatusCode SmoothedWZTagger::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    TFile* weightConfig = TFile::Open(m_weightConfigPath.c_str() );
-    if( !weightConfig ) {
+    std::unique_ptr<TFile> weightConfig(TFile::Open( m_weightConfigPath.c_str()));
+    m_weightConfig = std::move(weightConfig);
+    if( !m_weightConfig ) {
       ATH_MSG_INFO( ("SmoothedWZTagger: Error openning config file : "+m_weightConfigPath ) );
       return StatusCode::FAILURE;
     }
@@ -222,10 +225,9 @@ StatusCode SmoothedWZTagger::initialize(){
     std::stringstream ss{m_weightFlavors};
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
-      m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      m_weightHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
       ATH_MSG_INFO( ("Tagging SF histogram for "+flavor+" is installed."));
     }
-    m_weightHistograms = m_weightHistograms_nominal;
   }
 
   return StatusCode::SUCCESS;
@@ -396,8 +398,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
     }
   }
 
-  const SG::AuxElement::ConstAccessor<int> acc_truthLabel(m_truthLabelDecorationName);
-  if ( !acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
+  if ( !m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       // data
       m_dec_weight(jet) = 1.0;
@@ -475,8 +476,8 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
     if ( logmOverPt > 0 ) logmOverPt=0;
     double SF=1.0;
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
-      int pt_mPt_bin=((TH2D*)m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
-      SF=((TH2D*)m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+      int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
+      SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
     }  
     if ( SF < 1e-3 ) return 1.0;
     else return SF;

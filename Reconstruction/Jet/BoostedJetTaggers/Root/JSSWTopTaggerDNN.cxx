@@ -21,7 +21,8 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
   m_dec_scoreValue("scoreValue"),
-  m_dec_weight("weightdec")
+  m_dec_weight("weightdec"),
+  m_acc_truthLabel("FatjetTruthLabel")
   {
 
     declareProperty( "ConfigFile",   m_configFile="");
@@ -188,6 +189,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     dec_name = m_decorationName+"_"+m_weightdecorationName;
     ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    m_acc_truthLabel = SG::AuxElement::ConstAccessor<int>((m_truthLabelDecorationName).c_str());
   }
 
   // transform these strings into functions
@@ -283,9 +285,9 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
   // setup scale factors
   if(m_calcSF){
-    //std::unique_ptr<TFile> weightConfig(TFile::Open( m_weightConfigPath.c_str()));
-    TFile* weightConfig=TFile::Open( m_weightConfigPath.c_str() );
-    if( !weightConfig ) {
+    std::unique_ptr<TFile> weightConfig(TFile::Open( m_weightConfigPath.c_str()));
+    m_weightConfig = std::move(weightConfig);
+    if( !m_weightConfig ) {
       ATH_MSG_INFO( (m_APP_NAME+": Error openning config file : "+m_weightConfigPath.c_str()) );
       return StatusCode::FAILURE;
     }
@@ -294,10 +296,9 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     std::stringstream ss{m_weightFlavors};
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
-      m_weightHistograms_nominal.insert( std::make_pair( flavor, (TH2D*)weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      m_weightHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
       ATH_MSG_INFO( (m_APP_NAME+"Tagging SF histogram for "+flavor+" is installed.") );
     }
-    m_weightHistograms = m_weightHistograms_nominal;
   }
 
   ATH_MSG_INFO( (m_APP_NAME+": DNN Tagger tool initialized").c_str() );
@@ -351,14 +352,13 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   float cut_score     = m_funcScoreCut   ->Eval(jet_pt);
 
   // decorate truth label for SF provider
-  const SG::AuxElement::ConstAccessor<int> acc_truthLabel(m_truthLabelDecorationName);
   float jet_weight=1.0;
-  if ( !acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
+  if ( !m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       ATH_MSG_DEBUG("decorateTruthLabel() is failed.");
     }
   }
-  if( acc_truthLabel.isAvailable(jet) && (jet_score > cut_score) && m_calcSF) {
+  if( m_acc_truthLabel.isAvailable(jet) && (jet_score > cut_score) && m_calcSF) {
     jet_weight = getWeight(jet);
   }
 

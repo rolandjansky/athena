@@ -69,11 +69,9 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_weightFlavors;
 
     // histograms for scale factors
-    std::map<std::string, TH2*> m_weightHistograms;
-    // histograms for scale factors
-    std::map<std::string, TH2*> m_weightHistograms_nominal;
-
-
+    std::unique_ptr<TFile> m_weightConfig;
+    std::map<std::string, std::unique_ptr<TH2D>> m_weightHistograms;
+  
     // decorators
     SG::AuxElement::Decorator<float>    m_dec_mcutL;
     SG::AuxElement::Decorator<float>    m_dec_mcutH;
@@ -82,6 +80,8 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     SG::AuxElement::Decorator<float>    m_dec_weight;
     SG::AuxElement::Decorator<int>      m_dec_accept;
 
+    // accessor to truth label
+    SG::AuxElement::ConstAccessor<int> m_acc_truthLabel;
 };
 
 #endif

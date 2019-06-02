@@ -95,11 +95,9 @@ private:
     TF1* m_funcScoreCut;
 
     // histograms for scale factors
-    std::map<std::string, TH2*> m_weightHistograms;
+    std::unique_ptr<TFile> m_weightConfig;
+    std::map<std::string, std::unique_ptr<TH2D>> m_weightHistograms;
   
-    // histograms for scale factors
-    std::map<std::string, TH2*> m_weightHistograms_nominal;
-
     // string for decorating jets with DNN output
     std::string m_decorationName;
 
@@ -115,5 +113,8 @@ private:
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
     SG::AuxElement::Decorator<float> m_dec_weight;
+
+    // accessor to truth label
+    SG::AuxElement::ConstAccessor<int> m_acc_truthLabel;
 };
 #endif
