@@ -240,8 +240,6 @@ def __construct_inputs(input_LHE_events, process):
         f_madspin_runcard.write("set spinmode {}\n".format(process.MadSpin_mode))
         if (process.MadSpin_seed != -1):
             f_madspin_runcard.write("set seed {}\n".format(process.MadSpin_seed))
-        if (process.MadSpin_seed != -1):
-            f_madspin_runcard.write("set seed {}\n".format(process.MadSpin_seed))
         if (process.MadSpin_Nevents_for_max_weigth != -1):
             f_madspin_runcard.write("set Nevents_for_max_weigth {} # number of events for the estimate of the max. weight\n".format(process.MadSpin_Nevents_for_max_weigth))
         if (process.MadSpin_max_weight_ps_point != -1):
