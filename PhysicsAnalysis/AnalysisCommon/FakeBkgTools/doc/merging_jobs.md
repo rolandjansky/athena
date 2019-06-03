@@ -23,6 +23,6 @@ ATH_CHECK( tool.getTotalYield(yield, statUp, statDown) );
 }
 ```
 
-Systematic variations can be retrieved by calls to `applySystematicVariation()` -- except for the `LhoodMM_tools` (not yet supported), where one should rather save the intermediary results (one tool instance per systematic variation) in separate files or subdirectories (one per variation), and process the merged results with different tool instances. 
+Systematic variations can be retrieved by calls to `applySystematicVariation()`. 
 
 Histograms registered to the tools, in the parallel jobs, are saved as well. To retrieve the binned predictions, the user should create again histograms (**with identical names / binning**) and register them with the tool instance used to process the merged intermediary results before calling getTotalYield(). 
