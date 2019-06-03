@@ -95,7 +95,7 @@ StatusCode MMPRDVariables::fillVariables()
       m_NSWMM_prd_rdos_channel->push_back(std::vector<int>());      
       m_NSWMM_prd_nRdos->push_back((prd->rdoList()).size());
 
-      for(Identifier id_rdo:prd->rdoList()){
+      for(const Identifier &id_rdo:prd->rdoList()){
         const Muon::MM_RawData* rdo=nullptr;
         for(auto it :*rdo_coll){if(it->identify() == id_rdo) rdo=it;}
         if(rdo==0){
