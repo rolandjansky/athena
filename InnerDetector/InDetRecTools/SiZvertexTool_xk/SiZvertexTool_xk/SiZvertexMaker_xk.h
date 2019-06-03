@@ -38,6 +38,8 @@ class MsgStream;
 
 namespace InDet {
 
+  class SiSpacePointsSeedMakerEventData;
+
   class SiZvertexMaker_xk : public extends<AthAlgTool, ISiZvertexMaker>
   {
     ///////////////////////////////////////////////////////////////////
@@ -54,26 +56,27 @@ namespace InDet {
                       const std::string&,
                       const IInterface*);
     virtual ~SiZvertexMaker_xk() = default;
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
 
-    virtual std::list<Trk::Vertex> newEvent() const;
-    virtual std::list<Trk::Vertex> newRegion(const std::vector<IdentifierHash>&,
-                                             const std::vector<IdentifierHash>&) const;
-    virtual std::list<Trk::Vertex> newRegion(const std::vector<IdentifierHash>&,
+    virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const override;
+    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
                                              const std::vector<IdentifierHash>&,
-                                             const IRoiDescriptor&) const;
+                                             const std::vector<IdentifierHash>&) const override;
+    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+                                             const std::vector<IdentifierHash>&,
+                                             const std::vector<IdentifierHash>&,
+                                             const IRoiDescriptor&) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
 
-    MsgStream&    dump(MsgStream&    out) const;
-    std::ostream& dump(std::ostream& out) const;
+    virtual MsgStream& dump(MsgStream& out) const override;
       
   protected:
       
@@ -95,11 +98,9 @@ namespace InDet {
     // Protected methods
     ///////////////////////////////////////////////////////////////////
 
-    std::list<Trk::Vertex> production() const;
+    std::list<Trk::Vertex> production(SiSpacePointsSeedMakerEventData& data) const;
     MsgStream& dumpConditions(MsgStream& out) const;
   };
-  MsgStream&    operator << (MsgStream&   , const SiZvertexMaker_xk&);
-  std::ostream& operator << (std::ostream&, const SiZvertexMaker_xk&);
 }
 
 #endif // SiZvertexMaker_xk_H
