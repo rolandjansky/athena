@@ -19,16 +19,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           GaudiKernel
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack 
+                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+                          InnerDetector/InDetRecEvent/SiSpacePointsSeed
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
+                          Tracking/TrkEvent/TrkRIO_OnTrack
+                          Tracking/TrkEvent/TrkSpacePoint )
 
 # Component(s) in the package:
 atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
                    LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces
-                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint )
 

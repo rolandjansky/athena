@@ -2,10 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointsProSeedITK.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
 
 namespace InDet {
   SiSpacePointsProSeedITK::SiSpacePointsProSeedITK ()

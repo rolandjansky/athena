@@ -34,6 +34,8 @@
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 #include "SiSpacePoint/SCT_SpacePoint.h"
 #include "SiSpacePoint/PixelSpacePoint.h"
+
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -278,13 +280,14 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   if(m_timers) m_timer[0]->start();
 
+  InDet::SiSpacePointsSeedMakerEventData seedEventData;
   std::list<Trk::Vertex> VZ;
 
   if( m_useZvertexTool ) { 
 
     if(m_timers) m_timer[9]->start();
 
-    VZ = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,roi);
+    VZ = m_zvertexmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, roi);
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();
     if (outputLevel <= MSG::DEBUG) 
@@ -292,12 +295,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   }
   else{ 
     if(m_timers) m_timer[1]->start();
-    m_seedsmaker->newRegion(listOfPixIds,listOfSCTIds,roi);
+    m_seedsmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, roi);
     if(m_timers) m_timer[1]->stop(); 
   }
 
   if(m_timers) m_timer[2]->start();
-  m_seedsmaker->find3Sp(VZ);
+  m_seedsmaker->find3Sp(seedEventData, VZ);
   if(m_timers) m_timer[2]->stop();
 
   bool PIX = true;
@@ -326,7 +329,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   while(true) {
     if(m_timers) m_timer[3]->resume();
-    seed = m_seedsmaker->next();
+    seed = m_seedsmaker->next(seedEventData);
     if(m_timers) m_timer[3]->pause();
 
     if(seed==0) break;
@@ -433,13 +436,14 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   bool PIX = true;
   bool SCT = true;
 
+  InDet::SiSpacePointsSeedMakerEventData seedEventData;
   std::list<Trk::Vertex> VZ; 
 
   if(m_timers) m_timer[0]->start();
   if( m_useZvertexTool ) {    
 
     if(m_timers) m_timer[9]->start();
-    VZ = m_zvertexmaker->newEvent();
+    VZ = m_zvertexmaker->newEvent(seedEventData);
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();   
     if (outputLevel <= MSG::DEBUG) 
@@ -447,12 +451,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   }
   else{
     if(m_timers) m_timer[1]->start();
-    m_seedsmaker->newEvent();    
+    m_seedsmaker->newEvent(seedEventData);
     if(m_timers) m_timer[1]->stop();
   }
 
   if(m_timers) m_timer[2]->start();
-  m_seedsmaker->find3Sp(VZ);
+  m_seedsmaker->find3Sp(seedEventData, VZ);
   if(m_timers) m_timer[2]->stop();
 
   if(m_timers) m_timer[4]->start();
@@ -479,7 +483,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   while(true) {
     if(m_timers) m_timer[3]->resume();
-    seed = m_seedsmaker->next();
+    seed = m_seedsmaker->next(seedEventData);
     if(m_timers) m_timer[3]->pause();
 
     if(seed==0) break;

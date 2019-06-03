@@ -24,6 +24,8 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
 //
@@ -251,6 +253,8 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
   bool PIX = true;
   bool SCT = true;
 
+  SiSpacePointsSeedMakerEventData seedEventData;
+
   if (m_useSeedMaker){
     if( m_useZvertexTool ) {
       
@@ -260,21 +264,21 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  vertices = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,*roi);
+	  vertices = m_zvertexmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, *roi);
 	}
 	else {
-	  vertices = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds);
+	  vertices = m_zvertexmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds);
 	}
       }
       else{
-	vertices = m_zvertexmaker->newEvent();
+	vertices = m_zvertexmaker->newEvent(seedEventData);
       }
       
       if(doTiming()) m_timerZVertexTool->stop();
       
       if(doTiming()) m_timerSeedsMaker->start();
       
-      m_seedsmaker->find3Sp(vertices);
+      m_seedsmaker->find3Sp(seedEventData, vertices);
       
       if(doTiming()) m_timerSeedsMaker->stop();
       
@@ -287,17 +291,18 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(doTiming()) m_timerSeedsMaker->start();
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  m_seedsmaker  ->newRegion(listOfPixIds,listOfSCTIds,*roi);
+	  m_seedsmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, *roi);
 	} else {
-	  m_seedsmaker  ->newRegion(listOfPixIds,listOfSCTIds);
+	  m_seedsmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds);
 	}
 
       }
       else{
-	m_seedsmaker  ->newEvent();
+	m_seedsmaker->newEvent(seedEventData);
       }
       
-      std::list<Trk::Vertex> VZ; m_seedsmaker->find3Sp(VZ);
+      std::list<Trk::Vertex> VZ;
+      m_seedsmaker->find3Sp(seedEventData, VZ);
       if(doTiming()) m_timerSeedsMaker->stop();
     }
   }
@@ -343,7 +348,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     int nseedwithtrack(0);
     ///////////////////////////////////////
     
-    while((seed = m_seedsmaker->next())) {
+    while((seed = m_seedsmaker->next(seedEventData))) {
       if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
 	      ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	      delete foundTracks;

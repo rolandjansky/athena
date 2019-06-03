@@ -7,7 +7,7 @@
 #==============================================================
 
 # Configuration flags
-doPixel = True
+doPixel = False
 doSCT = True
 doBeamSpot = True
 doPrint = True
@@ -15,6 +15,7 @@ doPrint = True
 # doPixel = True,  doSCT = True,  doBeamSpot = True,  doPrint = True
 # doPixel = True,  doSCT = False, doBeamSpot = False, doPrint = True
 # doPixel = False, doSCT = True,  doBeamSpot = False, doPrint = True
+# doPixel = False, doSCT = True,  doBeamSpot = True,  doPrint = True
 # were tested.
 
 # Output track location
@@ -588,7 +589,7 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = 25
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

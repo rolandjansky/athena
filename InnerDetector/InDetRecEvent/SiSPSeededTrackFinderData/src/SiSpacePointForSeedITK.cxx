@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointForSeedITK.h"
 
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
