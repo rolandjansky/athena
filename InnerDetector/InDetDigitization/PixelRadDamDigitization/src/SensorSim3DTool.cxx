@@ -96,33 +96,38 @@
 
     } else if (m_fluence == 1) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0_20V.root")); 
+    //Beginning of Run 2 (measured fluence)
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0.0e+00_20V_270K.root")); 
 
         fluence_layers.push_back(1e-10);
 
     } else if (m_fluence == 2) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e14_20V.root"));
+    //Half-way through 2016 (measured fluence)
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+13_20V_283K.root"));
 
-        fluence_layers.push_back(1e14);
+        fluence_layers.push_back(5e13);
 
     } else if (m_fluence == 3) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2e14_30V.root"));
+    //End of 2016 (measured fluence)
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1.0e+14_20V_283K.root"));
 
-        fluence_layers.push_back(2e14);
+        fluence_layers.push_back(1e14);
 
     } else if (m_fluence == 4) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e14_40V.root")); 
+    //End of 2017 (measured fluence)
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2.5e+14_40V_261K.root")); 
 
-        fluence_layers.push_back(5e14);
+        fluence_layers.push_back(2.5e14);
 
     } else if (m_fluence == 5) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e15_50V.root"));
+    //End of Run 2 (end of 2018) (measured fluence)
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+14_40V_261K.root"));
 
-        fluence_layers.push_back(1e15); 
+        fluence_layers.push_back(5e14); 
 
     } else if (m_fluence == 6) {
 
