@@ -1795,8 +1795,7 @@ double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const
 
 	if (m_applyBugfix){
 	  //Set 4 last bits to zero (to match data and MC bitmasks)
-	  unsigned int mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
-	  unsigned int BitPattern_correct = BitPattern & mask_last_bits;
+	  BitPattern_correct = BitPattern & mask_last_bits;
 	}
 	
 	//shift bitmask to the right until end;

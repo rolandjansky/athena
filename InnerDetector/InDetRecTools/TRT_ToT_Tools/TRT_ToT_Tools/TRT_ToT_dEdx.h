@@ -90,6 +90,8 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
     mutable int m_gasTypeInStraw;                  // Starw gas type. 0:Xenon, 1:Argon, 2:Krypton
     mutable double L; // Length in straw
 
+    static const unsigned int mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
+
   public:
     /** AlgTool like constructor */
     TRT_ToT_dEdx(const std::string&,const std::string&,const IInterface*);
