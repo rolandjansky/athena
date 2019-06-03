@@ -478,7 +478,7 @@ double LhoodMM_tools::logPoisson(double obs, double pred) {
 }
 
 #ifdef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
-    #define ASG_MSG_VERBOSE(x) do { if ( m_current_lhoodMM_tool->msg(MSG::VERBOSE)) m_current_lhoodMM_tool->msg(MSG::VERBOSE) <<  x << endmsg; } while(0)
+    #define ASG_MSG_VERBOSE(x) do { if ( m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) m_current_lhoodMM_tool->msg(MSG::VERBOSE) <<  x << endmsg; } while(0)
 #else
     #define ASG_MSG_VERBOSE(x) do (if(m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) std::cout << x << std::endl; } while (0)      
 #endif
