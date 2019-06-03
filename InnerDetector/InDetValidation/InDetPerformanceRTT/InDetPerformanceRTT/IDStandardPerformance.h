@@ -312,6 +312,21 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TProfile* m_frac_hole_vs_eta_sct_barrel;
     TProfile* m_frac_hole_vs_eta_pix_endcap;
     TProfile* m_frac_hole_vs_eta_sct_endcap;
+    
+    //FEDERICA
+    TProfile* m_frac_hole_vs_pt_ibl_barrel;
+    TProfile* m_frac_hole_vs_pt_blay_barrel;
+    TProfile* m_frac_hole_vs_pt_pix_barrel;
+    TProfile* m_frac_hole_vs_pt_sct_barrel;
+    TProfile* m_frac_hole_vs_pt_pix_endcap;
+    TProfile* m_frac_hole_vs_pt_sct_endcap;
+    
+    TProfile* m_frac_hole_vs_lowpt_ibl_barrel;
+    TProfile* m_frac_hole_vs_lowpt_blay_barrel;
+    TProfile* m_frac_hole_vs_lowpt_pix_barrel;
+    TProfile* m_frac_hole_vs_lowpt_sct_barrel;
+    TProfile* m_frac_hole_vs_lowpt_pix_endcap;
+    TProfile* m_frac_hole_vs_lowpt_sct_endcap;
 
     TProfile* m_frac_outlier_vs_eta_ibl_barrel;
     TProfile* m_frac_outlier_vs_eta_blay_barrel;
@@ -422,6 +437,11 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH2F * m_cluster_width_phi_pixel_eta;
     TH2F * m_cluster_width_eta_pixel_eta;
     TH2F * m_cluster_width_phi_sct_eta;
+    
+    //FEDERICA
+    TH2F * m_cluster_width_phi_pixel_pt;
+    TH2F * m_cluster_width_eta_pixel_pt;
+    TH2F * m_cluster_width_phi_sct_pt;
 
     enum detAreaTypes {pix_b, pix_e, sct_b, sct_e, n_detAreaTypes};
     // Track incidence angle cluster information
