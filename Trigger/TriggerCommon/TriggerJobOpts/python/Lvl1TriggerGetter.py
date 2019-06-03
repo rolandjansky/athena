@@ -4,7 +4,7 @@
 # L1 configuration
 # -------------------------------------------------------------
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.GlobalFlags import jobproperties
+from AthenaCommon.GlobalFlags import jobproperties,globalflags
 from CaloRec.CaloCellFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.Constants import *
@@ -86,7 +86,8 @@ class Lvl1SimulationGetter (Configured):
             if TriggerFlags.doLVL1PhaseI():
                 log.info("setting up the Run 3 L1 calo simulation")
                 from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
-                simflags.Calo.SCellType = "Emulated" # as we have no SuperCells yet
+                if globalflags.DataSource()=='data':
+                    simflags.Calo.SCellType = "Emulated" # in data we do not have SuperCells yet
                 from TrigT1CaloFexSim.L1SimulationSequence import setupRun3L1CaloSimulationSequence
                 setupRun3L1CaloSimulationSequence(skipCTPEmulation=True)
 
@@ -173,7 +174,6 @@ class Lvl1SimulationGetter (Configured):
 
                 # enable the reduced (coarse) granularity topo simulation
                 # currently only for MC
-                from AthenaCommon.GlobalFlags  import globalflags
                 if globalflags.DataSource()!='data':
                     log.info("Muon eta/phi encoding with reduced granularity for MC (L1 Simulation)")
                     topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
