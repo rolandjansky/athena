@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -18,7 +18,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
 
   CHECK( this->clearVariables() );
 
-  const GenericMuonSimHitCollection *nswContainer = nullptr;
+  const sTGCSimHitCollection *nswContainer = nullptr;
   CHECK( m_evtStore->retrieve(nswContainer, m_ContainerName.c_str()) );
 
   ATH_MSG_DEBUG("ReadMuonSimHits: Retrieved " << nswContainer->size() << " sTGC hits!" ); 
@@ -27,9 +27,9 @@ StatusCode sTGCSimHitVariables::fillVariables()
   sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline (*m_sTgcIdHelper);
   
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" GenericMuonSimHit empty ");
+  if(nswContainer->size()==0) ATH_MSG_WARNING(" sTGCSimHit empty ");
   for(auto it : *nswContainer) {
-    const GenericMuonSimHit hit = it;
+    const sTGCSimHit hit = it;
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
 
     // SimHits do not have channel type (1 is assigned as dummy value).
@@ -37,7 +37,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
     for( int type=0;type<=2;++type ){ 
 
       // Read information about the sTGC hits; make sanity checks and printout
-      int simId = hit.GenericId(); 
+      int simId = hit.sTGCId(); 
       std::string sim_stationName = hitHelper->GetStationName(simId);
       int sim_stationEta          = hitHelper->GetZSector(simId);
       int sim_stationPhi          = hitHelper->GetPhiSector(simId);
@@ -69,7 +69,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
 
 
       //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
-      Identifier offId = simToOffline.convert(hit.GenericId());
+      Identifier offId = simToOffline.convert(hit.sTGCId());
       
 
       std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(offId));
@@ -122,15 +122,8 @@ StatusCode sTGCSimHitVariables::fillVariables()
       m_NSWsTGC_hitGlobalDirectionY->push_back(globalDirection.y());
       m_NSWsTGC_hitGlobalDirectionZ->push_back(globalDirection.z());
 
-      const  Amg::Vector3D localPosition = hit.localPosition();
-      m_NSWsTGC_hitLocalPositionX->push_back(localPosition.x());
-      m_NSWsTGC_hitLocalPositionY->push_back(localPosition.y());
-      m_NSWsTGC_hitLocalPositionZ->push_back(localPosition.z());
-
       m_NSWsTGC_particleEncoding->push_back(hit.particleEncoding());
-      m_NSWsTGC_kineticEnergy->push_back(hit.kineticEnergy());
       m_NSWsTGC_depositEnergy->push_back(hit.depositEnergy());
-      m_NSWsTGC_StepLength->push_back(hit.StepLength());
 
 
       // Fill Ntuple with SimId data
@@ -202,8 +195,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
                       << "; detEl: r " << detpos.perp()     << ", phi " << detpos.phi()   << ", z " << detpos.z()
                       << "; surf z "   << surf.center().z() << ", ml "  << sim_multilayer << ", l " << sim_layer );
 
-      ATH_MSG_DEBUG("sTGC Local hit : x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z()
-                      << " detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
+      ATH_MSG_DEBUG(" detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
       ATH_MSG_DEBUG("sTGC Fast digit: x " << fastDigitPos.x() << " y " << fastDigitPos.y()
                       << ", gToL: x " << rSurface_pos.x() << " y " << rSurface_pos.y() << " z " << rSurface_pos.z() );
 
@@ -251,11 +243,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
           << ", Global X sTGC = "  << globalPosition.x()
           << ", Global Y sTGC = "  << globalPosition.y()
           << ", Global Z sTGC = "  << globalPosition.z()
-          << ", Local X sTGC = "   << localPosition.x()
-          << ", Local Y sTGC = "   << localPosition.y()
-          << ", Local Z sTGC = "   << localPosition.z()
           << ", time = "           << hit.globalTime()
-          << ", step length = "    << hit.StepLength() );
       */    
       m_NSWsTGC_nSimHits++;
     }
@@ -283,10 +271,6 @@ StatusCode sTGCSimHitVariables::clearVariables()
   m_NSWsTGC_hitGlobalDirectionY->clear();
   m_NSWsTGC_hitGlobalDirectionZ->clear();
 
-  m_NSWsTGC_hitLocalPositionX->clear();
-  m_NSWsTGC_hitLocalPositionY->clear();
-  m_NSWsTGC_hitLocalPositionZ->clear();
-
   m_NSWsTGC_detector_globalPositionX->clear();
   m_NSWsTGC_detector_globalPositionY->clear();
   m_NSWsTGC_detector_globalPositionZ->clear();
@@ -306,9 +290,7 @@ StatusCode sTGCSimHitVariables::clearVariables()
 
 
   m_NSWsTGC_particleEncoding->clear();
-  m_NSWsTGC_kineticEnergy->clear();
   m_NSWsTGC_depositEnergy->clear();
-  m_NSWsTGC_StepLength->clear();
 
 
   m_NSWsTGC_sim_stationName->clear();
@@ -347,10 +329,6 @@ void sTGCSimHitVariables::deleteVariables()
   delete m_NSWsTGC_hitGlobalDirectionY;
   delete m_NSWsTGC_hitGlobalDirectionZ;
 
-  delete m_NSWsTGC_hitLocalPositionX;
-  delete m_NSWsTGC_hitLocalPositionY;
-  delete m_NSWsTGC_hitLocalPositionZ;
-
   delete m_NSWsTGC_detector_globalPositionX;
   delete m_NSWsTGC_detector_globalPositionY;
   delete m_NSWsTGC_detector_globalPositionZ;
@@ -369,9 +347,7 @@ void sTGCSimHitVariables::deleteVariables()
   delete m_NSWsTGC_FastDigitRsurfacePositionY;
 
   delete m_NSWsTGC_particleEncoding;
-  delete m_NSWsTGC_kineticEnergy;
   delete m_NSWsTGC_depositEnergy;
-  delete m_NSWsTGC_StepLength;
 
   delete m_NSWsTGC_sim_stationName;
   delete m_NSWsTGC_sim_stationEta;
@@ -410,10 +386,6 @@ void sTGCSimHitVariables::deleteVariables()
   m_NSWsTGC_hitGlobalDirectionY = nullptr;
   m_NSWsTGC_hitGlobalDirectionZ = nullptr;
 
-  m_NSWsTGC_hitLocalPositionX = nullptr;
-  m_NSWsTGC_hitLocalPositionY = nullptr;
-  m_NSWsTGC_hitLocalPositionZ = nullptr;
-
   m_NSWsTGC_detector_globalPositionX = nullptr;
   m_NSWsTGC_detector_globalPositionY = nullptr;
   m_NSWsTGC_detector_globalPositionZ = nullptr;
@@ -432,9 +404,7 @@ void sTGCSimHitVariables::deleteVariables()
   m_NSWsTGC_FastDigitRsurfacePositionY = nullptr;
 
   m_NSWsTGC_particleEncoding = nullptr;
-  m_NSWsTGC_kineticEnergy = nullptr;
   m_NSWsTGC_depositEnergy = nullptr;
-  m_NSWsTGC_StepLength = nullptr;
 
   m_NSWsTGC_sim_stationName =nullptr;
   m_NSWsTGC_sim_stationEta=nullptr;
@@ -476,10 +446,6 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   m_NSWsTGC_hitGlobalDirectionY = new std::vector<double>;
   m_NSWsTGC_hitGlobalDirectionZ = new std::vector<double>;
 
-  m_NSWsTGC_hitLocalPositionX = new std::vector<double>;
-  m_NSWsTGC_hitLocalPositionY = new std::vector<double>;
-  m_NSWsTGC_hitLocalPositionZ = new std::vector<double>;
-
   m_NSWsTGC_detector_globalPositionX = new std::vector<double>;
   m_NSWsTGC_detector_globalPositionY = new std::vector<double>;
   m_NSWsTGC_detector_globalPositionZ = new std::vector<double>;
@@ -499,9 +465,7 @@ StatusCode sTGCSimHitVariables::initializeVariables()
 
 
   m_NSWsTGC_particleEncoding = new std::vector<int>;
-  m_NSWsTGC_kineticEnergy = new std::vector<double>;
   m_NSWsTGC_depositEnergy = new std::vector<double>;
-  m_NSWsTGC_StepLength = new std::vector<double>;
 
   m_NSWsTGC_sim_stationName = new std::vector<std::string>;
   m_NSWsTGC_wedgeId         = new std::vector<int>;
@@ -539,10 +503,6 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionY", &m_NSWsTGC_hitGlobalDirectionY);
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionZ", &m_NSWsTGC_hitGlobalDirectionZ);
 
-    m_tree->Branch("Hits_sTGC_hitLocalPositionX", &m_NSWsTGC_hitLocalPositionX);
-    m_tree->Branch("Hits_sTGC_hitLocalPositionY", &m_NSWsTGC_hitLocalPositionY);
-    m_tree->Branch("Hits_sTGC_hitLocalPositionZ", &m_NSWsTGC_hitLocalPositionZ);
-
     m_tree->Branch("Hits_sTGC_detector_globalPositionX", &m_NSWsTGC_detector_globalPositionX);
     m_tree->Branch("Hits_sTGC_detector_globalPositionY", &m_NSWsTGC_detector_globalPositionY);
     m_tree->Branch("Hits_sTGC_detector_globalPositionZ", &m_NSWsTGC_detector_globalPositionZ);
@@ -562,9 +522,7 @@ StatusCode sTGCSimHitVariables::initializeVariables()
 
 
     m_tree->Branch("Hits_sTGC_particleEncoding", &m_NSWsTGC_particleEncoding);
-    m_tree->Branch("Hits_sTGC_kineticEnergy", &m_NSWsTGC_kineticEnergy);
     m_tree->Branch("Hits_sTGC_depositEnergy", &m_NSWsTGC_depositEnergy);
-    m_tree->Branch("Hits_sTGC_StepLength", &m_NSWsTGC_StepLength);
 
     m_tree->Branch("Hits_sTGC_sim_stationName", &m_NSWsTGC_sim_stationName);
     m_tree->Branch("Hits_sTGC_wedgeId", &m_NSWsTGC_wedgeId);
