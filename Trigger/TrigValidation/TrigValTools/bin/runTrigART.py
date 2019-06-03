@@ -166,6 +166,21 @@ def print_summary(all_test_results, failed_tests, failed_rootcomp):
         logging.info("All %d executed tests succeeded", len(all_test_results))
         logging.info("==================================================")
 
+def prep_dirs(topdir, scripts):
+    """ Creates test result structure if missing, if present clears the area only for the tests to be run"""
+    import errno
+    try:
+        os.mkdir(topdir)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise e
+    shutil.rmtree(topdir+'/test', ignore_errors=True)
+    os.mkdir(topdir+'/test')
+
+    # clear results dir
+    for script in scripts:
+        toerase=topdir+'/result/'+os.path.basename(script).replace('.sh', '')
+        shutil.rmtree(toerase, ignore_errors=True)
 
 def main():
     args = get_parser().parse_args()
@@ -181,10 +196,8 @@ def main():
     topdir = 'runTrigART'
     success = True
     with remember_cwd():
-        shutil.rmtree(topdir, ignore_errors=True)
-        os.mkdir(topdir)
+        prep_dirs(topdir, scripts)
         os.chdir(topdir)
-        os.mkdir('test')
         for script_path in scripts:
             target = 'test/' + os.path.basename(script_path)
             os.symlink(script_path, target)
