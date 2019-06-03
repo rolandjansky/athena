@@ -79,6 +79,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if  jobproperties.Global.InputFormat() == 'bytestream':
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
+
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
     # CaloCellGetter schedules the offline CaloCellMaker
