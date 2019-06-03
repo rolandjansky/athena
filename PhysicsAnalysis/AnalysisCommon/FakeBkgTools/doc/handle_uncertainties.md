@@ -23,9 +23,6 @@ auto sysvars = tool->affectingSystematics();
 As stated in the example above, `addEvent()` must be called **only once per event**, otherwise there will be double-counting. Looping over systematic variations should only be done for calls to `getTotalYield()` and `getEventWeight()`.
 
 
-
-
-
 The number of variations depends on the configuration (number of efficiency bins, different sources of systematics, correlations...) therefore methods such as `affectingSystematics()` and related can only be called once the tool has been initialized. 
 
 ### Identifying variations

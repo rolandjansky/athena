@@ -920,7 +920,7 @@ void Database::importSystTH1(const TH1* hist, int type, const std::string& sysna
     else
     {
         uid = systIndexToUID(m_systs.size());
-        m_systs.emplace_back(sysname, type);
+        m_systs.emplace_back(sysname, (1 << type));
     }
     
     auto eff = table.m_efficiencies.begin();
