@@ -49,7 +49,7 @@ if hasattr(runArgs,"inputEVNTFile"):
 ## Output
 if hasattr(runArgs,"trigFilterList"):
     rec.doTriggerFilter.set_Value_and_Lock(True)
-    rec.triggerFilterList = "|".join(runArgs.trigFilterList)
+    rec.triggerFilterList = "||".join(runArgs.trigFilterList)
     
 if hasattr(runArgs,"outputESDFile"):
     rec.doESD.set_Value_and_Lock( True )
