@@ -3,6 +3,7 @@
 */
 
 #define LhoodMMEvent_cxx
+#include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/LhoodMMEvent.h"
 
 #include <stdexcept>

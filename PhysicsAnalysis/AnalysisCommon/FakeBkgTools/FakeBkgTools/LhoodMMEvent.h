@@ -6,7 +6,6 @@
 #define LhoodMMEvent_h
 
 #include <vector>
-#include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/BaseFakeBkgTool.h"
 
 using namespace FakeBkgTools;
