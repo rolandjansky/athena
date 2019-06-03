@@ -215,11 +215,14 @@ def setupMenu():
     TriggerFlags.METSlice.signatures = [
  	['xe110_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_pufit_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+ 	['xe110_tc_lcw_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+ 	['xe110_mht_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+ 	['xe90_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_L1XE50',               'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         #low pT
         ['xe35',                                   'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe90_pufit_L1XE50',               'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-
 			 ]
 
     if TriggerFlags.doFTK():
