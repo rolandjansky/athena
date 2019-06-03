@@ -187,7 +187,7 @@ StatusCode TrigFTKFastSimTruth::execute()
     }
 
     // Create an FTKTrack from the hits
-    std::unique_ptr<FTKTrack> ftktrack = m_trackBuilderTool->createFTKTrack(traj, sectorHitToPlaneMap, regions, sectors, m_pmap_12L.get());
+    std::unique_ptr<FTKTrack> ftktrack = m_trackBuilderTool->createFTKTrack(traj, sectorHitToPlaneMap, regions, sectors);
 
     if (!ftktrack) {
       ATH_MSG_DEBUG("Track creation for FTk truth trajectory with size " << traj.hits.size() << " failed. Skipping ...");
