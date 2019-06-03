@@ -37,8 +37,7 @@ public:
   virtual std::unique_ptr<FTKTrack> createFTKTrack(const FTKTruthTrajectory& traj,
     const std::vector<std::unordered_map<int, int> >& sectorHitToPlaneMap,
     const std::vector<int>& regions,
-    const std::vector<int>& sectors,
-    FTKPlaneMap* pmap) const = 0;
+    const std::vector<int>& sectors) const = 0;
 };
 
 #endif
