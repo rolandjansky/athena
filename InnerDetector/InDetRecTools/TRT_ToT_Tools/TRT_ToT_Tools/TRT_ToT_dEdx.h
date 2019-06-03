@@ -62,6 +62,7 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
     const InDetDD::TRT_DetectorManager* m_trtman;                         // ID TRT detector manager 
 
     // Algorithm switchers
+    bool m_applyBugfix;               // If true - apply bugfixes for r21.0 concerning unused option DivideByL, wrong hit selection and truncation
     bool m_corrected;                 // If true - make correction using rs-distributions
     bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
     bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
