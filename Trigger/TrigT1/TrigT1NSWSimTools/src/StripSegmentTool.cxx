@@ -60,7 +60,7 @@ namespace NSWL1 {
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 
-      declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
+      declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
       declareProperty("rIndexBits", m_rIndexBits = 8,   "number bits in R-index calculation");
       declareProperty("dthetaBits", m_dThetaBits = 5,   "number bits in dTheta calculation");
@@ -395,26 +395,28 @@ namespace NSWL1 {
         auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);      
         trgRawData->push_back(std::move(rdo_segment));
         
+        
+        if(m_doNtuple){
         //Fill ntuple info
-        m_seg_wedge1_size->push_back(band.second[0].size());
-        m_seg_wedge2_size->push_back(band.second[1].size());
-        m_seg_bandId->push_back(bandId);
-        m_seg_phiId->push_back(phiId);
-        m_seg_rIdx->push_back(rIndex);
-        m_seg_theta->push_back(theta);
-        m_seg_dtheta->push_back(dtheta);
-        m_seg_dtheta_int->push_back(dtheta_int);
-        m_seg_eta->push_back(eta);
-        m_seg_eta_inf->push_back(eta_inf);
-        m_seg_phi->push_back(phi);
-        m_seg_global_r->push_back(avg_r); 
-        m_seg_global_x->push_back(glx);
-        m_seg_global_y->push_back(gly); 
-        m_seg_global_z->push_back(avg_z); 
-        m_seg_dir_r->push_back(slope); 
-        m_seg_dir_y->push_back(-99); 
-        m_seg_dir_z->push_back(-99);        
-     
+            m_seg_wedge1_size->push_back(band.second[0].size());
+            m_seg_wedge2_size->push_back(band.second[1].size());
+            m_seg_bandId->push_back(bandId);
+            m_seg_phiId->push_back(phiId);
+            m_seg_rIdx->push_back(rIndex);
+            m_seg_theta->push_back(theta);
+            m_seg_dtheta->push_back(dtheta);
+            m_seg_dtheta_int->push_back(dtheta_int);
+            m_seg_eta->push_back(eta);
+            m_seg_eta_inf->push_back(eta_inf);
+            m_seg_phi->push_back(phi);
+            m_seg_global_r->push_back(avg_r); 
+            m_seg_global_x->push_back(glx);
+            m_seg_global_y->push_back(gly); 
+            m_seg_global_z->push_back(avg_z); 
+            m_seg_dir_r->push_back(slope); 
+            m_seg_dir_y->push_back(-99); 
+            m_seg_dir_z->push_back(-99);        
+        }
       }//end of clmap loop
        
     
