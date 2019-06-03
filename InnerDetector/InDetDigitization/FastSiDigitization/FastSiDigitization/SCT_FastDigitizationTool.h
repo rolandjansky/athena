@@ -47,6 +47,8 @@
 #include <utility> /* pair */
 #include <map>
 
+#include <TH1F.h>
+
 //FIXME - not used anywhere?
 // #ifndef MAXSTEPS
 // #define MAXSTEPS 15
@@ -158,6 +160,12 @@ private:
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
   bool m_needsMcEventCollHelper;
 
+  double                                m_mu_val;
+  double 				m_inefficiencySF;
+  std::string                           m_ineffSF_filename;//Name of the file containing the maps with the inefficiency SF, as a function of eta and mu
+  std::vector<std::string> m_ineffSF_histograms;
+  std::map<std::string,TH1F*> Ineff_scale_factors;
+  
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,
                                   //const Trk::Surface& surface,
                                   double localStartX, double localStartY,
@@ -167,7 +175,8 @@ private:
                                   const Amg::Vector2D& stripCenter,
                                   int direction) const;
 
-
+  StatusCode ReadInefficiencyScaleFactor(std::string filename, std::vector<std::string> histonames);
+  double RetrieveInefficiencySF(double eta,double mu, bool isBarrel);
 
 
 };
