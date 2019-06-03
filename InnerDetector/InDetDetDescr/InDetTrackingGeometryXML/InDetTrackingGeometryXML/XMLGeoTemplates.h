@@ -204,6 +204,17 @@ namespace InDet {
     std::string stave_type;
   };
 
+  struct Sublayer{
+ 		
+    std::string region;
+    int         layer;
+    int         etaOffset;
+    std::vector<int> rings;
+    
+    Sublayer(std::string barrel_ec, int lay):
+    region(barrel_ec), layer(lay), etaOffset(0) {};
+  };
+
   class EndcapLayerTmp {
   public:
     EndcapLayerTmp() {  ilayer = -1; layer_pos = -1; stereoI = stereoO = stereoSep = 0.; double_sided = isDisc = useDiscSurface = false;}
@@ -243,7 +254,10 @@ namespace InDet {
     std::vector<int>         nsectors;
     std::vector<std::string> splitMode;
     std::vector<double>      splitOffset;
-   
+    std::vector<std::string> readoutRegion;     // xml input
+    std::vector<int>         readoutLayer;      // xml input
+    std::vector<int>         readoutEta;        // calculated
+    std::vector<Sublayer>    readoutSublayers;  // calculated	      
   };
 
 }

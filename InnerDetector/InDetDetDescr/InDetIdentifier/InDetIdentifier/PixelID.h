@@ -147,7 +147,8 @@ public:
     bool        is_dbm       (const Identifier& id) const; //DBM
 
     /// Test for b-layer - WARNING: id MUST be pixel id, otherwise answer is not accurate. Use SiliconID for generic test.
-    bool        is_blayer       (const Identifier& id) const;  
+    bool        is_blayer       (const Identifier& id) const;    // obsolete  
+    bool        is_innermost    (const Identifier& id) const;  
 
     /// Values of different levels (failure returns 0)
     int         barrel_ec       (const Identifier& id) const;  
@@ -615,19 +616,6 @@ PixelID::layer_disk      (const Identifier& id) const
 {
     // Normal unshifted id
     return (m_lay_disk_impl.unpack(id));
-}
-
-//----------------------------------------------------------------------------
-inline bool        
-PixelID::is_blayer       (const Identifier& id) const 
-{
-    // Check if it is pixel id
-    if(is_barrel(id)) {
-        return (0 == layer_disk(id));
-    }
-    else {
-        return (false);
-    }
 }
 
 //----------------------------------------------------------------------------

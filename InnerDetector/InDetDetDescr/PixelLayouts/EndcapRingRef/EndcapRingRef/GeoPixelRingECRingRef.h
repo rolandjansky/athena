@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef GEOPIXELRINGECRING_H
 #define GEOPIXELRINGECRING_H
 
@@ -25,6 +26,7 @@ class GeoPixelRingECRingRef  {
   virtual std::pair<GeoVPhysVol*,GeoVPhysVol*> BuildSplit(const PixelGeoBuilderBasics* basics, int endcapSide);
   virtual GeoVPhysVol* Build(const PixelGeoBuilderBasics* basics, int endcapSide);
   void preBuild(const PixelGeoBuilderBasics* basics);
+  void readoutId(std::string,int,int); 
 
   double getRingZMin() const { return m_ringZMin; }
   double getRingZMax() const { return m_ringZMax; }
@@ -60,8 +62,13 @@ class GeoPixelRingECRingRef  {
   double m_halfLength;
   bool m_bPrebuild;  
 
+  std::string m_readoutRegion;
+  int m_readoutLayer;
+  int m_readoutEta;
+
   ServiceHandle<IPixelModuleSvc> m_pixelModuleSvc;
   ServiceHandle<IPixelDesignSvc> m_pixelDesignSvc;
+
 };
 
 #endif

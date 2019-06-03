@@ -54,7 +54,6 @@ class PixelLayerValidationTool : virtual public IPixelLayerValidationTool, publi
   std::vector<TH2F*> m_hitrate15n;
  
   mutable TH1F* m_dInX0_mod; 
-  mutable TH1F* m_dInX0_svc; 
   mutable TH1F* m_dInX0_stave; 
 
   TH1F* m_dInX0_mod_flat; 

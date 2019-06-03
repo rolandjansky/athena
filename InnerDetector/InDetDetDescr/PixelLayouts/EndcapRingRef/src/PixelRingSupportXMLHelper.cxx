@@ -47,12 +47,13 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
   TerminateXML();
 }
 
-int PixelRingSupportXMLHelper::getNbSupport(int layer) 
+int PixelRingSupportXMLHelper::getNbSupport(int layer, int ring) 
 {
   if(!m_bXMLfileExist) return 0;
 
   int layerIndex = getChildValue_Index("PixelRingSupport", "Layer", layer);
-  std::string ringGeoName = getString("PixelRingSupport", layerIndex, "RingSupportGeo");
+  std::vector<std::string> v_ringGeoName = getVectorString("PixelRingSupport", layerIndex, "RingSupportGeo");
+  std::string ringGeoName = int(v_ringGeoName.size())>ring ? v_ringGeoName[ring] : v_ringGeoName[0];
   m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelRingSupportGeo", "name", -1, ringGeoName) : -1;
 
   if(m_ringGeoIndex<0) return 0;
