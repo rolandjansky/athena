@@ -165,13 +165,14 @@ public:
                               const EventContext& ctx) const override;
 
 protected:
-  void init_all_maps();
+  void init_all_maps(const CaloDetDescrManager* caloDDM);
   void init_cell(cellinfo_map& map,const CaloDetDescrElement* theDDE);
   void init_volume(cellinfo_map& map);
-  void find_phi0();
+  void find_phi0(const CaloDetDescrManager* caloDDM);
 
   //  void init_map(cellinfo_map& map, int layer); //layer 1=EM 3=HAD
-  void findCells(cellinfo_vec & cell_vec, double eta_min, double eta_max, double phi_min, double phi_max, int layer);
+  void findCells(const CaloDetDescrManager* caloDDM,
+                 cellinfo_vec & cell_vec, double eta_min, double eta_max, double phi_min, double phi_max, int layer);
 
 
   void addCell(CaloCellContainer * theCellContainer, int etabin, int phibin, double energy, cellinfo_map& map );
@@ -203,9 +204,7 @@ protected:
   double zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
   double zent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
 
-  const CaloDetDescrManager* m_caloDDM;
   const CaloCell_ID*  m_caloCID;
-  const AtlasDetectorID* m_atlas_id ;
 
   bool m_isCaloBarrel[CaloCell_ID_FCS::MaxSample];
   bool isCaloBarrel(CaloCell_ID_FCS::CaloSample sample) const {return m_isCaloBarrel[sample];};
