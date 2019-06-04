@@ -42,22 +42,22 @@ def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, 
     else:
         stream.ItemList += itemList
 
-def fillAOD ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillAOD ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamAOD" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
-def fillESD ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillESD ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamESD" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
-def fillRDO ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillRDO ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamRDO" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
 
