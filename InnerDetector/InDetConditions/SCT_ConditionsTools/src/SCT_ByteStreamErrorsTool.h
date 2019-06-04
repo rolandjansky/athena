@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "Identifier/IdContext.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -98,15 +99,15 @@ private:
 
   BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
 
-  mutable std::vector<std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>> m_bsErrors ATLAS_THREAD_SAFE; // Used by getErrorSet, addError, resetSets
-
-  mutable std::vector<std::map<Identifier, unsigned int>> m_tempMaskedChips ATLAS_THREAD_SAFE {};
-  mutable std::vector<std::map<Identifier, unsigned int>> m_abcdErrorChips ATLAS_THREAD_SAFE {};
-
   // Mutex to protect the contents.
   mutable std::recursive_mutex m_mutex{};
-  // Cache to store events for slots
-  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE {};
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+    std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES> m_bsErrors; // Used by getErrorSet, addError, resetSets
+    std::map<Identifier, unsigned int> m_tempMaskedChips;
+    std::map<Identifier, unsigned int> m_abcdErrorChips;
+  };
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
   mutable std::atomic_uint m_nRetrievalFailure{0};
 
