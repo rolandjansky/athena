@@ -102,7 +102,8 @@ HIClusterVars=["HIClusters.eta0",
                "HIClusters.rawPhi",
                "HIClusters.rawM",
                "HIClusters.HIEtaPhiWeight",
-               "HIClusters.HISubtractedE"]
+               "HIClusters.HISubtractedE",
+               "HIClusters.HIMag"]
 #               "HIClusters.e_sampl",
 #               "HIClusters.time"]
 
