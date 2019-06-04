@@ -315,7 +315,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
         	// If you needed to re-map the previous decision(s), then call decisionIDs once
         	// for each previous decision
         	// if the same previous decision is called twice, that's fine - internally takes care of that
-        	linkToPrevious( newDecision, previousDecision );
+        	linkToPrevious( newDecision, previousDecision, context );
         	if(itrk == 0 ){
         		decisionIDs(previousDecision, previousDecisionIDs0);
 			}else{
