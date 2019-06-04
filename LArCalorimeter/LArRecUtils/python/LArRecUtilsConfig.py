@@ -40,7 +40,7 @@ def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArAutoCorrNoiseCondAlg"""
     acc = LArOnOffIdMappingCfg(flags)
     acc.merge(LArMCSymCondAlgCfg(flags))
-    kwargs.setdefault("nSampl", flags.LAr.RODnSamples)
+    kwargs.setdefault("nSampl", flags.LAr.ROD.nSamples)
     acc.addCondAlgo(LArAutoCorrNoiseCondAlg(name, **kwargs))
     return acc
 
