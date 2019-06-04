@@ -107,17 +107,27 @@ namespace Trig {
 
     /**
      * @brief Runs 3+. Returns all features related to given chain group
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition bits which the chain group must satisfy.
+     * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    const ElementLinkVector<CONTAINER> features(const Trig::ChainGroup* group, 
-                                                unsigned int condition = TrigDefs::Physics) const;
+    const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const Trig::ChainGroup* group,
+                                                                          const unsigned int condition = TrigDefs::Physics,
+                                                                          const bool oneFeaturePerLeg = true) const;
 
     /**
      * @brief Runs 3+. Returns features related to given chain
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition bits which the chain group must satisfy.
+     * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    const ElementLinkVector<CONTAINER> features(const std::string& chainName = "HLT_.*", 
-                                                unsigned int condition = TrigDefs::Physics) const;
+    const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const std::string& chainName = "HLT_.*",
+                                                                          const unsigned int condition = TrigDefs::Physics,
+                                                                          const bool oneFeaturePerLeg = true) const;
 
     /**
      * @brief gives back feature matching (by seeding relation)

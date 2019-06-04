@@ -72,6 +72,8 @@ def collectFilters( steps ):
     for stepSeq in steps.getChildren():
         if "filter" in stepSeq.name():
             filters[stepSeq.name()] = stepSeq.getChildren()
+            __log.info("Found Filters in Step {} : {}".format(stepSeq.name(), stepSeq.getChildren()))
+
     return filters
 
 
@@ -80,12 +82,12 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
     Returns the set of all decision objects of HLT
     """
     decisionObjects = set()
-    __log.info("Collecting decision obejcts from L1 decoder instance")
+    __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
 
 
-    __log.info("Collecting decision obejcts from hypos")
+    __log.info("Collecting decision objects from hypos")
     __log.info(hypos)
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
@@ -97,7 +99,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
                 decisionObjects.add( hypoAlg.HypoInputDecisions )
                 decisionObjects.add( hypoAlg.HypoOutputDecisions )
 
-    __log.info("Collecting decision obejcts from filters")
+    __log.info("Collecting decision objects from filters")
     for step, stepFilters in filters.iteritems():
         for filt in stepFilters:
             decisionObjects.update( filt.Input )
@@ -108,7 +110,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
 
 def triggerSummaryCfg(flags, hypos):
     """
-    Configures an algorithm(s) that should be run after the slection process
+    Configures an algorithm(s) that should be run after the section process
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
@@ -169,7 +171,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 def triggerOutputStreamCfg( flags, decObj, outputType ):
     """
     Configure output stream according to the menu setup (decision objects)
-    and TrigEDMCOnfig
+    and TrigEDMConfig
     """
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     itemsToRecord = []
@@ -185,10 +187,10 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
 
     # summary objects
-    __log.debug( outputType + " trigger content "+str( itemsToRecord ) )
+    __log.info( outputType + " trigger content "+str( itemsToRecord ) )
     acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")]
+    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")] # OutputStream has a data dependency on HLTSummary
 
     return acc
 
@@ -268,13 +270,37 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
                         continue
 
             producer = producer[0]
-            tool.TrigCompositeContainer = producer.InputMakerOutputDecisions
-            tool.FixLinks = True
+            # NOTE: The below loop is going to find the HypoAlg which consume this output, and collate these HypoAlg's output
+            # It might be nicer to instead split up the GapFiller below to have a different GapFiller for Hypos and for Filters
+            # Then we could go back to having FixLinks be a boolean, rather than specifying a sub-set of the write handles
+            # attached to the TrigCompositeContainer parameter.
+
+            # We have a InputMaker with configured outputs, we need to identify all HypoAlg which consume these inputs.
+            # These HypoAlg all need to have their output element link collections remapped via FixLinks
+            TCHypoOutputCollections = list()
+            for step, stepHypos in hypos.iteritems():
+                for hypoAlg in stepHypos:
+                    if isinstance( hypoAlg.HypoInputDecisions, list): # Support multiple inputs and outputs to this HypoAlg
+                        counter = -1
+                        for inputDecision in hypoAlg.HypoInputDecisions:
+                            ++counter
+                            if inputDecision in producer.InputMakerOutputDecisions:
+                                TCHypoOutputCollections.append(hypoAlg.HypoOutputDecisions[counter])
+                    else: # Normal case - consume one input, produce one output
+                        if hypoAlg.HypoInputDecisions in producer.InputMakerOutputDecisions:
+                            TCHypoOutputCollections.append(hypoAlg.HypoOutputDecisions)
+            tool.FixLinks = TCHypoOutputCollections
+
+            # We need to register in storegate these Hypo outputs, but also the InputMaker outputs as well so we add them to the list here too
+            TCOutputCollections = TCHypoOutputCollections[:] # copy the list
+            TCOutputCollections.extend(producer.InputMakerOutputDecisions)
+            tool.TrigCompositeContainer = TCOutputCollections
+            tool.dumpSGBefore = False
+            tool.dumpSGAfter = False
         alg.OutputTools += [ tool ]
 
-
+    tool = HLTEDMCreator( "GapFiller" )
     if len(edmSet) != 0:
-        tool = HLTEDMCreator( "GapFiller" )
         from collections import defaultdict
         groupedByType = defaultdict( list )
     
@@ -291,13 +317,14 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             propName = collType.split(":")[-1]
             if hasattr( tool, propName ):
                 setattr( tool, propName, collNameList )
+                __log.info("GapFiller will create EDM collection type '{}' for '{}'".format( collType, collNameList ))
             else:
-                __log.info("The {} is not going to be added if missing".format( collType ))
+                __log.info("EDM collections of type {} are not going to be added to StoreGate, if not created by the HLT".format( collType ))
+    # append all decision objects
+    __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
+    tool.TrigCompositeContainer += list(decObj)
+    alg.OutputTools += [tool]
 
-        # append all decision objects
-        tool.TrigCompositeContainer += list(decObj)
-        alg.OutputTools += [tool]
-        
     return alg
 
 
@@ -365,10 +392,12 @@ def triggerRunCfg( flags, menu=None ):
     edmSet = []
 
     if flags.Output.ESDFileName != "":
+        __log.debug( "Setting up trigger EDM output for ESD" )
         acc.merge( triggerOutputStreamCfg( flags, decObj, "ESD" ) )
         edmSet.append('ESD')
 
     if flags.Output.AODFileName != "":
+        __log.debug( "Setting up trigger EDM output for AOD" )
         acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
         edmSet.append('AOD')
         
@@ -378,6 +407,7 @@ def triggerRunCfg( flags, menu=None ):
 
     # configure actual streams
     if flags.Trigger.writeBS:
+        __log.debug( "Setting up trigger output for ByteStream" )
         acc.merge( triggerBSOutputCfg( flags, decObj ) )
 
     return acc
