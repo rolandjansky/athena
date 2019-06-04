@@ -49,8 +49,7 @@ def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(TGC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name,**kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
     return acc
 
 def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **kwargs):
@@ -70,7 +69,5 @@ def TGC_OverlayDigitizerCfg(flags, name="TGC_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
     return acc
 

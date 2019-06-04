@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "IDScanZFinder/TrigZFinderInternal.h"
-#include "IDScanZFinder/PhiSlice.h"
+#include "TrigZFinderInternal.h"
+#include "PhiSlice.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////    TrigZFinderInternal implementation

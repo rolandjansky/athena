@@ -23,6 +23,8 @@ namespace xAODMaker {
                                                      const IInterface* parent )
       : GenericMetadataToolNoAux <xAOD::EventFormat>(type,name,parent)
    {
+     m_inputCollName="EventFormat";
+     m_outputCollName="EventFormat";
    }
 
    StatusCode EventFormatMetaDataTool::initialize() {

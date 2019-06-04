@@ -51,6 +51,7 @@ class MsgStream;
 namespace InDet {
 
   class SiSpacePointsSeed;
+  class SiSpacePointsSeedMakerEventData;
  
   class ISiSpacePointsSeedMaker : virtual public IAlgTool 
     {
@@ -67,26 +68,28 @@ namespace InDet {
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      void         newEvent() const;
-      virtual void newEvent(int iteration) const =0; 
-      virtual void newRegion
-	(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const =0;
-      virtual void newRegion
-	(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& iRD) const =0;
+      virtual void newEvent(SiSpacePointsSeedMakerEventData& data, int iteration=-1) const =0;
+      virtual void newRegion(SiSpacePointsSeedMakerEventData& data,
+                             const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const =0;
+      virtual void newRegion(SiSpacePointsSeedMakerEventData& data,
+                             const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
+                             const IRoiDescriptor& iRD) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with two space points with or without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find2Sp(const std::list<Trk::Vertex>& lv) const =0;
+      virtual void find2Sp(SiSpacePointsSeedMakerEventData& data,
+                           const std::list<Trk::Vertex>& lv) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with three space points with or without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find3Sp(const std::list<Trk::Vertex>& lv) const =0;
+      virtual void find3Sp(SiSpacePointsSeedMakerEventData& data,
+                           const std::list<Trk::Vertex>& lv) const =0;
 
       //////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
@@ -94,7 +97,8 @@ namespace InDet {
       // with information about min and max Z of the  vertex
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* zVertex) const =0;
+      virtual void find3Sp(SiSpacePointsSeedMakerEventData& data,
+                           const std::list<Trk::Vertex>& lv, const double* zVertex) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
@@ -102,60 +106,25 @@ namespace InDet {
       // Variable means (2,3,4,....) any number space points
       ///////////////////////////////////////////////////////////////////
  
-      virtual void findVSp (const std::list<Trk::Vertex>& lv) const =0;
+      virtual void findVSp(SiSpacePointsSeedMakerEventData& data,
+                           const std::list<Trk::Vertex>& lv) const =0;
       
       ///////////////////////////////////////////////////////////////////
       // Iterator through seeds pseudo collection produced accordingly
       // methods find    
       ///////////////////////////////////////////////////////////////////
       
-      virtual const SiSpacePointsSeed* next() const =0;
+      virtual const SiSpacePointsSeed* next(SiSpacePointsSeedMakerEventData& data) const =0;
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
      
-      virtual MsgStream&    dump(MsgStream&    out) const=0;
-      virtual std::ostream& dump(std::ostream& out) const=0;
+      virtual MsgStream& dump(SiSpacePointsSeedMakerEventData& data, MsgStream& out) const=0;
      
     };
   
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator for MsgStream and  std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  MsgStream&    operator << (MsgStream&   ,const ISiSpacePointsSeedMaker&);
-  std::ostream& operator << (std::ostream&,const ISiSpacePointsSeedMaker&);
-  
-  ///////////////////////////////////////////////////////////////////
-  // Inline methods
-  ///////////////////////////////////////////////////////////////////
-
-  inline void ISiSpacePointsSeedMaker::newEvent() const
-  {
-    return newEvent(-1);
-  }
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator MsgStream
-  ///////////////////////////////////////////////////////////////////
-   
-  inline MsgStream& operator    << 
-    (MsgStream& sl,const ISiSpacePointsSeedMaker& se)
-    { 
-      return se.dump(sl); 
-    }
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  inline std::ostream& operator << 
-    (std::ostream& sl,const ISiSpacePointsSeedMaker& se)
-    { 
-      return se.dump(sl); 
-    }   
 } // end of name space
 
 
 #endif // ISiSpacePointsSeedMaker_H
-

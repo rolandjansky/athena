@@ -25,8 +25,9 @@ OrHelperTool::OrHelperTool(const std::string& type,
 }
 
 
-bool OrHelperTool::pass(HypoJetVector& jets,
-                        ITrigJetHypoInfoCollector* collector) const {
+bool
+OrHelperTool::pass(HypoJetVector& jets,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("OrHelperTool::pass... " << jets.size() << " jets");
 
  JetTrigTimer timer;

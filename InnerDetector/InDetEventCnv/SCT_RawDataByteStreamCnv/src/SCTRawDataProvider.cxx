@@ -61,8 +61,6 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawD
 
 StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 {
-  m_rawDataTool->beginNewEvent();
-
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if (not externalCacheRDO) {
@@ -145,7 +143,8 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
                              bsErrContainer.ptr(), 
-                             bsFracContainer.ptr()).isFailure()) {
+                             bsFracContainer.ptr(),
+                             ctx).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 

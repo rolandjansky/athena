@@ -7,7 +7,12 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigEDMConfig.TriggerEDMRun3 import recordable
       
+class precisionCaloMenuDefs(object):
+      """Static class to collect all string manipulation in Calo sequences """
+      precisionCaloClusters= recordable("HLT_CaloEMClusters")
+
 def precisionCaloSequence(ConfigFlags):
     """ Creates PrecisionCalo sequence """
     # EV creator
@@ -20,7 +25,6 @@ def precisionCaloSequence(ConfigFlags):
     
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec import precisionCaloRecoSequence
-    # from TrigUpgradeTest.precisionCaloRec import precisionCaloRecoSequence
     (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(InViewRoIs)
 
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
@@ -39,6 +43,7 @@ def precisionCaloMenuSequence():
 
     thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT("precisionCaloHypo")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
+    precisionCaloMenuDefs.precisionCaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 

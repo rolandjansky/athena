@@ -214,14 +214,14 @@ def getTriggerTranslatorToolSimple(inputFlags):
     tdt_local_hltconfig = HLTMonTriggerList()
     tdt_mapping = {}
     for tdt_menu, tdt_menu_item in tdt_local_hltconfig.__dict__.items():
-        if not isinstance(tdt_menu_item, collections.Iterable): continue
+        if not isinstance(tdt_menu_item, collections.Iterable):
+            continue
         # work around possibly buggy category items
         if isinstance(tdt_menu_item, basestring):
             tdt_local_logger.debug('String, not list: %s' % tdt_menu)
             tdt_menu_item = [tdt_menu_item]
             if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:
                 tdt_local_logger.debug('Bad formatting: %s' % tdt_menu)
-        patched_names = []
         tdt_menu_item = [_ if (_.startswith('HLT_') or _.startswith('L1_')) else 'HLT_' + _
                          for _ in tdt_menu_item]
         tdt_mapping[tdt_menu] = ','.join(tdt_menu_item)

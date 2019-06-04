@@ -11,11 +11,18 @@
 
 
 #include <string>
+#include <optional>
 
 std::string nodeIDPrinter(const std::string& name,
                           int nodeID,
                           int parentID,
                           bool pass,
+                          const std::string& time="");
+
+std::string nodeIDPrinter(const std::string& name,
+                          int nodeID,
+                          int parentID,
+                          const std::optional<bool>& pass,
                           const std::string& time="");
 
 

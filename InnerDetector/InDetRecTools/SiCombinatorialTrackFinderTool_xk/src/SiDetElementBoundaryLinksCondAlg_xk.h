@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLinks_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 

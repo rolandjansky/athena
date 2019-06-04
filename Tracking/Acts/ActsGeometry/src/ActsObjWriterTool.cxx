@@ -11,6 +11,7 @@
 // Gaudi / Athena
 #include "GaudiKernel/IInterface.h"
 
+#include "ActsGeometry/ActsGeometryContext.h"
 // ACTS
 #include "Acts/Detector/TrackingGeometry.hpp"
 
@@ -20,14 +21,14 @@
 
 
 ActsObjWriterTool::ActsObjWriterTool(const std::string& type, const std::string& name,
-    const IInterface* parent) 
+    const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
   //declareProperty("OutputDirectory", m_outputDirectory = "");
   //declareProperty("SubDetectors", m_subDetectors = {});
 }
-  
-StatusCode 
+
+StatusCode
 ActsObjWriterTool::initialize()
 {
 
@@ -69,13 +70,11 @@ ActsObjWriterTool::initialize()
   m_tgObjWriter
     = std::make_shared<Acts::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
-
   return StatusCode::SUCCESS;
 }
 
 void
-ActsObjWriterTool::write(const Acts::TrackingGeometry& tg)
+ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg)
 {
-  m_tgObjWriter->write(tg);
+  m_tgObjWriter->write(gctx.any(), tg);
 }
-

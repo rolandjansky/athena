@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/CxxUtils
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack )
 
@@ -25,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_SeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkSegment TrkTrack TrkExInterfaces TrkFitterInterfaces CxxUtils InDetRIO_OnTrack TrkEventPrimitives TrkPseudoMeasurementOnTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkSegment TrkTrack TrkExInterfaces TrkFitterInterfaces CxxUtils InDetRIO_OnTrack SiSPSeededTrackFinderData TrkEventPrimitives TrkPseudoMeasurementOnTrack )
 
 # Install files from the package:
 atlas_install_headers( TRT_SeededTrackFinder )

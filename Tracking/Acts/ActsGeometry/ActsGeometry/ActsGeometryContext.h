@@ -1,0 +1,35 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_ACTSGEOMETRYCONTEXT_H
+#define ACTSGEOMETRY_ACTSGEOMETRYCONTEXT_H
+
+#include "ActsGeometry/ActsAlignmentStore.h"
+
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
+
+#include "Acts/Utilities/GeometryContext.hpp"
+
+#include <memory>
+
+struct ActsGeometryContext {
+
+  bool construction{false};
+
+  std::unique_ptr<const ActsAlignmentStore> ownedAlignmentStore{nullptr};
+
+  const ActsAlignmentStore* alignmentStore{nullptr};
+
+  Acts::GeometryContext
+  any() const
+  {
+    return {this};
+  }
+};
+
+CLASS_DEF(ActsGeometryContext, 51464195, 1)
+CONDCONT_DEF( ActsGeometryContext , 11228079 );
+
+#endif

@@ -4,7 +4,7 @@
 
 #include "./EtaEtAsymmetricConditionMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 
 #include <sstream>
 #include <cmath>
@@ -21,7 +21,7 @@ EtaEtAsymmetricConditionMT::EtaEtAsymmetricConditionMT(double etaMin,
 
 bool
 EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
-                                        std::unique_ptr<IConditionVisitor>&) const {
+                                        const std::unique_ptr<ITrigJetHypoInfoCollector>&) const {
   auto eta = ip->eta();
   auto et = ip->et();
   return 
@@ -33,7 +33,7 @@ EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
 
 bool
 EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
-                                        std::unique_ptr<IConditionVisitor>& v) const {
+                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& v) const {
   return isSatisfied(ips[0], v);
 }
 

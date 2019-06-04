@@ -44,6 +44,8 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing
@@ -109,7 +111,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
   DEF_XAOD_KEY( TauJetContainer );
-
+  DEF_XAOD_KEY( CaloClusterContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY

@@ -20,7 +20,7 @@ namespace HypoJet{
   class IJet;
 }
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class EtaEtAsymmetricConditionMT: public IConditionMT{
  public:
@@ -31,8 +31,11 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
   ~EtaEtAsymmetricConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   std::unique_ptr<IConditionVisitor>&) const override;
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   std::string toString() const noexcept override;
+
+  virtual unsigned int capacity() const override {return s_capacity;}
+
 
  private:
 
@@ -41,7 +44,10 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
   double m_threshold;
 
   bool isSatisfied(const pHypoJet&,
-                   std::unique_ptr<IConditionVisitor>&) const;
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
+
+  const static  unsigned int s_capacity{1};
+
 };
 
 #endif

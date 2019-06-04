@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ViewSubgraphAlg.h"
@@ -10,7 +10,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
 
 namespace AthViews {
 

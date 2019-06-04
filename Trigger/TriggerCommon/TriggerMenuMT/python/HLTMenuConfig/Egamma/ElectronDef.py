@@ -54,7 +54,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif 'etcut' in self.chainPart['addInfo']:            
             myStepNames += ["Step1_etcut"]
             myStepNames += ["Step2_etcut"]            
-            #myStepNames += ["Step3_etcut"]
+            myStepNames += ["Step3_etcut"]
             for step in myStepNames:
                 chainSteps += [self.getEtCutStep(step)]
         else:
@@ -75,10 +75,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
           log.debug("Configuring step " + stepName)
           electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
           chainStep=ChainStep(stepName, [electronReco])
-        #elif stepName == "Step3_etcut":
-        #  log.debug("Configuring step " + stepName)
-        #  precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-        #  chainStep=ChainStep(stepName, [precisionReco])
+        elif stepName == "Step3_etcut":
+          log.debug("Configuring step " + stepName)
+          precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+          chainStep=ChainStep(stepName, [precisionReco])
         else:            
           raise RuntimeError("chainStepName unknown: " + stepName )
                         
