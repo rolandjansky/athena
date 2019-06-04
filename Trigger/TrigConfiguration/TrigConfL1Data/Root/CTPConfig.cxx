@@ -102,6 +102,7 @@ CTPConfig::print(const std::string& indent, unsigned int detail) const {
       prescaleSet().print(indent, detail);
       bunchGroupSet().print(indent, detail);
       random().print(indent, detail);
+      muCTPi().print(indent, detail);
       cout << indent << "================================================================================" << endl;
    }
 }
@@ -113,6 +114,7 @@ CTPConfig::writeXML(const std::string & filename, int indentWidth) const {
    xmlfile.open( filename );
    int indentLevel=1;
    xmlfile << "<?xml version=\"1.0\"?>" << endl
+           << "<!DOCTYPE LVL1Config SYSTEM \"LVL1config.dtd\">" << endl
            << "<LVL1Config name=\"" << menu().name() << "\""
            << " ctpVersion=\"" << ctpVersion() << "\""
            << " l1Version=\"" << l1Version() << "\""

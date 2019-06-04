@@ -35,6 +35,7 @@ export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v8"
+export JOB_LOG="athena.log"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoAOD.py"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
 
