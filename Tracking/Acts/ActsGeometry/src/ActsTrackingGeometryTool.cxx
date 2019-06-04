@@ -5,6 +5,7 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 // ATHENA
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
@@ -15,13 +16,13 @@
 #include <memory>
 
 ActsTrackingGeometryTool::ActsTrackingGeometryTool(const std::string& type, const std::string& name,
-    const IInterface* parent) 
+    const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }
-  
-StatusCode 
+
+StatusCode
 ActsTrackingGeometryTool::initialize()
 {
   ATH_MSG_INFO(name() << " initializing");
@@ -39,21 +40,25 @@ ActsTrackingGeometryTool::trackingGeometry() const
   return m_trackingGeometrySvc->trackingGeometry();
 }
 
-StatusCode
-ActsTrackingGeometryTool::prepareAlignment() const
+const ActsGeometryContext&
+ActsTrackingGeometryTool::getGeometryContext(const EventContext& ctx) const
 {
-  ATH_MSG_DEBUG("Setting up alignment for this event");
-  SG::ReadCondHandle<ActsAlignmentStore> rch(m_rchk);
+  ATH_MSG_DEBUG("Creating alignment context for event");
+  SG::ReadCondHandle<ActsGeometryContext> rch(m_rchk, ctx);
 
-  if (!rch.isValid()) {
-    ATH_MSG_ERROR("Preparing alignment not possible, ReadCondHandle invalid");
-    return StatusCode::FAILURE;
+  if(!rch.isValid()) {
+    ATH_MSG_ERROR("Creating alignment context failed: read cond handle invalid!");
   }
-  
-  const ActsAlignmentStore* gas = *rch;
 
-  m_trackingGeometrySvc->setAlignmentStore(gas, Gaudi::Hive::currentContext());
-  ATH_MSG_DEBUG("ActsAlignmentStore registered successfully");
+  return **rch;
+}
 
-  return StatusCode::SUCCESS;
+ActsGeometryContext
+ActsTrackingGeometryTool::getNominalGeometryContext() const
+{
+
+  ActsGeometryContext gctx;
+  gctx.alignmentStore = m_trackingGeometrySvc->getNominalAlignmentStore();
+
+  return gctx;
 }
