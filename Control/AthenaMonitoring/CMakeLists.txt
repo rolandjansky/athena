@@ -77,3 +77,8 @@ foreach ( test_file ${PYTHON_TEST_FILES} )
          PROPERTIES WORKING_DIRECTORY ${rundir}
    )
 endforeach()
+
+# Code quality check
+atlas_add_test( flake8
+   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
+   POST_EXEC_SCRIPT nopost.sh )

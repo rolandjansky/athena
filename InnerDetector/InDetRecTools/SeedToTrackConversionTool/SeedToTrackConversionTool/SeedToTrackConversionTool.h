@@ -24,7 +24,6 @@
 
 #include <atomic>
 #include <list>
-#include <mutex>
 
 class MsgStream;
 
@@ -48,23 +47,21 @@ namespace InDet
     virtual ~SeedToTrackConversionTool() = default;
       
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     // Main methods for seeds conversion
-    virtual void executeSiSPSeedSegments(const Trk::TrackParameters*, const int&, const std::list<const Trk::SpacePoint*>&) const;
+    virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*, const int&, const std::list<const Trk::SpacePoint*>&) const override;
     //!<seed trackparameters, number of tracks found:m_track.size(), list of spacepoints
-    virtual void newEvent(const Trk::TrackInfo&, const std::string&) const;
-    virtual void endEvent() const;
+    virtual void newEvent(SeedToTrackConversionData& data, const Trk::TrackInfo&, const std::string&) const override;
+    virtual void endEvent(SeedToTrackConversionData& data) const override;
 
     //////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
       
-    virtual MsgStream&    dump(MsgStream&    out) const;
-    virtual std::ostream& dump(std::ostream& out) const;
-    // enter declaration of your interface-defining member functions here
+    virtual MsgStream& dump(SeedToTrackConversionData& data, MsgStream& out) const override;
       
   private:
     PublicToolHandle<Trk::IExtrapolator> m_extrapolator
@@ -77,23 +74,10 @@ namespace InDet
     mutable std::atomic_int m_totseed{0}; //!< number of total seeds in the pass
     mutable std::atomic_int m_survived{0}; //!< number of survived seeds 
 
-    mutable std::mutex m_mutex;
-    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    struct EventData { // To hold event dependent data
-      std::unique_ptr<TrackCollection> m_seedSegmentsCollection; //!< output collection for seed
-      Trk::TrackInfo m_trackInfo; //!< TrackInfo for seeds
-      std::string m_patternName; //!< Name of the pattern recognition
-    };
-    mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
-    EventData& getEventData() const;
-
-    MsgStream& dumpconditions(MsgStream& out) const;
-    MsgStream& dumpevent     (MsgStream& out) const;
+    MsgStream& dumpconditions(SeedToTrackConversionData& data, MsgStream& out) const;
+    MsgStream& dumpevent     (SeedToTrackConversionData& data, MsgStream& out) const;
 
   }; 
-  MsgStream&    operator << (MsgStream&   , const SeedToTrackConversionTool&);
-  std::ostream& operator << (std::ostream&, const SeedToTrackConversionTool&); 
 } // end of namespace
 
 #endif 

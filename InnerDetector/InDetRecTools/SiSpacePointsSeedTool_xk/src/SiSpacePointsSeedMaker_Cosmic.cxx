@@ -71,9 +71,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if (m_outputlevel<=0) {
-    EventData& data{getEventData()};
+    EventData data;
+    initializeEventData(data);
     data.nprint=0;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 
   m_initialized = true;
@@ -94,11 +95,12 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(int) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(EventData& data, int) const
 {
-  EventData& data{getEventData()};
-
   if (!m_pixel && !m_sct) return;
+
+  if (not data.initialized) initializeEventData(data);
+
   erase(data);
   data.i_spforseed = data.l_spforseed.begin();
 
@@ -185,9 +187,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(int) const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
+(EventData& data,
+ const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   if (!m_pixel && !m_sct) return;
   erase(data);
@@ -261,9 +264,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor&) const
+(EventData& data,
+ const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor&) const
 {
-  newRegion(vPixel, vSCT);
+  newRegion(data, vPixel, vSCT);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -271,15 +275,15 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 // with two space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 0;
   if (lv.begin()!=lv.end()) mode = 1;
 
   data.nseeds = 0;
-  data.l_seeds.erase(data.l_seeds.begin(),data.l_seeds.end());
+  data.l_seeds_map.erase(data.l_seeds_map.begin(),data.l_seeds_map.end());
   
   if ( !data.state || data.nspoint!=2 || data.mode!=mode || data.nlist) {
 
@@ -293,12 +297,12 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(const std::list<Trk::Vertex>&
     production2Sp(data);
   }
 
-  data.i_seed  = data.l_seeds.begin();
-  data.i_seede = data.l_seeds.end  ();
+  data.i_seed_map  = data.l_seeds_map.begin();
+  data.i_seede_map = data.l_seeds_map.end  ();
 
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
@@ -307,15 +311,15 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(const std::list<Trk::Vertex>&
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 2;
-  if (lv.begin()!=lv.end())mode = 3;
+  if (lv.begin()!=lv.end()) mode = 3;
 
   data.nseeds = 0;
-  data.l_seeds.erase(data.l_seeds.begin(),data.l_seeds.end());
+  data.l_seeds_map.erase(data.l_seeds_map.begin(),data.l_seeds_map.end());
 
   if (!data.state || data.nspoint!=3 || data.mode!=mode || data.nlist) {
 
@@ -329,18 +333,18 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>&
     production3Sp(data);
   }
 
-  data.i_seed  = data.l_seeds.begin();
-  data.i_seede = data.l_seeds.end  ();
+  data.i_seed_map  = data.l_seeds_map.begin();
+  data.i_seede_map = data.l_seeds_map.end  ();
 
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(lv);
+  find3Sp(data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -349,9 +353,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>&
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 5;
   if (lv.begin()!=lv.end()) mode = 6;
@@ -368,12 +372,12 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp(const std::list<Trk::Vertex>&
     production3Sp(data);
   }
 
-  data.i_seed  = data.l_seeds.begin();
-  data.i_seede = data.l_seeds.end  ();
+  data.i_seed_map  = data.l_seeds_map.begin();
+  data.i_seede_map = data.l_seeds_map.end  ();
 
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
@@ -381,9 +385,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp(const std::list<Trk::Vertex>&
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
+MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump(EventData& data, MsgStream& out) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
+
   if (data.nprint) return dumpEvent(data, out);
   return dumpConditions(out);
 }
@@ -469,41 +474,12 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent(EventData& data, MsgS
      <<std::setw(12)<<data.nsaz
      <<"                              |"<<endmsg;
   out<<"| seeds                   | "
-     <<std::setw(12)<<data.l_seeds.size()
+     <<std::setw(12)<<data.l_seeds_map.size()
      <<"                              |"<<endmsg;
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
   return out;
 }
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( std::ostream& out ) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-(MsgStream& sl,const InDet::SiSpacePointsSeedMaker_Cosmic& se)
-{ 
-  return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-(std::ostream& sl,const InDet::SiSpacePointsSeedMaker_Cosmic& se)
-{ 
-  return se.dump(sl);
-}   
 
 ///////////////////////////////////////////////////////////////////
 // Initiate frame work for seed generator
@@ -1053,14 +1029,14 @@ bool InDet::SiSpacePointsSeedMaker_Cosmic::isUsed(const Trk::SpacePoint* sp) con
   return false;
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Cosmic::next() const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Cosmic::next(EventData& data) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
-  if (data.i_seed==data.i_seede) return nullptr;
-  InDet::SiSpacePointsSeed* sp = (*data.i_seed).second;
-  ++data.i_seed;
-  return(sp);
+  if (data.i_seed_map==data.i_seede_map) return nullptr;
+  InDet::SiSpacePointsSeed* sp = (*data.i_seed_map).second;
+  ++data.i_seed_map;
+  return sp;
 }
     
 ///////////////////////////////////////////////////////////////////
@@ -1128,19 +1104,19 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newSeed
     data.seeds[data.nseeds].add       (p1);
     data.seeds[data.nseeds].add       (p2);
     data.seeds[data.nseeds].setZVertex(0.);
-    data.l_seeds.insert(std::make_pair(z, &(data.seeds[data.nseeds])));
+    data.l_seeds_map.insert(std::make_pair(z, &(data.seeds[data.nseeds])));
     ++data.nseeds;
   } else {
-    std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = data.l_seeds.rbegin();
+    std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = data.l_seeds_map.rbegin();
     if ((*l).first <= z) return;
     InDet::SiSpacePointsSeed* s = (*l).second;
-    data.l_seeds.erase((*l).first);
+    data.l_seeds_map.erase((*l).first);
 
     s->erase     (  );
     s->add       (p1);
     s->add       (p2);
     s->setZVertex(0.);
-    data.l_seeds.insert(std::make_pair(z,s));
+    data.l_seeds_map.insert(std::make_pair(z,s));
   }
 }
 
@@ -1159,64 +1135,31 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newSeed
     data.seeds[data.nseeds].add       (p2);
     data.seeds[data.nseeds].add       (p3);
     data.seeds[data.nseeds].setZVertex(0.);
-    data.l_seeds.insert(std::make_pair(z, &(data.seeds[data.nseeds])));
+    data.l_seeds_map.insert(std::make_pair(z, &(data.seeds[data.nseeds])));
     ++data.nseeds;
   } else {
-    std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = data.l_seeds.rbegin();
+    std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = data.l_seeds_map.rbegin();
     if ((*l).first <= z) return;
     InDet::SiSpacePointsSeed* s = (*l).second;
-    data.l_seeds.erase((*l).first);
+    data.l_seeds_map.erase((*l).first);
 
     s->erase     (  );
     s->add       (p1);
     s->add       (p2);
     s->add       (p3);
     s->setZVertex(0.);
-    data.l_seeds.insert(std::make_pair(z,s));
+    data.l_seeds_map.insert(std::make_pair(z,s));
   }
 }
 
-InDet::SiSpacePointsSeedMaker_Cosmic::EventData&
-InDet::SiSpacePointsSeedMaker_Cosmic::getEventData() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (not m_initialized) slot = 0;
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cache.size()) { // Need to extend vectors
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
-    m_eventData.resize(slot+1);
-  }
-  if (m_cache[slot]!=evt) { // New event
-    m_cache[slot] = evt;
-    // Initialization
-    m_eventData[slot] = EventData{}; // This will be improved later.
-
-    // Build radius sorted containers
-    m_eventData[slot].r_Sorted.resize(m_r_size);
-    m_eventData[slot].r_index.resize(m_r_size, 0);
-    m_eventData[slot].r_map.resize(m_r_size, 0);
-    // Build radius-azimuthal sorted containers
-    for (int i=0; i<SizeRF; ++i) {
-      m_eventData[slot].rf_index[i]=0;
-      m_eventData[slot].rf_map[i]=0;
-    }
-    // Build radius-azimuthal-Z sorted containers
-    for (int i=0; i<SizeRFZ; ++i) {
-      m_eventData[slot].rfz_index[i]=0;
-      m_eventData[slot].rfz_map[i]=0;
-    }
-
-    m_eventData[slot].SP.resize(m_maxsizeSP, nullptr);
-    m_eventData[slot].R.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].Tz.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].Er.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].U.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].V.resize(m_maxsizeSP, 0.);
-
-    m_eventData[slot].seeds.resize(m_maxsize+5);
-  }
-
-  return m_eventData[slot]; 
+void InDet::SiSpacePointsSeedMaker_Cosmic::initializeEventData(EventData& data) const {
+  data.initialize(EventData::Cosmic,
+                  m_maxsizeSP,
+                  0, // maxOneSize not used
+                  m_maxsize,
+                  m_r_size,
+                  SizeRF,
+                  SizeRFZ,
+                  0, // sizeRFZV not used
+                  false); // checkEta not used
 }

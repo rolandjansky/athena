@@ -19,9 +19,6 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
 
-    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
-    acc.merge (MdtCalibDbAlgCfg(flags))
-
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
@@ -79,8 +76,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)  )
+    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    acc.merge (MdtCalibDbAlgCfg(flags))
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg

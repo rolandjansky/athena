@@ -26,7 +26,6 @@
 #include "LArSimEvent/LArHitFloatContainer.h"
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -38,48 +37,12 @@ using CLHEP::RandFlat;
 using CLHEP::RandGaussZiggurat;
 
 LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_mergeSvc(0),
-  m_hitmap(nullptr),
-  m_hitmap_DigiHSTruth(nullptr),
-  m_DigitContainer(nullptr),
-  m_maskingTool(this,"LArBadChannelMaskingTool"),
-  m_badFebKey("LArBadFeb"),
-  m_triggerTimeTool("CosmicTriggerTimeTool"),
-  m_larem_id(nullptr),
-  m_larhec_id(nullptr),
-  m_larfcal_id(nullptr),
-  m_laronline_id(nullptr),
-  m_nhit_tot(0),
-  m_trigtime(0),
-  m_n_cells(0),
-  m_larOFC(nullptr)
+  PileUpToolBase(type, name, parent)
 {
 
-   declareInterface<ILArPileUpTool>(this);
+  declareInterface<ILArPileUpTool>(this);
 
- // default properties
-
-  m_SubDetectors      = "LAr_All";
-  m_DigitContainerName    = "LArDigitContainer_MC";
-  m_DigitContainerName_DigiHSTruth    = "LArDigitContainer_DigiHSTruth";
-  m_doDigiTruth = false;
-  m_EmBarrelHitContainerName.push_back("LArHitEMB");
-  m_EmEndCapHitContainerName.push_back("LArHitEMEC");
-  m_HecHitContainerName.push_back("LArHitHEC");
-  m_ForWardHitContainerName.push_back("LArHitFCAL");
-  m_NoiseOnOff        = true;
-  m_NoiseInEMB        = true;
-  m_NoiseInEMEC       = true;
-  m_NoiseInHEC        = true;
-  m_NoiseInFCAL       = true;
-  m_CrossTalk         = true;
-  m_CrossTalkStripMiddle = true;
-  m_CrossTalk2Strip=true;          // flag for 2nd neighbor cross-talk
-  m_CrossTalkMiddle=true;        // Middle to middle cross-talk
-  m_scaleStripXtalk=1.;          // scale factor for strip to strip cross-talk
-  m_scaleStripMiddle=1.;         // scale factor for strip-middle cross-talk
-  m_scaleMiddleXtalk=1.;         // scale factor for middle to middle cross-talk
+  // default properties
   m_LowGainThresh[EM]    = 3900;//ADC counts in MediumGain
   m_HighGainThresh[EM]   = 1300;//ADC counts in MediumGain
   m_LowGainThresh[HEC]   = 2500;//ADC counts in MediumGain
@@ -88,56 +51,9 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
   m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
   m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
-  m_EnergyThresh      = -99.;
-  m_PileUp            = false;
-  m_Windows           = false;
-  m_WindowsEtaSize    = 0.4;
-  m_WindowsPhiSize    = 0.5;
-  m_WindowsPtCut      = 5000.;
-  m_useTriggerTime    = false;
-  m_skipNoHit         = false;
-  m_NSamples          = 5;
-  m_firstSample       = 0;
-  m_usePhase          = false;
-  m_rndmEvtRun        = false;
-  m_RndmEvtOverlay    = false;
-  m_isMcOverlay       = false;
-  m_useBad            = true;
-  m_RandomDigitContainer = "LArDigitContainer_Random";
-  m_useMBTime         = false;
-  m_recordMap         = true;
-  m_useLArHitFloat    = true;
-  m_pedestalNoise     = false;
-  m_addPhase          = false;
-  m_phaseMin          = 0.;
-  m_phaseMax          = 25.;
-  m_ignoreTime        = false;
-  m_sampleGainChoice  = 2;
-  m_roundingNoNoise   = true;
-
   //
   // ........ declare the private data as properties
   //
-  declareProperty("SubDetectors",m_SubDetectors,"subdetector selection");
-  declareProperty("DigitContainer",m_DigitContainerName,"Name of output digit container");
-  declareProperty("DigitContainer_DigiHSTruth",m_DigitContainerName_DigiHSTruth,"Name of output signal digit container");
-  declareProperty("DoDigiTruthReconstruction",m_doDigiTruth,"Also create information about reconstructed digits for HS hits");
-  declareProperty("EmBarrelHitContainerName",m_EmBarrelHitContainerName,"Hit container name for EMB");
-  declareProperty("EmEndCapHitContainerName",m_EmEndCapHitContainerName,"Hit container name for EMEC");
-  declareProperty("HecHitContainerName",m_HecHitContainerName,"Hit container name for HEC");
-  declareProperty("ForWardHitContainerName",m_ForWardHitContainerName,"Hit container name for FCAL");
-  declareProperty("NoiseOnOff",m_NoiseOnOff,"put electronic noise (default=true)");
-  declareProperty("NoiseInEMB",m_NoiseInEMB,"put noise in EMB (default=true)");
-  declareProperty("NoiseInEMEC",m_NoiseInEMEC,"put noise in EMEC (default=true)");
-  declareProperty("NoiseInHEC",m_NoiseInHEC,"put noise in HEC (default=true)");
-  declareProperty("NoiseInFCAL",m_NoiseInFCAL,"put noise in FCAL (default=true)");
-  declareProperty("CrossTalk",m_CrossTalk,"Simulate cross-talk (default=true)");
-  declareProperty("CrossTalkStripMiddle",m_CrossTalkStripMiddle,"Add strip/middle cross talk (if crosstalk is true) (default=true)");
-  declareProperty("CrossTalk2Strip",m_CrossTalk2Strip,"Add 2nd strip cross talk (if crosstalk is true) (default=true)");
-  declareProperty("CrossTalkMiddle",m_CrossTalkMiddle,"Add middle to middle cross talk for barrel(if crosstalk is true) (default=true)");
-  declareProperty("scaleStripXtalk",m_scaleStripXtalk,"Scale factor for strip xtalk");
-  declareProperty("scaleStripMiddle",m_scaleStripMiddle,"Scale factor for strip-middle xtalk");
-  declareProperty("scaleMiddleXtalk",m_scaleMiddleXtalk,"Scale factor for middle xtalk");
   declareProperty("LowGainThreshEM",m_LowGainThresh[EM],"Medium/Low gain transition in EM");
   declareProperty("HighGainThreshEM",m_HighGainThresh[EM],"Medium/High gain transition in EM");
   declareProperty("LowGainThreshHEC",m_LowGainThresh[HEC],"Medium/Low gain transition in HEC");
@@ -146,33 +62,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
   declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
   declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
-  declareProperty("EnergyThresh",m_EnergyThresh,"Hit energy threshold (default=-99)");
-  declareProperty("PileUp",m_PileUp,"Pileup mode (default=false)");
-  declareProperty("Windows",m_Windows,"Window mode (produce digits only around true e/photon) (default=false)");
-  declareProperty("WindowsEtaSize",m_WindowsEtaSize,"Eta size of window (default=0.4)");
-  declareProperty("WindowsPhiSize",m_WindowsPhiSize,"Phi size of window (default=0.5)");
-  declareProperty("WindowsPtCut",m_WindowsPtCut,"Pt cut on e/photons for window mode (Default=5GeV)");
-  declareProperty("UseTriggerTime",m_useTriggerTime,"Use Trigger tool (for commissioning) (default=false)");
-  declareProperty("TriggerTimeToolName",m_triggerTimeTool,"Trigger Tool Name");
-  declareProperty("SkipNoHit",m_skipNoHit,"Skip events with no LAr hits (default=false)");
-  declareProperty("Nsamples",m_NSamples,"Number of ADC samples (default=5)");
-  declareProperty("firstSample",m_firstSample,"First sample to use for the shape for in-time signal");
-  declareProperty("UsePhase",m_usePhase,"use 1ns binned pulse shape (default=false)");
-  declareProperty("UseRndmEvtRun",m_rndmEvtRun,"Use Run and Event number to seed rndm number (default=false)");
-  declareProperty("MaskingTool",m_maskingTool,"Tool handle for dead channel masking");
-  declareProperty("BadFebKey",m_badFebKey,"Key of BadFeb object in ConditionsStore");
-  declareProperty("RndmEvtOverlay",m_RndmEvtOverlay,"Pileup and/or noise added by overlaying random events (default=false)");
-  declareProperty("isMcOverlay",m_isMcOverlay,"Is input Overlay from MC or data (default=false, from data)");
-  declareProperty("RandomDigitContainer",m_RandomDigitContainer,"Name of random digit container");
-  declareProperty("UseMBTime",m_useMBTime,"use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)");
-  declareProperty("RecordMap",m_recordMap,"Record LArHitEMap in detector store for use by LArL1Sim (default=true)");
-  declareProperty("useLArFloat",m_useLArHitFloat,"Use simplified transient LArHit (default=false)");
-  declareProperty("PedestalNoise",m_pedestalNoise,"Use noise from Pedestal structure instead of LArNoise (default=false)");
-  declareProperty("AddPhase",m_addPhase,"Add random phase (default = false)");
-  declareProperty("PhaseMin",m_phaseMin,"Minimum time to add (default=0)");
-  declareProperty("PhaseMax",m_phaseMax,"Maximum time to add (default=25)");
-  declareProperty("IgnoreTime",m_ignoreTime,"Set all hit time to 0, for debugging (default = false)");
-  declareProperty("RoundingNoNoise",m_roundingNoNoise,"if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average");
+
   return;
 }
 
@@ -208,13 +98,8 @@ StatusCode LArPileUpTool::initialize()
      ATH_MSG_INFO(" No overlay of random events");
   }
 
-  if (service("PileUpMergeSvc", m_mergeSvc).isFailure()) {
-    ATH_MSG_ERROR( "Can not retrive PileUpMergeSvc" );
-    ATH_MSG_ERROR( "Setting PileUp and RndmOverlay flags to FALSE ");
-    m_PileUp = m_RndmEvtOverlay = false;
-  } else {
-    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
-  }
+  ATH_CHECK(m_mergeSvc.retrieve());
+  ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
 
   //
   // ......... print the noise flag
@@ -2031,7 +1916,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 //
 // fix the shift +1 if HEC  and nSamples 4 and firstSample 0
   int ihecshift=0;
-  if(iCalo == HEC && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
+  if(iCalo == HEC && m_NSamples.value() == 4 && m_firstSample.value() == 0) ihecshift=1;
   float samp2=m_Samples[m_sampleGainChoice-ihecshift]*MeV2GeV;
   if ( samp2 <= m_EnergyThresh ) return(StatusCode::SUCCESS);
 
@@ -2294,7 +2179,7 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, const H
    // in case of data overlay this should NOT  be done as the pulse shape read from the database is already shifted
    //   but this should still be done in case of MC overlay
    int ihecshift=0;
-   if((!m_RndmEvtOverlay || m_isMcOverlay) && m_larem_id->is_lar_hec(cellId) && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
+   if((!m_RndmEvtOverlay || m_isMcOverlay) && m_larem_id->is_lar_hec(cellId) && m_NSamples.value() == 4 && m_firstSample.value() == 0) ihecshift=1;
 
 
    if (!m_usePhase) {
@@ -2305,7 +2190,7 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, const H
       int ishift=(int)(rint(time*(1./25.)));
       double dtime=time-25.*((double)(ishift));
 
-      for (i=0;i<m_NSamples;i++)
+      for (i=0;i<m_NSamples.value();i++)
       {
        j = i - ishift + m_firstSample + ihecshift;
 #ifndef NDEBUG
@@ -2354,7 +2239,7 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, const H
       nsamples_der = ShapeDer.size();
 
 
-      for (i=0;i<m_NSamples;i++)
+      for (i=0;i<m_NSamples.value();i++)
       {
        j = i - ishift+m_firstSample + ihecshift;
 #ifndef NDEBUG

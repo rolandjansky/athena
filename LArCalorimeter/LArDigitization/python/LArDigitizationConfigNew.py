@@ -13,6 +13,7 @@ from LArRawConditions.LArRawConditionsConfig import LArRawConditionsMCCfg
 from LArDigitization.LArDigitizationConf import LArPileUpTool, LArDigitMaker
 from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
 from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 def useLArFloat(flags):
     """Return bool for simplified transient LArHit with float E,time"""
@@ -137,7 +138,6 @@ def LArDigitMakerCfg(flags, name="LArDigitMaker", **kwargs):
         tool = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
         kwargs["LArPileUpTool"] = tool
     acc.addEventAlgo(LArDigitMaker(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", LArItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", LArItemList()))
     return acc
 

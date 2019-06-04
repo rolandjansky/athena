@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -63,6 +63,7 @@ namespace Trk{
 namespace InDet{
   class ISiDetElementsRoadMaker;
   class ITRT_SeededSpacePointFinder;
+  class SiCombinatorialTrackFinderData_xk;
 
   /**
   @class TRT_SeededTrackFinder_ATL 
@@ -89,29 +90,31 @@ namespace InDet{
       TRT_SeededTrackFinder_ATL
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~TRT_SeededTrackFinder_ATL();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       /** Main methods for local track finding                         */
       ///////////////////////////////////////////////////////////////////
 
       /** Main method. Calls private methods and returns a list of Si tracks */
-      virtual std::list<Trk::Track*> getTrack (const Trk::TrackSegment&);
+      virtual std::list<Trk::Track*> getTrack (SiCombinatorialTrackFinderData_xk& combinatorialData,
+                                               const Trk::TrackSegment&) override;
       /** New event initialization */
-      virtual void newEvent();
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) override;
       /** New region intialization */
       void newRegion
-        (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);
+        (SiCombinatorialTrackFinderData_xk& combinatorialData,
+         const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) override;
       /** End of event tasks       */
-      virtual void endEvent();
+      virtual void endEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) override;
 
       ///////////////////////////////////////////////////////////////////
       /** Print internal tool parameters and status                    */
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump(MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      MsgStream&    dump(MsgStream&    out) const override;
+      std::ostream& dump(std::ostream& out) const override;
 
     protected:
       
@@ -172,7 +175,8 @@ namespace InDet{
       const Trk::TrackParameters*                            getTP(const Trk::SpacePoint*, const Trk::TrackParameters*,bool&);
 
       /** Find the corresponding list of Si tracks  */
-      std::list<Trk::Track*>                                 findTrack(const Trk::TrackParameters*,const Trk::TrackSegment&);
+      std::list<Trk::Track*>                                 findTrack(SiCombinatorialTrackFinderData_xk& combinatorialData,
+                                                                       const Trk::TrackParameters*,const Trk::TrackSegment&);
 
       /** Add material effects   */
       const Trk::TrackParameters*                            addNoise(double,double,double,double,const Trk::TrackParameters*,int);

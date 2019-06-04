@@ -26,6 +26,8 @@
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
+//Muon ReadoutGeometry includes
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 // Identifier
 #include "Identifier/Identifier.h"
@@ -34,6 +36,7 @@ class MdtHitIdHelper;
 class RpcHitIdHelper;
 class CscHitIdHelper;
 class TgcHitIdHelper;
+class MdtIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -87,6 +90,8 @@ namespace iFatras
       void createHits(const ISF::ISFParticle& isp, 
                       const std::vector<Trk::HitInfo>& hits) const;
 
+      void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+         
     private:
 
       /** Private HitCreate method - returns bool for a successful hit creation */       
@@ -137,6 +142,11 @@ namespace iFatras
       mutable std::string                  m_stationName; 
 
       bool                                 m_createAllMdtHits;      
+     
+      int    m_BMGid;
+      bool   m_BMGpresent;//added to protect against dead sensors
+      const MdtIdHelper* m_mdtIdHelper;  
+      std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     }; 
 
     

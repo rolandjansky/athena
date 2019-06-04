@@ -194,6 +194,10 @@ class CaloCellGetter (Configured)  :
                     from TileRecUtils.TileRecFlags import jobproperties
                     theTileCellBuilder.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
+                    if (jobproperties.TileRecFlags.noiseFilter() == 1 and jobproperties.TileRecFlags.readDigits()
+                        and globalflags.DataSource() == 'data' and not globalflags.isOverlay()):
+                        theTileCellBuilder.TileDSPRawChannelContainer = 'TileRawChannelCntCorrected'
+
                     rawChannelContainer = ''
                     if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
                         if jobproperties.TileRecFlags.readDigits():

@@ -1,0 +1,36 @@
+LumiBlockComps/LuminosityCondAlg_test
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/LuminosityCondAlg_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/LuminosityCondAlg_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/ConditionStore"]
+JobOptionsSvc        INFO # (3,1): LuminosityCondAlg.LuminosityFolderInputKey = "testLumi"
+JobOptionsSvc        INFO # (4,1): LuminosityCondAlg.OnlineLumiCalibrationInputKey = "testCalib"
+JobOptionsSvc        INFO # (5,1): LuminosityCondAlg.LuminosityOutputKey = "LuminosityCondData"
+JobOptionsSvc        INFO # (7,1): LuminosityCondAlgRun1.LuminosityFolderInputKey = "testLumiRun1"
+JobOptionsSvc        INFO # (8,1): LuminosityCondAlgRun1.OnlineLumiCalibrationInputKey = "testCalibRun1"
+JobOptionsSvc        INFO # (9,1): LuminosityCondAlgRun1.BunchLumisInputKey = "testBunchLumisRun1"
+JobOptionsSvc        INFO # (10,1): LuminosityCondAlgRun1.BunchGroupInputKey = "testBunchGroupRun1"
+JobOptionsSvc        INFO # (11,1): LuminosityCondAlgRun1.FillParamsInputKey = "testFillParamsRun1"
+JobOptionsSvc        INFO # (12,1): LuminosityCondAlgRun1.LuminosityOutputKey = "LuminosityCondDataRun1"
+JobOptionsSvc        INFO # (14,1): LuminosityCondAlgMC.LuminosityFolderInputKey = ""
+JobOptionsSvc        INFO # (15,1): LuminosityCondAlgMC.OnlineLumiCalibrationInputKey = ""
+JobOptionsSvc        INFO # (16,1): LuminosityCondAlgMC.LuminosityOutputKey = "LuminosityCondDataMC"
+JobOptionsSvc        INFO Job options successfully read in from ../share/LuminosityCondAlg_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed May 22 16:49:43 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 2871 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+test2
+ClassIDSvc           INFO  getRegistryEntries: read 1932 CLIDRegistry entries for module ALL
+test3

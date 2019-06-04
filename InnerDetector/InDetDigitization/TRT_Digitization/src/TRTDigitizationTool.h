@@ -141,7 +141,6 @@ private:
   Gaudi::Property<std::string> m_dataObjectName{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
-  IntegerProperty m_vetoThisBarcode{this, "ParticleBarcodeVeto", crazyParticleBarcode, "Barcode of particle to ignore"};
 
   TRTDigSettings* m_settings{};
 

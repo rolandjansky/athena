@@ -20,7 +20,7 @@ namespace HypoJet{
   class IJet;
 }
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class HTConditionMT: public IConditionMT{
  public:
@@ -28,15 +28,21 @@ class HTConditionMT: public IConditionMT{
   ~HTConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   std::unique_ptr<IConditionVisitor>&) const override;
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   std::string toString() const noexcept override;
 
+  virtual unsigned int capacity() const override {return s_capacity;}
+
  private:
 
-  bool isSatisfied(const pHypoJet&, IConditionVisitor*) const;
+  bool isSatisfied(const pHypoJet&,
+		std::unique_ptr<ITrigJetHypoInfoCollector>& ) const;
 
   double m_htMin;
+
+  const static  unsigned int s_capacity{1};
+
 };
 
 #endif

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_SIMPLEVIEW_H
@@ -11,8 +11,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "StoreGate/StoreGateSvc.h"
-
-//#include "SGTools/CLASS_DEF.h"
 
 #include <string>
 #include <vector>
@@ -182,7 +180,7 @@ class SimpleView : public IProxyDict
 };
 
 
-//#include "SGTools/CLASS_DEF.h"
+//#include "AthenaKernel/CLASS_DEF.h"
 //CLASS_DEF( std::vector< SimpleView* >, 11111111110, 1 )
 
 

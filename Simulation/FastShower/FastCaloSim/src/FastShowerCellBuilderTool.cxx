@@ -61,6 +61,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
+#include "GeoModelInterfaces/IGeoModelTool.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+
 #include "TROOT.h"
 #include "TClass.h"
 #include <TSystem.h>
@@ -369,6 +372,15 @@ StatusCode FastShowerCellBuilderTool::initialize()
 
   ATH_CHECK(m_partPropSvc.retrieve());
 
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", name());
+  ATH_CHECK( geoModelSvc.retrieve() );
+  const IGeoModelTool* larDetectorTool =
+    geoModelSvc->getTool("LArDetectorToolNV");
+  ATH_CHECK( detStore()->regFcn (&IGeoModelTool::align,
+                                 dynamic_cast<const IGeoModelTool*>(larDetectorTool),
+                                 &FastShowerCellBuilderTool::caloAligned,
+                                 this) );
+
   m_particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
   if(!m_particleDataTable) {
     ATH_MSG_ERROR("PDG table not found");
@@ -404,38 +416,6 @@ StatusCode FastShowerCellBuilderTool::initialize()
   //#if FastCaloSim_project_release_v1 == 12
   //m_calosurf_entrance->setCaloDepth(m_calodepthEntrance);
   //#endif
-
-  find_phi0();
-
-  ATH_MSG_INFO("========================= Init EM map =============================");
-  m_em_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64);
-  m_em_map.setname("EM");
-
-  ATH_MSG_INFO("========================= Init EM fine map ========================");
-  m_em_fine_map.init(-2.8,+2.8,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,224,256);
-  m_em_fine_map.setname("EM fine");
-
-  ATH_MSG_INFO("========================= Init HAD map ============================");
-  m_had_map.init(-5,+5,-M_PI+m_phi0_had,+M_PI+m_phi0_had,100,64);
-  m_had_map.setname("HAD");
-
-  ATH_MSG_INFO("========================= Init EM celllist map =============================");
-  m_em_celllist_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,2,2);
-  m_em_celllist_map.setname("EMlist");
-
-  ATH_MSG_INFO("========================= Init celllist maps sample 0 ... "<< CaloCell_ID_FCS::LastSample);
-  for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-    //log << MSG::INFO <<  "========================= Init celllist map sample "<<sample<<" =============================" <<endmsg;
-    m_celllist_maps[sample].init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,3,3);
-    m_celllist_maps[sample].setname("samplecelllist");
-    //    m_celllist_maps[sample];
-  }
-
-  init_all_maps();
-  ATH_MSG_INFO("========================= Init volume all maps =========================");
-  init_volume(m_em_map);
-  init_volume(m_em_fine_map);
-  init_volume(m_had_map);
 
   /*
     if(m_mcLocation=="") {
@@ -684,6 +664,47 @@ StatusCode FastShowerCellBuilderTool::callBack( IOVSVC_CALLBACK_ARGS_P( I, keys)
   }
   return StatusCode::SUCCESS;
 }
+
+StatusCode FastShowerCellBuilderTool::caloAligned( IOVSVC_CALLBACK_ARGS)
+{
+  const CaloDetDescrManager* caloDDM = nullptr;
+  ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
+
+  find_phi0(caloDDM);
+
+  ATH_MSG_INFO("========================= Init EM map =============================");
+  m_em_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64);
+  m_em_map.setname("EM");
+
+  ATH_MSG_INFO("========================= Init EM fine map ========================");
+  m_em_fine_map.init(-2.8,+2.8,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,224,256);
+  m_em_fine_map.setname("EM fine");
+
+  ATH_MSG_INFO("========================= Init HAD map ============================");
+  m_had_map.init(-5,+5,-M_PI+m_phi0_had,+M_PI+m_phi0_had,100,64);
+  m_had_map.setname("HAD");
+
+  ATH_MSG_INFO("========================= Init EM celllist map =============================");
+  m_em_celllist_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,2,2);
+  m_em_celllist_map.setname("EMlist");
+
+  ATH_MSG_INFO("========================= Init celllist maps sample 0 ... "<< CaloCell_ID_FCS::LastSample);
+  for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
+    //log << MSG::INFO <<  "========================= Init celllist map sample "<<sample<<" =============================" <<endmsg;
+    m_celllist_maps[sample].init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,3,3);
+    m_celllist_maps[sample].setname("samplecelllist");
+    //    m_celllist_maps[sample];
+  }
+
+  init_all_maps(caloDDM);
+  ATH_MSG_INFO("========================= Init volume all maps =========================");
+  init_volume(m_em_map);
+  init_volume(m_em_fine_map);
+  init_volume(m_had_map);
+
+  return StatusCode::SUCCESS;
+}
+
 
 ParticleEnergyParametrization* FastShowerCellBuilderTool::findElower(int id,double E,double eta) const
 {

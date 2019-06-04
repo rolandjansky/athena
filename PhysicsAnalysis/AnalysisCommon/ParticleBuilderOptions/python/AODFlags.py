@@ -86,7 +86,15 @@ class ThinNegativeEnergyNeutralPFOs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+   
+class ThinInDetForwardTrackParticles(JobProperty):
+    """ If True, add ThinInDetForwardTrackParticles
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+ 
 class Muon(JobProperty):
     """ If True, add Muon
     """
@@ -302,6 +310,7 @@ _list_AOD=[ \
     ThinGeantTruth, \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \
+    ThinInDetForwardTrackParticles, \
     Muon,MuonTrackSlimmer, \
     Tau,TauTrackSlimmer, \
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
