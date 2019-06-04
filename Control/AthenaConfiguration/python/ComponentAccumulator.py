@@ -24,7 +24,12 @@ class ConfigurationError(RuntimeError):
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
 def printProperties(msg, c, nestLevel = 0):
-    for propname, propval in six.iteritems(c.getValuedProperties()):
+    # Iterate in sorted order.
+    props = c.getValuedProperties()
+    propnames = list(props.keys())
+    propnames.sort()
+    for propname in propnames:
+        propval = props[propname]
         # Ignore empty lists
         if propval==[]:
             continue
