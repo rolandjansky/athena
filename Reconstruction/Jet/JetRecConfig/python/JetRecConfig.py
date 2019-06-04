@@ -205,6 +205,25 @@ def expandPrereqs(reqtype,prereqs):
 
 
 ########################################################################
+# Function producing an EventShapeAlg to calculate
+# medaian energy density for pileup correction
+#
+def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
+
+    rhokey = "Kt4"+constit.label+"EventShape"
+    rhotoolname = "EventDensity_Kt4"+constit.label
+    
+    from EventShapeTools import EventShapeToolsConf
+    rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
+    rhotool.InputContainer = constitpjkey
+    rhotool.OutputContainer = rhokey
+    
+    eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
+    eventshapealg.EventDensityTool = rhotool
+
+    return eventshapealg
+
+########################################################################
 # Function for setting up inputs to jet finding
 #
 # This includes constituent modifications, track selection, copying of
@@ -302,17 +321,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             if rhokey in filecontents:
                 jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
             else:
-                rhotoolname = "EventDensity_Kt4"+constit.label
-
-                jetlog.debug("Setting up event density calculation Kt4{0}".format(constit.label))
-                from EventShapeTools import EventShapeToolsConf
-                rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
-                rhotool.InputContainer = constitpjkey
-                rhotool.OutputContainer = rhokey
-
-                eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}Alg".format(rhotoolname))
-                eventshapealg.EventDensityTool = rhotool
-                components.addEventAlgo(eventshapealg)
+                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey) )
 
     return components
 
