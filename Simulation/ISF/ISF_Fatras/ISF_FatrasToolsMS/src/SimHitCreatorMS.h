@@ -130,6 +130,7 @@ namespace iFatras
       RpcHitIdHelper*                      m_rpcHitIdHelper;
       CscHitIdHelper*                      m_cscHitIdHelper;
       TgcHitIdHelper*                      m_tgcHitIdHelper;
+      const MdtIdHelper* 		   m_mdtIdHelper;    //added to protect against dead sensors 
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
 
@@ -141,11 +142,9 @@ namespace iFatras
       
       mutable std::string                  m_stationName; 
 
+      int   				   m_BMGid; //added to protect against dead sensors
       bool                                 m_createAllMdtHits;      
-     
-      int    m_BMGid;
-      bool   m_BMGpresent;//added to protect against dead sensors
-      const MdtIdHelper* m_mdtIdHelper;  
+      bool   				   m_BMGpresent;//added to protect against dead sensors
       std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     }; 
 
