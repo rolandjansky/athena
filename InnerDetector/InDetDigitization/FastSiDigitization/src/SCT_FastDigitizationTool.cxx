@@ -1114,16 +1114,13 @@ Amg::Vector3D SCT_FastDigitizationTool::stepToStripBorder(
       const double OuterY= stripEndLocal_outer.y()+ sin(angle1) * direction * maxWidth *0.5;
    
       
+      // now intersect track with border
       Trk::LineIntersection2D intersectStripBorder(localStartX,localStartY,localEndX,localEndY,
                                                    InnerX,InnerY,
                                                    OuterX,OuterY);
       
-      // now intersect track with border
-      // the step in x
-      const Amg::Vector2D Intersection(intersectStripBorder.interX,intersectStripBorder.interY);
-      Identifier          Id_intersection             = sidetel.identifierOfPosition(Intersection);
-      InDetDD::SiCellId   IntersectionCellId         = sidetel.cellIdFromIdentifier(Id_intersection);
       
+      // the step in x
       stepExitX = intersectStripBorder.interX - localStartX;
       stepExitY = slopeYX*stepExitX;
       stepExitZ = slopeZX*stepExitX;
