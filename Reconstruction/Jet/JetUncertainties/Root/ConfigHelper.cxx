@@ -55,7 +55,9 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     caloMassDef = settings.GetValue(compPrefix+"CaloMassDef","");
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
-    
+    FatjetTruthLabelForSFstr = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
+    RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
+    ResultName = settings.GetValue(compPrefix+"ResultName","");
 
     // Get enums where appropriate
     // Leave interpreting/checking the enums to others
@@ -71,6 +73,8 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
+    FatjetTruthLabelForSF = CompFlavorLabelVar::stringToEnum(FatjetTruthLabelForSFstr);
+    RegionForSF     = CompTaggerRegionVar::stringToEnum(RegionForSFstr);
 }
 
 
