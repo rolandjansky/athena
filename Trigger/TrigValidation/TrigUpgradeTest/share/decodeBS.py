@@ -41,7 +41,6 @@ StreamESD.ItemList += [ "xAOD::TrigCompositeAuxContainer#remap_"+d+"Aux." for d 
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaCreator = HLTEDMCreator("egammaCreator")
-egammaCreator.FixLinks=False
 egammaCreator.OutputLevel=DEBUG
 egammaCreator.TrigCompositeContainer = [ "remap_"+d for d in decisions ]
 
