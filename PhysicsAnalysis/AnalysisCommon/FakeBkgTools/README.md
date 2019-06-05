@@ -8,7 +8,7 @@ These different tools derive from the same interface `CP::IFakeBkgTool` ([header
 A minimal example of usage of the tools in analysis code would look like this:
 ```c++
 asg::AnaToolHandle<CP::IFakeBkgTool> tool("CP::AsymptMatrixTool/Tool1");
-ATH_CHECK(tool.setProperty("InputFiles", "real_effs.root, fake_effs.root"));
+ATH_CHECK(tool.setProperty("InputFiles", std::vector<string>{"real_effs.root", "fake_effs.root"}));
 ATH_CHECK(tool.setProperty("Selection", ">=1T")); /// region of interest = events with >= 1 tight lepton
 ATH_CHECK(tool.setProperty("Process", ">=1F")); /// fake lepton background = all events with >= 1 fake lepton (tight, by default)
 ATH_CHECK(tool.initialize());
