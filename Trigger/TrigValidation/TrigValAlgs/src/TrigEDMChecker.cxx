@@ -4110,6 +4110,12 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
       if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigEMClusterContainer 'feature'");
       else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigEMClusterContainer link 'feature', Energy:" << (*elementLink)->energy());
 
+    } else if (clid == ClassID_traits< xAOD::TrigMissingETContainer >::ID()) {
+
+      const ElementLink<xAOD::TrigMissingETContainer> elementLink = tc->objectLink<xAOD::TrigMissingETContainer>(name);
+      if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigMissingETContainer 'feature'");
+      else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigMissingETContainer link 'feature', ex:" << (*elementLink)->ex() << " ey:" << (*elementLink)->ey());
+
     } else {
 
       try {
