@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "GammaORTools/VGammaORTool.h"
 
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
@@ -28,7 +30,8 @@ namespace DerivationFramework {
     private:
 
       ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
-      //int32_t                        m_runNumber;
+      ToolHandle<VGammaORTool>             m_PhIsoTool;
+
   }; 
 
 }

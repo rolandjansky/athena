@@ -1,14 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
 // STL include(s):
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <vector>
@@ -398,8 +398,8 @@ namespace xAOD {
                                   ::Bool_t metadata = kFALSE ) const;
 
       /// Definition of the internal data structure type
-      typedef std::map< std::string,
-                        TVirtualManager* > Object_t;
+      typedef std::unordered_map< std::string,
+                                  TVirtualManager* > Object_t;
       /// Definition of the structure type holding on to listeners
       typedef std::vector< TVirtualIncidentListener* > Listener_t;
 
@@ -448,13 +448,13 @@ namespace xAOD {
       EventFormat* m_outputEventFormat;
 
       /// Rules for selecting which auxiliary branches to write
-      std::map< std::string, std::set< std::string > > m_auxItemList;
+      std::unordered_map< std::string, std::set< std::string > > m_auxItemList;
 
       /// Listeners who should be notified when certain incidents happen
       Listener_t m_listeners;
 
       /// Container name re-mapping rules
-      std::map< std::string, std::string > m_nameRemapping;
+      std::unordered_map< std::string, std::string > m_nameRemapping;
 
       /// @name Variable(s) used in the IProxyDict implementation
       /// @{

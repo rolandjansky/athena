@@ -387,7 +387,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
-  for (const auto& electron : electrons) {
+  for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
     elec_trig.push_back(electron);
@@ -395,7 +395,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   std::vector<const xAOD::Muon*> muon_trig;
   muon_trig.clear();
-  for (const auto& muon : muons) {
+  for (const xAOD::Muon* muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
     muon_trig.push_back(muon);
@@ -489,7 +489,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer
 
   std::vector<const xAOD::Photon*> ph_trig;
   ph_trig.clear();
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (!acc_passOR(*photon)) continue;
     if (!acc_signal(*photon)) continue;
     ph_trig.push_back(photon);
@@ -550,7 +550,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
-  for (const auto& electron : electrons) {
+  for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
     elec_trig.push_back(electron);
@@ -558,7 +558,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   std::vector<const xAOD::Muon*> muon_trig;
   muon_trig.clear();
-  for (const auto& muon : muons) {
+  for (const xAOD::Muon* muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
     muon_trig.push_back(muon);
@@ -614,7 +614,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& 
 
   std::vector<const xAOD::Photon*> ph_trig;
   ph_trig.clear();
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (!acc_passOR(*photon)) continue;
     if (!acc_signal(*photon)) continue;
     ph_trig.push_back(photon);

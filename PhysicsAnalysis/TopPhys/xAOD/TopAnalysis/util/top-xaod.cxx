@@ -839,6 +839,7 @@ int main(int argc, char** argv) {
 		  for (unsigned int mmi = 0; mmi<topfakesMMWeightsIFF.size(); ++mmi) {
 		    top::check( topfakesMMWeightsIFF[mmi]->addEvent(lepton) , "Failed to execute fakes mmweight IFF addEvent()");
 		    float asmWgt = 0.;
+		    top::check( topfakesMMWeightsIFF[mmi]->applySystematicVariation({}) , "Failed to execute fakes mmweight IFF applySystematicVariation()");
 		    top::check( topfakesMMWeightsIFF[mmi]->getEventWeight(asmWgt, FakesMMConfigIFF[mmi][1], FakesMMConfigIFF[mmi][2]) , "Failed to execute fakes mmweight IFF getEventWeight()");
 
 		    std::vector<float> asmWgt_var(topfakesMMWeightsIFF[mmi]->affectingSystematics().size());

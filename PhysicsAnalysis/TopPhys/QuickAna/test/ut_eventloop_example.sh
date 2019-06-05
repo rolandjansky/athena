@@ -22,4 +22,4 @@ fi
 
 FILE="`dirname $FILE`"
 
-root -l -b -q "$ROOTCOREDIR/scripts/load_packages.C" $ROOTCOREBIN/user_scripts/QuickAna/el_example.C'("submitDir","'$FILE'")'
+root -l -b -q "$ROOTCOREDIR/scripts/load_packages.C" $ROOTCOREBIN/data/QuickAna/el_example.C'("submitDir","'$FILE'")'

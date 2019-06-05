@@ -80,15 +80,26 @@ print( muonSequenceTight ) # For debugging
 athAlgSeq += muonSequenceTight
 
 # Add an ntuple dumper algorithm:
-ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'muons'
+athAlgSeq += treeMaker
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerEventInfo' )
 ntupleMaker.TreeName = 'muons'
 ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
-                         'EventInfo.eventNumber   -> eventNumber',
-                         'AnalysisMuons_NOSYS.eta -> mu_eta',
+                         'EventInfo.eventNumber   -> eventNumber', ]
+ntupleMaker.systematicsRegex = '(^$)'
+athAlgSeq += ntupleMaker
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
+ntupleMaker.TreeName = 'muons'
+ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                          'AnalysisMuons_NOSYS.phi -> mu_phi',
                          'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
 ntupleMaker.systematicsRegex = '(^MUON_.*)'
 athAlgSeq += ntupleMaker
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'muons'
+athAlgSeq += treeFiller
 
 
 

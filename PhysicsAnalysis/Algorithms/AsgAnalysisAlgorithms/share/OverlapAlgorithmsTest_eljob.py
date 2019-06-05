@@ -141,6 +141,9 @@ overlapSequence.configure(
 algSeq += overlapSequence
 
 # Set up an ntuple to check the job with:
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'particles'
+algSeq += treeMaker
 ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'particles'
 ntupleMaker.Branches = [
@@ -178,6 +181,9 @@ ntupleMaker.Branches = [
     'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'particles'
+algSeq += treeFiller
 
 # For debugging.
 print( algSeq )

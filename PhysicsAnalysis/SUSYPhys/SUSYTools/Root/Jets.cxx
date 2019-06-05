@@ -17,6 +17,7 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -224,13 +225,14 @@ namespace ST {
       //...
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
-      if ( doLargeRdecorations && !m_WtagConfig.empty() && !m_ZtagConfig.empty()){
-        dec_wtagged(*jet) = m_WTaggerTool->keep(*jet);
-        dec_ztagged(*jet) = m_ZTaggerTool->keep(*jet);
-      }
-      else{
-        dec_wtagged(*jet) = -1;
-        dec_ztagged(*jet) = -1;
+      const static SG::AuxElement::Decorator<int> dec_toptagged("toptagged");
+      dec_wtagged(*jet) = -1;
+      dec_ztagged(*jet) = -1;
+      dec_toptagged(*jet) = -1;
+      if ( doLargeRdecorations) {
+        if (!m_WtagConfig.empty()) dec_wtagged(*jet) = m_WTaggerTool->tag(*jet);
+        if (!m_ZtagConfig.empty()) dec_ztagged(*jet) = m_ZTaggerTool->tag(*jet);
+        if (!m_ToptagConfig.empty()) dec_toptagged(*jet) = m_TopTaggerTool->tag(*jet);
       }
       //  For OR, selected if it passed cuts
       if ( acc_baseline(*jet) ){
@@ -613,7 +615,7 @@ namespace ST {
   float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets) const {
 
     float totalSF = 1.;
-    for ( const auto& jet : *jets ) {
+    for ( const xAOD::Jet* jet : *jets ) {
 
       float sf = 1.;
 
@@ -697,7 +699,7 @@ namespace ST {
   float SUSYObjDef_xAOD::BtagSF_trkJet(const xAOD::JetContainer* trkjets) const {
 
     float totalSF = 1.;
-    for ( const auto& trkjet : *trkjets ) {
+    for ( const xAOD::Jet* trkjet : *trkjets ) {
 
       float sf = 1.;
 
@@ -784,7 +786,7 @@ namespace ST {
     if (!m_applyJVTCut) return totalSF;
 
     ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
-    for (const auto& jet : *jets) {
+    for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
       if (acc_signal_less_JVT(*jet) && acc_passOR(*jet)) {
         jvtjets.push_back(jet);
@@ -837,7 +839,7 @@ namespace ST {
     float totalSF = 1.;
 
     ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
-    for (const auto& jet : *jets) {
+    for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
       if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
         fjvtjets.push_back(jet);

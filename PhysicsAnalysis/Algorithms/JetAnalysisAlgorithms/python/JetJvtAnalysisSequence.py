@@ -5,6 +5,7 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
+                                preselection = '',
                                 globalSF = True,
                                 runSelection = True ):
     """Create a jet JVT analysis algorithm sequence
@@ -35,6 +36,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         from JetAnalysisSequence import jvtSysts, fjvtSysts
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
+        alg.preselection = preselection
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorInputDecorationRegex = jvtSysts
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
@@ -46,6 +48,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                       'eventInfo' : 'eventInfo' } )
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
+        alg.preselection = preselection
         alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
         alg.scaleFactorInputDecorationRegex = fjvtSysts
         alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'

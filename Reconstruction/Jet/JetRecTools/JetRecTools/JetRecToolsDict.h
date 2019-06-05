@@ -10,6 +10,7 @@
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "JetRecTools/ClusterAtEMScaleTool.h"
 #include "JetRecTools/ConstituentSubtractorTool.h"
+#include "JetRecTools/ConstitTimeCutTool.h"
 #include "JetRecTools/CorrectPFOTool.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "JetRecTools/JetConstituentModSequence.h"

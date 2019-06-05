@@ -56,48 +56,10 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Create the algorithm's configuration. Note that we'll be able to add
-# algorithm property settings here later on.
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-config.sigmaRecommended = 1
-job.algsAdd( config )
-
-# Include, and then set up the pileup analysis sequence:
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
-    makePileupAnalysisSequence
-pileupSequence = makePileupAnalysisSequence( dataType )
-pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
-print( pileupSequence ) # For debugging
-
-# Add the pileup algorithm(s) to the job:
-for alg in pileupSequence:
-    job.algsAdd( alg )
-    pass
-
-# Include, and then set up the electron analysis sequence:
-from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
-    makeElectronAnalysisSequence
-electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose', recomputeLikelihood=True )
-electronSequence.configure( inputName = 'Electrons',
-                            outputName = 'AnalysisElectrons' )
-print( electronSequence ) # For debugging
-
-# Add the electron algorithm(s) to the job:
-for alg in electronSequence:
-    job.algsAdd( alg )
-    pass
-
-# Include, and then set up the photon analysis sequence:
-from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
-    makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight', recomputeIsEM=True )
-photonSequence.configure( inputName = 'Photons',
-                          outputName = 'AnalysisPhotons' )
-print( photonSequence ) # For debugging
-
-# Add the photon algorithm(s) to the job:
-for alg in photonSequence:
+from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
+for alg in algSeq :
     job.algsAdd( alg )
     pass
 

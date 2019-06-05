@@ -58,6 +58,20 @@ class WriteDAOD_NANOStream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_NANOStream)
 listAODtoDPD.append(WriteDAOD_NANOStream.StreamName)
 
+class WriteDAOD_TRIGStream(JobProperty):
+    """ DAOD_TRIG - trigger prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_TRIG"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/TRIG.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIGStream)
+listAODtoDPD.append(WriteDAOD_TRIGStream.StreamName)
+
+
 ####################################
 # Defined by ASG for tests/examples
 ####################################
@@ -2657,6 +2671,19 @@ class WriteDAOD_TRIG6Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG6Stream)
 listAODtoDPD.append(WriteDAOD_TRIG6Stream.StreamName)
+
+class WriteDAOD_TRIG7Stream (JobProperty):
+     """TRIG6 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_TRIG7'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkTrigger/TRIG7.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG7Stream)
+listAODtoDPD.append(WriteDAOD_TRIG7Stream.StreamName)
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)

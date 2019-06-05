@@ -79,7 +79,7 @@ Tau.Id: Medium
 Jet.Pt: 20000.
 Jet.Eta: 2.8
 Jet.InputType: 1 # EMTopo
-Jet.JVT_WP: Medium
+Jet.JVT_WP: Default
 #
 FwdJet.doJVT: false
 FwdJet.JvtEtaMin: 2.5
@@ -89,8 +89,9 @@ FwdJet.JvtUseTightOP: false
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: None
 # 80% efficiency working points
-Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
-Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+Jet.WtaggerConfig: SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
+Jet.ZtaggerConfig: SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
+Jet.ToptaggerConfig: JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat # set to None to turn this off
 # JMS Calibration (None, Extrap, Frozen)
 Jet.JMSCalib: None
 #

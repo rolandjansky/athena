@@ -154,6 +154,8 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( !dec_baseline(input) )  return false;
 
+  if(!input.vertex()) return false;
+
   if ( !m_egammaAmbiguityTool->accept(input) ) return false;
 
   if ( input.pt() < ptcut ) return false;
@@ -306,7 +308,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
   }
 
@@ -320,7 +322,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
   }
 

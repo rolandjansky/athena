@@ -31,6 +31,7 @@ EXOT12ThinningHelper = ThinningHelper( "EXOT12ThinningHelper" )
 EXOT12ThinningHelper.AppendToStream( EXOT12Stream )
 
 thinningTools = []
+augmentationTools = []
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -87,6 +88,19 @@ EXOT12TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
 if DerivationFrameworkIsMonteCarlo:
+  # Re-run MCTruthClassifier
+  from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+  EXOT12TruthClassifier = MCTruthClassifier(name                      = "EXOT12TruthClassifier",
+                                            ParticleCaloExtensionTool = "")
+  ToolSvc += EXOT12TruthClassifier
+
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
+  EXOT12ClassificationDecorator = DerivationFramework__TruthClassificationDecorator(name              = "EXOT12ClassificationDecorator",
+                                                                                    ParticlesKey      = "TruthParticles",
+                                                                                    MCTruthClassifier = EXOT12TruthClassifier)
+  ToolSvc += EXOT12ClassificationDecorator
+  augmentationTools.append(EXOT12ClassificationDecorator)
+
   ToolSvc += EXOT12TruthTool
   thinningTools.append(EXOT12TruthTool)
 
@@ -130,7 +144,9 @@ ToolSvc += EXOT12SkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot12Seq
 exot12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel_skim", SkimmingTools = [EXOT12SkimmingTool])
-exot12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel", ThinningTools = thinningTools)
+exot12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel",
+                                                          ThinningTools = thinningTools,
+                                                          AugmentationTools = augmentationTools)
 
 #=======================================
 # JETS
@@ -144,6 +160,11 @@ reducedJetList = [
   "AntiKt4TruthWZJets"
 ]
 replaceAODReducedJets(reducedJetList, exot12Seq, "EXOT12")
+
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot12Seq)
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
