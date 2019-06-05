@@ -66,6 +66,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     static const SG::AuxElement::Accessor<int> accLabel("FatjetTruthLabel");
     if ( !accLabel.isAvailable(jet) ){
       ATH_MSG_ERROR("FatjetTruthLabel is not decorrated to the jet. Please call BoostedJetTaggers tag() function before calling this function.");
+      return JESUNC_ERROR_CODE;
     }
     int jetFlavorLabelInt=accLabel(jet);
     FatjetTruthLabel::TypeEnum jetFlavorLabel=FatjetTruthLabel::intToEnum(jetFlavorLabelInt);
