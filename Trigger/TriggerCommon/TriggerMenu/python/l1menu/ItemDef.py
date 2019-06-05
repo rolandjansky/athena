@@ -89,7 +89,12 @@ class ItemDef:
         if not '_v8' in TriggerFlags.triggerMenuSetup():  
             LVL1MenuItem('L1_EM15I'     ).setLogic( EM15 & EM8I      & physcond).setTriggerType( TT.calo )     # noqa: F821
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
+            LVL1MenuItem('L1_eEM3'   ).setLogic( eEM3      & physcond).setTriggerType( TT.calo )    # noqa: F821
+            LVL1MenuItem('L1_eEM8'   ).setLogic( eEM8      & physcond).setTriggerType( TT.calo )    # noqa: F821
+            LVL1MenuItem('L1_eEM10'   ).setLogic( eEM10      & physcond).setTriggerType( TT.calo )    # noqa: F821
+            LVL1MenuItem('L1_eEM15'   ).setLogic( eEM15      & physcond).setTriggerType( TT.calo )    # noqa: F821
             LVL1MenuItem('L1_EM15VHI'    ).setLogic( EM15VHI      & physcond).setTriggerType( TT.calo )     # noqa: F821
+            LVL1MenuItem('L1_eEM20'   ).setLogic( eEM20      & physcond).setTriggerType( TT.calo )    # noqa: F821
             LVL1MenuItem('L1_EM22VH'   ).setLogic( EM22VH      & physcond).setTriggerType( TT.calo )    # noqa: F821
             LVL1MenuItem('L1_eEM22'   ).setLogic( eEM22      & physcond).setTriggerType( TT.calo )    # noqa: F821
             LVL1MenuItem('L1_eEM22VHI'   ).setLogic( eEM22VHI      & physcond).setTriggerType( TT.calo )    # noqa: F821
@@ -128,6 +133,8 @@ class ItemDef:
         LVL1MenuItem('L1_2EM10VH'        ).setLogic( EM10VH.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
         LVL1MenuItem('L1_2eEM15VHI'        ).setLogic( eEM15VHI.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
         LVL1MenuItem('L1_2eEM20VH'        ).setLogic( eEM20VH.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
+        LVL1MenuItem('L1_2eEM8'        ).setLogic( eEM8.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
+        LVL1MenuItem('L1_2eEM10'        ).setLogic( eEM10.x(2)          & physcond).setTriggerType( TT.calo )     # noqa: F821
         if not '_v8' in TriggerFlags.triggerMenuSetup():
             LVL1MenuItem('L1_2EM8I').setLogic( EM8I.x(2) & physcond).setTriggerType(TT.calo) # noqa: F821        
         if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
@@ -793,7 +800,8 @@ class ItemDef:
         LVL1MenuItem('L1_gXERHO50').setLogic( gXERHO50 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_gXEPUFIT20').setLogic( gXEPUFIT20 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_gXEPUFIT50').setLogic( gXEPUFIT50 & physcond).setTriggerType(TT.calo)    # noqa: F821
-
+        LVL1MenuItem('L1_gXE50').setLogic( gXE50 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_jXE50').setLogic( jXE50 & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_XE10').setLogic( XE10 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_XE20').setLogic( XE20 & physcond).setTriggerType(TT.calo)    # noqa: F821

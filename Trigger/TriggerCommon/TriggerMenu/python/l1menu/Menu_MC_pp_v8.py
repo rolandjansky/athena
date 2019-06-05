@@ -63,7 +63,8 @@ def defineMenu():
         'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 
         # 6 x new EM1
         'eEM15VHI', 'eEM18VHI', 'eEM20VH', 'eEM20VHI', 'eEM22', 'eEM22VHI', 
-
+        # 5 x new EM1
+        'eEM3', 'eEM8', 'eEM10', 'eEM15', 'eEM20',
         # 1 x ZB/
         'ZB_EM15',
 
@@ -134,7 +135,8 @@ def defineMenu():
         # ATR-19437
         # 8 x new XE
         'gXERHO20', 'gXERHO30', 'gXERHO35', 'gXERHO40',   'gXERHO45', 'gXERHO50', 'gXEPUFIT20',  'gXEPUFIT50', 
-       
+        'gXE50',
+        'jXE50',
         
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
@@ -443,10 +445,13 @@ def defineMenu():
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         #'L1_EM15_BGRP7',
+        'L1_eEM3', 'L1_eEM8', 'L1_eEM10', 'L1_eEM15', 'L1_eEM20',
         'L1_eEM22',
         'L1_eEM22VHI',
         'L1_eEM20VH',
         'L1_eEM20VHI',
+        'L1_2eEM8',
+        'L1_2eEM10',
 
         # see savannah https://savannah.cern.ch/bugs/?103935
 
@@ -627,6 +632,8 @@ def defineMenu():
          'L1_gXEPUFIT50',
          'L1_gXERHO20',
          'L1_gXEPUFIT20',
+         'L1_gXE50',
+         'L1_jXE50',
         
         #XS
         'L1_EM12_XS20', 'L1_EM15_XS30',
@@ -954,6 +961,13 @@ def defineMenu():
         'L1_EM22VH' : 295,
         'L1_EM3_EMPTY' : 12,
         'L1_EM7_EMPTY' : 13,
+        'L1_eEM3': 212, 
+        'L1_eEM8': 213, 
+        'L1_eEM10': 214, 
+        'L1_eEM15': 215, 
+        'L1_eEM20': 217,
+        'L1_2eEM8': 221,         
+        'L1_2eEM10': 226,         
         'L1_eEM22' : 25,
         'L1_2eEM15VHI' : 42,
         'L1_2eEM20VH' : 49,
@@ -1153,6 +1167,8 @@ def defineMenu():
         'L1_gXERHO50' : 30,
         'L1_gXEPUFIT20' : 174,
         'L1_gXEPUFIT50' : 31,
+        'L1_gXE50' : 218,
+        'L1_jXE50' : 219,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
