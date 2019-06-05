@@ -10,6 +10,7 @@ AUTHORS:  Anastopoulos
 PURPOSE:  Performs Calo Extension for all GSF tracks 
  **********************************************************************/
 #include "EMGSFCaloExtensionBuilder.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 //
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
@@ -67,6 +68,12 @@ StatusCode EMGSFCaloExtensionBuilder::execute()
   CaloExtensionCollection* ptrPerigee=perigeeCache.ptr();
   CaloExtensionCollection* ptrLast=lastCache.ptr();
   std::vector<bool> mask (ptrTracks->size(),true);
+  for (auto trkIt : *ptrTracks)  {
+    //If we have TRT-SA tracks we don't extrapolate
+    if (xAOD::EgammaHelpers::numberOfSiHits(trkIt) < 4) {
+      mask[trkIt->index()] = false;
+    }
+  }
   ATH_CHECK(m_perigeeParticleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrPerigee)); 
   ATH_CHECK(m_lastParticleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrLast));
 
