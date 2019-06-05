@@ -55,9 +55,11 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
     return StatusCode::FAILURE;
   }
 
-  SG::AuxElement::Decorator< int >  decoratorBCIDDistance("BCIDDistanceFromFront");
+  SG::AuxElement::Decorator< int >  decoratorBCIDDistanceFront("BCIDDistanceFromFront");
+  SG::AuxElement::Decorator< int >  decoratorBCIDDistanceTail("BCIDDistanceFromTail");
 
-  decoratorBCIDDistance(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  decoratorBCIDDistanceFront(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  decoratorBCIDDistanceTail(*eventInfo)  = m_bcTool->distanceFromTail(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
 
   // add flavour filter
   std::vector<float> truth_results(3,-1.0);
