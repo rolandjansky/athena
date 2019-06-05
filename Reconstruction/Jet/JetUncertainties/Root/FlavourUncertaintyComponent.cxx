@@ -357,11 +357,17 @@ bool FlavourUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xA
 double FlavourUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
     // First, check if we even want to apply the uncertainty (large-R specific break-out)
-    // Retrieve the truth jet label from the jet
-    // if this is not available it's not an error - only large-R jets with topology uncertainties make use of this functionality
+    // Check if we are supposed to only use given truth labels
     static const SG::AuxElement::ConstAccessor<int> accFatjetTruthLabel("FatjetTruthLabel");
-    if (accFatjetTruthLabel.isAvailable(jet))
+    if (m_fatjetTruthLabels.size() != 0)
     {
+        // If we are asking to check truth labels, then retrieve the truth jet label from the jet
+        if (!accFatjetTruthLabel.isAvailable(jet))
+        {
+            // Unable to retrieve truth label, but we were told to look for it, error
+            ATH_MSG_ERROR("Unable to retrieve FatjetTruthLabel from the jet.  Please call the BoostedJetTaggers tag() function before calling this function.");
+            return JESUNC_ERROR_CODE;
+        }
         // Ok, the label exists, now check what it is
         const FatjetTruthLabel::TypeEnum fatjetTruthLabel = FatjetTruthLabel::intToEnum(accFatjetTruthLabel(jet));
         if (fatjetTruthLabel == FatjetTruthLabel::UNKNOWN)
