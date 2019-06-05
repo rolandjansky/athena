@@ -5,6 +5,7 @@
 
 #include "JetUncertainties/ConfigHelper.h"
 #include "JetUncertainties/Helpers.h"
+#include <stdexcept>
 
 #include "TEnv.h"
 
@@ -79,9 +80,10 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     {
         if (FatjetTruthLabel::stringToEnum(aVal) == FatjetTruthLabel::UNKNOWN)
         {
-            // Note: not using ATH_MSG_ERROR here because this class does not inherit from one which includes this functionality
+            // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar and this doesn't inherit from a class with such functionality
             // This error message should anyways only occur if the CP group provides a bad config file, so this error will only be printed when we are debugging our inputs and before it gets to users
             std::cout << "ERROR: Unable to convert specified FatjetTruthLabel to a recognized enum value, please check the configuration file for mistakes: " << aVal.Data() << std::endl;
+            throw std::runtime_error("Unable to convert specified FatjetTruthLabel to a recognized enum value");
         }
         else
             FatjetTruthLabels.push_back(FatjetTruthLabel::stringToEnum(aVal));
