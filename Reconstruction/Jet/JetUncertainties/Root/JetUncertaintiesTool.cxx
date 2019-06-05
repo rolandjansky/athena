@@ -97,7 +97,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_isData(true)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
-    , m_accTagScaleFactor("")
+    , m_accTagScaleFactor("temp_SF")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
@@ -449,11 +449,11 @@ StatusCode JetUncertaintiesTool::initialize()
     }
 
     // Get name of accessor to SF value
-    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName",""));
-    if ( m_name_TagScaleFactor != "") {
+    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName","temp_SF"));
+    if ( m_name_TagScaleFactor != "temp_SF") {
       ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
-      m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
     }
+    m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
 
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
