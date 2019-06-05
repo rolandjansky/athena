@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMPRDVariables.h"
@@ -8,8 +8,13 @@
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
 
-#include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+
+
+#include "MMRDOVariables.h"
+
+#include "MuonReadoutGeometry/MMReadoutElement.h"
 
 #include "TTree.h"
 
@@ -24,9 +29,20 @@ StatusCode MMPRDVariables::fillVariables()
   CHECK( m_evtStore->retrieve(nsw_MMPrepDataContainer, m_ContainerName.c_str()) );
 
   if(nsw_MMPrepDataContainer->size()==0) ATH_MSG_WARNING(" MM PRD Container empty ");
+  
+  const Muon::MM_RawDataContainer* rdo_container = nullptr;
+  CHECK( m_evtStore->retrieve(rdo_container, "MMRDO") ); // retrieve  RDOs to get information per strip since PRDs only contain ids of strips
+
+  if(rdo_container->size()==0) ATH_MSG_WARNING(" RDO Container empty ");
 
   for(const Muon::MMPrepDataCollection* coll : *nsw_MMPrepDataContainer) {
-    
+
+    const Muon::MM_RawDataCollection* rdo_coll = *rdo_container->indexFind(coll->identifyHash());
+    if(rdo_coll==0){
+      ATH_MSG_ERROR("Did not find rdo collection " << coll->identifyHash());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Found rdo_coll at "<<rdo_coll);
     for (unsigned int item=0; item<coll->size(); item++) {
       const Muon::MMPrepData* prd = coll->at(item);
       Identifier Id = prd->identify();
@@ -74,6 +90,31 @@ StatusCode MMPRDVariables::fillVariables()
       m_NSWMM_prd_localPosY->push_back(loc_pos[1]);
       m_NSWMM_prd_covMatrix_1_1->push_back(cov(0,0));
 
+      m_NSWMM_prd_rdos_charge->push_back(std::vector<int>());      
+      m_NSWMM_prd_rdos_time->push_back(std::vector<int>());      
+      m_NSWMM_prd_rdos_channel->push_back(std::vector<int>());      
+      m_NSWMM_prd_nRdos->push_back((prd->rdoList()).size());
+
+      for(const Identifier &id_rdo:prd->rdoList()){
+        const Muon::MM_RawData* rdo=nullptr;
+        for(auto it :*rdo_coll){if(it->identify() == id_rdo) rdo=it;}
+        if(rdo==0){
+          ATH_MSG_ERROR("Did not find rdo for identifier in rdo list");
+          return StatusCode::FAILURE;
+        }
+        m_NSWMM_prd_rdos_charge->back().push_back(rdo->charge());
+        m_NSWMM_prd_rdos_time->back().push_back(rdo->time());
+        m_NSWMM_prd_rdos_channel->back().push_back(m_MmIdHelper->channel(id_rdo));
+        
+      }
+
+      m_NSWMM_prd_uTPCAngle->push_back(prd->angle());  
+      m_nsw_prd_uTPCChiSqProb->push_back(prd->chisqProb());
+
+
+
+
+
       m_NSWMM_nPRDs++;
     }
   }
@@ -84,6 +125,7 @@ StatusCode MMPRDVariables::fillVariables()
 
 void MMPRDVariables::deleteVariables()
 {
+  ATH_MSG_DEBUG("begin of deleteVariables()");
   delete m_NSWMM_prd_stationName;
   delete m_NSWMM_prd_stationEta;
   delete m_NSWMM_prd_stationPhi;
@@ -100,8 +142,18 @@ void MMPRDVariables::deleteVariables()
   delete m_NSWMM_prd_localPosY;
   delete m_NSWMM_prd_covMatrix_1_1;
 
+  delete m_NSWMM_prd_rdos_charge;
+  delete m_NSWMM_prd_rdos_time;
+  delete m_NSWMM_prd_rdos_channel;
+  delete m_NSWMM_prd_nRdos;
+
+  delete m_NSWMM_prd_uTPCAngle;  
+  delete m_nsw_prd_uTPCChiSqProb;
+
+
 
   m_NSWMM_nPRDs    = 0;
+  
   m_NSWMM_prd_stationName= nullptr;
   m_NSWMM_prd_stationEta = nullptr;
   m_NSWMM_prd_stationPhi = nullptr;
@@ -118,12 +170,23 @@ void MMPRDVariables::deleteVariables()
   m_NSWMM_prd_localPosY  = nullptr;
   m_NSWMM_prd_covMatrix_1_1 = nullptr;
 
+  m_NSWMM_prd_rdos_charge=nullptr;
+  m_NSWMM_prd_rdos_time=nullptr;
+  m_NSWMM_prd_rdos_channel=nullptr;
+  m_NSWMM_prd_nRdos=nullptr;
+
+  m_NSWMM_prd_uTPCAngle=nullptr;
+  m_nsw_prd_uTPCChiSqProb=nullptr;
+
+  ATH_MSG_DEBUG("end of deleteVariables()");
+
   return;
 }
 
 
 StatusCode MMPRDVariables::clearVariables()
 {
+  ATH_MSG_DEBUG("beginninng of clearVariables()");
   m_NSWMM_nPRDs = 0;
   m_NSWMM_prd_stationName->clear();
   m_NSWMM_prd_stationEta->clear();
@@ -141,12 +204,23 @@ StatusCode MMPRDVariables::clearVariables()
   m_NSWMM_prd_localPosY->clear();
   m_NSWMM_prd_covMatrix_1_1->clear();
 
+  m_NSWMM_prd_rdos_charge->clear();
+  m_NSWMM_prd_rdos_time->clear();
+  m_NSWMM_prd_rdos_channel->clear();
+  m_NSWMM_prd_nRdos->clear();
+  m_NSWMM_prd_uTPCAngle->clear();  
+  m_nsw_prd_uTPCChiSqProb->clear();
+
+
+  ATH_MSG_DEBUG("end of clearVariables()");
+
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode MMPRDVariables::initializeVariables()
 {
+  ATH_MSG_DEBUG("begin initializeVariables()");
   m_NSWMM_nPRDs = 0;
   m_NSWMM_prd_stationName = new std::vector<std::string>();
   m_NSWMM_prd_stationEta = new std::vector<int>();
@@ -163,6 +237,17 @@ StatusCode MMPRDVariables::initializeVariables()
   m_NSWMM_prd_localPosX = new std::vector<double>();
   m_NSWMM_prd_localPosY = new std::vector<double>();
   m_NSWMM_prd_covMatrix_1_1 = new std::vector<double>();
+
+  m_NSWMM_prd_rdos_charge = new std::vector<std::vector<int>>();
+  m_NSWMM_prd_rdos_time = new std::vector<std::vector<int>>();
+  m_NSWMM_prd_rdos_channel = new std::vector<std::vector<int>>();
+  m_NSWMM_prd_nRdos = new std::vector<int>();
+
+  m_NSWMM_prd_uTPCAngle   = new std::vector<double>();
+  m_nsw_prd_uTPCChiSqProb = new std::vector<double>();
+
+
+  ATH_MSG_DEBUG("did init of vars initializeVariables()");
 
   if(m_tree) {
     m_tree->Branch("PRD_MM", &m_NSWMM_nPRDs, "PRDs_MM_n/i");
@@ -182,7 +267,21 @@ StatusCode MMPRDVariables::initializeVariables()
     m_tree->Branch("PRD_MM_localPosY",     &m_NSWMM_prd_localPosY);
     m_tree->Branch("PRD_MM_covMatrix_1_1", &m_NSWMM_prd_covMatrix_1_1);
 
+
+    m_tree->Branch("PRD_MM_rdos_charge", &m_NSWMM_prd_rdos_charge);
+    m_tree->Branch("PRD_MM_rdos_time", &m_NSWMM_prd_rdos_time);
+    m_tree->Branch("PRD_MM_rdos_channel", &m_NSWMM_prd_rdos_channel);
+    m_tree->Branch("PRD_MM_nRdos", &m_NSWMM_prd_nRdos);
+
+    m_tree->Branch("PRD_MM_uTPCAngle",&m_NSWMM_prd_uTPCAngle);
+    m_tree->Branch("PRD_MM_uTPCChiSqProb",&m_nsw_prd_uTPCChiSqProb);
+
+  
+    ATH_MSG_DEBUG("did init of tree initializeVariables()");
+
   }
+
+  ATH_MSG_DEBUG("after init of tree initializeVariables()");
 
   return StatusCode::SUCCESS;
 }
