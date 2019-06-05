@@ -91,6 +91,7 @@ class SLHC_Setup_XMLReader :
                                  doPix=True,
                                  doSCT=True,
                                  isGMX=auto_isGMX,
+                                 XML_SLHC_Version = "SLHC_InclinedAlternative"
                                  )          
         else:
             print "WARNING! No recognised value of SLHC_Flags.LayoutOption found. (SLHC_Flags.LayoutOption =",SLHC_Flags.LayoutOption,"). Using generic names "

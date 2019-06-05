@@ -144,6 +144,8 @@ class SLHC_Setup_XMLReader :
         xmlReader.doSCT = XMLReaderFlags.doSCT()
         xmlReader.isGMX = XMLReaderFlags.isGMX()
         xmlReader.readXMLfromDB = XMLReaderFlags.readXMLfromDB()
+        if kwargs.has_key("XML_SLHC_Version"):
+            xmlReader.XML_SLHCVersion = kwargs["XML_SLHC_Version"]
 
         if not XMLReaderFlags.readXMLfromDB():
 
