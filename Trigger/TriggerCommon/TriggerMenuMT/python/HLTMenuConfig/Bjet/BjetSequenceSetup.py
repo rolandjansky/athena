@@ -41,7 +41,7 @@ def bJetStep1Sequence():
 
     # Fast Tracking 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
+    (viewAlgs, eventAlgs) = makeInDetAlgs("bjetStep1")
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
@@ -98,7 +98,7 @@ def bJetStep1SequenceALLTE():
 
     # Fast Tracking 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
+    (viewAlgs, eventAlgs) = makeInDetAlgs("bjetALLTE")
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()

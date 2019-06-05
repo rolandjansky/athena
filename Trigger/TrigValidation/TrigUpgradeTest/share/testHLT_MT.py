@@ -34,15 +34,15 @@ class opt :
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = None
-    doPhotonSlice     = None
-    doMuonSlice       = None
-    doJetSlice        = None
-    doMETSlice        = None
-    doBJetSlice       = None
-    doTauSlice        = None
-    doComboSlice      = None
-    doBphysicsSlice   = None
+    doElectronSlice   = True
+    doPhotonSlice     = True
+    doMuonSlice       = True
+    doJetSlice        = True
+    doMETSlice        = True
+    doBJetSlice       = True
+    doTauSlice        = False
+    doComboSlice      = True
+    doBphysicsSlice   = True
 #
 ################################################################################
 
@@ -74,11 +74,11 @@ if opt.doEmptyMenu == True:
             setattr(opt, s, globals()[s])
         else:
             setattr(opt, s, False)
-else:
-    for s in slices:
-        setattr(opt, s, True)
-    opt.doBJetSlice=False #Wait for ATR-19439
-    opt.doTauSlice =False #Wait for ATR-17399
+#else:
+#    for s in slices:
+#        setattr(opt, s, True)
+#    opt.doBJetSlice=False #Wait for ATR-19439
+#    opt.doTauSlice =False #Wait for ATR-17399
 
 
 #-------------------------------------------------------------
