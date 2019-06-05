@@ -2,8 +2,6 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
 # 
 
-from AthenaCommon.AppMgr import ServiceMgr
-
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -23,8 +21,6 @@ muonCombinedRecFlags.doCaloTrkMuId = False
 muonCombinedRecFlags.printSummary = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
 
 #-----------------------------------------------------#
