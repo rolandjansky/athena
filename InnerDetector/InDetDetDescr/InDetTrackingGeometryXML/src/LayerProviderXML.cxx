@@ -265,8 +265,7 @@ void InDet::LayerProviderXML::createPixelEndcap(std::vector< const Trk::Layer* >
 
   for(unsigned int itmp=0;itmp<nTemplates;itmp++){  
     std::vector< Trk::Layer* > layers;
-    //m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startEndcap,m_endEndcap,layers);
-    m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startLayer,m_endLayer,layers);
+    m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startEndcap,m_endEndcap,layers);
     if(layers.size()==0) {
       if(m_startLayer==0 && m_endLayer==-1) ATH_MSG_WARNING("PixelEndcap Disc for active layer: " <<  itmp << " was not created");
       continue;
