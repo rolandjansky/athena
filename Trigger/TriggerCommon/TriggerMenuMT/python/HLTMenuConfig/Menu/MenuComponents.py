@@ -42,7 +42,7 @@ class AlgNode(Node):
         self.inputProp=inputProp
 
     def addDefaultOutput(self):
-        if self.outputProp is not '':
+        if self.outputProp != '':
             self.addOutput(("%s_%s"%(self.Alg.name(),self.outputProp)))
 
     def setPar(self, prop, name):
@@ -78,7 +78,7 @@ class AlgNode(Node):
         if name in outputs:
             log.debug("Warning, %s already set in %s, DH not added",name, self.name)
         else:
-            if self.outputProp is not '':
+            if self.outputProp != '':
                 self.setPar(self.outputProp,name)
             else:
                 log.error("no OutputProp set")
@@ -101,7 +101,7 @@ class AlgNode(Node):
         if name in inputs:
             log.debug("Warning, %s already set in %s, DH not added",name, self.name)
         else:
-            if self.inputProp is not '':
+            if self.inputProp != '':
                 self.setPar(self.inputProp,name)
             else:
                 log.error("no InputProp set")
