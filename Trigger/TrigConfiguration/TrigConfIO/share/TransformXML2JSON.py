@@ -9,9 +9,11 @@ if TriggerFlags.readLVL1configFromXML():
     for p in (['./'] + os.environ["XMLPATH"].split(':')):
         if os.path.exists( "%s/%s" % (p, xmlFile) ):
             fullXmlFile = "%s/%s" % (p, xmlFile)
-            jsonFile = xmlFile.split("/")[-1].replace(".xml",".json")
+            jsonFile = xmlFile.replace(".xml",".json")
+            jsonFileDir = xmlFile.rsplit("/",1)[0]
 
     from TrigConfIO.MenuXML2JSONConverter import XML2JsonConverter
     converter = XML2JsonConverter()
     if fullXmlFile:
+        os.makedirs(jsonFileDir)
         converter.convertFile( fullXmlFile, jsonFile )
