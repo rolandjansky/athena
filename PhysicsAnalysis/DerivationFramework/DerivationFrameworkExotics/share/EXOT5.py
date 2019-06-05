@@ -552,7 +552,7 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Augment', Augment
 # add filtering information BEFORE skimming
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCAna
 EXOT5MergeMCAna = DerivationFramework__MergeMCAna(name="EXOT5MergeMCAna")
-EXOT5MergeMCAna.DebugPlots = 0
+EXOT5MergeMCAna.DebugPlots = 1
 
 exot5Seq += EXOT5MergeMCAna
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SumEvtWeightFilterAlg
@@ -564,9 +564,12 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel_skim', Ski
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel', ThinningTools=thinningTools)
 
 # Augment AntiKt4 jets with QG tagging variables
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+  truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') 
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
 #========================================
 # Add the containers to the output stream
