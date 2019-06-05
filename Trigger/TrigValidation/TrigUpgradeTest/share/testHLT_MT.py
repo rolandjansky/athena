@@ -34,17 +34,20 @@ class opt :
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = None
-    doPhotonSlice     = None
-    doMuonSlice       = None
-    doJetSlice        = None
-    doMETSlice        = None
-    doBJetSlice       = None
-    doTauSlice        = None
-    doComboSlice      = None
-    doBphysicsSlice   = None
+    doElectronSlice   = True
+    doPhotonSlice     = True
+    doMuonSlice       = True
+    doJetSlice        = True
+    doMETSlice        = True
+    doBjetSlice       = True
+    doTauSlice        = True
+    doCombinedSlice   = True
+    doBphysicsSlice   = True
+    enabledSignatures = []
+    disabledSignatures = []
 #
 ################################################################################
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
@@ -80,6 +83,24 @@ else:
     opt.doBJetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
+# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
+# This is temporary and will be re-worked for after M3.5
+for s in slices:
+    signature = s[2:].replace('Slice', '')
+    if 'Electron' in s or 'Photon' in s:
+        signature = 'Egamma'
+
+    print 'MEOW', signature
+    print 'MEOW', eval('opt.'+s)
+
+    if eval('opt.'+s):
+        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.enabledSignatures.append( enabledSig )
+        #eval('TriggerFlags.'+signature+'Slice.setAll()')
+    else:
+        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.disabledSignatures.append( disabledSig )
+        #eval('TriggerFlags.'+signature+'Slice.unsetAll()')
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -87,7 +108,6 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Auto-configuration for athena

@@ -193,7 +193,9 @@ class GenerateMenuMT(object):
                 self.signaturesToGenerate.append(sig)
                 log.debug('Signatures to generate %s', sig)
             else:
-                log.debug('Signature %s is not switched on', sig)
+                log.debug('Signature %s is not switched on (no chains in menu or disabledd by flag)', sig)
+        
+        log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")

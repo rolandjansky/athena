@@ -13,7 +13,7 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doEmptyMenu=True;doBJetSlice=True"
+export EXTRA="doEmptyMenu=True;doBjetSlice=True"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/slice_bjet.ref`
