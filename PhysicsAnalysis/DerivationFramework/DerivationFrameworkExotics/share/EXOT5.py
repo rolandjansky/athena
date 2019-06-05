@@ -552,7 +552,7 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Augment', Augment
 # add filtering information BEFORE skimming
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCAna
 EXOT5MergeMCAna = DerivationFramework__MergeMCAna(name="EXOT5MergeMCAna")
-EXOT5MergeMCAna.DebugPlots = 1
+EXOT5MergeMCAna.DebugPlots = 0
 
 exot5Seq += EXOT5MergeMCAna
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SumEvtWeightFilterAlg

@@ -105,7 +105,6 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
 
   //We will now loop over the cluster container counting the number of clusters which pass the criteria
   SG::AuxElement::Decorator< unsigned >  decoratorin_nBatman("nBatman");
-  bool isBatman=false;
   size_t nBatman=0;
   const static SG::AuxElement::ConstAccessor<float>  acc_AVGLARQ("AVG_LAR_Q");
   for ( auto ipart : *clusters ) {
@@ -113,7 +112,7 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
     if (std::fabs(ipart->rawEta())>=3.2) continue;
     if (ipart->rawE()/cosh(ipart->rawEta())<500.) continue;
     if (acc_AVGLARQ(*ipart)/65535.<=0.2) continue;
-    nBatman++;
+    ++nBatman;
   }
   decoratorin_nBatman(*eventInfo) = nBatman;
 
