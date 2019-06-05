@@ -106,8 +106,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # if doing MC+MC overlay
     if flags.Input.isMC and flags.Detector.OverlayLAr:
           kwargs.setdefault("isMcOverlay", True)
-    kwargs.setdefault("Nsamples", flags.LAr.RODnSamples)
-    kwargs.setdefault("firstSample", flags.LAr.RODFirstSample)
+    kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
+    kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
     if flags.Detector.OverlayLAr:
         kwargs.setdefault("RandomDigitContainer", "LArDigitContainer_MC")
     # cosmics digitization

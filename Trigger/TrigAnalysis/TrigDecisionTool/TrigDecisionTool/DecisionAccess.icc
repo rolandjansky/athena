@@ -44,14 +44,16 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
 #endif // ASGTOOL_ATHENA
 
 template<class CONTAINER>
-const ElementLinkVector<CONTAINER> Trig::DecisionAccess::features(const Trig::ChainGroup* group, 
-                                                                  unsigned int condition) const {
-  return group->features<CONTAINER>(cgm()->store(), condition, /*one feature per leg*/ true);
+const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,
+                                                                  const unsigned int condition,
+                                                                  const bool oneFeaturePerLeg) const {
+  return group->features<CONTAINER>(cgm()->store(), condition, oneFeaturePerLeg);
 }
 
 template<class CONTAINER>
-const ElementLinkVector<CONTAINER> Trig::DecisionAccess::features(const std::string& chainName, 
-                                                                  unsigned int condition) const {
+const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const std::string& chainName,
+                                                                  const unsigned int condition,
+                                                                  const bool oneFeaturePerLeg) const {
   const Trig::ChainGroup *g = cgm()->createChainGroup(Trig::convertStringToVector(chainName));
-  return features<CONTAINER>(g,condition);
+  return features<CONTAINER>(g,condition,oneFeaturePerLeg);
 }

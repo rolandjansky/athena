@@ -2,6 +2,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Logging import logging
+__log = logging.getLogger('full_menu')
+
 # import flags
 from RecExConfig.RecFlags  import rec
 rec.doESD=True
@@ -125,40 +128,39 @@ if opt.doMuonSlice == True:
 # jet chains
 ##################################################################
 if opt.doJetSlice == True:
-    #from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceSetup import jetMenuSequence
-    from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
+    from TrigUpgradeTest.jetMenuDefs import jetMenuSequenceFromString
 
     # small-R jets, different calibrations
-    jetSeq_a4_emtopo = jetMenuSequence("a4_emtopo_subjesis", "TrigJetHypoAlgMT_a4_emtopo")
-    step_a4_emtopo =ChainStep("Step_jet_a4_emtopo", [jetSeq_a4_emtopo])
+    jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
+    step_a4_tc_em =ChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
 
-    jetSeq_a4_emtopo_subjes = jetMenuSequence("a4_emtopo_subjes", "TrigJetHypoAlgMT_a4_emtopo_subjes")
-    step_a4_emtopo_subjes = ChainStep("Step_jet_a4_subjes_emtopo", [jetSeq_a4_emtopo_subjes])
+    jetSeq_a4_tc_em_subjes = jetMenuSequenceFromString("a4_tc_em_subjes")
+    step_a4_tc_em_subjes = ChainStep("Step_jet_a4_subjes_tc_em", [jetSeq_a4_tc_em_subjes])
 
-    jetSeq_a4_emtopo_nocalib = jetMenuSequence("a4_emtopo_nocalib", "TrigJetHypoAlgMT_a4_emtopo_nocalib")
-    step_a4_emtopo_nocalib=ChainStep("Step_jet_a4_nocalib_emtopo", [jetSeq_a4_emtopo_nocalib])
+    jetSeq_a4_tc_em_nocalib = jetMenuSequenceFromString("a4_tc_em_nojcalib")
+    step_a4_tc_em_nocalib=ChainStep("Step_jet_a4_nojcalib_tc_em", [jetSeq_a4_tc_em_nocalib])
 
-    jetSeq_a4_lcw = jetMenuSequence("a4_lcw_subjesis", "TrigJetHypoAlgMT_a4_lcw")
-    step_a4_lcw=ChainStep("Step_jet_a4_lcw", [jetSeq_a4_lcw])
+    jetSeq_a4_tc_lcw = jetMenuSequenceFromString("a4_tc_lcw_subjesIS")
+    step_a4_tc_lcw=ChainStep("Step_jet_a4_tc_lcw", [jetSeq_a4_tc_lcw])
 
     # large-R jets
-    jetSeq_a10_lcw_subjes = jetMenuSequence("a10_lcw_subjes", "TrigJetHypoAlgMT_a10_lcw_subjes")
-    step_a10_lcw_subjes=ChainStep("Step_jet_a10_subjes_lcw", [jetSeq_a10_lcw_subjes])
+    jetSeq_a10_tc_lcw_subjes = jetMenuSequenceFromString("a10_tc_lcw_subjes")
+    step_a10_tc_lcw_subjes=ChainStep("Step_jet_a10_subjes_tc_lcw", [jetSeq_a10_tc_lcw_subjes])
 
-    jetSeq_a10r = jetMenuSequence("a10r_emtopo_subjesis", "TrigJetHypoAlgMT_a10r")
+    jetSeq_a10r = jetMenuSequenceFromString("a10r_tc_em_subjesIS")
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j85', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j420', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j225_gsc420_boffperf_split', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_lcw_subjes]  ),
+        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j85', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j420', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j225_gsc420_boffperf_split', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_tc_lcw_subjes]  ),
         Chain(name='HLT_j460_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
-        Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported) 
+        Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
         ]
 
     testChains += jetChains
@@ -281,8 +283,8 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(topSequence)
-filters = collectFilters(topSequence)
+hypos = collectHypos(AthSequencer("HLTAllSteps"))
+filters = collectFilters(AthSequencer("HLTAllSteps"))
 
 # try to find L1Decoder
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
@@ -292,7 +294,8 @@ if not l1decoder:
 
 if l1decoder:
     decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    print decObj
+    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug(decObj)
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
     ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]

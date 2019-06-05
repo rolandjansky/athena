@@ -183,6 +183,8 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     if len(l1decoder)  != 1 :
         raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
 
+    # take L1Decoder out of topSeq
+    topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
@@ -190,6 +192,9 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
 
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
+
+    # put L1Decoder here
+    hltTop += l1decoder
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")

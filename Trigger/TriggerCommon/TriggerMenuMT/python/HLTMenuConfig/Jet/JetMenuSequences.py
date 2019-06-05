@@ -2,22 +2,20 @@
 #
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
-def jetMenuSequence():
+def jetMenuSequence(dummyFlags,**recoDict):
     """ Function to create the jet Menu Sequence"""
     
     ## RoIs = 'FSJETRoI'
     #reco sequence
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetAthSequence
-    (JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
-     
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetAthSequence, jetRecoDictToString
+    (JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,None,**recoDict)
+    
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT")
+    hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT_"+jetRecoDictToString(recoDict))
     hypo.Jets = sequenceOut
-
 
     return  MenuSequence( Sequence    = JetAthSequence,
                           Maker       = InputMakerAlg,
