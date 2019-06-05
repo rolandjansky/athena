@@ -236,7 +236,7 @@ electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) &
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
 
 #btagging selection 
-softb='SoftBVrtClusterTool_Vertices.x'
+softb='SoftBVrtClusterTool_Tight_Vertices.x'
 bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
 bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
 bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
@@ -368,7 +368,7 @@ softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
 softTagAlg.SVFinderName = 'SoftBJetSVFinder'
 softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
 softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
-softTagAlgTight.OperatingPoint = 'Tight'
+softTagAlg.OperatingPoint = 'Tight'
 
 SeqSUSY7 += softTagAlg
 
