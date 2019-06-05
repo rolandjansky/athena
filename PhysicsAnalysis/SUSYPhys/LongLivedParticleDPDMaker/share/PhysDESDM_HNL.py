@@ -6,8 +6,9 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 ## TriggerAPI ##
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
+from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
 apitriggerlist = []
-if apitriggers.doTriggerAPI:
+if rpvllTrig.doRPVLLTriggerAPI:
     apitriggerlist = apitriggers.getHNLTriggers()
 
 HnlFilterTool = skimtool( name = "HnlFilterTool",
