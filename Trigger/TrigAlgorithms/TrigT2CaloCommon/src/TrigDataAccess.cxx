@@ -145,25 +145,6 @@ StatusCode TrigDataAccess::initialize()
 	m_zdc_rods.push_back(0x00830002);
 	m_zdc_rods.push_back(0x00830003);
 
-	// luminosity tool
-	if ( m_applyOffsetCorrection ) {
-	  ATH_MSG_INFO("Apply BCID/<mu> dependent offset correction");
-	  if ( m_caloLumiBCIDTool.retrieve().isFailure() ) {
-	    ATH_MSG_FATAL("Could not find m_caloLumiBCID");
-	    return StatusCode::FAILURE;
-	  }
-	  //
-	  //if ( m_lumiTool.retrieve().isFailure() ) {
-	  //  (*m_log) << MSG::FATAL << "Could not find m_lumiTool" <<endmsg;
-	  //  return StatusCode::FAILURE;
-	  //} else {
-	  //  std::cout << "Retrieve lumiTool successfully" << std::endl;
-	  //}
-	} else {
-	  ATH_MSG_INFO("No BCID/<mu> dependent offset correction");
-	  m_caloLumiBCIDTool.disable();
-	}
-
         ATH_CHECK(m_lardecoder.retrieve());
         ATH_CHECK(m_tiledecoder.retrieve());
         ATH_CHECK(m_zdcdecoder.retrieve());
@@ -207,7 +188,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
         }
 	
 	m_larcell = new LArCellCont();
-	if ( (m_larcell->initialize(m_applyOffsetCorrection)).isFailure() ){
+	if ( (m_larcell->initialize(false)).isFailure() ){
 	      ATH_MSG_FATAL("Could not init larcell");
         }
 	// set frequency
@@ -605,7 +586,6 @@ StatusCode TrigDataAccess::LoadCollections (
         	  } else { // End of if small size
         	        m_lardecoder->setRobFrag(m_robFrags[i]);
         	        m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
 		        // Accumulates inferior byte from ROD Decoder
 		        m_error|=m_lardecoder->report_error();
 		  } //roddatasize < 3
@@ -942,7 +922,6 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  else {
                         m_lardecoder->setRobFrag(m_robFrags[i]);
                         m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
 		        // Accumulates inferior byte from ROD Decoder
                         m_error|=m_lardecoder->report_error();
 		  }
@@ -1266,7 +1245,6 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 else {
                       m_lardecoder->setRobFrag(m_robFrags[i]);
                       m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		      if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
                       // Accumulates inferior byte from ROD Decoder
                       m_error|=m_lardecoder->report_error();
                 }
@@ -1350,7 +1328,6 @@ StatusCode TrigDataAccess::LoadFullCollections (
 void TrigDataAccess::handle(const Incident & inc ) {
 	   EventContext context = inc.context();
 	   m_larcell->eventNumber(context.eventID().event_number());
-       if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(context.eventID().lumi_block(), context.eventID().bunch_crossing_id());
        m_tilecell->eventNumber(context.eventID().event_number());
        m_d0cells.clear();
        //m_full_vrodid32.clear();

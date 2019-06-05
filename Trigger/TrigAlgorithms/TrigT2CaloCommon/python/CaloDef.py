@@ -5,7 +5,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
 
