@@ -70,15 +70,15 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         if stepName == "Step1_etcut":
           log.debug("Configuring step " + stepName)
           fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
-          chainStep =ChainStep(stepName, [fastCalo])
+          chainStep =ChainStep(stepName, [fastCalo], self.mult)
         elif stepName == "Step2_etcut":
           log.debug("Configuring step " + stepName)
           electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
-          chainStep=ChainStep(stepName, [electronReco])
+          chainStep=ChainStep(stepName, [electronReco], self.mult)
         elif stepName == "Step3_etcut":
           log.debug("Configuring step " + stepName)
           precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-          chainStep=ChainStep(stepName, [precisionReco])
+          chainStep=ChainStep(stepName, [precisionReco], self.mult)
         else:            
           raise RuntimeError("chainStepName unknown: " + stepName )
                         
