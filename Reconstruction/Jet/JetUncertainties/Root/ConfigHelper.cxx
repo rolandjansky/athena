@@ -55,6 +55,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     caloMassDef = settings.GetValue(compPrefix+"CaloMassDef","");
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
+    FatjetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
     FatjetTruthLabelForSFstr = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
     RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
     ResultName = settings.GetValue(compPrefix+"ResultName","");
@@ -73,6 +74,18 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
+    FatjetTruthLabelStrs = utils::vectorize<TString>(FatjetTruthLabelStr,",");
+    for (const TString& aVal : FatjetTruthLabelStrs)
+    {
+        if (FatjetTruthLabel::stringToEnum(aVal) == FatjetTruthLabel::UNKNOWN)
+        {
+            // Note: not using ATH_MSG_ERROR here because this class does not inherit from one which includes this functionality
+            // This error message should anyways only occur if the CP group provides a bad config file, so this error will only be printed when we are debugging our inputs and before it gets to users
+            std::cout << "ERROR: Unable to convert specified FatjetTruthLabel to a recognized enum value, please check the configuration file for mistakes: " << aVal.Data() << std::endl;
+        }
+        else
+            FatjetTruthLabels.push_back(FatjetTruthLabel::stringToEnum(aVal));
+    }
     FatjetTruthLabelForSF = CompFlavorLabelVar::stringToEnum(FatjetTruthLabelForSFstr);
     RegionForSF     = CompTaggerRegionVar::stringToEnum(RegionForSFstr);
 }
