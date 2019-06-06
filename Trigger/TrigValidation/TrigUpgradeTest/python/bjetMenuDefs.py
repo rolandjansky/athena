@@ -25,12 +25,18 @@ def getBJetSequence( step ):
 # ==================================================================================================== 
 
 def bJetStep1Sequence():
+    print "CACCA"
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-    from TrigUpgradeTest.jetDefs import jetAthSequence
-    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+    from TrigUpgradeTest.jetMenuDef import jetRecoSequenceFromString
+    #from TrigUpgradeTest.jetDefs import jetAthSequence
+    
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetRecoSequenceFromString,"a4_tc_em_subjes",ConfigFlags)
+				 
+    #from TrigUpgradeTest.jetDefs import jetAthSequence
+    #(recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -86,9 +92,12 @@ def bJetStep1SequenceALLTE():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
     # Construct jets
-    from TrigUpgradeTest.jetDefs import jetAthSequence
-    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+    from TrigUpgradeTest.jetMenuDef import jetRecoSequenceFromString
+	#from TrigUpgradeTest.jetDefs import jetAthSequence
 
+
+    (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetRecoSequenceFromString,"a4_tc_em_subjes",ConfigFlags)
+    #(recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT

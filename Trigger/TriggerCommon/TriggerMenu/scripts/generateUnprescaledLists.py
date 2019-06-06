@@ -8,6 +8,7 @@ from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 def main(outfolder):
+    TriggerAPI.setRelease("current")
     with open(outfolder+"/list_unprescaled1p8e34.py","w") as outfile:
         outfile.write(header())
         for triggerType in TriggerType:

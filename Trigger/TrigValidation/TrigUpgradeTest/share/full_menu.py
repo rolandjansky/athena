@@ -129,8 +129,7 @@ if opt.doMuonSlice == True:
 ##################################################################
 if opt.doJetSlice == True:
     from TrigUpgradeTest.jetMenuDefs import jetMenuSequenceFromString
-
-    # small-R jets, different calibrations
+	# small-R jets, different calibrations
     jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
     step_a4_tc_em =ChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
 
@@ -171,7 +170,7 @@ if opt.doJetSlice == True:
 ##################################################################
 if opt.doBJetSlice == True:
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
-
+    print "ARICACCA"
     step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
     step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
 

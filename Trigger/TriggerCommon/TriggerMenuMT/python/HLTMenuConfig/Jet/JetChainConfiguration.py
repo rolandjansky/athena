@@ -52,9 +52,9 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "Step1_jet_"+jetDefStr
-        log.debug("Configuring step " + stepName)
         jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, None, **self.recoDict ) # the None will be used for flags in future
-        return ChainStep(stepName, [jetSeq1])
+        return ChainStep(stepName, [jetSeq1], self.mult)
+
         
             
             

@@ -373,7 +373,10 @@ class Chain(object):
         self.seed=Seed
         self.vseeds=[]
         vseeds = Seed.strip().split("_")
-        vseeds.pop(0) #remove first L1 string
+        if vseeds[0] == 'L1': 
+            vseeds.pop(0) #remove first L1 string
+        else:
+            log.debug('Threshol(d)s were passed')
         # split multi seeds
         for seed in vseeds:
             split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
@@ -524,6 +527,7 @@ class ChainStep(object):
     def __init__(self, name,  Sequences=[], multiplicity=1):
         self.name = name
         self.sequences=[]
+        self.multiplicity = multiplicity
         self.isCombo=multiplicity>1
         #self.isCombo=len(Sequences)>1
         self.combo=None

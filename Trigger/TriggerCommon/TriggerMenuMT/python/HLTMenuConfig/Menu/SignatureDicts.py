@@ -48,7 +48,7 @@ ChainDictTemplate = {
     'chainName'    : '',
     'L1item'        : '',
     'topo'          : '',
-    'signatures'    : '',
+    'signatures'    : [],
     'stream'        : '',
     'groups'        : [],
     'EBstep'        : '',

@@ -39,13 +39,12 @@ class opt :
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
-    doBJetSlice       = True
+    doBJetSlice       = True 
     doTauSlice        = False
     doComboSlice      = True
     doBphysicsSlice   = True
 #
 ################################################################################
-
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')

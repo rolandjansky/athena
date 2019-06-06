@@ -4,13 +4,8 @@
 #  OutputLevel: INFO < DEBUG < VERBOSE 
 #
 
-from AthenaCommon.AppMgr import ServiceMgr
-
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-
-ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
 TrackParticlesName = "HLT_xAODTracks_Muon"
   

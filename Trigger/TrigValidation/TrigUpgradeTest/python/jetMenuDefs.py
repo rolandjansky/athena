@@ -1,9 +1,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence, jetRecoSequence
 
-def jetMenuSequenceFromString(jet_def_string):
+def jetDictFromString(jet_def_string):
     """ Function to create the jet Menu Sequence"""
    
     # Translate the definition string into an approximation
@@ -19,6 +19,15 @@ def jetMenuSequenceFromString(jet_def_string):
         "dataType": inputtype,
         "calib":    clusterscale,
         "jetCalib": jetcalib
-        }
+    }
+    return jetRecoDict
 
+def jetRecoSequenceFromString(jet_def_string):
+    print "CACCA ", jet_def_string
+    jetRecoDict=jetDictFromString(jet_def_string)
+    return jetRecoSequence(None,**jetRecoDict)	
+    
+ 
+def jetMenuSequenceFromString(jet_def_string):
+    jetRecoDict=jetDictFromString(jet_def_string)
     return jetMenuSequence(None,**jetRecoDict) # First arg dummy flags for RecoFragmentsPool
