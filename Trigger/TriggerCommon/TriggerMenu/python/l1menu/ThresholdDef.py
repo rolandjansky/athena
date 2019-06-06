@@ -30,7 +30,7 @@ class ThresholdDef:
         for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 22, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
-        for thrV in [7, 22]:
+        for thrV in [3, 7, 8, 10, 15, 20, 22]:
             tc.registerThr('eEM%i' % thrV, 'EM', run=3).addThrValue(thrV)
 
 
@@ -452,6 +452,12 @@ class ThresholdDef:
 
         for thrV in [20, 30, 35, 40, 45, 50]:
             tc.registerThr('gXERHO%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [50]:
+            tc.registerThr('gXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [50]:
+            tc.registerThr('jXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         # XS
         for thrV in [20, 25, 30, 35, 40, 45, 50, 55, 60, 65]:
