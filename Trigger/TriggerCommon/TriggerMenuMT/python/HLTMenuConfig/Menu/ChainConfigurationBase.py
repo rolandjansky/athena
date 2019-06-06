@@ -46,7 +46,7 @@ class ChainConfigurationBase(object):
         return mySequence
 
     def buildChain(self, chainSteps):   
-        log.debug("Building Chain %s with L1 seed %s, and multiplicity %s", (self.chainName, self.L1ItemToPass, str(self.mult)))
+        log.debug("Building Chain %s with L1 seed %s, and multiplicity %s" % (self.chainName, self.L1ItemToPass, str(self.mult)))
         
         myChain = Chain(name = self.chainName, 
                         Seed = self.L1ItemToPass, 
