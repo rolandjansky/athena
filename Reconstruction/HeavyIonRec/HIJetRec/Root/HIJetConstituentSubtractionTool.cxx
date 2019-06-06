@@ -91,12 +91,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   }
   
   bool missingMoment=false;
-  bool needsUnsubMoment=false;
-  if(jets.size() > 0){
-     xAOD::JetFourMom_t tmp;
-     needsUnsubMoment = !((*jets.begin())->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp));
-  }
-
+  
   //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
@@ -154,11 +149,10 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
       }
 
       p4_subtr+=p4_cl;
-      if( msgLvl(MSG::DEBUG) ) 
-      {
-	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-	p4_unsubtr+=cl->p4(HIJetRec::unsubtractedClusterState());
-      }
+      
+	  const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
+	  p4_unsubtr+=cl->p4(HIJetRec::unsubtractedClusterState());
+      
     }
     
     ATH_MSG_DEBUG("Subtracting" 
@@ -191,11 +185,10 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 
     (*ijet)->setJetP4(MomentName(),jet4vec);
 
-    xAOD::JetFourMom_t tmp;
-    //if(! (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp) ){
-    if(needsUnsubMoment)
-       (*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), (*ijet)->jetP4());
-//    }
+    xAOD::JetFourMom_t jet4vec_unsubtr;
+    jet4vec_unsubtr.SetCoordinates(p4_unsubtr.Pt(),p4_unsubtr.Eta(),p4_unsubtr.Phi(),p4_unsubtr.M()); 
+    (*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), jet4vec_unsubtr);
+    
     if(!MomentOnly()) 
     {
       //hack for now to allow use of pp calib tool skipping pileup subtraction
