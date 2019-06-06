@@ -20,7 +20,7 @@ ciRefFileMap = {
                 # SimulationTier0Test_required-test
                 's3126-21.0'           : 'v2',
                 's3126-21.3'           : 'v2',
-                's3126-21.9'           : 'v2',
+                's3126-21.9'           : 'v3',
                 's3126-22.0'           : 'v1',
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v3',
