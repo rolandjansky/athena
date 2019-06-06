@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v8 RDO to ESD and AOD test, plus extra tests using these files. With FTK
+# art-description: Trigger MC pp v8 RDO to ESD and AOD test, plus extra tests using these files. With FTK and doLVL1Phase1
 # art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
