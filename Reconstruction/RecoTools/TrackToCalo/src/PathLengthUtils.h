@@ -51,10 +51,6 @@
       double getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) const;
       double getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) const;
       bool   crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) const;
-      //static double CellZB[9];
-      //static double CellDZB[9];
-      //static double CellZC[9];
-      //static double CellDZC[9];
   }; 
 
 inline double PathLengthUtils::phiMean(double a, double b) const { return 0.5*(a+b) + (a*b < 0)*M_PI; }
