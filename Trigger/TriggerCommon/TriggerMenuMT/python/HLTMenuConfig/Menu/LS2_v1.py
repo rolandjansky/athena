@@ -28,7 +28,7 @@ def setupMenu():
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
     SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
     #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
-    #SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
+    SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 
     TriggerFlags.Slices_all_setOff()
@@ -105,8 +105,8 @@ def setupMenu():
     ] 
 
     TriggerFlags.TauSlice.signatures = [
-        #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
-        #ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
     ]
     TriggerFlags.BphysicsSlice.signatures = [ ]
     TriggerFlags.CombinedSlice.signatures = [ 

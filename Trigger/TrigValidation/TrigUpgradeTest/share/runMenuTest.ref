@@ -12,11 +12,11 @@ TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20 d
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        0         0         0         0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        0         0         0         17        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        342       0         0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        343       0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        16        0         0         0         16        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        329       0         0         0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        330       0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        15        14        0         0         0         14        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        264       0         0         0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        265       0         0         0         
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        17        17        0         0         0         17        
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      50        50        0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        0         0         0         0         0         0         
@@ -49,6 +49,10 @@ TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6       
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       5         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12  20        20        6         6         0         0         0         6         
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12 decisions                    6         6         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo_L1TAU12IM20        20        6         6         0         0         0         6         
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo_L1TAU12IM decisions                    6         6         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          20        20        12        0         0         0         0         12        
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    12        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       20        20        3         0         0         0         0         3         
