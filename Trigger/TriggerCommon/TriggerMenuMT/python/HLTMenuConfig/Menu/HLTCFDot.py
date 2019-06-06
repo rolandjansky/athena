@@ -248,10 +248,10 @@ def getValuesProperties(node):
         for k, cval in alg.getValuedProperties().items():
             if type(cval) is list:  
                 for val in cval:
-                    if val is '': # CAT type(val) is None ??
+                    if val == '': # CAT type(val) is None ??
                         if val not in Excluded:
                             values.append(val)            
-            elif cval is '': # CAT type(val) is None ??
+            elif cval == '': # CAT type(val) is None ??
                 if cval not in Excluded:
                     values.append(cval)
             else:
