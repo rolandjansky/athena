@@ -12,14 +12,9 @@
 #include "AthContainers/DataVector.h"
 
 
-// Needed class
-//#include "TrkPrepRawData/PrepRawData.h"
 
 namespace Muon{
 
-/**@brief Template to hold collections of MuonPrepRawData objects. 
-The collections must each have an IdentifierHash, which are used to identify them*/
-//template< class PrepDataT >
 class NSWVMMChargeCalibCollection : public Identifiable,
                  public DataVector< VMMChargePar > {
 
@@ -55,8 +50,6 @@ public:
   // plottable
   virtual std::string type() const;
 
-  //MsgStream& operator << ( MsgStream& sl, const NSWVMMChargeCalibCollection& coll);
-  //std::ostream& operator << ( std::ostream& sl, const NSWVMMChargeCalibCollection& coll);
 
     
   // typedef needed for IdentifiableContainer base class

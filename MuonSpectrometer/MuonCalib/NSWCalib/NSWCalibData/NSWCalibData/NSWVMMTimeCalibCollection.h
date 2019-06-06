@@ -15,9 +15,6 @@
 
 namespace Muon{
 
-/**@brief Template to hold collections of MuonPrepRawData objects. 
-The collections must each have an IdentifierHash, which are used to identify them*/
-//template< class PrepDataT >
 class NSWVMMTimeCalibCollection : public Identifiable,
                  public DataVector< VMMTimePar > {
 
@@ -53,8 +50,6 @@ public:
   // plottable
   virtual std::string type() const;
 
-  //MsgStream& operator << ( MsgStream& sl, const NSWVMMTimeCalibCollection& coll);
-  //std::ostream& operator << ( std::ostream& sl, const NSWVMMTimeCalibCollection& coll);
 
     
   // typedef needed for IdentifiableContainer base class
