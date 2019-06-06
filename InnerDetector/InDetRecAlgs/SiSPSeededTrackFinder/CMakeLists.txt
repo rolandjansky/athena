@@ -36,6 +36,11 @@ atlas_add_test( SiSPSeededTracksStandalone
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
+atlas_add_test( SiSPSeededTracksStandaloneFromESD
+                SCRIPT athena.py --threads=1 SiSPSeededTrackFinder/SiSPSeededTracksStandaloneFromESD.py
+                PROPERTIES TIMEOUT 600
+                ENVIRONMENT THREADS=5 )
+
 # Install files from the package:
 atlas_install_headers( SiSPSeededTrackFinder )
 atlas_install_joboptions( share/*.py )
