@@ -15,7 +15,6 @@ rec.doJetMissingETTag.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doTau.set_Value_and_Lock(False)
-  
 rec.doTrigger.set_Value_and_Lock(True)
 rec.doRDOTrigger.set_Value_and_Lock(True)
 recAlgs.doTrigger.set_Value_and_Lock(True)
@@ -62,9 +61,22 @@ if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-if TriggerFlags.doMTHLT():
-    log.info("configuring MT Trigger, actually nothing happens for now")
-    
+# Setup the algorithm and output sequences
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+outSequence = AthSequencer("AthOutSeq")
+
+if TriggerFlags.doMT():
+    log.info("configuring MT Trigger")
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.EnableVerboseViews( True )
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    topSequence += Lvl1SimulationSequence(None)
+
 else:
         
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
@@ -82,6 +94,10 @@ def preplist(input):
             triglist.append(k + "#" + j)
     return triglist
 
+
+if TriggerFlags.doMT():
+    TriggerFlags.doHLT.set_Value_and_Lock(False)
+    
     
 #========================================================
 # Central topOptions (this is one is a string not a list)
@@ -95,11 +111,6 @@ if rec.doFileMetaData():
                  "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
    objKeyStore.addManyTypesMetaData( metadataItems )
 
-# Setup the algorithm and output sequences
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-from AthenaCommon.AlgSequence import AthSequencer
-outSequence = AthSequencer("AthOutSeq")
 
 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
         RoIBResultToAOD
@@ -112,7 +123,7 @@ for i in topSequence.getAllChildren():
            topSequence.insert(idx, RoIBResultToAOD("RoIBResultToxAOD"))
            
 for i in outSequence.getAllChildren():
-    if "StreamRDO" in i.getName() and ( not TriggerFlags.doMTHLT() ):
+    if "StreamRDO" in i.getName() and ( not TriggerFlags.doMT() ):
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker,WritexAODTrigDecision
         topSequence.insert(idx, TrigDecisionMaker('TrigDecMaker'))
         from AthenaCommon.Logging import logging 
@@ -143,7 +154,7 @@ for i in outSequence.getAllChildren():
         StreamRDO.ItemList += preplist(getLvl1AODList())
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]             
        
-    if "StreamRDO" in i.getName() and TriggerFlags.doMTHLT():
+    if "StreamRDO" in i.getName() and TriggerFlags.doMT():
         from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
@@ -160,7 +171,7 @@ if hasattr(ToolSvc, 'TrigDecisionTool'):
     ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
     ToolSvc.TrigDecisionTool.UseAODDecision = True
 
-if TriggerFlags.doMTHLT():
+if TriggerFlags.doMT():
     pass
 else:
     # inform TD maker that some parts may be missing
@@ -202,3 +213,8 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
+
+
+# topSequence.McAodBuilder.OutputLevel=DEBUG
+
+# del topSequence.McAodBuilder

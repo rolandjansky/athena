@@ -52,13 +52,12 @@ class Lvl1SimulationGetter (Configured):
 
     def configure(self):
         log = logging.getLogger( "Lvl1SimulationGetter" )
-
+        
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         from AthenaCommon.AppMgr import ServiceMgr
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
-
-
+        
         if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
 
             if TriggerFlags.doCalo():
