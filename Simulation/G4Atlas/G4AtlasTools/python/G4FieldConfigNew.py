@@ -19,7 +19,7 @@ def ATLASFieldManagerToolCfg(ConfigFlags, name='ATLASFieldManager', **kwargs):
 
 
     result.setPrivateTools(GlobalFieldManagerTool(name, **kwargs))
-    return result#, GlobalFieldManagerTool(name, **kwargs)  # todo return accumulator 
+    return result
 
 def TightMuonsATLASFieldManagerToolCfg(ConfigFlags, name='TightMuonsATLASFieldManager', **kwargs):
     result = ComponentAccumulator()
@@ -35,12 +35,14 @@ def TightMuonsATLASFieldManagerToolCfg(ConfigFlags, name='TightMuonsATLASFieldMa
         kwargs.setdefault("EquationOfMotion", simFlags.EquationOfMotion.get_Value() )
 
     result.setPrivateTools(GlobalFieldManagerTool(name, **kwargs))
-    return result #, GlobalFieldManagerTool(name, **kwargs) #return tuple for now (add public / private tool later )
+    return result
 
+#not used in G4AtlasServicesConfigNew?
 def ClassicFieldManagerToolCfg(ConfigFlags, name='ClassicFieldManager', **kwargs):
     kwargs.setdefault("IntegratorStepper", "ClassicalRK4")
     return ATLASFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
+#not used in G4AtlasServicesConfigNew?
 def BasicDetectorFieldManagerToolCfg(ConfigFlags, name='BasicDetectorFieldManager', **kwargs):
     result = ComponentAccumulator()
     from G4AtlasApps.SimFlags import simFlags
@@ -94,7 +96,7 @@ def MuonFieldManagerToolCfg(ConfigFlags, name='MuonFieldManager', **kwargs):
     kwargs.setdefault('MinimumEpsilonStep', 0.000001)
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
-
+#not used in G4AtlasServicesConfigNew?
 def BasicFwdFieldManagerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs):
     result=ComponentAccumulator()
 

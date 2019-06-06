@@ -1,24 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from AthenaCommon import CfgGetter
-#from G4AtlasApps.SimFlags import simFlags
-#from AthenaCommon.BeamFlags import jobproperties
-
 from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
-
+#the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
+#the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
-#import G4AtlasTools.G4FieldConfigNew
-"""ClassicFieldManagerToolCfg
-BasicDetectorFieldManagerToolCfg
-BasicFwdFieldManagerToolCfg"""
-
-#already imported - is this correct?
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
@@ -129,7 +119,6 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
     #if not simFlags.TightMuonStepping.statusOn or\
     #   not simFlags.TightMuonStepping():
     if False:
-        #fieldMgrList += [ATLASFieldManagerToolCfg(ConfigFlags)]
         acc   = ATLASFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
@@ -160,28 +149,6 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
     #sort these forward ones later
     if ConfigFlags.Detector.SimulateForward: #needed?
         if ConfigFlags.Detector.GeometryFwdRegion: #or forward?
-          """fieldMgrList += [Q1FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q2FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q3FwdFieldManagerToolCfg(ConfigFlags),
-                                                           D1FwdFieldManagerToolCfg(ConfigFlags),
-                                                           D2FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q4FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q5FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q6FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q7FwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q1HKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q1VKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q2HKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q2VKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q3HKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q3VKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q4VKickAFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q4HKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q4VKickBFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q5HKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           Q6VKickFwdFieldManagerToolCfg(ConfigFlags),
-                                                           FwdRegionFieldManagerToolCfg(ConfigFlags)]"""
-
           accQ1FwdRegionFieldManager = Q1FwdFieldManagerToolCfg(ConfigFlags)
           accQ2FwdRegionFieldManager = Q2FwdFieldManagerToolCfg(ConfigFlags)
           accQ3FwdRegionFieldManager = Q3FwdFieldManagerToolCfg(ConfigFlags)
@@ -247,9 +214,9 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
                                                        toolQ5HKickFwdFieldManager,
                                                        toolQ6VKickFwdFieldManager,
                                                        toolFwdRegionFieldManager]
-          #fieldMgrList+=[toolQ1FwdRegionFieldManager]
+          
     result.setPrivateTools(fieldMgrList)
-    return result#, fieldMgrList
+    return result
 
 #called?
 def getCTB_FieldMgrList(ConfigFlags):
