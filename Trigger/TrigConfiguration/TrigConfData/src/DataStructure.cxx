@@ -47,8 +47,25 @@ TrigConf::DataStructure::operator[](const std::string & key) const
          throw runtime_error(string("Structure \"") + key + "\" is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
       }
    }
-
    return obj.data();
+}
+
+std::string
+TrigConf::DataStructure::getAttribute(const std::string & key, bool ignoreIfMissing) const
+{
+   const auto & obj = m_data.get_child_optional(key);
+   if( !obj && ignoreIfMissing ) {
+      return "";
+   }
+   // check if the key points to a plain string value
+   if ( !obj.get().empty() ) {
+      if ( obj.get().front().first.empty() ) {
+         throw runtime_error(string("Structure \"") + key + "\" is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
+      } else {
+         throw runtime_error(string("Structure \"") + key + "\" is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
+      }
+   }
+   return obj.get().data();
 }
 
 std::vector<TrigConf::DataStructure> 
