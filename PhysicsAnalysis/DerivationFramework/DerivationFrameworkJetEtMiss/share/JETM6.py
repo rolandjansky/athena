@@ -263,6 +263,14 @@ addVRJetsTCC(jetm6Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJ
              ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
              variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
+
+#===============================
+# add xbb taggers
+#===============================
+
+from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+addRecommendedXbbTaggers(jetm6Seq, ToolSvc)
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
