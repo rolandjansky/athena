@@ -291,7 +291,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
 OutputJets["SUSY1"] = []
 
 #reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets","AntiKt4TruthDressedWZJets"]
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
@@ -364,7 +364,7 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKtVR30Rmax4Rmin02TrackJets",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]
