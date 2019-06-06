@@ -6,6 +6,8 @@
 #include "DerivationFrameworkExotics/TruthHelper.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticle.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCore/ShallowCopy.h"
 
 DerivationFramework::BCDistanceAugmentationTool::BCDistanceAugmentationTool(const std::string& t,
@@ -53,9 +55,11 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
     return StatusCode::FAILURE;
   }
 
-  SG::AuxElement::Decorator< int >  decoratorBCIDDistance("BCIDDistanceFromFront");
+  SG::AuxElement::Decorator< int >  decoratorBCIDDistanceFront("BCIDDistanceFromFront");
+  SG::AuxElement::Decorator< int >  decoratorBCIDDistanceTail("BCIDDistanceFromTail");
 
-  decoratorBCIDDistance(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  decoratorBCIDDistanceFront(*eventInfo) = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  decoratorBCIDDistanceTail(*eventInfo)  = m_bcTool->distanceFromTail(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
 
   // add flavour filter
   std::vector<float> truth_results(3,-1.0);
@@ -82,16 +86,37 @@ StatusCode DerivationFramework::BCDistanceAugmentationTool::addBranches() const 
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/VGammaORTool
   SG::AuxElement::Decorator< bool >  decoratorin_vy_overlap("in_vy_overlap");
   bool in_vy_overlap=false;
-  ATH_CHECK( m_PhIsoTool->setProperty("use_gamma_iso",false) );
-  ATH_CHECK(m_PhIsoTool->inOverlap(in_vy_overlap));
+  if(m_isMC){
+    ATH_CHECK( m_PhIsoTool->setProperty("use_gamma_iso",false) );
+    ATH_CHECK( m_PhIsoTool->inOverlap(in_vy_overlap) );
+  }
   decoratorin_vy_overlap(*eventInfo) = in_vy_overlap;
 
   // apply the frixione isolation
   ATH_CHECK( m_PhIsoTool->setProperty("use_gamma_iso",true) );
   SG::AuxElement::Decorator< bool >  decoratorin_vy_overlap_iso("in_vy_overlap_iso");
   bool in_vy_overlap_iso=false;
-  ATH_CHECK(m_PhIsoTool->inOverlap(in_vy_overlap_iso));
+  if(m_isMC){
+    ATH_CHECK(m_PhIsoTool->inOverlap(in_vy_overlap_iso));
+  }
   decoratorin_vy_overlap_iso(*eventInfo) = in_vy_overlap_iso;
+
+  // compute the number of clusters
+  const xAOD::CaloClusterContainer * clusters = nullptr;
+  ATH_CHECK(evtStore()->retrieve(clusters,"CaloCalTopoClusters"));
+
+  //We will now loop over the cluster container counting the number of clusters which pass the criteria
+  SG::AuxElement::Decorator< unsigned >  decoratorin_nBatman("nBatman");
+  size_t nBatman=0;
+  const static SG::AuxElement::ConstAccessor<float>  acc_AVGLARQ("AVG_LAR_Q");
+  for ( auto ipart : *clusters ) {
+    if (std::fabs(ipart->rawEta())<=2.5) continue;
+    if (std::fabs(ipart->rawEta())>=3.2) continue;
+    if (ipart->rawE()/cosh(ipart->rawEta())<500.) continue;
+    if (acc_AVGLARQ(*ipart)/65535.<=0.2) continue;
+    ++nBatman;
+  }
+  decoratorin_nBatman(*eventInfo) = nBatman;
 
   return StatusCode::SUCCESS;
 }

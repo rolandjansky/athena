@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODJet
+			  Event/xAOD/xAODCaloEvent
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Reconstruction/Jet/JetCalibTools
                           Trigger/TrigAnalysis/TrigDecisionTool
