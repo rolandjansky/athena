@@ -148,10 +148,11 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     prereqs.append("mod:ConstitFourMom")
     if "JetArea" in calibseq:
         prereqs.append("input:EventDensity")
-    prereqs += ["mod:CaloEnergies"]
     if "GSC" in calibseq:
-        prereqs += ["mod:TrackMoments",
-                    "ghost:MuonSegment"]
+        prereqs += ["mod:CaloEnergies"]
+        if calibcontext != "TrigRun2": # No track/MS GSC for trigger w/o FTK
+            prereqs += ["mod:TrackMoments",
+                        "ghost:MuonSegment"]
     jetcaliblog.debug("Prereqs for calibseq '{0}': {1}".format(calibseq,str(prereqs)))
     return prereqs
 

@@ -16,6 +16,7 @@ def createMenuFlags():
     flags.addFlag('Trigger.menu.muon', [])
     flags.addFlag('Trigger.menu.electron', [])
     flags.addFlag('Trigger.menu.photon', [])
+    flags.addFlag('Trigger.menu.jet', [])
     flags.addFlag('Trigger.menu.combined', [])
 
     return flags
