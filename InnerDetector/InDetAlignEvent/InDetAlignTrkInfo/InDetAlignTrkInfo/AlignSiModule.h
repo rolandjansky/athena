@@ -8,6 +8,8 @@
 // ntuple
 // Richard Hawkings, started 13/4/04
 
+#include <atomic>
+
 class AlignSiModule {
 
 public:
@@ -66,7 +68,7 @@ public:
   float m_pitch;
   float m_length;
   float m_width[3];
-  mutable int m_nhits;
+  mutable std::atomic_int m_nhits;
   bool m_dead;
   bool m_stereo;
 };
