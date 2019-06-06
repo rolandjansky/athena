@@ -10,7 +10,6 @@ from RecExConfig.RecFlags  import rec
 rec.doESD=True
 rec.doWriteESD=True
 
-
 include("TrigUpgradeTest/testHLT_MT.py")
 
 
@@ -22,7 +21,6 @@ TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 menu = GenerateMenuMT()
-
 
 def signaturesToGenerate():
     TriggerFlags.Slices_all_setOff()
