@@ -118,8 +118,8 @@ def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("OnlyUseContainerName", False)
-        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "TRT_RDOs")
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "TRT_SDO_Map")
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "TRT_SDO_Map")
     else:
         kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
         kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
