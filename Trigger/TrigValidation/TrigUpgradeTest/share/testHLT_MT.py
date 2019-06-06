@@ -80,7 +80,7 @@ if opt.doEmptyMenu == True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doBJetSlice=False #Wait for ATR-19439
+    opt.doBjetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
@@ -90,13 +90,12 @@ for s in slices:
     if 'Electron' in s or 'Photon' in s:
         signature = 'Egamma'
 
-    if eval('opt.'+s):
+    if eval('opt.'+s) == True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.enabledSignatures.append( enabledSig )
     else:
         disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.disabledSignatures.append( disabledSig )
-
 
 #-------------------------------------------------------------
 # Setting Global Flags

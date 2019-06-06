@@ -86,7 +86,7 @@ def setupMenu():
         ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),        
 
-        ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
+        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),        
