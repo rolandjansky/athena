@@ -872,6 +872,19 @@ class WriteDAOD_STDM11Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM11Stream)
 listAODtoDPD.append(WriteDAOD_STDM11Stream.StreamName)
 
+class WriteDAOD_STDM12Stream (JobProperty):
+    """Derivation for B\pm fragmentation, Photon + B\pm, J/psi and Upsilon fragmentation measurements"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM12'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM12.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM12Stream)
+listAODtoDPD.append(WriteDAOD_STDM12Stream.StreamName)
+
 #################################
 # Defined by the Tau group
 #################################
