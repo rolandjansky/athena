@@ -226,7 +226,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 4000,
+        ghostArea = 0 , ptmin = 5000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
