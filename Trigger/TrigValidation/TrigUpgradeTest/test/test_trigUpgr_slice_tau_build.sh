@@ -11,7 +11,7 @@ export SKIPEVENTS=10
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
+export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doEmptyMenu=True;doTauSlice=True"
 
