@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMSimHitVariables.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
@@ -22,16 +22,16 @@ StatusCode MMSimHitVariables::fillVariables()
 
   CHECK( this->clearVariables() );
 
-  const GenericMuonSimHitCollection *nswContainer = nullptr;
+  const MMSimHitCollection *nswContainer = nullptr;
   CHECK( m_evtStore->retrieve(nswContainer, m_ContainerName.c_str()) );
   
   // Get the MicroMegas Id hit helper
   MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
   MM_SimIdToOfflineId simToOffline(*m_MmIdHelper);
 
-  if(nswContainer->size()==0) ATH_MSG_WARNING(" GenericMuonSimHit empty ");
+  if(nswContainer->size()==0) ATH_MSG_WARNING(" MMSimHit empty ");
   for( auto it : *nswContainer ) {
-    const GenericMuonSimHit hit = it;
+    const MMSimHit hit = it;
 
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
        
@@ -52,19 +52,13 @@ StatusCode MMSimHitVariables::fillVariables()
     m_NSWMM_hitGlobalDirectionY->push_back(globalDirection.y());
     m_NSWMM_hitGlobalDirectionZ->push_back(globalDirection.z());
 
-    const Amg::Vector3D localPosition = hit.localPosition();
-    m_NSWMM_hitLocalPositionX->push_back(localPosition.x());
-    m_NSWMM_hitLocalPositionY->push_back(localPosition.y());
-    m_NSWMM_hitLocalPositionZ->push_back(localPosition.z());
-
     m_NSWMM_particleEncoding->push_back(hit.particleEncoding());
     m_NSWMM_kineticEnergy->push_back(hit.kineticEnergy());
     m_NSWMM_depositEnergy->push_back(hit.depositEnergy());
-    m_NSWMM_StepLength->push_back(hit.StepLength());
 
 
     // Read the information about the Micro Megas hit
-    int simId = hit.GenericId();
+    int simId = hit.MMId();
     std::string sim_stationName = hitHelper->GetStationName(simId);
     int sim_stationEta  = hitHelper->GetZSector(simId);
     int sim_stationPhi  = hitHelper->GetPhiSector(simId);
@@ -94,7 +88,7 @@ StatusCode MMSimHitVariables::fillVariables()
 
 
     //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
-    Identifier offId = simToOffline.convert(hit.GenericId());
+    Identifier offId = simToOffline.convert(hit.MMId());
     
     // sanity checks
     if( !m_MmIdHelper->is_mm(offId) ){
@@ -204,8 +198,7 @@ StatusCode MMSimHitVariables::fillVariables()
     ATH_MSG_DEBUG("Global hit   : r " << hit.globalPosition().perp() << ", phi " << hit.globalPosition().phi() << ", z " << hit.globalPosition().z()
                     << "; detEl: r " << detpos.perp() << ", phi " << detpos.phi() << ", z " << detpos.z()
                     << "; surf z "   << surf.center().z() << ", ml "  << sim_multilayer << ", l " << sim_layer );
-    ATH_MSG_DEBUG("Local hit    : x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z()
-                    << " detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
+    ATH_MSG_DEBUG(" detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
     ATH_MSG_DEBUG("MM Fast digit: x " << fastDigitPos.x() << " y " << fastDigitPos.y()
                     << ", gToL: x " << rSurface_pos.x() << " y " << rSurface_pos.y() << " z " << rSurface_pos.z() );
 
@@ -265,10 +258,6 @@ StatusCode MMSimHitVariables::clearVariables()
   m_NSWMM_hitGlobalDirectionY->clear();
   m_NSWMM_hitGlobalDirectionZ->clear();
 
-  m_NSWMM_hitLocalPositionX->clear();
-  m_NSWMM_hitLocalPositionY->clear();
-  m_NSWMM_hitLocalPositionZ->clear();
-
   m_NSWMM_detector_globalPositionX->clear();
   m_NSWMM_detector_globalPositionY->clear();
   m_NSWMM_detector_globalPositionZ->clear();
@@ -289,7 +278,6 @@ StatusCode MMSimHitVariables::clearVariables()
   m_NSWMM_particleEncoding->clear();
   m_NSWMM_kineticEnergy->clear();
   m_NSWMM_depositEnergy->clear();
-  m_NSWMM_StepLength->clear();
 
   m_NSWMM_sim_stationName->clear();
   m_NSWMM_sim_stationEta->clear();
@@ -322,10 +310,6 @@ void MMSimHitVariables::deleteVariables()
   delete m_NSWMM_hitGlobalDirectionY;
   delete m_NSWMM_hitGlobalDirectionZ;
 
-  delete m_NSWMM_hitLocalPositionX;
-  delete m_NSWMM_hitLocalPositionY;
-  delete m_NSWMM_hitLocalPositionZ;
-
   delete m_NSWMM_detector_globalPositionX;
   delete m_NSWMM_detector_globalPositionY;
   delete m_NSWMM_detector_globalPositionZ;
@@ -347,7 +331,6 @@ void MMSimHitVariables::deleteVariables()
   delete m_NSWMM_particleEncoding;
   delete m_NSWMM_kineticEnergy;
   delete m_NSWMM_depositEnergy;
-  delete m_NSWMM_StepLength;
 
   delete m_NSWMM_sim_stationName;
   delete m_NSWMM_sim_stationEta;
@@ -377,10 +360,6 @@ void MMSimHitVariables::deleteVariables()
   m_NSWMM_hitGlobalDirectionY = nullptr;
   m_NSWMM_hitGlobalDirectionZ = nullptr;
 
-  m_NSWMM_hitLocalPositionX = nullptr;
-  m_NSWMM_hitLocalPositionY = nullptr;
-  m_NSWMM_hitLocalPositionZ = nullptr;
-
   m_NSWMM_detector_globalPositionX = nullptr;
   m_NSWMM_detector_globalPositionY = nullptr;
   m_NSWMM_detector_globalPositionZ = nullptr;
@@ -401,7 +380,6 @@ void MMSimHitVariables::deleteVariables()
   m_NSWMM_particleEncoding = nullptr;
   m_NSWMM_kineticEnergy = nullptr;
   m_NSWMM_depositEnergy = nullptr;
-  m_NSWMM_StepLength = nullptr;
 
   m_NSWMM_sim_stationName = nullptr;
   m_NSWMM_sim_stationEta = nullptr;
@@ -434,10 +412,6 @@ StatusCode MMSimHitVariables::initializeVariables()
   m_NSWMM_hitGlobalDirectionY = new std::vector<double>;
   m_NSWMM_hitGlobalDirectionZ = new std::vector<double>;
 
-  m_NSWMM_hitLocalPositionX = new std::vector<double>;
-  m_NSWMM_hitLocalPositionY = new std::vector<double>;
-  m_NSWMM_hitLocalPositionZ = new std::vector<double>;
-
   m_NSWMM_detector_globalPositionX = new std::vector<double>;
   m_NSWMM_detector_globalPositionY = new std::vector<double>;
   m_NSWMM_detector_globalPositionZ = new std::vector<double>;
@@ -459,7 +433,6 @@ StatusCode MMSimHitVariables::initializeVariables()
   m_NSWMM_particleEncoding = new std::vector<int>;
   m_NSWMM_kineticEnergy = new std::vector<double>;
   m_NSWMM_depositEnergy = new std::vector<double>;
-  m_NSWMM_StepLength = new std::vector<double>;
 
 
   m_NSWMM_sim_stationName = new std::vector<std::string>;
@@ -489,10 +462,6 @@ StatusCode MMSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_MM_hitGlobalDirectionY", &m_NSWMM_hitGlobalDirectionY);
     m_tree->Branch("Hits_MM_hitGlobalDirectionZ", &m_NSWMM_hitGlobalDirectionZ);
 
-    m_tree->Branch("Hits_MM_hitLocalPositionX", &m_NSWMM_hitLocalPositionX);
-    m_tree->Branch("Hits_MM_hitLocalPositionY", &m_NSWMM_hitLocalPositionY);
-    m_tree->Branch("Hits_MM_hitLocalPositionZ", &m_NSWMM_hitLocalPositionZ);
-
     m_tree->Branch("Hits_MM_detector_globalPositionX", &m_NSWMM_detector_globalPositionX);
     m_tree->Branch("Hits_MM_detector_globalPositionY", &m_NSWMM_detector_globalPositionY);
     m_tree->Branch("Hits_MM_detector_globalPositionZ", &m_NSWMM_detector_globalPositionZ);
@@ -514,7 +483,6 @@ StatusCode MMSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_MM_particleEncoding", &m_NSWMM_particleEncoding);
     m_tree->Branch("Hits_MM_kineticEnergy", &m_NSWMM_kineticEnergy);
     m_tree->Branch("Hits_MM_depositEnergy", &m_NSWMM_depositEnergy);
-    m_tree->Branch("Hits_MM_StepLength", &m_NSWMM_StepLength);
 
 
     m_tree->Branch("Hits_MM_sim_stationName", &m_NSWMM_sim_stationName);
