@@ -1,19 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// PrepRawDataCollection.h
-//   Header file for class PrepRawDataCollection
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Class to contain all the RIOs of a detector element:
-// module for Pixel or wafer for SCT or layer for TRT, 
-// for Muons:
-///////////////////////////////////////////////////////////////////
-// Version 1.0 15/07/2003 Veronique Boisvert
-///////////////////////////////////////////////////////////////////
 
 #ifndef NSWVMMTIMECALIBCOLLECTION_H
 #define NSWVMMTIMECALIBCOLLECTION_H
@@ -24,8 +12,6 @@
 #include "AthContainers/DataVector.h"
 
 
-// Needed class
-//#include "TrkPrepRawData/PrepRawData.h"
 
 namespace Muon{
 
