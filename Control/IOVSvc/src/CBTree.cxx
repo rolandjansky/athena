@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 #ifndef IOVSVC_CBTREE_H
-#include "IOVSvc/CBTree.h"
+#include "CBTree.h"
 #endif
 
 #ifndef SGTOOLS_DATAPROXY_H

@@ -1,6 +1,6 @@
-#include "IOVSvc/IOVSvc.h"
-#include "IOVSvc/CondSvc.h"
-#include "IOVSvc/IOVSvcTool.h"
+#include "../IOVSvc.h"
+#include "../CondSvc.h"
+#include "../IOVSvcTool.h"
 #include "../CondInputLoader.h"
 #include "../MetaInputLoader.h"
 

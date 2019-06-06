@@ -18,7 +18,7 @@
  *****************************************************************************/
 
 #ifndef IOVSVC_CBNODE_H
-#include "IOVSvc/CBNode.h"
+#include "CBNode.h"
 #endif
 
 #ifndef ATHENAKERNEL_IOVSVCDEFS_H

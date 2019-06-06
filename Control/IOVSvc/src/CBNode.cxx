@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 #ifndef IOVSVC_CBNODE_H
-#include "IOVSvc/CBNode.h"
+#include "CBNode.h"
 #endif
 #ifndef SGTOOLS_DATAPROXY_H
 #include "SGTools/DataProxy.h"
