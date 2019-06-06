@@ -589,7 +589,7 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 25
+theApp.EvtMax = 10
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
