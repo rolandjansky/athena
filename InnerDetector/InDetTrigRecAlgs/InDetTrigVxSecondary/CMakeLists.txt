@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTrackJetFinderTool
                           PRIVATE
                           Control/AthContainers
+                          Control/CxxUtils
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/IRegionSelector
                           Event/xAOD/xAODBase
