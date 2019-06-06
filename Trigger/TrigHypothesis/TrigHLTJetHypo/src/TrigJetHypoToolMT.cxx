@@ -18,7 +18,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
 #include "./DebugInfoCollector.h"
-#include "./HypoTreeInfoCollector.h"
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -41,7 +40,7 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 
 StatusCode TrigJetHypoToolMT::initialize(){
   CHECK(m_evt.initialize());
-  HypoTreeInfoCollector collector;
+  DebugInfoCollector collector(name());
   CHECK(m_helper->getDescription(collector));
   auto s = collector.toString();
   
@@ -50,7 +49,7 @@ StatusCode TrigJetHypoToolMT::initialize(){
   }
   
   if (m_visitDebug){
-    collector.write(name());
+    collector.write();
   }
   return StatusCode::SUCCESS;
 }
@@ -77,7 +76,11 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                 << "...");
 
   // steady_clock::time_point t =  steady_clock::now();
-  auto infocollector = m_visitDebug? new DebugInfoCollector : nullptr;
+  std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
+  if(m_visitDebug){
+    auto collectorName = name() + std::to_string(m_eventSN->getSN());
+    infocollector.reset(new  DebugInfoCollector(collectorName));
+  } 
 
   try{
     pass = m_helper->pass(hypoJets, infocollector);
@@ -88,7 +91,7 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   }
   
   if (infocollector){
-    infocollector->write(name(), m_eventSN->getSN());
+    infocollector->write();
   }
 
   // accumulateTime(steady_clock::now() - t);

@@ -16,7 +16,7 @@ namespace TrigConf {
     *
     * Provides access to menu attributes like its name and to the trigger chains
     */
-   class HLTMenu final : virtual public DataStructure {
+   class HLTMenu final : public DataStructure {
    public:
 
       /** Constructor */
@@ -51,7 +51,13 @@ namespace TrigConf {
        */
       const_iterator end() const;
    };
-
 }
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( TrigConf::HLTMenu , 155284098 );
+
 
 #endif

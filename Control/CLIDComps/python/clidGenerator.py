@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file clidGenerator.py
 # @author CETull@lbl.gov
 # @brief Athena CLID Generator Class
 #
+from __future__ import print_function
 import string, re, os, csv
 
 ## Athena CLID Generator Class
@@ -51,24 +52,24 @@ class clidGenerator (object):
                             self.__tidRep [tid_name]   = clid
                             
                 else:
-                    print "No CLID DataBase file <%s> " % cliddb        
-        except Exception, err:
-            print "Error reading from CLID DataBase files <%s>:\n%s " %  (
+                    print ("No CLID DataBase file <%s> " % cliddb)
+        except Exception as err:
+            print ("Error reading from CLID DataBase files <%s>:\n%s " %  (
                 self.__cliddbs,
-                err)
+                err))
             
     def setCLIDDB(self, db, debug):
         "Initializes a CLID Generator object with a CLID Database"
         if db:
             self.__cliddbs = search_files(db, os.getenv('DATAPATH'))
-            if debug: print "Using specified CLID DataBase files %s " % self.__cliddbs
+            if debug: print ("Using specified CLID DataBase files %s " % self.__cliddbs)
         elif os.getenv('CLIDDB'):
             # CLID DataBase (Default = clid.db)
             self.__cliddbs.append(os.getenv('CLIDDB'))
-            if debug: print "Using DataBase file from CLIDDB env variable %s " % self.__cliddbs
+            if debug: print ("Using DataBase file from CLIDDB env variable %s " % self.__cliddbs)
         else:
             self.__cliddbs = search_files('clid.db', os.getenv('DATAPATH'))
-            if debug: print "Using DataBase file from DATAPATH %s " % self.__cliddbs
+            if debug: print ("Using DataBase file from DATAPATH %s " % self.__cliddbs)
 
     def writedb(self,db):
         "Read CLID DataBase file"
@@ -89,7 +90,7 @@ class clidGenerator (object):
             c = self.genClidFromName(className+'_')
         if self.isCollection(className):
             c += 0x40000000
-        if self.__clidRep.has_key(c):
+        if c in self.__clidRep:
             if n != self.__clidRep[c]:
                 c = self.genClidFromName(className+'_')
         else:
@@ -100,7 +101,7 @@ class clidGenerator (object):
         return c
     def getClidFromName(self,className):
         "Get the CLID in the repository of class name <className>"
-        if self.__nameRep.has_key(className):
+        if className in self.__nameRep:
             return self.__nameRep[className]
         else:
             return None
@@ -112,7 +113,7 @@ class clidGenerator (object):
             return None
     def getNameFromClid(self,clid):
         "Get the class name in the repository with CLID <clid>"
-        if self.__clidRep.has_key(clid):
+        if clid in self.__clidRep:
             return self.__clidRep[clid]
         else:
             return None
@@ -124,7 +125,7 @@ class clidGenerator (object):
             return None
     def getPackageFromClid(self,clid):
         "Get the name of the package defining <clid>"
-        if self.__clidPkg.has_key(clid):
+        if clid in self.__clidPkg:
             return self.__clidPkg[clid]
         else:
             return None
@@ -161,7 +162,7 @@ def search_file(filename, search_path, pathsep=os.pathsep):
 def search_files(filename, search_path, pathsep=os.pathsep):
     """Given a search path, find file with requested name """
     clidFiles = []
-    for path in string.split(search_path, pathsep):
+    for path in search_path.split(pathsep):
         candidate = os.path.join(path, filename)
         if os.path.exists(candidate): clidFiles.append(os.path.abspath(candidate))
     return clidFiles

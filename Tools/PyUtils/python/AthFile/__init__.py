@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/AthFile/__init__.py
 # @purpose a simple abstraction of a file to retrieve informations out of it
 # @author Sebastien Binet <binet@cern.ch>
 # @date October 2008
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __doc__ = "a simple abstraction of a file to retrieve informations out of it"
 __version__ = "$Revision$"
@@ -25,8 +25,8 @@ __pseudo_all__ = [
     ]
 
 import PyUtils.Decorators as _decos
-import impl as _impl
-import tests as _tests
+from . import impl as _impl
+from . import tests as _tests
 AthFile = _impl.AthFile
 
 from decorator import decorator as _dec

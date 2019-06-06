@@ -1,5 +1,5 @@
-TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
-TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
+TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts):
+TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS,  step1     step2     step3     step4     step5     Output
 TrigSignatureMoniMT                                INFO All                           20        20        0         0         0         0         0         20        
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L1MU6            20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L1MU6 decisions                      0         0         0         0         0         
@@ -27,10 +27,14 @@ TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20                20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20 decisions                          0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j45_L1J20                 20        20        4         0         0         0         0         4         
-TrigSignatureMoniMT                                INFO HLT_j45_L1J20 decisions                           4         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 20        20        0         0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j45_L1J20                 20        20        5         0         0         0         0         5         
+TrigSignatureMoniMT                                INFO HLT_j45_L1J20 decisions                           5         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20           20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20 decisions                     0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 20        20        1         0         0         0         0         1         
+TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           1         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6           20        20        3         2         2         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6 decisions                     3         2         2         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb_L1MU6             20        20        3         2         0         0         0         2         

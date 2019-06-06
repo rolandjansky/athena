@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RoiUtil.h        
@@ -10,13 +10,10 @@
 //                   
 //  
 //
-//   $Id: RoiUtil.h, v0.0   Sat 31 Oct 2015 09:55:29 CET sutt $
 
 
-#ifndef  ROIUTIL_H
-#define  ROIUTIL_H
-
-// #include "IRegionSelector/IRoiDescriptor.h"
+#ifndef  IREGIONSELECTOR_ROIUTIL_H
+#define  IREGIONSELECTOR_ROIUTIL_H
 
 class IRoiDescriptor;
 
@@ -52,14 +49,4 @@ bool operator!=( const IRoiDescriptor& roi0, const IRoiDescriptor& roi1 );
 
 
 
-#endif  // ROIUTIL_H 
-
-
-
-
-
-
-
-
-
-
+#endif  // IREGIONSELECTOR_ROIUTIL_H

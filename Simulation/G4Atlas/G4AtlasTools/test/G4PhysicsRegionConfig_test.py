@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""Run tests on G4Geometry Tool configuration
+
+"""Run tests on G4PhysicsRegionConfig configuration
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """

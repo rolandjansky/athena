@@ -15,6 +15,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h" // number_type
 #include "StoreGate/ReadHandleKey.h"
@@ -83,7 +84,7 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
 

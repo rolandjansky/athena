@@ -13,6 +13,7 @@
 // ACTS
 #include "Acts/Tools/ILayerBuilder.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 class TRT_ID;
 class ActsTrackingGeometrySvc;
@@ -30,7 +31,7 @@ class ActsStrawLayerBuilder : public Acts::ILayerBuilder
 public:
   using ElementVector
       = std::vector<std::shared_ptr<const ActsDetectorElement>>;
-  
+
   struct Config
   {
     /// string based identification
@@ -41,7 +42,7 @@ public:
     const ActsTrackingGeometrySvc* trackingGeometrySvc = nullptr;
     const TRT_ID* idHelper = nullptr;
   };
-  
+
   /// Constructor
   /// @param cfg is the configuration struct
   /// @param logger the local logging instance
@@ -52,21 +53,21 @@ public:
   {
     m_cfg = cfg;
   }
-  
+
   ~ActsStrawLayerBuilder() {}
 
   const Acts::LayerVector
-  negativeLayers() const override;
+  negativeLayers(const Acts::GeometryContext& gctx) const override;
 
   const Acts::LayerVector
-  centralLayers() const override;
+  centralLayers(const Acts::GeometryContext& gctx) const override;
 
   const Acts::LayerVector
-  centralLayers();
+  centralLayers(const Acts::GeometryContext& gctx);
 
   const Acts::LayerVector
-  positiveLayers() const override;
-  
+  positiveLayers(const Acts::GeometryContext& gctx) const override;
+
   const std::string&
   identification() const override
   {
@@ -74,7 +75,7 @@ public:
   }
 
   const Acts::LayerVector
-  endcapLayers(int side);
+  endcapLayers(const Acts::GeometryContext& gctx, int side);
 
 private:
   /// configruation object
@@ -86,7 +87,7 @@ private:
   {
     return *m_logger;
   }
-  
+
   /// logging instance
   std::unique_ptr<const Acts::Logger> m_logger;
 

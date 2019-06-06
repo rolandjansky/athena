@@ -226,15 +226,6 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal( const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0);
 
   /**
-   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
-   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[oneFeaturePerLeg] oneFeaturePerLeg If True, stops at the first feature (of the correct type) found per path through the navigation.
-   * @return Typed vector of element links to all features found on the supplied linkVector.
-   **/ 
-  template<class CONTAINER>
-  ElementLinkVector<CONTAINER> getFeaturesOfType( const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg = true );
-
-  /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
    **/
   template<typename T>
@@ -255,6 +246,15 @@ namespace TrigCompositeUtils {
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
   };
+
+  /**
+   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
+   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
+   * @param[oneFeaturePerLeg] oneFeaturePerLeg If True, stops at the first feature (of the correct type) found per path through the navigation.
+   * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
+   **/
+  template<class CONTAINER>
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg = true );
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)

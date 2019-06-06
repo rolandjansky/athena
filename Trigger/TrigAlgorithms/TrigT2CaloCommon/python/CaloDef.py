@@ -5,7 +5,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
 
@@ -30,14 +30,16 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='Cells
 def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
-   algo.CaloClusters="HLT_TopoCaloCluster"
+   from TrigEDMConfig.TriggerEDMRun3 import recordable
+   algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    algo.OutputLevel=OutputLevel
    return algo
 
 def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
-   algo.CaloClusters="caloclusters"
+   from TrigEDMConfig.TriggerEDMRun3 import recordable
+   algo.CaloClusters=recordable("HLT_TopoCaloClustersLC"+algSuffix)
    algo.OutputLevel=OutputLevel
    return algo
 

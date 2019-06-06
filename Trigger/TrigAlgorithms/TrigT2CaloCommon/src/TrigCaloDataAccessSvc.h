@@ -21,7 +21,8 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -64,6 +65,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   ServiceHandle<IRegSelSvc>         m_regionSelector{ this, "RegionSelector", "RegSelSvc/RegSelSvc", ""};
   
   Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", false, "Enable offset correction" };
+
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)

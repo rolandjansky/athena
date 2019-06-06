@@ -62,8 +62,7 @@ def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     tool = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
     return acc
     
 def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**kwargs):
@@ -84,7 +83,5 @@ def CSC_OverlayDigitBuilderCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
     tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
     return acc
 

@@ -2,6 +2,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Logging import logging
+__log = logging.getLogger('full_menu')
+
 # import flags
 from RecExConfig.RecFlags  import rec
 rec.doESD=True
@@ -30,37 +33,44 @@ inDetSetup()
 # egamma chains
 ##################################################################
 if opt.doElectronSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, electronSequenceCfg, precisionCaloSequenceCfg
-    fastCaloStep = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
-    electronStep = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
-    precisionCaloStep = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, electronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("ElectronFastCalo", [fastCaloStep])
-    step2=ChainStep("ElectronFastTrack", [electronStep])
-    step3=ChainStep("ElectronPrecisionCalo", [precisionCaloStep])
+    FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
+    step2        = ChainStep("ElectronFastTrackStep", [electronSeq])
+    step3        = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
     egammaChains  = [
-        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[step1]  ),
-        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
+        Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[FastCaloStep]  ),
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  )
         ]
+
+#    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
+#    DiEleStep2=ChainStep("DiEleStep2",[electronSeq, electronSeq], multiplicity=2) #need to be: one leg with only one step, one with 3 steps!
+    
+#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut', Seed="L1_EM3_EM3",  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
     testChains += egammaChains
 
 ##################################################################
 # photon chains
 ##################################################################
 if opt.doPhotonSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import photonMenuSequence
 
-    fastCaloStep = fastCaloMenuSequence("Gamma")
-    photonstep   = photonMenuSequence()
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import gammaFastCaloCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import photonSequenceCfg
+
+    fastCaloSeq = RecoFragmentsPool.retrieve( gammaFastCaloCfg, None )
+    PhotonSeq = RecoFragmentsPool.retrieve( photonSequenceCfg, None )
+    
+    FastCaloStep = ChainStep("PhotonFastCaloStep", [fastCaloSeq])
+    photon_step2 = ChainStep("PhotonStep2", [PhotonSeq])
 
     photonChains = [
-        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ ChainStep("Step1_g5_etcut", [fastCaloStep]),  ChainStep("Step2_g5_etcut", [photonstep])]  )
+        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ FastCaloStep,  photon_step2]  )
         ]
 
     testChains += photonChains
@@ -87,14 +97,6 @@ if opt.doMuonSlice == True:
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
 
-
-    # 2muons
-    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()], multiplicity=2)
-    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()], multiplicity=2)
-    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()], multiplicity=2)
-    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()], multiplicity=2)
-    
-
     emptyStep=ChainStep("Step2_empty")
 
     ## single muon trigger  
@@ -104,12 +106,17 @@ if opt.doMuonSlice == True:
     MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
     MuonChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
-    # multi muon trigger 
-    MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
-    MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]        
+    # multi muon trigger
+    # 2muons
+    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=2)
+    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=2)
+    
+    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=2)
+    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=2)
+ 
+    MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
+    MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym, step3_2muEFSA_sym, step4_2muEFCB_sym ])]        
 
-  ##  MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_2MU6", ChainSteps=[ step1_2mufast, step2_2muComb ])]
-  ##  MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_2MU6", ChainSteps=[ step1_2mufast, step2_2muComb, step3_2muEFSA, step4_2muEFCB ])]        
 
     #FS Muon trigger
     MuonChains += [Chain(name='HLT_mu6nol1', Seed="L1_MU6", ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
@@ -121,40 +128,39 @@ if opt.doMuonSlice == True:
 # jet chains
 ##################################################################
 if opt.doJetSlice == True:
-    #from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceSetup import jetMenuSequence
-    from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
+    from TrigUpgradeTest.jetMenuDefs import jetMenuSequenceFromString
 
     # small-R jets, different calibrations
-    jetSeq_a4_emtopo = jetMenuSequence("a4_emtopo_subjesis", "TrigJetHypoAlgMT_a4_emtopo")
-    step_a4_emtopo =ChainStep("Step_jet_a4_emtopo", [jetSeq_a4_emtopo])
+    jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
+    step_a4_tc_em =ChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
 
-    jetSeq_a4_emtopo_subjes = jetMenuSequence("a4_emtopo_subjes", "TrigJetHypoAlgMT_a4_emtopo_subjes")
-    step_a4_emtopo_subjes = ChainStep("Step_jet_a4_subjes_emtopo", [jetSeq_a4_emtopo_subjes])
+    jetSeq_a4_tc_em_subjes = jetMenuSequenceFromString("a4_tc_em_subjes")
+    step_a4_tc_em_subjes = ChainStep("Step_jet_a4_subjes_tc_em", [jetSeq_a4_tc_em_subjes])
 
-    jetSeq_a4_emtopo_nocalib = jetMenuSequence("a4_emtopo_nocalib", "TrigJetHypoAlgMT_a4_emtopo_nocalib")
-    step_a4_emtopo_nocalib=ChainStep("Step_jet_a4_nocalib_emtopo", [jetSeq_a4_emtopo_nocalib])
+    jetSeq_a4_tc_em_nocalib = jetMenuSequenceFromString("a4_tc_em_nojcalib")
+    step_a4_tc_em_nocalib=ChainStep("Step_jet_a4_nojcalib_tc_em", [jetSeq_a4_tc_em_nocalib])
 
-    jetSeq_a4_lcw = jetMenuSequence("a4_lcw_subjesis", "TrigJetHypoAlgMT_a4_lcw")
-    step_a4_lcw=ChainStep("Step_jet_a4_lcw", [jetSeq_a4_lcw])
+    jetSeq_a4_tc_lcw = jetMenuSequenceFromString("a4_tc_lcw_subjesIS")
+    step_a4_tc_lcw=ChainStep("Step_jet_a4_tc_lcw", [jetSeq_a4_tc_lcw])
 
     # large-R jets
-    jetSeq_a10_lcw_subjes = jetMenuSequence("a10_lcw_subjes", "TrigJetHypoAlgMT_a10_lcw_subjes")
-    step_a10_lcw_subjes=ChainStep("Step_jet_a10_subjes_lcw", [jetSeq_a10_lcw_subjes])
+    jetSeq_a10_tc_lcw_subjes = jetMenuSequenceFromString("a10_tc_lcw_subjes")
+    step_a10_tc_lcw_subjes=ChainStep("Step_jet_a10_subjes_tc_lcw", [jetSeq_a10_tc_lcw_subjes])
 
-    jetSeq_a10r = jetMenuSequence("a10r_emtopo_subjesis", "TrigJetHypoAlgMT_a10r")
+    jetSeq_a10r = jetMenuSequenceFromString("a10r_tc_em_subjesIS")
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j85', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j420', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j225_gsc420_boffperf_split', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_lcw_subjes]  ),
+        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j85', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j420', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j225_gsc420_boffperf_split', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_tc_lcw_subjes]  ),
         Chain(name='HLT_j460_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
-        Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported) 
+        Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
         ]
 
     testChains += jetChains
@@ -211,7 +217,7 @@ if opt.doMETSlice == True:
 ##################################################################
 if opt.doBphysicsSlice == True:
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muEFSASequence, muEFCBSequence
-    from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence
+    from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence, dimuEFSequence
 	
     BphysChains  = []
 
@@ -219,10 +225,11 @@ if opt.doBphysicsSlice == True:
     step2L2Dimu=ChainStep("Step2_L2Dimu",  [dimuL2Sequence()])
     
     #still to come
-    #step3muEFSA=ChainStep("Step3_muEFSA",   [ muEFSASequence() ])
-    #step4muEFCB=ChainStep("Step4_muEFCB",   [ muEFCBSequence() ])
-    #step5EFJpsi=ChainStep("Step5_L2Jpsimumu",[jpsimumuEFSequence()])
+    step3muEFSA=ChainStep("Step3_muEFSA",   [ muEFSASequence() ])
+    step4muEFCB=ChainStep("Step4_muEFCB",   [ muEFCBSequence() ])
+    step5EFDimu=ChainStep("Step5_EFDimu",   [ dimuEFSequence() ])
 
+    BphysChains += [Chain(name='HLT_2mu4_bDimu_L12MU4',     Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu, step3muEFSA, step4muEFCB, step5EFDimu])]
     BphysChains += [Chain(name='HLT_2mu6_bJpsimumu_L12MU6', Seed="L1_MU6", ChainSteps=[ step1mufast, step2L2Dimu])]
     BphysChains += [Chain(name='HLT_2mu4_bBmumu_L12MU4',    Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
     BphysChains += [Chain(name='HLT_2mu4_bUpsimumu_L12MU4', Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
@@ -237,9 +244,16 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doComboSlice == True:
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()], multiplicity=2)
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
 
-    comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+
+    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
+    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
+
+
+    comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep_et_mufast ])]
+ #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step', Seed="L1_MU6_EM7",  ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
     testChains += comboChains
 
 
@@ -269,8 +283,8 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(topSequence)
-filters = collectFilters(topSequence)
+hypos = collectHypos(AthSequencer("HLTAllSteps"))
+filters = collectFilters(AthSequencer("HLTAllSteps"))
 
 # try to find L1Decoder
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
@@ -280,7 +294,8 @@ if not l1decoder:
 
 if l1decoder:
     decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    print decObj
+    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug(decObj)
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
     ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]

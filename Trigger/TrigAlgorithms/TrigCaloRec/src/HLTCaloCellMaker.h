@@ -25,6 +25,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include "CaloEvent/CaloCellContainerVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CaloEvent/CaloConstCellContainer.h"
@@ -50,6 +51,8 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 	SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
         /// FIXME: Temporary (i hope) to get dependency needed by BS converter.
         SG::ReadCondHandleKey<TileEMScale> m_tileEMScaleKey;
+	SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+        { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 
 	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
 	bool m_roiMode;

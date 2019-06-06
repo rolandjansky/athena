@@ -94,7 +94,8 @@ if hasattr(runArgs,"fastPoolMerge") and runArgs.fastPoolMerge == True:
      stream.HelperTools = []
      streamInfoToolKey = stream.name()
      streamInfoTool = CopyEventStreamInfo( streamInfoToolKey+"_CopyEventStreamInfo" )
-     streamInfoTool.Key = streamInfoToolKey
+     streamInfoTool.InputCollName = streamInfoToolKey
+     streamInfoTool.OutputCollName = streamInfoToolKey
      ToolSvc += streamInfoTool
      ServiceMgr.MetaDataSvc.MetaDataTools += [ streamInfoTool ]
 

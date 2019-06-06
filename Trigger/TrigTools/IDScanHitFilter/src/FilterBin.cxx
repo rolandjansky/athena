@@ -11,7 +11,7 @@
 //   $Id: FilyterBin.cxx, v0.0   Sun 17 Mar 2013 10:06:51 GMT sutt $
 
 
-#include "IDScanHitFilter/FilterBin.h"
+#include "FilterBin.h"
 
 long FilterBin::m_maxLayers      = 19;
 long FilterBin::m_maxBarrelLayer = 6;

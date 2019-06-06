@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/IRegionSelector
                           Event/EventPrimitives
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
@@ -27,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_TrigSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel InDetRecToolInterfaces TrkSegment TrkFitterInterfaces TrigInterfacesLib TrigTimeAlgsLib IRegionSelector EventPrimitives TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrigParticle TrigSteeringEvent )
+                     LINK_LIBRARIES GaudiKernel InDetRecToolInterfaces TrkSegment TrkFitterInterfaces TrigInterfacesLib TrigTimeAlgsLib IRegionSelector EventPrimitives SiSPSeededTrackFinderData TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrigParticle TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrigSeededTrackFinder )

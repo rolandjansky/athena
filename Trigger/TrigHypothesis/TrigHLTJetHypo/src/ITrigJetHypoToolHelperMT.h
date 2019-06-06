@@ -22,8 +22,8 @@ public:
   // generated at L1.
 
   virtual bool pass(HypoJetVector& jets,
-                    ITrigJetHypoInfoCollector*) const = 0;
-
+                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const = 0;
    
 };

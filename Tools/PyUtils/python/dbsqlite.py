@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/dbsqlite.py
 # reaped off: http://svn.python.org/view/sandbox/trunk/dbm_sqlite
@@ -17,15 +17,15 @@ __version__ = "$Revision: 225332 $"
 __all__ = ['error', 'open']
 
 import sqlite3
-import cPickle as pickle
-from UserDict import DictMixin
+import pickle
+from collections import MutableMapping
 import collections
 from operator import itemgetter
 import shelve
 
 error = sqlite3.DatabaseError
 
-class SQLhash(object, DictMixin):
+class SQLhash(MutableMapping):
     def __init__(self, filename=':memory:', flags='r', mode=None):
         # XXX add flag/mode handling
         #   c -- create if it doesn't exist
@@ -67,15 +67,15 @@ class SQLhash(object, DictMixin):
 
     def iterkeys(self):
         GET_KEYS = 'SELECT key FROM shelf ORDER BY ROWID'
-        return iter(SQLHashKeyIterator(self.conn, GET_KEYS, (0,)))
+        return SQLHashKeyIterator(self.conn, GET_KEYS, (0,))
 
     def itervalues(self):
         GET_VALUES = 'SELECT value FROM shelf ORDER BY ROWID'
-        return iter(SQLHashValueIterator(self.conn, GET_VALUES, (0,)))
+        return SQLHashValueIterator(self.conn, GET_VALUES, (0,))
 
     def iteritems(self):
         GET_ITEMS = 'SELECT key, value FROM shelf ORDER BY ROWID'
-        return iter(SQLHashItemIterator(self.conn, GET_ITEMS, (0, 1)))
+        return SQLHashItemIterator(self.conn, GET_ITEMS, (0, 1))
 
     def __contains__(self, key):
         HAS_ITEM = 'SELECT 1 FROM shelf WHERE key = ?'
@@ -153,8 +153,10 @@ class SQLHashKeyIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def next(self): #py2
         return self.getter(self.iter.next())
+    def __next__(self): #py3
+        return self.getter(self.iter.__next__())
 
 class SQLHashValueIterator(object):
     def __init__(self, conn, stmt, indices):
@@ -167,8 +169,11 @@ class SQLHashValueIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def next(self): #py2
         o = self.getter(self.iter.next())
+        return pickle.loads(o)
+    def __next__(self): #py3
+        o = self.getter(self.iter.__next__())
         return pickle.loads(o)
 
 class SQLHashItemIterator(object):
@@ -182,8 +187,13 @@ class SQLHashItemIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def next(self): #py2
         o = self.getter(self.iter.next())
+        k = o[0]
+        v = pickle.loads(o[1])
+        return (k,v)
+    def __next__(self): #py3
+        o = self.getter(self.iter.__next__())
         k = o[0]
         v = pickle.loads(o[1])
         return (k,v)

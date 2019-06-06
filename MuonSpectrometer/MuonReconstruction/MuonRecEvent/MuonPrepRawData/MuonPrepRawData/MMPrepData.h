@@ -81,7 +81,7 @@ namespace Muon
     int time() const;
 
     /** @brief Returns the ADC counts */
-    int charge() const;
+    double charge() const;
 
     /** @brief Returns the microTPC angle */
     double angle() const;
@@ -130,7 +130,7 @@ namespace Muon
     return m_time;
   }
   
-  inline int MMPrepData::charge() const 
+  inline double MMPrepData::charge() const 
   {
     return m_charge;
   }

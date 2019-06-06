@@ -9,7 +9,7 @@
 
 ++ Seeds
 
-++ Combined chains
+++ Combined chain strategy
 
 - The combined chains use duplicates of the single-object-HypoAlg, called HypoAlgName_for_stepName.
   These duplicates are connected to a dedicated ComboHypoAlg (added by the framework), able to count object multiplicity
@@ -25,9 +25,6 @@
 
 """
 
-
-
-
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
 from AthenaCommon.Logging import logging
@@ -35,7 +32,7 @@ from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
-import sys, copy
+import copy
 log = logging.getLogger('HLTCFConfig')
 
 
@@ -186,6 +183,8 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     if len(l1decoder)  != 1 :
         raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
 
+    # take L1Decoder out of topSeq
+    topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
@@ -193,6 +192,9 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
 
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
+
+    # put L1Decoder here
+    hltTop += l1decoder
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -354,7 +356,6 @@ def createDataFlow(chains, allDicts):
                 
             if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
                 log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
-                sys.exit("ERROR, in configuration of step "+chain_step.name)
                     
 
             # get the filter:
@@ -589,7 +590,6 @@ def findFilter(filter_name, cfseqList):
       #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
       if len(foundFilters) > 1:
           log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
-          sys.exit("ERROR, in filter configuration")
 
       found = bool(foundFilters)
       if found:          

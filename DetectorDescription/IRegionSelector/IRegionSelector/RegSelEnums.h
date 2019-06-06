@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef REGSELENUMS_H
-#define REGSELENUMS_H
+#ifndef IREGIONSELECTOR_REGSELENUMS_H
+#define IREGIONSELECTOR_REGSELENUMS_H
 
 //! An enum to define Muon chambers names.
 enum TYPEID{

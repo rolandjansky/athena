@@ -17,7 +17,7 @@
 #include "ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-
+#include "./ITrigJetHypoInfoCollector.h"
 class ITrigJetHypoInfoCollector;
 
 class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
@@ -29,7 +29,7 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                 const IInterface* parent);
   
   bool pass(HypoJetVector&,
-            ITrigJetHypoInfoCollector*) const override;
+            const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
