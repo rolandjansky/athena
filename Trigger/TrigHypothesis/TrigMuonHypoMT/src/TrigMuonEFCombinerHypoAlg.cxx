@@ -111,7 +111,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
       newd -> setObjectLink( "feature", muonEL );
       newd -> setObjectLink( "roi",     roiEL  );
       newd -> setObjectLink( "view",    viewEL );
-      TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());

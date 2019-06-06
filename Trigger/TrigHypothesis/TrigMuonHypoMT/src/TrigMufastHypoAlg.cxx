@@ -104,7 +104,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     newd->setObjectLink( "feature", muonEL );  
     newd->setObjectLink( "roi",     roiEL );
     newd->setObjectLink( "view",    viewEL );
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
