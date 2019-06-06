@@ -102,9 +102,14 @@ public:
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
-   * @param par generic parameter
+   * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent( EventContext &&ctx );
+
+  /**
+   * create an Event Context object
+   */
+  virtual EventContext createEventContext() override;
 
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
