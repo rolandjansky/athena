@@ -372,14 +372,29 @@ StatusCode FastShowerCellBuilderTool::initialize()
 
   ATH_CHECK(m_partPropSvc.retrieve());
 
+  // If alignments are enabled, then arrange for caloAligned() to be called
+  // after they are applied, to build our tables.  If alignments are not
+  // enabled, then do this immediately.  
   ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", name());
   ATH_CHECK( geoModelSvc.retrieve() );
-  const IGeoModelTool* larDetectorTool =
-    geoModelSvc->getTool("LArDetectorToolNV");
-  ATH_CHECK( detStore()->regFcn (&IGeoModelTool::align,
-                                 dynamic_cast<const IGeoModelTool*>(larDetectorTool),
-                                 &FastShowerCellBuilderTool::caloAligned,
-                                 this) );
+  bool registeredCB = false;
+  if (IProperty* geoModelProp = dynamic_cast<IProperty*> (geoModelSvc.get())) {
+    if (geoModelProp->getProperty ("AlignCallbacks").toString() == "True") {
+      const IGeoModelTool* larDetectorTool =
+        geoModelSvc->getTool("LArDetectorToolNV");
+      ATH_CHECK( detStore()->regFcn (&IGeoModelTool::align,
+                                     dynamic_cast<const IGeoModelTool*>(larDetectorTool),
+                                     &FastShowerCellBuilderTool::caloAligned,
+                                     this) );
+      registeredCB = true;
+    }
+  }
+  if (!registeredCB) {
+    // No alignments, make the call now.
+    int dumi = 0;
+    std::list<std::string> duml;
+    ATH_CHECK( caloAligned (dumi, duml) );
+  }
 
   m_particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
   if(!m_particleDataTable) {
