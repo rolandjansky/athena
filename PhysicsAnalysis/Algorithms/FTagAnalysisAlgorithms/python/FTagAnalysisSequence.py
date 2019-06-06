@@ -61,7 +61,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
                 outputPropName = 'particlesOut',
                 stageName = 'selection' )
 
-    if not noEfficiency :
+    if not noEfficiency and dataType != 'data':
         # Set up the efficiency calculation algorithm:
         alg = createAlgorithm( 'CP::BTaggingEfficiencyAlg',
                                'FTagEfficiencyScaleFactorAlg' + btagger + btagWP )
