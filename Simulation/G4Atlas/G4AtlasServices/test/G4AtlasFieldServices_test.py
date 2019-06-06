@@ -31,13 +31,16 @@ if __name__ == '__main__':
 
   from G4AtlasServices.G4AtlasFieldServices import StandardFieldSvcCfg
   from G4AtlasServices.G4AtlasFieldServices import ForwardFieldSvcCfg
+  from G4AtlasServices.G4AtlasFieldServices import Q1FwdG4FieldSvcCfg
 
   #add the algorithm
   acc1 = StandardFieldSvcCfg(ConfigFlags)
   acc2 = ForwardFieldSvcCfg(ConfigFlags)
+  acc3 = Q1FwdG4FieldSvcCfg(ConfigFlags)
 
   cfg.merge(acc1)
   cfg.merge(acc2)
+  cfg.merge(acc3)
 
   # Dump config
   #cfg.getService("StoreGateSvc").Dump = True
