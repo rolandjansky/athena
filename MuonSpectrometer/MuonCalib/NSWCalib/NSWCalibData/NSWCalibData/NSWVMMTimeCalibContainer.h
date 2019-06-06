@@ -8,7 +8,7 @@
 #include "DataModel/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "NSWCalibData/VMMTimePar.h"
-
+namespace Muon{
 class NSWVMMTimeCalibContainer : public DataVector<VMMTimePar>
 {
  public:
@@ -25,5 +25,5 @@ inline NSWVMMTimeCalibContainer::~NSWVMMTimeCalibContainer()
 { } 
 
 CLASS_DEF(NSWVMMTimeCalibContainer,1165680501, 1)
-
+}
 #endif  // NSWVMMTimeCalibContainer_H

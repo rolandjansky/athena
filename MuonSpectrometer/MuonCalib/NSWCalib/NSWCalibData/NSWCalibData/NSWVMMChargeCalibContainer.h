@@ -8,7 +8,7 @@
 #include "DataModel/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "NSWCalibData/VMMChargePar.h"
-
+namespace Muon{
 class NSWVMMChargeCalibContainer : public DataVector<VMMChargePar>
 {
  public:
@@ -25,5 +25,5 @@ inline NSWVMMChargeCalibContainer::~NSWVMMChargeCalibContainer()
 { } 
 
 CLASS_DEF(NSWVMMChargeCalibContainer,1232052380, 1)
-
+}
 #endif  // NSWVMMChargeCalibContainer_H
