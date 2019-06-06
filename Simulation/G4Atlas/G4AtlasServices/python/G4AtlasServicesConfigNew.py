@@ -9,16 +9,6 @@ from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc,
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
-"""FwdRegionPhysicsRegionToolCfg,  
- TRT_KrPhysicsRegionToolCfg,  
- EMECParaPhysicsRegionToolCfg, 
- FCALParaPhysicsRegionToolCfg, 
- FCAL2ParaPhysicsRegionToolCfg, 
- PreSampLArPhysicsRegionToolCfg, 
- DeadMaterialPhysicsRegionToolCfg, 
- MuonPhysicsRegionToolCfg, 
- SX1PhysicsRegionToolCfg,  
- SCTSiliconPhysicsRegionToolCfg"""
 
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
@@ -132,55 +122,134 @@ def getTB_RegionCreatorList(ConfigFlags):
     return regionCreatorList
 
 #########################################################################
-def getATLAS_FieldMgrList(ConfigFlags):
+def ATLAS_FieldMgrListCfg(ConfigFlags):
     result = ComponentAccumulator()
     fieldMgrList = []
-    from G4AtlasApps.SimFlags import simFlags
+    #from G4AtlasApps.SimFlags import simFlags
     #if not simFlags.TightMuonStepping.statusOn or\
     #   not simFlags.TightMuonStepping():
     if False:
-        fieldMgrList += [ATLASFieldManagerToolCfg(ConfigFlags)]
-    else:
-        acc, tool = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
-        #fieldMgrList += [acc.getPublicTool('TightMuonsATLASFieldManager')] # issue with public tools?
+        #fieldMgrList += [ATLASFieldManagerToolCfg(ConfigFlags)]
+        acc   = ATLASFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-        result.merge(acc)
+    else:
+        acc   = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
 
     from AthenaCommon.DetFlags import DetFlags
     if ConfigFlags.Detector.SimulateBpipe:
-        fieldMgrList += [BeamPipeFieldManagerToolCfg(ConfigFlags)]
+        acc = BeamPipeFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
     if ConfigFlags.Detector.SimulateID:
-        fieldMgrList += [InDetFieldManagerToolCfg(ConfigFlags)]
+        acc = InDetFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
     #if ConfigFlags.Detector.SimulateCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
     if False:
-        fieldMgrList += [MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)]
+        acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
     if ConfigFlags.Detector.SimulateMuon:
-        fieldMgrList += [MuonFieldManagerToolCfg(ConfigFlags)]
+        acc = MuonFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+
+    #sort these forward ones later
     if ConfigFlags.Detector.SimulateForward: #needed?
         if ConfigFlags.Detector.GeometryFwdRegion: #or forward?
-            fieldMgrList += [Q1FwdFieldManagerToolCfg(ConfigFlags),
-                             Q2FwdFieldManagerToolCfg(ConfigFlags),
-                             Q3FwdFieldManagerToolCfg(ConfigFlags),
-                             D1FwdFieldManagerToolCfg(ConfigFlags),
-                             D2FwdFieldManagerToolCfg(ConfigFlags),
-                             Q4FwdFieldManagerToolCfg(ConfigFlags),
-                             Q5FwdFieldManagerToolCfg(ConfigFlags),
-                             Q6FwdFieldManagerToolCfg(ConfigFlags),
-                             Q7FwdFieldManagerToolCfg(ConfigFlags),
-                             Q1HKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q1VKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q2HKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q2VKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q3HKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q3VKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q4VKickAFwdFieldManagerToolCfg(ConfigFlags),
-                             Q4HKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q4VKickBFwdFieldManagerToolCfg(ConfigFlags),
-                             Q5HKickFwdFieldManagerToolCfg(ConfigFlags),
-                             Q6VKickFwdFieldManagerToolCfg(ConfigFlags),
-                             FwdRegionFieldManagerToolCfg(ConfigFlags)]
+          """fieldMgrList += [Q1FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q2FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q3FwdFieldManagerToolCfg(ConfigFlags),
+                                                           D1FwdFieldManagerToolCfg(ConfigFlags),
+                                                           D2FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q4FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q5FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q6FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q7FwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q1HKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q1VKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q2HKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q2VKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q3HKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q3VKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q4VKickAFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q4HKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q4VKickBFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q5HKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           Q6VKickFwdFieldManagerToolCfg(ConfigFlags),
+                                                           FwdRegionFieldManagerToolCfg(ConfigFlags)]"""
+
+          accQ1FwdRegionFieldManager = Q1FwdFieldManagerToolCfg(ConfigFlags)
+          accQ2FwdRegionFieldManager = Q2FwdFieldManagerToolCfg(ConfigFlags)
+          accQ3FwdRegionFieldManager = Q3FwdFieldManagerToolCfg(ConfigFlags)
+          accD1FwdRegionFieldManager = D1FwdFieldManagerToolCfg(ConfigFlags)
+          accD2FwdRegionFieldManager = D2FwdFieldManagerToolCfg(ConfigFlags)
+          accQ4FwdRegionFieldManager = Q4FwdFieldManagerToolCfg(ConfigFlags)
+          accQ5FwdRegionFieldManager = Q5FwdFieldManagerToolCfg(ConfigFlags)
+          accQ6FwdRegionFieldManager = Q6FwdFieldManagerToolCfg(ConfigFlags)
+          accQ7FwdRegionFieldManager = Q7FwdFieldManagerToolCfg(ConfigFlags)
+          accQ1HKickFwdRegionFieldManager = Q1HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ1VKickFwdRegionFieldManager = Q1VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ2HKickFwdRegionFieldManager = Q2HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ2VKickFwdRegionFieldManager = Q2VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ3HKickFwdRegionFieldManager = Q3HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ3VKickFwdRegionFieldManager = Q3VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4VKickAFwdRegionFieldManager = Q4VKickAFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4HKickFwdRegionFieldManager = Q4HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ4VKickBFwdRegionFieldManager = Q4VKickBFwdFieldManagerToolCfg(ConfigFlags)
+          accQ5HKickFwdRegionFieldManager = Q5HKickFwdFieldManagerToolCfg(ConfigFlags)
+          accQ6VKickFwdRegionFieldManager = Q6VKickFwdFieldManagerToolCfg(ConfigFlags)
+          accFwdRegionFieldManager = FwdRegionFieldManagerToolCfg(ConfigFlags)
+
+          toolQ1FwdRegionFieldManager = result.popToolsAndMerge(accQ1FwdRegionFieldManager)
+          toolQ2FwdFieldManager = result.popToolsAndMerge(accQ2FwdRegionFieldManager)
+          toolQ3FwdFieldManager = result.popToolsAndMerge(accQ3FwdRegionFieldManager)
+          toolD1FwdFieldManager = result.popToolsAndMerge(accD1FwdRegionFieldManager)
+          toolD2FwdFieldManager = result.popToolsAndMerge(accD2FwdRegionFieldManager)
+          toolQ4FwdFieldManager = result.popToolsAndMerge(accQ4FwdRegionFieldManager)
+          toolQ5FwdFieldManager = result.popToolsAndMerge(accQ5FwdRegionFieldManager)
+          toolQ6FwdFieldManager = result.popToolsAndMerge(accQ6FwdRegionFieldManager)
+          toolQ7FwdFieldManager = result.popToolsAndMerge(accQ7FwdRegionFieldManager)
+          toolQ1HKickFwdFieldManager = result.popToolsAndMerge(accQ1HKickFwdRegionFieldManager)
+          toolQ1VKickFwdFieldManager = result.popToolsAndMerge(accQ1VKickFwdRegionFieldManager)
+          toolQ2HKickFwdFieldManager = result.popToolsAndMerge(accQ2HKickFwdRegionFieldManager)
+          toolQ2VKickFwdFieldManager = result.popToolsAndMerge(accQ2VKickFwdRegionFieldManager)
+          toolQ3HKickFwdFieldManager = result.popToolsAndMerge(accQ3HKickFwdRegionFieldManager)
+          toolQ3VKickFwdFieldManager = result.popToolsAndMerge(accQ3VKickFwdRegionFieldManager)
+          toolQ4VKickAFwdFieldManager = result.popToolsAndMerge(accQ4VKickAFwdRegionFieldManager)
+          toolQ4HKickFwdFieldManager = result.popToolsAndMerge(accQ4HKickFwdRegionFieldManager)
+          toolQ4VKickBFwdFieldManager = result.popToolsAndMerge(accQ4VKickBFwdRegionFieldManager)
+          toolQ5HKickFwdFieldManager = result.popToolsAndMerge(accQ5HKickFwdRegionFieldManager)
+          toolQ6VKickFwdFieldManager = result.popToolsAndMerge(accQ6VKickFwdRegionFieldManager)
+          toolFwdRegionFieldManager = result.popToolsAndMerge(accFwdRegionFieldManager)
+
+          fieldMgrList+=[toolQ1FwdRegionFieldManager,
+                                                       toolQ2FwdFieldManager,
+                                                       toolQ3FwdFieldManager,
+                                                       toolD1FwdFieldManager,
+                                                       toolD2FwdFieldManager,
+                                                       toolQ4FwdFieldManager,
+                                                       toolQ5FwdFieldManager,
+                                                       toolQ6FwdFieldManager,
+                                                       toolQ7FwdFieldManager,
+                                                       toolQ1HKickFwdFieldManager,
+                                                       toolQ1VKickFwdFieldManager,
+                                                       toolQ2HKickFwdFieldManager,
+                                                       toolQ2VKickFwdFieldManager,
+                                                       toolQ3HKickFwdFieldManager,
+                                                       toolQ3VKickFwdFieldManager,
+                                                       toolQ4VKickAFwdFieldManager,
+                                                       toolQ4HKickFwdFieldManager,
+                                                       toolQ4VKickBFwdFieldManager,
+                                                       toolQ5HKickFwdFieldManager,
+                                                       toolQ6VKickFwdFieldManager,
+                                                       toolFwdRegionFieldManager]
+          #fieldMgrList+=[toolQ1FwdRegionFieldManager]
     result.setPrivateTools(fieldMgrList)
-    return result, fieldMgrList
+    return result#, fieldMgrList
 
 #called?
 def getCTB_FieldMgrList(ConfigFlags):
@@ -203,10 +272,10 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     kwargs.setdefault("DetectorConstruction", G4AtlasDetectorConstructionToolCfg(ConfigFlags))
     ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
     kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools(ConfigFlags))
-    from G4AtlasApps.SimFlags import simFlags
+
     #if hasattr(simFlags,"Eta"): #FIXME ugly hack
     if False:
-        kwargs.setdefault("World", 'TileTB_World')
+        kwargs.setdefault("World", 'TileTB_World') # NEED TO ADD THIS
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     #elif hasattr(simFlags,"LArTB_H1TableYPos"): #FIXME ugly hack
@@ -225,10 +294,9 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
-            acc, fieldMgrList = getATLAS_FieldMgrList(ConfigFlags)
-            kwargs.setdefault("FieldManagers", fieldMgrList ) #causing issues...!
-            tool = result.popToolsAndMerge(acc)
-            result.setPrivateTools(tool)
+            acc = ATLAS_FieldMgrListCfg(ConfigFlags)
+            fieldMgrList = result.popToolsAndMerge(acc)
+            kwargs.setdefault("FieldManagers", fieldMgrList) 
 
     result.addService(DetectorGeometrySvc(name, **kwargs))
     return result
@@ -290,10 +358,10 @@ if __name__ == '__main__':
 
   #add the algorithm
   acc = DetectorGeometrySvcCfg(ConfigFlags)
+  cfg.merge(acc)
 
-  cfg.addService(acc.getService("DetectorGeometrySvc"))
 
-  tool = cfg.popToolsAndMerge(acc)
+  #cfg.addService(acc.getService("DetectorGeometrySvc"))
   #cfg.setPrivateTools(tool) #need to set private tools?
 
 

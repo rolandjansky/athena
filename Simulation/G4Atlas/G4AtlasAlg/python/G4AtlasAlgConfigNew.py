@@ -49,9 +49,8 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     print "TESTTTTT" #check if it runs!
     kwargs.setdefault('DetGeoSvc', acc.getService("DetectorGeometrySvc"))
     #result.addService(DetGeoSvc)
-    tools = result.popToolsAndMerge(acc)
-    result.setPrivateTools(tools)
-
+    result.merge(acc)
+    
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent") #tocheck -are these string inputs?
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos

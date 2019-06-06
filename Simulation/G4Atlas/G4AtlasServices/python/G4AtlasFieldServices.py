@@ -4,6 +4,8 @@ from G4AtlasServices.G4AtlasServicesConf import StandardFieldSvc
 
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
+from ForwardRegionMgField.ForwardRegionMgFieldConfigNew import Q1FieldSvcCfg, Q2FieldSvcCfg, Q3FieldSvcCfg, D1FieldSvcCfg, D2FieldSvcCfg, Q4FieldSvcCfg, Q5FieldSvcCfg, Q6FieldSvcCfg, Q7FieldSvcCfg, Q1hkickFieldSvcCfg, Q1vkickFieldSvcCfg, Q2hkickFieldSvcCfg, Q2vkickFieldSvcCfg, Q3hkickFieldSvcCfg, Q3vkickFieldSvcCfg, Q4vkickAFieldSvcCfg, Q4hkickFieldSvcCfg, Q4vkickBFieldSvcCfg, Q5hkickFieldSvcCfg, Q6vkickFieldSvcCfg
+
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
     result = ComponentAccumulator()
 
@@ -32,65 +34,105 @@ def ForwardFieldSvcCfg(ConfigFlags, name="ForwardField", **kwargs):
     return result
 
 def Q1FwdG4FieldSvcCfg(ConfigFlags, name='Q1FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1")
-    return StandardFieldSvc(name, **kwargs)
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q1FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
 def Q2FwdG4FieldSvcCfg(ConfigFlags, name='Q2FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2")
-    return StandardFieldSvc(name, **kwargs)
-def Q3FwdG4FieldSvcCfg(ConfigFlags, name='Q3FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3")
-    return StandardFieldSvc(name, **kwargs)
-def D1FwdG4FieldSvcCfg(ConfigFlags, name='D1FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "D1")
-    return StandardFieldSvc(name, **kwargs)
-def D2FwdG4FieldSvcCfg(ConfigFlags, name='D2FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "D2")
-    return StandardFieldSvc(name, **kwargs)
-def Q4FwdG4FieldSvcCfg(ConfigFlags, name='Q4FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4")
-    return StandardFieldSvc(name, **kwargs)
-def Q5FwdG4FieldSvcCfg(ConfigFlags, name='Q5FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q5")
-    return StandardFieldSvc(name, **kwargs)
-def Q6FwdG4FieldSvcCfg(ConfigFlags, name='Q6FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q6")
-    return StandardFieldSvc(name, **kwargs)
-def Q7FwdG4FieldSvcCfg(ConfigFlags, name='Q7FwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q7")
-    return StandardFieldSvc(name, **kwargs)
-def Q1HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q1VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q1VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q2HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q2VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q2VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q3HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q3VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q3VKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q4VKickAFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickAFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4VKickA")
-    return StandardFieldSvc(name, **kwargs)
-def Q4HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q4HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q4VKickBFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickBFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q4VKickB")
-    return StandardFieldSvc(name, **kwargs)
-def Q5HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q5HKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q5HKick")
-    return StandardFieldSvc(name, **kwargs)
-def Q6VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q6VKickFwdG4FieldSvc', **kwargs):
-    kwargs.setdefault("MagneticFieldSvc",           "Q6VKick")
-    return StandardFieldSvc(name, **kwargs)
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q2FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q3FwdG4FieldSvcCfg(ConfigFlags, name='Q3FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q3FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def D1FwdG4FieldSvcCfg(ConfigFlags, name='D1FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           D1FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def D2FwdG4FieldSvcCfg(ConfigFlags, name='D2FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           D2FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q4FwdG4FieldSvcCfg(ConfigFlags, name='Q4FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q4FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q5FwdG4FieldSvcCfg(ConfigFlags, name='Q5FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q5FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q6FwdG4FieldSvcCfg(ConfigFlags, name='Q6FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q6FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q7FwdG4FieldSvcCfg(ConfigFlags, name='Q7FwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q7FieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q1HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1HKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q1hkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q1VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q1VKickFwdG4FieldSvc', **kwargs): #note is lower case "v" in ForwardRegionMgFieldConfig.py
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q1vkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q2HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2HKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q2hkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q2VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q2VKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q2vkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q3HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3HKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q3hkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q3VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q3VKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q3vkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q4VKickAFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickAFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q4vkickAFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q4HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q4HKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q4hkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q4VKickBFwdG4FieldSvcCfg(ConfigFlags, name='Q4VKickBFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q4vkickBFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q5HKickFwdG4FieldSvcCfg(ConfigFlags, name='Q5HKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q5hkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
+def Q6VKickFwdG4FieldSvcCfg(ConfigFlags, name='Q6VKickFwdG4FieldSvc', **kwargs): 
+    result = ComponentAccumulator()
+    kwargs.setdefault("MagneticFieldSvc",           Q6vkickFieldSvcCfg(ConfigFlags))
+    result.addService(StandardFieldSvc(name, **kwargs))
+    return result
 
 
 if __name__ == '__main__':
