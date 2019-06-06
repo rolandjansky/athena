@@ -11,7 +11,6 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: CBNode.h,v 1.3 2007-08-15 21:04:32 leggett Exp $
  *
  *  Tree node structure for callback function trigger tree
  *
@@ -20,13 +19,8 @@
 #include <set>
 #include <string>
 
-#ifndef ATHENAKERNEL_IOVSVCDEFS_H
 #include "AthenaKernel/IOVSvcDefs.h"
-#endif
-
-#ifndef SGTOOLS_CALLBACKID_H
 #include "SGTools/CallBackID.h"
-#endif
 
 namespace SG {
   class DataProxy;
