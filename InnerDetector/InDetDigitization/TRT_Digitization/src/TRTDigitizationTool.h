@@ -131,14 +131,15 @@ private:
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
 
-  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
+  std::string m_dataObjectName{""};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */
   SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
 
   Gaudi::Property<bool> m_printOverrideableSettings{this, "PrintOverrideableSettings", false, "Print overrideable settings"};
   Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
-  Gaudi::Property<std::string> m_dataObjectName{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
 
