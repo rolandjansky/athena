@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigDecisionInterface
                           PRIVATE
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/SGMon/SGAudCore
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODEventInfo
@@ -33,8 +34,8 @@ atlas_add_library( AthenaMonitoringLib
                    PUBLIC_HEADERS AthenaMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists )
 
 atlas_add_component( AthenaMonitoring
                      src/components/*.cxx
