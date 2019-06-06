@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaSharedHeapSTLAllocator.h 552460 2013-06-25 17:29:25Z ssnyder $
@@ -290,7 +290,7 @@ public:
 
 
   /**
-   * @brief Inquality test.
+   * @brief Inequality test.
    *
    * Two allocators should compare equal if objects allocated by one
    * can be deallocated by the other.  We check if they are referencing
