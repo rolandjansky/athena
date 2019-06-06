@@ -10,17 +10,8 @@ from RecExConfig.RecFlags  import rec
 rec.doESD=True
 rec.doWriteESD=True
 
+
 include("TrigUpgradeTest/testHLT_MT.py")
-
-##########################################
-# menu
-###########################################
-# note : L1 Seeds must be declared in CTP file: for example
-# nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
-##########################################
-
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
 
 ##################################################################
@@ -35,11 +26,8 @@ menu = GenerateMenuMT()
 
 def signaturesToGenerate():
     TriggerFlags.Slices_all_setOff()
-    print 'MEOW opt.enalbedSignatures', opt.enabledSignatures
     for sig in opt.enabledSignatures:
-        eval(sig)
-
-    
+        eval(sig)    
         
 menu.overwriteSignaturesWith(signaturesToGenerate)
 allChainConfigs = menu.generateMT()

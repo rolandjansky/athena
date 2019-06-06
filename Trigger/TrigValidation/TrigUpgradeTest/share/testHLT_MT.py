@@ -90,17 +90,13 @@ for s in slices:
     if 'Electron' in s or 'Photon' in s:
         signature = 'Egamma'
 
-    print 'MEOW', signature
-    print 'MEOW', eval('opt.'+s)
-
     if eval('opt.'+s):
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.enabledSignatures.append( enabledSig )
-        #eval('TriggerFlags.'+signature+'Slice.setAll()')
     else:
         disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.disabledSignatures.append( disabledSig )
-        #eval('TriggerFlags.'+signature+'Slice.unsetAll()')
+
 
 #-------------------------------------------------------------
 # Setting Global Flags

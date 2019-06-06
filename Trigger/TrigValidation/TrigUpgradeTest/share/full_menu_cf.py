@@ -165,7 +165,7 @@ if opt.doJetSlice == True:
 ##################################################################
 # bjet chains
 ##################################################################
-if opt.doBJetSlice == True:
+if opt.doBjetSlice == True:
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
     step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
@@ -238,7 +238,7 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 # combined chains
 ##################################################################
-if opt.doComboSlice == True:
+if opt.doCombinedSlice == True:
     # combo chains
     comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()], multiplicity=2)
 

@@ -193,7 +193,7 @@ class GenerateMenuMT(object):
                 self.signaturesToGenerate.append(sig)
                 log.debug('Signatures to generate %s', sig)
             else:
-                log.debug('Signature %s is not switched on (no chains in menu or disabledd by flag)', sig)
+                log.debug('Signature %s is not switched on (no chains in menu or disabled by flag)', sig)
         
         log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
@@ -212,6 +212,7 @@ class GenerateMenuMT(object):
         # check if all the signature files can be imported files can be imported
         for sig in self.signaturesToGenerate:
             log.debug("current sig %s", sig)
+            print 'MEOW current sig', sig 
             try:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':
@@ -224,19 +225,30 @@ class GenerateMenuMT(object):
                         sigFolder = sig
                         subSigs = [sig]
 
+                    print 'MEOW subSigs', subSigs
                     for ss in subSigs: 
                         if sigFolder == 'Combined':
                             continue
                         else:
+                            print 'MEOW attempting to import', sigFolder
                             exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + ss + 'ChainDefs')                
-                            self.availableSignatures.append(ss)                        
+                            if ss not in self.availableSignatures:
+                                self.availableSignatures.append(ss)                        
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
 
+        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
+
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4, depth=8)
+        log.info('MEOW dictionary is: %s', pp.pformat(mainChainDict))
+
+
 
         # split the the chainDictionaries for each chain and print them in a pretty way
-        chainDicts = splitInterSignatureChainDict(mainChainDict)  
+        chainDicts = splitInterSignatureChainDict(mainChainDict) 
+        print "MEOW test1"
 
         if log.isEnabledFor(logging.DEBUG):
             import pprint
@@ -251,6 +263,7 @@ class GenerateMenuMT(object):
             currentSig = chainDict['signature']
             chainName = chainDict['chainName']
             log.debug('Checking chainDict for chain %s' , currentSig)
+            print 'MEOW current sig', currentSig
 
             sigFolder = ''
             if currentSig == 'Electron' or currentSig == 'Photon':
@@ -260,10 +273,15 @@ class GenerateMenuMT(object):
             else:
                 sigFolder = currentSig
 
+            print 'MEOW current sig', currentSig
+            print 'MEOW current sigFolder', sigFolder
+            print 'MEOW2 availSigs', self.availableSignatures
+
             if currentSig in self.availableSignatures and currentSig != 'Combined':
                 try:                    
                     log.debug("Trying to get chain config for %s", currentSig)
                     functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
+                    print 'MEOW functocall', functionToCall
                     chainConfigs = eval(functionToCall)
                 except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
