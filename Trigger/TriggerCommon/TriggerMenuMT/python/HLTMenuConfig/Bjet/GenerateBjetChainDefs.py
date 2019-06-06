@@ -11,7 +11,6 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-    print 'MEOW in bjet code'
     import pprint
     pprint.pprint( chainDict )
 
