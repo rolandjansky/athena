@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCSIMHITVARIABLES_H
@@ -32,9 +32,6 @@ class sTGCSimHitVariables : public ValAlgVariables
     m_NSWsTGC_hitGlobalDirectionX(0), 
     m_NSWsTGC_hitGlobalDirectionY(0), 
     m_NSWsTGC_hitGlobalDirectionZ(0), 
-    m_NSWsTGC_hitLocalPositionX(0), 
-    m_NSWsTGC_hitLocalPositionY(0), 
-    m_NSWsTGC_hitLocalPositionZ(0), 
     m_NSWsTGC_detector_globalPositionX(0),
     m_NSWsTGC_detector_globalPositionY(0),
     m_NSWsTGC_detector_globalPositionZ(0),
@@ -49,9 +46,7 @@ class sTGCSimHitVariables : public ValAlgVariables
     m_NSWsTGC_FastDigitRsurfacePositionX(0),
     m_NSWsTGC_FastDigitRsurfacePositionY(0),
     m_NSWsTGC_particleEncoding(0), 
-    m_NSWsTGC_kineticEnergy(0), 
     m_NSWsTGC_depositEnergy(0), 
-    m_NSWsTGC_StepLength(0),
     m_NSWsTGC_sim_stationName(0),
     m_NSWsTGC_wedgeId(0),
     m_NSWsTGC_wedgeType(0),
@@ -111,10 +106,6 @@ class sTGCSimHitVariables : public ValAlgVariables
   std::vector<double> *m_NSWsTGC_hitGlobalDirectionY;
   std::vector<double> *m_NSWsTGC_hitGlobalDirectionZ;
 
-  std::vector<double> *m_NSWsTGC_hitLocalPositionX;
-  std::vector<double> *m_NSWsTGC_hitLocalPositionY;
-  std::vector<double> *m_NSWsTGC_hitLocalPositionZ;
-
   std::vector<double> *m_NSWsTGC_detector_globalPositionX;
   std::vector<double> *m_NSWsTGC_detector_globalPositionY;
   std::vector<double> *m_NSWsTGC_detector_globalPositionZ;
@@ -133,9 +124,7 @@ class sTGCSimHitVariables : public ValAlgVariables
   std::vector<double> *m_NSWsTGC_FastDigitRsurfacePositionY;
 
   std::vector<int> *m_NSWsTGC_particleEncoding;
-  std::vector<double> *m_NSWsTGC_kineticEnergy;
   std::vector<double> *m_NSWsTGC_depositEnergy;
-  std::vector<double> *m_NSWsTGC_StepLength;
 
   std::vector<std::string> *m_NSWsTGC_sim_stationName;
   std::vector<int> *m_NSWsTGC_wedgeId;        // large=0, small=1
