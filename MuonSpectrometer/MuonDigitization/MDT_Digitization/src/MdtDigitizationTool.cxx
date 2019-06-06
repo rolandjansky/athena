@@ -123,11 +123,15 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_CHECK(m_mergeSvc.retrieve());
 
   // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputObjectKey.initialize());
@@ -246,6 +250,22 @@ StatusCode MdtDigitizationTool::getNextEvent()
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<MDTSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get MDTSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcMDT = new TimedHitCollection<MDTSimHit>{1};
+    m_thpcMDT->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("MDTSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<info<time_t, DataLink<MDTSimHitCollection> > >
   TimedHitCollList hitCollList;
   
