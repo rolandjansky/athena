@@ -14,8 +14,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "PileUpTools/PileUpMergeSvc.h"
-
 #include "CSC_Digitization/CscDigitizationTool.h"
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -23,30 +21,10 @@
 
 using namespace MuonGM;
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_vetoThisBarcode(crazyParticleBarcode) {
-
-  declareProperty("InputObjectName",  m_inputObjectName = "CSC_Hits", "name of the input objects");
-  declareProperty("pedestal",m_pedestal = 0.0);
-  declareProperty("WindowLowerOffset",m_timeWindowLowerOffset = -25.);
-  declareProperty("WindowUpperOffset",m_timeWindowUpperOffset = +25.);
-  declareProperty("isPileUp",m_isPileUp = false);
-
-  declareProperty("maskBadChannels",  m_maskBadChannel=true);
-  declareProperty("amplification",    m_amplification=0.58e5);
-
-  declareProperty("NewDigitEDM",      m_newDigitEDM = true);
-  declareProperty("DriftVelocity",    m_driftVelocity = 60); // 60 / (1e-6 * 1e9); // 6 cm/microsecond -> mm/ns // 0.06
-  declareProperty("ElectronEnergy",   m_electronEnergy   = 66); // eV
-  declareProperty("NInterFixed",      m_NInterFixed   = false);
-  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
-}
+ {
+ }
 
 
 CscDigitizationTool::~CscDigitizationTool()  {
@@ -79,28 +57,17 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
 
   // initialize transient detector store and MuonDetDescrManager
-  if ( detStore()->retrieve(m_geoMgr).isFailure() ) {
-    ATH_MSG_FATAL ( "Could not retrieve MuonDetectorManager!" );
-    return StatusCode::FAILURE;
-  }
-  else
-    ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
+  ATH_CHECK(detStore()->retrieve(m_geoMgr));
+  ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
-
-  //locate the PileUpMergeSvc and initialize our local ptr
-
-  const bool CREATEIF(true);
-  if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-      0 == m_mergeSvc) {
-    ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_mergeSvc.retrieve());
 
   // check the input object name
   if (m_inputObjectName=="") {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
     return StatusCode::FAILURE;
-  } else {
+  }
+  else {
     ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
   }
 
@@ -108,10 +75,7 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(m_rndmSvc.retrieve());
 
   /** CSC calibratin tool for the Condtiions Data base access */
-  if ( m_pcalib.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Can't get handle on CSC calibration tools" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pcalib.retrieve());
 
   ICscCalibTool * cscCalibTool = &*(m_pcalib);
 
@@ -122,16 +86,12 @@ StatusCode CscDigitizationTool::initialize() {
   m_cscDigitizer->setDebug        ( msgLvl(MSG::DEBUG) );
   m_cscDigitizer->setDriftVelocity(m_driftVelocity);
   m_cscDigitizer->setElectronEnergy  (m_electronEnergy);
-  if (m_NInterFixed)
+  if (m_NInterFixed) {
     m_cscDigitizer->setNInterFixed();
-
-  if ( m_cscDigitizer->initialize().isFailure() ) {
-    ATH_MSG_FATAL ( "Could not initialize CSC Digitizer!" );
-    return StatusCode::FAILURE;
   }
-  m_cscIdHelper = m_geoMgr->cscIdHelper();
 
-  //  ATH_MSG_FATAL ( "Could not initialize CSC Digitizer!" );
+  ATH_CHECK(m_cscDigitizer->initialize());
+  m_cscIdHelper = m_geoMgr->cscIdHelper();
 
   m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ *  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -17,6 +17,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
+#include <sstream>
 
 
 namespace DMTest {
@@ -74,29 +75,31 @@ StatusCode xAODTestReadCInfo::execute (const EventContext& ctx) const
   for (SG::auxid_t auxid : cinfo->getAuxIDs())
     names.push_back (r.getName(auxid));
   std::sort (names.begin(), names.end());
-  std::cout << "cinfo aux items: ";
+  std::ostringstream ost1;
+  ost1 << "cinfo aux items: ";
   for (const std::string& n : names)
-    std::cout << n << " ";
-  std::cout << "\n";
+    ost1 << n << " ";
+  ATH_MSG_INFO (ost1.str());
 
-  std::cout << "cinfo "
-            << " anInt1 " << cinfo->anInt()
-            << " aFloat: " << cinfo->aFloat()
-            << " anInt2: " << anInt2(*cinfo)
-            << " dInt1: " << dInt1(*cinfo)
-            << " cEL: " << cEL(*cinfo).dataID()
-            << "[" << cEL(*cinfo).index() << "]";
+  std::ostringstream ost2;
+  ost2 << "cinfo "
+       << " anInt1 " << cinfo->anInt()
+       << " aFloat: " << cinfo->aFloat()
+       << " anInt2: " << anInt2(*cinfo)
+       << " dInt1: " << dInt1(*cinfo)
+       << " cEL: " << cEL(*cinfo).dataID()
+       << "[" << cEL(*cinfo).index() << "]";
   if (dInt100.isAvailable(*cinfo))
-    std::cout << " dInt100: " << dInt100(*cinfo);
+    ost2 << " dInt100: " << dInt100(*cinfo);
   if (dInt150.isAvailable(*cinfo))
-    std::cout << " dInt150: " << dInt150(*cinfo);
+    ost2 << " dInt150: " << dInt150(*cinfo);
   if (dInt200.isAvailable(*cinfo))
-    std::cout << " dInt200: " << dInt200(*cinfo);
+    ost2 << " dInt200: " << dInt200(*cinfo);
   if (dInt250.isAvailable(*cinfo))
-    std::cout << " dInt250: " << dInt250(*cinfo);
+    ost2 << " dInt250: " << dInt250(*cinfo);
   if (anInt10.isAvailable(*cinfo))
-    std::cout << " anInt10: " << anInt10(*cinfo);
-  std::cout << "\n";
+    ost2 << " anInt10: " << anInt10(*cinfo);
+  ATH_MSG_INFO (ost2.str());
 
   if (!m_writeKey.key().empty()) {
     auto cnew = std::make_unique<DMTest::C>();

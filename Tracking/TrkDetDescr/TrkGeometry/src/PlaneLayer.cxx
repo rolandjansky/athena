@@ -165,7 +165,7 @@ const Trk::PlaneSurface& Trk::PlaneLayer::surfaceRepresentation() const
 double Trk::PlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                 Trk::PropDirection dir) const
 {
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     if (Trk::PlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPreFactor();
@@ -175,7 +175,7 @@ double Trk::PlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm
 double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                  Trk::PropDirection dir) const 
 {
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     if (Trk::PlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPostFactor();

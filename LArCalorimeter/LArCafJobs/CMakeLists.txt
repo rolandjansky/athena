@@ -38,8 +38,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/NavFourMom
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArRecEvent
-                          LArCalorimeter/LArGeoModel/LArHV
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigT1/TrigT1Result )
 

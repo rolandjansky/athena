@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -34,12 +34,8 @@
 TileDQstatusTool::TileDQstatusTool (const std::string& type,
                                     const std::string& name,
                                     const IInterface* parent)
-  : base_class (type, name, parent),
-    m_tileBadChanTool ("TileBadChanTool")
+  : base_class (type, name, parent)
 {
-  // FIXME: public tool
-  declareProperty ("TileBadChanTool", m_tileBadChanTool,
-                   "Tile bad channel tool.");
 }
 
 
@@ -50,13 +46,12 @@ StatusCode TileDQstatusTool::initialize()
 {
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
+
   if (m_simulateTrips) {
     ATH_CHECK( m_athRNGSvc.retrieve() );
-    ATH_CHECK( m_tileBadChanTool.retrieve() );
   }
-  else {
-    m_tileBadChanTool.disable();
-  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -124,21 +119,49 @@ TileDQstatusTool::makeStatus (const EventContext& ctx,
     {
       ATH_MSG_DEBUG("RawChannelContainer didn't come from BS - don't check DQ flags");
       ATH_MSG_DEBUG("RChType = " << RChType);
-    }
-    else {
+    } else {
       for (const TileRawChannelCollection *coll : *rawChannelContainer) {
-        ATH_MSG_VERBOSE("RCh collection 0x" << MSG::hex
-                       << coll->identify() << MSG::dec
-                       << " size=" << coll->size());
 
-        dqstatus.fillArrays(coll, tileDigitsContainer, 0);
-        dqstatus.fillArrays(coll, tileDigitsContainer, 1);
+        int frag = coll->identify();
+        ATH_MSG_VERBOSE("RCh collection 0x" << MSG::hex << frag << MSG::dec
+                        << " size=" << coll->size());
+
+        unsigned short existingDMUs = 0xFFFF;
+        if (frag > 0x2ff) { // do not count non-existing DMUs in EB
+          // do not count non-existing DMUs in EBA15 or EBC18
+          existingDMUs = (frag == 0x30E || frag == 0x411) ? 0x3CFE : 0x3CFF;
+        }
+
+        unsigned short wrongBCID(0);
+        unsigned short fragBCID = coll->getFragBCID();
+        if (fragBCID & existingDMUs) {
+
+          unsigned int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(frag);
+          for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+            if (m_tileBadChanTool->getChannelStatus(drawerIdx, channel).isWrongBCID()) {
+              int dmu = channel / 3;
+              if (dmu == 1) {
+                // If BCID in 2nd DMU is wrong then there is no sence
+                // to check BCID in other DMUs because they are compared with this one.
+                // So it is assumed that BCID in all DMU are wrong.
+                wrongBCID = 0xFFFF & existingDMUs;
+                break;
+              }
+
+              wrongBCID |= (1U << dmu);
+            }
+          }
+
+          fragBCID &= ~wrongBCID;
+        }
+
+        dqstatus.fillArrays(coll, tileDigitsContainer, 0, fragBCID);
+        dqstatus.fillArrays(coll, tileDigitsContainer, 1, fragBCID);
       }
       if (dqstatus.nonZeroCounter() == 0) {
         ATH_MSG_DEBUG("all DQ elements are empty - don't check DQ flags");
         dqstatus.setAllGood();
-      }
-      else {
+      } else {
         ATH_MSG_DEBUG("BiGain mode: " << ((dqstatus.isBiGain()) ? "true" : "false"));
       }
     }

@@ -191,9 +191,9 @@ protected:
   /// Clear a slot in the WB 
   StatusCode clearWBSlot(int evtSlot);
   /// Declare the root address of the event
-  int declareEventRootAddress(const EventContext&);
+  int declareEventRootAddress(EventContext&);
   /// Create event context
-  std::unique_ptr<EventContext> createEventContext(int createdEvents);
+  EventContext createEventContext();
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler(int& finishedEvents);
   /// Instance of the incident listener waiting for AbortEvent. 
@@ -227,7 +227,7 @@ public:
   /// implementation of IAppMgrUI::nextEvent. maxevt==0 returns immediately
   virtual StatusCode nextEvent(int maxevt) override;
   /// implementation of IEventProcessor::executeEvent(void* par)
-  virtual StatusCode executeEvent(void* par) override;
+  virtual StatusCode executeEvent( EventContext&& ctx ) override;
   /// implementation of IEventProcessor::executeRun(int maxevt)
   virtual StatusCode executeRun(int maxevt) override;
   /// implementation of IEventProcessor::stopRun()
@@ -263,6 +263,8 @@ private:
   UnsignedIntegerProperty m_writeInterval;
   bool m_writeHists;
 
+  bool m_terminateLoop { false };
+
   /// events processed
   unsigned int m_nev;
   unsigned int m_proc;
@@ -280,13 +282,12 @@ public:
 
 private:
   StoreGateSvc* eventStore() const;
-  const EventInfo* m_pEvent;
 
-   ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
-
-   // Save a copy of the last event context to use
-   // at the end of event processing.
-   EventContext m_lastEventContext;
+  ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
+  
+  // Save a copy of the last event context to use
+  // at the end of event processing.
+  EventContext m_lastEventContext;
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H

@@ -8,5 +8,8 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 
-athena tauRec/run_tau_standalone.py
-echo "art-result: $?"
+athena tauRec/run_tau_standalone.py | tee temp.log
+echo "art-result: ${PIPESTATUS[0]}"
+
+test_postProcessing_Errors.sh temp.log
+

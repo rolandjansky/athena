@@ -16,12 +16,11 @@
 #include "CaloIdentifier/TileTBID.h" 
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 
-class TileCablingService
-{
+class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
   friend class TileInfoLoader;
   friend class TileDetectorTool;
   friend class TileDetectorFactory;
@@ -32,11 +31,7 @@ class TileCablingService
 public:
 
     /** get pointer to service instance*/
-    static TileCablingService * instance(bool del);
-    static TileCablingService * getInstance() {return instance(false); }
-
-    /** delete service instance */
-    static TileCablingService * deleteInstance() {return instance(true); }
+    static TileCablingService* getInstance();
     
     // Conversion between TileID and Trigger Tower ID
 
@@ -104,11 +99,6 @@ public:
     int getMaxChannels(void) const { return m_maxChannels; };
     int getMaxGains(void) const { return m_maxGains; };
 
-
-    /// Log a message using the Athena controlled logging system
-    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-    /// Check whether the logging system is active at the provided verbosity level
-    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
 protected:
     
@@ -237,7 +227,7 @@ private:
     }
     
     TileCablingType m_cablingType;
-    void setCablingType (TileCablingType type);
+    bool setCablingType (TileCablingType type);
   
     int m_drawer_table[512];
     int m_channel_table[512];
@@ -275,8 +265,6 @@ private:
 
    int m_maxChannels;
    int m_maxGains;
-
-   mutable Athena::MsgStreamMember m_msg;
 
 public:
 

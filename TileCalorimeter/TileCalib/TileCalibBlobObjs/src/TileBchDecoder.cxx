@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileBchDecoder.h"
@@ -82,6 +82,7 @@ TileBchDecoder::init_BitPat_ofl01()
   m_bitToPrbChn[16] = TileBchPrbs::BrokenClearFibre;
   m_bitToPrbChn[17] = TileBchPrbs::IgnoreCs;
   m_bitToPrbChn[18] = TileBchPrbs::UnstableCs;
+  m_bitToPrbChn[19] = TileBchPrbs::WrongBCID;
   
   //=== assign decoder to adc problems
   m_bitToPrbAdc.clear();
@@ -122,6 +123,7 @@ TileBchDecoder::init_BitPat_onl01()
   m_bitToPrbChn[ 5] = TileBchPrbs::TrigHalfGain;
   m_bitToPrbChn[ 6] = TileBchPrbs::TrigNoisy;
   m_bitToPrbChn[ 7] = TileBchPrbs::OnlineBadTiming;
+  m_bitToPrbChn[ 8] = TileBchPrbs::OnlineWrongBCID;
   
   //=== assign decoder to adc problems
   m_bitToPrbAdc.clear();

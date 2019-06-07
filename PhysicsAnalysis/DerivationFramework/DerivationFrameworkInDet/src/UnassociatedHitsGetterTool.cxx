@@ -109,14 +109,12 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     return 0;
   }
 
-  // clear the PRD association tool
-  m_assoTool->reset();
+  // Get empty state for PRD association tool.
+  Trk::IPRD_AssociationTool::Maps prdmaps;
 
   // Loop over tracks and add PRDs to the PRD association tool
-  TrackCollection::const_iterator trkItr = trackCollection->begin();
-  TrackCollection::const_iterator trkEnd = trackCollection->end();
-  for(; trkItr!=trkEnd; trkItr++){
-    StatusCode sc = m_assoTool->addPRDs(*(*trkItr));
+  for (const Trk::Track* track : *trackCollection) {
+    StatusCode sc = m_assoTool->addPRDs(prdmaps, *track);
     if(sc.isFailure()){
       REPORT_MESSAGE (MSG::ERROR) << "Could not add PRDs to track";
       return 0;
@@ -135,7 +133,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; pixItr!=pixEnd; pixItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(*(*pixItr))) continue;
+      if(m_assoTool->isUsed(prdmaps, *(*pixItr))) continue;
 
       // count number of unassociated pixel hits
       PRDAssociation->nPixelUA++;
@@ -170,7 +168,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; sctItr!=sctEnd; sctItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(*(*sctItr))) continue;
+      if(m_assoTool->isUsed(prdmaps, *(*sctItr))) continue;
 
       // count number of unassociated SCT hits
       PRDAssociation->nSCTUA++;
@@ -202,7 +200,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; trtItr!=trtEnd; trtItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(*(*trtItr))) continue;
+      if(m_assoTool->isUsed(prdmaps, *(*trtItr))) continue;
 
       // count number of unassociated TRT hits
       PRDAssociation->nTRTUA++;

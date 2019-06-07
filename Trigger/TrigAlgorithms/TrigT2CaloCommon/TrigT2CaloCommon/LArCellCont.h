@@ -76,10 +76,6 @@ class LArCellCont : public std::vector<LArCellCollection*>
   void eventNumber ( const unsigned int eN ) { m_event=eN; };
   /** sets LumiBlock and BCID */
   void lumiBlock_BCID(const unsigned int lumi_block, const unsigned int BCID);
-  /** has to retrieve the pointer before in TrigDataAccess */
-  void setCaloLumiBCIDPointer( ICaloLumiBCIDTool* caloLumiBCIDTool ) {
-    m_caloLumiBCIDTool = caloLumiBCIDTool;
-  }
   
   /** List of Missing ROBs */
   const std::vector<uint32_t>& MissingROBs( void ) {
@@ -118,8 +114,6 @@ private:
 	std::vector<float>& m_corrBCIDref;
 	/** update BCID dependent correction table */
 	void updateBCID();
-	/** CaloLumiBCIDTool pointer */
-	ICaloLumiBCIDTool* m_caloLumiBCIDTool;
 	/** index table */
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */

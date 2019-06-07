@@ -43,12 +43,12 @@ atlas_add_component( TrigAnalysisExamples
    AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools EventInfo
    GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau xAODTrigEgamma
    xAODTrigCalo xAODJet TrigConfHLTData TrigDecisionToolLib TriggerMatchingToolLib
-   TrigSteeringEvent TrigT1Interfaces FourMomUtils POOLRootAccess )
+   TrigSteeringEvent TrigT1Interfaces FourMomUtils POOLRootAccessLib )
 
 atlas_add_executable( TrigAnalysisExApp
    src/apps/TrigAnalysisExApp.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
    GaudiKernel TrigDecisionToolLib )
                      
 # Install files from the package:

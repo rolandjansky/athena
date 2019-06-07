@@ -75,8 +75,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     const PixelID            *m_detID;
 
-    IntegerProperty           m_vetoThisBarcode;
-
     TimedHitCollection<SiHit> *m_timedHits;
 
   protected:

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSELECTIONTOOL_INDETTRACKSELECTIONTOOL_H
@@ -18,8 +18,10 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #endif
 
-#include <map>
+#include <atomic>
 #include <limits>
+#include <map>
+#include <unordered_map>
 
 namespace InDet {
 
@@ -88,7 +90,7 @@ namespace InDet {
 
   private:
     bool m_isInitialized = false; // flag whether or not the tool has been initialized, to check erroneous use cases.
-    mutable bool m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
+    mutable std::atomic_bool m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
 
     // this is the setCutLevel function that actually does the work, so that it doesn't warn if called in athena.
     void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
@@ -98,8 +100,8 @@ namespace InDet {
     // first element is cut family, second is the set of cuts
     std::map< std::string, std::vector< std::unique_ptr<TrackCut> > > m_trackCuts; //!< First element is the name of the cut family, second element is the set of cuts
 
-    mutable ULong64_t m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
-    mutable ULong64_t m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
+    mutable std::atomic<ULong64_t> m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
+    mutable std::atomic<ULong64_t> m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
     mutable std::vector<ULong64_t> m_numTracksPassedCuts; //!< tracks the number of tracks that passed each cut family
 
     constexpr static Double_t LOCAL_MAX_DOUBLE = 1.0e16;

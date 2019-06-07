@@ -74,9 +74,9 @@ public:
       m_binUtility(barr.m_binUtility),
       m_transf(0)
     {
-        if (m_binUtility.getPtr()) {
-            m_array = new std::vector< SharedObject<const T> >(m_binUtility.getPtr()->bins(0));
-            for (size_t ient=0; ient< m_binUtility.getPtr()->bins(0); ++ient){
+        if (m_binUtility.get()) {
+            m_array = new std::vector< SharedObject<const T> >(m_binUtility.get()->bins(0));
+            for (size_t ient=0; ient< m_binUtility.get()->bins(0); ++ient){
                 (*m_array)[ient] = (*barr.m_array)[ient];
             }
         }
@@ -90,14 +90,13 @@ public:
         
             delete m_array;
             delete m_arrayObjects; m_arrayObjects = 0;
-            m_binUtility.remRef();
             delete m_transf;
            // now refill
             m_binUtility = barr.m_binUtility;
            // --------------------------------------------------------------------------
-            if (m_binUtility.getPtr()) {
-                m_array = new std::vector< SharedObject<const T> >(m_binUtility.getPtr()->bins(0));
-                for (size_t ient=0; ient< m_binUtility.getPtr()->bins(0); ++ient){
+            if (m_binUtility.get()) {
+                m_array = new std::vector< SharedObject<const T> >(m_binUtility.get()->bins(0));
+                for (size_t ient=0; ient< m_binUtility.get()->bins(0); ++ient){
                     (*m_array)[ient] = (*barr.m_array)[ient];
                 }
             }
@@ -124,7 +123,7 @@ public:
      */
      const T* object(const Amg::Vector2D& lp) const
      {
-         if (m_binUtility.getPtr()->inside(lp)) return ((*m_array)[m_binUtility.getPtr()->bin(lp)]).getPtr();
+         if (m_binUtility.get()->inside(lp)) return ((*m_array)[m_binUtility.get()->bin(lp)]).get();
          return 0;
      }
 
@@ -135,14 +134,14 @@ public:
      {
        // transform into navig.coordinates
          const Amg::Vector3D navGP((m_transf->inverse())*gp);
-         if (m_binUtility.getPtr()->inside(navGP))
-             return ((*m_array)[m_binUtility.getPtr()->bin(navGP)]).getPtr();
+         if (m_binUtility.get()->inside(navGP))
+             return ((*m_array)[m_binUtility.get()->bin(navGP)]).get();
          return 0;
      }
 
      /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
      const T* entryObject(const Amg::Vector3D&) const
-         { return ((*m_array)[0]).getPtr(); }
+         { return ((*m_array)[0]).get(); }
 
      /** Returns the pointer to the templated class object from the BinnedArray
      */
@@ -151,16 +150,16 @@ public:
          const Amg::Vector3D navGP((m_transf->inverse())*gp);
          const Amg::Vector3D navMom((m_transf->inverse()).linear()*mom);
      // the bins
-         size_t firstBin = m_binUtility.getPtr()->next(navGP, navMom, 0);
+         size_t firstBin = m_binUtility.get()->next(navGP, navMom, 0);
      // use the information of the associated result
          if (associatedResult){
-             if (firstBin<=m_binUtility.getPtr()->max(0))
-                 return ((*m_array)[firstBin]).getPtr();
+             if (firstBin<=m_binUtility.get()->max(0))
+                 return ((*m_array)[firstBin]).get();
              else return 0;
          }
      // the associated result was 0 -> set to boundary
-         firstBin  = (firstBin < m_binUtility.getPtr()->bins(0)) ? firstBin : m_binUtility.getPtr()->max(0);
-         return ((*m_array)[m_binUtility.getPtr()->bin(navGP)]).getPtr();
+         firstBin  = (firstBin < m_binUtility.get()->bins(0)) ? firstBin : m_binUtility.get()->max(0);
+         return ((*m_array)[m_binUtility.get()->bin(navGP)]).get();
      }
 
      /** Return all objects of the Array */
@@ -168,7 +167,7 @@ public:
          if (!m_arrayObjects){
              m_arrayObjects = new std::vector<const T*>;
              for (unsigned int ill=0; ill < m_array->size(); ++ill)
-                 m_arrayObjects->push_back( ((*m_array)[ill]).getPtr());
+                 m_arrayObjects->push_back( ((*m_array)[ill]).get());
          }
          return (*m_arrayObjects);
      }
@@ -177,7 +176,7 @@ public:
      unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
 
      /** Return the BinUtility*/
-     const BinUtility* binUtility() const { return(m_binUtility.getPtr()); }
+     const BinUtility* binUtility() const { return(m_binUtility.get()); }
 
      /** Return the transform*/
      Amg::Transform3D* transform() const { return(m_transf); }

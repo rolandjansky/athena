@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RegSelEtaPhiLUT.h        
@@ -28,7 +28,6 @@
 //  
 //                
 //
-//   $Id: RegSelEtaPhiLUT.h, v0.0   Sat 25 Jun 2011 18:47:25 BST sutt $
 
 #include "RegSelLUT/RegSelEtaPhiLUT.h"
 
@@ -89,7 +88,7 @@ bool RegSelEtaPhiLUT::addModule( EtaPhiModule& m ) {
 
   //    std::cout << "adding... " << m << std::endl;
 
-  static std::vector< std::vector< map_element > >& tmap = m_grandmap.payload();
+  std::vector< std::vector< map_element > >& tmap = m_grandmap.payload();
   
   int first_eta = (m.etamin()-m_etamin)*m_ideta;
   int last_eta  = (m.etamax()-m_etamin)*m_ideta;
@@ -202,7 +201,7 @@ const EtaPhiBase RegSelEtaPhiLUT::getElements( const RegSelRoI& roi,
     if ( last_phi<0 )       last_phi += m_Nphi;
     if ( last_phi>=m_Nphi ) last_phi -= m_Nphi;
 
-    static const std::vector< std::vector< map_element > >& tmap = map();
+    const std::vector< std::vector< map_element > >& tmap = map();
 
     /// does the roi overlap the phi boundary? 
     if ( first_phi<last_phi ) { 

@@ -688,17 +688,18 @@ AODFix_postCombinedRec()
 #
 # Heavy ion reconstruction  special configuration
 #
+pdr.flag_domain('HI')
 if rec.doHeavyIon():
     protectedInclude ("HIRecExample/HIRec_jobOptions.py")
 
 if rec.doHIP ():
     protectedInclude ("HIRecExample/HIPRec_jobOptions.py")
 
-
 if rec.doWriteBS() and not recAlgs.doTrigger():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
+pdr.flag_domain('tagraw')
 ## add in RawInfoSummaryForTagWriter
 if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
     try:
@@ -731,6 +732,7 @@ if recAlgs.doMonteCarloReact():
 # Monitoring Algorithms and Tools
 # ----------------------------------------------------------------------------
 
+pdr.flag_domain('monitoring')
 if rec.doMonitoring():
     protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
 
@@ -1398,6 +1400,9 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
+        if AODFlags.ThinInDetForwardTrackParticles():
+            from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
+            ThinInDetForwardTrackParticles()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
         if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 

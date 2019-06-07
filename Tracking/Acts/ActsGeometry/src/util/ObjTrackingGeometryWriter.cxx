@@ -9,6 +9,7 @@
 #include <iostream>
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 Acts::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const ObjTrackingGeometryWriter::Config& cfg)
@@ -23,18 +24,18 @@ Acts::ObjTrackingGeometryWriter::name() const
 }
 
 void
-Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
+Acts::ObjTrackingGeometryWriter::write(const Acts::GeometryContext& gctx, const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
   auto world = tGeometry.highestTrackingVolume();
-  if (world) write(*world);
+  if (world) write(gctx, *world);
   // return the success code
 }
 
 /// process this volume
 void
-Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+Acts::ObjTrackingGeometryWriter::write(const Acts::GeometryContext& gctx, const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingVolume object called.");
   // get the confined layers and process them
@@ -68,7 +69,7 @@ Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
         surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
         // loop over the surface
         for (auto surface : layer->surfaceArray()->surfaces()) {
-          if (surface) surfaceWriter->write(*surface);
+          if (surface) surfaceWriter->write(gctx, *surface);
         }
       }
     }
@@ -77,7 +78,7 @@ Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
   if (tVolume.confinedVolumes()) {
     // loop over the volumes and write what they have
     for (auto volume : tVolume.confinedVolumes()->arrayObjects()) {
-      write(*volume.get());
+      write(gctx, *volume.get());
     }
   }
 }

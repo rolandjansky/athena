@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/TrigCountSpacePointsHypo.h"
+#include "TrigCountSpacePointsHypo.h"
 #include "TrigInDetEvent/TrigSpacePointCounts.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 

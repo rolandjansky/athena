@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigRoiDescriptorFillerTool.cxx 609915 2014-08-02 12:13:16Z sutt $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 // Local include(s):
 #include "TrigRoiDescriptorFillerTool.h"
@@ -71,7 +70,7 @@ namespace D3PD {
          *m_zed0 = roi.zed();
       }
       if( m_saveSize ) {
-	*m_phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi( roi.phiPlus() - roi.phiPlus() ) ); 
+	*m_phiHalfWidth = 0.5*std::fabs( CxxUtils::wrapToPi( roi.phiPlus() - roi.phiPlus() ) );
 	*m_etaHalfWidth = 0.5*std::fabs(roi.etaPlus() - roi.etaMinus() ); 
 	*m_zedHalfWidth = 0.5*std::fabs(roi.zedPlus() - roi.zedMinus() ); 
 	*m_etaPlus      = roi.etaPlus();

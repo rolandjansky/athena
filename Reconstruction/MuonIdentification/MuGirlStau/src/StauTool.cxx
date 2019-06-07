@@ -33,7 +33,7 @@
 
 #include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "TFile.h"
 
 namespace MuGirlNS
@@ -50,7 +50,7 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
                 m_pMdtDriftCircleCreator("Muon::MdtDriftCircleOnTrackCreator"), m_pTofTool("MuGirlNS::StauBetaTofTool"),
                 m_pGlobalFitTool("MuGirlNS::GlobalFitTool", 0),    // make this a public tool
                 m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
-                m_pMdtCalibDbSvc("MdtCalibrationDbSvc", n),
+                m_calibrationDbTool("MdtCalibrationDbTool", this),
                 m_randSvc ("AtRanluxGenSvc", n),
                 m_pMuonMgr(NULL), m_lowerBetaLimit(0.2),
                 m_upperBetaLimit(1.5), m_betaTolerance(0.001), m_gfBetaTolerance(0.001), m_minBeta(0.1), m_maxBeta(1.5),
@@ -69,7 +69,7 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
     declareProperty("StauBetaTofTool", m_pTofTool);
     declareProperty("StauGlobalFitTool", m_pGlobalFitTool);
     declareProperty("ParticleCaloCellAssociationTool", m_caloCellAssociationTool);
-    declareProperty("MdtCalibrationDbSvc", m_pMdtCalibDbSvc);
+    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool);
     declareProperty("RandSvc", m_randSvc);
 
     //  other properties
@@ -120,7 +120,6 @@ StatusCode StauTool::initialize()
     ATH_CHECK( m_pTofTool.retrieve() );
     ATH_CHECK( m_pGlobalFitTool.retrieve() );
 //    if (!m_caloCellAssociationTool.empty()) ATH_CHECK(m_caloCellAssociationTool.retrieve());
-    ATH_CHECK( m_pMdtCalibDbSvc.retrieve() );
     ATH_CHECK( m_randSvc.retrieve() );
     ATH_CHECK( m_caloCellAssociationTool.retrieve() );
     /** initialize MuonDetectorManager */

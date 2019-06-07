@@ -10,7 +10,7 @@
 
 // Athena includes
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 /**
  * The constructor sets up the ToolHandle object(s) and initialises the

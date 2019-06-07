@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/AthLinks
                           Control/AthViews
+                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo

@@ -7,7 +7,7 @@ atlas_subdir( AthExHive )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/SGTools
+                          Control/AthenaKernel
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/CxxUtils

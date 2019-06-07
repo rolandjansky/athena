@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -30,7 +32,7 @@ class SCT_LinkMaskingCondAlg : public AthReentrantAlgorithm
   // This folder can be created by InnerDetector/InDetConditions/SCT_ConditionsTools/python/createLinkMaskingSQLiteFile.py
   SG::WriteCondHandleKey<SCT_ModuleVetoCondData> m_writeKey{this, "WriteKey", "SCT_LinkMaskingCondData", "Key of output (derived) bad wafer conditions data"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_LINKMASKINGCONDALG

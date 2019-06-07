@@ -121,7 +121,7 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
     double z    = 0.;
     double rho  = 0.;
     // the full composition calculation 
-    if (m_fullComposition && m_elementTable.getPtr()){
+    if (m_fullComposition && m_elementTable.get()){
         //!< @todo measure if this is slow
         for ( auto& eFraction : m_composition[bin1][bin0] ){
             double fraction = eFraction.fraction();

@@ -1,8 +1,8 @@
-#include "TrigTileMuId/TrigTileRODMuAlg.h"
-#include "TrigTileMuId/TrigTileLookForMuAlg.h"
-#include "TrigTileMuId/TrigTileMuToNtuple.h"
-#include "TrigTileMuId/TrigTileMonAlg.h"
-#include "TrigTileMuId/TrigTileMuFex.h"
+#include "../TrigTileRODMuAlg.h"
+#include "../TrigTileLookForMuAlg.h"
+#include "../TrigTileMuToNtuple.h"
+#include "../TrigTileMonAlg.h"
+#include "../TrigTileMuFex.h"
 
 DECLARE_COMPONENT( TrigTileRODMuAlg )
 DECLARE_COMPONENT( TrigTileLookForMuAlg )

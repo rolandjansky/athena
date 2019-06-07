@@ -42,13 +42,13 @@ public:
 private:
     /**  GlobalTrackFitter methods:
   	 access to the matrix of derivatives used during the latest track fit */
-    Amg::MatrixX*		DerivMatrix() const;
+    std::unique_ptr<Amg::MatrixX>	derivMatrix(const FitState& fitState) const;
 
     /**  access to the global fitter's full covariance matrix */
-    Amg::MatrixX*		FullCovarianceMatrix() const;
+    std::unique_ptr<Amg::MatrixX> fullCovarianceMatrix(const FitState& fitState) const;
 
     /**  access to the number of iterations taken by the latest track fit */
-    int				iterationsOfLastFit() const;
+    int				iterationsOfLastFit(const FitState& fitState) const;
 
 
     /**  set method for the minimum number of iterations for (alignment) friend */
@@ -56,10 +56,6 @@ private:
 
     // configurables (tools and options)
     bool			m_allParameters;	// all or 5 parameters for above matrix methods
-
-    // cached data
-    mutable Amg::MatrixX*	m_derivativeMatrix;
-
 };
 
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UserDatabase.h"
@@ -328,10 +328,12 @@ pool::PersistencySvc::UserDatabase::pfn() const
   if( m_nameType == pool::DatabaseSpecification::FID ) {
      std::string technology;
      m_catalog.getFirstPFN( m_name, m_the_pfn, technology );
-     m_the_fid = m_name;
-     setTechnologyIdentifier( technology );
-     m_alreadyConnected = true;
-     return m_the_pfn;
+     if( !m_the_pfn.empty() ) {
+        m_the_fid = m_name;
+        setTechnologyIdentifier( technology );
+        m_alreadyConnected = true;
+     }
+     return m_the_pfn; 
   }
   return emptyString;
 }

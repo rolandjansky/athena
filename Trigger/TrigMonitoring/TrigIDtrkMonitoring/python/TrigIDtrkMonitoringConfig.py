@@ -6,10 +6,9 @@ def TrigIDtrkMonitoringTool():
 
 	list = []
 
-	if True:
-		# the old DumpTool has been removed, the old TIDAMonTool code has
+        from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
-		from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
+	if True:
 
 
 		##############################################################

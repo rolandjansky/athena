@@ -13,7 +13,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        const float tan = sqrt( (l-hitz)/(l+hitz) );
        const float eta = -log(tan);
        const float deta = fabs(p_roids->eta() - eta);
-       const float dphi = fabs(HLT::wrapPhi(p_roids->phi() - phi));
+       const float dphi = fabs(CxxUtils::wrapToPi(p_roids->phi() - phi));
 
        lutDigit.eta = eta;
        lutDigit.phi = phi;

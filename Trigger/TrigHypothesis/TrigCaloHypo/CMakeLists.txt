@@ -7,7 +7,7 @@
 atlas_subdir( TrigCaloHypo )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloInterface
                           GaudiKernel
                           Trigger/TrigEvent/TrigCaloEvent
@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
                           Calorimeter/CaloGeoHelpers
                           Event/EventKernel
                           Event/FourMomUtils
@@ -30,20 +29,10 @@ find_package( CLHEP )
 find_package( tdaq-common COMPONENTS hltinterface )
 
 # Component(s) in the package:
-atlas_add_library( TrigCaloHypoLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigCaloHypo
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES GaudiKernel JetEvent TrigCaloEvent TrigParticle TrigSteeringEvent ${TDAQ-COMMON_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib 
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers EventKernel FourMomUtils xAODCaloEvent xAODEventInfo LArRecEvent JetUtils )
-
 atlas_add_component( TrigCaloHypo
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODJet GaudiKernel JetEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloGeoHelpers EventKernel FourMomUtils xAODCaloEvent xAODEventInfo LArRecEvent LArRecConditions JetUtils TrigCaloHypoLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODJet GaudiKernel JetEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloGeoHelpers EventKernel FourMomUtils xAODCaloEvent xAODEventInfo LArRecEvent LArRecConditions JetUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/jobOfragment_*.py share/TriggerConfig_*.py )

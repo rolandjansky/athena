@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import os
 
@@ -66,7 +66,8 @@ def getMuonSegmentToCalibSegment():
         MuonSegmentToCalibSegment.SegmentAuthors = [ 4,8 ] 
         MuonSegmentToCalibSegment.ReadSegments = True # rather than SegmentCombinations
 
-        getService("MdtCalibrationSvc")
+        from MuonCnvExample import MuonCalibConfig
+        MuonCalibConfig.setupMdtCondDB()
 
         # finally add it to topSequence
         topSequence += MuonSegmentToCalibSegment

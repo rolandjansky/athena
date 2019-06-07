@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -7,13 +7,11 @@
 #include "MdtSegmentT0Fitter/MdtSegmentT0Fitter.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
-//#include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
@@ -64,7 +62,7 @@ namespace TrkDriftCircleMath {
   MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
     DCSLFitter(), 
-    m_calibDbSvc("MdtCalibrationDbSvc", na),
+    m_calibrationDbTool("MdtCalibrationDbTool",this),
     m_ntotalCalls(0),
     m_npassedNHits(0),
     m_npassedSelectionConsistency(0),
@@ -83,6 +81,7 @@ namespace TrkDriftCircleMath {
     declareProperty("RejectWeakTopologies",  m_rejectWeakTopologies = true);
     declareProperty("RescaleErrors",m_scaleErrors = true );
     declareProperty("PropagateErrors",m_propagateErrors = true );
+    declareProperty("CalibrationDbTool",m_calibrationDbTool);
   }
   
   
@@ -94,11 +93,7 @@ namespace TrkDriftCircleMath {
     use_hardcoded = m_useInternalRT;
     use_shift_constraint = m_constrainShifts;
     constrainT0Error = m_constrainT0Error;
-//		count = 0;
-    
-        
-    // Get pointer to MdtCalibrationDbSvc and cache it :
-    ATH_CHECK ( m_calibDbSvc.retrieve() );
+    //count = 0;
 
     TMinuit* oldMinuit = gMinuit;
     m_minuit = new TMinuit(3);
@@ -394,7 +389,7 @@ namespace TrkDriftCircleMath {
 	dcs_new.push_back( dc_new );
         if( selection[i] == 0 ){
           double t = ds->rot()->driftTime();
-          const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
+          const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
           if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;
@@ -456,7 +451,7 @@ namespace TrkDriftCircleMath {
           return false;
         }
         Identifier id = roto->identify();
-        const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(id);
+        const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(id);
         rtpointers[ii] = rtInfo->rt();
         t[ii] = roto->driftTime();
 
@@ -655,7 +650,7 @@ namespace TrkDriftCircleMath {
 	dcs_new.push_back( dc_new );
         if( selection[i] == 0 ){
           double t = ds->rot()->driftTime();
-          const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
+          const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
           if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;

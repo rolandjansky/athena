@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,7 +18,6 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigLongLivedParticlesHypo/TrigL2HVJetHypoAllCuts.h"
@@ -28,6 +27,7 @@
 #include "TrigInDetEvent/TrigInDetTrackHelper.h"
 
 #include "CxxUtils/fpcompare.h"
+#include "CxxUtils/phihelper.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -320,7 +320,7 @@ HLT::ErrorCode TrigL2HVJetHypoAllCuts::hltExecute(const HLT::TriggerElement* out
               msg() << MSG::DEBUG << "trying " << m_ID_algo_to_use << " track with " << "pt=" << pt_idtr << ", eta=" << eta_id << ", phi=" << phi_id  << endmsg;
  
             double deta = fabs( eta_id - jetEta );
-            double dphi = fabs( HLT::wrapPhi(phi_id - jetPhi) );
+            double dphi = fabs( CxxUtils::wrapToPi(phi_id - jetPhi) );
  
             if(deta <= m_Deta && dphi <= m_Dphi){ 
               ntrk++;

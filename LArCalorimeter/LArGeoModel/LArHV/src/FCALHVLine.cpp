@@ -62,8 +62,14 @@ void FCALHVLine::voltage_current(double& voltage, double&current) const {
  current = payload->current;
 }
 
-
-int FCALHVLine::hvLineNo() const {
-  FCALHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->hvLineNo;
+#ifndef SIMULATIONBASE
+int FCALHVLine::hvLineNo(const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->module->getManager().hvLineNo(*this,hvIdMapping)
+    : m_c->module->getManager().getPayload(*this)->hvLineNo;
 }
+#else
+int FCALHVLine::hvLineNo() const {
+  return m_c->module->getManager().getPayload(*this)->hvLineNo;
+}
+#endif

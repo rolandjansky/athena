@@ -30,7 +30,6 @@ class JetCollection : public DataVector<Jet>
 {
  public:
 
-  friend struct JetCollectionHelper;
   // JetCollection types ---------------------
   typedef DataVector<Jet>::iterator iterator;  
   enum OrderedVar { ByEtDown     =  0,

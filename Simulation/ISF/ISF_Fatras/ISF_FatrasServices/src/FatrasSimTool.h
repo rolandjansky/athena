@@ -30,13 +30,9 @@ namespace ISF {
 
     virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
 
-    virtual StatusCode setupEventST() override { return setupEvent(); };
-
     virtual StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
 
-    virtual StatusCode releaseEventST() override { return releaseEvent(); };
-
-    virtual ISF:: SimulationFlavor simFlavor() const override { return ISF::Fatras; };
+    virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
 
     virtual void push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent ) override;
 

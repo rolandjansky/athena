@@ -94,63 +94,63 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepName = 'Step1_mufast'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muFastSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
         
     # --------------------
     def getmuComb(self):
         stepName = 'Step1_muComb'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muCombSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFSA(self):
         stepName = 'Step1_muEFSA'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFSASequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFMS(self):
         stepName = 'Step1_muEFMS'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuIso(self):
         stepName = 'Step1_muIso'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muIsoSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFCB(self):
         stepName = 'Step1_muEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFCBSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getFSmuEFSA(self):
         stepName = 'Step1_FSmuEFSA'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFSASequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getFSmuEFCB(self):
         stepName = 'Step1_FSmuEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     #---------------------
     def getmuEFIso(self):
         stepName = 'Step1_muEFIso'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
-        return ChainStep(stepName, [muSeq])
+        return ChainStep(stepName, [muSeq], self.mult)
 
     #--------------------
     def getmuMSEmpty(self):

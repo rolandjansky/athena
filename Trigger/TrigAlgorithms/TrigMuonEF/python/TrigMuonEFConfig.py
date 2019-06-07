@@ -107,7 +107,7 @@ def TMEF_TrackSummaryTool(name='TMEF_TrackSummaryTool',**kwargs):
     if DetFlags.detdescr.ID_on():
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
         kwargs.setdefault("InDetSummaryHelperTool", InDetTrigTrackSummaryHelperTool)
-        kwargs.setdefault("InDetHoleSearchTool", InDetTrigHoleSearchTool)
+        kwargs.setdefault("doHolesInDet",True)
 
     return CfgMgr.Trk__TrackSummaryTool(name,**kwargs)
 
@@ -259,7 +259,8 @@ def TMEF_TrackBuilderTool(name='TMEF_TrackBuilderTool',extraFlags=None,**kwargs)
 # new tools added by MO
 def TMEF_TrackSummaryToolNoHole(name='TMEF_TrackSummaryToolNoHole',**kwargs):
     sumtool = TMEF_TrackSummaryTool(name, **kwargs)
-    sumtool.InDetHoleSearchTool = None
+    sumtool.doHolesInDet = False
+    # @TODO to switch off hole search should use a prticular InDet...Helper
     return sumtool
 
 def TMEF_TrkToTrackParticleConvTool(name="TMEF_TrkToTrackParticleConvTool",**kwargs):
@@ -385,14 +386,18 @@ def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):
     kwargs.setdefault('MuonRecoValidationTool','')
     return CfgMgr.Muon__MuonPRDSelectionTool(name,**kwargs)
 
-def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool",**kwargs):
+def TMEF_MuonClusterSegmentFinder(name="TMEF_MuonClusterSegmentFinder", **kwargs):
     kwargs.setdefault('MuonPRDSelectionTool', 'TMEF_MuonPRDSelectionTool')
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
+
+def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):   
+    return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
     kwargs.setdefault('MuonRecoValidationTool','')
     kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
-    kwargs.setdefault('MuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    kwargs.setdefault('MuonClusterSegmentFinder','TMEF_MuonClusterSegmentFinder')
+    kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):

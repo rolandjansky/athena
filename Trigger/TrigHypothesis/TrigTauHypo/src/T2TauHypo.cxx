@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigParticle/TrigTau.h"
-#include "TrigTauHypo/T2TauHypo.h"
+#include "T2TauHypo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 

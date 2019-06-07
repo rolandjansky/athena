@@ -4,7 +4,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.h 784388 2016-11-15 17:08:58Z tamartin $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 
@@ -21,6 +20,8 @@ extern "C" {
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
 #include "xAODBase/IParticleContainer.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace TrigCompositeUtils{ 
    typedef unsigned int DecisionID;
@@ -165,18 +166,27 @@ namespace xAOD {
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
-      /// Raw access to the persistent link labels
+      /// Raw access to the persistent link labels. Will use remapped data, if available.
       const std::vector< uint32_t >& linkColKeys() const;
-      /// Raw access to the persistent link indices
+      /// Raw access to the persistent link indices. Will use remapped data, if available.
       const std::vector< uint16_t >& linkColIndices() const;
       /// Raw access to the persistent link CLIDs
       const std::vector< uint32_t >& linkColClids() const;
 
+      /// Information on if linkColKeys() and linkColIndices() are able to access remapped link data
+      /// Remapping happens at the end of HLT execution when EDM objects are copied out of their per-EventView
+      /// containers and into the global Trigger EDM containers.
+      bool isRemapped() const;
+
+      /// Raw access to the persistent link labels. Will not attempt to access remapped link data.
+      const std::vector< uint32_t >& linkColKeysNoRemap() const;
+      /// Raw access to the persistent link indices. Will not attempt to access remapped link data.
+      const std::vector< uint16_t >& linkColIndicesNoRemap() const;
 
       /// @}
 
       /// For use in validation, when copying element links from one object to another
-      static bool s_throwOnCopyError;
+      static bool s_throwOnCopyError ATLAS_THREAD_SAFE;
 
       /// Constant used to identify an initial ROI from L1
       static const std::string s_initialRoIString;

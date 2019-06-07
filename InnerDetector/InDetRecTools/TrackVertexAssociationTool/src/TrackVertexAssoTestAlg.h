@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackVertexAssoTestAlg.h 
@@ -66,9 +66,7 @@ class TrackVertexAssoTestAlg
   /// Default constructor: 
   TrackVertexAssoTestAlg();
 
-  ToolHandle<CP::ITrackVertexAssociationTool> m_tighttrackvertexassoTool;
-  ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
-  ToolHandle<CP::ITrackVertexAssociationTool> m_electrontrackvertexassoTool;
+  ToolHandle<CP::ITrackVertexAssociationTool> m_TVATool;
 
   /// Containers
   

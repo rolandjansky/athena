@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -111,7 +111,10 @@ void test1 (ISvcLocator* svcloc)
   CondCont<OnlineLumiCalibrationCondData>* cc2 = nullptr;
   assert( conditionStore->retrieve (cc2, "OnlineLumiCalibrationCondData").isSuccess() );
   const OnlineLumiCalibrationCondData* data = 0;
-  assert (cc2->find (eid, data));
+  const EventIDRange* range2p = nullptr;
+  assert (cc2->find (eid, data, &range2p));
+  assert (range2p->start().time_stamp() == timestamp(0).time_stamp());
+  assert (range2p->stop().time_stamp() == timestamp(100).time_stamp());
 
   assert (data->getMuToLumi(1) == 10.5);
   assert (data->getMuToLumi(7) == 13.5);
@@ -137,7 +140,7 @@ int main()
   std::cout << "CoolLumiUtilities/OnlineLumiCalibrationCondAlg\n";
 
   ISvcLocator* svcloc;
-  if (!Athena_test::initGaudi("OnlineLumiCalibrationCondAlg_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("CoolLumiUtilities/OnlineLumiCalibrationCondAlg_test.txt", svcloc)) {
     return 1;
   }
 

@@ -23,7 +23,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-class PileUpMergeSvc;
+#include "PileUpTools/PileUpMergeSvc.h"
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27, 2003
@@ -78,6 +78,9 @@ public: //possibly these should be private?
 
   StatusCode CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine);
 
+  // Get next event and extract collection of hit collections:
+  StatusCode getNextEvent();
+
 private:
 
   PublicToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", ""};
@@ -92,41 +95,28 @@ private:
 
   const CscIdHelper         * m_cscIdHelper{nullptr};
 
-  double m_pedestal;
-  bool m_maskBadChannel;
-  double m_amplification;
+  Gaudi::Property<double> m_pedestal{this, "pedestal",0.0, ""};
+  Gaudi::Property<bool> m_maskBadChannel{this, "maskBadChannels", true, ""};
+  Gaudi::Property<double> m_amplification{this, "amplification", 0.58e5, ""};
 
   //pile-up
   TimedHitCollection<CSCSimHit>* m_thpcCSC{nullptr}; // the hits
   std::list<CSCSimHitCollection*> m_cscHitCollList; // only for pileup events..
   //pileup truth veto
-  bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
+  Gaudi::Property<bool>   m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};
 
-  double m_timeWindowLowerOffset;
-  double m_timeWindowUpperOffset;
-  bool   m_isPileUp;
-  bool   m_newDigitEDM;
-  double m_driftVelocity;
-  double m_electronEnergy;
-  bool   m_NInterFixed;
+  Gaudi::Property<double> m_timeWindowLowerOffset{this, "WindowLowerOffset", -25., ""};
+  Gaudi::Property<double> m_timeWindowUpperOffset{this, "WindowUpperOffset", +25., ""};
+  Gaudi::Property<bool>   m_isPileUp{this, "isPileUp", false, ""};
+  Gaudi::Property<bool>   m_newDigitEDM{this, "NewDigitEDM", true, ""};
+  Gaudi::Property<double> m_driftVelocity{this, "DriftVelocity", 60, ""}; // 60 / (1e-6 * 1e9); // 6 cm/microsecond -> mm/ns // 0.06
+  Gaudi::Property<double> m_electronEnergy{this, "ElectronEnergy", 66, ""}; // eV
+  Gaudi::Property<bool>   m_NInterFixed{this, "NInterFixed", false, ""};
 
-  ///////////////////////////////////////////////////////////////////
-  // Access to the event methods:
-  ///////////////////////////////////////////////////////////////////
-private:
-
-  // Get next event and extract collection of hit collections:
-  StatusCode getNextEvent();
-
-protected:
-
-  PileUpMergeSvc *m_mergeSvc{nullptr}; // Pile up service
-  std::string m_inputObjectName{"CSC_Hits"}; // name of the input objects
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
+  Gaudi::Property<std::string> m_inputObjectName{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
 
 };
 

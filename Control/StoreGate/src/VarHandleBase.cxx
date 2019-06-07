@@ -504,7 +504,11 @@ namespace SG {
       if (store) m_store = store;
     }
 
-    StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
+    SG::DataProxy* proxy = m_store->proxy_exact (m_key->hashedKey());
+    if (!proxy) {
+      proxy = m_store->proxy(this->clid(), this->key());
+    }
+    StatusCode sc = this->setState(proxy);
 
     // Failure to find the proxy is ok in the case of a @c WriteHandle
     // that has not yet been written to.

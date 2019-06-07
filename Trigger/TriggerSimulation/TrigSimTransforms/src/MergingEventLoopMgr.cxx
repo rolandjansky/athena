@@ -900,8 +900,8 @@ namespace TrigSim {
         return sc;
     }
 //------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::executeEvent(void */*par*/) {
-        m_log << MSG::ERROR
+    StatusCode MergingEventLoopMgr::executeEvent(EventContext && /*ctx*/) {
+      m_log << MSG::FATAL
               << "executeEvent(...) is not implemented for MergingEventLoopMgr"
               << endmsg;
         return StatusCode::FAILURE;

@@ -304,7 +304,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     const Trk::TrackingVolume* sctVolume = trackingGeometry->trackingVolume("InDet::Detectors::SCT::Barrel"); 
     //get BoundarySurface for cylinder between sct and trt
     const Trk::CylinderSurface* sctCylinder = nullptr;
-    const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].getPtr()->surfaceRepresentation());
+    const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].get()->surfaceRepresentation());
     if(sctSurface->type()==Trk::Surface::Cylinder){
       sctCylinder= static_cast<const Trk::CylinderSurface*> (sctSurface);
     }
@@ -332,13 +332,13 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       // inverse logic: tracks with theta < M_PI/2 have origin in negative EC
       if (firstsipar->parameters()[Trk::theta] < M_PI/2.) {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::NegativeEndcap");
-        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::negativeFaceXY].getPtr()->surfaceRepresentation());
+        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::negativeFaceXY].get()->surfaceRepresentation());
         if(trtSurface->type()==Trk::Surface::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       } else {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");  
-        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].getPtr()->surfaceRepresentation());
+        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].get()->surfaceRepresentation());
         if(trtSurface->type()==Trk::Surface::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }

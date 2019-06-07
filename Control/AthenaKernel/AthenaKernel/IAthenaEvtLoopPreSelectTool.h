@@ -17,7 +17,7 @@
  *  @brief This class provides the interface for AthenaEvtLoopPreSelectTool classes used by AthenaEventLoopMgr
  **/
 
-class EventInfo;
+class EventIDBase;
 
 class IAthenaEvtLoopPreSelectTool : virtual public IAlgTool {
 
@@ -32,7 +32,7 @@ public:
   /// Initialize AlgTool
   virtual StatusCode initialize() = 0;
   /// called for each event to decide if the event should be passed to the EventSelector
-  virtual bool passEvent(const EventInfo* pEvent) = 0;
+  virtual bool passEvent(const EventIDBase& pEvent) = 0;
   /// Finalize AlgTool
   virtual StatusCode finalize() = 0;
 };

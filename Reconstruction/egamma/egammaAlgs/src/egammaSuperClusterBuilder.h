@@ -19,6 +19,7 @@
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
+#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 
 #include <memory>
 
@@ -172,6 +173,11 @@ private:
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
       "ClusterCorrectionTool", "egammaSwTool/egammaswtool", 
       "tool that applies cluster corrections"};
+
+  /** @brief Pointer to the egammaCheckEnergyDepositTool*/
+  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this,
+      "egammaCheckEnergyDepositTool", "",
+      "Optional tool that performs basic checks of viability of cluster"};
 
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;

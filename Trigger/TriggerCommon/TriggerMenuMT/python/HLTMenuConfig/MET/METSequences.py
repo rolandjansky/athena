@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelperMT, EFMissingETFlagsMT
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFlagsMT
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -27,7 +27,6 @@ def metCellRecoSequence():
     # Add EFMissingETAlg and associated tools
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_cell" )
-    helperTool = EFMissingETFromHelperMT("theHelperTool")
     flagsTool = EFMissingETFlagsMT("theFlagsTool")
     metAlg.METContainerKey = recordable("HLT_MET")
     metAlg.MonTool = getMETMonTool()
@@ -38,7 +37,7 @@ def metCellRecoSequence():
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCellsMT
     cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
     cellTool.CellsCollection = CellsName
-    metAlg.METTools += [cellTool, helperTool, flagsTool]
+    metAlg.METTools = [cellTool, flagsTool]
 
     metCellRecoSequence += metAlg
 
@@ -64,8 +63,6 @@ def metClusterRecoSequence():
     # Add EFMissingETAlg and associated tools
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_tc" )
-    helperTool = EFMissingETFromHelperMT("theHelperTool")
-    flagsTool = EFMissingETFlagsMT("theFlagsTool")
     metAlg.METContainerKey = recordable("HLT_MET_tc")
     metAlg.MonTool = getMETMonTool()
 
@@ -78,7 +75,7 @@ def metClusterRecoSequence():
     ### WARNING: this setting does not work for the scheduler: the variable is set, but the scheduler retrieves the default one
     clusterTool.ClustersCollection = ClustersName
 
-    metAlg.METTools += [clusterTool, helperTool, flagsTool]
+    metAlg.METTools = [clusterTool]
 
     metClusterRecoSequence += metAlg
 
@@ -104,8 +101,6 @@ def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
     # Add EFMissingETAlg and associated tools
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_tcPufit" )
-    helperTool = EFMissingETFromHelperMT("theHelperTool")
-    flagsTool = EFMissingETFlagsMT("theFlagsTool")
     metAlg.METContainerKey = recordable("HLT_MET_tcPufit")
     metAlg.MonTool = getMETMonTool()
     
@@ -117,7 +112,7 @@ def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
 
     clusterPufitTool.ClustersCollection = ClustersName
 
-    metAlg.METTools += [clusterPufitTool, helperTool, flagsTool]
+    metAlg.METTools = [clusterPufitTool]
 
     metClusterPufitRecoSequence += metAlg
 
@@ -143,8 +138,6 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     # Add EFMissingETAlg and associated tools
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_mht" )
-    helperTool = EFMissingETFromHelperMT("theHelperTool")
-    flagsTool = EFMissingETFlagsMT("theFlagsTool")
     metAlg.METContainerKey = recordable("HLT_MET_mht")
     metAlg.MonTool = getMETMonTool()
 
@@ -156,7 +149,7 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
 
     mhtTool.JetsCollection=JetsName
     
-    metAlg.METTools += [mhtTool, helperTool, flagsTool]
+    metAlg.METTools = [mhtTool]
 
     recoSequence += metAlg
 

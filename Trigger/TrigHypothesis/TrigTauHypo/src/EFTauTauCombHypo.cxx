@@ -13,8 +13,8 @@
  ** Created: August 1
  **************************************************************************/
 
-#include "TrigTauHypo/EFTauTauCombFexAlgo.h"
-#include "TrigTauHypo/EFTauTauCombHypo.h"
+#include "EFTauTauCombFexAlgo.h"
+#include "EFTauTauCombHypo.h"
 
 class ISvcLocator;
 

@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -869,7 +869,6 @@ private:
                         SG::ConstProxyIterator& end) const; 
 
   ///FIXME: access releaseObject
-  friend class TileInfoLoader;
   friend class xAODMaker::AuxStoreWrapper;
   /// release object held by proxy, if any. Gives up ownership 
   /// (somebody else must take charge)

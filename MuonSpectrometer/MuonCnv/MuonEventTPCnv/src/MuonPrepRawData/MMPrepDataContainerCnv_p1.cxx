@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepData_p1.h"
-#include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
@@ -132,11 +131,25 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
       chanCnv.transToPers(chan, pchan, log); // convert from MMPrepData to MMPrepData_p1
       unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
+
+      /// for MM, in order to remain within the 16-bits limit of the difference, we can 
+      /// shift by one bit to the right without loosing information ( the channel starts from the
+      /// second bit ). 
+      /// But, check that the first but is really not used before doing that ( to be safe in the future )
+
+      ///
+      /// compute the difference and shift it by one bit in order to remain within the 16-bits 
       unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>sizeof(unsigned short)) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endmsg;
+
+      if ( (diff & 0x1) != 0 ) {
+	log << MSG::WARNING << "The least significant bit is used: information will be lost in persistifying " << endmsg;
+      } 
+      diff = diff >> 1;
+
+      if ( diff > 0xffff ) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endmsg;
+
       persCont->m_prdDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
-      // FIXME - above doesn't work ATM 
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<clusIdCompact<<"\t pers Id:"<<pchan->m_id<<std::dec<<endmsg;
+
       // std::cout <<"Trans id:"<<chan->m_clusId<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
       //check! 
@@ -205,10 +218,6 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         // Identifier collId = m_MMId->parentID(firstChanId);
     coll->setIdentifier(Identifier(pcoll.m_id)); 
 
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
-
-        // FIXME - really would like to remove Identifier from collection, but cannot as there is :
-        // a) no way (apparently - find it hard to believe) to go from collection IdHash to collection Identifer.
 
     unsigned int pchanEnd = pchanIndex+pcoll.m_size;
     unsigned int chanIndex = 0; // transient index
@@ -217,29 +226,32 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         // Fill with channels
     for (; pchanIndex < pchanEnd; ++ pchanIndex, ++chanIndex) {
       const MMPrepData_p1* pchan = &(persCont->m_prds[pchanIndex]);
+
+      /// get the cluster Identifier from the collection Id + the difference between cluster Id and collection Id
+      /// please note that the difference has been shifted by one bit to the right so it needs to be shifted back
+      /// before summing to the collection Id
+      /// also need to go from the 32 bits identifier to the 64-bits one
+      unsigned int diff = persCont->m_prdDeltaId[pchanIndex] << 1;
+      Identifier clusId( (pcoll.m_id + diff) );
       
       const MuonGM::MMReadoutElement* detEl =
-        m_muonDetMgr->getMMReadoutElement(Identifier(pchan->m_id));
+        m_muonDetMgr->getMMReadoutElement(clusId);
       if (!detEl) {
         if (log.level() <= MSG::WARNING) 
-          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<pchan->m_id<<". Skipping."<<endmsg;
+          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<< m_MMId->show_to_string(clusId) <<". Skipping."<<endmsg;
         continue;
       }
 
-      // chan->m_clusId=Identifier(pcoll.m_id + persCont->m_prdDeltaId[pchanIndex]); FIXME! Put this back once diff is sane.
       auto chan = CxxUtils::make_unique<MMPrepData>
-        (chanCnv.createMMPrepData (pchan, detEl, log));
+        (chanCnv.createMMPrepData (pchan, clusId, detEl, log));
 
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_id<<std::dec<<endmsg;
-
-      // std::cout <<"Trans id:"<<chan->m_clusId<<"\t pers Id:"<<pchan->m_id<<std::endl;
-      
       if ( m_MMId->valid(chan->identify())!=true ) {
                 // have invalid PRD
         log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->identify())
           <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endmsg;
       } 
-      // chanCnv.persToTrans(pchan, chan, log); // Fill chan with data from pchan FIXME! Put this back once diff is sane.
+
+      //      chanCnv.persToTrans(pchan, chan, log); // Fill chan with data from pchan FIXME! Put this back once diff is sane.
 
       // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
       // IdentifierHash deIDHash;

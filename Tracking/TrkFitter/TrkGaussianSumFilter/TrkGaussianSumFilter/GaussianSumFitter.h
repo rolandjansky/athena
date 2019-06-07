@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -50,10 +50,10 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
   virtual ~GaussianSumFitter() {};
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override final;
 
   using ITrackFitter::fit;
 
@@ -61,27 +61,27 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
 
   virtual Track* fit ( const Track&,
            const RunOutlierRemoval outlierRemoval = false,
-           const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+           const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** Fit a collection of 'PrepRawData' objects using the Gaussian Sum Filter
       - This requires that an trackParameters object be supplied also as an initial guess */
   virtual Track* fit ( const PrepRawDataSet&,
            const TrackParameters&,
            const RunOutlierRemoval outlierRemoval = false,
-           const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+           const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** Fit a collection of 'RIO_OnTrack' objects using the Gaussian Sum Filter
       - This requires that an trackParameters object be supplied also as an initial guess */
   virtual Track* fit ( const MeasurementSet&,
            const TrackParameters&,
            const RunOutlierRemoval outlierRemoval = false,
-           const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+           const ParticleHypothesis particleHypothesis = nonInteracting ) const override final; 
 
   /** Refit a track adding a PrepRawDataSet - Not done! */
   virtual Track* fit ( const Track&,
           const PrepRawDataSet&,
           const RunOutlierRemoval  runOutlier = false,
-          const ParticleHypothesis  matEffects = nonInteracting)   const;
+          const ParticleHypothesis  matEffects = nonInteracting) const override final;
 
   /** Refit a track adding a RIO_OnTrack set
       - This has no form of outlier rejection and will use all hits on orginal track...
@@ -89,16 +89,13 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
   virtual Track* fit  ( const Track&,
           const MeasurementSet&,
           const RunOutlierRemoval  runOutlier = false,
-          const ParticleHypothesis  matEffects = nonInteracting)   const;
+          const ParticleHypothesis  matEffects = nonInteracting) const override final;
 
  /** Combine two tracks by refitting - Not done! */
   virtual Track* fit  ( const Track&,
         const Track&,
         const RunOutlierRemoval  runOutlier = false,
-        const ParticleHypothesis  matEffects = nonInteracting )   const;
-
-  /** Save GSF Validation ntuple */
-  void validationAction() const;
+        const ParticleHypothesis  matEffects = nonInteracting ) const override final;
 
  private:
 
@@ -110,35 +107,34 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
   const Trk::FitQuality* buildFitQuality(const Trk::SmoothedTrajectory& ) const;
 
  private:
-  ToolHandle<IMultiStateExtrapolator> m_extrapolator;
-
-  ToolHandle<IMultiStateMeasurementUpdator> m_updator;
-
-  ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator;
-
-  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter;
-  ToolHandle<IGsfSmoother> m_gsfSmoother;
-
+  ToolHandle<IMultiStateExtrapolator> m_extrapolator
+  {this,"ToolForExtrapolation","Trk::GsfExtrapolator/GsfExtrapolator",""};
+  ToolHandle<IMultiStateMeasurementUpdator> m_updator
+  {this,"MeasurementUpdatorType","Trk::GsfMeasurementUpdator/GsfMeasurementUpdator",""};
+  ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator
+  {this,"ToolForROTCreation","Trk::RioOnTrackCreator/RIO_OnTrackCreator",""};
+  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter
+  {this,"ForwardGsfFitter","Trk::ForwardGsfFitter/ForwardGsfFitter",""};
+  ToolHandle<IGsfSmoother> m_gsfSmoother
+  {this,"GsfSmoother","Trk::GsfSmoother/GsfSmoother",""};
+  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
+  {this,"StateCombiner","Trk::MultiComponentStateCombiner/GSFMultiComponentStateCombiner",""};
+  
 
   bool                                      m_reintegrateOutliers;
-
   bool                                      m_makePerigee;
-  PropDirection                             m_directionToPerigee;
   bool                                      m_refitOnMeasurementBase;
   bool                                      m_doHitSorting;
+  PropDirection                             m_directionToPerigee;
   TrkParametersComparisonFunction*          m_trkParametersComparisonFunction;
   std::vector<double>                       m_sortingReferencePoint;
-
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner;
   ServiceHandle<IChronoStatSvc>             m_chronoSvc;
-
   TrackFitInputPreparator*                  m_inputPreparator;
-
 
  // GSF Fit Statistics
   mutable std::atomic<int> m_FitPRD;             // Number of Fit PrepRawData Calls
-  mutable std::atomic<int> m_FitMeasuremnetBase; // Number of Fit MeasurementBase Calls
-  mutable std::atomic<int> m_FowardFailure;      // Number of Foward Fit Failures       
+  mutable std::atomic<int> m_FitMeasurementBase; // Number of Fit MeasurementBase Calls
+  mutable std::atomic<int> m_ForwardFailure;      // Number of Foward Fit Failures       
   mutable std::atomic<int> m_SmootherFailure;    // Number of Smoother Failures         
   mutable std::atomic<int> m_PerigeeFailure;     // Number of MakePerigee Failures  
   mutable std::atomic<int> m_fitQualityFailure;  // Number of Tracks that fail fit Quailty test     

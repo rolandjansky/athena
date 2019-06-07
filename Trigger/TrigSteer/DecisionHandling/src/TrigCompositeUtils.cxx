@@ -169,12 +169,9 @@ namespace TrigCompositeUtils {
 
   void recursiveGetDecisionsInternal(const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id) {
     // Does this Decision satisfy the chain requirement?
-    // Don't check this for HLTPassRaw or HLTRerun. These inital nodes have empty sets
-    if (start->name() != "HLTPassRaw" && start->name() != "HLTRerun") {
-      DecisionIDContainer idSet = {id};
-      if (id != 0 && !isAnyIDPassing(start, idSet)) {
-        return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
-      }
+    DecisionIDContainer idSet = {id};
+    if (id != 0 && !isAnyIDPassing(start, idSet)) {
+      return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
     }
 
     // This Decision object is part of this linear path through the Navigation
@@ -211,7 +208,7 @@ namespace TrigCompositeUtils {
   }
 
   void recursiveGetDecisions(const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id) {
-    // Note: we do not require recursiveGetDecisions to be an empty vector. We can append to it.
+    // Note: we do not require linkVector to be an empty vector. We can append to it.
     linkVector.push_back( ElementLinkVector<DecisionContainer>() ); // Our starting point
     const size_t startingElement = linkVector.size() - 1;
     recursiveGetDecisionsInternal(start, startingElement, linkVector, id);

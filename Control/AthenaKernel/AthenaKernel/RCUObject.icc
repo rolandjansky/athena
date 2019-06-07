@@ -100,7 +100,7 @@ inline
 RCUObject<T>::RCUObject (IRCUSvc& svc, Args&&... args)
   : IRCUObject (svc)
 {
-  m_objs.push_back (CxxUtils::make_unique<T>(std::forward<Args>(args)...));
+  m_objs.push_back (std::make_unique<T>(std::forward<Args>(args)...));
   m_obj = m_objs.front().get();
 }
 
@@ -116,7 +116,7 @@ inline
 RCUObject<T>::RCUObject (size_t nslots, Args&&... args)
   : IRCUObject (nslots)
 {
-  m_objs.push_back (CxxUtils::make_unique<T>(std::forward<Args>(args)...));
+  m_objs.push_back (std::make_unique<T>(std::forward<Args>(args)...));
   m_obj = m_objs.front().get();
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************************
@@ -14,7 +14,7 @@
 
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
 
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
@@ -228,7 +228,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 	  msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endmsg;
 	
 	double deta = fabs(eta-jetEta);	
-	double dphi = fabs(HLT::wrapPhi(phi-jetPhi));
+	double dphi = fabs(CxxUtils::wrapToPi(phi-jetPhi));
 	
 	double dR = sqrt((deta*deta)+(dphi*dphi));
 	if (dR<m_deltaR) {

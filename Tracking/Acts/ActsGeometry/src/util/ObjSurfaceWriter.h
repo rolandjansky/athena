@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "Acts/Utilities/GeometryContext.hpp"
 #include <fstream>
 #include <iostream>
 #include <mutex>
@@ -73,7 +74,7 @@ public:
   /// The write interface
   /// @param surface to be written out
   void
-  write(const Acts::Surface& surface);
+  write(const Acts::GeometryContext &gctx, const Acts::Surface &surface);
 
   /// write a bit of string
   /// @param is the string to be written

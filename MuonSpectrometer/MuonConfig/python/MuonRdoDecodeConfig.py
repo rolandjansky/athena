@@ -76,8 +76,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)  )
+    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    acc.merge (MdtCalibDbAlgCfg(flags))
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -249,6 +249,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
+    return cfg
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
@@ -300,11 +301,12 @@ def muonRdoDecodeTestMC():
     with open('MuonRdoDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
+    return cfg
     
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRdoDecodeConfig.py
-    muonRdoDecodeTestData()
+    cfg = muonRdoDecodeTestData()
     #muonRdoDecodeTestMC()
 
 

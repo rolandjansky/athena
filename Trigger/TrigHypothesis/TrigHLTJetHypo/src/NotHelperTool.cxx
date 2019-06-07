@@ -25,8 +25,9 @@ NotHelperTool::NotHelperTool(const std::string& type,
   base_class(type, name, parent){
 }
 
-bool NotHelperTool::pass(HypoJetVector& jets,
-                         ITrigJetHypoInfoCollector* collector) const {
+bool
+NotHelperTool::pass(HypoJetVector& jets,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("NotHelperTool::pass... " << jets.size() << " jets");
 
   JetTrigTimer timer;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -17,8 +17,8 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibData/MdtRtRelation.h"
@@ -42,16 +42,15 @@
 #include "Identifier/IdentifierHash.h"
 #include <boost/assign/std/vector.hpp>
 
-Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
-(const std::string& ty,const std::string& na,const IInterface* pa)
+Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  m_mdtCalibSvc("MdtCalibrationSvc", na),
-  m_mdtCalibDbSvc("MdtCalibrationDbSvc", na),
-  m_tofTool(""),
-  m_invSpeed(1./299.792458),
-  m_mdtCalibSvcSettings( 0 ),
-  m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_mdtCalibrationTool("MdtCalibrationTool", this),
+    m_mdtCalibrationDbTool("MdtCalibrationDbTool", this),
+    m_tofTool(""), // Must be public because MuGirlStau modifies this on the fly. FIXME!
+    m_invSpeed(1./299.792458),
+    m_mdtCalibSvcSettings( 0 ),
+    m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
 {
   // create calibration service settings 
   m_mdtCalibSvcSettings = new MdtCalibrationSvcSettings();
@@ -95,6 +94,9 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
   declareProperty("DoSegmentErrors",m_doSegments=true , "Use error strategy for segments");
   declareProperty("UseLooseErrors",m_looseErrors=false , "Use error strategy for MC");
   declareProperty("IsMC",m_isMC=false);
+
+  declareProperty("CalibrationTool",m_mdtCalibrationTool);
+  declareProperty("CalibrationDbTool",m_mdtCalibrationDbTool);
 }
 
 
@@ -157,15 +159,7 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   ATH_MSG_VERBOSE( "A correction is made if set to true: do_MDT = " << m_doMdt ); 
   
   ATH_CHECK( m_idHelper.retrieve() );
-  
-  if (m_doMdt) {
-    ATH_CHECK( m_mdtCalibSvc.retrieve() );
-    // Get pointer to MdtCalibrationDbSvc and cache it :
-    ATH_CHECK( m_mdtCalibDbSvc.retrieve() );
-  } else {
-    ATH_MSG_WARNING( " tool is configured such that MDT_DCs are only copied!" );
-  }
-  
+
   if( m_timeCorrectionType == COSMICS_TOF ){
     if( m_tofTool.empty() ) ATH_MSG_DEBUG("no TOF tool, TOF will be calculated directly from T0 shift provided");
     else ATH_CHECK(m_tofTool.retrieve());
@@ -422,7 +416,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
     }
     
     // call the calibration service providing the time when the particle passed the tube
-    ok = m_mdtCalibSvc->driftRadiusFromTime( *calibHit, inputData, *m_mdtCalibSvcSettings );
+    ok = m_mdtCalibrationTool->driftRadiusFromTime( *calibHit, inputData, *m_mdtCalibSvcSettings );
     
     driftTime = calibHit->driftTime();
     radius    = calibHit->driftRadius();  // copy new values
@@ -527,7 +521,7 @@ double Muon::MdtDriftCircleOnTrackCreator::getErrorFromRt(const Muon::MdtDriftCi
   double t = DCT.driftTime();
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
 
-  MuonCalib::MdtFullCalibData data = m_mdtCalibDbSvc->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() ); 
+  MuonCalib::MdtFullCalibData data = m_mdtCalibrationDbTool->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() );
   const MuonCalib::MdtRtRelation* rtRelation = data.rtRelation;
   if( !rtRelation ){
     ATH_MSG_WARNING("no calibration found for tube " << m_idHelper->toString(DCT.identify()));
@@ -674,7 +668,7 @@ Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus
   }
   
   // access rt relation
-  MuonCalib::MdtFullCalibData data = m_mdtCalibDbSvc->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() ); 
+  MuonCalib::MdtFullCalibData data = m_mdtCalibrationDbTool->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() );
   const MuonCalib::MdtRtRelation* rtRelation = data.rtRelation;
   if( !rtRelation ){
     ATH_MSG_WARNING("no calibration found for tube " << m_idHelper->toString(DCT.identify()));
@@ -683,7 +677,7 @@ Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus
   
   // check whether drift time is within range, if not fix them to the min/max range
   double t = DCT.driftTime();
-  return m_mdtCalibSvc->driftTimeStatus(t, rtRelation, *m_mdtCalibSvcSettings); 
+  return m_mdtCalibrationTool->driftTimeStatus(t, rtRelation, *m_mdtCalibSvcSettings);
 }
 
 double Muon::MdtDriftCircleOnTrackCreator::parametrisedSigma( double r ) const {

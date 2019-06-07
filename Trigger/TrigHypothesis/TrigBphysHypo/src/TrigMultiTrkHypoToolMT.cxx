@@ -67,7 +67,7 @@ StatusCode TrigMultiTrkHypoToolMT::initialize()
         ATH_CHECK( m_monTool.retrieve() );
         ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
-  if(m_ptTrkMin.size() != m_nTrk){
+  if(static_cast<int>(m_ptTrkMin.size()) != m_nTrk){
       ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
             << m_ptTrkMin.size() << " track pTs!");        
       return StatusCode::FAILURE;
@@ -84,11 +84,11 @@ StatusCode TrigMultiTrkHypoToolMT::initialize()
 
 
 //-------------------------------------------------------------------------------------
-bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBphys, size_t cutIndex ) const{
+bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBphys, size_t  ) const{
  
   using namespace Monitored;
 
-    ATH_MSG_DEBUG( "in TrigMultiTrkHypoToolMT::decideOnSingleObject(), looking at TrigBphys object");
+  ATH_MSG_DEBUG( "in TrigMultiTrkHypoToolMT::decideOnSingleObject(), looking at TrigBphys object");
 
   bool thisPassedMassCut = false;
   bool thisPassedChi2Cut = false;

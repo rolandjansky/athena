@@ -5,7 +5,7 @@
 #include "SiDetElementBoundaryLinksCondAlg_xk.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 

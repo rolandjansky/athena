@@ -20,6 +20,7 @@ __all__ = [
 import os
 import sys
 import re
+import six
 from pprint import pprint
 from array import array
 
@@ -30,7 +31,7 @@ from .Decorators import memoize
 # The argument to SetSize is in elements, not bytes.
 def _set_byte_size (buf, sz):
     eltsz = array(buf.typecode).itemsize
-    buf.SetSize (sz / eltsz)
+    buf.SetSize (sz // eltsz)
     return
 
 def import_root(batch=True):
@@ -157,6 +158,8 @@ def _pythonize_tfile():
                 #print ("-->2",self.tell())
                 buf = c_buf.buffer()
                 _set_byte_size (buf, c_buf.sz)
+                if six.PY3:
+                    return buf.tobytes()
                 return str(buf[:])
             return ''
         else:

@@ -111,8 +111,14 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
         // output
         ATH_MSG_VERBOSE("Adding Volume '" << (*volIter)->volumeName() << "' to Array" );
         // push back the volume order position
-        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), navtype),
+        if(navtype ==false){
+        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter)),
                                                             Amg::Vector3D(currentCylBounds->mediumRadius(), 0.0, 0.0)));
+        }else{
+          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>),
+                                                              Amg::Vector3D(currentCylBounds->mediumRadius(), 0.0, 0.0)));
+     
+        }
     }
     if (volOrder.size()) {
         Trk::BinUtility* volBinUtilR = new Trk::BinUtility(boundaries, Trk::open, Trk::binR);
@@ -187,8 +193,16 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
         // output
         ATH_MSG_VERBOSE("Adding Volume '" << (*volIter)->volumeName() << "' to Array" );
         // push back the volume order position
-        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), navtype),
-                                                            Amg::Vector3D((*volIter)->center())));
+        if(navtype==false){
+          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter)),
+                                                              Amg::Vector3D((*volIter)->center())));
+        }
+        else{
+           volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter),do_not_delete<const TrackingVolume>),
+                                                               Amg::Vector3D((*volIter)->center())));
+
+        
+        }
 
     }
     if (volOrder.size()) {
@@ -227,8 +241,14 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
         ATH_MSG_VERBOSE("Adding Volume '" << (*volIter)->volumeName() << "' to Array" );
         // push back the volume order position
         Amg::Vector3D gp( cyl->mediumRadius(),0.,0.);
-        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), navtype),
+        if(navtype==false){
+        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter)),
                                                             Amg::Vector3D(((*volIter)->transform())*gp)));
+        }else{
+          volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>),
+                                                            Amg::Vector3D(((*volIter)->transform())*gp)));
+     
+        }
     }
     if (volOrder.size()) {
         Trk::BinUtility* volBinUtil = new Trk::BinUtility(nPhiBins,-phi,+phi,Trk::closed,Trk::binPhi);
@@ -290,7 +310,11 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	  // push back the volume order position
 	  Amg::Vector3D gp( mRad,0.,0.);
 	  Amg::Vector3D ngp((vols[i]->transform())*gp);
-	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], navtype),ngp));
+    if(navtype==false){
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
+    }else{
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],do_not_delete<const TrackingVolume>),ngp));
+    }
 	  // push back volume position to avoid another loop
 	  volPos.push_back( std::pair< std::pair<double,int>, std::pair<double,double> >
 			    (std::pair<double,int>(ngp.phi(),type), std::pair<double,double>(rmin,rmax)));
@@ -350,7 +374,13 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	  Amg::Vector3D ngp( cyl->mediumRadius()*cos(phiRef),
 			     cyl->mediumRadius()*sin(phiRef),
 			     0.);
-	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv], navtype),ngp));
+
+    if(navtype==false){
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv]),ngp));
+    }
+    else{
+	  volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(fullPhiVols[iv],do_not_delete<const TrackingVolume>),ngp));
+    }
 	  // push back volume position to avoid another loop
 	  volPos.push_back(std::pair< std::pair<double,int>, std::pair<double,double> >
 			   (std::pair<double,int>(ngp.phi(),0), std::pair<double,double>(rmin,rmax)));
@@ -441,7 +471,11 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
       // push back the volume order position
       Amg::Vector3D gp( cyl->mediumRadius(),0.,0.);
       Amg::Vector3D ngp((vols[i]->transform())*gp);
-      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], navtype),ngp));
+      if(navtype==false){
+      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
+      }else{
+      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i],do_not_delete<const TrackingVolume>),ngp));
+      }
       // push back volume position to avoid another loop
       volPos.push_back(std::pair<double,std::pair<double,double> >(cyl->mediumRadius(),std::pair<double,double>(ngp.phi(),dphi)));
       // r binning
@@ -587,7 +621,11 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
       // push back the volume order position
       Amg::Vector3D gp( mRad,0.,0.);
       Amg::Vector3D ngp((vols[i]->transform())*gp);
-      volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], navtype),ngp));
+      if(navtype==false){
+        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i]),ngp));
+      }else{
+        volOrder.push_back(Trk::TrackingVolumeOrderPosition(Trk::SharedObject<const TrackingVolume>(vols[i], do_not_delete<const TrackingVolume>),ngp));
+      }
       // push back volume position to avoid another loop
       volPos.push_back(std::pair<float,std::pair<float,float> >(vols[i]->center()[2],std::pair<float,float>(ngp.phi(),dphi)));
       // z binning
@@ -720,7 +758,11 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cuboidVolumesArrayNav
             return 0;
         }
         // push back the volume order position
-        volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), navtype));
+        if(navtype==false){
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter)));
+        }else{
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), do_not_delete<const TrackingVolume>));
+        }
     }
     if (volOrder.size()) {
         Amg::Transform3D* navTransform = new Amg::Transform3D;
@@ -749,7 +791,12 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::trapezoidVolumesArray
             return 0;
         }
         // push back the volume order position
-        volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), navtype));
+        if(navtype==false){
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>(*volIter));
+        }else
+        {
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>(*volIter,do_not_delete<const TrackingVolume>));
+        }
     }
     if (volOrder.size()) {
         Amg::Transform3D* navTransform = new Amg::Transform3D;
@@ -778,7 +825,12 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::doubleTrapezoidVolume
             return 0;
         }
         // push back the volume order position
-        volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter), navtype));
+        if(navtype==false){
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter)));
+        }
+        else{
+          volOrder.push_back(Trk::SharedObject<const TrackingVolume>((*volIter),do_not_delete<const TrackingVolume>));
+        }
     }
     if (volOrder.size()) {
         Amg::Transform3D* navTransform = new Amg::Transform3D;

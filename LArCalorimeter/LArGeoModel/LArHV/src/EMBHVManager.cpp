@@ -23,6 +23,10 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArCabling/LArHVCablingTool.h"
 
+#ifndef SIMULATIONBASE
+#include "LArRecConditions/LArHVIdMapping.h"
+#endif
+
 #include "Identifier/HWIdentifier.h"
 #include <mutex>
 #include <atomic>
@@ -38,6 +42,15 @@ public:
 	  }
 	}
       }
+    }
+
+    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) {
+      throw std::runtime_error("EMBHVManager failed to retrieve LArElectrodeID");
+    }
+
+    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID")) {
+      throw std::runtime_error("EMBHVManager failed to retrieve LArHVLineID");
     }
   }
   Clockwork(const Clockwork&) = delete;
@@ -57,6 +70,8 @@ public:
   std::atomic<bool>     init{false};
   std::mutex            mtx;
   std::vector<EMBHVPayload> payloadArray;
+  const LArElectrodeID* elecId;
+  const LArHVLineID* hvId;
 };
 
 EMBHVManager::EMBHVManager()
@@ -131,14 +146,6 @@ void EMBHVManager::update() const {
     }
     
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-
-    const LArElectrodeID* elecId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID"))
-      return;
-
-    const LArHVLineID* hvId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID"))
-      return;
 	
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     IToolSvc* toolSvc;
@@ -174,23 +181,23 @@ void EMBHVManager::update() const {
         //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
+        HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
 	for(size_t i=0;i<electrodeIdVec.size();i++)
 	{
             HWIdentifier& elecHWID = electrodeIdVec[i];
-            int detector = elecId->detector(elecHWID);
+            int detector = m_c->elecId->detector(elecHWID);
             if (detector==0) {
 
                //std::cout << "       in Barrel " << std::endl;
 
 // side  in standard offline 0 for z<0 (C) 1 for z>0 (A)
 //  in electrode numbering, this is the opposite (0 for A and 1 for C)
-	    unsigned int sideIndex=1-elecId->zside(elecHWID);
+	    unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);
 // eta index, no trouble
-	    unsigned int etaIndex=elecId->hv_eta(elecHWID);
+	    unsigned int etaIndex=m_c->elecId->hv_eta(elecHWID);
 // phi index   
 //  offline 0 to 2pi in 2pi/16 bins
 // this is module in the electrode numbering: on the A side 0 to 15, 0 is halfway around phi=0 (FT-1 (hv_phi=1 is a lower phi)
@@ -203,8 +210,8 @@ void EMBHVManager::update() const {
 	    unsigned int phiIndex;
             unsigned int sectorIndex;
             if (sideIndex==1) {
-             phiIndex=elecId->module(elecHWID);
-             sectorIndex=elecId->hv_phi(elecHWID);
+             phiIndex=m_c->elecId->module(elecHWID);
+             sectorIndex=m_c->elecId->hv_phi(elecHWID);
             }
 // module numbering on the C side 0 around phi=pi, running backwards
 //   offline phi     0               pi                      2pi
@@ -214,10 +221,10 @@ void EMBHVManager::update() const {
 //  phiIndex          0 0  1       7   8                15  15
 // sectorIndex        0 1  0       1   0                 0  1
             else {
-              int imodule=elecId->module(elecHWID);
+              int imodule=m_c->elecId->module(elecHWID);
               if (imodule<9) phiIndex = 8 - imodule;
               else           phiIndex = 24 - imodule;
-              sectorIndex = 1-elecId->hv_phi(elecHWID);
+              sectorIndex = 1-m_c->elecId->hv_phi(elecHWID);
             }
 
             if (sectorIndex==1) {
@@ -225,18 +232,18 @@ void EMBHVManager::update() const {
                else phiIndex=15;
             }
 
-	    unsigned int electrodeIndex=elecId->electrode(elecHWID);
+	    unsigned int electrodeIndex=m_c->elecId->electrode(elecHWID);
             if (sideIndex==0) {
-               if (elecId->hv_phi(elecHWID)==1) electrodeIndex=31-electrodeIndex;  // FT-1 change 0->31 to 31->0
+               if (m_c->elecId->hv_phi(elecHWID)==1) electrodeIndex=31-electrodeIndex;  // FT-1 change 0->31 to 31->0
                else                             electrodeIndex=63-electrodeIndex;  // FT 0 change 32->63 to 31-0
             }
             else {
-                if (elecId->hv_phi(elecHWID)==0) electrodeIndex=electrodeIndex-32;  // FT 0 change 31-63 to 0-31
+                if (m_c->elecId->hv_phi(elecHWID)==0) electrodeIndex=electrodeIndex-32;  // FT 0 change 31-63 to 0-31
             }
 	  
 	    unsigned int index             = 8192*sideIndex+1024*etaIndex+64*phiIndex+32*sectorIndex+electrodeIndex;
 	  
-	    unsigned int gapIndex=elecId->gap(elecHWID);
+	    unsigned int gapIndex=m_c->elecId->gap(elecHWID);
             if (sideIndex==0) gapIndex=1-gapIndex;
 
             float voltage = -99999.;
@@ -246,7 +253,7 @@ void EMBHVManager::update() const {
             unsigned int status = 0;
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
-         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
+         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << m_c->elecId->zside(elecHWID) << " " << m_c->elecId->module(elecHWID) << " " << m_c->elecId->hv_phi(elecHWID) << " " << m_c->elecId->hv_eta(elecHWID) << " " << m_c->elecId->electrode(elecHWID)
          //  << " " << gapIndex << "  " << index << " " << voltage << std::endl;
 
 	  
@@ -263,7 +270,11 @@ void EMBHVManager::update() const {
   }
 }
 
-EMBHVPayload *EMBHVManager::getPayload(const EMBHVElectrode &electrode) const {
+void  EMBHVManager::reset() const {
+  m_c->init=false;
+}
+
+EMBHVPayload* EMBHVManager::getPayload(const EMBHVElectrode &electrode) const {
   update();
   unsigned int electrodeIndex    = electrode.getElectrodeIndex();
   const EMBHVModule& module      = electrode.getModule();
@@ -275,6 +286,78 @@ EMBHVPayload *EMBHVManager::getPayload(const EMBHVElectrode &electrode) const {
   return &m_c->payloadArray[index];
 }
 
-void  EMBHVManager::reset() const {
-  m_c->init=false;
+#ifndef SIMULATIONBASE
+int EMBHVManager::hvLineNo(const EMBHVElectrode& electrode
+			   , int gap
+			   , const LArHVIdMapping* hvIdMapping) const
+{
+  const EMBHVModule& module      = electrode.getModule();
+  int etaIndex          = module.getEtaIndex();
+  int phiIndex          = module.getPhiIndex();
+  int sectorIndex       = module.getSectorIndex();
+  int sideIndex         = module.getSideIndex();
+  int electrodeIndex    = electrode.getElectrodeIndex();
+
+  // ________________________ Construct ElectrodeID ________________________________
+  int id_detector = 0;
+  int id_zside = 1 - sideIndex;
+  int id_hv_phi = (sideIndex==1 ? sectorIndex : 1-sectorIndex);
+  int id_hv_eta = etaIndex;
+  int id_gap = (sideIndex==0 ? 1-gap : gap);
+  int tmpPhi = phiIndex;
+  if(sectorIndex==1) {
+    if(tmpPhi==15) {
+      tmpPhi=0;
+    }
+    else {
+      tmpPhi += 1;
+    }
+  }
+
+  int id_module;
+  if(sideIndex==1) {
+    id_module = tmpPhi;
+  }
+  else {
+    if(tmpPhi<9) {
+      id_module = 8-tmpPhi;
+    }
+    else {
+      id_module = 24-tmpPhi;
+    }
+  }
+
+  int id_electrode;
+  if(sideIndex==0) {
+    if(id_hv_phi==1) {
+      id_electrode = 31-electrodeIndex;
+    }
+    else {
+      id_electrode = 63-electrodeIndex;
+    }
+  }
+  else {
+    if(id_hv_phi==0) {
+      id_electrode = electrodeIndex+32;
+    }
+    else {
+      id_electrode = electrodeIndex;
+    }
+  }
+
+  HWIdentifier elecHWID = m_c->elecId->ElectrodeId(id_detector
+						   , id_zside
+						   , id_module
+						   , id_hv_phi
+						   , id_hv_eta
+						   , id_gap
+						   , id_electrode);
+  // ________________________  ________________________________
+
+  // Get LArHVLineID corresponding to a given LArElectrodeId
+  HWIdentifier id = hvIdMapping->getLArHVLineID(elecHWID);
+
+  // Extract HV Line No
+  return m_c->hvId->can_node(id)*1000 + m_c->hvId->hv_line(id);
 }
+#endif

@@ -9,10 +9,10 @@
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
+#include "CxxUtils/phihelper.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -1436,8 +1436,8 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
                                                                roids->eta() - (roids->eta() - roids->etaMinus()) * scaleRoIforZeroPt,
                                                                roids->eta() + (roids->etaPlus() - roids->eta()) * scaleRoIforZeroPt,
                                                                roids->phi(),
-                                                               HLT::wrapPhi(roids->phi() - HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
-                                                               HLT::wrapPhi(roids->phi() + HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
+                                                               CxxUtils::wrapToPi(roids->phi() - CxxUtils::wrapToPi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
+                                                               CxxUtils::wrapToPi(roids->phi() + CxxUtils::wrapToPi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
 
     ATH_MSG_VERBOSE("will Record an RoiDescriptor for Inner Detector in case with zero pT:"
       	     << " phi=" << IDroiDescriptor->phi()

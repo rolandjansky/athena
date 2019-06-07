@@ -21,17 +21,15 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoring/Monitored.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventInfo/EventID.h"
-#include "StoreGate/DataHandle.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 // TDAQ includes
 #include "CTPfragment/CTPExtraWordsFormat.h"
 
-class TH1F;
 class IIOVSvc;
 class IIOVDbSvc;
-class CondAttrListCollection;
 
 /**
  * Struct to hold CLID <-> folder name mapping
@@ -64,7 +62,6 @@ struct FolderUpdate {
 class TrigCOOLUpdateHelper : public AthAlgTool {
 public:
   TrigCOOLUpdateHelper(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~TrigCOOLUpdateHelper();
 
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
@@ -88,7 +85,7 @@ public:
    * @param idx         Folder index
    * @param folderName  Returns folder name
    */
-  StatusCode getFolderName(CTPfragment::FolderIndex idx, std::string& folderName);
+  StatusCode getFolderName(CTPfragment::FolderIndex idx, std::string& folderName) const;
 
   /**
    * @brief Schedule COOL folder updates according to extra payload in CTP fragment
@@ -98,7 +95,7 @@ public:
   /**
    * @brief Read information about existing COOL folders
    */
-  void readFolderInfo();
+  StatusCode readFolderInfo ATLAS_NOT_THREAD_SAFE ();
 
 private:
   /**
@@ -119,15 +116,18 @@ private:
   StatusCode resetFolders(const std::vector<std::string>& folders, EventID::number_type currentRun,
                           bool dropObject = false);
 
-  typedef std::map<std::string, FolderInfo> FolderInfoMap;
-  FolderInfoMap m_folderInfo; //!< COOL folder info
+  /// CLID/name mapping of COOL folders
+  std::map<std::string, FolderInfo> m_folderInfo;
 
-  const DataHandle<CondAttrListCollection> m_folderMapHandle;
+  /// Map to store scheduled/done COOL folder updates
   std::map<CTPfragment::FolderIndex, FolderUpdate> m_folderUpdates;
 
+  /// Map to store the folder update index -> name mapping
+  std::map<CTPfragment::FolderIndex, std::string> m_folderNames;
+
   // Services and Tools
-  IIOVSvc*                           m_iovSvc{0};
-  IIOVDbSvc*                         m_iovDbSvc{0};
+  IIOVSvc*                           m_iovSvc{nullptr};
+  IIOVDbSvc*                         m_iovDbSvc{nullptr};
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
 
   // Properties

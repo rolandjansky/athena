@@ -1,3 +1,4 @@
+#include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/LooseTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/TightTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
@@ -8,6 +9,7 @@
 
 using namespace xAOD;
 
+DECLARE_COMPONENT( CP::TrackVertexAssociationTool )
 DECLARE_COMPONENT( CP::LooseTrackVertexAssociationTool )
 DECLARE_COMPONENT( CP::TightTrackVertexAssociationTool )
 DECLARE_COMPONENT( CP::BaseTrackVertexAssociationTool )

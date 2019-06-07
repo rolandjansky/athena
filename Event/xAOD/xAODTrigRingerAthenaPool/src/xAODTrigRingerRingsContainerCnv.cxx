@@ -53,8 +53,8 @@ xAOD::TrigRingerRingsContainer* xAODTrigRingerRingsContainerCnv::createPersisten
 xAOD::TrigRingerRingsContainer* xAODTrigRingerRingsContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "AEF63C18-1B19-4861-A909-FCAF11CFBFCE" );
-   static pool::Guid v2_guid( "96FADA09-FADA-4437-AC96-B02CAA5DE776" );
+   static const pool::Guid v1_guid( "AEF63C18-1B19-4861-A909-FCAF11CFBFCE" );
+   static const pool::Guid v2_guid( "96FADA09-FADA-4437-AC96-B02CAA5DE776" );
 
 
    // Check if we're reading the most up to date type:

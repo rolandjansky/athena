@@ -1,3 +1,4 @@
+
 ################################################################################
 # Package: TrigT1ResultByteStream
 ################################################################################
@@ -8,7 +9,7 @@ atlas_subdir( TrigT1ResultByteStream )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamCnvSvcBase
@@ -30,12 +31,12 @@ atlas_add_library( TrigT1ResultByteStreamLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1ResultByteStream
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools ByteStreamData GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData_test )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData_test )
 
 atlas_add_component( TrigT1ResultByteStream
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

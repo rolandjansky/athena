@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHENAMPTOOLS_TOKENPROCESSOR_H
-#define ATHENAMPTOOLS_TOKENPROCESSOR_H 1
+#ifndef ATHENAMPTOOLS_EVTRANGEPROCESSOR_H
+#define ATHENAMPTOOLS_EVTRANGEPROCESSOR_H
 
 #include "AthenaMPToolBase.h"
 
 #include "AthenaInterprocess/SharedQueue.h"
 #include "yampl/Exceptions.h"
 
-#include "boost/shared_ptr.hpp"
 #include <deque>
-#include <set>
+#include <map>
 
 class IEvtSelectorSeek;
 class IChronoStatSvc;
@@ -22,43 +21,47 @@ namespace yampl {
   class ISocket;
 }
 
-class EvtRangeProcessor : public AthenaMPToolBase
+class EvtRangeProcessor final : public AthenaMPToolBase
 {
  public:
   EvtRangeProcessor(const std::string& type
 		    , const std::string& name
 		    , const IInterface* parent);
 
-  virtual ~EvtRangeProcessor();
+  virtual ~EvtRangeProcessor() override;
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
-  int makePool(int maxevt, int nprocs, const std::string& topdir);
-  StatusCode exec();
-  StatusCode wait_once(pid_t& pid);
+  virtual int makePool(int maxevt, int nprocs, const std::string& topdir) override;
+  virtual StatusCode exec() override;
+  virtual StatusCode wait_once(pid_t& pid) override;
 
-  void reportSubprocessStatuses();
-  void subProcessLogs(std::vector<std::string>&);
-  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport();
+  virtual void reportSubprocessStatuses() override;
+  virtual void subProcessLogs(std::vector<std::string>&) override;
+  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() override;
 
   // _____ Actual working horses ________
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func() override;
 
  private:
   EvtRangeProcessor();
   EvtRangeProcessor(const EvtRangeProcessor&);
   EvtRangeProcessor& operator= (const EvtRangeProcessor&);
 
-  // Decode process results
-  // 1. Store number of processed events for FUNC_EXEC
-  int decodeProcessResult(const AthenaInterprocess::ProcessResult* presult);
   StatusCode startProcess();
   StatusCode setNewInputFile(const std::string& newFile);
   void reportError(yampl::ISocket* socket,AthenaMPToolBase::ESRange_Status status);
+
+  enum ProcessState {
+    PROC_STATE_INIT
+    , PROC_STATE_EXEC
+    , PROC_STATE_FIN
+    , PROC_STATE_STOP
+  };
 
   bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
@@ -77,7 +80,7 @@ class EvtRangeProcessor : public AthenaMPToolBase
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
   std::deque<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
-  std::set<pid_t>                   m_execSet;          // PIDs of processes currently in EXEC
+  std::map<pid_t,ProcessState>      m_procStates;       // Map for keeping track of states of the subprocesses
 
   bool m_debug;
 };
