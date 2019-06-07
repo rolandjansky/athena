@@ -105,7 +105,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     newd -> setObjectLink( "roi", roiEL );
     newd -> setObjectLink( "view", viewEL );
 
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
 
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

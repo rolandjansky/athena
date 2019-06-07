@@ -104,7 +104,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( "feature", muCombEL );
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision);
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
     auto muFastInfo = (*muCombEL)->muSATrack(); 
