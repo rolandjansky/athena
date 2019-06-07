@@ -33,6 +33,7 @@ typedef boost::mpl::list<float, double, long double> test_types;
 // Tolerance for floating point comparisons (float, double, long double)
 #define TOLERANCE *utf::tolerance(1e-4f) * utf::tolerance(1e-8) * utf::tolerance(1e-8L)
 
+// cppcheck-suppress unknownMacro
 BOOST_TEST_DECORATOR(TOLERANCE)
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_wrap, T, test_types)
 {
