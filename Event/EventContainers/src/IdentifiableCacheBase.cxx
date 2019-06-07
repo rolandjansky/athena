@@ -121,7 +121,7 @@ int IdentifiableCacheBase::itemInProgress (IdentifierHash hash){
 }
 
 
-const void* IdentifiableCacheBase::find (IdentifierHash hash)
+const void* IdentifiableCacheBase::find (IdentifierHash hash) noexcept
 {
   if (ATH_UNLIKELY(hash >= m_vec.size())) return nullptr;
   const void* p = m_vec[hash].load();
@@ -246,7 +246,7 @@ std::vector<IdentifierHash> IdentifiableCacheBase::ids()
 }
 
 
-bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p)
+bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p) noexcept
 {
   if (ATH_UNLIKELY(hash >= m_vec.size())) return false;
   if(p==nullptr) return false;
@@ -264,8 +264,35 @@ bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p)
 }
 
 
+bool IdentifiableCacheBase::addLock (IdentifierHash hash, const void* p) noexcept
+{ //Same as method above except we check for invalid state first,
+  // more optimal for calling using writehandle lock method
+  assert(hash < m_vec.size());
+  if(p==nullptr) return false;
+  const void* invalid = INVALID;
+  if(m_vec[hash].compare_exchange_strong(invalid, p)){
+     m_currentHashes++;
+     return true;
+  }
+  const void* nul=nullptr;
+  if(m_vec[hash].compare_exchange_strong(nul, p)){
+     m_currentHashes++;
+     return true;
+  }
+  return false;
+}
+
+bool IdentifiableCacheBase::addLock (IdentifierHash hash,
+                                 void_unique_ptr p) noexcept
+{
+  bool b = addLock(hash, p.get());
+  if(b) p.release();
+  return b;
+}
+
+
 bool IdentifiableCacheBase::add (IdentifierHash hash,
-                                 void_unique_ptr p)
+                                 void_unique_ptr p) noexcept
 {
   bool b = add(hash, p.get());
   if(b) p.release();
