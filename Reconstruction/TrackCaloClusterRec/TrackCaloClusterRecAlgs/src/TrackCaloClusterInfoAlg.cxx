@@ -210,6 +210,7 @@ StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(TrackCaloClusterInfo & tccInfo){
         int i=-1;
         for ( const auto* cpfo : *nPFO ){
           i++;
+          if(cpfo->pt()<=0.) continue;
           // Should do a beter dPhi matching, but this should basically be fine
           if( !(fabs((nPFO_orig->at(i))->eta()  - cluster->rawEta() )<0.01 && fabs((nPFO_orig->at(i))->phi()  - cluster->rawPhi() )<0.01)) continue;
 
@@ -220,13 +221,14 @@ StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(TrackCaloClusterInfo & tccInfo){
 
           FourMom_t & totalP4 = ( tccInfo.trackTotalClusterPt.insert( {trk, nullV} ) ).first->second;
           totalP4 += cpfo->p4(); // add the cluster p4 into the map.
-
+          
         } // for npfoContainer
 
         i = -1;
         // See if any of the charged PFO are matched to this cluster
         for ( const auto* cpfo : *chPFO ){
           i++;
+          if(cpfo->pt()<=0.) continue;
 
           // This compares the location of the uncorrected, charged PFO to the cluster to see if they are a match
           if( !(fabs((chPFO_orig->at(i))->eta()  - cluster->rawEta() )<0.01 && fabs((chPFO_orig->at(i))->phi()  - cluster->rawPhi() )<0.01)) continue;

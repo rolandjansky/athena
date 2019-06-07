@@ -346,6 +346,8 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
         // Check if this is linked to any pfo
         for ( const auto* cpfo : *nPFO ){
           i++;
+          if(cpfo->pt()<=0.) continue;
+          
           // Only want to include if this PFO is associated to this cluster
           //ElementLink< xAOD::PFOContainer > pfoLink(m_pfoPrefix+"NeutralParticleFlowObjects",i);
           ElementLink< xAOD::PFOContainer > pfoLink(*nPFO,i);
@@ -363,6 +365,7 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
         i=-1;
         for ( const auto* cpfo : *chPFO ){
           i++;
+          if(cpfo->pt()<=0.) continue;
           // Only want to include if this PFO is associated to this cluster
           if( !(fabs( (chPFO_orig->at(i))->eta()  - cluster->rawEta() )<0.01 && fabs( (chPFO_orig->at(i))->phi()  - cluster->rawPhi() )<0.01)) continue;
             
@@ -391,8 +394,9 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
   unsigned int i = -1;
   for ( const auto* pfo : *nPFO ) {
     i++;
+    if(pfo->pt() <= 0) continue;
+    
     if(tccInfo.clusterToTracksWeightMap.find(pfo)==tccInfo.clusterToTracksWeightMap.end()){
-      if(pfo->pt() <= 0) continue;
       //const xAOD::Vertex* vtx = vxCont->at(0);
       xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
       tccContainer->push_back(tcc);
@@ -407,8 +411,8 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
   i = -1;
   for ( const auto* pfo : *chPFO ) {
     i++;
+    if(pfo->pt() <= 0) continue;
     if(tccInfo.clusterToTracksWeightMap.find(pfo)==tccInfo.clusterToTracksWeightMap.end()){
-      if(pfo->pt() <= 0) continue;
       const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
       if(!PVMatchedAcc(*pfo)) continue;
       xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
