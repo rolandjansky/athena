@@ -6,6 +6,9 @@ TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j45_L1J20 ID#12
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -22,6 +25,9 @@ TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_xe30_tcpufit_L1
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -50,6 +56,9 @@ TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j45_L1J20 ID#12
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -161,6 +170,9 @@ TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut1step_L
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j45_L1J20 ID#1247336154
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -197,6 +209,9 @@ TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -260,6 +275,9 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j45_L1J20 ID#12
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_L1J20 ID#3007674636
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -289,8 +307,16 @@ TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3      
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      50        50        0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split_L1J2020        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split_L1J20 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20      20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_L1J20 20        20        6         0         0         0         0         6         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_L1J20 decisions                    6         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split_L1J2020        20        6         0         0         0         0         6         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split_L1J20 decisions                    6         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split_L1J2020        20        6         0         0         0         0         6         
+TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split_L1J20 decisions                    6         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20                20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20 decisions                          0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j45_L1J20                 20        20        5         0         0         0         0         5         

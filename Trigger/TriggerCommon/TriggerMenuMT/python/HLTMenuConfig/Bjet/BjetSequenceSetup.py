@@ -29,7 +29,7 @@ def bJetStep1Sequence():
     from AthenaCommon.CFElements import parOR, seqAND
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetAthSequence
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetAthSequence
     (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
 
     # Start with b-jet-specific algo sequence
