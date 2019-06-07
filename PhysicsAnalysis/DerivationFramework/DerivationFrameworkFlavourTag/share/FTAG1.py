@@ -145,7 +145,7 @@ ToolSvc += BJetSVFinderTool
 BJetSVFinderTool.ConeForTag = 0.6
 
 softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
-                           OutputLevel=INFO, #DEBUG                                                                                          
+                           OutputLevel=INFO, #DEBUG
                            )
 
 softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
@@ -213,11 +213,11 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt8EMTopoJets",
-                                        "AntiKt8EMTopoExKt2SubJets",
-                                        "AntiKt8EMTopoExKt3SubJets",
-                                        "BTagging_AntiKt8EMTopoExKt2Sub",
-                                        "BTagging_AntiKt8EMTopoExKt3Sub",
+                                        "AntiKt8EMPFlowJets",
+                                        "AntiKt8EMPFlowExKt2SubJets",
+                                        "AntiKt8EMPFlowExKt3SubJets",
+                                        "BTagging_AntiKt8EMPFlowExKt2Sub",
+                                        "BTagging_AntiKt8EMPFlowExKt3Sub",
                                          ]
 
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
@@ -342,16 +342,16 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
-  "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
-  "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
+  "AntiKt8EMPFlowJets"                              :   "xAOD::JetContainer"        ,
+  "AntiKt8EMPFlowJetsAux"                           :   "xAOD::JetAuxContainer"     ,
+  "AntiKt8EMPFlowExKt2SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMPFlowExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMPFlowExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMPFlowExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMPFlowExKt3SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMPFlowExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMPFlowExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMPFlowExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
   }
 #----------------------------------------------------------------------
 # Add soft b-tagging containers
