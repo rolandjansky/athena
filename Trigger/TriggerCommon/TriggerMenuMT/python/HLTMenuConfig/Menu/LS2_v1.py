@@ -26,7 +26,7 @@ def setupMenu():
     #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+    #SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
     #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
     #SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
