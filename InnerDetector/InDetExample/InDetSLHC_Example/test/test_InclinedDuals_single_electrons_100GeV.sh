@@ -107,7 +107,7 @@ if [ $dosim -ne 0 ]; then
     --skipEvents      0 \
     --maxEvents       10000 \
     --randomSeed      873254 \
-    --geometryVersion ATLAS-P2-ITK-20-03-00_VALIDATION \
+    --geometryVersion ATLAS-P2-ITK-20-04-00_VALIDATION \
     --conditionsTag   OFLCOND-MC15c-SDR-14-03 \
     --truthStrategy   MC15aPlus \
     --DataRunNumber   242000 \
@@ -145,7 +145,7 @@ if [ $dorec -ne 0 ]; then
     --outputDAOD_IDTRKVALIDFile "$daod_electrons_100GeV" \
     --maxEvents        -1 \
     --digiSteeringConf StandardInTimeOnlyTruth \
-    --geometryVersion  ATLAS-P2-ITK-20-03-00 \
+    --geometryVersion  ATLAS-P2-ITK-20-04-00 \
     --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
     --DataRunNumber    242000 \
     --steering doRAWtoALL \
