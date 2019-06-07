@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from optparse import OptionParser
 
@@ -55,7 +55,7 @@ def parse_options(argv):
                          "states)")
                     
     #O('-P', '--parallel', default=0, type=int, metavar="N",
-      #help="Number of systems to run in parallel (-1 for all)")
+    #  help="Number of systems to run in parallel (-1 for all)")
       
     O('--check-input-time', action="store_true",
       help="Print statistics on when input IoVs became available")
