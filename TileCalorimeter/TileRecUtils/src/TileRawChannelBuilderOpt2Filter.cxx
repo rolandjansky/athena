@@ -712,7 +712,6 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
     }
     chi2 = 0.0;
   }
-  std::cout << " Hemos calculado chi2" << std::endl;
   return chi2;
 }
 
