@@ -5,6 +5,10 @@
 #ifndef PERFMONCOMPS_PERFMONMTSVC_H
 #define PERFMONCOMPS_PERFMONMTSVC_H
 
+//// STL includes
+//#include <set>
+//#include <string>
+
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
 
@@ -14,37 +18,40 @@
 // PerfMonComps includes
 #include "PerfMonComps/PerfMonMTUtils.h"
 
-class PerfMonMTSvc : virtual public IPerfMonMTSvc, 
+class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                      public AthService
 {
 
   public:
 
-    /// Standard Gaudi Service constructor  
+    /// Standard Gaudi Service constructor
     PerfMonMTSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
     /// Function declaring the interface(s) implemented by the service
-    virtual StatusCode queryInterface( const InterfaceID& riid, 
+    virtual StatusCode queryInterface( const InterfaceID& riid,
                                        void** ppvInterface ) override;
 
-    /// Standard Gaudi Service initialization 
+    /// Standard Gaudi Service initialization
     virtual StatusCode initialize() override;
 
     /// Standard Gaudi Service finalization
     virtual StatusCode finalize() override;
 
-    /// Start Auditing 
-    virtual void startAud( const std::string& stepName, 
+    /// Start Auditing
+    virtual void startAud( const std::string& stepName,
                            const std::string& compName ) override;
 
-    /// Stop Auditing   
-    virtual void stopAud ( const std::string& stepName, 
+    /// Stop Auditing
+    virtual void stopAud ( const std::string& stepName,
                            const std::string& compName ) override;
 
   private:
 
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
+
+    /// Data to hold the measurement
+    PMonMT::MeasurementData m_data;
 
 }; // class PerfMonMTSvc
 

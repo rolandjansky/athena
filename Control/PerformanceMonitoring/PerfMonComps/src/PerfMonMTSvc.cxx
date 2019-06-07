@@ -22,7 +22,6 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
  */
 StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
                                          void** ppvInterface ) {
-
   if( !ppvInterface ) {
     return StatusCode::FAILURE;
   }
@@ -39,7 +38,6 @@ StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
  * Initialize the Service
  */
 StatusCode PerfMonMTSvc::initialize() {
-
   ATH_MSG_INFO("Initialize");
 
   /// Configure the auditor
@@ -49,18 +47,24 @@ StatusCode PerfMonMTSvc::initialize() {
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 /*
  * Finalize the Service
  */
 StatusCode PerfMonMTSvc::finalize() {
-
   ATH_MSG_INFO("Finalize");
 
-  return StatusCode::SUCCESS;
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("                PerfMonMT Results Summary                ");
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("Total Wall time in the event loop is " << m_data.m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_data.m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Average CPU utilization in the event loop is " <<
+                m_data.m_delta_cpu/m_data.m_delta_wall );
+  ATH_MSG_INFO("=========================================================");
 
+  return StatusCode::SUCCESS;
 }
 
 /*
@@ -68,23 +72,11 @@ StatusCode PerfMonMTSvc::finalize() {
  */
 void PerfMonMTSvc::startAud( const std::string& stepName,
                              const std::string& compName ) {
-
-  // Just for testing!!!
-  if( compName != "HelloWorld") return;
-
-  ATH_MSG_INFO("Starting Auditing " << stepName << " " << compName);
-  const EventContext ctx = Gaudi::Hive::currentContext();
-  if(ctx.valid()) {
-    ATH_MSG_INFO("Current event number is " << ctx.evt() <<
-                 " slot number is " << ctx.slot());
+  // Last thing to be called before the event loop begins
+  if( compName == "AthRegSeq" && stepName == "Start") {
+    m_measurement.capture();
+    m_data.addPointStart(m_measurement);
   }
-
-  // Print the CPU information
-  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << PMonMT::get_thread_cpu_time() << " [ms]");
-  ATH_MSG_INFO("START :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
-
-  // Capture here - NOT THREAD SAFE!!! - NOT COMPONENT AWARE!!!
-  m_measurement.capture();
 }
 
 /*
@@ -92,16 +84,9 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
  */
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
-  // Just for testing!!!
-  if( compName != "HelloWorld") return;
-
-  ATH_MSG_INFO("Stopping Auditing " << stepName << " " << compName);
-
-  // Print the CPU information
-  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << PMonMT::get_thread_cpu_time() << " [ms]");
-  ATH_MSG_INFO("STOP :: Current std::clock time is " << PMonMT::get_process_cpu_time() << " [ms]");
-
-  // Capture here - NOT THREAD SAFE!!! - NOT COMPONENT AWARE!!!
-  double delta_cpu = PMonMT::get_thread_cpu_time() - m_measurement.cpu_time;
-  ATH_MSG_INFO("DCPU :: " << delta_cpu << " [ms]");
+  // First thing to be called after the event loop begins
+  if( compName == "AthMasterSeq" && stepName == "Stop") {
+    m_measurement.capture();
+    m_data.addPointStop(m_measurement);
+  }
 }
