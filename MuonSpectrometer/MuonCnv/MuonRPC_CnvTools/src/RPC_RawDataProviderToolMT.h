@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONRPCRAWDATAPROVIDERTOOL_H
-#define MUONRPCRAWDATAPROVIDERTOOL_H
+#ifndef MUONRPCRAWDATAPROVIDERTOOLMT_H
+#define MUONRPCRAWDATAPROVIDERTOOLMT_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -20,18 +20,24 @@ namespace Muon
 {
     class IRpcROD_Decoder;
 
-
-class RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, 
+/**
+ * Tool to do decoding of RPC RAW data. This tool should be safe to use with athenaMT.
+ * It will not work with the legacy run-2 trigger code, since the tool creates a new
+ * container each time.
+ *
+ * The main work of decoding is done in the RPC_RawDataProviderToolCore class.
+ **/
+class RPC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, 
                                         public RPC_RawDataProviderToolCore
 {
     public:
     
-    RPC_RawDataProviderTool(const std::string& t, 
+    RPC_RawDataProviderToolMT(const std::string& t, 
                             const std::string& n, 
                             const IInterface* p);
 
 
-    virtual ~RPC_RawDataProviderTool();
+    virtual ~RPC_RawDataProviderToolMT();
     
     virtual StatusCode initialize();
 
@@ -48,9 +54,11 @@ class RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool,
 
 private:
 
-
-
-    bool m_AllowCreation;    
+    /// RPC container cache key
+    SG::UpdateHandleKey<RpcPad_Cache> m_rdoContainerCacheKey ;
+    /// Turn on/off RpcSectorConfig writing
+    Gaudi::Property< bool > m_WriteOutRpcSectorLogic { this, "WriteOutRpcSectorLogic", true, "Turn on/off RpcSectorLogic writing" };
+    
 };
 
 } // end of namespace
