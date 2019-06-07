@@ -2,7 +2,7 @@
 
 __doc__ = "Configure the AsgElectronIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
@@ -10,12 +10,12 @@ from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElect
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap, electronPIDmenu
 
 
-def AsgElectronIsEMSelectorsCfg(flags, name, quality, menu=electronPIDmenu.menuDC14):
+def AsgElectronIsEMSelectorCfg(flags, name, quality, menu=electronPIDmenu.menuDC14):
     
+    mlog = logging.getLogger('AsgElectronIsEMSelector')
+    mlog.debug('Start configuration')
+
     acc = ComponentAccumulator()
-
-    mlog = logging.getLogger('AsgElectronIsEMSelectorsCfg')
-
     try:
         ntuple = ElectronIsEMMap(quality, menu)
         mlog.debug('ntuple: %s', ntuple)

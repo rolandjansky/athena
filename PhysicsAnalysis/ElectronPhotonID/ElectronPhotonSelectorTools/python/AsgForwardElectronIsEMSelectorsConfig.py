@@ -2,7 +2,7 @@
 
 __doc__ = "Configure the AsgForwardElectronIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
@@ -14,7 +14,8 @@ def AsgForwardElectronIsEMSelectorCfg(flags, name, quality, menu=forwardelectron
 
     acc = ComponentAccumulator()
 
-    mlog = logging.getLogger('AsgForwardElectronIsEMSelectorCfg')
+    mlog = logging.getLogger('AsgForwardElectronIsEMSelector')
+    mlog.debug('Start configuration')
 
     try:
         ntuple = ForwardElectronIsEMMap(quality, menu)
