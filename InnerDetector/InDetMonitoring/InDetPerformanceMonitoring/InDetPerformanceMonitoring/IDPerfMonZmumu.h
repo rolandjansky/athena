@@ -7,6 +7,7 @@
 //==============================================================================
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
+#include "InDetPerformanceMonitoring/FourMuonEvent.h"
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 
 //#include "TrkFitterInterfaces/ITrackFitter.h"
@@ -84,6 +85,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
 
   // The Z0 tagger.
   ZmumuEvent     m_xZmm;
+  FourMuonEvent  m_4mu;
   bool m_UseTrigger;
   bool m_doIsoSelection;
   bool m_doIPSelection;
@@ -97,6 +99,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   bool m_doRefit;
   bool m_useTrackSelectionTool;
   bool m_doIP;
+  bool m_doFourMuAnalysis;
   std::vector<std::string> m_regions;
 
 
@@ -135,6 +138,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   //  std::string                     m_meStacoTreeName;       //Extrapolated Staco not existent in xAOD anymore
   std::string                     m_combTreeName;     //Combined Staco
   std::string                     m_combMuidTreeName;      //Combined Muid
+  std::string                     m_FourMuTreeName;      //Combined Muid
   //!< validation tree description - second argument in TTree
   std::string                     m_ValidationTreeDescription;
   //!< stream/folder to for the TTree to be written out
@@ -146,6 +150,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   //  std::string                     m_meStacoTreeFolder; // not existent in xAOD anymore
   std::string                     m_combTreeFolder;
   std::string                     m_combMuidTreeFolder;
+  std::string                     m_FourMuTreeFolder;
 
   std::string m_truthName;          /// Track(Particle)TruthCollection input name
   std::string m_trackParticleName;  /// TrackParticle input name
@@ -160,6 +165,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   TTree*                          m_meStacoTree;
   TTree*                          m_combTree;
   TTree*                          m_combMuidTree;
+  TTree*                          m_FourMuTree;
 
   mutable unsigned int            m_runNumber;
   mutable unsigned int            m_evtNumber;
@@ -178,6 +184,18 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_positive_z0_PVerr;
   double m_positive_d0_PVerr;
 
+  double m_positive_2_px;
+  double m_positive_2_py;
+  double m_positive_2_pz;
+  double m_positive_2_z0;
+  double m_positive_2_d0;
+  double m_positive_2_z0_err;
+  double m_positive_2_d0_err;
+  double m_positive_2_z0_PV;
+  double m_positive_2_d0_PV;
+  double m_positive_2_z0_PVerr;
+  double m_positive_2_d0_PVerr;
+
 
 
   double m_negative_px;
@@ -192,12 +210,26 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_negative_z0_PVerr;
   double m_negative_d0_PVerr;
 
+  double m_negative_2_px;
+  double m_negative_2_py;
+  double m_negative_2_pz;
+  double m_negative_2_z0;
+  double m_negative_2_d0;
+  double m_negative_2_z0_err;
+  double m_negative_2_d0_err;
+  double m_negative_2_z0_PV;
+  double m_negative_2_d0_PV;
+  double m_negative_2_z0_PVerr;
+  double m_negative_2_d0_PVerr;
+
   double m_pv_x;
   double m_pv_y;
   double m_pv_z;
   mutable unsigned int            m_nTrkInVtx;
   
   int m_triggerPrescale;
+
+  double m_4mu_minv;
 
   std::string m_sTriggerChainName;
   std::string m_outputTracksName;
