@@ -62,6 +62,7 @@ if DetFlags.overlay.Tile_on():
     include( "TileL2Algs/TileL2Algs_jobOptions.py" )
 
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
+    job.TileHitVecToCnt.DigitizationTool.OnlyUseContainerName = not overlayFlags.isOverlayMT()
     theTileDigitsMaker.RndmEvtOverlay = True
     if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "TileByteStream"]

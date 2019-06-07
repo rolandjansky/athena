@@ -259,6 +259,15 @@ StatusCode TileHitVecToCntTool::initialize() {
     ATH_MSG_INFO("Number of MBTS cell to be merged: " << std::count (m_MBTSmerged.begin(), m_MBTSmerged.end(), true));
   }
 
+  if(m_onlyUseContainerName) {
+    for(auto& RHkey : m_hitVectorKeys.keys()) {
+      m_hitVectorNames.push_back(RHkey->key());
+    }
+  }
+  ATH_MSG_DEBUG("Input objects in these containers : '" << m_hitVectorNames << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitVectorKeys.initialize(!m_onlyUseContainerName && !m_hitVectorKeys.empty() ));
 
   ATH_CHECK( m_hitContainerKey.initialize() );
   if(m_doDigiTruth){
@@ -771,7 +780,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   ATH_MSG_DEBUG("TileHitVecToCntTool processAllSubEvents started");
   typedef PileUpMergeSvc::TimedList<TileHitVector>::type TimedHitContList;
 
-  CHECK(this->createContainers());
+  ATH_CHECK(this->createContainers());
 
   /* zero all counters and sums */
   int nHit(0);
@@ -780,11 +789,24 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   CLHEP::HepRandomEngine * engine = *rngWrapper;
 
-  std::vector<std::string>::const_iterator hitVecNamesItr = m_hitVectorNames.begin();
-  std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
-  for (; hitVecNamesItr != hitVecNamesEnd; ++hitVecNamesItr) {
+  if(!m_onlyUseContainerName && m_rndmEvtOverlay) {
+    auto hitVectorHandles = m_hitVectorKeys.makeHandles();
+    for (auto & inputHits : hitVectorHandles) {
+      if (!inputHits.isValid()) {
+        ATH_MSG_ERROR("BAD HANDLE"); //FIXME improve error here
+        return StatusCode::FAILURE;
+      }
+      const double SubEvtTimeOffset(0.0);
+      // get HitVector for this subevent
+      ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimeOffset << ", size =" << inputHits->size());
+      this->processHitVectorForOverlay(inputHits.cptr(), nHit, eHitTot);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth, engine);
+    }
+    ATH_CHECK(this->mergeEvent());
+    return StatusCode::SUCCESS;
+  }
 
-    const std::string hitVectorName(*hitVecNamesItr);
+  for (const auto& hitVectorName : m_hitVectorNames) {
 
     if (m_pileUp || m_rndmEvtOverlay) {
       TimedHitContList hitContList;
@@ -801,13 +823,13 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
       if (m_rndmEvtOverlay) {  // overlay code
         if (iCont != iEndCont) { // use only hits from first container
           // get time for this subevent
-          const double SubEvtTimOffset(iCont->first.time());
-          if (fabs(SubEvtTimOffset) > 0.1) {
-            ATH_MSG_ERROR("Wrong time for in-time event: " << SubEvtTimOffset << " Ignoring all hits ");
+          const double SubEvtTimeOffset(iCont->first.time());
+          if (fabs(SubEvtTimeOffset) > 0.1) {
+            ATH_MSG_ERROR("Wrong time for in-time event: " << SubEvtTimeOffset << " Ignoring all hits ");
           } else {
             // get HitVector for this subevent
             const TileHitVector* inputHits = &(*(iCont->second));
-            ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
+            ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimeOffset << ", size =" << inputHits->size());
             this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
             if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
           }
@@ -816,13 +838,13 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
 
         for (; iCont != iEndCont; ++iCont) {
           // get time for this subevent
-          const double SubEvtTimOffset(iCont->first.time());
+          const double SubEvtTimeOffset(iCont->first.time());
           // get HitVector for this subevent
           const TileHitVector* inputHits = &(*(iCont->second));
-          ATH_MSG_VERBOSE(" New HitCont.  TimeOffset=" << SubEvtTimOffset << ", size =" << inputHits->size());
+          ATH_MSG_VERBOSE(" New HitCont.  TimeOffset=" << SubEvtTimeOffset << ", size =" << inputHits->size());
           bool isSignal = false;
           if(iCont == hitContList.begin() ) isSignal = true;
-          this->processHitVectorForPileUp(inputHits, SubEvtTimOffset, nHit, eHitTot, isSignal);
+          this->processHitVectorForPileUp(inputHits, SubEvtTimeOffset, nHit, eHitTot, isSignal);
         }
       }           // loop over subevent list
     } else {  // no PileUp
@@ -830,18 +852,18 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
       //**
       //* Get TileHits from TileHitVector
       //**
-      const TileHitVector * inputHits;
-      if (evtStore()->retrieve(inputHits, hitVectorName).isFailure()) {
+      SG::ReadHandle<TileHitVector> inputHits(hitVectorName);
+      if (!inputHits.isValid()) {
         ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
         continue; // continue to the next hit vector
       }
-      this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits, engine);
-      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
+      this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits, engine);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth, engine);
     }
 
   } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
 
-  CHECK(this->mergeEvent());
+  ATH_CHECK(this->mergeEvent());
 
   return StatusCode::SUCCESS;
 }
