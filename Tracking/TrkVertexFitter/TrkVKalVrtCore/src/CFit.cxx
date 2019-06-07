@@ -448,7 +448,6 @@ long int fitVertex(VKVertex * vk, long int iflag)
             if(it==1)jerr = afterFit(vk,                0, vk->FVC.dcv, PartMom, VrtMomCov);
             else     jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
-std::cout<<"KAKA1="<<dparst[0]<<","<<PartMom[0]<<","<<VrtMomCov[0]<<","<<workarray_1.ader[0]<<'\n';
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
