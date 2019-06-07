@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKSTEERINGSTRATEGY_H
@@ -21,8 +21,8 @@ public:
                 PreferOutsideIn=0x3, 
                 AllowOneSharedHit=0x4,
                 DoRefinement=0x5,
-		DoAmbiSolving=0x6,
-		BarrelEndcapFilter=0x7,
+		            DoAmbiSolving=0x6,
+		            BarrelEndcapFilter=0x7,
                 Last = 0x8 };
 
   MuonTrackSteeringStrategy(const std::string name, std::bitset<Last> bits, std::vector< std::vector< MuonStationIndex::ChIndex > > & path, std::vector< unsigned int > & seedOrder) 
@@ -72,8 +72,8 @@ public:
   void setSeeds(const std::vector<unsigned int> val){ m_seeds=val; }
 
 private:
-  std::string m_name;
-  std::bitset<Last> m_bits; //!< List of all of the options available
+  std::string                 m_name;
+  std::bitset<Last>           m_bits; //!< List of all of the options available
   std::vector< std::vector< MuonStationIndex::ChIndex > > m_path;
   std::vector< unsigned int > m_seeds;
 };

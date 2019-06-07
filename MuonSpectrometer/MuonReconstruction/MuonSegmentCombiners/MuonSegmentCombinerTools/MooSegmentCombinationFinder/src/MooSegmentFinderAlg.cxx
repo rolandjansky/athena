@@ -24,9 +24,9 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   m_keyMdt("MDT_DriftCircles"),
   m_patternCombiLocation("MuonHoughPatternCombinations"),
   m_segmentLocation("MooreSegments"),
-  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
-  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
-  m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
+  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder", this),
+  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
+  m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
 {
   declareProperty("UseRPC",m_useRpc = true);
   declareProperty("UseTGC",m_useTgc = true);
