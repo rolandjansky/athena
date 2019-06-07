@@ -30,7 +30,7 @@ def RpcDataPreparatorCfg( flags, roisKey ):
     # Set Rpc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
     RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = acc.getPublicTool( "RpcRdoToRpcPrepDataTool" ),
-                                                         RpcRawDataProvider   = acc.getPublicTool( "RPC_RawDataProviderTool" ),
+                                                         RpcRawDataProvider   = acc.getPublicTool( "RPC_RawDataProviderToolMT" ),
                                                          #DecodeBS = DetFlags.readRDOBS.RPC_on() ) # This should be used flags
                                                          DecodeBS = True )
     acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
