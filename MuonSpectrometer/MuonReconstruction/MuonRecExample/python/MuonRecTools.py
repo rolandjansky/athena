@@ -374,9 +374,11 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
     return MdtMathSegmentFinder(name,extraFlags,**kwargs)
 
+def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
+    return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
+
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
-    kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
-    
+    kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")    
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
@@ -393,6 +395,9 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
 
+    # MuonCompetingClustersCreator apparently just takes default
+    kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )
+    
     if (beamType == 'singlebeam' or beamType == 'cosmics'): 
         kwargs.setdefault("SinAngleCut", 0.9)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
@@ -403,10 +408,12 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
         kwargs.setdefault("RecoverBadRpcCabling", True)
 
     if doSegmentT0Fit:
-        kwargs.setdefault("MdtCreatorT0", "MdtDriftCircleOnTrackCreatorAdjustableT0")
-        kwargs.setdefault("MdtSegmentFinder", "MdtMathT0FitSegmentFinder" )
+        kwargs.setdefault("MdtCreatorT0", getPrivateTool("MdtDriftCircleOnTrackCreatorAdjustableT0") )
+        kwargs.setdefault("MdtSegmentFinder", getPrivateTool("MdtMathT0FitSegmentFinder") )
     else:
-        kwargs.setdefault("MdtSegmentFinder", "MdtMathSegmentFinder")
+        kwargs.setdefault("MdtSegmentFinder", getPrivateTool("MdtMathSegmentFinder") )
+    kwargs.setdefault("SegmentFitter", getPrivateTool("MuonSegmentFittingTool") )
+    kwargs.setdefault("SegmentSelector", getPrivateTool("MuonSegmentSelectionTool") )
 
     if updateSegmentSecondCoordinate:
         kwargs.setdefault("UpdatePhiUsingPhiHits",True)
@@ -424,15 +431,23 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
     return DCMathSegmentMaker(name,extraFlags,**kwargs)
 
-
-
 # end of factory function DCMathSegmentMaker
 
 def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
     kwargs.setdefault("DoTruth", rec.doTruth() )
     return CfgMgr.Muon__MuonLayerHoughTool(name,**kwargs)
 
-
+def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwargs):
+    prop = getPublicTool('AtlasRungeKuttaPropagator') 
+    kwargs.setdefault("SLPropagator", getPrivateToolClone('SLPropagator',prop) )
+    # Think I need to do it this way because AtlasRungeKuttaPropagator isn't known to ConfigurableFactory.
+    # If I directly call getPrivateTool('AtlasRungeKuttaPropagator') then it fails with:
+    # ConfigurationError: Private Tool <Trk::RungeKuttaPropagator/ToolSvc.AtlasRungeKuttaPropagator at 0x7f5811db3158> not found
+    kwargs.setdefault("SLFitter",     getPrivateTool('MCTBSLFitter') )
+    kwargs.setdefault("CurvedFitter", getPrivateTool('MCTBFitter') )
+    kwargs.setdefault("TrackCleaner", getPrivateTool('MuonTrackCleaner')  )
+    kwargs.setdefault("IdHelper",     getPublicTool('MuonIdHelperTool') )
+    return CfgMgr.Muon__MuonSegmentFittingTool(name,**kwargs)
 
 if DetFlags.detdescr.Muon_on() and rec.doMuon():
     # until all clients explicitly get their tools and services, load some explicitly

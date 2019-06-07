@@ -302,8 +302,6 @@ def MCTBExtrapolator(name='MCTBExtrapolator',**kwargs):
 def MCTBFitter(name="MCTBFitter", **kwargs):
     kwargs.setdefault("ExtrapolationTool", "MCTBExtrapolator")
     kwargs.setdefault("GetMaterialFromTrack", True)
-
-
     return MuonChi2TrackFitter(name,**kwargs)
 # end of MCTBFitter()
 
@@ -320,8 +318,10 @@ def MCTBSLFitterMaterialFromTrack(name="MCTBSLFitterMaterialFromTrack", **kwargs
     return MCTBSLFitter(name, **kwargs)
 
 def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
+    
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
         if beamFlags.beamType() == 'collisions':
+          
             segMaker = getPublicToolClone("MCTBDCMathSegmentMaker", "DCMathSegmentMaker", 
                                           MdtSegmentFinder = "MCTBMdtMathSegmentFinder",
                                           SinAngleCut = 0.04, DoGeometry = True )
@@ -338,7 +338,7 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         else:
             kwargs.setdefault("sTgcPrepDataContainer","")
             kwargs.setdefault("MMPrepDataContainer","")
-
+    
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
 # end of factory function MuonSeededSegmentFinder
@@ -371,18 +371,27 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
 
     return CfgMgr.Muon__MuonErrorOptimisationTool(name,**kwargs)
 
+def MuonTrackCleaner(name,extraFlags=None,**kwargs):
+  kwargs.setdefault("Chi2Cut", muonStandaloneFlags.Chi2NDofCut())
+  kwargs.setdefault("MaxAvePullSumPerChamber", 6)
+  kwargs.setdefault("Fitter",        getPrivateTool('MCTBFitterMaterialFromTrack') )
+  kwargs.setdefault("SLFitter",      getPrivateTool('MCTBSLFitterMaterialFromTrack'))
+  kwargs.setdefault("MdtRotCreator", getPrivateTool('MdtDriftCircleOnTrackCreator'))
+  # kwargs.setdefault("CompRotCreator", getPrivateTool('TriggerChamberClusterOnTrackCreator')) Not in DB
+  
+  return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
 
-class MuonTrackCleaner(CfgMgr.Muon__MuonTrackCleaner,ConfiguredBase):
-    __slots__ = ()
-
-    def __init__(self,name="MuonTrackCleaner",**kwargs):
-        self.applyUserDefaults(kwargs,name)
-        super(MuonTrackCleaner,self).__init__(name,**kwargs)
-        
-        getPublicTool("ResidualPullCalculator")
-
-MuonTrackCleaner.setDefaultProperties( Chi2Cut = muonStandaloneFlags.Chi2NDofCut(),
-                                       MaxAvePullSumPerChamber = 6 )
+# class MuonTrackCleaner(CfgMgr.Muon__MuonTrackCleaner,ConfiguredBase):
+#     __slots__ = ()
+#
+#     def __init__(self,name="MuonTrackCleaner",**kwargs):
+#         self.applyUserDefaults(kwargs,name)
+#         super(MuonTrackCleaner,self).__init__(name,**kwargs)
+#
+#         getPublicTool("ResidualPullCalculator")
+#
+# MuonTrackCleaner.setDefaultProperties( Chi2Cut = muonStandaloneFlags.Chi2NDofCut(),
+#                                        MaxAvePullSumPerChamber = 6 )
 # end of class MuonTrackCleaner
 
 
@@ -433,7 +442,6 @@ MuonSegmentRegionRecoveryTool.setDefaultProperties (
     )
 # end of class MuonSegmentRegionRecoveryTool
 
-
 class MuonTrackScoringTool(CfgMgr.Muon__MuonTrackScoringTool,ConfiguredBase):
     __slots__ = ()
     
@@ -443,7 +451,6 @@ class MuonTrackScoringTool(CfgMgr.Muon__MuonTrackScoringTool,ConfiguredBase):
 
 MuonTrackScoringTool.setDefaultProperties( SumHelpTool = "MuonTrackSummaryTool" )
 # end of class MuonTrackScoringTool
-
 
 class MuonAmbiProcessor(CfgMgr.Trk__TrackSelectionProcessorTool,ConfiguredBase):
     __slots__ = ()
@@ -456,8 +463,7 @@ MuonAmbiProcessor.setDefaultProperties(
     DropDouble         = False ,
     ScoringTool        = "MuonTrackScoringTool" ,
     SelectionTool      = "MuonAmbiSelectionTool" )
-# end fo class MuonAmbiProcessor
-
+# end of class MuonAmbiProcessor
 
 class MuonTrackSelectorTool(CfgMgr.Muon__MuonTrackSelectorTool,ConfiguredBase):
     __slots__ = ()

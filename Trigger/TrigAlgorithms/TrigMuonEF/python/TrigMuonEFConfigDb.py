@@ -43,6 +43,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonInsideOutRecoTool", "TMEF_MuonInsi
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonPRDSelectionTool", "TMEF_MuonPRDSelectionTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinderTool", "TMEF_MuonClusterSegmentFinderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinder", "TMEF_MuonClusterSegmentFinder")
 
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauRecoTool", "TMEF_MuonStauRecoTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauInsideOutRecoTool", "TMEF_MuonStauInsideOutRecoTool")

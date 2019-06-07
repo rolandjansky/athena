@@ -23,13 +23,13 @@ namespace Muon {
 				      const IInterface* parent)
     :
     AthAlgTool(type, name, parent),
-    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
-    m_ambiTool("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
+    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
+    m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner") {
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this) {
 
     declareInterface<IMuonClusterSegmentFinderTool>(this);
 

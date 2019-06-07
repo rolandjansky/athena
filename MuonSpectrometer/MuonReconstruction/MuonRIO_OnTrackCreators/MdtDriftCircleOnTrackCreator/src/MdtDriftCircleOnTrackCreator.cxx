@@ -47,7 +47,7 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::stri
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCalibrationTool("MdtCalibrationTool", this),
     m_mdtCalibrationDbTool("MdtCalibrationDbTool", this),
-    m_tofTool(""),
+    m_tofTool(""), // Must be public because MuGirlStau modifies this on the fly. FIXME!
     m_invSpeed(1./299.792458),
     m_mdtCalibSvcSettings( 0 ),
     m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
