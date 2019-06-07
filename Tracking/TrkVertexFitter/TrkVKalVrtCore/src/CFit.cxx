@@ -189,6 +189,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
     extern void cfsetdiag(long int , double *, double );
     extern int cfInv5(double *cov, double *wgt );
     extern void cfTrkCovarCorr(double *cov);
+    extern void FullMTXfill( VKVertex* , double *);
 
 //
 //    New datastructure
@@ -386,7 +387,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	  forcft_1.localbmag = vBz; vkalvrtbmag.bmag  = vBz;
 	  vkalvrtbmag.bmagz = vBz; vkalvrtbmag.bmagy = vBy; vkalvrtbmag.bmagx = vBx;
 
-	  if ( vk->passNearVertex ) {
+	  if ( vk->passNearVertex && it>1 ) {  //No necessary information at first iteration
             jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
 	    cfdcopy( PartMom, &dparst[3], 3);  //vertex part of it is filled above
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
@@ -416,7 +417,8 @@ long int fitVertex(VKVertex * vk, long int iflag)
         }
 //
 // 
-	if (chi22s > 1e8) {  IERR = -1; return IERR; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s > 1e8)     { return  -1; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s != chi22s) { return -14; }      // Chi2 == nan  - BAD FIT
 	for( i=0; i<3; i++) dxyzst[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
 	//std::cout.precision(11);
 	//std::cout<<"NNFIT Iter="<<it<<" Chi2ss="<< chi21s <<", "<<chi22s<<", "<<vShift<<'\n';
@@ -443,8 +445,10 @@ long int fitVertex(VKVertex * vk, long int iflag)
 
 // Track near vertex constraint recalculation for next fit
 	if ( vk->passNearVertex ) {
-            jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(it==1)jerr = afterFit(vk,                0, vk->FVC.dcv, PartMom, VrtMomCov);
+            else     jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
+std::cout<<"KAKA1="<<dparst[0]<<","<<PartMom[0]<<","<<VrtMomCov[0]<<","<<workarray_1.ader[0]<<'\n';
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
