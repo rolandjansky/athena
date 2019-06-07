@@ -4,8 +4,12 @@
 #
 #==============================================================
 
-doPrint = False
-doDump = False
+if not "doPrint" in dir():
+    doPrint = False
+if not "doDump" in dir():
+    doDump = True
+if not "EvtMax" in dir():
+    EvtMax = 10
 
 #--------------------------------------------------------------
 # Standard includes
@@ -208,7 +212,7 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = EvtMax
 
 # Output file
 if doDump:
