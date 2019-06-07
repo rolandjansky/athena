@@ -219,28 +219,33 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 }
 
 
-std::string SimpleView::dump( const std::string& delim ) const {
+std::string SimpleView::dump( const std::string& indent ) const {
 
   // Dump view contents
-  std::string ret = "Dump view " + name() + delim + "\n[";
+  std::string ret = indent + "Dump " + name() + "\n";
+  ret += indent + "[";
   for ( const SG::DataProxy* dp: proxies() ) {
     if ( dp->name().find( name() ) == 0 ) 
-      ret += " " + dp->name() + delim;
+      ret += " " + dp->name();
   }
-  ret += " ]";
+  ret += " ]\n";
 
   // Dump parent views
+  if ( m_parents.size() ) ret += indent + "Parents:\n";
   for ( auto p : m_parents ) {
     auto parent = dynamic_cast<const SG::View*>( p );
     if ( parent ) {
-      ret += "\nParent:\n";
-      ret += parent->dump( delim );
+      ret += parent->dump( indent + "  " );
     }
   }
 
   // Fallthrough
-  if ( m_allowFallThrough ) {
-    ret += "\nCan access main store: " + m_store->name();
+  if ( indent == "" ) {
+    if ( m_allowFallThrough ) {
+      ret += indent + "May access main store: " + m_store->name() + "\n";
+    } else {
+      ret += indent + "May not access main store\n";
+    }
   }
   return ret;
 }
