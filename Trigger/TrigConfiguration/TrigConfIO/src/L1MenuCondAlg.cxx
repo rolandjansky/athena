@@ -29,17 +29,13 @@ TrigConf::L1MenuCondAlg::execute(const EventContext& ctx) const {
       return StatusCode::SUCCESS; 
    }
 
-   ATH_MSG_INFO("calling execute with EventContext " << ctx << " and event ID " << ctx.eventID() );
-
    SG::WriteCondHandle<TrigConf::L1Menu> writeCondHandle(m_l1MenuOutputKey, ctx);
 
    if(writeCondHandle.isValid()) {
-      // in theory this should never be called in MT
-      //writeHandle.updateStore();
-      ATH_MSG_INFO("CondHandle " << writeCondHandle.fullKey() << " is already valid.");
+      ATH_MSG_DEBUG("CondHandle " << writeCondHandle.fullKey() << " is already valid.");
       return StatusCode::SUCCESS; 
    } else {
-      ATH_MSG_INFO("CondHandle " << writeCondHandle.fullKey() << " not valid. Generate new one.");
+      ATH_MSG_DEBUG("CondHandle " << writeCondHandle.fullKey() << " not valid. Generate new one.");
    }
 
    // load the json file into TrigConf::L1Menu
@@ -62,17 +58,10 @@ TrigConf::L1MenuCondAlg::execute(const EventContext& ctx) const {
    start.set_lumi_block(0);
    stop.set_run_number(run+1);
    stop.set_lumi_block(0);
-   start.set_bunch_crossing_id(0);
-   stop.set_bunch_crossing_id(0);
    EventIDRange range(start,stop);
 
    ATH_MSG_INFO("Recording L1 menu with range " << range);
    ATH_CHECK(writeCondHandle.record( range, l1menu ));
 
-   return StatusCode::SUCCESS;
-}
-
-StatusCode
-TrigConf::L1MenuCondAlg::finalize() {
    return StatusCode::SUCCESS;
 }

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigConfiguration/TrigConfBase
                           PRIVATE
+                          Control/StoreGate
                           Control/AthenaBaseComps
                           Tools/PathResolver
                           )
@@ -19,9 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost )
 
 # Component(s) in the package:
-atlas_add_library( TrigConfIOLib
-                   TrigConfIO/*.h src/*.cxx
-                   SHARED
+atlas_add_library( TrigConfIOLib src/*.cxx
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PUBLIC_HEADERS TrigConfIO
                    LINK_LIBRARIES PathResolver TrigConfBase TrigConfData GaudiKernel )
 
@@ -44,6 +44,5 @@ atlas_add_test( ReadTriggerConfig SOURCES test/read_config_info.cxx
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_component( TrigConfIO
-                     src/*.h src/*.cxx src/components/*.cxx
-                     INCLUDE_DIRS TrigConfData
-                     LINK_LIBRARIES TrigConfBase TrigConfData AthenaBaseComps PathResolver )
+                     src/components/*.cxx
+                     LINK_LIBRARIES TrigConfIOLib )
