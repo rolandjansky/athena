@@ -9,7 +9,6 @@
 using namespace EventContainers;
 
 
-IDC_WriteHandleBase::IDC_WriteHandleBase() : m_atomic(nullptr), m_mut(nullptr) { }
 
 IDC_WriteHandleBase::~IDC_WriteHandleBase() { ReleaseLock(); }
 
@@ -32,7 +31,7 @@ void IDC_WriteHandleBase::ReleaseLock(){
 }
 
 //Can't imagine why this would be used but this may be necessary
-void IDC_WriteHandleBase::DropLock(){
+void IDC_WriteHandleBase::DropLock() noexcept{
    m_atomic = nullptr;
 }
 

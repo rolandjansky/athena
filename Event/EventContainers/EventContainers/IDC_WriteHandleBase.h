@@ -29,14 +29,14 @@ class IDC_WriteHandleBase{
 protected:
    std::atomic<const void*>*  m_atomic;
    mutexPair *m_mut;   
-   IDC_WriteHandleBase();
+   IDC_WriteHandleBase() : m_atomic(nullptr), m_mut(nullptr) { }
 public:
 
-   void LockOn(std::atomic<const void*>* in, mutexPair *pair){
+   void LockOn(std::atomic<const void*>* in, mutexPair *pair) noexcept {
       m_atomic = in;
       m_mut    = pair;
    }
-   void DropLock();
+   void DropLock() noexcept;
    void ReleaseLock();
 
    ~IDC_WriteHandleBase();
