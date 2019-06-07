@@ -35,7 +35,9 @@ public:
    * for printing the content of the view
    * @warning - expensive call
    **/
-  std::string dump( const std::string& delim = " " ) const;
+  std::string dump( const std::string& indent = "" ) const {
+    return m_implementation->dump( indent );
+  }
 
   /*virtual SG::DataProxy* proxy(const CLID& id) const { 
     return m_implementation->proxy(id); 
