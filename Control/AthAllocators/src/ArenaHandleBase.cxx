@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHandleBase.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -50,7 +50,7 @@ ArenaHandleBase::ArenaHandleBase (ArenaHeader* header,
 
 /**
  * @brief Constructor.
- * @parma arena The particular Arena to use.
+ * @param arena The particular Arena to use.
  * @param index The index of this Handle's Allocator type.
  */
 ArenaHandleBase::ArenaHandleBase (ArenaBase* arena, size_t index)

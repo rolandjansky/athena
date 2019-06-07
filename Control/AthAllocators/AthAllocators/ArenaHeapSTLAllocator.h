@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHeapSTLAllocator.h,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
@@ -188,7 +188,7 @@ public:
 
 
   /**
-   * @brief Inquality test.
+   * @brief Inequality test.
    *
    * Two allocators should compare equal if objects allocated by one
    * can be deallocated by the other.  We should just check if they
@@ -434,7 +434,7 @@ private:
 
 
 /**
- * @brief STL-style allocator wrapper for @c ArenHeapAllocator.
+ * @brief STL-style allocator wrapper for @c ArenaHeapAllocator.
  *        Non-const variant for the case of the vetoed type.
  *
  *        See documentation above for details.
