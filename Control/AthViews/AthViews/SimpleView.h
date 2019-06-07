@@ -175,8 +175,11 @@ class SimpleView : public IProxyDict
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
 		std::string m_name;
-                std::vector<const IProxyDict*> m_parents;
-    bool m_allowFallThrough;
+                std::vector< const SimpleView* > m_parents;
+
+                // The real implementation of proxy(), with control for whole-event store access
+                SG::DataProxy* findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const;
+                bool m_allowFallThrough;
 };
 
 

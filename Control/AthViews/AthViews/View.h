@@ -27,8 +27,8 @@ public:
   View& operator= (const View&) = delete;
   
   void impl ( SimpleView* impl ) { m_implementation = impl; }
-  IProxyDict* impl (void ) { return m_implementation; }
-  const IProxyDict* impl ( void ) const { return m_implementation; }
+  SimpleView* impl (void ) { return m_implementation; }
+  const SimpleView* impl ( void ) const { return m_implementation; }
   size_t viewID() const{ return m_index; }
 
   /**
