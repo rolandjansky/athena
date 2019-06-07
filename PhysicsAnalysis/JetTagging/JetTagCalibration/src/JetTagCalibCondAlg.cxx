@@ -753,13 +753,12 @@ namespace Analysis {
      // now read the histogram into memor
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
      std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
-     hist = dynamic_cast<TObject *>(hist_raw.get());
-     hist_raw.release();
-     if (hist==nullptr) {
+     if (hist_raw.get() == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
      else {
+       hist = dynamic_cast<TObject *>(hist_raw.release());
        // make this histogram unassociated with the TFile, so file can be closed
        // only for histogram objects, others do not get associated
        // TTrees have special treatment 
