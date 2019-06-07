@@ -122,11 +122,11 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
 #====================================================================
 
 # Create TCC objects
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool

@@ -151,11 +151,11 @@ OutputJets["JETM4"] = []
 # TCC reconstruction
 #==================================================================== 
 
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(jetm4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(jetm4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS

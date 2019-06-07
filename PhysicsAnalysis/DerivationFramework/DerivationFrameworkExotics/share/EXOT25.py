@@ -281,12 +281,12 @@ if not "EXOT25Jets" in OutputJets:
     #=======================================
     # TCC JETS
     #=======================================
-#    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+#    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
 #    import AthenaCommon.AtlasUnixStandardJob
 
 #    include("RecExCond/AllDet_detDescr.py")
-#    runTCCReconstruction(exot25Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+#    runTCCReconstruction(exot25Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 #    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
 #    addTCCTrimmedJets(exot25Seq, "EXOT25Jets")
 

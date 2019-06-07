@@ -221,11 +221,11 @@ addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm15Seq, "JETM15", ptm
 
 
 # Create TCC objects
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(jetm15Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(jetm15Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 addTCCTrimmedJets(jetm15Seq,"JETM15")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

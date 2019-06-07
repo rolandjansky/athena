@@ -323,11 +323,11 @@ exot3PreSeq += exot3Seq
 # JETS
 #=======================================
 # Create TCC objects
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(exot3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(exot3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets

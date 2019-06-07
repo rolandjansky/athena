@@ -107,11 +107,11 @@ TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6SkimmingKern
 # Special jets
 #====================================================================
 # Create TCC objects (see JETM1.py)
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 from DerivationFrameworkTop.TOPQCommonJets import addNonLargeRJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
