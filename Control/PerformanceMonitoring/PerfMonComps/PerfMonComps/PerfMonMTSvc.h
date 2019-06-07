@@ -5,10 +5,6 @@
 #ifndef PERFMONCOMPS_PERFMONMTSVC_H
 #define PERFMONCOMPS_PERFMONMTSVC_H
 
-//// STL includes
-//#include <set>
-//#include <string>
-
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
 

@@ -9,7 +9,6 @@
 #include <string>
 
 /// Framework include
-//#include "GaudiKernel/IMonitorSvc.h"
 #include "GaudiKernel/IService.h"
 
 //class IPerfMonMTSvc : virtual public IMonitorSvc
@@ -22,22 +21,22 @@ class IPerfMonMTSvc : virtual public IService
     static const InterfaceID& interfaceID();
 
     /// Start Auditing
-    virtual void startAud( const std::string& stepName, 
+    virtual void startAud( const std::string& stepName,
                            const std::string& compName = "PerfMonMTSlice" ) = 0;
 
     /// Stop Auditing
-    virtual void stopAud( const std::string& stepName, 
+    virtual void stopAud( const std::string& stepName,
                           const std::string& compName = "PerfMonMTSlice" ) = 0;
 
 }; // class IPerfMonMTSvc
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-inline const InterfaceID& IPerfMonMTSvc::interfaceID() 
-{ 
+///////////////////////////////////////////////////////////////////
+// Inline methods:
+///////////////////////////////////////////////////////////////////
+inline const InterfaceID& IPerfMonMTSvc::interfaceID()
+{
   static const InterfaceID IID_IPerfMonMTSvc("IPerfMonMTSvc", 1, 0);
-  return IID_IPerfMonMTSvc; 
+  return IID_IPerfMonMTSvc;
 }
 
 #endif // PERMONKERNEL_IPERFMONMTSV_H

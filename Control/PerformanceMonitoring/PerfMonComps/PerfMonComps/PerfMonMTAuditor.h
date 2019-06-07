@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PERFMONCOMPS_PERFMONMTAUDITOR_H 
-#define PERFMONCOMPS_PERFMONMTAUDITOR_H 
+#ifndef PERFMONCOMPS_PERFMONMTAUDITOR_H
+#define PERFMONCOMPS_PERFMONMTAUDITOR_H
 
 // STL includes
 #include <string>
@@ -45,7 +45,7 @@ class PerfMonMTAuditor : public Auditor
     void after( CustomEventTypeRef, const std::string&, const StatusCode& ) override;
 
   private:
-  
+
     /// Handle to PerfMonMTSvc
     ServiceHandle< IPerfMonMTSvc > m_perfMonMTSvc;
 

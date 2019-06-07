@@ -11,7 +11,7 @@
 /*
  * Constructor
  */
-PerfMonMTAlg::PerfMonMTAlg( const std::string& name, 
+PerfMonMTAlg::PerfMonMTAlg( const std::string& name,
                             ISvcLocator* pSvcLocator )
   : AthReentrantAlgorithm( name, pSvcLocator ),
     m_perfMonMTSvc( "PerfMonMTSvc", name ) {
@@ -23,7 +23,7 @@ PerfMonMTAlg::PerfMonMTAlg( const std::string& name,
  */
 StatusCode PerfMonMTAlg::initialize() {
 
-  ATH_MSG_INFO("Initialize"); 
+  ATH_MSG_INFO("Initialize");
 
   /// Retrieve the PerfMonMTSvc
   CHECK( m_perfMonMTSvc.retrieve() );
@@ -37,7 +37,7 @@ StatusCode PerfMonMTAlg::initialize() {
  */
 StatusCode PerfMonMTAlg::finalize() {
 
-  ATH_MSG_INFO("Finalize"); 
+  ATH_MSG_INFO("Finalize");
 
   return StatusCode::SUCCESS;
 
@@ -55,4 +55,4 @@ StatusCode PerfMonMTAlg::execute( const EventContext& /*ctx*/ ) const {
   m_perfMonMTSvc->stopAud("","");
 
   return StatusCode::SUCCESS;
-} 
+}

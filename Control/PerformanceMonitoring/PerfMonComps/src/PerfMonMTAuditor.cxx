@@ -22,7 +22,6 @@ PerfMonMTAuditor::PerfMonMTAuditor( const std::string& name,
 
 }
 
-
 /*
  * Initialize the Auditor
  */
