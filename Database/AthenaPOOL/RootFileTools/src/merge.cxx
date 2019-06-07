@@ -563,10 +563,9 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                                     << " branches" << endl;
                } else {
                   m_output->GetObject(key->GetName(),out_tree);
+                  s.start = static_cast<int>(out_tree->GetEntries());
                   if (name == "##Params") {
                      if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
-                     Long64_t out_entries = out_tree->GetEntries();
-                     s.start = static_cast<int>(out_entries);
                      out_tree->CopyAddresses(src_tree);
                      for (Long64_t i=0; i<src_entries; i++) {
                         src_tree->GetEntry(i);
