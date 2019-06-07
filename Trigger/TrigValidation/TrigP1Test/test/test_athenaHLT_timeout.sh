@@ -26,7 +26,7 @@ if [ $nDebugEvents -gt 0 ]; then
   echo "art-result: 0 StreamTags"
 else
   echo "ERROR no event with stream tag debug_HltTimeout was found in the output file ${outputFile}"
-  echo "art-result: 0 StreamTags"
+  echo "art-result: 1 StreamTags"
 fi
 
 # Check if the number of events in output is the same as number of processed events
