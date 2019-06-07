@@ -7,6 +7,10 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 
+/** The class TFCSEnergyRenormalization ensures that the sum of cell energies in every calorimeter layer 
+    matches the output of energy simulation
+*/
+
 class TFCSEnergyRenormalization:public TFCSParametrization {
 public:
   TFCSEnergyRenormalization(const char* name=nullptr, const char* title=nullptr);
