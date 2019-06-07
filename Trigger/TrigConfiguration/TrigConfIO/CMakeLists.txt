@@ -39,7 +39,7 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( ReadTriggerConfig SOURCES test/read_config_info.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData TrigConfIO 
+                LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData TrigConfIOLib
                 ENVIRONMENT "TESTFILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/test/data"
                 POST_EXEC_SCRIPT nopost.sh )
 
