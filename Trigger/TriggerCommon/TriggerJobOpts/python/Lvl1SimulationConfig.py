@@ -89,10 +89,10 @@ def Lvl1SimulationSequence( flags = None ):
     from AthenaCommon.Include import include ## TODO, see if can be replaced by new JO
     include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )    
     from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
-    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = True,
+    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                      DecodeRpcRDO = True,
                                                      DecodeTgcRDO = True,
-                                                     DecodeCscRDO = True ) 
+                                                     DecodeCscRDO = False ) 
     
     MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
     from AthenaCommon.AppMgr import ToolSvc
