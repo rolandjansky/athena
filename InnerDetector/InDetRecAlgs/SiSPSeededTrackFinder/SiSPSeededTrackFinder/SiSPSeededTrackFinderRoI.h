@@ -3,8 +3,8 @@
 */
 
 
-#ifndef SiSPSeededTrackFinderROI_H
-#define SiSPSeededTrackFinderROI_H
+#ifndef SiSPSeededTrackFinderRoI_H
+#define SiSPSeededTrackFinderRoI_H
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -34,7 +34,7 @@ namespace InDet {
   // Class-algorithm for track finding in Pixels and SCT
   // initiated by space points seeds
   // 
-  class SiSPSeededTrackFinderROI : public AthAlgorithm 
+  class SiSPSeededTrackFinderRoI : public AthAlgorithm 
     {
     
       ///////////////////////////////////////////////////////////////////
@@ -47,8 +47,8 @@ namespace InDet {
       // Standard Algotithm methods
       ///////////////////////////////////////////////////////////////////
 
-      SiSPSeededTrackFinderROI(const std::string &name, ISvcLocator *pSvcLocator);
-      virtual ~SiSPSeededTrackFinderROI() {}
+      SiSPSeededTrackFinderRoI(const std::string &name, ISvcLocator *pSvcLocator);
+      virtual ~SiSPSeededTrackFinderRoI() {}
       StatusCode initialize();
       StatusCode execute();
       StatusCode finalize();
@@ -108,7 +108,7 @@ namespace InDet {
 
       std::string                    m_beamconditions          ;
       std::string                    m_fieldmode               ; 
-      IBeamCondSvc*                                 m_beam     ;
+      IBeamCondSvc*                                 m_beam     ;	//k check
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
       Trk::MagneticFieldProperties                  m_fieldprop;
 
@@ -118,10 +118,10 @@ namespace InDet {
       
       bool isGoodEvent();
       double trackQuality(const Trk::Track*);
-      void filterSharedTracks(std::multimap<double,Trk::Track*>&);
-      void fillZHistogram(const Trk::Track*,Trk::PerigeeSurface&);
-      void findZvertex(std::list<Trk::Vertex>&,double*); 
-      StatusCode  oldStrategy();
+      void filterSharedTracks(std::multimap<double,Trk::Track*>&);	//k
+      void fillZHistogram(const Trk::Track*,Trk::PerigeeSurface&);	//d
+      void findZvertex(std::list<Trk::Vertex>&,double*); 	//d?
+      StatusCode  oldStrategy();	//d
       StatusCode  newStrategy();
       void magneticFieldInit();
 
@@ -129,7 +129,7 @@ namespace InDet {
       MsgStream&    dumpevent(MsgStream&    out) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const SiSPSeededTrackFinderROI&);
-  std::ostream& operator << (std::ostream&,const SiSPSeededTrackFinderROI&); 
+  MsgStream&    operator << (MsgStream&   ,const SiSPSeededTrackFinderRoI&);
+  std::ostream& operator << (std::ostream&,const SiSPSeededTrackFinderRoI&); 
 }
-#endif // SiSPSeededTrackFinderROI_H
+#endif // SiSPSeededTrackFinderRoI_H

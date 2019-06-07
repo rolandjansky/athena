@@ -4,7 +4,7 @@
 
 #include <set>
 
-#include "SiSPSeededTrackFinder/SiSPSeededTrackFinderROI.h"
+#include "SiSPSeededTrackFinder/SiSPSeededTrackFinderRoI.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -14,7 +14,7 @@
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::SiSPSeededTrackFinderROI::SiSPSeededTrackFinderROI
+InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
 (const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
   m_useZvertexTool(true)                                               ,
   m_useMBTS(false)                                                     ,
@@ -56,7 +56,7 @@ InDet::SiSPSeededTrackFinderROI::SiSPSeededTrackFinderROI
   m_problemsTotalV         = 0                 ; 
   m_zstep                  = 0                 ;
 
-  // SiSPSeededTrackFinderROI steering parameters
+  // SiSPSeededTrackFinderRoI steering parameters
   //
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("ZvertexTool"         ,m_zvertexmaker        );
@@ -85,7 +85,7 @@ InDet::SiSPSeededTrackFinderROI::SiSPSeededTrackFinderROI
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinderROI::initialize() 
+StatusCode InDet::SiSPSeededTrackFinderRoI::initialize() 
 {
 
   // Get tool for space points seed maker
@@ -171,7 +171,7 @@ StatusCode InDet::SiSPSeededTrackFinderROI::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinderROI::execute() 
+StatusCode InDet::SiSPSeededTrackFinderRoI::execute() 
 { 
   if(!m_useNewStrategy && !m_useZBoundaryFinding && !m_ITKGeometry) return oldStrategy();
   else                                                              return newStrategy();
@@ -181,7 +181,7 @@ StatusCode InDet::SiSPSeededTrackFinderROI::execute()
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinderROI::oldStrategy()
+StatusCode InDet::SiSPSeededTrackFinderRoI::oldStrategy()
 { 
   m_outputTracks = CxxUtils::make_unique<TrackCollection>();
   // For HI events we can use MBTS information from calorimeter
@@ -267,7 +267,7 @@ StatusCode InDet::SiSPSeededTrackFinderROI::oldStrategy()
 // Execute with new strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinderROI::newStrategy()
+StatusCode InDet::SiSPSeededTrackFinderRoI::newStrategy()
 { 
   m_outputTracks = CxxUtils::make_unique<TrackCollection>();
 
@@ -378,7 +378,7 @@ StatusCode InDet::SiSPSeededTrackFinderROI::newStrategy()
 // Finalize
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinderROI::finalize() 
+StatusCode InDet::SiSPSeededTrackFinderRoI::finalize() 
 {
   if(m_nhistogram) delete [] m_nhistogram;
   if(m_zhistogram) delete [] m_zhistogram;
@@ -393,7 +393,7 @@ StatusCode InDet::SiSPSeededTrackFinderROI::finalize()
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::SiSPSeededTrackFinderROI& se)
+  (MsgStream& sl,const InDet::SiSPSeededTrackFinderRoI& se)
 { 
   return se.dump(sl);
 }
@@ -403,7 +403,7 @@ MsgStream& InDet::operator    <<
 ///////////////////////////////////////////////////////////////////
 
 std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::SiSPSeededTrackFinderROI& se)
+  (std::ostream& sl,const InDet::SiSPSeededTrackFinderRoI& se)
 {
   return se.dump(sl);
 }   
@@ -412,7 +412,7 @@ std::ostream& InDet::operator <<
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinderROI::dump( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinderRoI::dump( MsgStream& out ) const
 {
   out<<std::endl;
   if(m_nprint)  return dumpevent(out); return dumptools(out);
@@ -422,7 +422,7 @@ MsgStream& InDet::SiSPSeededTrackFinderROI::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinderROI::dumptools( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinderRoI::dumptools( MsgStream& out ) const
 {
   int n = 65-m_zvertexmaker.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
@@ -462,7 +462,7 @@ MsgStream& InDet::SiSPSeededTrackFinderROI::dumptools( MsgStream& out ) const
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinderROI::dumpevent( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinderRoI::dumpevent( MsgStream& out ) const
 {
   int ns = m_nseeds;
   int nt = m_ntracks;
@@ -501,7 +501,7 @@ MsgStream& InDet::SiSPSeededTrackFinderROI::dumpevent( MsgStream& out ) const
 // Test is it good event for reconstruction (mainly for HI events)
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSPSeededTrackFinderROI::isGoodEvent() {
+bool InDet::SiSPSeededTrackFinderRoI::isGoodEvent() {
 
   if(!m_useMBTS) return true;
 
@@ -552,7 +552,7 @@ bool InDet::SiSPSeededTrackFinderROI::isGoodEvent() {
 // Track quality calculation
 ///////////////////////////////////////////////////////////////////
 
-double InDet::SiSPSeededTrackFinderROI::trackQuality(const Trk::Track* Tr)
+double InDet::SiSPSeededTrackFinderRoI::trackQuality(const Trk::Track* Tr)
 {
   DataVector<const Trk::TrackStateOnSurface>::const_iterator  
     m  = Tr->trackStateOnSurfaces()->begin(), 
@@ -581,7 +581,7 @@ double InDet::SiSPSeededTrackFinderROI::trackQuality(const Trk::Track* Tr)
 // Filer shared tracks
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSPSeededTrackFinderROI::filterSharedTracks
+void InDet::SiSPSeededTrackFinderRoI::filterSharedTracks
 (std::multimap<double,Trk::Track*>& QT)
 {
   std::set<const Trk::PrepRawData*> clusters;
@@ -620,7 +620,7 @@ void InDet::SiSPSeededTrackFinderROI::filterSharedTracks
 // Fill z coordinate histogram
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSPSeededTrackFinderROI::fillZHistogram(const Trk::Track* Tr,Trk::PerigeeSurface& per)
+void InDet::SiSPSeededTrackFinderRoI::fillZHistogram(const Trk::Track* Tr,Trk::PerigeeSurface& per)
 {
   
   if(Tr->measurementsOnTrack()->size() < 10) return;
@@ -654,7 +654,7 @@ void InDet::SiSPSeededTrackFinderROI::fillZHistogram(const Trk::Track* Tr,Trk::P
 // Find verteex  z coordinates
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiSPSeededTrackFinderROI::findZvertex(std::list<Trk::Vertex>& ZV,double* ZB)
+void  InDet::SiSPSeededTrackFinderRoI::findZvertex(std::list<Trk::Vertex>& ZV,double* ZB)
 {
   ZB[0]    = 1000.;
   ZB[1]    =-1000.;
@@ -712,7 +712,7 @@ void  InDet::SiSPSeededTrackFinderROI::findZvertex(std::list<Trk::Vertex>& ZV,do
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::SiSPSeededTrackFinderROI::dump( std::ostream& out ) const
+std::ostream& InDet::SiSPSeededTrackFinderRoI::dump( std::ostream& out ) const
 {
   return out;
 }
@@ -721,7 +721,7 @@ std::ostream& InDet::SiSPSeededTrackFinderROI::dump( std::ostream& out ) const
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSPSeededTrackFinderROI::magneticFieldInit() 
+void InDet::SiSPSeededTrackFinderRoI::magneticFieldInit() 
 {
   // Build MagneticFieldProperties 
   //
