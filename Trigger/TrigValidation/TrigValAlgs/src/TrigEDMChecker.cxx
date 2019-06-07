@@ -4018,7 +4018,8 @@ StatusCode TrigEDMChecker::dumpTDT() {
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
-    if (passed) {
+    const bool isRunThree = evtStore()->contains<xAOD::TrigCompositeContainer>("HLT_Summary");
+    if (isRunThree && passed) {
       std::vector< LinkInfo<xAOD::IParticleContainer> > features = m_trigDec->features<xAOD::IParticleContainer>(item);
       ATH_MSG_INFO("    " << item << " IParticle features size: " << features.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : features) {
