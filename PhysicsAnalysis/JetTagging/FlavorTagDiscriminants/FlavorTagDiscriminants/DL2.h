@@ -8,6 +8,7 @@
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/FlipTagEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -94,6 +95,8 @@ namespace FlavorTagDiscriminants {
     typedef std::function<double(const xAOD::TrackParticle*,
                                  const xAOD::Jet&)> TrackSortVar;
     typedef std::function<bool(const xAOD::TrackParticle*)> TrackFilter;
+    typedef std::function<Tracks(const Tracks&,
+                                 const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
     typedef std::function<NamedVar(const Jet&)> VarFromJet;
@@ -192,13 +195,16 @@ namespace FlavorTagDiscriminants {
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
         const std::vector<DL2TrackSequenceConfig>& = {},
+        FlipTagConfig = FlipTagConfig::STANDARD,
         EDMSchema = EDMSchema::WINTER_2018);
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceBuilder {
-      TrackSequenceBuilder(SortOrder, TrackSelection, EDMSchema);
+      TrackSequenceBuilder(SortOrder, TrackSelection, EDMSchema,
+                           FlipTagConfig);
       std::string name;
       internal::TracksFromJet tracksFromJet;
+      internal::TrackSequenceFilter flipFilter;
       std::vector<internal::SeqFromTracks> sequencesFromTracks;
     };
     typedef std::function<void(const SG::AuxElement&, double)> OutputSetter;
@@ -222,6 +228,7 @@ namespace FlavorTagDiscriminants {
       TrackSortVar trackSortVar(SortOrder, EDMSchema);
       TrackFilter trackFilter(TrackSelection, EDMSchema);
       SeqFromTracks seqFromTracks(const DL2TrackInputConfig&, EDMSchema);
+      TrackSequenceFilter flipFilter(FlipTagConfig, EDMSchema);
     }
   }
 }

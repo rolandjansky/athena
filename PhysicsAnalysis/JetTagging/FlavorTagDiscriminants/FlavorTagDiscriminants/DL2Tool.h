@@ -16,6 +16,7 @@ namespace FlavorTagDiscriminants {
   struct DL2Properties {
     std::string nnFile;
     std::string schema;
+    std::string flipTagConfig;
   };
 
   class DL2Tool : public asg::AsgTool, virtual public ISingleJetModifier

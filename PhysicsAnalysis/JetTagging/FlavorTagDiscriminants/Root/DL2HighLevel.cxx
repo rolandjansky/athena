@@ -27,7 +27,7 @@ namespace {
 namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
-                             EDMSchema schema):
+                             EDMSchema schema, FlipTagConfig flip_config):
     m_dl2(nullptr)
   {
     // get the graph
@@ -37,6 +37,8 @@ namespace FlavorTagDiscriminants {
     }
     std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
+
+    // TODO: add code to rewrite GraphConfig for flip taggers
 
     // __________________________________________________________________
     // build the standard inputs
@@ -134,7 +136,8 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
-    m_dl2.reset(new DL2(config, input_config, trk_config, schema));
+    m_dl2.reset(
+      new DL2(config, input_config, trk_config, flip_config, schema));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
