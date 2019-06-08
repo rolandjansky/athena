@@ -171,7 +171,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 {
     long int  i, jerr, tk, it=0;
 
-    double chi2df, dparst[6];
+    double dparst[6];
     double chi2min, dxyzst[3],  chi21s=11., chi22s=10., vShift;
     double aermd[30],tmpd[30];  // temporary array
     double tmpPer[5],tmpCov[15], tmpWgt[15];
@@ -206,7 +206,6 @@ long int fitVertex(VKVertex * vk, long int iflag)
     VKTrack * trk=0;
 
     chi2min = 1e15;
-    chi2df = 0.;
 
     if( forcft_1.nmcnst && forcft_1.useMassCnst )  {       //mass constraints are present
       std::vector<int> index;
@@ -389,6 +388,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 
 	  if ( vk->passNearVertex && it>1 ) {  //No necessary information at first iteration
             jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
 	    cfdcopy( PartMom, &dparst[3], 3);  //vertex part of it is filled above
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
@@ -425,7 +425,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	//std::cout<<"NNVertex="<<dxyzst[0]<<", "<<dxyzst[1]<<", "<<dxyzst[2]<<'\n';
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
-	chi2df = fabs(chi21s - chi22s);
+	double chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = min(chi22s*1.e-4, forcft_1.IterationPrecision);
 	//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
@@ -447,6 +447,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	if ( vk->passNearVertex ) {
             if(it==1)jerr = afterFit(vk,                0, vk->FVC.dcv, PartMom, VrtMomCov);
             else     jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...

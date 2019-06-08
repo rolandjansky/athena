@@ -21,7 +21,7 @@ extern int cfdinv(double *, double *, long int);
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15];
-    long int jerr, i__, j, ij;
+    int i__, j, ij;
 
 
     double cs, sn;
@@ -102,8 +102,8 @@ extern int cfdinv(double *, double *, long int);
 	rcov[1] = errn[1];
 	rcov[2] = errn[2];
     }
-    jerr=cfdinv(rcov, dwgt, -2);
-    if (jerr) {jerr=cfdinv(rcov, dwgt, 2); if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.; jerr=0;}}
+    int jerr=cfdinv(rcov, dwgt, -2);
+    if (jerr) {jerr=cfdinv(rcov, dwgt, 2); if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.;}}
     (*sign) = sqrt(fabs(dwgt[0] * rimp[0] * rimp[0] + dwgt[1] * 2. * rimp[0] * rimp[1] + 
 	    dwgt[2] * rimp[1] * rimp[1]));
 } 
@@ -115,7 +115,7 @@ extern int cfdinv(double *, double *, long int);
 {
     double dcov[3], errd[15], paro[5];
     double dwgt[3], errn[15], cnv[6];	/* was [2][3] */
-    long int jerr, i__, j, ij;
+    int i__, j, ij;
 
 
     double cs, sn;
@@ -176,8 +176,8 @@ extern int cfdinv(double *, double *, long int);
 	rcov[1] = errn[1];
 	rcov[2] = errn[2];
     }
-    jerr=cfdinv(rcov, dwgt, -2);
-    if (jerr) {jerr=cfdinv(rcov, dwgt, 2);if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.; jerr=0;}}
+    int jerr=cfdinv(rcov, dwgt, -2);
+    if (jerr) {jerr=cfdinv(rcov, dwgt, 2);if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.;}}
     (*sign) = sqrt(fabs(dwgt[0] * rimp[0] * rimp[0] + dwgt[1] * 2. * rimp[0] * rimp[1] + 
 	    dwgt[2] * rimp[1] * rimp[1]));
 } 

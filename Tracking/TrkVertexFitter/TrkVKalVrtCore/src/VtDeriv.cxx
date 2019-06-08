@@ -27,7 +27,7 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
     /* Local variables */
     double pari[6], covd[15], dcov[3], rvec[50]; /* was [2][6*4+1] */
     double  paro[5];
-    long int jerr, j, ij, ip, ipp, id=0;
+    long int j, ij, ip, ipp, id=0;
     double dwgt0[3]={0.,0.,0.}, constB;
     //double deriv[6], dchi2[4*6+1];                     //VK for debugging
     double cs, pp, sn, pt, rho;
@@ -66,7 +66,6 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
 
     /* Function Body */
 /* --------------------- */
-    jerr = 0;
 //VK    constB = *localbmag * .0029979246;
     constB =vkalvrtbmag.bmag  * vkalMagCnvCst;
     
@@ -181,7 +180,7 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
 /*---------------------------------------------------------------- */	
 //     Weight matrix and chi2 for given shift	
 //
-	jerr=cfdinv(dcov, &dwgt[0], -2); if(jerr){jerr=cfdinv(dcov, &dwgt[0], 2); if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.; jerr=0;}};
+	int jerr=cfdinv(dcov, &dwgt[0], -2); if(jerr){jerr=cfdinv(dcov, &dwgt[0], 2); if(jerr){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.;}};
 	//dchi2[ip] = sqrt(fabs(dwgt[0]*paro[0]*paro[0] + 2.*dwgt[1]*paro[0]*paro[1] + dwgt[2]*paro[1]*paro[1]));
 	rvec_ref(1, ip) = paro[0];
 	rvec_ref(2, ip) = paro[1];

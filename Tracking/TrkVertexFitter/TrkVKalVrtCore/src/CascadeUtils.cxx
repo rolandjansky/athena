@@ -87,9 +87,9 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
           DerivT[iniPosTrk+it*3+2] =  (sinth2sum*pt*cth)/(curv*ptsum);                 //  dTheta/dC_i      
 	  tpx+=pp[0]; tpy+=pp[1];
         }
-        double iniV0Curv=myMagFld.getCnvCst()*vMagFld[iv]/sqrt(tpx*tpx+tpy*tpy);    //initial PseudoTrack Curvature
-        if(csum<0)iniV0Curv *= -1.;
-        iniV0Curv *= vMagFld[ivnext]/vMagFld[iv];  //magnetic field correction
+//        double iniV0Curv=myMagFld.getCnvCst()*vMagFld[iv]/sqrt(tpx*tpx+tpy*tpy);    //initial PseudoTrack Curvature
+//        if(csum<0)iniV0Curv *= -1.;
+//        iniV0Curv *= vMagFld[ivnext]/vMagFld[iv];  //magnetic field correction
 //
 //fill Full Matrix and left side vector
 //
