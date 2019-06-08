@@ -355,16 +355,28 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
     if(isValid){
       static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
       const xAOD::Jet * ungroomedJet = 0;
+
       if(ungroomedLink.isAvailable(jet)){
         ElementLink<xAOD::JetContainer> linkToUngroomed = ungroomedLink(jet);
         if (  linkToUngroomed.isValid() ){
           ungroomedJet = *linkToUngroomed;
-	  std::vector<int> NTrkPt500;
-          ungroomedJet->getAttribute(xAOD::JetAttribute::NumTrkPt500, NTrkPt500);
-          int jet_ntrk = NTrkPt500.at(primaryVertex->index());
 
-          if(jet_ntrk < cut_ntrk)
-            m_accept.setCutResult("PassNtrk",true);
+	  static SG::AuxElement::ConstAccessor< std::vector<int> >    acc_Ntrk   ("NumTrkPt500");
+
+	  if(acc_Ntrk.isAvailable(*ungroomedJet)){
+
+	    std::vector<int> NTrkPt500 = acc_Ntrk(*ungroomedJet);
+	    m_accept.setCutResult("ValidJetContent", true);
+	    
+	    int jet_ntrk = NTrkPt500.at(primaryVertex->index());
+	    
+	    if(jet_ntrk < cut_ntrk)
+	      m_accept.setCutResult("PassNtrk",true);
+	  }
+	  else {
+	    ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't have Ntrk of the ungroomed jet available. Please make sure they are in your derivation!!!");
+	    m_accept.setCutResult("ValidJetContent", false);
+	  }
         }
         else{
           m_accept.setCutResult("ValidJetContent", false);
