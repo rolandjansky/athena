@@ -103,5 +103,30 @@ endif()
 
 # Check python syntax:
 atlas_add_test( flake8
-                SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
                 POST_EXEC_SCRIPT nopost.sh )
+
+# Configuration tests
+atlas_add_test( TileFolders_test
+                SCRIPT python -m unittest -v TileConditions.TileFolders
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TileCondToolsTestConfig_OfflineData_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TileCondToolsTestConfig_OfflineData_test.py
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCondToolsTestConfig_OnlineData_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TileCondToolsTestConfig_OnlineData_test.py
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCondToolsTestConfig_OfflineMC_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TileCondToolsTestConfig_OfflineMC_test.py
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCondToolsTestConfig_OnlineMC_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TileCondToolsTestConfig_OnlineMC_test.py
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

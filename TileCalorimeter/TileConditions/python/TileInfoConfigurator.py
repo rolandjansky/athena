@@ -140,7 +140,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
             self._coolof1ofcIsConfigured = True
             name = 'TileCondToolOfcCoolOF1'
         else:
-            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!" % ofcType)
+            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!", ofcType)
             return False
 
         #=== connect TileCondToolOfcCool to COOL
@@ -148,7 +148,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         from .TileCondToolConf import getTileCondToolOfcCool
         toolOfcCool = getTileCondToolOfcCool('COOL', type, ofcType, name )
         if toolOfcCool is not None:
-            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s" % ofcType)
+            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s", ofcType)
             ToolSvc += toolOfcCool
             return True
         elif ofcType == 'OF1':
