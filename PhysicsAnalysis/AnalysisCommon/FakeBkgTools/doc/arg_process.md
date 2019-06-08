@@ -1,14 +1,14 @@
 # The *process* argument
 
-This argument allows to restrict what kind of processes, in terms of number of real and fake/non-prompt leptons in the final state, should be included in the fake lepton background yields or weights computed by the tools. This can typically be used to ensure that there is no overlap with the Monte Carlo-based estimates of background processes with prompt leptons, which may contain additional fake leptons if the analysis chooses not to veto those based e.g. on truth-matching information. Another possible usage is to obtain separate estimates for backgrounds with exactly one, or at least two fake leptons. 
+This argument allows one to set what kind of processes, in terms of number of real and fake/non-prompt leptons in the final state, are estimated by the fake lepton background yields or weights computed by the tools. This can typically be used to ensure that there is no overlap with the Monte Carlo-based estimates of background processes with prompt leptons, which may contain additional fake leptons if the analysis chooses not to veto those based e.g. on truth-matching information. Another possible usage is to obtain separate estimates for backgrounds with exactly one, or at least two fake leptons.
 
-**Note that the fake factor method only support a subset of the recognized options.** 
+**Note that the fake factor method only supports `>=1F[T]`.**
 
 ## Recognized syntax
 
 The syntax is similar to that of the *[selection](doc/arg_selection.md)* argument: 
 
-+ Requirements on the number of real leptons (`R`) and/or fake/non-prompt leptons (`F`): `0R`, `>=1F`, `1-2F`, `<3F`...
++ Intended number of real leptons (`R`) and/or fake/non-prompt leptons (`F`) to estimate: `0R`, `>=1F`, `1-2F`, `<3F`...
 
 + By default only tight leptons are counted; this can be overriden with the adequate suffix: `[T]` for tight leptons (but since this is the default, the user in never required to specify it), `[!T]` for anti-tight leptons, `[L]` for loose leptons. E.g. `>=1F`, `0-1R[!T]`...
 
