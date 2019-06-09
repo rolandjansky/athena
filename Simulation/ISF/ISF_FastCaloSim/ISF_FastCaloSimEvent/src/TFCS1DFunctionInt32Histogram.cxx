@@ -53,8 +53,7 @@ void TFCS1DFunctionInt32Histogram::Initialize(const TH1* hist)
   
   for(ibin=0;ibin<nbins;++ibin) {
     m_HistoContents[ibin]=s_MaxValue*(temp_HistoContents[ibin]/integral);
-    //std::cout<<"bin="<<ibin<<" val="<<m_HistoContents[ibin]<<std::endl;
-  }  
+  }
 }
 
 double TFCS1DFunctionInt32Histogram::rnd_to_fct(double rnd) const

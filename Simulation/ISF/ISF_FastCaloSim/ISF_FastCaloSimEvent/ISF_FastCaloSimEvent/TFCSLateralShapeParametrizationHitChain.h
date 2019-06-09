@@ -25,7 +25,10 @@ public:
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
-  
+  //TODO: add generic functionality to determine the number of hits or center position only once
+  // and not for every iteration of the hit chain
+
+  /// set which instance should determine the number of hits
   virtual void set_number_of_hits_simul(TFCSLateralShapeParametrizationHitBase* sim) {m_number_of_hits_simul=sim;};
   
   /// Call get_number_of_hits() only once, as it could contain a random number
