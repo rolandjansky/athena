@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelSpacePointTool_H
 #define PixelSpacePointTool_H
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
-#include "TrigOnlineSpacePointTool/PixelGCBuilder.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include "BeamSpotConditionsData/BeamSpotData.h"
+
+#include "PixelGCBuilder.h"
 
 class TrigSiSpacePoint;
 class PixelID;

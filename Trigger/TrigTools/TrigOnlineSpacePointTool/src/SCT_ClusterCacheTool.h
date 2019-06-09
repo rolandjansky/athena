@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGONLINESPACEPOINTTOOL_SCTCLUSTERCACHETOOL_H
@@ -17,9 +17,9 @@
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
-#include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
-#include "TrigOnlineSpacePointTool/ISCT_ClusterCacheTool.h"
+#include "ISCT_ClusterCacheTool.h"
+#include "FastSCT_Clusterization.h"
+#include "FastSCT_RodDecoder.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
+#include "FastPixelClusterization.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 
@@ -51,8 +51,7 @@ FastPixelClusterization::FastPixelClusterization () {
 
 void FastPixelClusterization::initializeGeometry(const InDetDD::PixelDetectorManager* manager){
 
-  ///@todo WARNING - hack needed here for non-const method of PixelDetectorManager
-  m_man = const_cast<InDetDD::PixelDetectorManager*>(manager);
+  m_man = manager;
 
   // Barrel geometry : get a B-layer barrel element (part 0 layer 0 phi 0, eta 1)
   InDetDD::SiDetectorElement* element = m_man->getDetectorElement(0, 0, 1, 1);
