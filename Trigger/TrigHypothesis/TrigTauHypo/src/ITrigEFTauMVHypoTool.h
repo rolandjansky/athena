@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGTAUHYPO_ITrigTauGenericHypoTool_H
-#define TRIGTAUHYPO_ITrigTauGenericHypoTool_H 1
+#ifndef TRIGTAUHYPO_ITRIGEFTAUMVHYPOTOOL_H
+#define TRIGTAUHYPO_ITRIGEFTAUMVHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
 
@@ -11,32 +11,27 @@
 
 
 
-/**
- * @class Base for tools dooing L2 Calo Hypo selection
- * @brief 
- **/
-
-class ITrigTauGenericHypoTool
+class ITrigEFTauMVHypoTool
   : virtual public ::IAlgTool
 { 
 
  public: 
-  DeclareInterfaceID(ITrigTauGenericHypoTool, 1, 0);
-  virtual ~ITrigTauGenericHypoTool(){}
+  DeclareInterfaceID(ITrigEFTauMVHypoTool, 1, 0);
+  virtual ~ITrigEFTauMVHypoTool(){}
 
-  struct ClusterInfo {
-  ClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::TauJetContainer *c,
+  struct TauJetInfo {
+  TauJetInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::TauJetContainer *c,
 	       const TrigCompositeUtils::Decision* previousDecision )
-  : decision( d ), 
-      roi( r ), 
-      taucontainer(c), 
+  : decision( d ),
+      roi( r ),
+      taujetcontainer(c),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
     
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
-    const xAOD::TauJetContainer* taucontainer;
+    const xAOD::TauJetContainer* taujetcontainer;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
@@ -47,13 +42,13 @@ class ITrigTauGenericHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<ClusterInfo>& input )  const = 0;
+  virtual StatusCode decide( std::vector<TauJetInfo>& input )  const = 0;
 
   /**
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const ClusterInfo& i ) const = 0;
+  virtual bool decide( const TauJetInfo& i ) const = 0;
 
  protected:
 
@@ -61,4 +56,4 @@ class ITrigTauGenericHypoTool
 }; 
 
 
-#endif //> !TRIGTAUHYPO_ITrigTauGenericHypoTool_H
+#endif //> !TRIGTAUHYPO_ITRIGEFTAUMVHYPOTOOL_H

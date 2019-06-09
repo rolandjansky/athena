@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCoreTrackSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCoreTrackSequence, tauPrecisionSequence
 
 from TrigUpgradeTest.InDetSetup import inDetSetup
 
@@ -25,6 +25,8 @@ def getTauCaloCfg(flags):
 def getTauCoreTrackCfg(flags):
     return tauCoreTrackSequence()
 
+def getTauPrecisionCfg(flags):
+    return tauPrecisionSequence()
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -51,6 +53,7 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "ptonly":[self.getCaloSeq(), self.getTrackCore()],
             "tracktwo":[self.getCaloSeq(), self.getTrackCore()],
+            "tracktwoMVA":[self.getCaloSeq(), self.getPrecision()],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -72,12 +75,17 @@ class TauChainConfiguration(ChainConfigurationBase):
         
     # --------------------
     def getTrackCore(self):
-        stepName = 'Step2_tau'
+        stepName = 'Step2TP_tau'
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauCoreTrackCfg, None)
         return ChainStep(stepName, [tauSeq])
         
     # --------------------
+    def getPrecision(self):
+        stepName = 'Step2PT_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauPrecisionCfg, None)
+        return ChainStep(stepName, [tauSeq])
 
 
 
