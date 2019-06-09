@@ -220,7 +220,7 @@ class FastPixelClusterization {
 
   private:
 
-    InDetDD::PixelDetectorManager* m_man;
+    const InDetDD::PixelDetectorManager* m_man;
     InDetDD::SiDetectorElement* m_detEl;
 
     const ISiLorentzAngleTool* m_lorentzAngleTool;

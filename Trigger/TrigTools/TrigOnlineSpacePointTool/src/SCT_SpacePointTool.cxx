@@ -3,14 +3,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
+#include "SCT_SpacePointTool.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "Identifier/IdentifierHash.h" 
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
-#include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
+#include "SCT_GCBuilder.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include <string>

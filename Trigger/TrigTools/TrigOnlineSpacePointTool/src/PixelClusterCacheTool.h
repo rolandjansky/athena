@@ -9,8 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
-#include "TrigOnlineSpacePointTool/IPixelClusterCacheTool.h"
+#include "IPixelClusterCacheTool.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetRawData/PixelRDO_Container.h"
@@ -22,8 +21,7 @@
 #include <vector>
 #include <string>
 
-class FastPixelClusterization;
-
+#include "FastPixelClusterization.h"
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 
