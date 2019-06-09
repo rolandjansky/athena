@@ -82,7 +82,7 @@ def getTransform():
         simStepSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
                                    tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
         trf.appendToExecutorSet(list(simStepSet)[0])
-    except ImportError, e:
+    except ImportError as e:
         msg.warning('Failed to import simulation arguments ({0}). HITSMerge will not be available.'.format(e))
 
 

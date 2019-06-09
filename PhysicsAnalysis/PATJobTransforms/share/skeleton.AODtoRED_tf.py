@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Skeleton file for AOD to DAOD (Reduction framework) job
 #
 # $Id$
@@ -10,7 +11,7 @@ if hasattr(runArgs, "reductionConf"):
     msg.info('Will attempt to make the following reduced formats: {0}'.format(runArgs.reductionConf))
 else:
     msg.error('AOD Reduction job started, but with no "reductionConf" array - aborting')
-    raise RuntimeError, "No reductions configured"
+    raise RuntimeError("No reductions configured")
 
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
@@ -20,22 +21,22 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D2PDMaker.D2PDFlags import D2PDFlags
     listOfFlags.append(D2PDFlags)
 except ImportError:
-    print "WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis."
+    print("WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis.")
 try:
     from TopPhysD2PDMaker.TopPhysD2PDFlags import topPhysDPD
     listOfFlags.append(topPhysDPD)
 except ImportError:
-    print "WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -47,7 +48,7 @@ if hasattr(runArgs,"inputAODFile"):
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
 else:
     msg.error('AOD Reduction job started, but with no AOD inputs - aborting')
-    raise RuntimeError, "No AOD input"
+    raise RuntimeError("No AOD input")
 
 
 ## Pre-exec

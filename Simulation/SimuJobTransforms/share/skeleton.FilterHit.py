@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -283,4 +285,4 @@ if hasattr(runArgs,"postExec"):
         filterHitLog.info(cmd)
         exec(cmd)
 #--------------------------------------------------------------
-print topSequence
+print(topSequence)

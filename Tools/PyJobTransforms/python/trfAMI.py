@@ -1,3 +1,9 @@
+from future.utils import iteritems
+from future.utils import listitems
+from builtins import zip
+
+from builtins import object
+from builtins import range
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfAMI
@@ -25,7 +31,7 @@ AMIerrorCode=trfExit.nameToCode('TRF_AMI_ERROR')
 
 
 ## @brief Stores the configuration of a transform 
-class TrfConfig:
+class TrfConfig(object):
     def __init__(self):
         self.name=None
         self.release=None
@@ -41,7 +47,7 @@ class TrfConfig:
         theDict=self.inFiles.copy()
         theDict.update(self.outFiles)
         theDict.update(self.physics)
-        for (k,v) in theDict.iteritems():
+        for (k,v) in iteritems(theDict):
             yield k,v
 
     def __str__(self):
@@ -68,7 +74,7 @@ class TrfConfig:
 
     def _argsToString(self, adict):
         string=''
-        for (k,v) in adict.iteritems():
+        for (k,v) in iteritems(adict):
             if self.newTransform:
                 if not k.startswith('--'):
                     k = "--"+k
@@ -79,11 +85,11 @@ class TrfConfig:
                     # Should be a substep argument
                     if 'Exec' in k: # preExec, postExec
                         string += " " + k
-                        for vk, vv in v.iteritems():
+                        for vk, vv in iteritems(v):
                             string += " " + _parseExecDict(vk, vv)
                     elif 'Include' in k: # preInclude, postInclude
                         string += " " + k
-                        for vk, vv in v.iteritems():
+                        for vk, vv in iteritems(v):
                             string += " " + _parseIncludeDict(vk, vv)
                     else:
                         # Misc substep string/number argument...?
@@ -93,7 +99,7 @@ class TrfConfig:
                         else:
                             separator=':'
                         string += " " + k
-                        for vk, vv in v.iteritems():
+                        for vk, vv in iteritems(v):
                             string += " " + vk + separator + vv
                 elif isinstance(v, (list, tuple)):
                     # athenaopts are special - space separated
@@ -153,7 +159,7 @@ def isNewAMITag(tag):
         'x' : 302,
     }
 
-    if tag[0] in newTagDict.keys():
+    if tag[0] in newTagDict:
         if int(tag[1:]) > newTagDict[tag[0]]:
             msg.debug('it is a new tag')
             return True
@@ -163,7 +169,7 @@ def isNewAMITag(tag):
 
 
 ## @brief Stores the information about a given tag.
-class TagInfo:
+class TagInfo(object):
     def __init__(self, tag, suppressNonJobOptions = True):
         self._tag=tag
         self._isNewTag = isNewAMITag(tag)
@@ -332,7 +338,7 @@ def getTrfConfigFromPANDA(tag):
 
         physics = dict( (k, ReadablePANDA(v) ) for (k,v) in zip(keys, values))
         # Hack to correct trigger keys being stored with spaces in panda  
-        for k, v in physics.iteritems():
+        for k, v in iteritems(physics):
             if 'triggerConfig' in k or 'triggerConfigByRun' in k:
                 if ' ' in v:
                     physics[k] = v.replace(' ', ',')
@@ -347,7 +353,7 @@ def getTrfConfigFromPANDA(tag):
             msg.debug("Removed extraParamater=%s from arguments." % val)
 
         msg.debug("Checking for input/output file arguments...")
-        for arg in physics.keys():
+        for arg in list(physics):
             if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                 value=physics.pop(arg)
                 msg.debug("Found input file argument %s=%s." % (arg,value) ) 
@@ -360,7 +366,7 @@ def getTrfConfigFromPANDA(tag):
                 trf.outFiles[arg]=getOutputFileName(fmt)
 
         msg.debug("Checking for not set arguments...")
-        for arg,value in physics.items():
+        for arg,value in listitems(physics):
             if value=="NONE" or value=="none" or value==["NONE"]:
                 val=physics.pop(arg)
                 msg.debug("Removed %s=%s from arguments." % (arg, val) )
@@ -421,14 +427,14 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
     try:
 #        import pyAMI.atlas.api
         import pyAMI.exception
-    except ImportError, e:
+    except ImportError as e:
         raise TransformAMIException(AMIerrorCode, 'Import of pyAMI modules failed ({0})'.format(e))
         
     try:
         amiclient=getAMIClient()
 #        result = pyAMI.atlas.api.get_ami_tag(amiclient, tag)
         result = get_ami_tag(amiclient, tag, suppressNonJobOptions)
-    except pyAMI.exception.Error, e:
+    except pyAMI.exception.Error as e:
         msg.warning('An exception occured when connecting to primary AMI: {0}'.format(e))
         msg.debug('Exception: {0}'.format(e))
         if 'please login' in e.message or 'certificate expired' in e.message:
@@ -442,7 +448,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             amiclient.config.endpoint = 'atlas-replica'
 #            result = pyAMI.atlas.api.get_ami_tag(amiclient, tag)
             result = get_ami_tag(amiclient, tag, suppressNonJobOptions)
-        except pyAMI.exception.Error, e:
+        except pyAMI.exception.Error as e:
             msg.error('An exception occured when connecting to the AMI replica catalog: {0}'.format(e))
             raise TransformAMIException(AMIerrorCode, 'Getting tag info from AMI failed (tried both primary and replica). '
                                         'See logfile for exception details.')
@@ -454,11 +460,11 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
         trf.outputs=result[0].get('outputs', {})
         trf.release = result[0]['SWReleaseCache'].replace('_', ',')
 
-        if 'phconfig' in result[0].keys():
+        if 'phconfig' in result[0]:
             trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
         else:
             physics = {}
-            for k, v in result[0].iteritems():
+            for k, v in iteritems(result[0]):
                 if 'Exec' in k:
                     execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
@@ -473,11 +479,11 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             msg.debug('%s' % dumps(physics, indent = 4))
 
             if suppressNonJobOptions:
-                for k in physics.keys():
+                for k in list(physics):
                     if k in ['productionStep', 'transformation', 'SWReleaseCache']:
                         physics.pop(k)
 
-            for k, v in physics.iteritems():
+            for k, v in iteritems(physics):
                 if 'triggerConfig' in k or 'triggerConfigByRun' in k:
                     if ' ' in v:
                         physics[k] = v.replace(' ', ',')
@@ -489,7 +495,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                 msg.debug("Removed extraParamater=%s from arguments." % val)
 
             msg.debug("Checking for input/output file arguments...")
-            for arg in physics.keys():
+            for arg in list(physics):
                 if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                     value = physics.pop(arg)
                     msg.debug("Found input file argument %s=%s." % (arg, value))
@@ -502,7 +508,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     trf.outFiles[arg] = getOutputFileName(fmt)
 
             msg.debug("Checking for not set arguments...")
-            for arg, value in physics.items():
+            for arg, value in listitems(physics):
                 if value == "NONE" or value == "none" or value == ["NONE"]:
                     val = physics.pop(arg)
                     msg.debug("Removed %s=%s from arguments." % (arg, val))
@@ -513,18 +519,18 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             raise TransformAMIException(AMIerrorCode, "Bad result for tag's phconfig: {0}".format(trf.physics))
 
         if trf.inFiles == {}:
-            if 'inputs' in result[0].keys():
+            if 'inputs' in result[0]:
                 trf.inFiles=deserialiseFromAMIString(result[0]['inputs'])
-                for inFileType, inFileName in trf.inFiles.iteritems():
+                for inFileType, inFileName in iteritems(trf.inFiles):
                     # Not all AMI tags actually have a working filename, so fallback to trfDefaultFiles
                     # if necessary
                     if inFileName == '' or inFileName =={} or inFileName == [] or inFileName == '{}':
                         trf.inFiles[inFileType] = getInputFileName(inFileType, tag)
 
-        if 'outputs' in result[0].keys():
+        if 'outputs' in result[0]:
             outputs=deserialiseFromAMIString(result[0]['outputs'])
-            trf.outFiles=dict( (k, getOutputFileName(k.lstrip('output').rstrip('File')) ) for k in outputs.iterkeys() )
-            trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
+            trf.outFiles=dict( (k, getOutputFileName(k.lstrip('output').rstrip('File')) ) for k in outputs )
+            trf.outfmts=[ outputs[k]['dstype'] for k in outputs ]
     except KeyError as e:
         raise TransformAMIException(AMIerrorCode, "Missing key in AMI data: {0}".format(e))
     except Exception as e:
@@ -546,11 +552,11 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
 def deserialiseFromAMIString(amistring):
     try:
         result = json.loads(amistring)
-    except ValueError, e_json:
+    except ValueError as e_json:
         msg.debug("Failed to decode {0} as JSON: {1}".format(amistring, e_json))
         try:
             result = ast.literal_eval(amistring)
-        except SyntaxError, e_ast:
+        except SyntaxError as e_ast:
             errMsg = "Failed to deserialise AMI string '{0}' using JSON or eval".format(amistring)
             msg.error(errMsg)
             raise TransformAMIException(AMIerrorCode, errMsg)

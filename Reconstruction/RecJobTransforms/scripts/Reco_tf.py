@@ -77,7 +77,7 @@ def getTransform(RAWtoALL=False):
         simStepSet = set()
         addDigitizationSubstep(simStepSet)
         trf.appendToExecutorSet(list(simStepSet)[0])
-    except ImportError, e:
+    except ImportError as e:
         msg.warning('Failed to import digitisation arguments ({0}). Digitisation substep will not be available.'.format(e))
         
     # Again, protect core functionality from too tight a dependence on EventOverlay
@@ -87,7 +87,7 @@ def getTransform(RAWtoALL=False):
         addOverlayTrfArgs(trf.parser)
         addOverlayPoolTrfArgs(trf.parser)
         appendOverlay_PoolSubstep(trf, True)
-    except ImportError, e:
+    except ImportError as e:
         msg.warning('Failed to import overlay arguments ({0}). Event overlay substep will not be available.'.format(e))
     
     # Again, protect core functionality from too tight a dependence on PATJobTransforms

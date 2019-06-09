@@ -7,6 +7,8 @@
 #  @author graeme.andrew.stewart@cern.ch
 #  @version $Id: test_trfValidation.py 763940 2016-07-24 13:46:01Z uworlika $
 
+from __future__ import print_function
+from builtins import range
 import unittest
 
 import logging
@@ -506,27 +508,27 @@ class athenaLogFileReportTests(unittest.TestCase):
 16:32:39 IOVDbSvc                                             INFO Total payload read from COOL: 456 bytes in ((    7.89 ))s'''
 
         with open('file1', 'w') as f1:
-            print >> f1, 'This is test file 1 w/o meaning'
+            print('This is test file 1 w/o meaning', file=f1)
         with open('file2', 'w') as f2:
-            print >> f2, testLogExcerpt
+            print(testLogExcerpt, file=f2)
         with open('file3', 'w') as f3:
-            print >> f3, testLogExcerpt
-            print >> f3, testErrorExcerpt
+            print(testLogExcerpt, file=f3)
+            print(testErrorExcerpt, file=f3)
         with open('file4', 'w') as f4:
-            print >> f4, testBadAlloc
+            print(testBadAlloc, file=f4)
         with open('file5', 'w') as f5:
-            print >> f5, testSuppressExcerpt
+            print(testSuppressExcerpt, file=f5)
         with open('file6', 'w') as f6:
-            print >> f6, testCoreDumpCurAlg
+            print(testCoreDumpCurAlg, file=f6)
         with open('file7', 'w') as f7:
-            print >> f7, testCoreDumpNoCurAlg
+            print(testCoreDumpNoCurAlg, file=f7)
         with open('file8', 'w') as f8:
-            print >> f8, testMissedBadAlloc
+            print(testMissedBadAlloc, file=f8)
         with open('file9', 'w') as f9:
-            print >> f9, testDbMonitor
+            print(testDbMonitor, file=f9)
         with open('file10', 'w') as f10:
-            print >> f10, testLogExcerptMP
-            print >> f10, testErrorExcerptMP
+            print(testLogExcerptMP, file=f10)
+            print(testErrorExcerptMP, file=f10)
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -580,7 +582,7 @@ ERROR, but returned a StatusCode "SUCCESS"'''
 
         logFileName = 'logWithSubstepNameSerial'
         with open(logFileName, 'w') as logFile:
-            print >> logFile, testLogERRORwithSubstepNameSerial
+            print(testLogERRORwithSubstepNameSerial, file=logFile)
 
         logFileReportSerial = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
         expectedError = dict(level='ERROR', nLevel=logging.ERROR,
@@ -600,7 +602,7 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
 
         logFileName = 'logWithSubstepNameMP'
         with open(logFileName, 'w') as logFile:
-            print >> logFile, testLogERRORwithSubstepNameMP
+            print(testLogERRORwithSubstepNameMP, file=logFile)
 
         logFileReportMP = athenaLogFileReport(logfile=logFileName, substepName='RAWtoALL')
         expectedError = dict(level='ERROR', nLevel=logging.ERROR,
@@ -617,7 +619,7 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
                                                                           'message': 'terminate after \'std::bad_alloc\'.'}})
 
     def test_suppress(self):
-        print self.myFileReport5
+        print(self.myFileReport5)
         self.assertEqual(self.myFileReport5._levelCounter['ERROR'], 100)
         self.assertEqual(len(self.myFileReport5._errorDetails['ERROR']), 10)
         pass
@@ -631,7 +633,7 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
                                                                           'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown'}})
 
     def test_dbMonitor(self):
-        print self.myFileReport9 
+        print(self.myFileReport9) 
         self.assertEqual(self.myFileReport9.dbMonitor(), {'bytes': 579, 'time': 12.45})
         self.assertEqual(self.myFileReport8.dbMonitor(), None)
 
