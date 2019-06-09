@@ -1,3 +1,10 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import object
+from future.utils import iteritems
+
+from builtins import int
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #######################################################################################################
@@ -28,7 +35,7 @@ class ListOfSelectors(UniqueList):
 		# check that all entries are strings
 		for v in value:
 			valType = type(v).__name__
-			if valType != 'MixingSelector':
+			if not isinstance(v, MixingSelector):
 				raise JobConfigError("Entry %r in %s is not a MixingSelector (but an %s)" % \
 						     (v,variableName,valType) )					
 		return value
@@ -42,13 +49,13 @@ class FloatList(Descriptor):
 	def _checkType(self,variableName,value):
 		"""Check that <value> is a list or tuple, and make the tuple a list."""
 		valType = type(value).__name__
-		if valType  != 'list' and valType != 'tuple':
+		if not isinstance(value, list) and not isinstance(value, tuple):
 			raise JobConfigError('%s should be a list or tuple. Got %s instead.' & (variableName, valType))
-		if valType == 'tuple':
+		if isinstance(value, tuple):
 			value = list(value)
 		for v in value:
 			valType = type(v).__name__
-			if valType != 'float':
+			if not isinstance(v, float):
 				raise JobConfigError("Entry %r in %s is not a float (but an %s)" %  (v,variableName,valType) )
 		return value
 
@@ -64,7 +71,7 @@ class FloatList(Descriptor):
 		newAllowed=[]
 		if not allowedValues:
 			return newAllowed
-		if type(allowedValues[0]).__name__ == 'int' and allowedValues[0] >= 0:
+		if isinstance(allowedValues[0], int) and allowedValues[0] >= 0:
 			newAllowed += [ allowedValues[0] ]
 		return newAllowed
 				 
@@ -121,7 +128,7 @@ if not 'mixStreamConfig' in dir():
 # ...StreamAlg.SampleWeights   = m.ListOfSampleWeights()
 ############################################
 				
-class MixingPartitioner:
+class MixingPartitioner(object):
 	""" This collects input files to add to the stager, and generates python to configure EventMixer and your optional MCRunNumber-based event weighting service. """	
 	def __init__(self):
 		self.__ThisPartition = -1     
@@ -140,14 +147,14 @@ class MixingPartitioner:
 			
 		self.__ThisPartition = thisPartition		
 		if self.__ThisPartition < 0 :
-			print "*** MixingPartitioner: WARNING you requested an invalid partition number: setting to 0. *** "
+			print("*** MixingPartitioner: WARNING you requested an invalid partition number: setting to 0. *** ")
 			self.__ThisPartition = 0;		
 		else:
 			if self.__ThisPartition >= (self.__NumPartitions - 1):
-				print "*** MixingPartitioner: WARNING you requested an invalid (big) partition number: setting to", self.__NumPartitions - 1, ". *** "
+				print("*** MixingPartitioner: WARNING you requested an invalid (big) partition number: setting to", self.__NumPartitions - 1, ". *** ")
 				self.__ThisPartition = self.__NumPartitions - 1;
 			else:
-				print "*** MixingPartitioner: INFO you requested partition number", self.__ThisPartition
+				print("*** MixingPartitioner: INFO you requested partition number", self.__ThisPartition)
 		self.__ThisScaleFactor = mixStreamConfig.ThisLuminosityFraction(self.__ThisPartition)      #the job config knows partitioning
 		self.__ScaleFactorSum  = mixStreamConfig.FinishedLuminosityFraction(self.__ThisPartition)  #the job config knows partitioning
 		
@@ -180,21 +187,21 @@ class MixingPartitioner:
 	def SoFar(self):
 		return self.__ScaleFactorSum + self.PerSFOnow() * (self.__ThisPartition % mixStreamConfig.NumberOfSFO)
 	def ConfigureSelectors(self):		
-		print "*** MixingPartitioner: INFO Partition ", self.__ThisPartition, " has a LB beginning after ", self.__ScaleFactorSum, "% of the input has been processed."
-		print "*** MixingPartitioner: INFO Partition ", self.__ThisPartition, " has a LB reading ", self.__ThisScaleFactor * 100, "% of the input. "
+		print("*** MixingPartitioner: INFO Partition ", self.__ThisPartition, " has a LB beginning after ", self.__ScaleFactorSum, "% of the input has been processed.")
+		print("*** MixingPartitioner: INFO Partition ", self.__ThisPartition, " has a LB reading ", self.__ThisScaleFactor * 100, "% of the input. ")
 		totalLumi = 1
-		print ":::::::::: STREAMING JOB CONFIGURATION: LHC INSTANTANEOUS LUMINOSITY= %f x 10^%i cm^-2 s^-1" % (self.ScaleFactor(), 31)
+		print(":::::::::: STREAMING JOB CONFIGURATION: LHC INSTANTANEOUS LUMINOSITY= %f x 10^%i cm^-2 s^-1" % (self.ScaleFactor(), 31))
 		soFar = self.SoFar()
 		perSFOnow = self.PerSFOnow()
 		for ksample in self.__Selectors:
 			sel = self.__Selectors[ksample]						
 			if not sel.isSufficient():                   # prescale weighting is a TASK-GLOBAL! Read more, don't scale more.
-				print "*** MixingPartitioner: WARNING not enough events for %s -- (%s) will be weighted." % \
-				      (sel.name(), ','.join([str(ali) for ali in sel.Equivalents()]) )
+				print("*** MixingPartitioner: WARNING not enough events for %s -- (%s) will be weighted." % \
+				      (sel.name(), ','.join([str(ali) for ali in sel.Equivalents()]) ))
 				for aliasedID in sel.Equivalents():
 					self.__DatasetsToWeight[ aliasedID ] = sel.weight()					
-			print "*** MixingPartitioner: INFO \t%s FirstFile=%s EvOffset=%i NeV=%f" % \
-			      (sel.name(), sel.firstFileIndex(soFar), sel.firstEventInFile(soFar), sel.totalEventsThisJob(perSFOnow))
+			print("*** MixingPartitioner: INFO \t%s FirstFile=%s EvOffset=%i NeV=%f" % \
+			      (sel.name(), sel.firstFileIndex(soFar), sel.firstEventInFile(soFar), sel.totalEventsThisJob(perSFOnow)))
 
 	def preStageInputFiles(self,CastorOrDCache = 'Castor'):
 		from PyJobTransformsCore.FilePreStager import theFileStagerRobot		
@@ -205,12 +212,12 @@ class MixingPartitioner:
 		fileList = self.ListOfFilesToStage()
 		# NOTE THAT FILES THAT DON'T START WITH PNFS OR DCACHE WILL NOT BE CHECKED.
 		filesNeedingAction = theFileStagerRobot.addFilesToStagerIfNeeded( fileList )
-		print "This job muust stage %i files" % len(filesNeedingAction)
-		for f in filesNeedingAction: print f
+		print("This job muust stage %i files" % len(filesNeedingAction))
+		for f in filesNeedingAction: print(f)
 		filesNotStaged = theFileStagerRobot.waitUntilAllFilesStaged()
 		if filesNotStaged:
 			problemFiles = ''
-			for filename,status in filesNotStaged.items():
+			for filename,status in iteritems(filesNotStaged):
 				problemFiles += os.linesep + "%s:%s" % (filename,status)
 			raise IOError("Could not stage following files from tape:%s" % problemFiles )
 	

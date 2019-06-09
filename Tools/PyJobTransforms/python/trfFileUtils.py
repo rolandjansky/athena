@@ -1,3 +1,5 @@
+
+from builtins import range
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileUtils
@@ -45,7 +47,7 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
         for key in retrieveKeys:
             msg.debug('Looking for key {0}'.format(key))
             try:
-                if key is 'G4Version':
+                if key == 'G4Version':
                     msg.debug('Searching for G4Version in metadata')
                     try: 
                         metaDict[filename][key] = meta['metadata']['/Simulation/Parameters']['G4Version']
@@ -88,7 +90,7 @@ def HISTEntries(fileName):
         
         name=key.GetName()
         
-        if name.startswith('run_') and name is not 'run_multiple':
+        if name.startswith('run_') and name != 'run_multiple':
             
             if rundir is not None:
                 msg.warning('Found two run_ directories in HIST file %s: %s and %s' % ( fileName, rundir, name) )
@@ -134,7 +136,7 @@ def HISTEntries(fileName):
         nBinsX = h.GetNbinsX()
         nevLoc = 0
         
-        for i in xrange(1, nBinsX):
+        for i in range(1, nBinsX):
             
             if h[i] < 0:
                 msg.warning( 'Negative number of events for step %s in HIST file %s.' %( h.GetXaxis().GetBinLabel(i), fileName ) )

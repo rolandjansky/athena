@@ -1,3 +1,7 @@
+from past.builtins import basestring
+
+from builtins import zip
+from builtins import range
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileUtils
@@ -40,7 +44,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
     AthFile.server.flush_cache()
     AthFile.server.disable_pers_cache()
 
-    if isinstance(fileNames, str):
+    if isinstance(fileNames, basestring):
         fileNames = [fileNames,]
 
     metaDict = {}
@@ -63,7 +67,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
                 msg.debug('Looking for key {0}'.format(key))
                 try:
                     # AODFix is tricky... it is absent in many files, but this is not an error
-                    if key is 'AODFixVersion':
+                    if key == 'AODFixVersion':
                         if 'tag_info' in meta.infos and isinstance('tag_info', dict) and 'AODFixVersion' in meta.infos['tag_info']:
                             metaDict[fname][key] = meta.infos['tag_info'][key]
                         else:
@@ -72,15 +76,15 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
                     # So we use the same scheme as AutoConfiguration does, mapping project names to known values
                     # It would be nice to import this all from AutoConfiguration, but there is no suitable method at the moment.
                     # N.B. This is under discussion so this code is temporary fix (Captain's Log, Stardate 2012-11-28) 
-                    elif key is 'beam_type':
+                    elif key == 'beam_type':
                         try:
                             if isinstance(meta.infos[key], list) and len(meta.infos[key]) > 0 and meta.infos[key][0] in ('cosmics' ,'singlebeam','collisions'):
                                 metaDict[fname][key] = meta.infos[key]
                             else:
                                 from RecExConfig.AutoConfiguration import KnownCosmicsProjects, Known1BeamProjects, KnownCollisionsProjects, KnownHeavyIonProjects
-                                if 'bs_metadata' in meta.infos.keys() and isinstance(meta.infos['bs_metadata'], dict) and 'Project' in meta.infos['bs_metadata'].keys():
+                                if 'bs_metadata' in meta.infos and isinstance(meta.infos['bs_metadata'], dict) and 'Project' in meta.infos['bs_metadata']:
                                     project = meta.infos['bs_metadata']['Project']
-                                elif 'tag_info' in meta.infos.keys() and isinstance(meta.infos['tag_info'], dict) and 'project_name' in meta.infos['tag_info'].keys():
+                                elif 'tag_info' in meta.infos and isinstance(meta.infos['tag_info'], dict) and 'project_name' in meta.infos['tag_info']:
                                     project = meta.infos['tag_info']['project_name']
                                 else:
                                     msg.info('AthFile beam_type was not a known value ({0}) and no project could be found for this file'.format(meta.infos[key]))
@@ -98,16 +102,16 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
                                 # Erm, so we don't know
                                 msg.info('AthFile beam_type was not a known value ({0}) and the file\'s project ({1}) did not map to a known beam type using AutoConfiguration'.format(meta.infos[key], project))
                                 metaDict[fname][key] = meta.infos[key]
-                        except Exception, e:
+                        except Exception as e:
                             msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
                             metaDict[fname][key] = meta.infos[key]
                     else:
                         metaDict[fname][key] = meta.infos[key]
                 except KeyError:
                     msg.warning('Missing key in athFile info: {0}'.format(key))
-            msg.debug('Found these metadata for {0}: {1}'.format(fname, metaDict[fname].keys()))
+            msg.debug('Found these metadata for {0}: {1}'.format(fname, list(metaDict[fname])))
         return metaDict
-    except ValueError, e:
+    except ValueError as e:
         msg.error('Problem in getting AthFile metadata for {0}'.format(fileNames))
         return None
 
@@ -140,7 +144,7 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
             msg.debug('Looking for key {0}'.format(key))
             try:
                 # AODFix is tricky... it is absent in many files, but this is not an error
-                if key is 'AODFixVersion':
+                if key == 'AODFixVersion':
                     if 'tag_info' in meta and isinstance('tag_info', dict) and 'AODFixVersion' in meta['tag_info']:
                         metaDict[filename][key] = meta['tag_info'][key]
                     else:
@@ -149,15 +153,15 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                 # So we use the same scheme as AutoConfiguration does, mapping project names to known values
                 # It would be nice to import this all from AutoConfiguration, but there is no suitable method at the moment.
                 # N.B. This is under discussion so this code is temporary fix (Captain's Log, Stardate 2012.11.28) 
-                elif key is 'beam_type':
+                elif key == 'beam_type':
                     try:
                         if isinstance(meta[key], list) and len(meta[key]) > 0 and meta[key][0] in ('cosmics' ,'singlebeam','collisions'):
                             metaDict[filename][key] = meta[key]
                         else:
                             from RecExConfig.AutoConfiguration import KnownCosmicsProjects, Known1BeamProjects, KnownCollisionsProjects, KnownHeavyIonProjects
-                            if 'bs_metadata' in meta.keys() and isinstance(meta['bs_metadata'], dict) and 'Project' in meta['bs_metadata'].keys():
+                            if 'bs_metadata' in meta and isinstance(meta['bs_metadata'], dict) and 'Project' in meta['bs_metadata']:
                                 project = meta['bs_metadata']['Project']
-                            elif 'tag_info' in meta.keys() and isinstance(meta['tag_info'], dict) and 'project_name' in meta['tag_info'].keys():
+                            elif 'tag_info' in meta and isinstance(meta['tag_info'], dict) and 'project_name' in meta['tag_info']:
                                 project = meta['tag_info']['project_name']
                             else:
                                 msg.info('AthFile beam_type was not a known value ({0}) and no project could be found for this file'.format(meta[key]))
@@ -175,10 +179,10 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                             # Erm, so we don't know
                             msg.info('AthFile beam_type was not a known value ({0}) and the file\'s project ({1}) did not map to a known beam type using AutoConfiguration'.format(meta[key], project))
                             metaDict[filename][key] = meta[key]
-                    except Exception, e:
+                    except Exception as e:
                         msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
                         metaDict[filename][key] = meta[key]
-                elif key is 'G4Version':
+                elif key == 'G4Version':
                     msg.debug('Searching for G4Version in metadata')
                     try: 
                         metaDict[filename][key] = meta['metadata']['/Simulation/Parameters']['G4Version']
@@ -221,7 +225,7 @@ def HISTEntries(fileName):
         
         name=key.GetName()
         
-        if name.startswith('run_') and name is not 'run_multiple':
+        if name.startswith('run_') and name != 'run_multiple':
             
             if rundir is not None:
                 msg.warning('Found two run_ directories in HIST file %s: %s and %s' % ( fileName, rundir, name) )
@@ -267,7 +271,7 @@ def HISTEntries(fileName):
         nBinsX = h.GetNbinsX()
         nevLoc = 0
         
-        for i in xrange(1, nBinsX):
+        for i in range(1, nBinsX):
             
             if h[i] < 0:
                 msg.warning( 'Negative number of events for step %s in HIST file %s.' %( h.GetXaxis().GetBinLabel(i), fileName ) )

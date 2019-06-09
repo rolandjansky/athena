@@ -44,9 +44,9 @@ class SimTTBar_tftest(unittest.TestCase):
             dataDict = pyJobReportToFileDict(md)
             # Change in SimuJobTransforms, but be compatible with type = hits and HITS
             dataKey = None
-            if 'hits' in dataDict.keys():
+            if 'hits' in dataDict:
                 dataKey = 'hits'
-            elif 'HITS' in dataDict.keys():
+            elif 'HITS' in dataDict:
                 dataKey = 'HITS'
             self.assertNotEqual(dataKey, None)
             self.assertEqual(dataDict[dataKey]['subFiles'][0]['nentries'], 2) 

@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def downloadUsingProxy(url, filename=None):
@@ -24,8 +26,8 @@ def downloadUsingProxy(url, filename=None):
             del os.environ['http_proxy']
         cmd = "wget --waitretry=5 --tries=3 --connect-timeout=20 --read-timeout=120 -O %s %s" % (filename, url)
         msg += "Trying to retrieve '%s' using proxy '%s' via: %s\n" % (url, proxy, cmd)
-        import commands
-        status, output = commands.getstatusoutput(cmd)
+        import subprocess
+        status, output = subprocess.getstatusoutput(cmd)
         if status == 0:
             msg += "Downloaded %s using proxy '%s'\n" % (url, proxy)
             break

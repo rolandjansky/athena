@@ -1,3 +1,5 @@
+from future.utils import iteritems
+
 ####################################################################
 #
 # Skeleton top job options for RDO->RDOprime (RDO with trigger done)

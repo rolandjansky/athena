@@ -7,7 +7,7 @@ from RecExConfig.RecoFunctions import AddValidItemToList
 def SetupOutputDPDs(runArgs,flagContainerList):
     DPDMakerScripts=[]
     for flagContainer in flagContainerList:
-        for flagName in flagContainer.__dict__.keys():
+        for flagName in flagContainer.__dict__:
             flag=getattr(flagContainer,flagName)
             if hasattr(flag,"StreamName"):
                 dpdName=flag.StreamName.lstrip("Stream")

@@ -8,6 +8,9 @@
 #  @version $Id: test_trfArgClasses.py 770616 2016-08-29 14:17:19Z uworlika $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import unittest
 
 import logging
@@ -391,8 +394,8 @@ class argConditionsTests(unittest.TestCase):
                 return [{'globalTag': 'TEST'}]
         def getFakeClient():
             return client
-        amiClient = argSubstepConditions.value.fset.func_globals['getAMIClient']
-        argSubstepConditions.value.fset.func_globals['getAMIClient'] = getFakeClient()
+        amiClient = argSubstepConditions.value.fset.__globals__['getAMIClient']
+        argSubstepConditions.value.fset.__globals__['getAMIClient'] = getFakeClient()
         return amiClient
         
     def test_condStr(self):
@@ -419,7 +422,7 @@ class argConditionsTests(unittest.TestCase):
         self.assertEqual(cond2.value, {'one': 'apples', 'two': 'bananas'})
         self.tear_down(client)
     def tear_down(self, client):
-        argSubstepConditions.value.fset.func_globals['getAMIClient'] = client
+        argSubstepConditions.value.fset.__globals__['getAMIClient'] = client
         
 
 
@@ -427,19 +430,19 @@ class argFileTests(unittest.TestCase):
     def setUp(self):
         # In python 2.7 support for multiple 'with' expressions becomes available
         with open('file1', 'w') as f1:
-            print >>f1, 'This is test file 1'
+            print('This is test file 1', file=f1)
         with open('file2', 'w') as f2:
-            print >>f2, 'Short file 2'
+            print('Short file 2', file=f2)
         with open('file3', 'w') as f3:
-            print >>f3, 80*'-', 'Long file 3', 80*'-'
+            print(80*'-', 'Long file 3', 80*'-', file=f3)
         with open('file4', 'w') as f4:
-            print >>f4, 'Short file number 4'
+            print('Short file number 4', file=f4)
         with open('prefix.prodsysfile._001.suffix.1', 'w') as f1:
-            print >>f1, 'This is prodsys test file 1'
+            print('This is prodsys test file 1', file=f1)
         with open('prefix.prodsysfile._002.suffix.4', 'w') as f2:
-            print >>f2, 'Short prodsys file 2'
+            print('Short prodsys file 2', file=f2)
         with open('prefix.prodsysfile._003.suffix.7', 'w') as f3:
-            print >>f3, 80*'-', 'Long prodsys file 3', 80*'-'
+            print(80*'-', 'Long prodsys file 3', 80*'-', file=f3)
             
         self.mySingleFile = argFile(['file1'], io='output')
         self.myMultiFile = argFile(['file1', 'file2', 'file3'], io='input')

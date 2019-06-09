@@ -36,7 +36,7 @@ class Reco_tftest(unittest.TestCase):
         with open('jobReport.json') as jr:
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
-            self.assertTrue('resource' in md.keys())
+            self.assertTrue('resource' in md)
             self.assertEqual(md['resource']['executor']['AODtoTAG']['nevents'], 2)
             self.assertEqual(md['resource']['executor']['ESDtoAOD']['nevents'], 2)
             self.assertEqual(md['resource']['executor']['RAWtoESD']['nevents'], 2)
