@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,14 +7,13 @@
  *
  * @brief Declaration of LArDetectorToolNV class
  *
- * $Id: LArDetectorToolNV.h,v 1.8 2009-05-13 15:47:48 tsulaia Exp $
  */
 
 #ifndef LARGEOALGSNV_LARDETECTORTOOLNV_H
 #define LARGEOALGSNV_LARDETECTORTOOLNV_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "IOVSvc/IOVSvc.h"
+#include "AthenaKernel/IOVSvcDefs.h"
 
 class LArDetectorManager;
 class StoreGateSvc;
