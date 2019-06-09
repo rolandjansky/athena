@@ -87,7 +87,6 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
 
   //get RoI descriptor
   auto roiDescriptor = input.roi;
-
   float roIEta = roiDescriptor->eta();
   float roIPhi = roiDescriptor->phi();
 
