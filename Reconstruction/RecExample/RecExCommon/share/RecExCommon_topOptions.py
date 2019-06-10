@@ -468,7 +468,8 @@ topSequence+=EventCounter(Frequency=100)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+if( not globalflags.InputFormat.is_bytestream() and \
+        ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     condSeq+=xAODMaker__EventInfoCnvAlg()
