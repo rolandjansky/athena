@@ -13,11 +13,11 @@
 #include "AthenaKernel/AthStatusCode.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
 // Gaudi includes
-#include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/IAlgManager.h"
@@ -638,10 +638,10 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
                         "Failed to retrieve EventInfo",
                         hltonl::PSCErrorCode::NO_EVENT_INFO, *eventContext);
 
-      ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo->event_ID());
+      ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo);
 
       // Set EventID for the EventContext
-      eventContext->setEventID(*eventInfo->event_ID());
+      eventContext->setEventID(eventIDFromxAOD(eventInfo.cptr()));
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);
@@ -897,13 +897,13 @@ void HltEventLoopMgr::updateDetMask(const std::pair<uint64_t, uint64_t>& dm)
 {
   m_detector_mask = std::make_tuple(
                       // least significant 4 bytes
-                      static_cast<EventID::number_type>(dm.second),
+                      static_cast<EventIDBase::number_type>(dm.second),
                       // next least significant 4 bytes
-                      static_cast<EventID::number_type>(dm.second >> 32),
+                      static_cast<EventIDBase::number_type>(dm.second >> 32),
                       // next least significant 4 bytes
-                      static_cast<EventID::number_type>(dm.first),
+                      static_cast<EventIDBase::number_type>(dm.first),
                       // most significant 4 bytes
-                      static_cast<EventID::number_type>(dm.first >> 32)
+                      static_cast<EventIDBase::number_type>(dm.first >> 32)
                     );
 }
 
