@@ -828,7 +828,7 @@ namespace Muon {
     if(!outoftimeVec.empty()) holeVec.insert(holeVec.end(),outoftimeVec.begin(),outoftimeVec.end());
     MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), holeVec );
 
-    TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
+    const TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
 
     if( dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
       if( !dcslFitter->fit( segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
