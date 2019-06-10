@@ -16,6 +16,9 @@ def TileCablingSvcCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    acc.merge( TileGMCfg(flags) )
+
     from TileConditions.TileConditionsConf import TileCablingSvc
     tileCablingSvc = TileCablingSvc()
 
