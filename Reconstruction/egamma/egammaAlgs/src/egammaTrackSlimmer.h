@@ -66,6 +66,13 @@ class egammaTrackSlimmer : public AthAlgorithm
       "",
       "Name of the Vertex container to thin"};
 
+  /** @brief GSF Track Particle container to thin */
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey {this,
+      "InDetTrackParticleContainerName", 
+      "",
+      "Name of the Track Particle container to thin"};
+
+
   /** @brief Bool to decide if we actually do the Thinning */
   Gaudi::Property<bool> m_doThinning{this, "doThinning", true, "Bool to do Thinning"};
 
