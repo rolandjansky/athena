@@ -12,7 +12,7 @@ def PFCfg(inputFlags,**kwargs):
     result.addService(StoreGateSvc("DetectorStore"))
     
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.mergeAll(GeoModelCfg(inputFlags))
+    result.merge(GeoModelCfg(inputFlags))
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
@@ -69,8 +69,12 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.eflowRecConf import PFTrackSelector
     PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
     from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-    TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
+    TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
