@@ -55,9 +55,10 @@ StatusCode
 TypelessWriteHandle::typelessPut (std::unique_ptr<DataObject> data) const
 {
   IProxyDict* store = nullptr;
+  const void* dataPtr = data.get();
   const void* ptr = put_impl (nullptr, // ctx
                               std::move (data),
-                              data.get(), // dataPtr
+                              dataPtr, // dataPtr
                               false,   // allowMods
                               false,   // returnExisting,
                               store);
