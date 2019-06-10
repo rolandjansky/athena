@@ -45,6 +45,19 @@ class WriteDAOD_MINIStream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MINIStream)
 listAODtoDPD.append(WriteDAOD_MINIStream.StreamName)
 
+class WriteDAOD_PHYSStream(JobProperty):
+    """ DAOD_PHYS - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYS"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PHYS.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSStream)
+listAODtoDPD.append(WriteDAOD_PHYSStream.StreamName)
+
 class WriteDAOD_NANOStream(JobProperty):
     """ DAOD_NANO - prototype format for Run 3 """
     statusOn     = True
