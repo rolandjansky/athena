@@ -35,7 +35,6 @@ void SimpleView::linkParent( const IProxyDict* parent ) {
  */
 SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t /*sgkey*/ ) const
 {
-  std::runtime_error( "Not implemented: SimpleView::proxy_exact" );
   return nullptr;
 }
 
@@ -233,18 +232,15 @@ std::string SimpleView::dump( const std::string& indent ) const {
   // Dump parent views
   if ( m_parents.size() ) ret += indent + "Parents:\n";
   for ( auto p : m_parents ) {
-    auto parent = dynamic_cast<const SG::View*>( p );
-    if ( parent ) {
-      ret += parent->dump( indent + "  " );
-    }
+    ret += p->dump( indent + "  " );
   }
 
   // Fallthrough
   if ( indent == "" ) {
     if ( m_allowFallThrough ) {
-      ret += indent + "May access main store: " + m_store->name() + "\n";
+      ret += indent + "May access main store: " + m_store->name();
     } else {
-      ret += indent + "May not access main store\n";
+      ret += indent + "May not access main store";
     }
   }
   return ret;
