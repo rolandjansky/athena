@@ -43,7 +43,6 @@ def createFastCaloSequence(rerun=False):
 
 
    clusterMaker.ClustersName=clustersKey
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    
    #from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
