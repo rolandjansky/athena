@@ -31,6 +31,7 @@
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
+#include "JetUncertainties/LargeRTopologyUncertaintyComponent.h"
 
 // xAOD includes
 #include "xAODCore/ShallowCopy.h"
@@ -1132,6 +1133,27 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
 
             // Done, return the component
             return cmuc;
+        }
+        // Next check large-R topology
+        else if (component.name.Contains("Large",TString::kIgnoreCase) && component.name.Contains("Topology",TString::kIgnoreCase))
+        {
+            if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
+            {
+                if (component.FatjetTruthLabels.size() > 0)
+                {
+                    return new LargeRTopologyUncertaintyComponent(component);
+                }
+                else
+                {
+                    ATH_MSG_ERROR(Form("No FatjetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
+                    return NULL;
+                }
+            }
+            else
+            {
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
+            }
         }
         else
         {

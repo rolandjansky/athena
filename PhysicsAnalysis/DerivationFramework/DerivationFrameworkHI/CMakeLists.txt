@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/HeavyIonPhys/HIEventUtils
-                          InnerDetector/InDetRecToolsInDetTrackSelectionTool
+                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           Event/xAOD/xAODTracking
                           PRIVATE
                           Event/xAOD/xAODEventInfo

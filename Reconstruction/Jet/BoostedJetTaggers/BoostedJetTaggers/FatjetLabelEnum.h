@@ -52,6 +52,26 @@ namespace FatjetTruthLabel
     
     return UNKNOWN;
   }
+  inline TypeEnum stringToEnum(const TString& name)
+  {
+    if (name.EqualTo("tqqb",TString::kIgnoreCase))
+        return tqqb;
+    if (name.EqualTo("Wqq",TString::kIgnoreCase))
+        return Wqq;
+    if (name.EqualTo("Zqq",TString::kIgnoreCase))
+        return Zqq;
+    if (name.EqualTo("Wqq_From_t",TString::kIgnoreCase))
+        return Wqq_From_t;
+    if (name.EqualTo("other_From_t",TString::kIgnoreCase))
+        return other_From_t;
+    if (name.EqualTo("other_From_V",TString::kIgnoreCase))
+        return other_From_V;
+    if (name.EqualTo("notruth",TString::kIgnoreCase))
+        return notruth;
+    if (name.EqualTo("qcd",TString::kIgnoreCase))
+        return qcd;
+    return UNKNOWN;
+  }
 }
 
 

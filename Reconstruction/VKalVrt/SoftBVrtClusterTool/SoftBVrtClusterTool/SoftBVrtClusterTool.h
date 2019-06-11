@@ -26,7 +26,8 @@ namespace SoftBVrt {
     virtual StatusCode finalize() override;
 
   private:
-    const std::string m_VX_COUNT_KEY = "BTaggingNumberOfPrimaryVertices";
+    const std::string m_VX_COUNT_KEY = "BTaggingNumberOfPrimaryVertices";    
+    std::string m_SVFinderName;
     std::string m_jetCollectionName;
     std::string m_trackjetCollectionName;
     std::string m_operatingPoint;

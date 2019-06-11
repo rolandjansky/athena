@@ -102,7 +102,8 @@ HIClusterVars=["HIClusters.eta0",
                "HIClusters.rawPhi",
                "HIClusters.rawM",
                "HIClusters.HIEtaPhiWeight",
-               "HIClusters.HISubtractedE"]
+               "HIClusters.HISubtractedE",
+               "HIClusters.HIMag"]
 #               "HIClusters.e_sampl",
 #               "HIClusters.time"]
 
@@ -296,6 +297,10 @@ pp17TriggerDict_HP_HION7.update({'HLT_mu4_j40_dr05': 40 ,'HLT_mu4_j50_dr05': 50 
 pp17TriggerDict_HP_HION9 = {'HLT_j85': 150, 'HLT_j100_L1J20': 150, 'HLT_j110_a10_lcw_subjes_L1J30': 150}
 pp17TriggerDict_MB = {'HLT_mb_sptrk': 20}
 
+#2017 XeXe
+HI17TriggerDict_MB = {'HLT_noalg_mb_L1TE4': 20, 'HLT_noalg_mb_L1TE5': 20, 'HLT_mb_sptrk_VTE4': 20, 'HLT_mb_sptrk_VTE5': 20}
+
+
 def GetTriggers(project_tag, isMB, deriv):    
     switcher_HP_HION7 = {
         'data15_hi': HI15TriggerDict_HP_HION7,
@@ -320,6 +325,7 @@ def GetTriggers(project_tag, isMB, deriv):
         'data15_5TeV': pp15TriggerDict_MB,
         'data18_hi': HI18TriggerDict_MB,
         'data17_5TeV': pp17TriggerDict_MB,
+        'data17_hi': HI17TriggerDict_MB,
     }
     
     if isMB: return switcher_MB.get(project_tag, "Invalid project tag")

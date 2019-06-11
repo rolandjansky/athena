@@ -92,6 +92,11 @@ def GetConditionsFromMetaData() :
           print 'WARNING: Can not change locked project tag to pp' 
         HIDerivationFlags.isPP = True
         print "Dataset Type: pp 2017"   
+      elif project_tag=='data17_hi':
+        if HIDerivationFlags.isPP.is_locked() and HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to HI'  
+        HIDerivationFlags.isPP = False
+        print "Dataset Type: HeavyIon 2018"
       elif project_tag=='data18_hi':
         if HIDerivationFlags.isPP.is_locked() and HIDerivationFlags.isPP :
           print 'WARNING: Can not change locked project tag to HI'  
@@ -129,4 +134,4 @@ def IsHIMC(project_tag="") :
 	if 'hi' in project_tag : return True # =>  test for the key word in project tag (some validation samples)
 	if not rec.doHIP and isMC : return True #=> HIJING
 	return False     
-    
+   
