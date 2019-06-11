@@ -31,7 +31,8 @@ class TileFragHash  {
   /** initialize */
   enum TYPE {Beam=255, Default=0, Digitizer=0,
              OptFilterDsp=1, OptFilterOffline=2, OptFilterDspCompressed=3,
-             ManyAmps=4, MF=5, FitFilter=6, FitFilterCool=7, FlatFilter=8 };
+             ManyAmps=4, MF=5, FitFilter=6, FitFilterCool=7, FlatFilter=8,
+             WienerFilterOffline=9 };
 
   void initialize(const TileHWID * tileHWID, TYPE type=Default ); 
 

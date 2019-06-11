@@ -466,6 +466,9 @@ if not 'doTileMF' in dir():
 if not 'doTileOF1' in dir():
     doTileOF1 = False
 
+if not 'doTileWiener' in dir():
+    doTileWiener = False
+
 if not 'doTileFit' in dir():
     doTileFit = not TileCompareMode and ReadDigits
 
@@ -511,7 +514,7 @@ if not 'OfcFromCOOL' in dir():
     else:
         OfcFromCOOL = False
 
-if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
+if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileWiener or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
     TileUseCOOL = True
     TileUseCOOLOFC = not ReadPool or OfcFromCOOL
 
@@ -843,6 +846,12 @@ else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence+=xAODMaker__EventInfoCnvAlg()
 
+#============================================================
+#=== configure BunchCrossingTool
+#============================================================
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
+
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
@@ -940,6 +949,19 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderOF1    
+
+if doTileWiener:
+    if PhaseFromCOOL:
+        ToolSvc.TileRawChannelBuilderWienerFilter.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+        ToolSvc.TileRawChannelBuilderWienerFilter.correctTime = False # do not need to correct time with best phase
+
+    ToolSvc.TileRawChannelBuilderWienerFilter.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
+    if TileCompareMode or TileEmulateDSP:
+        ToolSvc.TileRawChannelBuilderWienerFilter.EmulateDSP = True # use dsp emulation
+    ToolSvc.TileRawChannelBuilderWienerFilter.UseDSPCorrection = not TileBiGainRun
+    ToolSvc.TileRawChannelBuilderWienerFilter.MC = globalflags.DataSource() != "data"
+
+    print ToolSvc.TileRawChannelBuilderWienerFilter    
 
 if (doEventDisplay or doCreatePool):
     # create TileHit from TileRawChannel and store it in TileHitVec
@@ -1278,6 +1300,9 @@ if doTileMon:
             
         if doTileMF:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelMF"
+            
+        if doTileWiener:
+            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelWiener"
 
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
