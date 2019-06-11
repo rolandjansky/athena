@@ -9,6 +9,7 @@
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_ITK.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_TrkSeeded.h"
 #include "SiSpacePointsSeedTool_xk/RoISeedTool.h"
+#include "SiSpacePointsSeedTool_xk/ZWindowSeedTool.h"
 
 using namespace InDet;
 
@@ -21,6 +22,7 @@ DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_Trigger    )
 DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_ITK        )
 DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_TrkSeeded  )
 DECLARE_TOOL_FACTORY( RoISeedTool                       )
+DECLARE_TOOL_FACTORY( ZWindowSeedTool                   )
 
 DECLARE_FACTORY_ENTRIES( SiSpacePointsSeedTool_xk )
 {
@@ -33,6 +35,7 @@ DECLARE_FACTORY_ENTRIES( SiSpacePointsSeedTool_xk )
 	DECLARE_TOOL( SiSpacePointsSeedMaker_ITK        )
         DECLARE_TOOL( SiSpacePointsSeedMaker_TrkSeeded  )
         DECLARE_TOOL( RoISeedTool                       )
+        DECLARE_TOOL( ZWindowSeedTool                   )
 }
 
 
