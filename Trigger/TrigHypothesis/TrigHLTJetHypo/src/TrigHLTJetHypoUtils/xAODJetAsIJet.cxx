@@ -31,5 +31,9 @@ TLorentzVector xAODJetAsIJet::p4() const {return m_jet->p4();}
 unsigned int xAODJetAsIJet::position() const {return m_position;}
 
 bool xAODJetAsIJet::getAttribute(const std::string &name, float& val) const{
-  {return m_jet->getAttribute<float>(name, val);}
+  return m_jet->getAttribute<float>(name, val);
+}
+
+std::optional<const xAOD::Jet*>  xAODJetAsIJet::xAODJet() const{
+  return std::make_optional<const xAOD::Jet*>(m_jet);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/../src//MaximumBipartiteGroupsMatcherMT.h"
@@ -7,6 +7,7 @@
 #include "TrigHLTJetHypo/../src/ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/../src/conditionsFactoryMT.h"
 #include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
+#include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
 #include "./MockJetWithLorentzVector.h"
@@ -78,8 +79,15 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   EXPECT_TRUE(true);
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   EXPECT_TRUE(true);
-  
-  auto pass = matcher.match(groups.begin(), groups.end(), visitor, false);
+
+  xAODJetCollector jetCollector;
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    visitor,
+			    false);
+
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -109,10 +117,18 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
     visitor.reset(new DebugInfoCollector("toofewselectedjets"));
   }
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
-  auto pass = matcher.match(groups.begin(), groups.end(), visitor);
+
+  xAODJetCollector jetCollector;
+
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    visitor);
+
   if(visitor){visitor->write();}
   EXPECT_TRUE(pass.has_value());
 
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -158,8 +174,14 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   auto groups_b = groups.begin();
   auto groups_e = groups.end();
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
-  auto pass = matcher.match(groups_b, groups_e, collector);
+
+  xAODJetCollector jetCollector;
+  
+  auto pass = matcher.match(groups_b, groups_e, jetCollector, collector);
+  
   if(m_debug){collector->write();}
+  
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -211,8 +233,12 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, twoSelectedJets){
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  auto pass = matcher.match(groups.begin(), groups.end(), visitor);
+  xAODJetCollector jetCollector;
 
+  auto pass =
+    matcher.match(groups.begin(), groups.end(), jetCollector, visitor);
+
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -264,8 +290,12 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
-  auto pass = matcher.match(groups.begin(), groups.end(), visitor);
+  xAODJetCollector jetCollector;
 
+  auto pass =
+    matcher.match(groups.begin(), groups.end(), jetCollector, visitor);
+
+  EXPECT_TRUE(jetCollector.empty());  // not xAOD jets
   EXPECT_TRUE(*pass);
 }
 
@@ -320,10 +350,17 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, fourSelectedJets){
     collector.reset(new DebugInfoCollector("fourSelectedJets"));
   }
 
-  auto pass = matcher.match(groups.begin(), groups.end(), collector, m_debug);
+  xAODJetCollector jetCollector;
+  
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector, m_debug);
+
 
   if(m_debug){collector->write();}
   
+  EXPECT_TRUE(jetCollector.empty());  // not xOAD jets
   EXPECT_TRUE(*pass);
 }
 
@@ -382,12 +419,22 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, overlappingEtaRegions){
 
   MaximumBipartiteGroupsMatcherMT matcher(conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+
+  xAODJetCollector jetCollector;
+
   if(m_debug){
     visitor.reset(new DebugInfoCollector("overlappingEtaRegions"));
   }
   
-  auto pass = matcher.match(groups.begin(), groups.end(), visitor);
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    visitor);
+  
   if(visitor){visitor -> write();}
+
+  EXPECT_TRUE(jetCollector.empty());  // not xAOD jets
   EXPECT_TRUE(*pass);
 }

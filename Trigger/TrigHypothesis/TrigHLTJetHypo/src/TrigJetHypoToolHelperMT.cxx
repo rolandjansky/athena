@@ -4,6 +4,7 @@
 
 #include "./TrigJetHypoToolHelperMT.h"
 #include "./ITrigJetHypoInfoCollector.h"
+#include "./xAODJetCollector.h"
 #include "./groupsMatcherFactoryMT.h"
 #include "./JetTrigTimer.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
@@ -46,6 +47,7 @@ TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
 
 bool
 TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
+			      xAODJetCollector& jetCollector,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
 
@@ -70,7 +72,10 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
   }
 
   auto jetGroups = m_grouper->group(begin, end);
-  auto pass = m_matcher->match(jetGroups.begin(), jetGroups.end(), collector);
+  auto pass = m_matcher->match(jetGroups.begin(),
+			       jetGroups.end(),
+			       jetCollector,
+			       collector);
   
   timer.stop();
 

@@ -18,6 +18,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
 #include "./DebugInfoCollector.h"
+#include "./xAODJetCollector.h"
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -82,8 +83,9 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
     infocollector.reset(new  DebugInfoCollector(collectorName));
   } 
 
+  xAODJetCollector jetCollector;
   try{
-    pass = m_helper->pass(hypoJets, infocollector);
+    pass = m_helper->pass(hypoJets, jetCollector, infocollector);
   } catch(std::exception& e){
     ATH_MSG_ERROR("Exception raised by the TrigJetHypoToolHelperMT: " 
                   << e.what());

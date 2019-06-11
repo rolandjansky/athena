@@ -22,6 +22,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include <set>
 
+class xAODJetCollector;
 
 class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 
@@ -38,6 +39,7 @@ public:
   virtual std::optional<bool>
     match(const HypoJetGroupCIter&,
 	  const HypoJetGroupCIter&,
+	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 	  bool debug) const override;
   

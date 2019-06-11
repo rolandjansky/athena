@@ -37,6 +37,7 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    src/SelectedJetsMatcherTest.cxx
    src/TLorentzVectorFactoryTest.cxx
    src/TightCleanerTest.cxx
+   src/xAODJetCollectorTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
    TrigHLTJetHypoLib )

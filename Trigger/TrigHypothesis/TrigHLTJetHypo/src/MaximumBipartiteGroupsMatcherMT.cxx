@@ -16,6 +16,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FordFulkerson.h"
 #include "./ITrigJetHypoInfoCollector.h"
+#include "./xAODJetCollector.h"
 #include "./MultijetFlowNetworkBuilder.h"
 
 #include <cmath>
@@ -32,6 +33,7 @@ MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(const Condition
 std::optional<bool>
 MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
                                        const HypoJetGroupCIter& groups_e,
+				       xAODJetCollector& jetCollector,
                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
                                        bool) const {
   /* setup a FlowNetwork. 
@@ -118,6 +120,8 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
                  iter,
                  std::back_inserter(passing_jets),
                  [&nodeToJet](const auto& edge){return nodeToJet[edge->from()];});
+
+  jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
 	       
   
   return std::make_optional<bool>(pass);

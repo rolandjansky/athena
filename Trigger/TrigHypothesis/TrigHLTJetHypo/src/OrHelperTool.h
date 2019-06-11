@@ -18,6 +18,8 @@
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
+class xAODJetCollector;
+
 class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
  public:
@@ -27,6 +29,7 @@ class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                const IInterface* parent);
   
   bool pass(HypoJetVector&,
+	    xAODJetCollector&, 
 	    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;

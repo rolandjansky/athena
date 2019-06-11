@@ -24,6 +24,7 @@
 #include <optional>
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class MaximumBipartiteGroupsMatcherMT:
 virtual public IGroupsMatcherMT {
@@ -41,6 +42,7 @@ public:
   // cannot match if internal problem (eg FlowNetwork error)
   std::optional<bool> match(const HypoJetGroupCIter&,
 			    const HypoJetGroupCIter&,
+			    xAODJetCollector&,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 			    bool debug=false) const override;
   std::string toString() const noexcept override;
