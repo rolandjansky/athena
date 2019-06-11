@@ -1056,13 +1056,14 @@ if rec.doFileMetaData():
 ###=== Only run reco on events that pass selected triggers
 ##--------------------------------------------------------
 if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
+    logRecExCommon_topOptions.info('Setting up trigger filtering')
     try:
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
-        seq+=topSequence.RoIBResultToAOD
+        seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
 
@@ -1070,9 +1071,9 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq += TriggerSelectorAlg('TriggerAlg1')
         seq.TriggerAlg1.TriggerSelection = rec.triggerFilterList()
         pass
-    except:
+    except Exception, e:
+        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: ' + `e`)
         pass
-    pass
 ##--------------------------------------------------------
 
 
