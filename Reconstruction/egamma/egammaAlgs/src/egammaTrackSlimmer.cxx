@@ -209,9 +209,9 @@ StatusCode egammaTrackSlimmer::execute() {
   }
   //Do the Thinning
   ATH_MSG_DEBUG("Do the Thinning");
-  CHECK( m_thinningSvc->filter( *trackPC,  keptTrackParticles ) );
-  CHECK( m_thinningSvc->filter( *vertices, keptVertices ) );
-  CHECK( m_thinningSvc->filter( *indetTrackPC, keptInDetTrackParticles ) );
+  CHECK( m_thinningSvc->filter( *trackPC, keptTrackParticles, IThinningSvc::Operator::Or));
+  CHECK( m_thinningSvc->filter( *vertices, keptVertices, IThinningSvc::Operator::Or ) );
+  CHECK( m_thinningSvc->filter( *indetTrackPC, keptInDetTrackParticles, IThinningSvc::Operator::Or ) );
   ATH_MSG_DEBUG("completed successfully");
   
   //Return Gracefully
