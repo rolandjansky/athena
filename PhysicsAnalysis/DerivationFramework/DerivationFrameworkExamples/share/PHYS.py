@@ -36,6 +36,9 @@ trigger_names = []
 for item in trig_el,trig_mu,trig_g:
    for triggers in item.keys(): trigger_names += item.keys()     
 
+# Remove duplicates
+trigger_names = list(dict.fromkeys(trigger_names))
+
 # Create trigger matching decorations
 PHYS_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSTriggerMatchingTool",
                                                  trigger_list = trigger_names)
@@ -144,7 +147,6 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
 #                                    ]
 
 # Trigger content
-PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
 PHYSSlimmingHelper.IncludeJetTriggerContent = False
 PHYSSlimmingHelper.IncludeMuonTriggerContent = False
 PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
@@ -188,6 +190,9 @@ PHYSSlimmingHelper.AllVariables = ["MET_Truth",
                                    "TruthWbosonWithDecayVertices"]
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
+
+# Add trigger matching
+PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
