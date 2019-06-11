@@ -9,9 +9,9 @@ tool->initialize();
 
 Most of them are common to all tools, while a few are more specific. 
 
-## InputFiles [string] (all tools)
+## InputFiles [vector<string>] (all tools)
 
-Comma-separated list of ROOT and/or XML files containing the efficiencies and their uncertainties. The contents of these files must follow the formats described respectively in [this section](import_root.md) and [that one](import_xml.md). 
+List of ROOT and/or XML files containing the efficiencies and their uncertainties. The contents of these files must follow the formats described respectively in [this section](import_root.md) and [that one](import_xml.md). 
 
 ## Selection [string] (all tools)
 
