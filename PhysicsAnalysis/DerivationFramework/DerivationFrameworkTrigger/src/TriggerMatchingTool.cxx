@@ -61,6 +61,11 @@ namespace DerivationFramework {
   StatusCode TriggerMatchingTool::initialize()
   {
     ATH_MSG_INFO( "Initializing " << name() );
+
+    // Remove any duplicates from the list of chain names
+    std::sort(m_chainNames.begin(), m_chainNames.end() );
+    m_chainNames.erase(std::unique(m_chainNames.begin(), m_chainNames.end() ), m_chainNames.end() );
+
     ATH_CHECK( m_trigParticleTool.retrieve() );
     return StatusCode::SUCCESS;
   }
