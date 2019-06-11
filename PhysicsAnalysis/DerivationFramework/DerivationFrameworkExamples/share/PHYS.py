@@ -147,16 +147,16 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
 #                                    ]
 
 # Trigger content
-PHYSSlimmingHelper.IncludeJetTriggerContent = False
-PHYSSlimmingHelper.IncludeMuonTriggerContent = False
-PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
-PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
-PHYSSlimmingHelper.IncludeJetTriggerContent = False
-PHYSSlimmingHelper.IncludeTauTriggerContent = False
-PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
-PHYSSlimmingHelper.IncludeBJetTriggerContent = False
-PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
-PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
+PHYSSlimmingHelper.IncludeJetTriggerContent = True
+PHYSSlimmingHelper.IncludeMuonTriggerContent = True
+PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
+PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+PHYSSlimmingHelper.IncludeJetTriggerContent = True
+PHYSSlimmingHelper.IncludeTauTriggerContent = True
+PHYSSlimmingHelper.IncludeEtMissTriggerContent = True
+PHYSSlimmingHelper.IncludeBJetTriggerContent = True
+PHYSSlimmingHelper.IncludeBPhysTriggerContent = True
+PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 addJetOutputs(PHYSSlimmingHelper,["PHYS"])
