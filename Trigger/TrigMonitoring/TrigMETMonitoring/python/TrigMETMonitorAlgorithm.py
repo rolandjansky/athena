@@ -7,7 +7,7 @@
 '''
 
 
-def TrigMETMonitoringConfig(inputFlags):
+def TrigMETMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     ### STEP 1 ###
