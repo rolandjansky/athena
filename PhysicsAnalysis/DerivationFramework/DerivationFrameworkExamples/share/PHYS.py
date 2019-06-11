@@ -16,6 +16,29 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import *
+from TriggerMenu.api.TriggerAPI import TriggerAPI
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+
+
+#====================================================================
+# TRIGGER CONTENT   
+#====================================================================
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+# Get single and multi mu, e, photon triggers
+# Jet, tau, multi-object triggers not available in the matching code
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.el,livefraction=0.9)
+trig_mu = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.mu,livefraction=0.9)
+trig_g  = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.g, livefraction=0.9)
+
+trigger_names = []
+for item in trig_el,trig_mu,trig_g:
+   for triggers in item.keys(): trigger_names += item.keys()     
+
+# Create trigger matching decorations
+PHYS_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSTriggerMatchingTool",
+                                                 trigger_list = trigger_names)
 
 #====================================================================
 # SET UP STREAM   
@@ -53,14 +76,13 @@ ToolSvc += PHYSTrackParticleThinningTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool])
-
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool],
+                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 #====================================================================
 # JET/MET   
 #====================================================================
 
 OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
@@ -82,7 +104,6 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=True)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
-
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
@@ -123,16 +144,17 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
 #                                    ]
 
 # Trigger content
-PHYSSlimmingHelper.IncludeJetTriggerContent = True
-PHYSSlimmingHelper.IncludeMuonTriggerContent = True
-PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
-PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-PHYSSlimmingHelper.IncludeJetTriggerContent = True
-PHYSSlimmingHelper.IncludeTauTriggerContent = True
-PHYSSlimmingHelper.IncludeEtMissTriggerContent = True
-PHYSSlimmingHelper.IncludeBJetTriggerContent = True
-PHYSSlimmingHelper.IncludeBPhysTriggerContent = True
-PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
+PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
+PHYSSlimmingHelper.IncludeJetTriggerContent = False
+PHYSSlimmingHelper.IncludeMuonTriggerContent = False
+PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
+PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
+PHYSSlimmingHelper.IncludeJetTriggerContent = False
+PHYSSlimmingHelper.IncludeTauTriggerContent = False
+PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
+PHYSSlimmingHelper.IncludeBJetTriggerContent = False
+PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
+PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 addJetOutputs(PHYSSlimmingHelper,["PHYS"])
