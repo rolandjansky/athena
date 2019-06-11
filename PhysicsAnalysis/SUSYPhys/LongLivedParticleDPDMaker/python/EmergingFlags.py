@@ -10,6 +10,7 @@ primRPVLLDESDM = jobproperties.PrimaryDPDFlags_RPVLLStream
 ## TriggerAPI ##
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
+from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
 
 class Emerging_FilterFlags(JobProperty):
     statusOn     = True
@@ -26,7 +27,7 @@ class Emerging_FilterFlags(JobProperty):
                     "HLT_4j140",
                     "HLT_4j150"
                     ]
-    if apitriggers.doTriggerAPI:
+    if rpvllTrig.doRPVLLTriggerAPI:
         Triggers    += apitriggers.getEmergingTriggers() ## TriggerAPI
 primRPVLLDESDM.add_JobProperty(Emerging_FilterFlags)
 

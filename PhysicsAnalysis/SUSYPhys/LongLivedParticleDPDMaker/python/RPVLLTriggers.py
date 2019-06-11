@@ -1,6 +1,11 @@
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
+
+import AthenaCommon.SystemOfUnits as Units
+
 
 # general function to get current menu unprescaled triggers for given trigger type
 #def getTriggerList( trigger_type, matching_pattern="", rejection_pattern="", test=[] ):
@@ -155,5 +160,19 @@ class RPVLLTriggers:
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
 
-    # on / off switch
-    doTriggerAPI = True
+
+    
+# Flags to turn RPVLL TriggerAPI implementation on/off
+class RPVLLTriggerAPIFlags(JobPropertyContainer):
+    """ RPV/LL TriggerAPI flag container """
+
+jobproperties.add_Container(RPVLLTriggerAPIFlags)
+
+rpvllTrig=jobproperties.RPVLLTriggerAPIFlags
+
+class doRPVLLTriggerAPI(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+rpvllTrig.add_JobProperty(doRPVLLTriggerAPI)
