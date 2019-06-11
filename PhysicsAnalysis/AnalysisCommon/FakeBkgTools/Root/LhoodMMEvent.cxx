@@ -50,7 +50,7 @@ LhoodMMEvent::LhoodMMEvent(const LhoodMMEvent& mmevt) {
 }
 
 float LhoodMMEvent::realEff(unsigned ilep,  BaseFakeBkgTool* tool) const {
-  if (ilep <= m_nlep) {
+  if (ilep < m_nlep) {
     if (tool == nullptr) {
       return m_realEff[ilep].nominal;
     } else {
@@ -63,7 +63,7 @@ float LhoodMMEvent::realEff(unsigned ilep,  BaseFakeBkgTool* tool) const {
 }
 
 float LhoodMMEvent::fakeEff(unsigned ilep, BaseFakeBkgTool* tool) const {
-  if (ilep <= m_nlep) {
+  if (ilep < m_nlep) {
     if (tool == nullptr) {
       return m_fakeEff[ilep].nominal;
     } else {
