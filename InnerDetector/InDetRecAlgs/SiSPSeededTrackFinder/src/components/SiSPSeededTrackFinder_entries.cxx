@@ -5,15 +5,11 @@
 using namespace InDet;
 
 DECLARE_ALGORITHM_FACTORY( SiSPSeededTrackFinder )
+DECLARE_ALGORITHM_FACTORY( SiSPSeededTrackFinderRoI )
 
 DECLARE_FACTORY_ENTRIES( SiSPSeededTrackFinder )
 {
   DECLARE_ALGORITHM( SiSPSeededTrackFinder )
-}
-
-DECLARE_ALGORITHM_FACTORY( SiSPSeededTrackFinderRoI )
-
-DECLARE_FACTORY_ENTRIES( SiSPSeededTrackFinderRoI )
-{
   DECLARE_ALGORITHM( SiSPSeededTrackFinderRoI )
 }
+

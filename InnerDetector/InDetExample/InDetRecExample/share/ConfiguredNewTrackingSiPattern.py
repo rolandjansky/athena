@@ -57,8 +57,11 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_Cosmic as SiSpacePointsSeedMaker
          elif InDetFlags.doHeavyIon():
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_HeavyIon as SiSpacePointsSeedMaker
-         elif NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) :
+         elif NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "LowPtRoI" :
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
+            #from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
@@ -232,6 +235,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          elif NewTrackingCuts.mode() == "LowPtRoI":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
+           #InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
 
          elif NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryLowMomentum'           
@@ -273,6 +277,11 @@ class  ConfiguredNewTrackingSiPattern:
          #
 
          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
+         
+         #if NewTrackingCuts.mode() == "LowPtRoI" :
+         # from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinderRoI
+         #else:
+         # from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 
          if NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks":
 
@@ -287,7 +296,14 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useZBoundFinding = False)
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-         
+
+         elif NewTrackingCuts.mode() == "LowPtRoI" :
+          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinderRoI
+          InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinderRoI(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
+                                                                    TrackTool      = InDetSiTrackMaker,
+                                                                    TracksLocation = self.__SiTrackCollection,
+                                                                    SeedsTool      = InDetSiSpacePointsSeedMaker)
+
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
