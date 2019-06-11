@@ -32,8 +32,8 @@ InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
 
   //
   declareProperty("InputTracksCollection", m_input_tracks_collection );  
-  declareProperty("LeadingMinTrackPt", m_trk_leading_pt = 27.0); 
-  declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 20.0); 
+  declareProperty("LeadingMinTrackPt", m_trk_leading_pt = 27000.); 
+  declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 20000.); 
   declareProperty("TracksMaxEta", m_trk_eta_max = 2.5);
   declareProperty("TracksMaxD0", m_trk_d0_max = 9999.);
   declareProperty("MaxDeltaZTracksPair", m_max_delta_z = 1.0);
@@ -124,7 +124,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       float z0_trk_reference = trk->perigeeParameters()->associatedSurface().center().z();
       float z0_trk_leading_reference = trk_leading->perigeeParameters()->associatedSurface().center().z();
       RoI.z_reference = (z0 + z0_trk_reference + z0_leading + z0_trk_leading_reference) / 2;
-      RoI.z_window[0] = std::min(z0 + z0_trk_reference, z0_leading + z0_trk_leading_reference);
+      RoI.z_window[0] = std::min(z0 + z0_trk_reference, z0_leading + z0_trk_leading_reference);//declare window
       RoI.z_window[1] = std::max(z0 + z0_trk_reference, z0_leading + z0_trk_leading_reference);
       listRoIs.push_back(RoI);
     }
