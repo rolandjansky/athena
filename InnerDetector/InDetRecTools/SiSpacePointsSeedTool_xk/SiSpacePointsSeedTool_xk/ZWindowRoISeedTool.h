@@ -66,7 +66,7 @@ namespace InDet {
     
     /** @} */
 	
-    bool tracks_pt_less_than(const Trk::Track* const &track1, const Trk::Track* const &track2)
+    static bool tracks_pt_less_than(const Trk::Track* const &track1, const Trk::Track* const &track2)
       {
 	float theta1 = track1->perigeeParameters()->parameters()[Trk::theta];
 	float ptinv1 = fabs(track1->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta1);

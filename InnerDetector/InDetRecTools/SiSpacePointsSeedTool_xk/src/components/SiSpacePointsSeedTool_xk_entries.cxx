@@ -22,7 +22,7 @@ DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_Trigger    )
 DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_ITK        )
 DECLARE_TOOL_FACTORY( SiSpacePointsSeedMaker_TrkSeeded  )
 DECLARE_TOOL_FACTORY( RoISeedTool                       )
-DECLARE_TOOL_FACTORY( ZWindowSeedRoITool                )
+DECLARE_TOOL_FACTORY( ZWindowRoISeedTool                )
 
 DECLARE_FACTORY_ENTRIES( SiSpacePointsSeedTool_xk )
 {
