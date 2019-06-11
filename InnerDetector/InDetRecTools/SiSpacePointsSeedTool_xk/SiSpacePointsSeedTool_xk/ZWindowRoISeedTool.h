@@ -13,6 +13,7 @@
 
 #include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "TrkTrack/Track.h"
 
 class MsgStream;
 
@@ -65,19 +66,18 @@ namespace InDet {
     
     /** @} */
 	
-    bool tracks_pt_less_than(const Track* const &track1, const Track* const &track2)
+    bool tracks_pt_less_than(const Trk::Track* const &track1, const Trk::Track* const &track2)
       {
 	float theta1 = track1->perigeeParameters()->parameters()[Trk::theta];
-	float ptinv1 = fabs(track1->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);
+	float ptinv1 = fabs(track1->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta1);
 	float theta2 = track2->perigeeParameters()->parameters()[Trk::theta];
-	float ptinv2 = fabs(track2->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);
+	float ptinv2 = fabs(track2->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta2);
 	//return greater than of inverse 
 	return (ptinv1 > ptinv2);
       }
-    };
 
-  };
-}
+  }; // ZWindowRoISeedTool
+} //InDet namespace
 
 #endif // SiSpacePointsSeedMaker_ZWindowRoISeedTool
 

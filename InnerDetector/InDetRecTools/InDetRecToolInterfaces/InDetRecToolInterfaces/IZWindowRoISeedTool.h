@@ -28,15 +28,18 @@ namespace InDet
     class ZWindow {
     public:
       //* Lower and Upper z bound of the window */
-      float[2] z_window;
+      float z_window[2];
       //* Reference z-position (if any) */
       float z_reference;
 
       //* Constructor setting default values */
-    ZWindow() :      
-      z_reference(-999.) { z_window[0]=z_window[1]=-999.; }
+      ZWindow() { 
+	z_reference = -999.;
+	z_window[0]=z_window[1]=-999.; 
+      }
 
       ~ZWindow();
+    };
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:

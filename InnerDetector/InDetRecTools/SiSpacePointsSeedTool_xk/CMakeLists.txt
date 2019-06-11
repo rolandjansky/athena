@@ -17,9 +17,10 @@ atlas_depends_on_subdirs( PUBLIC
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkSpacePoint
+                          Tracking/TrkEvent/TrkSpacePoint			  
                           PRIVATE
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces 
+			  Tracking/TrkEvent/TrkTrack)
 
 # Component(s) in the package:
 atlas_add_component( SiSpacePointsSeedTool_xk
