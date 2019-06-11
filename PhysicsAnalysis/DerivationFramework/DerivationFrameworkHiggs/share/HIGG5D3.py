@@ -314,7 +314,8 @@ addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
 addVRJets(higg5d3Seq)
 addHbbTagger(higg5d3Seq, ToolSvc)
 # QGTaggerTool ###
-addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")
 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d3Seq)
 
@@ -350,6 +351,7 @@ HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
                                            "MET_Reference_AntiKt4EMTopo",
+                                           "MET_Reference_AntiKt4EMPFlow",
                                            "AntiKt4EMTopoJets",
                                            "AntiKt4EMPFlowJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
