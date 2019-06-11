@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.JetDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase

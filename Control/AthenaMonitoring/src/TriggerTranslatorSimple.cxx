@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
@@ -30,6 +30,6 @@ StatusCode TriggerTranslatorToolSimple::initialize() {
 }
 
 
-const std::vector<std::string> TriggerTranslatorToolSimple::translate(const std::string& key) {
+const std::vector<std::string> TriggerTranslatorToolSimple::translate(const std::string& key) const {
   return m_trigmap.at(key);
 }

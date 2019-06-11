@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragm
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
 
-from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
 from TrigUpgradeTest.InDetSetup import inDetSetup
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
@@ -22,9 +22,9 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 def electronFastCaloCfg( flags ):
     return fastCaloMenuSequence("ElectronFastCalo")
     
-def electronSequenceCfg( flags ):    
+def fastElectronSequenceCfg( flags ):    
     inDetSetup()
-    return electronMenuSequence()
+    return fastElectronMenuSequence()
 
 def precisionCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence()
@@ -73,7 +73,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
           chainStep =ChainStep(stepName, [fastCalo], self.mult)
         elif stepName == "Step2_etcut":
           log.debug("Configuring step " + stepName)
-          electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+          electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
           chainStep=ChainStep(stepName, [electronReco], self.mult)
         elif stepName == "Step3_etcut":
           log.debug("Configuring step " + stepName)

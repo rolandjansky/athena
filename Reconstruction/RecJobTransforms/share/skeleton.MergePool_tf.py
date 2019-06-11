@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for ESD/AOD/DPD merging
@@ -17,10 +18,10 @@ recoLog.info( '****************** STARTING POOL FILE MERGING *****************' 
 ## Input
 # Deal with generic case first of all
 if hasattr(runArgs, "inputPOOL_MRG_INPUTFile"):
-    if runArgs.inputPOOL_MRG_INPUTFileType is "AOD":
+    if runArgs.inputPOOL_MRG_INPUTFileType == "AOD":
         runArgs.inputAODFile = runArgs.inputPOOL_MRG_INPUTFile
         runArgs.outputAOD_MRGFile = runArgs.outputPOOL_MRG_OUTPUTFile
-    elif runArgs.inputPOOL_MRG_INPUTFileType is "ESD":
+    elif runArgs.inputPOOL_MRG_INPUTFileType == "ESD":
         runArgs.inputESDFile = runArgs.inputPOOL_MRG_INPUTFile
         runArgs.outputESD_MRGFile = runArgs.outputPOOL_MRG_OUTPUTFile
     else:
@@ -28,11 +29,11 @@ if hasattr(runArgs, "inputPOOL_MRG_INPUTFile"):
 
 # DAOD comes in many flavours, so automate transforming this into a "standard" AOD argument
 DAOD_Input_Key = [ k for k in dir(runArgs) if k.startswith("inputDAOD") and k.endswith("File") ]
-if len(DAOD_Input_Key) is 1:
+if len(DAOD_Input_Key) == 1:
     runArgs.inputAODFile = getattr(runArgs, DAOD_Input_Key[0])
 
 DAOD_Output_Key = [ k for k in dir(runArgs) if k.startswith("outputDAOD") and k.endswith("_MRGFile") ]
-if len(DAOD_Output_Key) is 1:
+if len(DAOD_Output_Key) == 1:
     runArgs.outputAOD_MRGFile = getattr(runArgs, DAOD_Output_Key[0])
         
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
@@ -77,16 +78,16 @@ if rec.doWriteAOD:
     if rec.readAOD(): 
         StreamAOD.ExtendProvenanceRecord = False
     else:
-        print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
+        print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 if rec.doWriteESD:
     if rec.readESD(): 
         StreamESD.ExtendProvenanceRecord = False
     else:
-        print "StreamESD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
+        print("StreamESD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 # Fast merge options
-if hasattr(runArgs,"fastPoolMerge") and runArgs.fastPoolMerge == True:
+if hasattr(runArgs,"fastPoolMerge") and runArgs.fastPoolMerge is True:
      recoLog.info("Using CopyEventStreamInfo")
      from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import CopyEventStreamInfo
      if rec.doWriteAOD: stream = StreamAOD

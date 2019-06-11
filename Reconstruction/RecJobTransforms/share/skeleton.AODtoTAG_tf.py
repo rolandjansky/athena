@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for AOD->TAG
@@ -71,7 +72,7 @@ if rec.doWriteAOD:
        try:
            StreamAOD.ExtendProvenanceRecord = False
        except:
-           print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
+           print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

@@ -468,7 +468,8 @@ topSequence+=EventCounter(Frequency=100)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+if( not globalflags.InputFormat.is_bytestream() and \
+        ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     condSeq+=xAODMaker__EventInfoCnvAlg()
@@ -688,17 +689,18 @@ AODFix_postCombinedRec()
 #
 # Heavy ion reconstruction  special configuration
 #
+pdr.flag_domain('HI')
 if rec.doHeavyIon():
     protectedInclude ("HIRecExample/HIRec_jobOptions.py")
 
 if rec.doHIP ():
     protectedInclude ("HIRecExample/HIPRec_jobOptions.py")
 
-
 if rec.doWriteBS() and not recAlgs.doTrigger():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
+pdr.flag_domain('tagraw')
 ## add in RawInfoSummaryForTagWriter
 if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
     try:
@@ -731,6 +733,7 @@ if recAlgs.doMonteCarloReact():
 # Monitoring Algorithms and Tools
 # ----------------------------------------------------------------------------
 
+pdr.flag_domain('monitoring')
 if rec.doMonitoring():
     protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
 

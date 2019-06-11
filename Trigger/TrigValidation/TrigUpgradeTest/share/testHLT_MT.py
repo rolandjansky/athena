@@ -39,12 +39,15 @@ class opt :
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
-    doBJetSlice       = True 
-    doTauSlice        = False
-    doComboSlice      = True
+    doBjetSlice       = True
+    doTauSlice        = True
+    doCombinedSlice   = True
     doBphysicsSlice   = True
+    enabledSignatures = []
+    disabledSignatures = []
 #
 ################################################################################
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')
@@ -73,12 +76,25 @@ if opt.doEmptyMenu == True:
             setattr(opt, s, globals()[s])
         else:
             setattr(opt, s, False)
-#else:
-#    for s in slices:
-#        setattr(opt, s, True)
-#    opt.doBJetSlice=False #Wait for ATR-19439
-#    opt.doTauSlice =False #Wait for ATR-17399
+else:
+    for s in slices:
+        setattr(opt, s, True)
+    opt.doBjetSlice=False #Wait for ATR-19439
+    opt.doTauSlice =False #Wait for ATR-17399
 
+# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
+# This is temporary and will be re-worked for after M3.5
+for s in slices:
+    signature = s[2:].replace('Slice', '')
+    if 'Electron' in s or 'Photon' in s:
+        signature = 'Egamma'
+
+    if eval('opt.'+s) == True:
+        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.enabledSignatures.append( enabledSig )
+    else:
+        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.disabledSignatures.append( disabledSig )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -86,7 +102,6 @@ if opt.doEmptyMenu == True:
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Auto-configuration for athena

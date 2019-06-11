@@ -1,3 +1,13 @@
+from __future__ import print_function
+from future.utils import iteritems
+
+from past.builtins import basestring
+from builtins import object
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfUtils
@@ -28,6 +38,7 @@ from PyJobTransforms.trfExitCodes import trfExit
 import PyJobTransforms.trfExceptions as trfExceptions
 
 import logging
+from functools import reduce
 msg = logging.getLogger(__name__)
 
 
@@ -67,7 +78,7 @@ def getAncestry(listMyOrphans = False):
         p = Popen(psCmd, stdout=PIPE, stderr=PIPE)
         stdout = p.communicate()[0]
         psPID = p.pid
-    except OSError, e:
+    except OSError as e:
         msg.error('Failed to execute "ps" to get process ancestry: %s' % repr(e))
         raise
     
@@ -108,7 +119,7 @@ def getAncestry(listMyOrphans = False):
 #  @return @c children List of child PIDs 
 def listChildren(psTree = None, parent = os.getpid(), listOrphans = False):
     '''Take a psTree dictionary and list all children'''
-    if psTree == None:
+    if psTree is None:
         psTree = getAncestry(listMyOrphans = listOrphans)
     
     msg.debug("List children of %d (%s)" % (parent, psTree.get(parent, [])))
@@ -159,7 +170,7 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
         if line:
             line="%s%s" % (message, line.rstrip())
             if logger is None:
-                print line
+                print(line)
             else:
                 logger.log(loglevel, line)
 
@@ -168,7 +179,7 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
         while line:
             line="%s%s" % (message, line.strip())
             if logger is None:
-                print line
+                print(line)
             else:
                 logger.log(loglevel, line)
             line=p.stdout.readline()
@@ -238,7 +249,7 @@ def asetupReport():
             cmd = ['lstags']
             lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
             setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.split("\n") ])
-        except (CalledProcessError, OSError), e:
+        except (CalledProcessError, OSError) as e:
             setupMsg += 'Execution of lstags failed: {0}'.format(e)
     else:
         setupMsg+= "No readable patch area found"
@@ -287,7 +298,7 @@ def releaseIsOlderThan(major, minor=None):
             return False
         return True
 
-    except Exception, e:
+    except Exception as e:
         msg.warning('Exception thrown when attempting to detect athena version ({0}). No release check possible'.format(e))
     return False
 
@@ -311,7 +322,7 @@ def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     f = open(filename, 'r')
     for line in f:
         linecounter += 1
-        if substepName and isinstance(substepName, str):    # Remove substepName only if caller provides that string.
+        if substepName and isinstance(substepName, basestring):    # Remove substepName only if caller provides that string.
             line = line.lstrip(substepName)
         if removeTimestamp:
             line = line.lstrip('0123456789:-, ')            # Remove timestamps in both serial and MP mode.
@@ -377,7 +388,7 @@ def isodate():
 #   None is still allowed as this is the default for "unset" in
 #   some cases. 
 def forceToAlphaNum(string):
-    if string == None or string.isalnum():
+    if string is None or string.isalnum():
         return string
     newstring = ''
     for piece in string:
@@ -399,26 +410,26 @@ def forceToAlphaNum(string):
 #  @return True if metadata is the same, otherwise False
 def cmpMetadata(metadata1, metadata2, guidCheck = 'valid'):
     # First check we have the same files
-    allFiles = set(metadata1.keys()) | set(metadata2.keys())
-    if len(allFiles) > len(metadata1.keys()) or len(allFiles) > len(metadata2.keys()):
+    allFiles = set(metadata1) | set(metadata2)
+    if len(allFiles) > len(metadata1) or len(allFiles) > len(metadata2):
         msg.warning('In metadata comparison file lists are not equal - fails ({0} != {1}'.format(metadata1, metadata2))
         return False
     for fname in allFiles:
-        allKeys = set(metadata1[fname].keys()) | set(metadata2[fname].keys())
-        if len(allKeys) > len(metadata1[fname].keys()) or len(allFiles) > len(metadata2[fname].keys()):
+        allKeys = set(metadata1[fname]) | set(metadata2[fname])
+        if len(allKeys) > len(metadata1[fname]) or len(allFiles) > len(metadata2[fname]):
             msg.warning('In metadata comparison key lists are not equal - fails')
             return False
         for key in allKeys:
-            if key is 'file_guid':
-                if guidCheck is 'ignore':
+            if key == 'file_guid':
+                if guidCheck == 'ignore':
                     continue
-                elif guidCheck is 'equal':
+                elif guidCheck == 'equal':
                     if metadata1[fname]['file_guid'].upper() == metadata2[fname]['file_guid'].upper():
                         continue
                     else:
                         msg.warning('In metadata comparison strict GUID comparison failed.')
                         return False
-                elif guidCheck is 'valid':
+                elif guidCheck == 'valid':
                     try:
                         uuid.UUID(metadata1[fname]['file_guid'])
                         uuid.UUID(metadata2[fname]['file_guid'])
@@ -439,7 +450,7 @@ def unpackTarFile(filename, directory="."):
         tar = tarfile.open(filename)
         tar.extractall(path=directory)
         tar.close()
-    except Exception, e:
+    except Exception as e:
         errMsg = 'Error encountered while unpacking {0} to {1}: {2}'.format(filename, directory, e)
         msg.error(errMsg)
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_SETUP'), errMsg)
@@ -454,9 +465,9 @@ def unpackTarFile(filename, directory="."):
 #  @throws trfExceptions.TransformSetupException If the DBRelease tarball is unreadable or the version is not understood
 #  @return Two element tuple: (@c True if release was unpacked or @c False if release was already unpacked, dbsetup path)
 def unpackDBRelease(tarball, dbversion=None):
-    if dbversion == None:
+    if dbversion is None:
         dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', path.basename(tarball))
-        if dbdMatch == None:
+        if dbdMatch is None:
             raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                         'Could not find a valid version in the DBRelease tarball: {0}'.format(tarball))
         dbversion = dbdMatch.group(1)
@@ -488,11 +499,11 @@ def setupDBRelease(setup):
         setupObj = Setup(dbdir)
         sys.path = opath
         msg.debug('DBRelease setup module was initialised successfully')        
-    except ImportError, e:
+    except ImportError as e:
         errMsg = 'Import error while trying to load DB Setup module: {0}'.format(e)
         msg.error(errMsg)
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'), errMsg)
-    except Exception, e:
+    except Exception as e:
         errMsg = 'Unexpected error while trying to load DB Setup module: {0}'.format(e)
         msg.error(errMsg)
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'), errMsg)
@@ -537,15 +548,15 @@ def pickledDump(argdict):
     
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
-    for k, v in argdict.iteritems():
-        if k is 'dumpPickle':
+    for k, v in iteritems(argdict):
+        if k == 'dumpPickle':
             continue
         if isinstance(v, argument):
             theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
         else:
             theArgumentDictionary[k] = v
     with open(argdict['dumpPickle'], 'w') as pickleFile:
-        import cPickle as pickle
+        import pickle as pickle
         pickle.dump(theArgumentDictionary, pickleFile)
 
 
@@ -556,8 +567,8 @@ def JSONDump(argdict):
     
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
-    for k, v in argdict.iteritems():
-        if k is 'dumpJSON':
+    for k, v in iteritems(argdict):
+        if k == 'dumpJSON':
             continue
         if isinstance(v, argument):
             theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
@@ -571,11 +582,15 @@ def JSONDump(argdict):
 #  from json (TODO: make the transforms happy with unicode as well as plain str!)
 def convertToStr(in_string):
     if isinstance(in_string, dict):
-        return dict([(convertToStr(key), convertToStr(value)) for key, value in in_string.iteritems()])
+        return dict([(convertToStr(key), convertToStr(value)) for key, value in iteritems(in_string)])
     elif isinstance(in_string, list):
         return [convertToStr(element) for element in in_string]
-    elif isinstance(in_string, unicode):
+    # Unicode is always str in Python3, but bytes are not
+    # TODO: remove unicode comparison after Python 3 migration
+    elif in_string.__class__.__name__ == 'unicode':
         return in_string.encode('utf-8')
+    elif in_string.__class__.__name__ == 'bytes':
+        return in_string.decode('utf-8')
     else:
         return in_string
 
@@ -592,15 +607,15 @@ def cliToKey(option):
 def printHR(the_object):
     # dictionary
     if isinstance(the_object, dict):
-        for key, value in sorted(the_object.items()):
-            print u'{key}: {value}'.format(key = key, value = value)
+        for key, value in sorted(iteritems(the_object)):
+            print(u'{key}: {value}'.format(key = key, value = value))
     # list or tuple
     elif isinstance(the_object, list) or isinstance(the_object, tuple):
         for element in the_object:
-            print element
+            print(element)
     # other
     else:
-        print the_object
+        print(the_object)
 
 
 ## @brief return a URL-safe, base 64-encoded pseudorandom UUID
@@ -667,11 +682,11 @@ class Job(object):
         self.workFunctionTimeout = workFunctionTimeout
         self.className = self.__class__.__name__
         self.resultGetter = None
-        if name == None:
+        if name is None:
             self._name = uniqueIdentifier()
         else:
             self._name = name
-        if self.workFunction == None:
+        if self.workFunction is None:
             exceptionMessage = "work function not specified"
             msg.error("{notifier}: exception message: {exceptionMessage}".format(
                 notifier = self.className,
@@ -692,7 +707,7 @@ class Job(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(vars(self).items()):
+        for key, value in sorted(iteritems(vars(self))):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value)
@@ -729,12 +744,12 @@ class JobGroup(object):
         self.className = self.__class__.__name__
         self.completeStatus = False
         self.timeStampSubmission = None
-        if name == None:
+        if name is None:
             self._name = uniqueIdentifier()
         else:
             self._name = name
         #self.timeStampSubmissionComplete = None #delete
-        if timeout == None:
+        if timeout is None:
             self.timeout = 0
             for job in self.jobs:
                 self.timeout += job.workFunctionTimeout
@@ -750,7 +765,7 @@ class JobGroup(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(vars(self).items()):
+        for key, value in sorted(iteritems(vars(self))):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value)
@@ -839,7 +854,7 @@ class ParallelJobProcessor(object):
     #  @return object description string
     def __str__(self):
         descriptionString = ""
-        for key, value in sorted(vars(self).items()):
+        for key, value in sorted(iteritems(vars(self))):
             descriptionString += str("{key}:{value} ".format(
                 key = key,
                 value = value
@@ -863,7 +878,7 @@ class ParallelJobProcessor(object):
         ):
         # If the input submission is not None, then update the jobSubmission
         # data attribute to that specified for this method.
-        if jobSubmission != None:
+        if jobSubmission is not None:
             self.jobSubmission = jobSubmission
         self.status = "submitted"
         msg.debug("{notifier}: status: {status}".format(
@@ -1222,7 +1237,7 @@ def ValgrindCommand(
         for option in extraOptionsList:
             optionsList.append(option)
     # Add suppression files and athena commands
-    for suppressionFile, pathEnvironmentVariable in suppressionFilesAndCorrespondingPathEnvironmentVariables.iteritems():
+    for suppressionFile, pathEnvironmentVariable in iteritems(suppressionFilesAndCorrespondingPathEnvironmentVariables):
         suppFile = findFile(os.environ[pathEnvironmentVariable], suppressionFile)
         if suppFile:
             optionsList.append("--suppressions=" + suppFile)
@@ -1251,7 +1266,7 @@ def ValgrindCommand(
 def calcCpuTime(start, stop):
     cpuTime = None
     if start and stop:
-        cpuTime = reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4]))
+        cpuTime = reduce(lambda x1, x2: x1+x2, list(map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])))
 
     return cpuTime
 

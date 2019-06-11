@@ -259,7 +259,7 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'ptonly', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 't2MVA' ],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'ptonly', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 't2MVA', 'tracktwoEFmvaTES' ],
     'selection'    : ['medium0', 'loose1', 'medium1', 'medium1NoPt', 'perf', 'perf0', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'mRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   

@@ -1,3 +1,6 @@
+from future.utils import iteritems
+
+from builtins import object
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfEnv
@@ -32,7 +35,7 @@ class environmentUpdate(object):
         # If imf=True/False then follow its lead, but otherwise try to detect the release
         # and enable if we have a release >= 17.7
         if 'imf' in argdict:
-            if argdict['imf'].returnMyValue(name=name, substep=substep) == False:
+            if argdict['imf'].returnMyValue(name=name, substep=substep) is False:
                 msg.info('Skipping inclusion of imf libraries: --imf is set to False')
             else:
                 msg.info('Enabling inclusion of imf libraries: --imf is set to True')
@@ -96,7 +99,7 @@ class environmentUpdate(object):
     ## @brief Return a list of KEY=VALUE pairs for this environment
     @property
     def values(self):
-        return [ "{0}={1}".format(k, v) for k, v in self._envdict.iteritems() ]
+        return [ "{0}={1}".format(k, v) for k, v in iteritems(self._envdict) ]
     
     ## @brief Count the number of environment items that need to be updated
     @property

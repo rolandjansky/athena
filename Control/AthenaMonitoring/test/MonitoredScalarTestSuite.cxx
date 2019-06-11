@@ -108,7 +108,7 @@ class MonitoredScalarTestSuite {
   private:
     typedef void (MonitoredScalarTestSuite::*TestCase)(void);
 
-    function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
+    function<void(void)> registerTestCase(TestCase testCase, const string& testCaseName) {
       return [this, testCase, testCaseName]() {
         m_log << MSG::INFO << "Current test case: " << testCaseName << endmsg;
         beforeEach();

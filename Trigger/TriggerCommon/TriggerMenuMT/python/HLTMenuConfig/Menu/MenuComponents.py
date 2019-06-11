@@ -564,7 +564,40 @@ class ChainStep(object):
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 class InEventReco( ComponentAccumulator ):
     """ Class to handle in-event reco """
+    def __init__(self, name, inputMaker=None):
+        super( InEventReco, self ).__init__()
+        self.name = name
+        from AthenaCommon.CFElements import parOR, seqAND
+        self.mainSeq = seqAND( name )
+        self.addSequence( self.mainSeq )
+
+        # Details below to be checked
+        self.inputMakerAlg = inputMaker
+
+        # Avoid registering a duplicate
+        self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name() )
+        self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name())
+        self.addSequence( self.recoSeq, self.mainSeq.name() )
     pass
+
+    def mergeReco( self, ca ):
+        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        return self.merge( ca, sequenceName=self.recoSeq.getName() )
+
+    def addRecoAlg( self, alg ):
+        """Reconstruction alg to be run per event"""
+        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
+        self.addEventAlgo( alg, self.recoSeq.name() )
+
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
+
+    def sequence( self ):
+        return self.mainSeq
+
+    def inputMaker( self ):
+        return self.inputMakerAlg
+
 
 
 class InViewReco( ComponentAccumulator ):

@@ -56,7 +56,7 @@ def _getTransformsFromPATH():
 
 def ___patchParams(d, target1, target2):
 
-    if d.has_key('listtype'):
+    if 'listtype' in d:
         listtype = d['listtype']
         del d['listtype']
 
@@ -68,9 +68,9 @@ def ___patchParams(d, target1, target2):
 def __patchParams(d):
     ##########################################################################
 
-    if d.has_key('type') and d['type'].lower() == 'substep':
+    if 'type' in d and d['type'].lower() == 'substep':
 
-        if d.has_key('substeptype'):
+        if 'substeptype' in d:
             substeptype = d['substeptype']
             del d['substeptype']
 
@@ -88,13 +88,13 @@ def __patchParams(d):
 
     ##########################################################################
 
-    if d.has_key('type') and (not d['type'] or d['type'].lower() == 'none'):
+    if 'type' in d and (not d['type'] or d['type'].lower() == 'none'):
         del d['type']
 
-    if d.has_key('subtype') and (not d['subtype'] or d['subtype'].lower() == 'none'):
+    if 'subtype' in d and (not d['subtype'] or d['subtype'].lower() == 'none'):
         del d['subtype']
 
-    if d.has_key('subsubtype') and (not d['subsubtype'] or d['subsubtype'].lower() == 'none'):
+    if 'subsubtype' in d and (not d['subsubtype'] or d['subsubtype'].lower() == 'none'):
         del d['subsubtype']
 
 ##############################################################################

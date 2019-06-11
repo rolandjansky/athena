@@ -4,7 +4,12 @@
 #
 #==============================================================
 
-doPrint = False
+if not "doPrint" in dir():
+    doPrint = False
+if not "doDump" in dir():
+    doDump = True
+if not "EvtMax" in dir():
+    EvtMax = 10
 
 #--------------------------------------------------------------
 # Standard includes
@@ -119,10 +124,15 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
 from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
 sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
 sct_ConfigurationConditionsToolSetup.setup()
+from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
+sct_ByteStreamErrorsToolSetup.setup()
 from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
 sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
 sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName()]
+sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
+                                                              sct_ConfigurationConditionsToolSetup.getTool().getFullName()]
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetSCT_ClusteringTool",
@@ -165,7 +175,8 @@ sct_FlaggedConditionToolSetup.setup()
 sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
 sct_ConditionsSummaryToolSetup.setup()
 SCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-SCT_ConditionsSummaryTool.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+SCT_ConditionsSummaryTool.ConditionsTools=[sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
+                                           sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
                                            sct_FlaggedConditionToolSetup.getTool().getFullName()]
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 topSequence += SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)
@@ -201,7 +212,20 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = EvtMax
+
+# Output file
+if doDump:
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    outStream = AthenaPoolOutputStream("OutStream", "testSCTDecode.pool.root")
+    outStream.ItemList  = ["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
+    outStream.ItemList += ["SCT_RDO_Container#SCT_RDOs"]
+    outStream.ItemList += ["InDetBSErrContainer#SCT_ByteStreamErrs"]
+    outStream.ItemList += ["InDet::SCT_ClusterContainer#SCT_Clusters"]
+    outStream.ItemList += ["SCT_FlaggedCondData#SCT_FlaggedCondData"]
+    # outStream.ItemList += ["SpacePointContainer#SCT_SpacePoints"]
+    outStream.ItemList += ["xAOD::SCTRawHitValidationContainer#*", "xAOD::SCTRawHitValidationAuxContainer#*"]
+    outStream.ItemList += ["xAOD::TrackMeasurementValidationContainer#*", "xAOD::TrackMeasurementValidationAuxContainer#*"]
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

@@ -4,6 +4,8 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 Run event simulation and produce an EVNT file.
 """
+from __future__ import print_function
+
 
 import os, sys, time, shutil
 from PyJobTransforms.trfLogger import msg
@@ -91,12 +93,12 @@ class EvgenExecutor(athenaExecutor):
             local_path = None
             if ("localPath" in self._trf.argdict ):
                 local_path = self._trf.argdict["localPath"].value
-                print("local path",local_path)
+                print(("local path",local_path))
             cvmfs_path = os.path.join(sw_base, "atlas.cern.ch")
             
             if ((local_path is not None) and (os.path.exists(local_path))) :
               mk_jo_proxy(local_path, "MC15JobOptions","_joproxy15")
-              print("JO fragments taken from local path i.e. ",local_path)             
+              print(("JO fragments taken from local path i.e. ",local_path))             
             elif os.path.exists(cvmfs_path):
                 # TODO: Make the package name configurable
                 if "MC14" in str(joparam):
@@ -127,8 +129,8 @@ class EvgenExecutor(athenaExecutor):
 
 def move_files(main_dir,tmp_dir,whitelist):
     files = os.listdir(tmp_dir)
-    print("list of files ",files)
-    print("white list ",whitelist)    
+    print(("list of files ",files))
+    print(("white list ",whitelist))    
     files.sort()
     for f in files:
        for i in whitelist:

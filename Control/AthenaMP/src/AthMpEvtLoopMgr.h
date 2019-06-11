@@ -29,9 +29,11 @@ class AthMpEvtLoopMgr
 				    void** ppvInterface);
 
   virtual StatusCode nextEvent(int maxevt);
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent(EventContext &&ctx);
   virtual StatusCode executeRun(int maxevt);
   virtual StatusCode stopRun();
+
+  EventContext createEventContext();
 
  private:
   ServiceHandle<IEventProcessor> m_evtProcessor;

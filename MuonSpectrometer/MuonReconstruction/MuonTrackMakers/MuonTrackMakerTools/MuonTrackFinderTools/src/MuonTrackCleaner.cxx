@@ -62,12 +62,12 @@ namespace Muon {
 
   MuonTrackCleaner::MuonTrackCleaner(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),			      
-      m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack"),
+      m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack", this),			      
+      m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack", this),
       m_fitter(0),
       m_measurementUpdator("Trk::KalmanUpdator/MuonMeasUpdator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
+      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
+      m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),

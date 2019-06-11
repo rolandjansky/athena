@@ -124,12 +124,15 @@ def findViewAlgs( inputNodes, viewNodes ):
         if isSequence( node ):
 
             # Identify view CF nodes
-            if node.getName() in viewNodes:
+            if node.getName() in viewNodes.keys():
 
                 # Retrieve view algorithms
                 # (views don't nest, so will be returned in first list)
-                newViewAlgs, dummy = findViewAlgs( node.getChildren(), [] )
+                newViewAlgs, dummy = findViewAlgs( node.getChildren(), {} )
                 viewAlgs += newViewAlgs
+
+                # Record the fact that the view node is found
+                viewNodes[ node.getName() ] = True
 
             # Explore the tree
             else:
@@ -237,13 +240,21 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
         
     topSequence += hltTop
 
-    # List all CF nodes to be used with EventViews
-    viewNodes = []
+    # List all CF nodes to be used with EventViews (and whether they are found)
+    viewNodes = {}
     for viewMaker in viewMakers:
-      viewNodes.append( viewMaker.ViewNodeName )
+      viewNodes[ viewMaker.ViewNodeName ] = False
+    originalLength = len( viewNodes )
 
     # Identify the algorithms that will run in EventViews
     wholeEventAlgs, viewAlgs = findViewAlgs( topSequence.getChildren(), viewNodes )
+
+    # Check that all view nodes are found
+    if len( viewNodes ) != originalLength:
+        raise RuntimeError( "Something went wrong with view config inspection" )
+    for viewNode in viewNodes.keys():
+        if not viewNodes[ viewNode ]:
+            raise RuntimeError( "EventView CF node " + viewNode + " was not found attached to the topSequence" )
 
     # Look for view algs in the whole event context
     for viewAlgName in viewAlgs:

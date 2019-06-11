@@ -76,6 +76,7 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
                  '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight')
 
+    egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters", 'CaloCalTopoClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectrons", 'ForwardElectrons')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppAOD", 

@@ -52,8 +52,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
+    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                Decoder = RPCRodDecoder )
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache

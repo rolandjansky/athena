@@ -19,7 +19,7 @@
  *   <http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf>
  *   <https://github.com/intel/soft-crc>
  *
- * An alterate implementation of this is here:
+ * An alternate implementation of this is here:
  *   <https://github.com/rawrunprotected/crc>
  *
  * and a useful general reference for CRC calculations is:
@@ -42,7 +42,7 @@
  * this language often obscures more that it clarifies, so we will usually
  * not use it here (except for calling P the polynomial).
  *
- * As a concrete example, the CRC of 0x96 with a polynomal of 0x16 may
+ * As a concrete example, the CRC of 0x96 with a polynomial of 0x16 may
  * be calculated like this
  *
  *    100101100000
@@ -179,14 +179,14 @@
  * In the cases where the size of the message is not divisible by 128 bits,
  * we need one more folding round for the remainder.
  *
- * Performance: On an intel i7-4600M CPU, the version using
+ * Performance: On an Intel i7-4600M CPU, the version using
  * pclmul is about ten times faster than the bytewise version
  * for long strings (50-60k bytes).  For short strings (20-40 bytes),
  * it is about five times faster.  On a Celeron C2840 CPU, the speedups
  * are more modest, four and 1.5 times, respectively.
  *
  * We currently support compiling this only with gcc.
- * clang doesn't implement funciton multiversioning, and some of the
+ * clang doesn't implement function multiversioning, and some of the
  * intrinsics are missing/renamed.  We haven't tried it on icc, but it's
  * unlikely to work without adjustment.
  */
@@ -320,7 +320,7 @@ inline
 uint64_t hightest (uint64_t x, uint64_t y)
 {
   // Relies on sign-extension of right-shift of a signed int.
-  // This is strictly speakign implementation-defined behavior.
+  // This is strictly speaking implementation-defined behavior.
   // Since this code is anyway enabled only on x86_64, that's ok.
   // cppcheck-suppress shiftTooManyBitsSigned
   return y & (static_cast<int64_t>(x)>>63);
@@ -328,7 +328,7 @@ uint64_t hightest (uint64_t x, uint64_t y)
 
 
 /**
- * @brief Calculate 2^exp mod p, using caryless multiplication.
+ * @brief Calculate 2^exp mod p, using carryless multiplication.
  * @param exp The leading exponent.
  * @param p The modulus (polynomial).
  *          The leading 2^64 is implicitly taken to be SET.

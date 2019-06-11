@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test using the tau menu from TrigUpgradeTest job options
+# art-description: athenaMT trigger test using the LS2_v1 tau menu from TriggerMenuMT
 # art-type: build
 # art-include: master/Athena
 # art-output: *.log

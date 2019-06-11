@@ -4018,7 +4018,8 @@ StatusCode TrigEDMChecker::dumpTDT() {
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
-    if (passed) {
+    const bool isRunThree = evtStore()->contains<xAOD::TrigCompositeContainer>("HLT_Summary");
+    if (isRunThree && passed) {
       std::vector< LinkInfo<xAOD::IParticleContainer> > features = m_trigDec->features<xAOD::IParticleContainer>(item);
       ATH_MSG_INFO("    " << item << " IParticle features size: " << features.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : features) {
@@ -4109,6 +4110,12 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
       const ElementLink<xAOD::TrigEMClusterContainer> elementLink = tc->objectLink<xAOD::TrigEMClusterContainer>(name);
       if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigEMClusterContainer 'feature'");
       else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigEMClusterContainer link 'feature', Energy:" << (*elementLink)->energy());
+
+    } else if (clid == ClassID_traits< xAOD::TrigMissingETContainer >::ID()) {
+
+      const ElementLink<xAOD::TrigMissingETContainer> elementLink = tc->objectLink<xAOD::TrigMissingETContainer>(name);
+      if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigMissingETContainer 'feature'");
+      else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigMissingETContainer link 'feature', ex:" << (*elementLink)->ex() << " ey:" << (*elementLink)->ey());
 
     } else {
 

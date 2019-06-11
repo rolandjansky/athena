@@ -136,8 +136,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   RPCRodDecoder = Muon__RpcROD_Decoder(name	     = "RpcROD_Decoder" )
   ToolSvc += RPCRodDecoder
 
-  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-  MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
+  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
+  MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                              Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
@@ -287,11 +287,11 @@ def muFastRecoSequence( RoIs ):
   RPCRodDecoder = Muon__RpcROD_Decoder(name        = "RpcROD_Decoder_L2SA")
   ToolSvc += RPCRodDecoder
 
-  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-  MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name        = "RPC_RawDataProviderTool_L2SA",
-                                                             RdoLocation = "RPCPAD_L2SA",
-                                                             RPCSec      = "RPC_SECTORLOGIC_L2SA",
-                                                             Decoder     = RPCRodDecoder)
+  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
+  MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name        = "RPC_RawDataProviderToolMT_L2SA",
+                                                               RdoLocation = "RPCPAD_L2SA",
+                                                               RPCSec      = "RPC_SECTORLOGIC_L2SA",
+                                                               Decoder     = RPCRodDecoder)
   ToolSvc += MuonRpcRawDataProviderTool
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool

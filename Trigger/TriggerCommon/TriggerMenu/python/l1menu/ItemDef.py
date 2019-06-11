@@ -357,6 +357,7 @@ class ItemDef:
         LVL1MenuItem('L1_TAU20_2TAU12I' ).setLogic( HA20 & HA12I.x(2) &  physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU40_2TAU20IM' ).setLogic( HA40 & HA20IM.x(2) &  physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20IM_2TAU12IM' ).setLogic( HA20IM & HA12IM.x(2) &  physcond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU60_2TAU40').setLogic( HA60 & HA40.x(2)  & physcond).setTriggerType( TT.calo )
 
         # mixed tau
         LVL1MenuItem('L1_EM15VH_2TAU12'                ).setLogic( EM15VH  & HA12.x(2)          & physcond).setTriggerType( TT.calo )

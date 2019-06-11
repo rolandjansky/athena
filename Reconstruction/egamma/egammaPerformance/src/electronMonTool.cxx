@@ -84,7 +84,6 @@ electronMonTool::electronMonTool(const std::string & type, const std::string & n
 
   // Name of the electron collection
   declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
-  this->egammaMonToolBase::initialize();
 
   bool WithFullHistList = true;
   bool WithLimitedHistList = false;

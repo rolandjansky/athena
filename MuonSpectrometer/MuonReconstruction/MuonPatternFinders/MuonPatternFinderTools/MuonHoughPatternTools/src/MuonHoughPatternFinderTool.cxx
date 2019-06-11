@@ -54,7 +54,7 @@ namespace Muon {
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
     m_muonHoughPatternTool("MuonHoughPatternTool"), 
-    m_muonCombinePatternTool("MuonCombinePatternTool"), 
+    m_muonCombinePatternTool("MuonCombinePatternTool", this), 
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_hit_reweights(true),

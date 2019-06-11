@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -48,16 +47,11 @@ class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
   virtual StatusCode finalize() override;
 
  private:
-  ToolHandle<ILuminosityTool> m_lumiTool;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
 
 
   // Take MC mu from lumi block number instead of EventInfo?
   bool m_MCLumiBlockHack;  // Default is FALSE
-
-  // Take data mu from COOL instead of EventInfo?
-  bool m_useDB;   // Default is FALSE
-
 };
 
 

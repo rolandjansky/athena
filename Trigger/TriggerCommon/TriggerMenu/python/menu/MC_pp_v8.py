@@ -642,6 +642,7 @@ def setupMenu():
         ['tau0_perf_ptonly_L1TAU12',               'L1_TAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau0_perf_ptonly_L1TAU12IM', 'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau0_perf_ptonly_L1TAU8', 'L1_TAU8', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+
 			 ]
 
     if TriggerFlags.doFTK():

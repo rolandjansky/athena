@@ -66,8 +66,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_evtLumiBlock(0),
 	m_good_bcid(0),
 	m_nTotalTracks(0),
-	m_nBSErrors(),
-	m_nRobErrors(),
 	m_passEventBurst(),
 	m_idHelper(0),
 	p_toolSvc("IToolSvc", name),
@@ -80,22 +78,12 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_drifttool("TRT_DriftFunctionTool"),
 	m_pTRTHelper(0),
 	m_mgr(0),
-	m_rbins(40),
-	m_rmin(0.0),
-	m_rmax(2.0),
-	m_tbins(68),
-	m_tmin(-12.5),
-	m_tmax(75.0),
-	m_fitmin(-5.0),
-	m_fitmax(30.0),
 	m_HTfraconTrack_B(),
 	m_LonTrack_B(),
 	m_nTrack_B(),
-	m_nTrackwithHL_B(),
 	m_HTfraconTrack_E(),
 	m_LonTrack_E(),
 	m_nTrack_E(),
-	m_nTrackwithHL_E(),
 	m_nTRTHits(),
 	m_doDCS(false),
 	m_EventPhaseScale(1.0),
@@ -118,7 +106,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_ResidualScale_B_Ar(),
 	m_ResidualScale_B_Ar_20GeV(),
 	m_TimeResidualScale_B_Ar(),
-	m_nTrkvPhiScale_B(),
 	m_DriftTimeonTrkDistScale_E(),
 	m_HLhitOnTrackScale_E(),
 	m_HtoLRatioOnTrackScale_E(),
@@ -135,7 +122,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_ResidualScale_E_Ar(),
 	m_ResidualScale_E_Ar_20GeV(),
 	m_TimeResidualScale_E_Ar(),
-	m_nTrkvPhiScale_E(),
 	//m_propagator(0),
 	//m_extrapolator(0),
 	m_DEBUG(false),
@@ -2236,7 +2222,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 					if (iside == 0) {
 						index_tmp = i - 1;
 						modulenum_tmp = i - 1;
-					} else if (iside == 1) {
+					} else {
 						index_tmp = i + 31;
 
 						if (ibe == 0) modulenum_tmp = (i - 1) + 96;

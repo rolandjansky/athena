@@ -28,7 +28,7 @@ def _createCfgFlags():
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
 
     def _inputCollections(inputFile):
-        rawCollections = GetFileMD(inputFile).get("SGKeys").split()
+        rawCollections = GetFileMD(inputFile).get("SGKeys","").split()
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 

@@ -2,6 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import sys
 import time
 
@@ -34,7 +35,7 @@ def main():
 
 def getTransform():
     executorSet = set()
-    print type(executorSet)
+    print(type(executorSet))
     executorSet.add(athenaExecutor(name = 'EvtGenFromEVNT', skeletonFile = 'EvgenJobTransforms/skeleton.EvtGenFromEVNT.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
 
     trf = transform(executor = executorSet)

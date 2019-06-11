@@ -7,14 +7,6 @@
 #include "GaudiKernel/IAlgTool.h"
 
 
-
-
-
-/**
- * @class Base for tools dooing L2 Calo Hypo selection
- * @brief 
- **/
-
 class ITrigTrackPreSelHypoTool
   : virtual public ::IAlgTool
 { 
