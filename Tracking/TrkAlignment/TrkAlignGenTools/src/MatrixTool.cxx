@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MatrixTool.cxx
@@ -1607,7 +1607,7 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  void MatrixTool::printGlobalSolution(std::ostream & os, const CLHEP::HepSymMatrix * cov) const
+  void MatrixTool::printGlobalSolution(std::ostream & os, const CLHEP::HepSymMatrix * cov)
   {
     const AlignModuleList * alignModules = m_alignModuleTool->alignModules1D();
 
@@ -1627,7 +1627,7 @@ namespace Trk {
           int ipar = alignPars->at(i)->index();
           double sigma_i = alignPars->at(i)->sigma();
 
-          std::vector<int>::const_iterator itActive = std::find(m_activeIndices.begin(),m_activeIndices.end(),ipar);
+          std::vector<int>::iterator itActive = std::find(m_activeIndices.begin(),m_activeIndices.end(),ipar);
           if( itActive == m_activeIndices.end() )
             continue;
           int iActive = std::distance(m_activeIndices.begin(),itActive);
@@ -1636,7 +1636,7 @@ namespace Trk {
             int jpar = alignPars->at(j)->index();
             double sigma_j = alignPars->at(j)->sigma();
 
-            std::vector<int>::const_iterator jtActive = std::find(m_activeIndices.begin(),m_activeIndices.end(),jpar);
+            std::vector<int>::iterator jtActive = std::find(m_activeIndices.begin(),m_activeIndices.end(),jpar);
             if( jtActive == m_activeIndices.end() )
               continue;
             int jActive = std::distance(m_activeIndices.begin(),jtActive);
@@ -1654,7 +1654,7 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  void MatrixTool::printGlobalSolution(std::ostream & os, const TMatrixDSym * cov0) const
+  void MatrixTool::printGlobalSolution(std::ostream & os, const TMatrixDSym * cov0)
   {
     CLHEP::HepSymMatrix * cov = 0;
     if(cov0) {

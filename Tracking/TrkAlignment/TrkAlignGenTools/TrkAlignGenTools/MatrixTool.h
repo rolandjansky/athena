@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNGENTOOLS_MATRIXTOOL_H
@@ -119,8 +119,8 @@ namespace Trk {
     bool accumulateFromTFiles();
 
     void printModuleSolution(std::ostream & os, const AlignModule * module, const CLHEP::HepSymMatrix * cov) const;
-    void printGlobalSolution(std::ostream & os, const CLHEP::HepSymMatrix * cov) const;
-    void printGlobalSolution(std::ostream & os, const TMatrixDSym * cov) const;
+    void printGlobalSolution(std::ostream & os, const CLHEP::HepSymMatrix * cov);
+    void printGlobalSolution(std::ostream & os, const TMatrixDSym * cov);
 
   private:
 
