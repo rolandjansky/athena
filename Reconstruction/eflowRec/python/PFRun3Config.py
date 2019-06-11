@@ -1,6 +1,148 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+def getPFTrackSelectorAlgorithm():
+    from eflowRec.eflowRecConf import PFTrackSelector
+    PFTrackSelector=PFTrackSelector("PFTrackSelector")
+
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
+    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
+    TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
+
+    PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
+
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
+
+    TrackSelectionTool.CutLevel = "TightPrimary"
+    TrackSelectionTool.minPt = 500.0 
+    
+    PFTrackSelector.trackSelectionTool = TrackSelectionTool
+
+    return PFTrackSelector
+
+def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositionType,name):
+    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+    MatchingTool = PFTrackClusterMatchingTool(name)
+    MatchingTool.ClusterPositionType = clusterPositionType
+    MatchingTool.DistanceType = distanceType
+    MatchingTool.MatchCut = matchCut*matchCut
+    return MatchingTool
+    
+def getPFCellLevelSubtractionTool(inputFlags):
+    from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
+    PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
+    
+    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
+
+    if(True == inputFlags.PF.EOverPMode):
+        PFCellLevelSubtractionTool.CalcEOverP = True
+        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
+    else:
+        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
+
+    if(True == inputFlags.PF.EOverPMode):
+        PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","CalObjBldMatchingTool")
+    else:
+        PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
+
+    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = getPFTrackClusterMatchingTool(inputFlags,0.15,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_015")
+    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")            
+
+    return PFCellLevelSubtractionTool
+
+def getPFRecoverSplitShowersTool(inputFlags):
+    from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
+    PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
+
+    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
+
+    if (True == inputFlags.PF.recoverIsolatedTracks):
+        PFRecoverSplitShowersTool.RecoverIsolatedTracks = True
+
+    PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingToolRecover")
+
+    return PFRecoverSplitShowersTool
+
+def getPFClusterSelectorTool():
+    from eflowRec.eflowRecConf import PFClusterSelectorTool
+    PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
+    PFClusterSelectorTool.clustersName="CaloTopoClusters"
+
+    return PFClusterSelectorTool
+
+def getPFMomentCalculatorTool(inputFlags):
+    from eflowRec.eflowRecConf import PFMomentCalculatorTool
+    PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
+
+    from CaloRec.CaloTopoClusterConfig import getTopoMoments
+    PFMomentCalculatorTool.CaloClusterMomentsMaker = getTopoMoments(inputFlags)
+
+    from eflowRec.eflowRecConf import PFClusterCollectionTool
+    PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool")
+
+    if(True == inputFlags.PF.useCalibHitTruthMoments):
+        PFMomentCalculatorTool.UseCalibHitTruth=True
+        from CaloRec.CaloTopoClusterConfig import getTopoCalibMoments
+        PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2 = getTopoCalibMoments(inputFlags)
+
+    return PFMomentCalculatorTool
+
+def getPFLCCalibTool(inputFlags):
+    from eflowRec.eflowRecConf import PFLCCalibTool
+    PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
+
+    from eflowRec.eflowRecConf import PFClusterCollectionTool
+    PFLCCalibTool.eflowRecClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool_LCCalib")
+    PFLCCalibTool.UseLocalWeight = False
+
+    from CaloRec.CaloTopoClusterConfig import getTopoClusterLocalCalibTools    
+    lcCalibToolList = getTopoClusterLocalCalibTools(inputFlags)
+
+    PFLCCalibTool.CaloClusterLocalCalib=lcCalibToolList[0]
+    PFLCCalibTool.CaloClusterLocalCalibOOCC=lcCalibToolList[1]                                                            
+    PFLCCalibTool.CaloClusterLocalCalibOOCCPi0=lcCalibToolList[2]
+    PFLCCalibTool.CaloClusterLocalCalibDM=lcCalibToolList[3]
+
+    return PFLCCalibTool
+
+def getPFAlgorithm(inputFlags):
+
+    from eflowRec.eflowRecConf import PFAlgorithm
+    PFAlgorithm = PFAlgorithm("PFAlgorithm")   
+    
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool()
+
+    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags)]
+
+    if(False == inputFlags.PF.EOverPMode):        
+        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags)]
+        
+    PFAlgorithm.BaseToolList = [getPFMomentCalculatorTool(inputFlags)]
+    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
+
+    return PFAlgorithm
+
+def getPFOCreators(inputFlags):
+    from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
+    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
+    if(True == inputFlags.PF.EOverPMode):
+        PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+
+    from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
+    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
+    if(True == inputFlags.PF.EOverPMode):
+        PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
+    if(True == inputFlags.PF.useCalibHitTruthMoments):
+        PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
+
+    return PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm
+
 def PFCfg(inputFlags,**kwargs):
 
     #This is monolithic for now. 
@@ -75,107 +217,10 @@ def PFCfg(inputFlags,**kwargs):
     #hard-code MC conditions tag needed for my ESD file - must be a better way? how to auto-configure?
     iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
 
-    #Configure topocluster algorithms
+    #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(inputFlags))
-    
-    from eflowRec.eflowRecConf import PFLeptonSelector
-    PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
-    result.addEventAlgo(PFLeptonSelector)
 
-    from eflowRec.eflowRecConf import PFTrackSelector
-    PFTrackSelector=PFTrackSelector("PFTrackSelector")
-
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-
-    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-    TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-
-    PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
-
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
-
-    TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0 
-    
-    PFTrackSelector.trackSelectionTool = TrackSelectionTool
-    
-    result.addEventAlgo(PFTrackSelector)
-
-    from eflowRec.eflowRecConf import PFAlgorithm
-    PFAlgorithm = PFAlgorithm("PFAlgorithm")
-
-    from eflowRec.eflowRecConf import PFClusterSelectorTool
-    PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
-    PFClusterSelectorTool.clustersName="CaloTopoClusters"
-    
-    PFAlgorithm.PFClusterSelectorTool = PFClusterSelectorTool
-
-    PFAlgorithm.SubtractionToolList  = []
-
-    from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
-    PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
-    
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
-    CellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss()
-     
-    PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
-    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
-
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
-    MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
-    MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
-    MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
-     
-    MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Pull_015.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Pull_015.MatchCut = 0.15*0.15 # float
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = MatchingTool_Pull_015
-     
-    MatchingTool_Pull_02.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Pull_02.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Pull_02.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Pull_02.MatchCut = 0.2*0.2 # float
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = MatchingTool_Pull_02
-     
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = MatchingTool
-
-    PFAlgorithm.SubtractionToolList += [PFCellLevelSubtractionTool]
-
-    from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
-    PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
-    CellEOverPTool_Recover=eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
-    PFRecoverSplitShowersTool.eflowCellEOverPTool=CellEOverPTool_Recover
-
-    MatchingTool_Recover = PFTrackClusterMatchingTool()
-    MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-    PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
-
-    from eflowRec.eflowRecConf import PFMomentCalculatorTool
-    PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
-
-    from CaloRec.CaloTopoClusterConfig import getTopoMoments
-    PFClusterMomentsMaker = getTopoMoments(inputFlags)
-
-    PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
-
-    from eflowRec.eflowRecConf import PFClusterCollectionTool
-    PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
- 
-    PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool_default
- 
-    PFAlgorithm.BaseToolList = [PFMomentCalculatorTool]
-
-    from eflowRec.eflowRecConf import PFLCCalibTool
-    PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
- 
     from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
     result.merge(caloTopoCoolFolderCfg(inputFlags))
 
@@ -183,29 +228,16 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"electronicNoise"))
 
-    PFClusterCollectionTool_LCCalib = PFClusterCollectionTool("PFClusterCollectionTool_LCCalib")
-    PFLCCalibTool.eflowRecClusterCollectionTool=PFClusterCollectionTool_LCCalib
-    PFLCCalibTool.UseLocalWeight = False
-
-    from CaloRec.CaloTopoClusterConfig import getTopoClusterLocalCalibTools    
-    lcCalibToolList = getTopoClusterLocalCalibTools(inputFlags)
-
-    PFLCCalibTool.CaloClusterLocalCalib=lcCalibToolList[0]
-    PFLCCalibTool.CaloClusterLocalCalibOOCC=lcCalibToolList[1]                                                            
-    PFLCCalibTool.CaloClusterLocalCalibOOCCPi0=lcCalibToolList[2]
-    PFLCCalibTool.CaloClusterLocalCalibDM=lcCalibToolList[3]
+    #Configure the pflow algorithms
+    from eflowRec.eflowRecConf import PFLeptonSelector
+    result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
     
-    PFAlgorithm.BaseToolList += [PFLCCalibTool]
+    result.addEventAlgo(getPFTrackSelectorAlgorithm())
 
-    result.addEventAlgo(PFAlgorithm)
+    result.addEventAlgo(getPFAlgorithm(inputFlags))
 
-    from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
-    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
+    PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm = getPFOCreators(inputFlags)
     result.addEventAlgo(PFOChargedCreatorAlgorithm)
-
-    from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
-    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
-
     result.addEventAlgo(PFONeutralCreatorAlgorithm)
     
     return result
