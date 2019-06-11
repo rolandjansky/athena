@@ -251,7 +251,7 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 # combined chains
 ##################################################################
-if opt.doComboSlice == True:
+if opt.doCombinedSlice == True:
     # combo chains
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
 
