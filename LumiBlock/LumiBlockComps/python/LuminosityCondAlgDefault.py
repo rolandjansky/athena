@@ -5,8 +5,6 @@
 # Purpose: Configure LuminosityCondAlg.
 #
 
-# xxx lumicondalg to handle no-input case.
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import AthSequencer
 
@@ -33,15 +31,13 @@ def configureLuminosityCondAlgRun2 (name):
     # Check if this is express stream or bulk
     if rec.doExpressProcessing():
         lumiFolder  = "/TRIGGER/LUMI/OnlPrefLumi"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_ONL', lumiFolder,
-                             className = 'CondAttrListCollection')
+        conddb.addFolder('TRIGGER_ONL', lumiFolder,
+                         className = 'CondAttrListCollection')
 
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/OflPrefLumi"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_OFL', lumiFolder,
-                             className = 'CondAttrListCollection')
+        conddb.addFolder('TRIGGER_OFL', lumiFolder,
+                         className = 'CondAttrListCollection')
 
     mlog.info("configureLuminosityCondAlgRun2 requested %s", lumiFolder)
     kwargs['LuminosityFolderInputKey'] = lumiFolder
@@ -75,17 +71,15 @@ def configureLuminosityCondAlgRun1 (name):
     # Check if this is express stream or bulk
     if rec.doExpressProcessing():
         lumiFolder  = "/TRIGGER/LUMI/LBLESTONL"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_ONL', lumiFolder,
-                             className = 'CondAttrListCollection')
-            mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
+        conddb.addFolder('TRIGGER_ONL', lumiFolder,
+                         className = 'CondAttrListCollection')
+        mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
 
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/LBLESTOFL"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_OFL', lumiFolder,
-                             className = 'CondAttrListCollection')
-            mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
+        conddb.addFolder('TRIGGER_OFL', lumiFolder,
+                         className = 'CondAttrListCollection')
+        mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
 
     kwargs['LuminosityFolderInputKey'] = lumiFolder
 

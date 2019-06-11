@@ -33,7 +33,6 @@ def OnlineLumiCalibrationCondAlgDefault():
                                         LumiCalibOutputKey = 'OnlineLumiCalibrationCondData')
     condSeq += alg
 
-    if not conddb.folderRequested( folder ):
-        conddb.addFolder ('TDAQ', folder, className='CondAttrListCollection')
+    conddb.addFolder ('TDAQ', folder, className='CondAttrListCollection')
 
     return alg
