@@ -173,7 +173,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 
     double dparst[6];
     double chi2min, dxyzst[3],  chi21s=11., chi22s=10., vShift;
-    double aermd[30],tmpd[30];  // temporary array
+    double aermd[6],tmpd[6]={0.};  // temporary arrays
     double tmpPer[5],tmpCov[15], tmpWgt[15];
     double VrtMomCov[21],PartMom[4];
     double vBx,vBy,vBz;
