@@ -109,7 +109,7 @@ if opt.doMuonSlice == True:
     # multi muon trigger
     # 2muons
     step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=2)
-    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=2)
+    step2_2muComb_sym= ChainStep("Step2_2muComb_sym", [ muCombSequence()], multiplicity=2)
     
     step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=2)
     step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=2)

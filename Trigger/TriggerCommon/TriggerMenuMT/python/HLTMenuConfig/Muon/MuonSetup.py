@@ -352,7 +352,8 @@ def muonIDFastTrackingSequence( RoIs ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="_Muon")
+  (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
+  #(viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="_Muon")
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF_Muon = TrigFastTrackFinder_Muon()
@@ -578,7 +579,7 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='evt',separateTrackParticleCreator="MuonFS")
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonFS
     theFTF_Muon = TrigFastTrackFinder_MuonFS()

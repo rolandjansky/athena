@@ -43,16 +43,25 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
     RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
     RoIBuilder.JetInputKey = sequenceOut
-    RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
+    RoIBuilder.RoIOutputKey = "BjetRoIs"
+    RoIs=RoIBuilder.RoIOutputKey
 
     # Fast Tracking 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("bjet")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='evt',separateTrackParticleCreator="bjet")
+
+    for viewAlg in viewAlgs:
+        if "RoIs" in viewAlg.properties():
+            viewAlg.RoIs = RoIs
+        if "roiCollectionName" in viewAlg.properties():
+            viewAlg.roiCollectionName = RoIs
+        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+            TrackParticlesName = viewAlg.TrackParticlesName 
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
     theFTF_Jet.isRoI_Seeded = True
-    theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
+    theFTF_Jet.RoIs = RoIs
     viewAlgs.append( theFTF_Jet )
 
     # Primary Vertex goes here
@@ -107,7 +116,7 @@ def bJetStep1SequenceALLTE():
 
     # Fast Tracking 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("bjetALLTE")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="bjetALLTE")
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
@@ -186,6 +195,10 @@ def bJetStep2Sequence():
 
     step2Sequence = seqAND("step2Sequence",[theGSC])
     InputMakerAlg.ViewNodeName = "step2Sequence"
+
+    # FPP
+    import AthenaCommon.CfgMgr as CfgMgr
+    step2Sequence += CfgMgr.AthViews__ViewTestAlg("view_testBjet2")
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
