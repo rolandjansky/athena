@@ -90,6 +90,7 @@ class SlimmingHelper:
                 self.AppendToDictionary = {}
                 self.NamesAndTypes = buildNamesAndTypes()
                 self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
+                self.IncludeTriggerNavigation = True
                 self.IncludeAdditionalTriggerContent = False
                 self.IncludeMuonTriggerContent = False
                 self.IncludeEGammaTriggerContent = False
@@ -266,27 +267,13 @@ class SlimmingHelper:
                         for item in JetTauEtMissTriggerContent:
                                 Stream.AddItem(item)
 
-                # JetTrigger: not slimmed for now because of CLID issue
-                #if (self.IncludeJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
-                #       for item in JetTriggerContent:
-                #               Stream.AddItem(item)
-
-                # Same issue for BJetTrigger
-                #if (self.IncludeBJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
-                #       for item in BJetTriggerContent:
-                #       Stream.AddItem(item)
-
                 # non xAOD collections for MinBias
                 if (self.IncludeMinBiasTriggerContent == True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
                                 Stream.AddItem(item)
 
-                if (triggerContent):
+                if (triggerContent and self.IncludeTriggerNavigation):
                         for item in CompulsoryTriggerNavigation:
                                 Stream.AddItem(item)
 

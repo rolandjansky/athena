@@ -147,6 +147,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
 #                                    ]
 
 # Trigger content
+PHYSSlimmingHelper.IncludeTriggerNavigation = False
 PHYSSlimmingHelper.IncludeJetTriggerContent = True
 PHYSSlimmingHelper.IncludeMuonTriggerContent = True
 PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
