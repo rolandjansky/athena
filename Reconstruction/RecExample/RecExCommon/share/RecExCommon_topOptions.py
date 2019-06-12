@@ -471,9 +471,8 @@ condSeq = AthSequencer("AthCondSeq")
 if( not globalflags.InputFormat.is_bytestream() and \
         ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    condSeq+=xAODMaker__EventInfoCnvAlg()
-    pass
+    from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+    xAODEventInfoCnvAlgDefault (sequence = condSeq)
 
 # bytestream reading need to shedule some algorithm
 
