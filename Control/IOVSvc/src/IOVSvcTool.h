@@ -32,7 +32,7 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/CallBackID.h"
 #include "IOVSvc/IIOVSvcTool.h"
-#include "IOVSvc/IOVEntry.h"
+#include "IOVEntry.h"
 
 #include <string>
 #include <set>

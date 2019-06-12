@@ -14,7 +14,7 @@
  *
  *****************************************************************************/
 
-#include "IOVSvc/IOVSvc.h"
+#include "IOVSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
