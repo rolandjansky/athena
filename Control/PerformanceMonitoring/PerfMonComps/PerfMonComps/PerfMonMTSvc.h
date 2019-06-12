@@ -47,7 +47,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::Measurement m_measurement;
 
     /// Data to hold the measurement
-    PMonMT::MeasurementData m_data;
+    PMonMT::MeasurementData m_data[3];
 
 }; // class PerfMonMTSvc
 

@@ -39,6 +39,11 @@ StatusCode PerfMonMTAlg::finalize() {
 
   ATH_MSG_INFO("Finalize");
 
+  for(int i=0;i<10000000;i++){
+    if(i==5000000)
+      ATH_MSG_INFO("looping...");
+  }
+
   return StatusCode::SUCCESS;
 
 }
