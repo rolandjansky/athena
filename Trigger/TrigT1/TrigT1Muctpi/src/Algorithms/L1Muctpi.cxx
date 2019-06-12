@@ -77,7 +77,9 @@ namespace LVL1MUCTPI {
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RoIOutputLocID", m_roiOutputLocId = LVL1MUCTPI::DEFAULT_MuonRoIBLocation );
-    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    //declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    declareProperty( "CTPOutputLocID", m_muctpi2CtpKey );
+
     declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation);
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
@@ -127,6 +129,9 @@ namespace LVL1MUCTPI {
     CHECK(incidentSvc.retrieve());
     incidentSvc->addListener(this,"BeginRun", 100);
     incidentSvc.release().ignore();
+
+    ATH_CHECK( m_muctpi2CtpKey.initialize() );
+
 
     
     // Now this is a tricky part. We have to force the message logging of the
@@ -482,6 +487,7 @@ namespace LVL1MUCTPI {
     ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
 		   << m_ctpOutputLocId );
 
+
     // Save the output of the simulation
     CHECK( saveOutput() );
 
@@ -661,6 +667,11 @@ namespace LVL1MUCTPI {
       CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
       ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
                      << m_ctpOutputLocId );
+
+      auto obj = std::make_unique<LVL1::MuCTPICTP>( m_theMuctpi->getCTPData() );
+      auto writeHandle = SG::makeHandle( m_muctpi2CtpKey );
+      writeHandle.put( std::move(obj) );
+
 
       // create MuCTPI RDO
       // const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();

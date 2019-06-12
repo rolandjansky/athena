@@ -39,7 +39,6 @@
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
-#include "TrigT1CTP/CTPSimulation.h"
 
 //Additional needs for reading muon input
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"

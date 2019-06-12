@@ -26,6 +26,9 @@ def Lvl1SimulationSequence( flags = None ):
     svcMgr += LVL1ConfigSvc()
     svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
+    # L1 menu provider
+    include("TrigConfIO/TrigConfCondSetup.py")
+
 
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker

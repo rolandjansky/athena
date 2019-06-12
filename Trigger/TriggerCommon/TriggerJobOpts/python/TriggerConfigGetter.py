@@ -289,6 +289,12 @@ class TriggerConfigGetter(Configured):
             self.setupCOOLWriting()
             self.setupxAODWriting()
 
+
+
+        # L1 menu provider Run 3
+        from TrigConfIO.TrigConfCondSetup import setupMenuProvider
+        setupMenuProvider()
+
         # all went fine we are configured
         return True
 
