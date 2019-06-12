@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def getPFTrackSelectorAlgorithm():
+def getPFTrackSelectorAlgorithm(inputFlags):
     from eflowRec.eflowRecConf import PFTrackSelector
     PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+    extrapCfg = AtlasExtrapolatorCfg(inputFlags)
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = extrapCfg.popPrivateTools())
 
     from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
@@ -52,7 +53,7 @@ def getPFCellLevelSubtractionTool(inputFlags):
 
     PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = getPFTrackClusterMatchingTool(inputFlags,0.15,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_015")
     PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")            
-
+    
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags):
@@ -232,7 +233,7 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.eflowRecConf import PFLeptonSelector
     result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
     
-    result.addEventAlgo(getPFTrackSelectorAlgorithm())
+    result.addEventAlgo(getPFTrackSelectorAlgorithm(inputFlags))
 
     result.addEventAlgo(getPFAlgorithm(inputFlags))
 
