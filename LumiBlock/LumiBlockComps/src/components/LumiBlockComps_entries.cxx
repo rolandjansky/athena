@@ -11,6 +11,7 @@
 #include "LumiBlockComps/LumiBlockTester.h"
 #include "../LBDurationCondAlg.h"
 #include "../LuminosityCondAlg.h"
+#include "../TrigLiveFractionCondAlg.h"
 #endif
 
 DECLARE_COMPONENT( CreateLumiBlockCollectionFromFile )
@@ -23,6 +24,7 @@ DECLARE_COMPONENT( TrigLivefractionTool )
 DECLARE_COMPONENT( LumiCalcSvc )
 DECLARE_COMPONENT( LBDurationCondAlg )
 DECLARE_COMPONENT( LuminosityCondAlg )
+DECLARE_COMPONENT( TrigLiveFractionCondAlg )
 #endif
 DECLARE_COMPONENT( LumiBlockMetaDataTool )
 

@@ -1,0 +1,24 @@
+LumiBlockComps/TrigLiveFractionCondAlg_test
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/TrigLiveFractionCondAlg_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/TrigLiveFractionCondAlg_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/ConditionStore"]
+JobOptionsSvc        INFO # (2,1): TrigLiveFractionCondAlg.DeadtimeFolderInputKey = "testDeadtime"
+JobOptionsSvc        INFO # (3,1): TrigLiveFractionCondAlg.LuminosityInputKey = "testLumi"
+JobOptionsSvc        INFO # (4,1): TrigLiveFractionCondAlg.TrigLiveFractionOutputKey = "TrigLiveFractionCondData"
+JobOptionsSvc        INFO Job options successfully read in from ../share/TrigLiveFractionCondAlg_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Tue Jun  4 15:30:08 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 2971 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
