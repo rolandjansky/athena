@@ -51,9 +51,24 @@ def TrigBjetMonConfig(inputFlags):
     # trigBjetMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
     #trigBjetMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-    trigBjetMonAlg.TriggerChain = 'HLT_e24_lhtight_nod0'
+    #trigBjetMonAlg.TriggerChain = 'HLT_e24_lhtight_nod0'
+    trigBjetMonAlg.TriggerChain = ''
 
     ### STEP 4 ###
+    # Read in the Bjet trigger chain names
+    from TrigBjetMonitoring import TrigBjetMonitCategory
+    bjet_triglist = TrigBjetMonitCategory.monitoring_bjet
+    print bjet_triglist
+    expert = []
+    shifter = []
+    for chain in bjet_triglist :
+        if chain[0:1] == "E" :
+            expert.append(chain[2:])
+        if chain[0:1] == "S" :
+            shifter.append(chain[2:])
+    print expert
+    print shifter
+
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
@@ -84,17 +99,32 @@ def TrigBjetMonConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
-    myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
+    print " ==> expert[0]: ", expert[0]
+    myGroup.defineHistogram('E1d0;E1d0', title='Distribution of d0;d0;Events',
+                            path=expert[0],xbins=10,xmin=-1.0,xmax=1.0)
+    myGroup.defineHistogram('E2d0;E2d0', title='Distribution of d0;d0;Events',
+                            path=expert[1],xbins=10,xmin=-1.0,xmax=1.0)
+
+    #myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
+    #                        path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
+    #myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
+    #                        path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
     #myGroup.defineHistogram('random', title='LB;x;Events',
     #                        path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
     #myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
     #                        path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
-    shifterGroup.defineHistogram('run',title='Run Number;run;Events',
-                                  path='SomePath',xbins=1000000,xmin=-0.5,xmax=999999.5)
+
+    print " ==> shifter[0]: ", shifter[0]
+    shifterGroup.defineHistogram('S1d0;S1d0', title='Distribution of d0;d0;Events',
+                                 path=shifter[0],xbins=10,xmin=-1.0,xmax=1.0)
+    shifterGroup.defineHistogram('S2d0;S2d0', title='Distribution of d0;d0;Events',
+                                 path=shifter[1],xbins=10,xmin=-1.0,xmax=1.0)
+    shifterGroup.defineHistogram('S2IP3D_pu;S2IP3D_pu', title='IP3D_pu probability distribution;IP3D_pu;Events',
+                                 path=shifter[1],xbins=50,xmin=0.0,xmax=1.0)
+
+    #shifterGroup.defineHistogram('run',title='Run Number;run;Events',
+    #                              path='SomePath',xbins=1000000,xmin=-0.5,xmax=999999.5)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -116,7 +146,8 @@ if __name__=='__main__':
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG,INFO
-    log.setLevel(DEBUG)
+    # log.setLevel(DEBUG)
+    log.setLevel(INFO)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -141,5 +172,7 @@ if __name__=='__main__':
     #trigBjetMonitorAcc.getEventAlgo('TrigBjetMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    cfg.run() #use cfg.run(20) to only run on first 20 events
+    # cfg.run() #use cfg.run(20) to only run on first 20 events
+    Nevents = 10
+    cfg.run(Nevents)
 

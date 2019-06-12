@@ -8,6 +8,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoring/Monitored.h"
 
+#include "TRandom3.h"
 
 class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
@@ -15,5 +16,8 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual ~TrigBjetMonitorAlgorithm();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
+ private:
+  //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
+  Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
 };
 #endif
