@@ -1401,7 +1401,9 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
-        if AODFlags.ThinInDetForwardTrackParticles():
+        if (AODFlags.ThinInDetForwardTrackParticles() and
+            not (rec.readESD() and not objKeyStore.isInInput('xAOD::TrackParticleContainer',
+                                                             'InDetForwardTrackParticles'))):
             from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
             ThinInDetForwardTrackParticles()
 
