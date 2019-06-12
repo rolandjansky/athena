@@ -218,6 +218,45 @@ def muEFCBSequence():
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 ######################
+###  EFCB InsideOut seq ###
+######################
+def muEFInsideOutAlgSequence(ConfigFlags):
+    efViewNode = parOR("efInsideOutViewNode")
+    
+    efViewsMaker = EventViewCreatorAlgorithm("efInsideOutViewsMaker")
+    efViewsMaker.ViewFallThrough = True
+    efViewsMaker.RoIsLink = "roi" # -||-
+    efViewsMaker.InViewRoIs = "MUEFInsideOutRoIs" # contract with the consumer
+    efViewsMaker.Views = "MUEFInsideOutViewRoIs"
+    efViewsMaker.ViewNodeName = efViewNode.name()
+   
+
+    ### get EF reco sequence ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence
+    muEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( efViewsMaker.InViewRoIs)
+ 
+    efViewsMaker.ViewNodeName = muEFInsideOutRecoSequence.name()    
+    muonEFInsideOutSequence = seqAND( "muonEFInsideOutSequence", [efViewsMaker, muEFInsideOutRecoSequence] )
+
+    return (muonEFInsideOutSequence, efViewsMaker, sequenceOut)
+
+def muEFInsideOutSequence():
+
+    (muonEFInsideOutSequence, efViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFInsideOutAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
+    trigMuonEFHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFInsideOutHypoAlg" )
+    trigMuonEFHypo.MuonDecisions = sequenceOut
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFInsideOutSequence,
+                         Maker       = efViewsMaker,
+                         Hypo        = trigMuonEFHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+
+######################
 ### EF SA full scan ###
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
