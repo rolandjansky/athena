@@ -44,6 +44,10 @@
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+/** missing ET */
+#include "xAODMissingET/MissingET.h"
+#include "xAODMissingET/MissingETContainer.h"
+
 //==================================================================================
 // Public Methods
 //==================================================================================
@@ -139,6 +143,8 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   
   declareProperty("doFourMuAnalysis", m_doFourMuAnalysis = false);
   declareProperty("FourMuTreeFolder", m_FourMuTreeFolder);
+
+  declareProperty("StoreZmumuNtuple", m_storeZmumuNtuple = true);
   return;
 }
 
@@ -562,6 +568,9 @@ StatusCode IDPerfMonZmumu::initialize()
     m_FourMuTree->Branch("pv_y",      &m_pv_y   ,   "pv_y/D");
     m_FourMuTree->Branch("pv_z",      &m_pv_z   ,   "pv_z/D");
     m_FourMuTree->Branch("nTrkInVtx", &m_nTrkInVtx, "nTrkInVtx/I");
+
+    m_FourMuTree->Branch("met",       &m_met,     "met/D");
+    m_FourMuTree->Branch("metphi",    &m_metphi,  "metphi/D");
   }
   
   // now register the Trees
@@ -774,18 +783,18 @@ StatusCode IDPerfMonZmumu::execute()
       
       success_pos = FillRecParametersTP(muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
       success_neg = FillRecParametersTP(muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
-      if (success_pos && success_neg) m_IDTree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_IDTree->Fill();
 
       
       success_pos = FillRecParametersTP(p1_comb, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParametersTP(p2_comb, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
-      if (success_pos && success_neg) m_defaultTree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_defaultTree->Fill();
       
       // combined muons
       success_pos = FillRecParameters(p1_comb->track(),muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParameters(p2_comb->track(),muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
       
-      if (success_pos && success_neg) m_combTree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_combTree->Fill();
     }
   }
 
@@ -907,6 +916,36 @@ StatusCode IDPerfMonZmumu::execute()
 	m_4mu_minv = m_4mu.GetInvMass();
 	if (m_doDebug || true) std::cout << " -- IDPerfMonZmumu::execute -- m_4mu.GetInvMass= " << m_4mu_minv << std::endl;
 	
+	// MET test
+	// declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
+	std::string m_metName = "MET_Reference_AntiKt4LCTopo";
+	std::string m_metRefFinalName = "FinalClus";
+	const xAOD::MissingETContainer* final_met = 0;
+	if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
+	  msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endreq;
+	  return StatusCode::SUCCESS;
+	}
+	else {
+	  StatusCode sc = evtStore()->retrieve(final_met,m_metName);
+	  if (sc.isFailure()) {
+	    msg(MSG::DEBUG) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endreq;
+	    return StatusCode::SUCCESS;
+	  }
+	}
+	const xAOD::MissingET *met;
+	met = (*final_met)[m_metRefFinalName];
+	if (met) {
+	  m_met = met->met();
+	  m_metphi = met->phi();
+	}
+	else {
+	  m_met = -1;
+	  m_metphi = -1;
+	}
+	msg(MSG::INFO) << " Zmumu event with MET = " << met->met() << endreq;   
+	std::cout << " -- salva -- zmumu -- met()  = " << met->met() << std::endl;   
+	std::cout << " -- salva -- zmumu -- phi    = " << met->phi() << std::endl;   
+	
 	m_FourMuTree->Fill();
 	ATH_MSG_WARNING("Accepted 4-muon event. Ntuple filled :)");
       }
@@ -938,7 +977,7 @@ StatusCode IDPerfMonZmumu::execute()
 		   << "Positive d0: " << m_positive_d0 << "\n"
 		   << "Positive z0: " << m_positive_z0 << "\n");
     
-    m_truthTree->Fill();
+    if (m_storeZmumuNtuple) m_truthTree->Fill();
   } // if (m_isMC)
 
 
@@ -1086,8 +1125,7 @@ StatusCode IDPerfMonZmumu::execute()
 		     << "Positive pz: " << m_positive_pz << "\n"
 		     << "Positive d0: " << m_positive_d0 << "\n"
 		     << "Positive z0: " << m_positive_z0 << "\n");
-      if (success_pos && success_neg)
-	m_refit1Tree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_refit1Tree->Fill();
     }
     //fill refit2 ID parameters
 
@@ -1099,8 +1137,7 @@ StatusCode IDPerfMonZmumu::execute()
       success_pos = FillRecParameters(refit2MuonTrk1, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParameters(refit2MuonTrk2, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
       
-      if (success_pos && success_neg)
-	m_refit2Tree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_refit2Tree->Fill();
 
     }
 
@@ -1112,7 +1149,7 @@ StatusCode IDPerfMonZmumu::execute()
       ATH_MSG_DEBUG("-- >> going to fill combined muons params << --");
       success_pos = FillRecParameters(p1_comb->track(), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParameters(p2_comb->track(), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
-      if (success_pos && success_neg) m_combMuidTree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) m_combMuidTree->Fill();
     }
 
     ATH_MSG_DEBUG(" Execute() completed for Run: " << m_runNumber << "  event: " << m_evtNumber);

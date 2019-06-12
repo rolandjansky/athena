@@ -44,7 +44,6 @@
 #include "egammaEvent/egammaParamDefs.h"
 #include "egammaEvent/egammaPIDdefs.h"
 
-
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
@@ -87,6 +86,7 @@ IDPerfMonZee::~IDPerfMonZee() { }
 
 StatusCode IDPerfMonZee::initialize()
 {
+  std::cout << " -- salva -- zee -- Initialize() -- " << std::endl;
 
    m_histosBooked = 0;
 
@@ -439,6 +439,7 @@ void IDPerfMonZee::RegisterHisto(MonGroup& mon, TH2* histo, bool doSumw2) {
 
 StatusCode IDPerfMonZee::fillHistograms()
 {
+  std::cout << " -- salva -- zee -- fillHistograms() -- " << std::endl;
   ATH_MSG_VERBOSE("In fillHistograms()");
   int nevents = (int) m_Nevents->GetEntries();
 
@@ -530,7 +531,9 @@ StatusCode IDPerfMonZee::fillHistograms()
      const xAOD::MissingET *met;
      met = (*final_met)[m_metRefFinalName];
      if (met) {
-         msg(MSG::DEBUG) << "MET = " << met->met() << endreq;   
+         msg(MSG::DEBUG) << " zee MET = " << met->met() << endreq;   
+         msg(MSG::INFO) << " zee MET = " << met->met() << endreq;   
+	 std::cout << " -- salva -- zee -- MET = " << met->met() << std::endl;   
      }
   }
 

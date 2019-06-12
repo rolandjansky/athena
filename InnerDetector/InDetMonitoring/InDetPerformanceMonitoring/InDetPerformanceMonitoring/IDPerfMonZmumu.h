@@ -100,6 +100,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   bool m_useTrackSelectionTool;
   bool m_doIP;
   bool m_doFourMuAnalysis;
+  bool m_storeZmumuNtuple;
   std::vector<std::string> m_regions;
 
 
@@ -222,14 +223,17 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_negative_2_z0_PVerr;
   double m_negative_2_d0_PVerr;
 
+  double m_4mu_minv;
+
   double m_pv_x;
   double m_pv_y;
   double m_pv_z;
   mutable unsigned int            m_nTrkInVtx;
+
+  double m_met;
+  double m_metphi;
   
   int m_triggerPrescale;
-
-  double m_4mu_minv;
 
   std::string m_sTriggerChainName;
   std::string m_outputTracksName;
