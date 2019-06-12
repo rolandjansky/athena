@@ -36,20 +36,20 @@ inDetSetup()
 # egamma chains
 ##################################################################
 if opt.doElectronSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, electronSequenceCfg, precisionCaloSequenceCfg
-    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
-    electronSeq = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
     precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
     FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
-    step2        = ChainStep("ElectronFastTrackStep", [electronSeq])
-    step3        = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
+    FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
+    PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
     egammaChains  = [
         Chain(name='HLT_e3_etcut1step', Seed="L1_EM3",  ChainSteps=[FastCaloStep]  ),
-        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
-        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  ),
-        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, step2, step3]  )
+        Chain(name='HLT_e3_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
+        Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
+        Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  )
         ]
 
 #    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
@@ -63,17 +63,18 @@ if opt.doElectronSlice == True:
 ##################################################################
 if opt.doPhotonSlice == True:
 
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import gammaFastCaloCfg
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import photonSequenceCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionCaloSequenceCfg
 
-    fastCaloSeq = RecoFragmentsPool.retrieve( gammaFastCaloCfg, None )
-    PhotonSeq = RecoFragmentsPool.retrieve( photonSequenceCfg, None )
-    
+    fastCaloSeq = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
+    fastPhotonSeq = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
+    precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None)
+
     FastCaloStep = ChainStep("PhotonFastCaloStep", [fastCaloSeq])
-    photon_step2 = ChainStep("PhotonStep2", [PhotonSeq])
+    fastPhotonStep = ChainStep("PhotonStep2", [fastPhotonSeq])
+    precisionCaloPhotonStep = ChainStep("precisionCaloPhotonStep", [precisionCaloPhotonSeq])
 
     photonChains = [
-        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ FastCaloStep,  photon_step2]  )
+        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ FastCaloStep,  fastPhotonStep, precisionCaloPhotonStep]  )
         ]
 
     testChains += photonChains
@@ -253,9 +254,9 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doCombinedSlice == True:
     # combo chains
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg
 
-    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    fastCaloSeq = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None )
 
     comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
     comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
