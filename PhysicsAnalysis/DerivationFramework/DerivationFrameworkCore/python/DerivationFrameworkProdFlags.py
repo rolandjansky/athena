@@ -45,6 +45,19 @@ class WriteDAOD_MINIStream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MINIStream)
 listAODtoDPD.append(WriteDAOD_MINIStream.StreamName)
 
+class WriteDAOD_PHYSStream(JobProperty):
+    """ DAOD_PHYS - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYS"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PHYS.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSStream)
+listAODtoDPD.append(WriteDAOD_PHYSStream.StreamName)
+
 class WriteDAOD_NANOStream(JobProperty):
     """ DAOD_NANO - prototype format for Run 3 """
     statusOn     = True
@@ -871,6 +884,19 @@ class WriteDAOD_STDM11Stream (JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM11Stream)
 listAODtoDPD.append(WriteDAOD_STDM11Stream.StreamName)
+
+class WriteDAOD_STDM12Stream (JobProperty):
+    """Derivation for B\pm fragmentation, Photon + B\pm, J/psi and Upsilon fragmentation measurements"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM12'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM12.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM12Stream)
+listAODtoDPD.append(WriteDAOD_STDM12Stream.StreamName)
 
 #################################
 # Defined by the Tau group

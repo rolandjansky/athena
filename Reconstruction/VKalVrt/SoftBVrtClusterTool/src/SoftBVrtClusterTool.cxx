@@ -32,7 +32,9 @@ namespace SoftBVrt {
     m_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
   {
   
-    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/BJetSVFinder");    
+    declareProperty( "SVFinderName", m_SVFinderName = "SoftBJetSVFinder" );
+
+    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/" + m_SVFinderName);    
     m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
 
     declareProperty( "JetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets" );
@@ -42,7 +44,7 @@ namespace SoftBVrt {
     declareProperty( "TrackSelectionTool", m_selTool );
     
     //select operating point
-    declareProperty( "OperatingPoint", m_operatingPoint = "medium" );
+    declareProperty( "OperatingPoint", m_operatingPoint = "Tight" );
 
     //track clustering cuts (by default initialised to no cut,
     //overriden by default working point medium)
@@ -57,8 +59,8 @@ namespace SoftBVrt {
     declareProperty( "ClusterD0Significance", m_cluster_d0_significance = 0.0 );
     declareProperty( "ClusterDR", m_cluster_dr = 100.0 );
     declareProperty( "TrackjetPtThreshold", m_trackjet_pt_threshold = 2000000000.0 );
-    declareProperty( "DoJetVeto", m_jetveto = true );
-    declareProperty( "DoTrackJetVeto", m_trackjetveto = false );
+    declareProperty( "DoJetVeto", m_jetveto = false );
+    declareProperty( "DoTrackJetVeto", m_trackjetveto = true );
     declareProperty( "OverlapFraction", m_overlap_frac = 0.7 );
   }
 
@@ -75,28 +77,32 @@ namespace SoftBVrt {
   
     ATH_MSG_INFO ("Operating point initialised to " << m_operatingPoint << ", all track cuts will be overridden..." );
 
-    if (m_operatingPoint == "loose") {
-      m_seed_d0_significance = 0.5;
-      m_cluster_d0_significance = 0.5;
-      m_cluster_distance = 0.5;
+    if (m_operatingPoint == "Loose") {
+      m_seed_d0_significance = 1.25;
+      m_cluster_d0_significance = 1.25;
+      m_cluster_distance = 0.2;
       m_cluster_dr = 0.75;
-      m_seed_pt = 2000.;
+      m_seed_pt = 1500.;
+      m_trackjet_pt_threshold = 20000;
     }
 
-    if (m_operatingPoint == "medium") {
+    if (m_operatingPoint == "Medium") {
+      m_seed_d0_significance = 0.75;
+      m_cluster_d0_significance = 1.25;
+      m_cluster_distance = 0.2;
+      m_cluster_dr = 0.75;
+      m_seed_pt = 2000.;
+      m_trackjet_pt_threshold = 15000;
+    }
+
+    if (m_operatingPoint == "Tight") {
       m_seed_d0_significance = 0.9;
       m_cluster_d0_significance = 0.9;
       m_cluster_distance = 0.7;
       m_cluster_dr = 0.6;
       m_seed_pt = 2000.;
-    }
-
-    if (m_operatingPoint == "tight") {
-      m_seed_d0_significance = 2.5;
-      m_cluster_d0_significance = 1.5;
-      m_cluster_distance = 0.25;
-      m_cluster_dr = 0.5;
-      m_seed_pt = 1500.;
+      m_trackjetveto = false;
+      m_jetveto = true;
     }
         
     ATH_MSG_INFO ("SeedPt initialised to " << m_seed_pt );
@@ -104,6 +110,7 @@ namespace SoftBVrt {
     ATH_MSG_INFO ("ClusterDistance initialised to " << m_cluster_distance );
     ATH_MSG_INFO ("ClusterD0Significance initialised to " << m_cluster_d0_significance );
     ATH_MSG_INFO ("ClusterDR initialised to " << m_cluster_dr ); 
+    ATH_MSG_INFO ("TrackjetPtThreshold initialised to " << m_trackjet_pt_threshold ); 
 
     return StatusCode::SUCCESS;
   }
@@ -147,8 +154,8 @@ namespace SoftBVrt {
   
     RecoVertices->setStore( RecoVerticesAux);
   
-    ATH_CHECK( evtStore()->record( RecoVertices, "SoftBVrtClusterTool_Vertices") );
-    ATH_CHECK( evtStore()->record( RecoVerticesAux, "SoftBVrtClusterTool_VerticesAux.") );  
+    ATH_CHECK( evtStore()->record( RecoVertices, "SoftBVrtClusterTool_" + m_operatingPoint + "_Vertices") );
+    ATH_CHECK( evtStore()->record( RecoVerticesAux, "SoftBVrtClusterTool_" + m_operatingPoint + "_VerticesAux.") );  
   
     typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
     typedef std::vector<TrackLink> TrackLinks;
@@ -256,8 +263,6 @@ namespace SoftBVrt {
 
 	  int fromjet = 0;
 	
-	  float seedIso = 10;
-
 	  // find tracks associated to
 	  // calo / track jets
 	  for (const xAOD::Jet *jet : *jets) {	  
@@ -266,20 +271,7 @@ namespace SoftBVrt {
 	    std::vector<const xAOD::TrackParticle*> jet_tracks;
 	  
 	    jet->getAssociatedObjects("GhostTrack", jet_tracks);  
-	  
-	    float dr = track->p4().DeltaR(jet->p4());
-	    if (dr < seedIso) seedIso = dr;
-	  
-	    for (const xAOD::Jet *tjet : *trackjets) {	      	            
-	    
-	      if (tjet->pt() < m_trackjet_pt_threshold)
-		continue;
-	    
-	      float dr = track->p4().DeltaR(tjet->p4());
-	      if (dr < seedIso) seedIso = dr;
-	    
-	    }
-	  
+	  	  
 	    for(unsigned int i=0; i<jet_tracks.size(); i++) {
 	    
 	      if (jet_tracks[i] == track) {
@@ -291,6 +283,18 @@ namespace SoftBVrt {
 	
 	  if (fromjet && m_jetveto)
 	    continue;
+
+	  float seedIso = 10;
+
+	  for (const xAOD::Jet *tjet : *trackjets) {	      	            
+	    
+	    if (tjet->pt() < m_trackjet_pt_threshold)
+	      continue;
+	    
+	    float dr = track->p4().DeltaR(tjet->p4());
+	    if (dr < seedIso) seedIso = dr;
+	    
+	  }
 	
 	  if (seedIso < 0.3 && m_trackjetveto)
 	    continue;	       
@@ -305,27 +309,12 @@ namespace SoftBVrt {
 	// cluster track selection
 	if (abs(track2z0) < m_cluster_z0 && abs(track2z0/sqrt(track->definingParametersCovMatrix()(1,1))) > m_cluster_z0_significance && abs(track2d0sigma) > m_cluster_d0_significance && ispu != 1) {
 	
-	  int fromjet = 0;
-	
-	  float clusterIso = 10;
+	  int fromjet = 0;       
 	
 	  // find tracks associated to
 	  // calo / track jets
 	  for (const xAOD::Jet *jet: *jets) {
-	  
-	    float dr = track->p4().DeltaR(jet->p4());
-	    if (dr < clusterIso) clusterIso = dr;
-	  
-	    for (const xAOD::Jet *tjet : *trackjets) {
-	    
-	      if (tjet->pt() < m_trackjet_pt_threshold)
-		continue;
-	    
-	      float dr = track->p4().DeltaR(tjet->p4());
-	      if (dr < clusterIso) clusterIso = dr;	    
-	    
-	    }
-	  
+	  	  	  
 	    //Get ghost associated tracks
 	    std::vector<const xAOD::TrackParticle*> jet_tracks;
 	  
@@ -342,7 +331,19 @@ namespace SoftBVrt {
 	
 	  if (fromjet && m_jetveto)
 	    continue;
-		
+
+	  float clusterIso = 10;
+
+	  for (const xAOD::Jet *tjet : *trackjets) {
+	    
+	    if (tjet->pt() < m_trackjet_pt_threshold)
+	      continue;
+	    
+	    float dr = track->p4().DeltaR(tjet->p4());
+	    if (dr < clusterIso) clusterIso = dr;	    
+	    
+	  }
+	  
 	  if (clusterIso < 0.3 && m_trackjetveto)
 	    continue;
 
