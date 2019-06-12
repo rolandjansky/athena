@@ -28,7 +28,7 @@ def generateChainConfigs(chainDict):
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
+        log.warning("Implement case for multi-bphys object chain!!")
         theChainDef = listOfChainDefs[0] #needs to be implemented properly
     else:
         theChainDef = listOfChainDefs[0]

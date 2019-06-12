@@ -79,12 +79,18 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return myChain
 
     def getStepDictionary(self):
+
         # Calling inDetSetup here
         inDetSetup()
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
+        # each value is a list [ L2, EF ] where L2 = [list of L2 steps] and EF = [ EF steps]
+        # this way, Bphys (or others) can insert steps at the end of L2 and end of EF after
+        # the muon steps are defined
+        # note that bphys chains are by default noL2Comb, even though this is not in the name
         # --------------------
+
         stepDictionary = {
             "":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB()]],
             "fast":[[self.getmuFast()]],

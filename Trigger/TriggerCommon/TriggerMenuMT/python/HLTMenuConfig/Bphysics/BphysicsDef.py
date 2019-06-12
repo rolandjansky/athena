@@ -46,6 +46,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
         muonStepDictionary = self.getStepDictionary()
         bphysStepDictionary = self.getBphysStepDictionary()
          
+        #infrastructure cannot deal with having more than one "key" here
+        #if we have noL2Comb+extra, this needs to be defined in the muonStepDictionary
         mu_key = 'noL2Comb'+self.chainPart['extra']+self.chainPart['isoInfo']
         
         bphys_key = self.getBphysKey()
