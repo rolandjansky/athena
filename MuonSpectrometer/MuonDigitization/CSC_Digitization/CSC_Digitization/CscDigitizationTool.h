@@ -85,6 +85,9 @@ private:
 
   PublicToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", ""};
 
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<CSCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects
+  std::string m_inputObjectName{""};
   SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitContainerKey{this,"OutputObjectName","CSC_DIGITS","CSC digit container object"};
   //SG::WriteHandle<CscDigitContainer> m_container;
@@ -114,7 +117,6 @@ private:
   Gaudi::Property<bool>   m_NInterFixed{this, "NInterFixed", false, ""};
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
-  Gaudi::Property<std::string> m_inputObjectName{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 

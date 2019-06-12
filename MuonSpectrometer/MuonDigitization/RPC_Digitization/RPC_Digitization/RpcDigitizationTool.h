@@ -216,8 +216,10 @@ private:
 protected:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc",
       "Pile up service"};
-  Gaudi::Property<std::string> m_inputHitCollectionName{this, "InputObjectName", "RPC_Hits",
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<RPCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "RPC_Hits",
       "name of the input object"};
+  std::string m_inputHitCollectionName{""};
   SG::WriteHandleKey<RpcDigitContainer> m_outputDigitCollectionKey{this, "OutputObjectName", "RPC_DIGITS",
       "WriteHandleKey for Output RpcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this, "OutputSDOName", "RPC_SDO",

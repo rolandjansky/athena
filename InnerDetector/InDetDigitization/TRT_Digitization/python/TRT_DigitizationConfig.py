@@ -115,16 +115,21 @@ def TRTDigitizationPU(name="TRTDigitizationPU",**kwargs):
     return CfgMgr.TRTDigitization(name,**kwargs)
 
 def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
-     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-     kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
-     kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
-     kwargs.setdefault("HardScatterSplittingMode", 0)
-     kwargs.setdefault("Override_getT0FromData", 0)
-     kwargs.setdefault("Override_noiseInSimhits", 0)
-     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-     kwargs.setdefault("Override_isOverlay", 1)
-     return BasicTRTDigitizationTool(name,**kwargs)
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "TRT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("Override_getT0FromData", 0)
+    kwargs.setdefault("Override_noiseInSimhits", 0)
+    kwargs.setdefault("Override_noiseInUnhitStraws", 0)
+    kwargs.setdefault("Override_isOverlay", 1)
+    return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRT_OverlayDigitization(name="TRT_OverlayDigitization",**kwargs):
-     kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
-     return CfgMgr.TRTDigitization(name,**kwargs)
+    kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
+    return CfgMgr.TRTDigitization(name,**kwargs)

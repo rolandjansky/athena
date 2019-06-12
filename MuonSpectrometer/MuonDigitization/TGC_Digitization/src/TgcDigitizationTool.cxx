@@ -56,11 +56,15 @@ StatusCode TgcDigitizationTool::initialize()
   m_hitIdHelper = TgcHitIdHelper::GetHelper();
 
   // check the input object name
-  if(m_inputHitCollectionName=="") {
+  if (m_hitsContainerKey.key().empty()) {
     ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
+  if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -209,6 +213,22 @@ StatusCode TgcDigitizationTool::getNextEvent()
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<TGCSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get TGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcTGC = new TimedHitCollection<TGCSimHit>{1};
+    m_thpcTGC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("TGCSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<pair<time_t, DataLink<TGCSimHitCollection> > >
   TimedHitCollList hitCollList;
   
