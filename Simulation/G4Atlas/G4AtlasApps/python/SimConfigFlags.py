@@ -15,6 +15,9 @@ def createSimConfigFlags():
     scf.addFlag("Sim.WorldRRange", 12500) #int or float
     scf.addFlag("Sim.WorldZRange", 22031) #int or float
 
+    # the G4 offset. It was never changed, so no need to peek in file
+    scf.addFlag("Sim.SimBarcodeOffset", 200000)
+
     #for forward region
     scf.addFlag("Sim.TwissFileBeam1",False)
     scf.addFlag("Sim.TwissFileBeam2",False)

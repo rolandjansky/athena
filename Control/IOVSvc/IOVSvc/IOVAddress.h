@@ -1,17 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVADDRESS_H
 #define IOVSVC_IOVADDRESS_H
 
-#ifndef GAUDIKERNEL_IOPAQUEADDRESS_H
 #include "GaudiKernel/IOpaqueAddress.h"
-#endif
-
-#ifndef GAUDIKERNEL_CLASSID_H
 #include "GaudiKernel/ClassID.h"
-#endif
 
 class IOVAddress: public IOpaqueAddress {
 

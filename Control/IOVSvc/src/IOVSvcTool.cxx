@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "IOVSvc/IOVSvcTool.h"
+#include "IOVSvcTool.h"
 /*****************************************************************************
  *
  *  IOVSvcTool.cxx
@@ -38,9 +38,9 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "IOVSvc/IOVEntry.h"
+#include "IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"
-#include "IOVSvc/CBTree.h"
+#include "CBTree.h"
 #include "IOVSvc/IOVCallbackError.h"
 
 #include <stdint.h>

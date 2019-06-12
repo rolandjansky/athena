@@ -23,16 +23,24 @@ def CscDigitToCscRDOTool2(name,**kwargs):
     kwargs.setdefault("NumSamples", 2)
     kwargs.setdefault("addNoise", False)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSCRDO")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputObjectName", overlayFlags.sigPrefix() + "CSC_DIGITS")
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "CSCRDO")
+    else:
+        kwargs.setdefault("InputObjectName", overlayFlags.evtStore()+"+CSC_DIGITS")
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+CSCRDO")
     return BaseCscDigitToCscRDOTool(name,**kwargs)
 
 def CscDigitToCscRDOTool4(name,**kwargs):
     kwargs.setdefault("NumSamples", 4)
     kwargs.setdefault("addNoise", False)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSCRDO")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputObjectName", overlayFlags.sigPrefix() + "CSC_DIGITS")
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "CSCRDO")
+    else:
+        kwargs.setdefault("InputObjectName", overlayFlags.evtStore()+"+CSC_DIGITS")
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+CSCRDO")
     return BaseCscDigitToCscRDOTool(name,**kwargs)
 
 def CscDigitToCscRDO(name,**kwargs):

@@ -13,16 +13,21 @@ def TileCondToolsTestCfg(flags):
     acc = ComponentAccumulator()
 
     from TileEMScaleConfig import TileCondToolEmscaleCfg
-    emScaleTool =  acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
+    emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
     msg.info(emScaleTool)
 
     from TileEMScaleConfig import TileExpertToolEmscaleCfg
-    emScaleExpertTool =  acc.popToolsAndMerge( TileExpertToolEmscaleCfg(flags) )
+    emScaleExpertTool = acc.popToolsAndMerge( TileExpertToolEmscaleCfg(flags) )
     msg.info(emScaleExpertTool)
 
     from TileBadChannelsConfig import TileBadChanToolCfg
-    badChanTool =  acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
+    badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
     msg.info(badChanTool)
+
+    if not (flags.Input.isMC or flags.Common.isOnline):
+        from TileConditions.TileDCSConfig import TileDCSToolCfg
+        dcsTool = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
+        msg.info(dcsTool)
     
     return acc
 

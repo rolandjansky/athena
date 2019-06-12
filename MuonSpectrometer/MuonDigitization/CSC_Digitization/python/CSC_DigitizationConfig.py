@@ -53,10 +53,15 @@ def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
 
 def getCscOverlayDigitizationTool(name="CscOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("CSCSimDataCollectionOutputName",overlayFlags.evtStore()+"+CSC_SDO")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "CSC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.sigPrefix() + "CSC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+CSC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.evtStore() + "+CSC_SDO")
     return CfgMgr.CscDigitizationTool(name,**kwargs)
 
 def getCscOverlayDigitBuilder(name="CscOverlayDigitBuilder", **kwargs):

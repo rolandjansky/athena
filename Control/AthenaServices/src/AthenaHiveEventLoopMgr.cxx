@@ -1133,8 +1133,8 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
     
     if (!pEvent) {
         // Retrieve the Event object
-        sc = eventStore()->retrieve(pEvent);
-        if( !sc.isSuccess() ) {
+        pEvent = eventStore()->tryConstRetrieve<EventInfo>();
+        if( !pEvent ) {
          
           // Try to get the xAOD::EventInfo
           const xAOD::EventInfo* pXEvent{nullptr};

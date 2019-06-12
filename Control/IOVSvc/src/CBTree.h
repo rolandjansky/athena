@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBTREE_H
@@ -11,19 +11,14 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: CBTree.h,v 1.2 2004-03-26 00:37:59 leggett Exp $
  *
  *  Callback function trigger tree
  *
  *****************************************************************************/
 
-#ifndef IOVSVC_CBNODE_H
-#include "IOVSvc/CBNode.h"
-#endif
+#include "CBNode.h"
 
-#ifndef ATHENAKERNEL_IOVSVCDEFS_H
 #include "AthenaKernel/IOVSvcDefs.h"
-#endif
 
 #include <set>
 #include <string>

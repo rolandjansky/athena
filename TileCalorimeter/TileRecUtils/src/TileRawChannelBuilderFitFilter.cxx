@@ -337,6 +337,8 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
                   << " capdaq=" << m_capdaq );
 
   std::vector<float> samples = digit->samples();
+  samples.erase(samples.begin(),samples.begin()+m_firstSample);
+  samples.resize(m_frameLength); 
   double maxsamp = 0.0;
   double minsamp = m_saturatedSample;
 

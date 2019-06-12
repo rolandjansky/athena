@@ -7,10 +7,20 @@
 #==============================================================
 
 # Configuration flags
-doPixel = True
-doSCT = True
-doBeamSpot = True
-doPrint = True
+if not "doPixel" in dir():
+    doPixel = True
+if not "doSCT" in dir():
+    doSCT = True
+if not "doBeamSpot" in dir():
+    doBeamSpot = True
+if not "doPrint" in dir():
+    doPrint = True
+if not "doDump" in dir():
+    doDump = False
+if not "EvtMax" in dir():
+    EvtMax = -1
+if not "inputESDFiles" in dir():
+    inputESDFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 
 # Output track location
 TracksLocation = "SiSPSeededTracks"
@@ -118,9 +128,6 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
 IOVDbSvc.OutputLevel = WARNING
-
-# Set input ESD file
-inputESDFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputESDFiles
@@ -480,7 +487,14 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 25
+theApp.EvtMax = EvtMax
+
+# Output file
+if doDump:
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    outStream = AthenaPoolOutputStream("OutStream", "SiSPSeededTracksStandaloneFromESD.pool.root")
+    outStream.ItemList  = ["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
+    outStream.ItemList += ["TrackCollection#"+TracksLocation]
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

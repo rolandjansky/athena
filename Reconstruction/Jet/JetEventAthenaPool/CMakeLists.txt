@@ -36,7 +36,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( JETEVENTATHENAPOOL_REFERENCE_TAG
-       JetEventAthenaPoolReference-01-00-00 )
+       JetEventAthenaPoolReference-01-00-01 )
   run_tpcnv_test( JetTPCnv_15.9.0.5   AOD-15.9.0.5-full
                    REFERENCE_TAG ${JETEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( JetTPCnv_17.0.0     AOD-17.0.0-full
