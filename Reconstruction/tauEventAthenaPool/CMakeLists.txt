@@ -34,7 +34,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( TAUEVENTATHENAPOOL_REFERENCE_TAG
-        tauEventAthenaPoolReference-01-00-00 )
+        tauEventAthenaPoolReference-01-00-01 )
   run_tpcnv_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full
                    REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full
