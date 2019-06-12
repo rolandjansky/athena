@@ -16,6 +16,32 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import *
+from TriggerMenu.api.TriggerAPI import TriggerAPI
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+
+
+#====================================================================
+# TRIGGER CONTENT   
+#====================================================================
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+# Get single and multi mu, e, photon triggers
+# Jet, tau, multi-object triggers not available in the matching code
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.el,livefraction=0.9)
+trig_mu = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.mu,livefraction=0.9)
+trig_g  = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.g, livefraction=0.9)
+
+trigger_names = []
+for item in trig_el,trig_mu,trig_g:
+   for triggers in item.keys(): trigger_names += item.keys()     
+
+# Remove duplicates
+trigger_names = list(dict.fromkeys(trigger_names))
+
+# Create trigger matching decorations
+PHYS_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSTriggerMatchingTool",
+                                                 trigger_list = trigger_names)
 
 #====================================================================
 # SET UP STREAM   
@@ -53,14 +79,13 @@ ToolSvc += PHYSTrackParticleThinningTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool])
-
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool],
+                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 #====================================================================
 # JET/MET   
 #====================================================================
 
 OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
@@ -82,7 +107,6 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=True)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
-
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
@@ -123,6 +147,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
 #                                    ]
 
 # Trigger content
+PHYSSlimmingHelper.IncludeTriggerNavigation = False
 PHYSSlimmingHelper.IncludeJetTriggerContent = True
 PHYSSlimmingHelper.IncludeMuonTriggerContent = True
 PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
@@ -166,6 +191,9 @@ PHYSSlimmingHelper.AllVariables = ["MET_Truth",
                                    "TruthWbosonWithDecayVertices"]
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
+
+# Add trigger matching
+PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
