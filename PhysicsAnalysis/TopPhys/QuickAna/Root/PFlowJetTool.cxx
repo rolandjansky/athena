@@ -204,7 +204,8 @@ namespace ana
     float jvt = m_jvt_tool->updateJvt(jet);
     // Update "Jvt" of the jet - required by the MET tool
     jet.auxdata<float>("Jvt") = jvt;
-    bool jvt_pass = m_jvtEffTool->passesJvtCut(jet);
+    //bool jvt_pass = m_jvtEffTool->passesJvtCut(jet);
+    bool jvt_pass = (jvt>0.5) ? 1 : 0 ; 
     jet.auxdata<char>("Jvt_pass") = jvt_pass;
 
     // B-tagging section

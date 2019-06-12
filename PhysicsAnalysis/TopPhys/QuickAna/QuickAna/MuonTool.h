@@ -71,6 +71,7 @@ namespace ana
 //    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear_16;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear_17;
+    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear_18;
 
 
   private:
