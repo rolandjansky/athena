@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for ESD->ESD (reprocessing)
@@ -50,7 +51,7 @@ if hasattr(runArgs,"preExec"):
 ## Pre-include
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
-        print "preInclude",fragment
+        print("preInclude",fragment)
         include(fragment)
 
 #========================================================

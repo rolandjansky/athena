@@ -29,7 +29,11 @@ def setSCT_CablingDataBase():
 
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+            # Setup logger
+            from AthenaCommon.Logging import logging
+            msg = logging.getLogger("SCT_CablingConfig")
+            msg.setLevel(logging.INFO)
+            msg.warning("*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****")
             SCTConfigurationFolderPath=''
     except:
         pass

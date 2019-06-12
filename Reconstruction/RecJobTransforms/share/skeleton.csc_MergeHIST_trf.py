@@ -1,6 +1,9 @@
+from __future__ import print_function
+
+from future import standard_library
+standard_library.install_aliases()
 import sys
 import os
-import commands
 import subprocess
 
 from AthenaCommon.Logging import logging
@@ -52,7 +55,7 @@ recoLog.info( outFileName )
 
 cmd  = "rm -f hist_merge.log "
 recoLog.info( cmd )
-(retcode,error) = commands.getstatusoutput(cmd)
+(retcode,error) = subprocess.getstatusoutput(cmd)
 newcommand= "DQHistogramMerge.py %s %s %s"%(filename,outFileName,runPostProcessing)
 recoLog.info(newcommand)
 ###################################
@@ -66,20 +69,20 @@ dqhistpipe=subprocess.Popen(["DQHistogramMerge.py", filename, outFileName, "%s"%
                                 stdout=tmpbuff, stderr=tmpbuff, shell=False)
 status=dqhistpipe.wait()
 
-print "---------------------------------------------------------------------------------------"
-print '## Output of \'' + newcommand + '\':'
+print("---------------------------------------------------------------------------------------")
+print('## Output of \'' + newcommand + '\':')
 #print output
 try:
     logFile=open('hist_merge.log','w')
     tmpbuff.seek(0)
     for line in tmpbuff:
-        print line,
+        print(line, end=' ')
         logFile.write(line)
 finally:
     tmpbuff.close()
     logFile.close()
-print '## DQHistogramMerge.py finished with retcode = %s' % (status)
-print "---------------------------------------------------------------------------------------"
+print('## DQHistogramMerge.py finished with retcode = %s' % (status))
+print("---------------------------------------------------------------------------------------")
 leavecode = '## DQHistogramMerge.py finished with retcode = %s' % (status)
 recoLog.info( leavecode )
 
@@ -90,19 +93,19 @@ dqhistpipe=subprocess.Popen(["DQHistogramMerge.py", testname,"dummy.root", "Fals
                                 stdout=tmpbuff, stderr=tmpbuff, shell=False)
 status=dqhistpipe.wait()
 
-print "---------------------------------------------------------------------------------------"
-print '## Output of \'' + newcommand + '\':'
+print("---------------------------------------------------------------------------------------")
+print('## Output of \'' + newcommand + '\':')
 try:
     logFile=open('validate_merge.log','w')
     tmpbuff.seek(0)
     for line in tmpbuff:
-        print line,
+        print(line, end=' ')
         logFile.write(line)
 finally:
     tmpbuff.close()
     logFile.close()
-print '## DQHistogramMerge.py finished with retcode = %s' % (status)
-print "---------------------------------------------------------------------------------------"
+print('## DQHistogramMerge.py finished with retcode = %s' % (status))
+print("---------------------------------------------------------------------------------------")
 leavecode = '## DQHistogramMerge.py validate finished with retcode = %s' % (status)
 leavecodecmd = "echo \"" + leavecode + "\" >> hist_merge.log"
 os.system(leavecodecmd)
@@ -112,19 +115,19 @@ tmpbuff=os.tmpfile()
 dqhistpipe=subprocess.Popen(["ScanHistFile.py", outFileName],
                             stdout=tmpbuff, stderr=tmpbuff, shell=False)
 status=dqhistpipe.wait()
-print "---------------------------------------------------------------------------------------"
-print '## Output of \'' + newcommand + '\':'
+print("---------------------------------------------------------------------------------------")
+print('## Output of \'' + newcommand + '\':')
 try:
     logFile=open('ScanHistFile.log','w')
     tmpbuff.seek(0)
     for line in tmpbuff:
-        print line,
+        print(line, end=' ')
         logFile.write(line)
 finally:
     tmpbuff.close()
     logFile.close()
-print '## ScanHistFile.py finished with retcode = %s' % (status)
-print "---------------------------------------------------------------------------------------"
+print('## ScanHistFile.py finished with retcode = %s' % (status))
+print("---------------------------------------------------------------------------------------")
 leavecode = '## ScanHistFile.py validate finished with retcode = %s' % (status)
 leavecodecmd = "echo \"" + leavecode + "\" >> hist_merge.log"
 os.system(leavecodecmd)

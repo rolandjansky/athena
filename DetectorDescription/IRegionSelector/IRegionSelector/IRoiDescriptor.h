@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    IRoiDescriptor.h        
@@ -9,16 +9,12 @@
 //  
 //   @author sutt@cern.ch
 //
-//   $Id: IRoiDescriptor.h, v0.0   Fri 14 Jun 2013 00:52:09 CEST sutt $
 
 #ifndef IREGIONSELECTOR_IROIDESCRIPTOR_H
 #define IREGIONSELECTOR_IROIDESCRIPTOR_H
 
 #include <vector> 
 #include <iostream> 
-
-/// hmmm - is this actually ever needed ??
-// #include "CLIDSvc/CLASS_DEF.h"
 
 /**
  **   @brief Describes the API of the Region of Ineterest geometry
@@ -132,9 +128,6 @@ std::ostream& operator<<( std::ostream& s, const IRoiDescriptor& d ) {
   return s << std::string(d);
 }
 
-
-/// is this really needed ??
-// CLASS_DEF(IRoiDescriptor,12665988,1)
 
 #endif // IREGIONSELECTOR_INEWROIDESCRIPTOR_H
 

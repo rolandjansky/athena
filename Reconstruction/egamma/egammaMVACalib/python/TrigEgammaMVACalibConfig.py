@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaMVACalib.egammaMVACalibConf import egammaMVACalibTool, egammaMVASvc
 from ROOT import xAOD
@@ -10,15 +10,16 @@ cppyy.loadDictionary('xAODEgammaDict')
 
 def TrigEgammaMVACalibCfg(flags, name="TrigEgammaMVASvc"):
 
-    acc = ComponentAccumulator()
-
     mlog = logging.getLogger('TrigEgammaMVACalibConfig')
+    mlog.debug('Start configuration')
+
+    acc = ComponentAccumulator()
 
     if flags.Trigger.egamma.calibMVAVersion is not None:
         folder = flags.Trigger.egamma.calibMVAVersion
         mlog.debug('MVA version: %s', folder)
     else:
-        mlog.error("Trigger.egamma.calibMVAVersion not set")
+        raise KeyError("Trigger.egamma.calibMVAVersion not set")
 
     mlog.debug('Cluster Correction version: %s', flags.Trigger.egamma.clusterCorrectionVersion)
 

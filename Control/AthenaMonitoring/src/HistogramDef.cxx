@@ -27,7 +27,7 @@ const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
     result.weight = nextProperty(propertiesIterator);
     result.name.push_back(nextProperty(propertiesIterator));
 
-    if (result.type.find("TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
+    if (result.type.compare(0, 3, "TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
       result.name.push_back(nextProperty(propertiesIterator));
     } else if (result.type == "TProfile2D") {
       result.name.push_back(nextProperty(propertiesIterator));
@@ -126,7 +126,7 @@ void HistogramDef::resolveAxies(HistogramDef &histogramDefinition, std::vector<s
   }
 
   // Parse information regarding y-bins
-  if (histogramDefinition.type.find("TH2")==0 || histogramDefinition.type.find("TProfile2D")==0) {
+  if (histogramDefinition.type.compare(0, 3, "TH2")==0 || histogramDefinition.type.compare(0, 10, "TProfile2D")==0) {
     if (distance(propertiesIterator, properties.end()) < 1) {
       throw TokenException("y-axis definition expected for TH2 or TProfile2D");
     }

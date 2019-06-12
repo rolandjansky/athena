@@ -532,6 +532,8 @@ class DictFromChainName(object):
         # ---- finally also taking care of the signature key ----
         genchainDict['chainParts'] = allChainProperties
         for cPart in allChainProperties:
+            if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
+                cPart['signature'] = 'Bjet'
             genchainDict['signatures'] += [cPart['signature']]
 
         #genchainDict['signature'] = allChainProperties[0]['signature']

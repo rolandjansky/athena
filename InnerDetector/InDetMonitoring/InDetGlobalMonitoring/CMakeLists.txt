@@ -21,7 +21,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODJet
    Event/xAOD/xAODTracking
    Generators/GeneratorObjects
-   InnerDetector/InDetConditions/InDetBeamSpotService
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetConditions/SCT_ConditionsTools

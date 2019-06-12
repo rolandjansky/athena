@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaMVACalib.egammaMVACalibConf import egammaMVACalibTool, egammaMVASvc
 from ROOT import xAOD
@@ -10,15 +10,16 @@ cppyy.loadDictionary('xAODEgammaDict')
 
 def egammaMVASvcCfg(flags, name="egammaMVASvc"):
 
-    acc = ComponentAccumulator()
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
 
-    mlog = logging.getLogger('egammaMVACalibConfig')
+    acc = ComponentAccumulator()
 
     if flags.Egamma.Calib.MVAVersion is not None:
         folder = flags.Egamma.Calib.MVAVersion
         mlog.debug('MVA version: %s', folder)
     else:
-        mlog.error("Egamma.Calib.MVAVersion is not set")
+        raise KeyError("Egamma.Calib.MVAVersion is not set")
 
     electronMVATool = egammaMVACalibTool(name="electronMVATool",
                                          ParticleType=xAOD.EgammaParameters.electron,

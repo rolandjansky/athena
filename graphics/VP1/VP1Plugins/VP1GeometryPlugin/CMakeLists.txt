@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Systems/VP1GuideLineSystems )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core )
+find_package( Qt5 COMPONENTS Core Gui Widgets )
 
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
@@ -30,7 +30,7 @@ set( CMAKE_AUTOMOC TRUE )
 #)
 #=======
 atlas_add_library( VP1GeometryPlugin
-   VP1GeometryPlugin/*.h src/*.cxx 
+   VP1GeometryPlugin/*.h src/*.cxx src/*.qrc 
    PUBLIC_HEADERS VP1GeometryPlugin
-   LINK_LIBRARIES Qt5::Core VP1Base
-   PRIVATE_LINK_LIBRARIES VP1GuideLineSystems VP1GeometrySystems )
+   LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets
+   PRIVATE_LINK_LIBRARIES VP1Base VP1GuideLineSystems VP1GeometrySystems )

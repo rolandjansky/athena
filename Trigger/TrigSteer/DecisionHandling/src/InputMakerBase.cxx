@@ -69,7 +69,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
 
 
-    auto outDecisions = outputHandles[outputIndex].ptr();
+    TrigCompositeUtils::DecisionContainer* outDecisions = outputHandles[outputIndex].ptr();
 
     // If using m_mergeOutputs, then collate all RoIs that are stored in this input container
     ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
@@ -112,7 +112,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
           return StatusCode::FAILURE;
         }
         const size_t roiCounter = std::distance( RoIsFromDecision.begin(), roiIt );
-        newDec = outDecisions[outputIndex][roiCounter];
+        newDec = outDecisions->at(roiCounter);
       }
 
       TrigCompositeUtils::linkToPrevious( newDec, inputDecision, context ); // Link inputDecision object as the 'seed' of newDec

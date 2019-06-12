@@ -76,8 +76,8 @@ Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
     m_pgm(0), m_phelper(0),
-    m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
-    m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
+    m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
+    m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
     //m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", aname)

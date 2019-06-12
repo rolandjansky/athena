@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -115,7 +115,7 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  bool AlignTrackCreator::processAlignTrack(AlignTrack * at) const
+  bool AlignTrackCreator::processAlignTrack(AlignTrack * at)
   {
     DataVector<AlignTSOS>* alignTSOSCollection=new DataVector<AlignTSOS>;
 

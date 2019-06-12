@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
+#include "SCT_ClusterCacheTool.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -17,7 +17,7 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandle.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "FastSCT_Clusterization.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include <sstream>

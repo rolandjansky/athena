@@ -46,7 +46,7 @@ namespace TrigSim {
         // Function running the event loop itself
         virtual StatusCode nextEvent(int maxEvt);
         // Function processing one input event
-        virtual StatusCode executeEvent(void *par);
+        virtual StatusCode executeEvent(EventContext &&ctx);
         // Function looping over one run (the same as nextEvent(int) for now
         virtual StatusCode executeRun(int maxEvt);
         // Function seeking to a given event (not implemented)

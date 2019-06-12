@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNINTERFACES_ALIGN_TRACK_CREATOR_IH
@@ -36,7 +36,7 @@ namespace Trk {
     static const InterfaceID& interfaceID();
     
     /** creates AlignTrack from Trk::Track */
-    virtual bool processAlignTrack(AlignTrack* alignTrack) const = 0; 
+    virtual bool processAlignTrack(AlignTrack* alignTrack) = 0; 
     
     /** Sets flags to indicate whether hits from particular detector elements are to be stored on the AlignTrack.  (Not used at the moment.) */
     void setDoPixel(bool doPixel) { m_doPixel = doPixel; }

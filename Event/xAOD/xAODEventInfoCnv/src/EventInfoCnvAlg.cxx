@@ -90,7 +90,7 @@ namespace xAODMaker {
                         std::make_unique<xAOD::EventAuxInfo>()) );
 
       // Do the translation:
-      CHECK( m_cnvTool->convert( aod, ei.ptr() ) );
+      CHECK( m_cnvTool->convert( aod, ei.ptr(), false, true, ctx ) );
 
       // Check if this is a PileUpEventInfo object:
       const PileUpEventInfo* paod =
@@ -119,7 +119,7 @@ namespace xAODMaker {
          xAOD::EventInfo* ei = new xAOD::EventInfo();
          puei->push_back( ei );
          // Fill it with information:
-         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
+         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true, false, ctx ) );
          // And now add a sub-event to the temporary list:
          xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
          switch (pu_itr->type()) {

@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for ESD->DPD 
@@ -18,17 +19,17 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D2PDMaker.D2PDFlags import D2PDFlags
     listOfFlags.append(D2PDFlags)
 except ImportError:
-    print "Unable to import listAODtoD2PD. This requires D2PDMaker-00-00-55-08 or D2PDMaker-00-00-62"
+    print("Unable to import listAODtoD2PD. This requires D2PDMaker-00-00-55-08 or D2PDMaker-00-00-62")
 try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
@@ -144,17 +145,17 @@ if hasattr(runArgs,"outputNTUP_FastCaloSimFile"):
 try:
     from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
 except(ImportError):
-    print "WARNING oldProdFlags not available. "
+    print("WARNING oldProdFlags not available. ")
     pass
 try:
     from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 except(ImportError):
-    print "WARNING D3PDMakerFlags not available. "
+    print("WARNING D3PDMakerFlags not available. ")
     pass
 try:
     from SUSYD3PDMaker.SUSYD3PDFlags    import SUSYD3PDFlags
 except(ImportError):
-    print "WARNING SUSYD3PDFlags not available. "
+    print("WARNING SUSYD3PDFlags not available. ")
     pass
 
 ## Pre-exec
@@ -180,7 +181,7 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 try:
     for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
 except NameError:
-    print "WARNING: oldProdFlags not available"
+    print("WARNING: oldProdFlags not available")
     pass
 
 ## Offline prescales (has to be *after* the topOptions)

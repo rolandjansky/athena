@@ -647,7 +647,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     std::string strOutpFile;
     // Get the full path of the event range output file
     for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
-      if(fdIt->path().string().find(rangeID)!=std::string::npos) {
+      if(fdIt->path().string().rfind(rangeID) == fdIt->path().string().size()-rangeID.size()) {
 	if(strOutpFile.empty()) {
 	  strOutpFile = fdIt->path().string();
 	}
@@ -716,8 +716,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
 {
   ATH_MSG_INFO("Fin function in the AthenaMP worker PID=" << getpid());
-
-  abort();
 
   if(m_appMgr->stop().isFailure()) {
     ATH_MSG_WARNING("Unable to stop AppMgr"); 

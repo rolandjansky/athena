@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,14 @@ public:
   static uint8_t posLSB(uint8_t i);
 
   //Fast version of std::max<int>(0,x):
-  static int minZero(int x) { assert(int(x-(x&x>>(sizeof(int)*8-1)))==std::max<int>(0,x)); return x-(x&x>>(sizeof(int)*8-1)); }
+  // This relies on implementation and undefined behavior.
+  // On x86_64, the naive way of writing this will anyway compile to a conditional
+  // move, so this is likely no faster.  In any case, the only place this is used
+  // is from within a nest of other conditionals, so i really doubt that this
+  // will make any difference at all.  So go back to the simple
+  // way of writing this.
+  //static int minZero(int x) { assert(int(x-(x&x>>(sizeof(int)*8-1)))==std::max<int>(0,x)); return x-(x&x>>(sizeof(int)*8-1)); }
+  static int minZero(int x) { return std::max<int>(0, x); }
 
 private:
   template <uint8_t sizeofT> static uint8_t stageOffset8Bits(uint32_t stagepattern);

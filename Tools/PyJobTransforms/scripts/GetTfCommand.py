@@ -5,6 +5,7 @@
 ## GetTfCommand.py - prints the job transform command accociated with an AMI tag.
 # $Id$
 
+from __future__ import print_function
 import sys
 import argparse
 
@@ -33,14 +34,14 @@ def main():
 
     try:
         tag = TagInfo(args['AMI'], suppressNonJobOptions)
-    except TransformAMIException, e:
-        print 'An AMI exception was raised when trying to resolve the tag {0}.'.format(args['AMI'])
-        print 'Exception message was: {0}'.format(e.errMsg)
-        print 'Note that you need both suitable credentials to access AMI and access to the panda database (only works from inside CERN) for GetTfCommand.py to work.'
+    except TransformAMIException as e:
+        print('An AMI exception was raised when trying to resolve the tag {0}.'.format(args['AMI']))
+        print('Exception message was: {0}'.format(e.errMsg))
+        print('Note that you need both suitable credentials to access AMI and access to the panda database (only works from inside CERN) for GetTfCommand.py to work.')
         sys.exit(1)
 
     if not 'printOnlyCmdLine' in args:
-        print tag
+        print(tag)
 
         if 'argdict' in args:
             tag.dump(args['argdict'])
@@ -48,7 +49,7 @@ def main():
         # only print the command line, allows stuff like 
         # pathena --trf "`GetTfCommand --AMI q1234 --printOnlyCmdLine` --inputFile bla.input --maxEvents 42"
         trfCmdLine = tag.trfs[0].name + " " + tag.trfs[0]._argsToString(tag.trfs[0].physics)
-        print trfCmdLine.replace('"', '\\' + '"')
+        print(trfCmdLine.replace('"', '\\' + '"'))
 
 
 if __name__ == '__main__':

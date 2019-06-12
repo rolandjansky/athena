@@ -11,7 +11,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def electronSequence(ConfigFlags):
+def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
@@ -64,10 +64,10 @@ def electronSequence(ConfigFlags):
     return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
 
 
-def electronMenuSequence():
+def fastElectronMenuSequence():
     """ Creates 2nd step Electron  MENU sequence"""
     # retrievee the reco seuqence+IM
-    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(electronSequence, ConfigFlags)
+    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT

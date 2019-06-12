@@ -2,7 +2,7 @@
 
 __doc__ = "Configure the AsgPhotonIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the PhotonPhotonSelectorTools
@@ -14,7 +14,8 @@ def AsgPhotonIsEMSelectorCfg(flags, name, quality, menu=photonPIDmenu.menuDC14):
 
     acc = ComponentAccumulator()
 
-    mlog = logging.getLogger('AsgPhotonIsEMSelectorCfg')
+    mlog = logging.getLogger('AsgPhotonIsEMSelector')
+    mlog.debug('Start configuration')
 
     try:
         ntuple = PhotonIsEMMap(quality, menu)

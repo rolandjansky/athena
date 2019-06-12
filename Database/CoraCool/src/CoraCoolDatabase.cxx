@@ -101,21 +101,6 @@ bool CoraCoolDatabase::extractCoralConStr(const std::string& coolstr) {
       if (c2==std::string::npos) c2=coolstr.size();
       m_dbname=coolstr.substr(c1+7,c2-c1-7);
     }
-    // user and password are not currently used, as not passed to Oracle/MySQL
-    // have to rely on COOL already authenticating via env auth service
-    // this extraction of the user/password is therefore unneccessary
-    //c1=coolstr.find("user=");
-    //if (c1!=std::string::npos) {
-    //  c2=coolstr.find(";",c1+5);
-    //  if (c2==std::string::npos) c2=coolstr.size();
-    //  user=coolstr.substr(c1+7,c2-c1-5);
-    //}
-    //c1=coolstr.find("password=");
-    //if (c1!=std::string::npos) {
-    //  c2=coolstr.find(";",c1+9);
-    //  if (c2==std::string::npos) c2=coolstr.size();
-    //  passwd=coolstr.substr(c1+7,c2-c1-9);
-    //}
     // construct the connection string
     if (techno=="oracle" || techno=="mysql" || techno=="frontier") {
       if (!server.empty() && !schema.empty()) {

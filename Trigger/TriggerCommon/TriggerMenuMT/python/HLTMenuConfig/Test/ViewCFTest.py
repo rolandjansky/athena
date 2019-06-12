@@ -19,9 +19,9 @@ class ViewCFTest( unittest.TestCase ):
         topSequence.makeViewSequence += viewTestAlg1
 
         # Return the algorithm assuming it's in a view, or not
-        self.assertEqual( findViewAlgs( topSequence.getChildren(), [] ),
+        self.assertEqual( findViewAlgs( topSequence.getChildren(), {} ),
                           ( [ "viewTestAlg1" ], [] ) )
-        self.assertEqual( findViewAlgs( topSequence.getChildren(), ["makeViewSequence"] ),
+        self.assertEqual( findViewAlgs( topSequence.getChildren(), {"makeViewSequence":False} ),
                           ( [], [ "viewTestAlg1" ] ) )
 
         # Add a nested sequence
@@ -29,9 +29,14 @@ class ViewCFTest( unittest.TestCase ):
         topSequence.makeViewSequence.nestedSequence += viewTestAlg2
 
         # Return the algorithms depending on where the view is entered
-        self.assertEqual( findViewAlgs( topSequence.getChildren(), [] ),
+        self.assertEqual( findViewAlgs( topSequence.getChildren(), {} ),
                           ( [ "viewTestAlg1", "viewTestAlg2" ], [] ) )
-        self.assertEqual( findViewAlgs( topSequence.getChildren(), ["makeViewSequence"] ),
+        self.assertEqual( findViewAlgs( topSequence.getChildren(), {"makeViewSequence":False} ),
                           ( [], [ "viewTestAlg1", "viewTestAlg2" ] ) )
-        self.assertEqual( findViewAlgs( topSequence.getChildren(), ["nestedSequence"] ),
+        self.assertEqual( findViewAlgs( topSequence.getChildren(), {"nestedSequence":False} ),
                           ( [ "viewTestAlg1" ], [ "viewTestAlg2" ] ) )
+
+        # Check that the test finds view nodes by name
+        viewNodeDict = {"makeViewSequence":False, "aFakeNode":False}
+        findViewAlgs( topSequence.getChildren(), viewNodeDict )
+        self.assertEqual( viewNodeDict, {"makeViewSequence":True, "aFakeNode":False} )

@@ -30,11 +30,11 @@ namespace Muon {
 
   MuonSegmentFittingTool::MuonSegmentFittingTool( const std::string& t, const std::string& n, const IInterface*  p ) :
     AthAlgTool(t,n,p),
-    m_slPropagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
+    m_slPropagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator", this),
     m_magFieldProperties(Trk::NoField),
-    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
-    m_curvedTrackFitter("Trk::GlobalChi2Fitter/MCTBFitter"),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
+    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
+    m_curvedTrackFitter("Trk::GlobalChi2Fitter/MCTBFitter", this),
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     declareInterface<IMuonSegmentFittingTool>(this);

@@ -43,7 +43,6 @@ def precisionCaloMenuSequence():
 
     thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT("precisionCaloHypo")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
-    precisionCaloMenuDefs.precisionCaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 

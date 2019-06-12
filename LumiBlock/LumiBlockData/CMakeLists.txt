@@ -35,3 +35,7 @@ atlas_add_test( LuminosityCondData_test
   SOURCES test/LuminosityCondData_test.cxx
   LINK_LIBRARIES LumiBlockData )
 
+atlas_add_test( TrigLiveFractionCondData_test
+  SOURCES test/TrigLiveFractionCondData_test.cxx
+  LINK_LIBRARIES LumiBlockData )
+

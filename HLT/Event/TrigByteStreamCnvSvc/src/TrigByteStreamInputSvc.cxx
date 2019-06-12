@@ -8,7 +8,6 @@
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // TDAQ includes

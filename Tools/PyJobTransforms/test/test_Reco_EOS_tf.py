@@ -45,7 +45,7 @@ class Reco_tftest(unittest.TestCase):
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
             dataDict = pyJobReportToFileDict(md)
-            self.assertTrue('ESD' in dataDict.keys())
+            self.assertTrue('ESD' in dataDict)
             self.assertEqual(dataDict['ESD']['subFiles'][0]['nentries'], 10)
             self.assertEqual(dataDict['ESD']['subFiles'][0]['geometry'], 'ATLAS-GEO-20-00-01')
             self.assertEqual(dataDict['ESD']['subFiles'][0]['conditions_tag'], 'COMCOND-BLKPA-006-01')

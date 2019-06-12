@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from cPickle import loads
 from pkg_resources import resource_string
 
 from .lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, GoodIOV, OUT_OF_CONFIG,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamEventStorageInputSvc.h"
@@ -19,9 +19,8 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/Token.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventAuxInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 #include "eformat/HeaderMarker.h"
 #include "eformat/SourceIdentifier.h"
@@ -526,28 +525,50 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     //add the Dhe self reference to the object vector
     Dh->insert(Dhe);
 
-    if (m_sgSvc->contains<EventInfo>("ByteStreamEventInfo")) {
-      // Temporary event header pointer for retrieval of the old one , if exists
-      const EventInfo* Ei_temp = nullptr;
-      //Ei_temp = m_sgSvc->retrieve<EventInfo>("ByteStreamEventInfo");
-      if (m_sgSvc->retrieve(Ei_temp,"ByteStreamEventInfo").isSuccess()) {
+    // Cleanup EventInfo from the previous event, if exists
+    if (m_sgSvc->contains<xAOD::EventInfo>("EventInfo")) {
+      // Temporary event info pointer for retrieval of the old one
+      const xAOD::EventInfo* Ei_temp{nullptr};
+      if (m_sgSvc->retrieve(Ei_temp,"EventInfo").isSuccess()) {
         StatusCode sc = m_sgSvc->remove(Ei_temp);
         if (!sc.isSuccess()) {
-          ATH_MSG_ERROR("Failed to remove ByteStreamEventInfo");
+          ATH_MSG_ERROR("Failed to remove EventInfo");
         }
       }
     }
-    // Now add ref to EventInfo objects
-    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-    StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);
-    if (ioc.isSuccess()) {
-      const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
-      if (ptmp !=0) {
-        DataHeaderElement DheEI(ptmp, 0, "ByteStreamEventInfo");
-        Dh->insert(DheEI);
+    if (m_sgSvc->contains<xAOD::EventAuxInfo>("EventInfoAux.")) {
+      // Temporary event info Aux store pointer for retrieval of the old one
+      const xAOD::EventAuxInfo* EiAux_temp{nullptr};
+      if (m_sgSvc->retrieve(EiAux_temp,"EventInfoAux.").isSuccess()) {
+        StatusCode sc = m_sgSvc->remove(EiAux_temp);
+        if (!sc.isSuccess()) {
+          ATH_MSG_ERROR("Failed to remove EventAuxInfo");
+        }
       }
-      //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
     }
+
+    // Now add ref to xAOD::EventInfo
+    IOpaqueAddress* iopx = new ByteStreamAddress(ClassID_traits<xAOD::EventInfo>::ID(), "EventInfo", "");
+    StatusCode iocx = m_sgSvc->recordAddress("EventInfo",iopx);
+    if (iocx.isSuccess()) {
+      const SG::DataProxy* ptmpx = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventInfo>::ID(), "EventInfo");
+      if (ptmpx !=0) {
+	DataHeaderElement DheEIx(ptmpx, 0, "EventInfo");
+	Dh->insert(DheEIx);
+      }
+    }
+
+    // Now add ref to xAOD::EventAuxInfo
+    IOpaqueAddress* iopaux = new ByteStreamAddress(ClassID_traits<xAOD::EventAuxInfo>::ID(), "EventInfoAux.", "");
+    StatusCode iocaux = m_sgSvc->recordAddress("EventInfoAux.",iopaux);
+    if (iocaux.isSuccess()) {
+      const SG::DataProxy* ptmpaux = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventAuxInfo>::ID(), "EventInfoAux.");
+      if (ptmpaux !=0) {
+	DataHeaderElement DheEIAux(ptmpaux, 0, "EventInfoAux.");
+	Dh->insert(DheEIAux);
+      }
+    }
+
     // Record new data header.Boolean flags will allow it's deletionin case
     // of skipped events.
     return m_sgSvc->record<DataHeader>(Dh, "ByteStreamDataHeader", true, false, true);

@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test on MC running L1 simulation and the muon menu
+# art-description: athenaMT trigger test on MC running L1 simulation and the LS2_v1 muon menu from TriggerMenuMT
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.log

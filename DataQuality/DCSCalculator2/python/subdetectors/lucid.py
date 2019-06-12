@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Lucid's criteria are that:
@@ -13,7 +13,7 @@ from DQUtils.sugar import IOVSet
 from DCSCalculator2.lib import DCSC_Subdetector_DefectsOnly, DCSC_Defect_Global_Variable
 from DCSCalculator2.variable import DefectIOV
 
-from DCSCalculator2.subdetectors.magnets import Magnet_Currents, Magnets
+from DCSCalculator2.subdetectors.magnets import Magnets
 
 class Lucid_Magnets(DCSC_Defect_Global_Variable):
 

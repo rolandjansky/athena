@@ -7,6 +7,8 @@
 #  @author atlas-comp-transforms-dev@cern.ch
 #  @version $Id: test_trfEnv.py 588222 2014-03-18 14:37:06Z graemes $
 
+from __future__ import print_function
+from builtins import str
 import sys
 import unittest
 
@@ -46,8 +48,8 @@ class trfEnvTests(unittest.TestCase):
         argDict = {'env': argSubstepList(["KEY1=VALUE1","KEY2=VALUE2","KEY3=VALUE3"]),
                    'imf': argSubstepBool('True')}
         envUp.setStandardEnvironment(argDict)
-        print envUp.values
-        print envUp._envdict
+        print(envUp.values)
+        print(envUp._envdict)
         self.assertTrue("KEY1" in envUp._envdict)
         self.assertTrue("LD_PRELOAD" in envUp._envdict)
         

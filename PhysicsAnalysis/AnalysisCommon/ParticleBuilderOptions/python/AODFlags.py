@@ -92,7 +92,7 @@ class ThinInDetForwardTrackParticles(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
  
 class Muon(JobProperty):

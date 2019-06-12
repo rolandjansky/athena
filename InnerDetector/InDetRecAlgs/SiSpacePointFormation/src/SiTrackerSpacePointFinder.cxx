@@ -148,11 +148,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   }
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
-  if (!m_overrideBS){
-    ATH_CHECK(m_beamSpotKey.initialize());
-  }else{
-//    m_beamSpotKey = "";//Remove request for condition object
-  }
+  ATH_CHECK(m_beamSpotKey.initialize(!m_overrideBS));
 
   ATH_CHECK(m_SpacePointCache_SCTKey.initialize(!m_SpacePointCache_SCTKey.key().empty()));
   ATH_CHECK(m_SpacePointCache_PixKey.initialize(!m_SpacePointCache_PixKey.key().empty()));

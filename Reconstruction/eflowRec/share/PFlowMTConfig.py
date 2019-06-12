@@ -50,6 +50,7 @@ PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
 
 from eflowRec.eflowRecFlags import jobproperties
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFCellLevelSubtractionTool.CalcEOverP = True
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
 else:
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
@@ -100,7 +101,8 @@ MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
 MatchingTool_Recover.MatchCut = 0.2*0.2 # float
 PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
 
-PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
+if jobproperties.eflowRecFlags.eflowAlgType != "EOverP":
+   PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
 
 from eflowRec.eflowRecConf import PFMomentCalculatorTool
 PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
@@ -225,12 +227,18 @@ topSequence += PFAlgorithm
 from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
 PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+
 topSequence += PFOChargedCreatorAlgorithm
 
 from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
 PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
 if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
+
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
    
 topSequence += PFONeutralCreatorAlgorithm
 

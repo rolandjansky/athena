@@ -80,17 +80,17 @@ namespace Muon {
     AthAlgTool(t,n,p),
     m_detMgr(0),
     m_intersectSvc("MuonStationIntersectSvc", name()),
-    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_mdtCreatorT0("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
+    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
+    m_mdtCreatorT0("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
+    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
+    m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder"),
-    m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"),
-    m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-    m_dcslFitProvider(""),
+    m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder", this),
+    m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this),
+    m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
+    m_dcslFitProvider("", this),
     m_rpcKey("RPC_Measurements"),
     m_tgcKey("TGC_Measurements"),
     m_mdtKey("MDT_DriftCircles")
@@ -101,6 +101,7 @@ namespace Muon {
     declareProperty("MuonStationIntersectSvc", m_intersectSvc);
     declareProperty("MdtCreator",     m_mdtCreator);
     declareProperty("MdtCreatorT0",     m_mdtCreatorT0);
+    declareProperty("MuonClusterCreator", m_clusterCreator);
     declareProperty("MuonCompetingClustersCreator",     m_compClusterCreator);
     declareProperty("IdHelper", m_idHelperTool);
     declareProperty("EDMPrinter", m_printer);
@@ -506,6 +507,9 @@ namespace Muon {
     
     /* ***** create MDT hits ************ */
     ATH_MSG_DEBUG(" adding mdts " << mdts.size());
+    for (auto it : mdts)
+      ATH_MSG_DEBUG(*it);
+    
     // set to get Identifiers of chambers with hits
     std::set<Identifier> chamberSet;
     double phimin=-9999,phimax=9999;
@@ -824,7 +828,7 @@ namespace Muon {
     if(!outoftimeVec.empty()) holeVec.insert(holeVec.end(),outoftimeVec.begin(),outoftimeVec.end());
     MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), holeVec );
 
-    TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
+    const TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
 
     if( dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
       if( !dcslFitter->fit( segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {

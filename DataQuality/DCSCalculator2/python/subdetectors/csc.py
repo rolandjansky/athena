@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable, DCSC_Global_Variable
+from DCSCalculator2.lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable, DCSC_Global_Variable
 
 CSCEA, CSCEC = 334, 335
 
@@ -15,7 +15,7 @@ class CSC(DCSC_DefectTranslate_Subdetector):
 
     variables = [
         DCSC_Variable       ("LAYERSTATE", lambda iov: iov.HVState == iov.LVState == 1),
-        DCSC_Global_Variable("GASSTATE",   lambda iov: iov.State == True),
+        DCSC_Global_Variable("GASSTATE",   lambda iov: iov.State is True),
     ]
     
     # If you change this please consult with the Muon groups.

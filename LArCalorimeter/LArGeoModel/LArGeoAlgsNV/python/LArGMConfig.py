@@ -10,6 +10,8 @@ def LArGMCfg(configFlags):
     
     from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
     result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
+    if not configFlags.Detector.SimulateCalo:
+        result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
 
     if doAlignment:
         if configFlags.Input.isMC:

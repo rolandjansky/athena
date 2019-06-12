@@ -1,3 +1,12 @@
+from __future__ import print_function
+from future.utils import iteritems
+from future.utils import itervalues
+from future.utils import listvalues
+
+from past.builtins import basestring
+from builtins import object
+from builtins import int
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfArgClasses
@@ -50,7 +59,7 @@ class argFactory(object):
                 obj = self._genclass(*self._args, **self._kwargs)
             else:
                 obj = self._genclass(valueString, *self._args, **self._kwargs)
-        except Exception, e:
+        except Exception as e:
             msg.fatal('Got this exception raised when calling object factory: {0}'.format(e))
             raise
         return obj
@@ -152,7 +161,7 @@ class argString(argument):
     #  @details Sets value directly if it's a @c str, otherwise call the @c str() converter
     @value.setter
     def value(self, value):
-        if value == None:
+        if value is None:
             # For strings, None maps to ''
             self._value = ''
         else:
@@ -194,7 +203,7 @@ class argInt(argument):
     #  @throws trfExceptions.TransformArgException if @c int() conversion fails 
     @value.setter
     def value(self, value):
-        if value == None:
+        if value is None:
             # For ints None maps to 0
             self._value = 0
         else:
@@ -204,7 +213,7 @@ class argInt(argument):
                 ## We try hard to convert the value we were given - anything @c int() swallows we accept
                 try:
                     self._value = int(value)
-                except ValueError, e:
+                except ValueError as e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                               'Failed to convert value {0} to int: {1}'.format(value, e))
 
@@ -251,7 +260,7 @@ class argFloat(argument):
     @value.setter
     def value(self, value=None):
         # Default value will be 0.0 or self._min (if defined)
-        if value == None:
+        if value is None:
             if self._min is not None:
                 self._value = self._min
             else:
@@ -266,7 +275,7 @@ class argFloat(argument):
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'),
                                                           'Failed to convert %s to a float' % str(value))
             
-            if (self._min != None and self.value < self._min) or (self._max != None and self._value > self._max):
+            if (self._min is not None and self.value < self._min) or (self._max is not None and self._value > self._max):
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
                                                           'argFloat value out of range: %g is not between %s and %s' % 
                                                           (self.value, self._min, self._max))
@@ -289,7 +298,7 @@ class argBool(argument):
     @value.setter
     def value(self, value):
         # Default value matches the python bool() constructor
-        if value == None:
+        if value is None:
             self._value = False
         else:
             if isinstance(value, bool):
@@ -339,13 +348,13 @@ class argList(argument):
     def value(self, value):
         if isinstance(value, (list, tuple)):
             self._value = list(value)
-        elif value==None:
+        elif value is None:
             self._value = []
             return
         else:
             try:
                 if self._supressEmptyStrings:
-                    self._value = [ v for v in value.split(self._splitter) if v is not '' ]
+                    self._value = [ v for v in value.split(self._splitter) if v != '' ]
                 else:
                     self._value = value.split(self._splitter)
             except AttributeError:
@@ -386,17 +395,17 @@ class argIntList(argList):
     def value(self, value):
         if isinstance(value, list):
             for v in value:
-                if not isinstance(v, (int, long)):
+                if not isinstance(v, int):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
                                                               'Illegal value {0} in list of ints'.format(v))
             self._value = value
-        elif value==None:
+        elif value is None:
             self._value = []
             return
         else:
             try:
                 if self._supressEmptyStrings:
-                    self._value = [ v for v in value.split(self._splitter) if v is not '' ]
+                    self._value = [ v for v in value.split(self._splitter) if v != '' ]
                 else:
                     self._value = value.split(self._splitter)
                 self._value = [ int(el) for el in self._value ]
@@ -442,22 +451,22 @@ class argKeyFloatValueList(argList):
     @value.setter
     def value(self, value):
         if isinstance(value, dict):
-            for k, v in value.iteritems():
-                if not isinstance(k, str):
+            for k, v in iteritems(value):
+                if not isinstance(k, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
                                                               'Illegal key argument type {0} in dictionary for argKeyFloatValueList'.format(k))
                 if not isinstance(v, float):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
                                                               'Illegal value argument type {0} in dictionary for argKeyFloatValueList'.format(v))
             self._value = value
-        elif value==None:
+        elif value is None:
             self._value = {}
             return
         else:
             self._value = {}
             try:
                 if self._supressEmptyStrings:
-                    kvlist = [ v for v in value.split(self._splitter) if v is not '' ]
+                    kvlist = [ v for v in value.split(self._splitter) if v != '' ]
                 else:
                     kvlist = value.split(self._splitter)
                 for item in kvlist:
@@ -533,7 +542,7 @@ class argFile(argList):
                               }
         self._fileMetadata = {}
         if multipleOK is None:
-            if self._io is 'input':
+            if self._io == 'input':
                 self._multipleOK = True
             else:
                 self._multipleOK = False
@@ -575,18 +584,18 @@ class argFile(argList):
     ## @brief mergeTargeSize value setter
     @mergeTargetSize.setter
     def mergeTargetSize(self, value):
-        if value==None:
+        if value is None:
             self._mergeTargetSize = 0
         else:
             self._mergeTargetSize = value
 
     @property
     def prodsysDescription(self):
-        if type(self._type) is types.DictType:
+        if isinstance(self._type, dict):
             if self._type=={}:
                 desc = {'type' : 'file', 'subtype' : "NONE" }
             else:
-                desc = {'type' : 'file', 'subtype' : dict((str(k).upper(), str(v).upper()) for (k,v) in self._type.iteritems())}
+                desc = {'type' : 'file', 'subtype' : dict((str(k).upper(), str(v).upper()) for (k,v) in iteritems(self._type))}
         else:
             desc = {'type' : 'file', 'subtype' : str(self._type).upper()}
             desc['multiple'] = self._multipleOK
@@ -613,7 +622,7 @@ class argFile(argList):
                     except KeyError:
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'),
                                                                   'Filename (key "lfn") not found in Tier-0 file dictionary: {0}'.format(myfile))
-                    for k, v in myfile.iteritems():
+                    for k, v in iteritems(myfile):
                         if k == 'guid':
                             self._setMetadata([myfile['lfn']], {'file_guid': v})
                         elif k == 'events':
@@ -630,7 +639,7 @@ class argFile(argList):
                 self._value = list(value)
                 self._getDatasetFromFilename(reset = False)
                 self._resetMetadata()
-        elif value==None:
+        elif value is None:
             self._value = []
             return
         else:
@@ -675,13 +684,13 @@ class argFile(argList):
             #  Problem is not so much the [] expansion, but the invisible .N attempt number
             #  One can only deal with this with a listdir() functionality
             #  N.B. Current transforms only do globbing on posix fs too (see trfutil.expandStringToList())  
-            if self._urlType is 'posix':
+            if self._urlType == 'posix':
                 msg.debug('Found POSIX filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
                     # Simple case
                     globbedFiles = glob.glob(filename)
-                    if len(globbedFiles) is 0:          # No files globbed for this 'filename' argument.
+                    if len(globbedFiles) == 0:          # No files globbed for this 'filename' argument.
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
                         'Input file argument {0} globbed to NO input files - probably the file(s) are missing'.format(filename))
 
@@ -691,7 +700,7 @@ class argFile(argList):
                 self._value = newValue
                 msg.debug ('File input is globbed to %s' % self._value)
 
-            elif self._urlType is 'root':
+            elif self._urlType == 'root':
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
@@ -735,7 +744,7 @@ class argFile(argList):
 
                             patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
                             for srmFile in myFiles:
-                                if fileMask is not '':
+                                if fileMask != '':
                                     if(patt.search(srmFile)) is not None:
                                     #if fnmatch.fnmatch(srmFile, fileMask):
                                         msg.debug('match: ',srmFile)
@@ -747,14 +756,14 @@ class argFile(argList):
                         except (AttributeError, TypeError, OSError):
                             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_RUNTIME_ERROR'),
                                                                       'Failed to convert %s to a list' % str(value))
-                if len(self._value) > 0 and len(newValue) is 0:
+                if len(self._value) > 0 and len(newValue) == 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
                                                               'Input file argument(s) {0!s} globbed to NO input files - ls command failed')
                 self._value = newValue
                 msg.debug ('File input is globbed to %s' % self._value)
         # Check if multiple outputs are ok for this object
-        elif self._multipleOK == False and len(self._value) > 1:
+        elif self._multipleOK is False and len(self._value) > 1:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                       'Multiple file arguments are not supported for {0} (was given: {1}'.format(self, self._value))
             
@@ -853,10 +862,10 @@ class argFile(argList):
             if events is None:
                 msg.debug('Got events=None for file {0} - returning None for this instance'.format(fname))
                 return None
-            if events is 'UNDEFINED':
+            if events == 'UNDEFINED':
                 msg.debug('Got events=UNDEFINED for file {0} - returning UNDEFINED for this instance'.format(fname))
                 return 'UNDEFINED'
-            if not isinstance(events, (int, long)):
+            if not isinstance(events, int):
                 msg.warning('Got unexpected events metadata for file {0}: {1!s} - returning None for this instance'.format(fname, events))
                 return None
             totalEvents += events
@@ -885,7 +894,7 @@ class argFile(argList):
         # If we have the special guid option, then manually try to set GUIDs we find
         if self._guid is not None:
             msg.debug('Now trying to set file GUID metadata using {0}'.format(self._guid))
-            for fname, guid in self._guid.iteritems():
+            for fname, guid in iteritems(self._guid):
                 if fname in self._value:
                     self._fileMetadata[fname]['file_guid'] = guid
                 else:
@@ -901,13 +910,13 @@ class argFile(argList):
         # Normalise the files and keys parameter
         if files is None:
             files = self._value
-        elif isinstance(files, str):
+        elif isinstance(files, basestring):
             files = (files,)
         msg.debug('getMetadata will examine these files: {0!s}'.format(files))
 
         if metadataKeys is None:
-            metadataKeys = self._metadataKeys.keys()
-        elif isinstance(metadataKeys, str):
+            metadataKeys = list(self._metadataKeys)
+        elif isinstance(metadataKeys, basestring):
             metadataKeys = (metadataKeys,)
         if maskMetadataKeys is not None:
             for key in maskMetadataKeys:
@@ -944,7 +953,7 @@ class argFile(argList):
     #  @param populate If missing key should be generated by calling the population subroutines
     #  @param flush If cached data should be flushed and the generator rerun 
     def getSingleMetadata(self, fname, metadataKey, populate = True, flush = False):
-        if not (isinstance(fname, str) and isinstance(metadataKey, str)):
+        if not (isinstance(fname, basestring) and isinstance(metadataKey, basestring)):
             raise trfExceptions.TransformInternalException(trfExit.nameToCode('TRF_INTERNAL'), 
                                                            'Illegal call to getSingleMetadata function: {0!s} {1!s}'.format(fname, metadataKey))
         md = self.getMetadata(files = fname, metadataKeys = metadataKey, populate = populate, flush = flush)
@@ -967,7 +976,7 @@ class argFile(argList):
             if self._fileMetadata[fname]['_exists'] is False:
                 # N.B. A log ERROR message has printed by the existence test, so do not repeat that news here
                 for key in metadataKeys:
-                    if key is not '_exists':
+                    if key != '_exists':
                         self._fileMetadata[fname][key] = None
             else:
                 # OK, file seems to exist at least... 
@@ -979,13 +988,13 @@ class argFile(argList):
                         if key in self._fileMetadata[fname]:
                             msg.debug('Found cached value for {0}:{1} = {2!s}'.format(fname, key, self._fileMetadata[fname][key]))
                         else:
-                            msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(fname, key, self._metadataKeys[key].func_name, self._metadataKeys[key]))
+                            msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(fname, key, self._metadataKeys[key].__name__, self._metadataKeys[key]))
                             try:
                                 # For efficiency call this routine with all files we have
                                 msg.info("Metadata generator called to obtain {0} for {1}".format(key, files))
                                 self._metadataKeys[key](files)
-                            except trfExceptions.TransformMetadataException, e:
-                                msg.error('Calling {0!s} raised an exception: {1!s}'.format(self._metadataKeys[key].func_name, e))
+                            except trfExceptions.TransformMetadataException as e:
+                                msg.error('Calling {0!s} raised an exception: {1!s}'.format(self._metadataKeys[key].__name__, e))
                             if key not in self._fileMetadata[fname]:
                                 msg.warning('Call to function {0} for {1} file {2} failed to populate metadata key {3}'.format(self._metadataKeys[key].__name__, self.__class__.__name__, fname, key))
                                 self._fileMetadata[fname][key] = None
@@ -1003,12 +1012,12 @@ class argFile(argList):
     #  @param files Files to set metadata for (@c None means "all")
     #  @param metadataKeys Dictionary with metadata keys and values
     def _setMetadata(self, files=None, metadataKeys={}):
-        if files == None:
+        if files is None:
             files = self._value
         for fname in files:
             if fname not in self._fileMetadata:
                 self._fileMetadata[fname] = {}
-            for k, v in metadataKeys.iteritems():
+            for k, v in iteritems(metadataKeys):
                 msg.debug('Manualy setting {0} for file {1} to {2}'.format(k, fname, v))
                 self._fileMetadata[fname][k] = v
     
@@ -1023,11 +1032,11 @@ class argFile(argList):
         msg.debug('Testing for cached values for files {0} and keys {1}'.format(files, metadataKeys))
         if files is None:
             files = self._value
-        elif isinstance(files, str):
+        elif isinstance(files, basestring):
             files = (files,)
         if metadataKeys is None:
-            metadataKeys = self._metadataKeys.keys()
-        elif isinstance(metadataKeys, str):
+            metadataKeys = list(self._metadataKeys)
+        elif isinstance(metadataKeys, basestring):
             metadataKeys = (metadataKeys,)
             
         isCachedFlag = True
@@ -1036,7 +1045,7 @@ class argFile(argList):
                 if key not in self._fileMetadata[fname]:
                     isCachedFlag = False
                     break
-            if isCachedFlag == False:
+            if isCachedFlag is False:
                 break
             
         return isCachedFlag
@@ -1073,7 +1082,7 @@ class argFile(argList):
     #  @return None (internal @c self._fileMetadata cache is updated)
     def _getSize(self, files):
         for fname in files:
-            if self._urlType is 'posix':
+            if self._urlType == 'posix':
                 try:
                     self._fileMetadata[fname]['size'] = os.stat(fname).st_size
                 except (IOError, OSError) as e:
@@ -1122,7 +1131,7 @@ class argFile(argList):
     def _exists(self, files):
         msg.debug('Testing existance for {0}'.format(files))
         for fname in files:
-            if self._urlType is 'posix':
+            if self._urlType == 'posix':
                 try:
                     size = os.stat(fname).st_size
                     self._fileMetadata[fname]['file_size'] = size
@@ -1208,7 +1217,7 @@ class argAthenaFile(argFile):
         # N.B. Could parallelise here            
         for fname in myFiles:
             athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
-            if athFileMetadata == None:
+            if athFileMetadata is None:
                 raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaLiteFileInfo failed')
             msg.debug('Setting metadata for file {0} to {1}'.format(fname, athFileMetadata[fname]))
             self._fileMetadata[fname].update(athFileMetadata[fname])
@@ -1823,13 +1832,13 @@ class argSubstep(argument):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
         if value is None:
             self._value = {}
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             self._value = dict(self._parseStringAsSubstep(value))
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse, so we go through them one by one
             self._value = {}
             for item in value:
-                if not isinstance(item, str):
+                if not isinstance(item, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 self._value.update(dict(self._parseStringAsSubstep(item)))
         elif isinstance(value, dict):
@@ -1871,13 +1880,13 @@ class argSubstep(argument):
             
         value = None
         ## @note First we see if we have an explicit name or substep match, then a special 'first' or 'default' match
-        if name in self._value.keys():
+        if name in self._value:
             value = self._value[name]
-        elif substep in self._value.keys():
+        elif substep in self._value:
             value = self._value[substep]  
-        elif first and 'first' in self._value.keys():
+        elif first and 'first' in self._value:
             value = self._value['first']
-        elif 'default' in self._value.keys(): 
+        elif 'default' in self._value:
             value = self._value['default']
             
         ## @note Now see how we should handle an 'all', if it exists.
@@ -1888,7 +1897,7 @@ class argSubstep(argument):
         ## @note Defining all: for a key which is not composable (like a list)
         #  doesn't make much sense and, in this case, the specific value is allowed
         #  to trump the all:
-        if 'all' in self._value.keys():
+        if 'all' in self._value:
             if value is None:
                 value = self._value['all']
             elif isinstance(value, list):
@@ -1936,13 +1945,13 @@ class argSubstepList(argSubstep):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
         if value is None:
             self._value = {}
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             self._value = dict(self._parseStringAsSubstep(value))
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
             for item in value:
-                if not isinstance(item, str):
+                if not isinstance(item, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 subStepList = self._parseStringAsSubstep(item)
                 for subStep in subStepList:
@@ -1951,8 +1960,8 @@ class argSubstepList(argSubstep):
                     else:
                         self._value[subStep[0]] = subStep[1]
         elif isinstance(value, dict):
-            for k, v in value.iteritems():
-                if not isinstance(k, str):
+            for k, v in iteritems(value):
+                if not isinstance(k, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
                 if not isinstance(v, list):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a list'.format(v))
@@ -1989,23 +1998,23 @@ class argSubstepString(argSubstep):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
         if value is None:
             self._value = {}
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             subStepList = self._parseStringAsSubstep(value)
             self._value = dict([(subStep[0], subStep[1]) for subStep in subStepList])
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
             for item in value:
-                if not isinstance(item, str):
+                if not isinstance(item, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 subStepList = self._parseStringAsSubstep(item)
                 for subStep in subStepList:
                     self._value[subStep[0]] = subStep[1]
         elif isinstance(value, dict):
-            for k, v in value.iteritems():
-                if not isinstance(k, str):
+            for k, v in iteritems(value):
+                if not isinstance(k, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
-                if not isinstance(v, str):
+                if not isinstance(v, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a string'.format(v))
             self._value = value
         else:
@@ -2032,21 +2041,21 @@ class argSubstepBool(argSubstep):
             self._value = {}
         elif isinstance(value, bool):
             self._value = {self._defaultSubstep: value}
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             subStepList = self._parseStringAsSubstep(value)
             self._value = dict([(subStep[0], strToBool(subStep[1])) for subStep in subStepList])
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
             for item in value:
-                if not isinstance(item, str):
+                if not isinstance(item, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 subStepList = self._parseStringAsSubstep(item)
                 for subStep in subStepList:
                     self._value[subStep[0]] = strToBool(subStep[1])
         elif isinstance(value, dict):
-            for k, v in value.iteritems():
-                if not isinstance(k, str):
+            for k, v in iteritems(value):
+                if not isinstance(k, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
                 if not isinstance(v, bool):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a bool'.format(v))
@@ -2077,28 +2086,28 @@ class argSubstepInt(argSubstep):
                 self._value = {}
             elif isinstance(value, int):
                 self._value = {self._defaultSubstep: value}
-            elif isinstance(value, str):
+            elif isinstance(value, basestring):
                 subStepList = self._parseStringAsSubstep(value)
                 self._value = dict([(subStep[0], int(subStep[1])) for subStep in subStepList])
             elif isinstance(value, (list, tuple)):
                 # This is a list of strings to parse
                 self._value = {}
                 for item in value:
-                    if not isinstance(item, str):
+                    if not isinstance(item, basestring):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                     subStepList = self._parseStringAsSubstep(item)
                     for subStep in subStepList:
                         self._value[subStep[0]] = int(subStep[1])
             elif isinstance(value, dict):
-                for k, v in value.iteritems():
-                    if not isinstance(k, str):
+                for k, v in iteritems(value):
+                    if not isinstance(k, basestring):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
-                    if not isinstance(v, (int, long)):
+                    if not isinstance(v, int):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not an int'.format(v))
                 self._value = value
             else:
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
-        except ValueError, e:
+        except ValueError as e:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert substep value {0} to int'.format(value))
 
 
@@ -2136,22 +2145,22 @@ class argSubstepFloat(argSubstep):
                 self._value = {}
             elif isinstance(value, float):
                 self._value = {self._defaultSubstep: value}              
-            elif isinstance(value, str):
+            elif isinstance(value, basestring):
                 subStepList = self._parseStringAsSubstep(value)
                 self._value = dict([(subStep[0], float(subStep[1])) for subStep in subStepList])
             elif isinstance(value, (list, tuple)):
                 # This is a list of strings to parse
                 self._value = {}
                 for item in value:
-                    if not isinstance(item, str):
+                    if not isinstance(item, basestring):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                     subStepList = self._parseStringAsSubstep(item)
                     for subStep in subStepList:
                         self._value[subStep[0]] = float(subStep[1])
             elif isinstance(value, dict):
-                for k, v in value.iteritems():
-                    if not isinstance(k, str):
+                for k, v in iteritems(value):
+                    if not isinstance(k, basestring):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Dictionary key {0!s} for substep is not a string'.format(k))
                     if not isinstance(v, float):
@@ -2162,11 +2171,11 @@ class argSubstepFloat(argSubstep):
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                           'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
             # Now do min/max checks
-            for my_float in self._value.values():
-                if (self._min != None and my_float < self._min) or (self._max != None and my_float > self._max):
+            for my_float in itervalues(self._value):
+                if (self._min is not None and my_float < self._min) or (self._max is not None and my_float > self._max):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
                                                               'argFloat value out of range: {0} is not between {1} and {2}'.format(my_float, self._min, self._max))
-        except ValueError, e:
+        except ValueError as e:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                       'Failed to convert substep value {0} to float: {1}'.format(value, e))
 
@@ -2222,8 +2231,8 @@ class argSubstepSteering(argSubstep):
             self._dumpvalue = [""]
         elif isinstance(value, dict):
             # OK, this should be the direct setable dictionary - but do a check of that
-            for k, v in value.iteritems():
-                if not isinstance(k, str) or not isinstance(v, list):
+            for k, v in iteritems(value):
+                if not isinstance(k, basestring) or not isinstance(v, list):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                               'Failed to convert dict {0!s} to argSubstepSteering'.format(value))
                 for subv in v:
@@ -2236,19 +2245,19 @@ class argSubstepSteering(argSubstep):
             # multi-valued argument we re-call value() with an expanded diectionary and
             # one can nievely reset dumpvalue by mistake
             self._dumpvalue = getattr(self, "_dumpvalue", value)
-        elif isinstance(value, (str, list, tuple)):
-            if isinstance(value, str):
+        elif isinstance(value, (basestring, list, tuple)):
+            if isinstance(value, basestring):
                 value = [value,]
             self._dumpvalue = getattr(self, "_dumpvalue", value)
             # Now we have a list of strings to parse
             self._value = {}
             for item in value:
-                if not isinstance(item, str):
+                if not isinstance(item, basestring):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                               'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 if item in argSubstepSteering.steeringAlises:
                     msg.debug("Found value {0} in steeringAlises ({1})".format(item, argSubstepSteering.steeringAlises[item]))
-                    for substep, steerlist in argSubstepSteering.steeringAlises[item].iteritems():
+                    for substep, steerlist in iteritems(argSubstepSteering.steeringAlises[item]):
                         if substep in self._value:
                             self._value[substep].extend(steerlist)
                         else:
@@ -2288,9 +2297,9 @@ class argSubstepConditions(argSubstep):
         super(self.__class__, self.__class__).value.fset(self, value)
         
         current = None
-        for k, v in self._value.iteritems():
+        for k, v in iteritems(self._value):
             if "CurrentMC" == v:
-                if current == None:
+                if current is None:
                     current = self._amiLookUp(getAMIClient())
                 self._value[k] = current
 
@@ -2368,9 +2377,9 @@ class trfArgParser(argparse.ArgumentParser):
     @property
     def getProdsysDesc(self):
         desc = {}
-        for name, argClass in self._argClass.iteritems():
+        for name, argClass in iteritems(self._argClass):
             msg.debug('Detected the local variable {0}'.format(name))
-            if type(argClass)!=type(None):
+            if argClass is not None:
                 desc[name] = argClass().prodsysDescription
                 if name in self._helpString:
                     desc[name].update({'help': self._helpString[name]})
@@ -2397,14 +2406,14 @@ class trfArgParser(argparse.ArgumentParser):
     ## @brief Return a list of all arguments understood by this transform in prodsys style
     #  @details Arguments which are irrelevant for production are removed and the '--' is added back on          
     def dumpArgs(self):
-        keyArray = [ '--' + str(key) for key in self._helpString.keys() if key not in ('h', 'verbose', 'loglevel', 'dumpargs', 'argdict') ]
+        keyArray = [ '--' + str(key) for key in self._helpString if key not in ('h', 'verbose', 'loglevel', 'dumpargs', 'argdict') ]
         keyArray.sort()
-        print 'ListOfDefaultPositionalKeys={0}'.format(keyArray)
+        print('ListOfDefaultPositionalKeys={0}'.format(keyArray))
         
     ## Getter for argument list
     @property
     def allArgs(self):
-        return self._helpString.keys()
+        return list(self._helpString)
 
 
     ## @brief Call argument_parser parse_args, then concatenate values
@@ -2417,7 +2426,7 @@ class trfArgParser(argparse.ArgumentParser):
             super(trfArgParser, self).parse_args(args = args, namespace = namespace) 
         else:
             namespace = super(trfArgParser, self).parse_args(args = args)
-        for k, v in namespace.__dict__.iteritems(): 
+        for k, v in iteritems(namespace.__dict__):
             msg.debug('Treating key %s (%s)' % (k, v))
             if isinstance(v, list):
                 # We build on the v[0] instance as this contains the correct metadata
@@ -2478,14 +2487,14 @@ def strToBool(string):
 #  are not the same.
 def dictSubstepMerge(dict1, dict2):
     mergeDict = {}
-    allKeys = set(dict1.keys()) | set(dict2.keys())
+    allKeys = set(dict1) | set(dict2)
     # Find the value type - lists are special...
     listType = False
     if len(dict1) > 0:
-        if isinstance(dict1.values()[0], list):
+        if isinstance(listvalues(dict1)[0], list):
             listType = True
     elif len(dict2) > 0:
-        if isinstance(dict2.values()[0], list):
+        if isinstance(listvalues(dict2)[0], list):
             listType = True
     if listType:
         for key in allKeys:

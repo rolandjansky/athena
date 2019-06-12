@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_Subdetector, DCSC_Variable
+from DCSCalculator2.lib import DCSC_Subdetector, DCSC_Variable
 from DQUtils.sugar import IOVSet
 
 def offset_channelids(iovs, offset):

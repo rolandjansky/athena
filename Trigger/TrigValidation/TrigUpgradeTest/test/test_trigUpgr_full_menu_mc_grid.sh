@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test using the full menu from TrigUpgradeTest job options on MC
+# art-description: athenaMT trigger test using the full LS2_v1 menu from TriggerMenuMT
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.log
