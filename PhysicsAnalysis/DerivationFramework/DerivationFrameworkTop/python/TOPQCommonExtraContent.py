@@ -72,7 +72,7 @@
 #====================================================================
 
 #================================
-# SMART SLIMMING COLLECTIONS 
+# SMART SLIMMING COLLECTIONS
 #================================
 # list of existing containers with a smart list is available here :
 # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/FullListOfSmartContainers.py
@@ -354,7 +354,7 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "selected"]
 
 # for TOPQDERIV-62
-TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
+TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1 =  ["AntiKt4EMPFlowJets."
                                                   + "DoubleTagBDTOutput."
                                                   + "LargeJetLabel."
                                                   + "ExKtbb_MaxMV2c10."
