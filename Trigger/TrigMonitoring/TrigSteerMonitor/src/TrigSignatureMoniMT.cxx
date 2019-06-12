@@ -56,6 +56,11 @@ StatusCode TrigSignatureMoniMT::initialize() {
 }
 
 StatusCode TrigSignatureMoniMT::finalize() {
+
+  if (m_chainIDToBinMap.empty()) {
+    ATH_MSG_INFO( "No chains configured, no counts to print" );
+    return StatusCode::SUCCESS;
+  }
   
   auto collToString = [&]( int xbin, const LockedHandle<TH2>& hist, int startOfset=0, int endOffset=0){ 
     std::string v;
