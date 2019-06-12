@@ -182,6 +182,8 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 
         // run 3
 	declareProperty( "MuonCTPLoc", m_muctpiInputKey, "Name of input from Muctpi" );
+
+        declareProperty( "UseCondL1Menu", m_useCondL1Menu=false, "Use the new conditions-base configuration");
 	declareProperty( "L1Menu", m_l1MenuKey, "Name of L1 menu configuration");
 	
 	// declare monitoring variables
@@ -216,8 +218,9 @@ LVL1CTP::CTPSimulation::initialize() {
       renounce( m_muctpiInputKey );
    }
 
-   ATH_CHECK( m_l1MenuKey.initialize() );
-
+   if( m_useCondL1Menu ) {
+      ATH_CHECK( m_l1MenuKey.initialize() );
+   }
 	
    //
    // Set up the logger object:
@@ -919,19 +922,20 @@ LVL1CTP::CTPSimulation::execute() {
    
    ATH_MSG_DEBUG("Executing CTPSimulation algorithm");
 
-   const TrigConf::L1Menu * l1menu = SG::ReadCondHandle( m_l1MenuKey ).retrieve();
- 
-   if ( l1menu == nullptr || !l1menu->isValid() || l1menu->empty()) {
-      ATH_MSG_ERROR ( "No L1 menu provided, can't run");
-      return StatusCode::FAILURE;
-   }
-
    ATH_MSG_DEBUG( "execute: old style configSvc provides menu " << m_configSvc->ctpConfig()->name()
                   << " with " << m_configSvc->ctpConfig()->menu().items().size() << " items and "
                   << m_configSvc->ctpConfig()->menu().thresholdConfig().size() << " thresholds");
-   ATH_MSG_DEBUG( "execute: new style cond alg provides menu " << l1menu->name()
-                  << " with " << l1menu->size() << " items and "
-                  << l1menu->thresholds().size() << " thresholds");
+
+   if( m_useCondL1Menu ) {
+      const TrigConf::L1Menu * l1menu = SG::ReadCondHandle( m_l1MenuKey ).retrieve();
+      if ( l1menu == nullptr || !l1menu->isValid() || l1menu->empty()) {
+         ATH_MSG_ERROR ( "No L1 menu provided, can't run");
+         return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "execute: new style cond alg provides menu " << l1menu->name()
+                     << " with " << l1menu->size() << " items and "
+                     << l1menu->thresholds().size() << " thresholds");
+   }
 
    unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 

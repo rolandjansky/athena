@@ -236,6 +236,7 @@ namespace LVL1CTP {
       TH1I*  m_thrXETot { nullptr };
       TH1I*  m_thrXSTot { nullptr };
 
+      bool m_useCondL1Menu { false }; //!< flag to enable/disable use of new conditions-based configuration
       SG::ReadCondHandleKey<TrigConf::L1Menu> m_l1MenuKey { "L1Menu" };
 
    }; // class CTPSimulation
