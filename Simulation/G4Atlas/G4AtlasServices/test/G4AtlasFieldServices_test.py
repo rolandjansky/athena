@@ -36,7 +36,11 @@ if __name__ == '__main__':
   #add the algorithm
   acc1 = StandardFieldSvcCfg(ConfigFlags)
   acc2 = ForwardFieldSvcCfg(ConfigFlags)
-  acc3 = Q1FwdG4FieldSvcCfg(ConfigFlags)
+
+  #don't run for simulation only tests (todo - make new general test)
+  import os
+  if not "AthSimulation_DIR" in os.environ:
+    acc3 = Q1FwdG4FieldSvcCfg(ConfigFlags)
 
   cfg.merge(acc1)
   cfg.merge(acc2)

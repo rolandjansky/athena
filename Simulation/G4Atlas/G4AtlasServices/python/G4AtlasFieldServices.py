@@ -4,7 +4,10 @@ from G4AtlasServices.G4AtlasServicesConf import StandardFieldSvc
 
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
-from ForwardRegionMgField.ForwardRegionMgFieldConfigNew import Q1FieldSvcCfg, Q2FieldSvcCfg, Q3FieldSvcCfg, D1FieldSvcCfg, D2FieldSvcCfg, Q4FieldSvcCfg, Q5FieldSvcCfg, Q6FieldSvcCfg, Q7FieldSvcCfg, Q1hkickFieldSvcCfg, Q1vkickFieldSvcCfg, Q2hkickFieldSvcCfg, Q2vkickFieldSvcCfg, Q3hkickFieldSvcCfg, Q3vkickFieldSvcCfg, Q4vkickAFieldSvcCfg, Q4hkickFieldSvcCfg, Q4vkickBFieldSvcCfg, Q5hkickFieldSvcCfg, Q6vkickFieldSvcCfg
+import os
+#to prevent unit tests failing when just running over simulation
+if not "AthSimulation_DIR" in os.environ:
+    from ForwardRegionMgField.ForwardRegionMgFieldConfigNew import Q1FieldSvcCfg, Q2FieldSvcCfg, Q3FieldSvcCfg, D1FieldSvcCfg, D2FieldSvcCfg, Q4FieldSvcCfg, Q5FieldSvcCfg, Q6FieldSvcCfg, Q7FieldSvcCfg, Q1hkickFieldSvcCfg, Q1vkickFieldSvcCfg, Q2hkickFieldSvcCfg, Q2vkickFieldSvcCfg, Q3hkickFieldSvcCfg, Q3vkickFieldSvcCfg, Q4vkickAFieldSvcCfg, Q4hkickFieldSvcCfg, Q4vkickBFieldSvcCfg, Q5hkickFieldSvcCfg, Q6vkickFieldSvcCfg
 
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
     result = ComponentAccumulator()
