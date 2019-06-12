@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackCaloClusterAlgs includes
@@ -70,7 +70,7 @@ StatusCode TrackCaloClusterAlg::execute() {
 
 
   // Loop over each TCC tool  ...
-  for(const auto & tool : m_tccTools){
+  for(const ToolHandle<ITrackCaloClusterTool> & tool : m_tccTools){
     // .. and have it fills  tccContainer
     StatusCode sc=tool->fillTCC(tccContainer, *tccInfo);
     if(sc.isFailure()){
