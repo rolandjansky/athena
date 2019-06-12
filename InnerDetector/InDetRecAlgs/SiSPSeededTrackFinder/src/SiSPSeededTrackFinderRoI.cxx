@@ -140,9 +140,11 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   //
   m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
   double ZBoundary[2];
-  //SP-HACK: fix to given numbers while preparing tool
-  ZBoundary[0] = -1.0; //m_listRoIs(i).z_window[0];
-  ZBoundary[1] = 1.0;  //m_listRoIs(i).z_window[1];
+  if (m_listRoIs.size() == 0) {
+	return StatusCode::SUCCESS;
+  }
+  ZBoundary[0] = m_listRoIs[0].z_window[0];
+  ZBoundary[1] = m_listRoIs[0].z_window[1];
 
   // Find seeds that point within the RoI region in z
   //  

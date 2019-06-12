@@ -1359,37 +1359,6 @@ if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardP
 
 # ------------------------------------------------------------
 #
-# ----------- Loading of ZWindowRoISeedTool for LowPtRoI
-#
-# ------------------------------------------------------------
-
-if InDetFlags.doLowPtRoI():
-
-    # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool
-    from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
-    if InDetFlags.doTRTExtension() :
-      ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name      = 'InDetZWindowRoISeedTool',
-                                        InputTracksCollection   = InDetKeys.ExtendedLowPtRoITracks(),##
-                                        LeadingMinTrackPt       = 27000.0,
-                                        SubleadingMinTrackPt    = 20000.0,
-                                        TracksMaxEta            = 2.5,
-                                        TracksMaxD0             = 9999.,
-                                        MaxDeltaZTracksPair     = 1.0,
-                                        TrackZ0Window           = 1.0 )
-    else:
-      ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name      = 'InDetZWindowRoISeedTool',
-                                        InputTracksCollection   = InDetKeys.ResolvedLowPtRoITracks(),##
-                                        LeadingMinTrackPt       = 27000.0,
-                                        SubleadingMinTrackPt    = 20000.0,
-                                        TracksMaxEta            = 2.5,
-                                        TracksMaxD0             = 9999.,
-                                        MaxDeltaZTracksPair     = 1.0,
-                                        TrackZ0Window           = 1.0 )
-    ToolSvc += ZWindowRoISeedTool
-
-
-# ------------------------------------------------------------
-#
 # ----------- Loading of tools for Vertexing
 #
 # ------------------------------------------------------------

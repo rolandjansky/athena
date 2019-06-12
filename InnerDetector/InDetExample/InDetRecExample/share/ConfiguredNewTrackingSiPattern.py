@@ -162,6 +162,32 @@ class  ConfiguredNewTrackingSiPattern:
          else:
             InDetZvertexMaker = None
 
+
+         # ------------------------------------------------------------
+         #
+         # ----------- Loading of ZWindowRoISeedTool for LowPtRoI
+         #
+         # ------------------------------------------------------------
+
+         if InDetFlags.doLowPtRoI():
+
+            # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
+            InputZWindowTracks = SiSPSeededTrackCollectionKey  #list(InputCollections)
+            if InDetFlags.doTRTExtension() :
+               InputZWindowTracks = SiSPSeededTrackCollectionKey #Change!!!
+
+            ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
+                                        InputTracksCollection     = InputZWindowTracks,
+                                        LeadingMinTrackPt         = 27000.0,
+                                        SubleadingMinTrackPt      = 20000.0,
+                                        TracksMaxEta              = 2.5,
+                                        TracksMaxD0               = 9999.,
+                                        MaxDeltaZTracksPair       = 1.0,
+                                        TrackZ0Window             = 1.0 )
+            ToolSvc += ZWindowRoISeedTool
+
+
          #
          # --- SCT and Pixel detector elements road builder
          #
