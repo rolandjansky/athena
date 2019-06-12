@@ -111,7 +111,7 @@ from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 LbJpsipKVertexFit = Trk__TrkVKalVrtFitter(
     name                = "LbJpsipKVertexFit",
     Extrapolator        = BPHY11_VertexTools.InDetExtrapolator,
-    FirstMeasuredPoint  = True,
+    FirstMeasuredPoint  = False,
     MakeExtendedVertex  = True,
     usePassWithTrkErrCnst = True
 )
