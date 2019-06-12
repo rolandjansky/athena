@@ -253,9 +253,9 @@ if opt.doBphysicsSlice == True:
 ##################################################################
 if opt.doCombinedSlice == True:
     # combo chains
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastElectronSequenceCfg
 
-    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    fastCaloSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
 
     comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
     comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
