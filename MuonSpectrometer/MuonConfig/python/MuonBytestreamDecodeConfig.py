@@ -6,10 +6,10 @@ from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonCacheNames:
-    MdtCsmCache = "MdtCsmCache"
-    CscCache    = "CscCache"
-    RpcCache    = "RpcCache"
-    TgcCache    = "TgcCache"
+    MdtCsmCache = "MdtCsmRdoCache"
+    CscCache    = "CscRdoCache"
+    RpcCache    = "RpcRdoCache"
+    TgcCache    = "TgcRdoCache"
 
 ## This configuration function creates the IdentifiableCaches for RDO
 #
