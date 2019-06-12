@@ -225,10 +225,8 @@ class UniqueList(Descriptor):
                     raise TransformConfigError( '%s value %r is not one of %s' % \
                                                 (variableName, value, allowed) )
         # make entries unique
-        newValue = set() #[]
-        for v in value:
-            newValue.add( v )
-        return list( newValue )
+        from collections import OrderedDict
+        return list(OrderedDict.fromkeys(value))
 
 
     def _checkAllowedValues(self,variableName,allowedValues):

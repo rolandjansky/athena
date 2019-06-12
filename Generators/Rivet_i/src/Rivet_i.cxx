@@ -13,6 +13,9 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -26,15 +29,9 @@
 
 #include "YODA/ROOTCnv.h"
 
-/// @todo Eliminate Boost?
-#include <boost/algorithm/string.hpp>
-#include "boost/foreach.hpp"
-#ifndef foreach
-#define foreach BOOST_FOREACH
-#endif
-
 #include <cstdlib>
 #include <memory>
+
 using namespace std;
 
 
@@ -95,15 +92,21 @@ StatusCode Rivet_i::initialize() {
   const string cmtpath = getenv_str("CMTPATH");
   if (cmtpath.empty()) {
     ATH_MSG_WARNING("$CMTPATH variable not set: finding the main analysis plugin directory will be difficult...");
-  } else {
+  } 
+  else {
     vector<string> cmtpaths;
-    boost::split(cmtpaths, cmtpath, boost::is_any_of(string(":")));
+    std::stringstream ss(cmtpath);
+    std::string item;
+    while (std::getline(ss, item, ':')) {
+      cmtpaths.push_back(std::move(item));
+    }
     const string cmtconfig = getenv_str("CMTCONFIG");
     if (cmtconfig.empty()) {
       ATH_MSG_WARNING("$CMTCONFIG variable not set: finding the main analysis plugin directory will be difficult...");
-    } else {
+    } 
+    else {
       const string libpath = "/InstallArea/" + cmtconfig + "/lib";
-      foreach (const string& p, cmtpaths) {
+      for (const string& p : cmtpaths) {
         const string cmtlibpath = p + libpath;
         if (PathResolver::find_file_from_list("RivetMCAnalyses.so", cmtlibpath).empty()) continue;
         ATH_MSG_INFO("Appending " + cmtlibpath + " to default Rivet analysis search path");
@@ -115,7 +118,7 @@ StatusCode Rivet_i::initialize() {
 
   // Then re-grab RIVET_ANALYSIS_PATH and append all the discovered std plugin paths to it
   string anapathstr = getenv_str("RIVET_ANALYSIS_PATH");
-  foreach (const string& ap, anapaths) {
+  for (const string& ap : anapaths) {
     if (anapathstr.size() > 0) anapathstr += ":";
     anapathstr += ap;
   }
@@ -137,11 +140,11 @@ StatusCode Rivet_i::initialize() {
   if (msgLvl(MSG::VERBOSE)) {
     vector<string> analysisNames = Rivet::AnalysisLoader::analysisNames();
     ATH_MSG_VERBOSE("List of available Rivet analyses:");
-    foreach (const string& a, analysisNames) ATH_MSG_VERBOSE(" " + a);
+    for (const string& a : analysisNames)  ATH_MSG_VERBOSE(" " + a);
   }
 
   // Add analyses
-  foreach (const string& a, m_analysisNames) {
+  for (const string& a : m_analysisNames) {
     ATH_MSG_INFO("Loading Rivet analysis " << a);
     m_analysisHandler->addAnalysis(a);
     Rivet::Log::setLevel("Rivet.Analysis."+a, rivetLevel(msg().level()));
@@ -189,7 +192,7 @@ StatusCode Rivet_i::execute() {
   const HepMC::GenEvent* checkedEvent = checkEvent(event);
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
-
+  //
   if(!checkedEvent) {
     ATH_MSG_ERROR("Check on HepMC event failed!");
     return StatusCode::FAILURE;
@@ -221,9 +224,10 @@ StatusCode Rivet_i::finalize() {
 
   // Convert YODA-->ROOT
   if (m_doRootHistos) {
-    foreach (const Rivet::AnalysisObjectPtr ao, m_analysisHandler->getData()) {
+    for (const Rivet::AnalysisObjectPtr ao : m_analysisHandler->getData()) {
       // Normalize path name to be usable by ROOT
-      const string path = boost::replace_all_copy(ao->path(), "-", "_");
+      string path = string(ao->path());
+      std::replace(path.begin(), path.end(), '-', '_');
       const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
       // Convert YODA histos to heap-allocated ROOT objects and register
@@ -280,6 +284,14 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
+
+  // overwrite the HEPMC dummy event number with the proper ATLAS event number
+  const DataHandle<EventInfo> eventInfo;
+  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
+    //int run=eventInfo->event_ID()->run_number();
+    int eventNumber = eventInfo->event_ID()->event_number();
+    modEvent->set_event_number(eventNumber);
+  }
 
   if(m_weightName != ""){
     if(event->weights().has_key(m_weightName)){
