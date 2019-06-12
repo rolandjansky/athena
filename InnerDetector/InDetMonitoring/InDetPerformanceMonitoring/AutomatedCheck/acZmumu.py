@@ -297,12 +297,19 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     import os
 
     listOfSubmittedRuns = []
+
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
+
     for runNumber in listOfNewRuns:
         listOfRunsToSubmit.append(runNumber)
     for runNumber in listOfPendingRuns:
         listOfRunsToSubmit.append(runNumber)
+
+    # sort list
+    listOfRunsToSubmit.sort()
+    print (" <acZmumu> sorted list of runs to submit (%d)" %len(listOfRunsToSubmit))
+    print listOfRunsToSubmit
 
     for runNumber in listOfRunsToSubmit:
         print (" <acZmumu> dealing with new run: %d" %(runNumber))
@@ -337,7 +344,7 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
-            print (" <acZmumu> testArea: %s" %(m_testArea))
+            #print (" <acZmumu> testArea: %s" %(m_testArea))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> job to be submmited");
                 # move to the submission folder
@@ -348,6 +355,15 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
                 infoFromAMI[runNumber]["status"] = "SUBMITTED"
                 infoFromAMI[runNumber]["jeditaskid"] = 1
                 infoFromAMI[runNumber]["attempt"] = infoFromAMI[runNumber]["attempt"] + 1
+            else:
+                print (" <acZmumu> dry test for run %d" %runNumber);
+
+    print (" <acZmumu> list of submitted runs has %d elements" %(len(listOfSubmittedRuns)))
+
+    import simplejson
+    listOfSubmittedRuns.sort()
+    filewithlist = open('acZmumu_listofsubmittedruns.txt', 'wb')
+    simplejson.dump(listOfSubmittedRuns, filewithlist)        
 
     return listOfSubmittedRuns
 
@@ -466,7 +482,11 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
             theOptions = "--useShortLivedReplicas  --forceStaged"
 
     theExtraOptions = "" 
-    theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+    print " cmtconfig len= ", len(m_workDirPlatform) 
+    if (len(m_workDirPlatform)>0): 
+        theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+    else:
+        theExtraOptions = "--excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC"
 
     theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print "%s " %theCommand
@@ -476,6 +496,10 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
 ###################################################################################################                                                                                
 def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
 
+    import pickle
+
+    print " listOfSubmittedRuns: dimension:", len(listOfSubmittedRuns), "  list: ", listOfSubmittedRuns 
+
     if ("NONE" in m_userDataSet):
         print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
         fileToUpdate = open(m_recordsFileName, "a");
@@ -484,6 +508,11 @@ def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
             fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
     
         fileToUpdate.close()
+
+        # alternative method
+        with open('acZmumu_listofsubmittedruns.txt', 'wb') as fp:
+            pickle.dump(listOfSubmittedRuns, fp)
+        
 
     return
 
@@ -622,10 +651,11 @@ if __name__ == '__main__':
     (listOfNewRuns, listOfPendingRuns) = crossCheckInfo(infoFromAMI, infoFromRecordsFile)
 
     # submit the necessary jobs
-    listOfSubmitedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    listOfSubmittedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    print (" <acZmumu> main returned a list of submitted runs with %d elements" %(len(listOfSubmittedRuns)))
 
     # store new status
-    updateRecordsFile(listOfSubmitedRuns, infoFromAMI)
+    updateRecordsFile(listOfUsedRuns, infoFromAMI)
 
     endBanner ()
 #
