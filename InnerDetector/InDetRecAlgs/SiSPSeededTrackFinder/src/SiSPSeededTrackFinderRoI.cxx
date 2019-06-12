@@ -141,11 +141,12 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
   double ZBoundary[2];
   if (m_listRoIs.size() == 0) {
+	msg(MSG::INFO) << "no selectedRoIs " << endreq;
 	return StatusCode::SUCCESS;
   }
   ZBoundary[0] = m_listRoIs[0].z_window[0];
   ZBoundary[1] = m_listRoIs[0].z_window[1];
-
+  msg(MSG::INFO) << "selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]<< endreq;
   // Find seeds that point within the RoI region in z
   //  
   m_seedsmaker  ->newEvent(-1); 
