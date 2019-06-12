@@ -32,6 +32,7 @@ using CLHEP::second;
 CaloConstCellMaker::CaloConstCellMaker (const std::string& name,
                                         ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
+    m_caloCellMakerTools(this),
     m_caloCellsOutputKey(""),
     m_chrono("ChronoStatSvc", name)
 {

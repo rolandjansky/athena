@@ -13,27 +13,17 @@ class CaloCellAODGetter (Configured) :
     def configure(self):
         
         from CaloRec.CaloRecConf import CaloConstCellMaker
+        
         theCaloCellMaker=CaloConstCellMaker("CaloCellMakerFromCluster",
                     CaloCellsOutputName=self.outputKey(),
                     OwnPolicy=1)
         self._CaloCellMakerHandle = theCaloCellMaker
         
-        from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-        theCaloCellContainerFinalizerTool=CaloCellContainerFinalizerTool()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc+=theCaloCellContainerFinalizerTool
-        theCaloCellMaker.CaloCellMakerTools+=[theCaloCellContainerFinalizerTool]
-
-
-        from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
-        theCaloCellContainerCheckerTool=CaloCellContainerCheckerTool()
-        ToolSvc+=theCaloCellContainerCheckerTool
-        theCaloCellMaker.CaloCellMakerTools+=[theCaloCellContainerCheckerTool]
-
+        from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool,CaloCellContainerCheckerTool
+        theCaloCellMaker.CaloCellMakerTools+=[CaloCellContainerFinalizerTool(),CaloCellContainerCheckerTool()]
 
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-
         topSequence += theCaloCellMaker 
 
         from RecExConfig.ObjKeyStore import objKeyStore
@@ -58,8 +48,9 @@ class CaloCellAODGetter (Configured) :
         return self._outputType
 
     def GetTool(self, toolName):
-        if toolName in self._tools:
-            return self._tools[toolName]
+        for t in self._CaloCellMakerHandle.CaloCellMakerTools:
+            if t.getName() is toolName:
+                return t
         return None
 
     def AddClusterToUpdate(self,clusterkey):
@@ -116,15 +107,14 @@ def addClusterToCaloCellAOD(clustersInputName):
         if theCaloCellContainerFromClusterTool is None:
             from CaloRec.CaloRecConf import CaloCellContainerFromClusterTool
             theCaloCellContainerFromClusterTool = CaloCellContainerFromClusterTool()
-
-            from AthenaCommon.AppMgr import ToolSvc
-            ToolSvc += theCaloCellContainerFromClusterTool
-            theCaloCellAODGetter.AddTool(theCaloCellContainerFromClusterTool, order = 1)
+            theCaloCellContainerFromClusterTool.CaloClusterNames += [clustersInputName]
             theCaloCellContainerFromClusterTool.AddSamplingCells = True
             theCaloCellContainerFromClusterTool.SamplingCellsName = ["TileGap1", "TileGap2", "TileGap3", "TileBar0","TileExt0", "HEC0"]
+            theCaloCellAODGetter.AddTool(theCaloCellContainerFromClusterTool, order = 1)
             mlog.info('CaloCellContainerFromClusterTool has been added to CaloCellAODGetter')
+        else:
+            theCaloCellContainerFromClusterTool.CaloClusterNames += [clustersInputName]
 
-        theCaloCellContainerFromClusterTool.CaloClusterNames += [clustersInputName]
         theCaloCellAODGetter.AddClusterToUpdate(clustersInputName)
 
         addCaloSamplingToCaloCellAOD("TileGap3")
@@ -151,16 +141,15 @@ def addCaloSamplingToCaloCellAOD(samplingName):
 
         theCaloCellFastCopyTool = theCaloCellAODGetter.GetTool('CaloCellFastCopyTool')
         if theCaloCellFastCopyTool is None:
-            from AthenaCommon.AppMgr import ToolSvc
             from CaloRec.CaloRecConf import CaloCellFastCopyTool
             theCaloCellFastCopyTool = CaloCellFastCopyTool()
-            ToolSvc += theCaloCellFastCopyTool
+            theCaloCellFastCopyTool.AvoidDuplicates = True
+            theCaloCellFastCopyTool.IsFindCellFast = True
+            theCaloCellFastCopyTool.IncludeSamplings += [ samplingName ]
             theCaloCellAODGetter.AddTool(theCaloCellFastCopyTool, order = 7)
             mlog.info('CaloCellFastCopyTool has been added to CaloCellAODGetter')
-        
-        theCaloCellFastCopyTool.AvoidDuplicates = True
-        theCaloCellFastCopyTool.IsFindCellFast = True
-        theCaloCellFastCopyTool.IncludeSamplings += [ samplingName ]
+        else:
+            theCaloCellFastCopyTool.IncludeSamplings += [ samplingName ]
 
         mlog.info('The sampling has been scheduled to be copied to AODCellContainer: ' + samplingName)
 
