@@ -1,23 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
-from itertools import chain
 from multiprocessing.pool import Pool
 
 import logging; log = logging.getLogger("DCSCalculator2.main")
 
-from DQUtils.db import fetch_iovs, write_iovs
+from DQUtils.db import fetch_iovs
 from DQUtils.iov_arrangement import inverse_lblb, run_iovs_from_lblb
 from DQUtils.general import timer, get_package_version
 from DQUtils.utils import pprint_objects
 from DQUtils.logger import init_logger
 from DQUtils.sugar import RunLumi, IOVSet
-from DQUtils.oracle import filter_atlas_runs
 
 from DQDefects import DefectsDB
 
-from DCSCalculator2.lib import dcsofl_cool_record
 from DCSCalculator2.subdetectors import ALL_SYSTEMS, SYSTEM_MAP
 from DCSCalculator2.variable import DefectIOV
 
@@ -48,8 +45,8 @@ def run_one(system, lbtime, run_iovs):
     try:
         with timer("Run DCS calculator 2 for %s" % system):
             return system.run(lbtime, run_iovs)
-    except Exception, e:
-        log.warning("DCS Calculator failed to run for %s." % system)
+    except Exception:
+        log.warning("DCS Calculator failed to run for %s.", system)
         if config.opts.dont_ignore_system_exceptions:
             raise
         log.exception("Continuing. Use -e -X commandline to investigate")
@@ -137,7 +134,6 @@ def go(iov, systems, db, indb, timewise=False):
         with timer("write result (%i iovs)" % len(result_iovs)):
             log.debug("Writing result (%i iovs)", len(result_iovs))
             defect_iovs = filter(lambda iov: isinstance(iov, DefectIOV), result_iovs)
-            dcsofl_iovs = filter(lambda iov: not isinstance(iov, DefectIOV), result_iovs)
             if len(defect_iovs) > 0:
                 ddb = DefectsDB(db, read_only=False, create=True)
                 defect_names = set(i.channel for i in defect_iovs)
@@ -151,12 +147,9 @@ def go(iov, systems, db, indb, timewise=False):
                                    iov.comment,
                                    'sys:defectcalculator',
                                    iov.present)
-            #disable DCSOFL
-            #dest = "%s::/GLOBAL/DETSTATUS/DCSOFL" % db
-            #write_iovs(dest, dcsofl_iovs, dcsofl_cool_record(), create=True)
         
     args = len(result_iovs), hash(result_iovs)
-    log.info("Success. Calculated %i iovs. Result hash: 0x%0x8." % args)
+    log.info("Success. Calculated %i iovs. Result hash: 0x%0x8.", *args)
 
 def main(argv):
     
@@ -164,12 +157,12 @@ def main(argv):
 
     init_logger(opts.verbose)
     
-    log.info("Using %s" % get_package_version("DQUtils"))
-    log.info("Using %s" % get_package_version("DQDefects"))
-    log.info("Using %s" % get_package_version("DCSCalculator2"))
+    log.info("Using %s", get_package_version("DQUtils"))
+    log.info("Using %s", get_package_version("DQDefects"))
+    log.info("Using %s", get_package_version("DCSCalculator2"))
     
     log.debug("Commandline arguments: %s", argv)
-    log.debug("Current configuration: %s" % (opts))
+    log.debug("Current configuration: %s", (opts))
     
     if opts.shell_on_exception: 
         import sys
@@ -188,8 +181,8 @@ def main(argv):
             if system not in SYSTEM_MAP:
                 invalid_systems.append(system)
             else:
-		if system != "Pixels":                
-		    systems.append(SYSTEM_MAP[system])
+                if system != "Pixels":                
+                    systems.append(SYSTEM_MAP[system])
                 
         if invalid_systems:
             optp.error("Invalid system(s) specified: {0}. "
