@@ -11,7 +11,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
-#include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "InDetRecToolInterfaces/ISiTrackMaker.h"
+#include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 
 #include "TrkTrack/TrackCollection.h"
@@ -84,11 +85,13 @@ namespace InDet {
       double                         m_pTcut     ;
       double                         m_imcut     ;
 
-      std::string                    m_beamconditions          ;
-      std::string                    m_fieldmode               ; 
-      IBeamCondSvc*                                 m_beam     ;
-      ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
-      Trk::MagneticFieldProperties                  m_fieldprop;
+      std::string                                      m_beamconditions          ;
+      std::string                                      m_fieldmode               ; 
+      IBeamCondSvc*                                    m_beam     ;
+      ToolHandle<Trk::IPatternParametersPropagator>    m_proptool ;
+      Trk::MagneticFieldProperties                     m_fieldprop;
+      ToolHandle<InDet::IZWindowRoISeedTool>           m_ZWindowRoISeedTool;
+      std::vector<InDet::IZWindowRoISeedTool::ZWindow> m_listRoIs;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods

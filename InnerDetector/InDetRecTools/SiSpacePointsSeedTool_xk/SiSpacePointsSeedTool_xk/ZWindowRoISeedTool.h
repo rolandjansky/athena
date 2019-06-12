@@ -63,6 +63,7 @@ namespace InDet {
     float m_trk_eta_max; ///< max |eta| for tracks consideration
     float m_trk_d0_max; ///< max |d0| for tracks consideration
     float m_max_delta_z; ///< maximum delta z0 between leading tracks pair
+    float m_z0_window; /// width of z0 window
     
     /** @} */
 	

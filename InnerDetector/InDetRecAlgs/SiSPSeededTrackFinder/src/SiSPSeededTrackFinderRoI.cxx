@@ -30,7 +30,8 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
-  m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )         
+  m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),         
+  m_ZWindowRoISeedTool("InDet::ZWindowRoISeedTool")
 {
   m_beamconditions         = "BeamCondSvc"     ;
   m_beam                   = 0                 ;
@@ -41,6 +42,7 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
 
   // SiSPSeededTrackFinderRoI steering parameters
   //
+  declareProperty("ZWindowRoISeedTool"  ,m_ZWindowRoISeedTool  );
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("TrackTool"           ,m_trackmaker          );
   declareProperty("TracksLocation"      ,m_outputTracks        );
@@ -61,6 +63,15 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
 
 StatusCode InDet::SiSPSeededTrackFinderRoI::initialize() 
 {
+
+  // Get the ZWindowRoI seed tool
+  if( m_ZWindowRoISeedTool.retrieve().isFailure() ){
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_ZWindowRoISeedTool <<endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Retrieved tool " << m_ZWindowRoISeedTool << endreq;
+  }
 
   // Get tool for space points seed maker
   //
@@ -127,10 +138,11 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   // Find reference point of the event and create z boundary region
   //
+  m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
   double ZBoundary[2];
   //SP-HACK: fix to given numbers while preparing tool
-  ZBoundary[0] = -1.0;
-  ZBoundary[1] = 1.0;
+  ZBoundary[0] = -1.0; //m_listRoIs(i).z_window[0];
+  ZBoundary[1] = 1.0;  //m_listRoIs(i).z_window[1];
 
   // Find seeds that point within the RoI region in z
   //  

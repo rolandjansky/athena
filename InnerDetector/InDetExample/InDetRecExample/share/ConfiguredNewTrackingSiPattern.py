@@ -98,11 +98,17 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
-         if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LowPtRoI" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
+         if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
             try :
                InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
             except:
                pass 
+            InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
+         if NewTrackingCuts.mode() == "LowPtRoI" :
+            try :
+               InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            except:
+               pass
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding":
             InDetSiSpacePointsSeedMaker.minRadius1         = 0
@@ -278,11 +284,6 @@ class  ConfiguredNewTrackingSiPattern:
 
          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
          
-         #if NewTrackingCuts.mode() == "LowPtRoI" :
-         # from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinderRoI
-         #else:
-         # from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
-
          if NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks":
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
@@ -299,10 +300,11 @@ class  ConfiguredNewTrackingSiPattern:
 
          elif NewTrackingCuts.mode() == "LowPtRoI" :
           from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinderRoI
-          InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinderRoI(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
-                                                                    TrackTool      = InDetSiTrackMaker,
-                                                                    TracksLocation = self.__SiTrackCollection,
-                                                                    SeedsTool      = InDetSiSpacePointsSeedMaker)
+          InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinderRoI(name            = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
+                                                                    TrackTool          = InDetSiTrackMaker,
+                                                                    TracksLocation     = self.__SiTrackCollection,
+                                                                    SeedsTool          = InDetSiSpacePointsSeedMaker,
+                                                                    ZWindowRoISeedTool = ZWindowRoISeedTool)
 
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
