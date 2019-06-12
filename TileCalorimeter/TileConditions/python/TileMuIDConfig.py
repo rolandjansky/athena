@@ -52,7 +52,7 @@ def TileMuIDCondAlgCfg(flags, **kwargs):
     return acc
 
 
-def TileCondToolMuID(flags, **kwargs):
+def TileCondToolMuIDCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile MuID conditions tool
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
-    muIDTool =  acc.popToolsAndMerge( TileCondToolMuID(ConfigFlags) )
+    muIDTool =  acc.popToolsAndMerge( TileCondToolMuIDCfg(ConfigFlags) )
     print(muIDTool)
 
     acc.printConfig(withDetails = True, summariseProps = True)

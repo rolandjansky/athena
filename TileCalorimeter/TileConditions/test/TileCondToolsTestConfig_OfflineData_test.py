@@ -18,6 +18,7 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
     acc = ComponentAccumulator()
