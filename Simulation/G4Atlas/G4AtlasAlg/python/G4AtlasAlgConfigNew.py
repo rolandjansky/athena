@@ -43,13 +43,10 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
-    result = ComponentAccumulator()
     #add Services to G4AtlasAlg
-    acc = DetectorGeometrySvcCfg(ConfigFlags)
-    print "TESTTTTT" #check if it runs!
-    kwargs.setdefault('DetGeoSvc', acc.getService("DetectorGeometrySvc"))
-    #result.addService(DetGeoSvc)
-    result.merge(acc)
+    result = DetectorGeometrySvcCfg(ConfigFlags)
+
+    kwargs.setdefault('DetGeoSvc', result.getService("DetectorGeometrySvc"))
     
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent") #tocheck -are these string inputs?
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
@@ -73,18 +70,19 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
         kwargs.setdefault('KillAbortedEvents' ,ConfigFlags.Sim.KillAbortedEvents)
 
     from RngComps.RandomServices import AthEngines,  Ranecu
-    if AthEngines[ConfigFlags.Random.Engine]:
-        #old style:
-        #kwargs.setdefault('AtRndmGenSvc', AthEngines[ConfigFlags.Random.Engine])
-
-        ## default true        
+    if AthEngines[ConfigFlags.Random.Engine]:  
         acc =  Ranecu(ConfigFlags.Random.Engine)
         result.merge(acc)
+    #from RngComps.RandomServices import AthEngines, RNG
+    #if ConfigFlags.Random.Engine in AthEngines.keys():
+    #    result.merge(RNG(AthEngines[ConfigFlags.Random.Engine], name="AthRNGSvc"))
+    #    kwargs.setdefault("AtRndmGenSvc",result.getService("AthRNGSvc"))
+
     kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
-    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    #is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    is_hive = ConfigFlags.Concurrency.NumThreads > 0
     kwargs.setdefault('MultiThreading', is_hive)
 
     kwargs.setdefault('TruthRecordService', ConfigFlags.Sim.TruthStrategy) # TODO need to have manual override (simFlags.TruthStrategy.TruthServiceName())
@@ -103,7 +101,8 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", ConfigFlags.Sim.G4Commands)
 
-    return result, G4AtlasAlg(name, **kwargs)
+    result.addEventAlgo(G4AtlasAlg(name, **kwargs))
+    return result
 
 
 
@@ -139,10 +138,7 @@ if __name__ == '__main__':
   cfg = MainServicesSerialCfg()
 
   #add the algorithm
-  acc, Alg  = G4AtlasAlgCfg(ConfigFlags)
-  cfg.addEventAlgo(Alg) 
-  tools = cfg.popToolsAndMerge(acc)
-  #cfg.setPrivateTools(tools)
+  cfg.merge(G4AtlasAlgCfg(ConfigFlags))
 
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True
