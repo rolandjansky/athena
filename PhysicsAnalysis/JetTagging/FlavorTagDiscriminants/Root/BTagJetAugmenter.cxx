@@ -63,7 +63,7 @@ namespace {
 BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s,
                                    FlavorTagDiscriminants::FlipTagConfig f):
   m_use_floats(false),
-  m_write_unflippable(f == FlavorTagDiscriminants::FlipTagConfig::STANDARD),
+  m_write_unflippable(true),
   pt_uncalib("pt_uncalib"),
   eta_uncalib("eta_uncalib"),
   abs_eta_uncalib("abs_eta_uncalib"),
