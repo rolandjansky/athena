@@ -69,8 +69,10 @@ class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
   //
   virtual std::string getJetAuthor() const = 0;
 
+  // select an efficiency map for use in MC/MC and inefficiency scale factors, based on user specified selection of efficiency maps
   virtual bool setMapIndex(const std::string& flavour, unsigned int index) = 0;
-  // virtual bool setMapIndex(const std::string& flavour, const std::string & type) = 0;
+  // select an efficiency map for use in MC/MC and inefficiency scale factors, based on configuration file that contains DSID to effmap specification
+  virtual bool setMapIndex(unsigned int dsid) = 0;
 
   // this merely passes on the request to the underlying CDI object (listSystematics() cannot be used here, as corresponding CP::SystematicVariation objects may not exist)
   virtual std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const = 0;
