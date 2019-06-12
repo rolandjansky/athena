@@ -39,7 +39,7 @@ public:
     bool fillEfficiencies(ParticleData& pd, const xAOD::IParticle& p, const xAOD::EventInfo& eventInfo, std::string& error) const;
     unsigned getXmlLineNumber(const char* pos) const;
     
-    enum
+    enum EfficiencyType
     {
         ELECTRON_REAL_EFFICIENCY = 0,
         ELECTRON_FAKE_EFFICIENCY,
@@ -178,22 +178,22 @@ protected:
     void importCustomROOT(const StringRef& tag, const StringRef& contents, const AttributesMap& attributes);
     void addParams(const StringRef& tag, const StringRef& contents, AttributesMap& attributes);
     void addSysts(const StringRef& tag, const StringRef& contents, const AttributesMap& attributes);
-    unsigned short addStat(int type, const StringRef& pos = StringRef());
+    unsigned short addStat(EfficiencyType type, const StringRef& pos = StringRef());
     void addTables(const StringRef& particleType, const AttributesMap& attributes, const StringRef& contents, TFile* source = nullptr);
     void addDimension(EfficiencyTable& table, unsigned paramUID, const StringRef& contents);
-    void addValues(const StringRef& contents, EfficiencyTable& table, int type, StatMode statMode, unsigned short& globalStatUID);
+    void addValues(const StringRef& contents, EfficiencyTable& table, EfficiencyType type, StatMode statMode, unsigned short& globalStatUID);
     
     /// Methods used to load from ROOT files
-    void importNominalTH1(const TH1* hist, int type, const StringRef& paramX, const StringRef& paramY, float scale, 
+    void importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, float scale, 
             StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream);
-    void importSystTH1(const TH1* hist, int type, const std::string& sysname);
+    void importSystTH1(const TH1* hist, EfficiencyType type, const std::string& sysname);
     float getWeightedAverage(const TH1* hist, const StringRef& xmlStream);
-    float getNormalizationFactor(const TH1* hist, int type, const StringRef& norm, const StringRef& xmlStream);
+    float getNormalizationFactor(const TH1* hist, EfficiencyType type, const StringRef& norm, const StringRef& xmlStream);
     
     /// Methods used to fill efficiencies
-    static FakeBkgTools::Efficiency* selectEfficiency(FakeBkgTools::ParticleData& pd, const xAOD::IParticle& p, int type);
+    static FakeBkgTools::Efficiency* selectEfficiency(FakeBkgTools::ParticleData& pd, const xAOD::IParticle& p, EfficiencyType type);
     bool retrieveParameterValue(const xAOD::IParticle& p, const xAOD::EventInfo& eventInfo, const Param& param, EfficiencyTable::BoundType& val) const;
-    int getSourceType(int wantedType) const;
+    EfficiencyType getSourceType(EfficiencyType wantedType) const;
     int readEfficiencyFromTable(Efficiency& eff, const EfficiencyTable& table, std::map<unsigned, EfficiencyTable::BoundType>& cachedParamVals, const xAOD::IParticle& p, const xAOD::EventInfo& eventInfo, std::string& error) const;
 
     /// Helper methods
@@ -202,7 +202,7 @@ protected:
     static inline void assertNoLeftover(std::stringstream& ss, const StringRef& pos);
     std::vector<std::string> getListOfNames(const StringRef& stream);
     static constexpr unsigned short maxIndex() { return 0x4000; }
-    static std::string getTypeAsString(int type);
+    static std::string getTypeAsString(EfficiencyType type);
 
 private: /// don't call these methods directly, use getAttribute(AttributesMap, string, ...) instead
     template<typename ReturnValue>
