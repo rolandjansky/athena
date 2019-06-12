@@ -24,7 +24,7 @@ namespace Muon
     class MMPrepData_p1
     {
     public:
-        MMPrepData_p1() : m_locX(0.0), m_errorMat(0.0), m_id(0){}
+        MMPrepData_p1() : m_locX(0.0), m_errorMat(0.0) {}
         
         std::vector< signed char > 	m_rdoList; //!< Store offsets
         
@@ -32,7 +32,6 @@ namespace Muon
         //@{
         float               m_locX; //!< Equivalent to localPosition (locX) in the base class.
         float               m_errorMat; //!< 1-d ErrorMatrix in the base class.
-        unsigned int        m_id; //!< FIXME! Remove this eventually
         
         //@}
         

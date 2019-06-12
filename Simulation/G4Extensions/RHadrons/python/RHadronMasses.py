@@ -26,6 +26,8 @@ The list of possible R-hadrons comes from the Pythia8 code, in src/RHadrons.cc (
 first_mass_set = 4
 offset_options = {
 # Fundamental SUSY particles
+        1000005 : [       0 , False , '~b          ' , -1./3. , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
+        1000006 : [       0 , False , '~t          ' ,  2./3. , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
         1000021 : [       0 , False , '~g          ' ,  0 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
         1000022 : [       0 , False , '~chi10      ' ,  0 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
         1000039 : [       0 , False , '~Gr         ' ,  0 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
@@ -82,47 +84,49 @@ offset_options = {
         1095334 : [ 1000021 ,  True , '~g_Omegab*- ' , -1 , 5.900 , 5.662 , 5.662 , 6.580 , 0.000 , 5.790 , 5.662 , 6.580 , 0.000 ] ,
 
 # Sbottom R-mesons
-        1000512 : [ 1000005 , True , '~B0          ' ,  0 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
-        1000522 : [ 1000005 , True , '~B-          ' , -1 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
-        1000532 : [ 1000005 , True , '~Bs0         ' ,  0 , 0.500 , 0.466 , 0.419 , 0.540 , 0.000 , 0.530 , 0.419 , 0.540 , 0.000 ] ,
-        1000542 : [ 1000005 , True , '~Bc-         ' , -1 , 1.500 , 1.630 , 1.550 , 1.710 , 0.000 , 1.700 , 1.550 , 1.710 , 0.000 ] ,
-        1000552 : [ 1000005 , True , '~etab0       ' ,  0 , 4.800 , 4.730 , 4.730 , 5.500 , 0.000 , 4.730 , 4.730 , 5.500 , 0.000 ] ,
+        1000512 : [ 1000005 ,  True , '~B0         ' ,  0 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
+        1000522 : [ 1000005 ,  True , '~B-         ' , -1 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
+        1000532 : [ 1000005 ,  True , '~Bs0        ' ,  0 , 0.500 , 0.466 , 0.419 , 0.540 , 0.000 , 0.530 , 0.419 , 0.540 , 0.000 ] ,
+        1000542 : [ 1000005 ,  True , '~Bc-        ' , -1 , 1.500 , 1.630 , 1.550 , 1.710 , 0.000 , 1.700 , 1.550 , 1.710 , 0.000 ] ,
+        1000552 : [ 1000005 ,  True , '~etab0      ' ,  0 , 4.800 , 4.730 , 4.730 , 5.500 , 0.000 , 4.730 , 4.730 , 5.500 , 0.000 ] ,
 # Sbottom R-baryons
-        1005113 : [ 1000005 , True , '~Sigmab-     ' , -1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1005211 : [ 1000005 , True , '~Sigmab0     ' ,  0 , 0.650 , 0.496 , 0.171 , 0.632 , 0.000 , 0.632 , 0.171 , 0.632 , 0.000 ] ,
-        1005213 : [ 1000005 , True , '~Sigmab*0    ' ,  0 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1005223 : [ 1000005 , True , '~Sigmab+     ' ,  1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1005311 : [ 1000005 , True , '~Xib-        ' , -1 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
-        1005313 : [ 1000005 , True , '~Xib*-       ' , -1 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
-        1005321 : [ 1000005 , True , '~Xib0        ' ,  0 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
-        1005323 : [ 1000005 , True , '~Xib*0       ' ,  0 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
-        1005333 : [ 1000005 , True , '~Omegab-     ' , -1 , 1.000 , 0.952 , 0.863 , 1.095 , 0.000 , 1.075 , 0.863 , 1.095 , 0.000 ] ,
+        1005113 : [ 1000005 ,  True , '~Sigmab-    ' , -1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1005211 : [ 1000005 ,  True , '~Sigmab0    ' ,  0 , 0.650 , 0.496 , 0.171 , 0.632 , 0.000 , 0.632 , 0.171 , 0.632 , 0.000 ] ,
+        1005213 : [ 1000005 ,  True , '~Sigmab*0   ' ,  0 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1005223 : [ 1000005 ,  True , '~Sigmab+    ' ,  1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1005311 : [ 1000005 ,  True , '~Xib-       ' , -1 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
+        1005313 : [ 1000005 ,  True , '~Xib*-      ' , -1 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
+        1005321 : [ 1000005 ,  True , '~Xib0       ' ,  0 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
+        1005323 : [ 1000005 ,  True , '~Xib*0      ' ,  0 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
+        1005333 : [ 1000005 ,  True , '~Omegab-    ' , -1 , 1.000 , 0.952 , 0.863 , 1.095 , 0.000 , 1.075 , 0.863 , 1.095 , 0.000 ] ,
 # Stop R-mesons
-        1000612 : [ 1000006 , True , '~T+          ' ,  1 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
-        1000622 : [ 1000006 , True , '~T0          ' ,  0 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
-        1000632 : [ 1000006 , True , '~Ts+         ' ,  1 , 0.500 , 0.466 , 0.419 , 0.540 , 0.000 , 0.530 , 0.419 , 0.540 , 0.000 ] ,
-        1000642 : [ 1000006 , True , '~Tc0         ' ,  0 , 1.500 , 1.630 , 1.550 , 1.710 , 0.000 , 1.700 , 1.550 , 1.710 , 0.000 ] ,
-        1000652 : [ 1000006 , True , '~etat+       ' ,  1 , 4.800 , 4.730 , 4.730 , 5.500 , 0.000 , 4.730 , 4.730 , 5.500 , 0.000 ] ,
+        1000612 : [ 1000006 ,  True , '~T+         ' ,  1 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
+        1000622 : [ 1000006 ,  True , '~T0         ' ,  0 , 0.325 , 0.314 , 0.220 , 0.365 , 0.000 , 0.365 , 0.220 , 0.365 , 0.000 ] ,
+        1000632 : [ 1000006 ,  True , '~Ts+        ' ,  1 , 0.500 , 0.466 , 0.419 , 0.540 , 0.000 , 0.530 , 0.419 , 0.540 , 0.000 ] ,
+        1000642 : [ 1000006 ,  True , '~Tc0        ' ,  0 , 1.500 , 1.630 , 1.550 , 1.710 , 0.000 , 1.700 , 1.550 , 1.710 , 0.000 ] ,
+        1000652 : [ 1000006 ,  True , '~etat+      ' ,  1 , 4.800 , 4.730 , 4.730 , 5.500 , 0.000 , 4.730 , 4.730 , 5.500 , 0.000 ] ,
 # Stop R-baryons
-        1006113 : [ 1000006 , True , '~Sigmat0     ' ,  0 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1006211 : [ 1000006 , True , '~Sigmat+     ' ,  1 , 0.650 , 0.496 , 0.171 , 0.632 , 0.000 , 0.632 , 0.171 , 0.632 , 0.000 ] ,
-        1006213 : [ 1000006 , True , '~Sigmat*+    ' ,  1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1006223 : [ 1000006 , True , '~Sigmat++    ' ,  2 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
-        1006311 : [ 1000006 , True , '~Xit0        ' ,  0 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
-        1006313 : [ 1000006 , True , '~Xit*0       ' ,  0 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
-        1006321 : [ 1000006 , True , '~Xit+        ' ,  1 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
-        1006323 : [ 1000006 , True , '~Xit*+       ' ,  1 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
-        1006333 : [ 1000006 , True , '~Omegat0     ' ,  0 , 1.000 , 0.952 , 0.863 , 1.095 , 0.000 , 1.075 , 0.863 , 1.095 , 0.000 ] ,
+        1006113 : [ 1000006 ,  True , '~Sigmat0    ' ,  0 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1006211 : [ 1000006 ,  True , '~Sigmat+    ' ,  1 , 0.650 , 0.496 , 0.171 , 0.632 , 0.000 , 0.632 , 0.171 , 0.632 , 0.000 ] ,
+        1006213 : [ 1000006 ,  True , '~Sigmat*+   ' ,  1 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1006223 : [ 1000006 ,  True , '~Sigmat++   ' ,  2 , 0.650 , 0.672 , 0.530 , 0.763 , 0.000 , 0.763 , 0.530 , 0.763 , 0.000 ] ,
+        1006311 : [ 1000006 ,  True , '~Xit0       ' ,  0 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
+        1006313 : [ 1000006 ,  True , '~Xit*0      ' ,  0 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
+        1006321 : [ 1000006 ,  True , '~Xit+       ' ,  1 , 0.825 , 0.691 , 0.498 , 0.833 , 0.000 , 0.828 , 0.498 , 0.833 , 0.000 ] ,
+        1006323 : [ 1000006 ,  True , '~Xit*+      ' ,  1 , 0.825 , 0.810 , 0.686 , 0.922 , 0.000 , 0.917 , 0.686 , 0.922 , 0.000 ] ,
+        1006333 : [ 1000006 ,  True , '~Omegat0    ' ,  0 , 1.000 , 0.952 , 0.863 , 1.095 , 0.000 , 1.075 , 0.863 , 1.095 , 0.000 ] ,
    }
 
 # Now programmatically calculate the missing spectra
+# These are designed to just flop the rho above or below the gluinoball
+gb_offset = offset_options[1009113][first_mass_set+5]-offset_options[1009113][first_mass_set+1]
 for pid in offset_options:
     # Skip fundamental SUSY particles and R-glueball
     if offset_options[pid][0] == 0 or pid == 1000993: continue
     # Setup #4 to be mass set #1 but with 1009113 matching mass set 5
-    offset_options[pid][first_mass_set+4] = offset_options[pid][first_mass_set+1]+0.088
-    # Setup #8 to be mass set #5 but with 1009113 matches mass set 2
-    offset_options[pid][first_mass_set+8] = offset_options[pid][first_mass_set+5]-0.088
+    offset_options[pid][first_mass_set+4] = offset_options[pid][first_mass_set+1]+gb_offset
+    # Setup #8 to be mass set #5 but with 1009113 matching mass set 1
+    offset_options[pid][first_mass_set+8] = offset_options[pid][first_mass_set+5]-gb_offset
 
 
 
@@ -139,22 +143,31 @@ def charge( c ):
     raise RuntimeError('Unexpected charge: '+str(n))
 
 
-def get_quarks( x ):
+def get_quarks( y ):
     """ Function to return a list of quarks in a hadron
     """
+    x = abs(y)
+    # For stop/sbottom mesons, just the last quark!
+    if '000' in str(x): return str(x)[5:6]
     # For mesons, just two quarks
-    if '00' in str(x): return str(x)[4:5]
+    if '00' in str(x): return str(x)[4:6]
     # For baryons, three quarks
-    return str(x)[3:5]
+    return str(x)[3:6]
 
 
 def is_baryon( x ):
-    if '009' in str(x): return 0 # gluino meson
-    elif '09' in str(x): return 1 # gluino baryon
-    elif '006' in str(x): return 1 # stop baryon
-    elif '005' in str(x): return 1 # sbottom baryon
-    # Otherwise it's a meson
-    return 0
+    # 1000993, gluinoball, is also not a baryon
+    b_n = 0
+    if '009' in str(x): b_n=0 # gluino meson
+    elif '09' in str(x): b_n=1 # gluino baryon
+    elif '0006' in str(x): b_n=0 # stop meson
+    elif '0005' in str(x): b_n=0 # sbottom meson
+    elif '006' in str(x): b_n=1 # stop baryon
+    elif '005' in str(x): b_n=1 # sbottom baryon
+    else: # Otherwise, what on earth was this??
+        raise RuntimeError('is_baryon   ERROR Unknown PDG ID: '+str(x))
+    if int(x)<0: return -b_n
+    return b_n
 
 
 def anti_name( x ):
@@ -254,8 +267,8 @@ def update_PDG_table(input_file, pdg_table, mass_spectrum=1):
         # Note that we follow the Pythia6 convention of *including* fundamental SUSY particles
         # The format is VERY specific; needs mass and width (we always set the width to 0)
         # Mass is in MeV here, rather than GeV as in the dictionary
-        out_file.write('\nM %i                          %11.5E    +0.0E+00 -0.0E+00 %s       %s'%(pid,masses[pid]*1000.,offset_options[pid][2],charge(offset_options[pid][3])))
-        out_file.write('\nW %i                          %11.5E    +0.0E+00 -0.0E+00 %s       %s'%(pid,0.E+00,offset_options[pid][2],charge(offset_options[pid][3])))
+        out_file.write('\nM %i                          %11.7E  +0.0E+00 -0.0E+00 %s       %s'%(pid,masses[pid]*1000.,offset_options[pid][2],charge(offset_options[pid][3])))
+        out_file.write('\nW %i                          %11.7E  +0.0E+00 -0.0E+00 %s       %s'%(pid,0.E+00,offset_options[pid][2],charge(offset_options[pid][3])))
 
     # Done writing all the lines!  Clean up if necessary
     if type(pdg_table) is str: out_file.close()
@@ -377,25 +390,40 @@ def get_interaction_list(input_file, interaction_file='ProcessList.txt', mass_sp
         # All of them are on the list of incoming RHadrons
         # Deal with strangeness
         # Approximation! Bottom number -> -Charm number -> Strangeness
-        # Approximation needed because I don't know how outgoing SM charms are treated in G4 at the moment
+        # Approximation needed because outgoing SM charms are not treated in G4 at the moment
         s_number = 0
-        if '3' in get_quarks(pid) or '4' in get_quarks(pid) or '5' in get_quarks(pid):
-            if len(get_quarks(pid))>2:
-                s_number = -(get_quarks(pid).count('3')+get_quarks(pid).count('4')+get_quarks(pid).count('5')) if pid>0 else get_quarks(pid).count('3')+get_quarks(pid).count('4')+get_quarks(pid).count('5')
+        my_q = get_quarks(pid)
+        if '3' in my_q or '4' in my_q or '5' in my_q:
+            if len(my_q)>2:
+                # Gluino R-baryons
+                s_number = -(my_q.count('3')-my_q.count('4')+my_q.count('5')) if pid>0 else my_q.count('3')-my_q.count('4')+my_q.count('5')
+            elif len(my_q)>1 and '9' in str(pid):
+                # Gluino R-mesons
+                if my_q in ['33','44','55','35']: s_number=0 # 33, 44, 55, 35 - one is anti-quark, so they cancel
+                # By convention both 43 and 53 have charge +1, which means c-sbar or c-bbar
+                elif my_q in ['43','53']: s_number = 2 if pid>0 else -2
+                # Only one of bottom / charm / strange. Deal with neutral convention first
+                elif offset_options[abs(pid)][3]==0 and ('3' in my_q or '5' in my_q): s_number=1 if pid>0 else -1
+                elif offset_options[abs(pid)][3]==0 and '4' in my_q: s_number=1 if pid<0 else -1
+                # Now charged convention
+                elif '3' in my_q or '5' in my_q: s_number=offset_options[abs(pid)][3]
+                elif '4' in my_q: s_number=-offset_options[abs(pid)][3]
+            elif len(my_q)>1:
+                # Squark R-baryons
+                s_number = -(my_q.count('3')-my_q.count('4')+my_q.count('5')) if pid>0 else my_q.count('3')-my_q.count('4')+my_q.count('5')
             else:
-                if get_quarks(pid).count('3') + get_quarks(pid).count('4') + get_quarks(pid).count('5')>1: s_number=0
-                elif offset_options[abs(pid)][3]==0 and ('3' in get_quarks(pid) or '5' in get_quarks(pid)): s_number=1 if pid>0 else -1
-                elif offset_options[abs(pid)][3]==0 and '4' in get_quarks(pid): s_number=1 if pid<0 else -1
-                elif '3' in get_quarks(pid) or '5' in get_quarks(pid): s_number=offset_options[abs(pid)][3]
-                elif '4' in get_quarks(pid): s_number=-offset_options[abs(pid)][3]
+                # Squark R-mesons
+                s_number = my_q.count('3') - my_q.count('4') + my_q.count('5')
+                s_number = s_number if pid>0 else -s_number
         else: s_number=0
         # Build the dictionary
         pid_name = offset_options[pid][2].strip() if pid>0 else anti_name(offset_options[abs(pid)][2]).strip()
-        incoming_rhadrons[pid_name] = [ offset_options[abs(pid)][3] , is_baryon(pid) , s_number ]
+        charge = offset_options[abs(pid)][3] if pid>0 else -offset_options[abs(pid)][3]
+        incoming_rhadrons[pid_name] = [ charge , is_baryon(pid) , s_number ]
         # Smaller list of outgoing rhadrons.
         # No charm or bottom
-        if '4' in get_quarks(pid) or '5' in get_quarks(pid): continue
-        outgoing_rhadrons[pid_name] = [ offset_options[abs(pid)][3] , is_baryon(pid) , s_number ]
+        if '4' in my_q or '5' in my_q: continue
+        outgoing_rhadrons[pid_name] = [ charge , is_baryon(pid) , s_number ]
 
     # Add all our R-hadrons to the table
     for proj in incoming_rhadrons:

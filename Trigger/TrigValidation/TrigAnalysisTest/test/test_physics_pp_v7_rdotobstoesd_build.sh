@@ -30,8 +30,17 @@ export EVENTS="3"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 
 source exec_athena_art_trigger_validation.sh
-athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}2.${JOB_LOG#*.}
-echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}2"
+
+echo $(date "+%FT%H:%M %Z")"     Running checklog for ${JOB_LOG}"
+timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG}  2>&1 | tee checklog_BS.log
+
+echo "art-result: ${PIPESTATUS[0]} CheckLog BS"
+
+export JOB_LOG="athena_ESD.log"
+
+athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
+echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
+
 
 source exec_art_triggertest_post.sh
 

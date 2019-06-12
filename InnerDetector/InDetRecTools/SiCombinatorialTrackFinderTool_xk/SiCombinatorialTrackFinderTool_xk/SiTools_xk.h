@@ -274,7 +274,7 @@ namespace InDet{
 
   inline void SiTools_xk::setCleanSCTClus(const int& C)
     {
-      C ? m_cleanSCTClus = true : false;
+      C ? m_cleanSCTClus = true : m_cleanSCTClus = false;
     }
 
   inline void SiTools_xk::setHeavyIon(bool HI)

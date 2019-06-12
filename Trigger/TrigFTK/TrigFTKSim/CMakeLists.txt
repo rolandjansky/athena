@@ -79,7 +79,8 @@ atlas_add_library( TrigFTKSimLib
                    src/FTKSetup.cxx
                    src/PatternBank.cxx
                    src/FTK_AMBank.cxx
-                   src/atlClustering.cxx
+                   src/FTKClusteringPrintout.cxx
+                   src/FTKClusteringEngine.cxx
                    src/FTKRoadFileOutput.cxx
                    src/FTKConstantBank.cxx
                    src/FTKTrackInput.cxx

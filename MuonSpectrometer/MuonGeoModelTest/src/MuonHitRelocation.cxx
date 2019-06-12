@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
@@ -15,7 +15,8 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
 #include "MuonSimEvent/MDTSimHit.h"
 #include "MuonSimEvent/RPCSimHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -442,10 +443,10 @@ StatusCode MuonHitRelocation::execute() {
       // 
       m_stmuonHelper=sTgcHitIdHelper::GetHelper();
 	
-      const DataHandle<GenericMuonSimHitCollection> stgc_collection;
+      const DataHandle<sTGCSimHitCollection> stgc_collection;
       if (evtStore()->retrieve(stgc_collection,"sTGCSensitiveDetector")==StatusCode::SUCCESS) {
-          ATH_MSG_VERBOSE("Generic Muon hit Collection sTGC found with size = "<<stgc_collection->size() );
-          for(GenericMuonSimHitConstIterator i_hit=stgc_collection->begin() ; i_hit!=stgc_collection->end() ; ++i_hit) {
+          ATH_MSG_VERBOSE("sTGC Muon hit Collection sTGC found with size = "<<stgc_collection->size() );
+          for(sTGCSimHitConstIterator i_hit=stgc_collection->begin() ; i_hit!=stgc_collection->end() ; ++i_hit) {
 	    
               GeosTGCHit ghit(*i_hit);
 
@@ -454,12 +455,12 @@ StatusCode MuonHitRelocation::execute() {
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       
-              m_c->lx = (*i_hit).localPosition().x();
-              m_c->ly = (*i_hit).localPosition().y();
-              m_c->lz = (*i_hit).localPosition().z();
+              m_c->lx = -999;
+              m_c->ly = -999;
+              m_c->lz = -999;
               ATH_MSG_DEBUG("        sTGC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
-              const int idHit    = (*i_hit).GenericId();
+              const int idHit    = (*i_hit).sTGCId();
               //std::cout<<"TGC idHit = "<<idHit<<std::endl;
       
               Amg::Vector3D u = ghit.getGlobalPosition();
@@ -512,10 +513,10 @@ StatusCode MuonHitRelocation::execute() {
       // 
       m_mmmuonHelper=MicromegasHitIdHelper::GetHelper();
 	
-      const DataHandle<GenericMuonSimHitCollection> mm_collection;
+      const DataHandle<MMSimHitCollection> mm_collection;
       if (evtStore()->retrieve(mm_collection,"MicromegasSensitiveDetector")==StatusCode::SUCCESS) {
-          ATH_MSG_VERBOSE("Generic Muon hit Collection (Micromegas) found with size = "<<mm_collection->size() );
-          for(GenericMuonSimHitConstIterator i_hit=mm_collection->begin() ; i_hit!=mm_collection->end() ; ++i_hit) {
+          ATH_MSG_VERBOSE("MM Muon hit Collection (Micromegas) found with size = "<<mm_collection->size() );
+          for(MMSimHitConstIterator i_hit=mm_collection->begin() ; i_hit!=mm_collection->end() ; ++i_hit) {
 	    
               GeoMMHit ghit(*i_hit);
 
@@ -524,12 +525,12 @@ StatusCode MuonHitRelocation::execute() {
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
       
-              m_c->lx = (*i_hit).localPosition().x();
-              m_c->ly = (*i_hit).localPosition().y();
-              m_c->lz = (*i_hit).localPosition().z();
+              m_c->lx = -999;
+              m_c->ly = -999;
+              m_c->lz = -999;
               ATH_MSG_DEBUG("        MM hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
-              const int idHit    = (*i_hit).GenericId();
+              const int idHit    = (*i_hit).MMId();
       
               Amg::Vector3D u = ghit.getGlobalPosition();
               m_c->x=u.x();

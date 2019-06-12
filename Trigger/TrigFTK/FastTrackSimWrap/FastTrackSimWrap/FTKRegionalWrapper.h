@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKRegionalWrapper_h
@@ -70,17 +70,19 @@ private:
   const InDetDD::SiDetectorManager*  m_PIX_mgr;
   const InDetDD::SiDetectorManager*  m_SCT_mgr;
 
+  std::unique_ptr<FTKClusteringEngine> m_clusteringEngine = nullptr;
+
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL
   bool m_fixEndcapL0; //fix for endcap L0 in clustering
   bool m_ITkMode; //  global FTK setup variable to toggle ITk geometry
   std::string m_pmap_path; //  path of the PMAP file
-  FTKPlaneMap *m_pmap; //  pointer to the pmap object
+  std::unique_ptr<FTKPlaneMap> m_pmap = nullptr; //  pointer to the pmap object
 
   // variables to manage the region maps
   std::string m_rmap_path; //  path of the region-map file
-  FTKRegionMap *m_rmap; //  pointer to the RMAP object
+  std::unique_ptr<FTKRegionMap> m_rmap = nullptr; //  pointer to the RMAP object
   int m_ntowers;
   int m_nplanes;
  
@@ -145,18 +147,18 @@ private:
   std::vector<std::string> m_spix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
   std::vector<std::string> m_ssct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
 
-  bool dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rmap);
+  bool dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRegionMap *rmap);
 
 
   //Added for cluster conversion
   std::string m_FTKPxlClu_CollName;  /** default name for the FTK pixel ID Cluster container */
-  InDet::PixelClusterContainer *m_FTKPxlCluContainer;   /**  FTK pixel ID Cluster container */
+  std::unique_ptr<InDet::PixelClusterContainer> m_FTKPxlCluContainer;   /**  FTK pixel ID Cluster container */
   std::string m_FTKSCTClu_CollName;  /** default name for the FTK sct ID Cluster container */
-  InDet::SCT_ClusterContainer *m_FTKSCTCluContainer;   /**  FTK pixel ID Cluster container */
+  std::unique_ptr<InDet::SCT_ClusterContainer> m_FTKSCTCluContainer;   /**  FTK pixel ID Cluster container */
 
 
-  PRD_MultiTruthCollection* m_ftkPixelTruth; /** FTK Pixel ID Truth collection */
-  PRD_MultiTruthCollection* m_ftkSctTruth; /** FTK SCT ID Truth collection */
+  std::unique_ptr<PRD_MultiTruthCollection> m_ftkPixelTruth; /** FTK Pixel ID Truth collection */
+  std::unique_ptr<PRD_MultiTruthCollection> m_ftkSctTruth; /** FTK SCT ID Truth collection */
   const McEventCollection*  m_mcEventCollection; /** Truth collection */
 
   std::string m_ftkPixelTruthName;  /** name of FTK Pixel ID Truth collection */

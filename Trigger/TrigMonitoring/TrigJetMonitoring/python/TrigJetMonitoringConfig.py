@@ -146,7 +146,9 @@ if (pp) or (mc):
                                     'L1_J75':30.,
                                     'L1_J100':50.,
                                     'L1_J100.31ETA49':50.,
-                                    'L1_J400':150.}
+                                    'L1_J400':150.,
+                                    'L1_jJ100':50.,
+                                    'L1_4jJ15':5.}
   
   hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
                                     'L1_TE50':0.,
@@ -154,7 +156,9 @@ if (pp) or (mc):
                                     'L1_J75':0.,
                                     'L1_J100':0.,
                                     'L1_J100.31ETA49':3.1,
-                                    'L1_J400':0.}
+                                    'L1_J400':0.,
+                                    'L1_jJ100':0.,
+                                    'L1_4jJ15':0.}
   
   hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
                                      'L1_TE50':4.9,
@@ -162,7 +166,9 @@ if (pp) or (mc):
                                      'L1_J75':4.9,
                                      'L1_J100':4.9,
                                      'L1_J100.31ETA49':4.9,
-                                     'L1_J400':4.9}
+                                     'L1_J400':4.9,
+                                     'L1_jJ100':4.9,
+                                     'L1_4jJ15':4.9}
     
 # HLT items
   hlt_hltEtThresholds            = { 'j0_perf_L1RD0FILLED': 0.,

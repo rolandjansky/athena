@@ -6,6 +6,7 @@
 
 #include "EgammaMonitoring.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "IHistograms.h"
 
 
@@ -34,11 +35,27 @@ StatusCode EgammaMonitoring::initialize() {
   showerShapes10GeV = std::unique_ptr<egammaMonitoring::ShowerShapesHistograms>(new egammaMonitoring::ShowerShapesHistograms(
     "showerShapes10GeV","Shower Shapes - 10 GeV", "/MONITORING/showerShapes10GeV/", rootHistSvc));
 
+  clusterAll = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clustersAll","Clusters", "/MONITORING/clusterAll/", rootHistSvc));
+
+  cluster10GeV= std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusters10GeV","Clusters - 10 GeV", "/MONITORING/cluster10GeV/", rootHistSvc));
+
+  clusterPromptAll = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clustersPromptAll","Clusters from Prompt", "/MONITORING/clusterPromptAll/", rootHistSvc));
+
+  clusterPrompt10GeV = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clustersPrompt10GeV","Clusters from Prompt - 10 GeV", "/MONITORING/clusterPrompt10GeV/", rootHistSvc));
+
   isolationAll = std::unique_ptr<egammaMonitoring::IsolationHistograms>(new egammaMonitoring::IsolationHistograms(
     "isolationAll","Isolation ", "/MONITORING/isolationAll/", rootHistSvc));
 
   ATH_CHECK(showerShapesAll->initializePlots());
   ATH_CHECK(showerShapes10GeV->initializePlots());
+  ATH_CHECK(clusterAll->initializePlots());
+  ATH_CHECK(cluster10GeV->initializePlots());
+  ATH_CHECK(clusterPromptAll->initializePlots());
+  ATH_CHECK(clusterPrompt10GeV->initializePlots());
   ATH_CHECK(isolationAll->initializePlots());
 
   if ("electron" == m_sampleType) {
@@ -103,6 +120,29 @@ StatusCode EgammaMonitoring::initialize() {
 
     recoPhotonAll = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::RecoPhotonHistograms(
         "recoPhotonAll","Reco Photon", "/MONITORING/recoPhotonAll/", rootHistSvc));
+
+    clusterConvPhoton = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhoton","Clusters from Converted Photons", "/MONITORING/clusterConvPhoton/", rootHistSvc));
+
+    clusterConvPhotonSi = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhotonSi","Clusters from Converted Photons - Si", "/MONITORING/clusterConvPhotonSi/", rootHistSvc));
+
+    clusterConvPhotonSiSi = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhotonSiSi","Clusters from Converted Photons - SiSi", "/MONITORING/clusterConvPhotonSiSi/", rootHistSvc));
+   
+    clusterConvPhotonTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhotonTRT","Clusters from Converted Photons - TRT", "/MONITORING/clusterConvPhotonTRT/", rootHistSvc));
+
+    clusterConvPhotonTRTTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhotonTRTTRT","Clusters from Converted Photons - TRTTRT", "/MONITORING/clusterConvPhotonTRTTRT/", rootHistSvc));
+ 
+    clusterConvPhotonSiTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterConvPhotonSiTRT","Clusters from Converted Photons - SiTRT", "/MONITORING/clusterConvPhotonSiTRT/", rootHistSvc));
+    
+    
+    clusterUnconvPhoton = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
+    "clusterUnconvPhoton","Clusters from Converted Photons", "/MONITORING/clusterUnconvPhoton/", rootHistSvc));
+
 
     truthPhotonRecoPhoton = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
         "truthPhotonRecoPhoton","truthPhotonRecoPhoton", "/MONITORING/truthPhotonRecoPhoton/", rootHistSvc));
@@ -178,6 +218,14 @@ StatusCode EgammaMonitoring::initialize() {
     ATH_CHECK(recoPhotonConvIsoFixedCutTight->initializePlots());
     ATH_CHECK(recoPhotonConvIsoFixedCutTightCaloOnly->initializePlots());
     ATH_CHECK(recoPhotonConvIsoFixedCutLoose->initializePlots());
+
+    ATH_CHECK(clusterConvPhoton->initializePlots());
+    ATH_CHECK(clusterConvPhotonSi->initializePlots());
+    ATH_CHECK(clusterConvPhotonSiSi->initializePlots());
+    ATH_CHECK(clusterConvPhotonTRT->initializePlots());
+    ATH_CHECK(clusterConvPhotonTRTTRT->initializePlots());
+    ATH_CHECK(clusterConvPhotonSiTRT->initializePlots());
+    ATH_CHECK(clusterUnconvPhoton->initializePlots());
 
 
   } // gamma Hists
@@ -267,6 +315,25 @@ StatusCode EgammaMonitoring::execute() {
       return StatusCode::FAILURE;
     }
 
+
+    ATH_MSG_DEBUG( "------------ Truth Egamma Container ---------------" );
+    for (auto egtruth : *egTruthParticles) {
+
+      if (!egtruth) continue;
+
+      const xAOD::Electron *electron = xAOD::EgammaHelpers::getRecoElectron(egtruth);
+
+      if (!electron) continue;
+
+      clusterPromptAll->fill(*electron);
+      if (egtruth->pt() > 10*Gaudi::Units::GeV) {
+        clusterPrompt10GeV->fill(*electron);
+      }
+     
+
+      
+
+    }
 
     ATH_MSG_DEBUG( "------------ Truth Particles Container ---------------" );
     unsigned int promtpElectronTruthIndex = - 9;
@@ -435,11 +502,16 @@ StatusCode EgammaMonitoring::execute() {
     for (auto elrec : *RecoEl) {
 
       if (!elrec) continue;
-
+      clusterAll->fill(*elrec);
+      if (elrec->pt() > 10*Gaudi::Units::GeV) {
+        cluster10GeV->fill(*elrec);
+      }
       recoElectronAll->fill(*elrec);
       showerShapesAll->fill(*elrec);
       isolationAll->fill(*elrec);
-      if ((elrec->pt()) / 1000. > 10.) showerShapes10GeV->fill(*elrec);
+      if (elrec->pt() > 10*Gaudi::Units::GeV) {
+        showerShapes10GeV->fill(*elrec);
+      }
 
       const xAOD::TruthParticle *truth = xAOD::TruthHelpers::getTruthParticle(*elrec);
       if (!truth ) continue;
@@ -506,9 +578,14 @@ StatusCode EgammaMonitoring::execute() {
 
       recoPhotonAll->fill(*phrec);
       isolationAll->fill(*phrec);
-
       showerShapesAll->fill(*phrec);
-      if (phrec->pt()) showerShapes10GeV->fill(*phrec);
+      clusterAll->fill(*phrec);
+      if (phrec->pt() > 10*Gaudi::Units::GeV) {
+        cluster10GeV->fill(*phrec);
+      }
+      if (phrec->pt() > 10*Gaudi::Units::GeV){ 
+        showerShapes10GeV->fill(*phrec);
+      }
 
     } // RecoPh Loop
 
@@ -523,6 +600,10 @@ StatusCode EgammaMonitoring::execute() {
       if (!photon) continue;
 
       truthPhotonRecoPhoton->fill(*egtruth);
+      clusterPromptAll->fill(*photon);
+      if (egtruth->pt() > 10*Gaudi::Units::GeV) {
+        clusterPrompt10GeV->fill(*photon);
+      }
 
       bool isRecoConv = xAOD::EgammaHelpers::isConvertedPhoton(photon);
       xAOD::EgammaParameters::ConversionType convType = xAOD::EgammaHelpers::conversionType(photon);
@@ -535,17 +616,33 @@ StatusCode EgammaMonitoring::execute() {
 
           truthPhotonConvRecoConv->fill(*egtruth);
 
-          if (convType == xAOD::EgammaParameters::singleSi) truthPhotonConvRecoConv1Si->fill(*egtruth);
-          if (convType == xAOD::EgammaParameters::singleTRT) truthPhotonConvRecoConv1TRT->fill(*egtruth);
-          if (convType == xAOD::EgammaParameters::doubleSi) truthPhotonConvRecoConv2Si->fill(*egtruth);
-          if (convType == xAOD::EgammaParameters::doubleTRT) truthPhotonConvRecoConv2TRT->fill(*egtruth);
-          if (convType == xAOD::EgammaParameters::doubleSiTRT) truthPhotonConvRecoConv2SiTRT->fill(*egtruth);
+          clusterConvPhoton->fill(*photon);
+
+          if (convType == xAOD::EgammaParameters::singleSi) {
+            truthPhotonConvRecoConv1Si->fill(*egtruth);
+            clusterConvPhotonSi->fill(*photon);
+          } else if (convType == xAOD::EgammaParameters::singleTRT) {
+            truthPhotonConvRecoConv1TRT->fill(*egtruth);
+            clusterConvPhotonTRT->fill(*photon);
+          } else if (convType == xAOD::EgammaParameters::doubleSi) {
+            truthPhotonConvRecoConv2Si->fill(*egtruth);
+            clusterConvPhotonSiSi->fill(*photon);
+          } else if (convType == xAOD::EgammaParameters::doubleTRT) {
+            truthPhotonConvRecoConv2TRT->fill(*egtruth);
+            clusterConvPhotonTRTTRT->fill(*photon);
+          } else if (convType == xAOD::EgammaParameters::doubleSiTRT) {
+            truthPhotonConvRecoConv2SiTRT->fill(*egtruth);
+            clusterConvPhotonSiTRT->fill(*photon); 
+          }
 
           if (m_IsoFixedCutTight->accept(*photon)) recoPhotonConvIsoFixedCutTight->fill(*egtruth);
           if (m_IsoFixedCutTightCaloOnly->accept(*photon)) recoPhotonConvIsoFixedCutTightCaloOnly->fill(*egtruth);
           if (m_IsoFixedCutLoose->accept(*photon)) recoPhotonConvIsoFixedCutLoose->fill(*egtruth);
         } // isRecoConv
-        else truthPhotonConvRecoUnconv->fill(*egtruth);
+        else {
+          truthPhotonConvRecoUnconv->fill(*egtruth);
+          clusterUnconvPhoton->fill(*photon); 
+        } 
 
       } //isTrueConv
       else if (!isTrueLateConv) {

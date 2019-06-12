@@ -731,12 +731,14 @@ class ConfiguredNewTrackingCuts :
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      
-      # self.__useSCT           = False
       self.__useSCT           = True
-      # self.__useTRT           = False
       self.__useTRT           = True
       self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
+
+      if self.__indetflags.doImprovedPixelPrdAssociation():
+        self.__minClusters      = 3
+        self.__minSiNotShared   = 0
 
     if mode == "PixelFourLayer":
       self.__extension        = "PixelFourLayer" # this runs after NewTracking

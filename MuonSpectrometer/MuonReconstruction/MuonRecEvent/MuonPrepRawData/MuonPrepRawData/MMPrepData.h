@@ -81,13 +81,13 @@ namespace Muon
     int time() const;
 
     /** @brief Returns the ADC counts */
-    int charge() const;
+    double charge() const;
 
     /** @brief Returns the microTPC angle */
-    int angle() const;
+    double angle() const;
 
     /** @brief Returns the microTPC chisq Prob. */
-    int chisqProb() const;
+    double chisqProb() const;
 
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
@@ -130,17 +130,17 @@ namespace Muon
     return m_time;
   }
   
-  inline int MMPrepData::charge() const 
+  inline double MMPrepData::charge() const 
   {
     return m_charge;
   }
 
-  inline int MMPrepData::angle() const 
+  inline double MMPrepData::angle() const 
   {
     return m_angle;
   }
 
-  inline int MMPrepData::chisqProb() const 
+  inline double MMPrepData::chisqProb() const 
   {
     return m_chisqProb;
   }

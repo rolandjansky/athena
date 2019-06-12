@@ -193,8 +193,16 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', _etamax)
             alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg)
+            
+            alg = AlgConf.JetSort( name = 'CJs.ETA21', inputs = 'JetTobArray', outputs = 'CJs.ETA21', algoId = currentAlgoId); currentAlgoId += 1
+            alg.addgeneric('InputWidth',  HW.InputWidthJET)
+            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
+            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
+            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
+            alg.addvariable('MinEta', 0)
+            alg.addvariable('MaxEta', 21)
+            tm.registerAlgo(alg)
 
-        
         # Sorted J lists:
         for jet_type in ['AJ', 'FJ']:
             jetabseta = _etamax
@@ -224,7 +232,7 @@ class TopoAlgoDef:
                 alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
 
-        for jet_type in ['J']:
+        for jet_type in ['J','CJ']:
             jetabseta = _etamax
             _minet = 25
             if jet_type=='J':
@@ -462,11 +470,15 @@ class TopoAlgoDef:
 
             
         # deta-dphi with ab+ab
-        for x in [     
-            #{"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "MU", "ocut2": 4, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 6, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
-            ]:
+        algolist=[
+        {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "MU", "ocut2": 4, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+        {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 6, "olist2": "", "nleading2": HW.OutputWidthSelectMU},            
+        ]            
+        if usev8:
+            algolist += [
+            {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
+            ]
+        for x in algolist:
             
             for k in x:
                 exec("%s = x[k]" % k)
@@ -1924,3 +1936,138 @@ class TopoAlgoDef:
             alg.addvariable('MinDeltaPhi', 27)
             alg.addvariable('MaxDeltaPhi', 32)
             tm.registerAlgo(alg)
+
+
+        #ATR-19720, L1_BPH-8M15-0DR22-2MU6
+        if usev8:
+            toponame = "8INVM15-0DR22-2MU6ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 6)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 22*22)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-2DR15-2MU6
+        if usev8:
+            toponame = "2INVM9-2DR15-2MU6ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 6)
+            alg.addgeneric('DeltaRMin', 2*2)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-0DR15-MU6MU4
+        if usev8:
+            toponame = "2INVM9-0DR15-MU6ab-MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-8M15-0DR22-MU6MU4-BO
+        if usev8:
+            toponame = "8INVM15-0DR22-MU6ab-MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 22*22)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-0DR15-2MU4
+        if usev8:
+            toponame = "2INVM9-0DR15-2MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 4)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+            
+        if usev8:
+          for x in [50,60]:
+            toponame = "CEP-CJ%is6" % x 
+            log.info("Define %s" % toponame)
+            
+            inputList = ['CJs']
+            
+            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+            alg.addvariable('MinET1', x)
+            alg.addvariable('MinXi', 0.02)
+            alg.addvariable('MaxXi', 0.05)
+            tm.registerAlgo(alg)
+            
+          x = 50
+          toponame = "CEP-CJ%is6ETA21" % x 
+          log.info("Define %s" % toponame)
+            
+          inputList = ['CJs.ETA21']
+            
+          alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+          alg.addvariable('MinET1', x)
+          alg.addvariable('MinXi', 0.02)
+          alg.addvariable('MaxXi', 0.05)
+          tm.registerAlgo(alg)

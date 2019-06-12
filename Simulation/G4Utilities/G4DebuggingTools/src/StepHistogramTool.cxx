@@ -124,6 +124,8 @@ namespace G4UA{
         BookHistograms(m_report.histoMapMap2D_vol_RZ, "2DMaps/", "volumes/");
         BookHistograms(m_report.histoMapMap2D_mat_RZ, "2DMaps/", "materials/");
         BookHistograms(m_report.histoMapMap2D_prc_RZ, "2DMaps/", "processes/");
+        BookHistograms(m_report.histoMapMap2D_vol_RZ_E, "2DMaps_E/", "volumes/");
+        BookHistograms(m_report.histoMapMap2D_mat_RZ_E, "2DMaps_E/", "materials/");
       }
     }
     else {

@@ -1145,6 +1145,12 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doImprovedPixelPrdAssociation(InDetFlagsJobProperty):
+    """Turn running of an improved PixelPrdAssoication configuration"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
     statusOn     = True
@@ -2851,6 +2857,7 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
+                            doImprovedPixelPrdAssociation,
                             doTrackSegmentsPixelFourLayer,
                             doTrackSegmentsPixelThreeLayer,
                             doSLHCVeryForward,
