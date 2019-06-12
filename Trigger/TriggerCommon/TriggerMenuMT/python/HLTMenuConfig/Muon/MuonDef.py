@@ -58,7 +58,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -66,31 +65,37 @@ class MuonChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
 
-        # Calling inDetSetup here 
-        inDetSetup()
-
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "":(self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB()),
-            "fast":[self.getmuFast()],
-            "Comb":[self.getmuFast(), self.getmuComb()],
-            "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
-            "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
-            "msonly":[self.getmuFast(), self.getmuMSEmpty(), self.getmuEFMS()],
-            "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
-        }
+        stepDictionary = self.getStepDictionary()
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
-        steps=stepDictionary[key]
-        for step in steps:
-            chainSteps+=[step]
 
+        steps=stepDictionary[key]
+
+        for step_level in steps:
+            for step in step_level:
+                chainSteps+=[step]
     
         myChain = self.buildChain(chainSteps)
         return myChain
 
+    def getStepDictionary(self):
+        # Calling inDetSetup here
+        inDetSetup()
+
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration
+        # --------------------
+        stepDictionary = {
+            "":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB()]],
+            "fast":[[self.getmuFast()]],
+            "Comb":[[self.getmuFast(), self.getmuComb()]],
+            "noL2Comb" : [[self.getmuFast()], [self.getmuEFSA(), self.getmuEFCB()]],
+            "ivar":[[self.getmuFast(), self.getmuComb(), self.getmuIso()]],
+            "noL1":[[],[self.getFSmuEFSA(), self.getFSmuEFCB()]],
+            "msonly":[[self.getmuFast(), self.getmuMSEmpty()], [self.getmuEFMS()]],
+            "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
+        }
+        return stepDictionary
 
     # --------------------
     def getmuFast(self):
