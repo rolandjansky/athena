@@ -821,9 +821,10 @@ topSequence = AlgSequence()
 
 if not 'newRDO' in dir() or newRDO is None:
     if 'ReadRDO' in dir() and ReadRDO:
-        from RecExConfig.InputFilePeeker import inputFileSummary
+        from PyUtils.MetaReaderPeeker import convert_itemList
         from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
+
         newRDO = objKeyStore.isInInput( "xAOD::EventInfo" )
     else:
         newRDO = True
