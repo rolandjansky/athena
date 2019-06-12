@@ -46,16 +46,22 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
 
   // get track particles
   const xAOD::TrackParticleContainer* trackParticles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleCollectionName)) {
-    if(evtStore()->retrieve(trackParticles,m_trackParticleCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_trackParticleCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }else{
-    // in case nothing is found return
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK(evtStore()->retrieve(trackParticles, m_trackParticleCollectionName));
 
+
+  // pre-calculate a width of clusters which will be re-used a lot :
+  const xAOD::CaloClusterContainer* clustContainer = 0;  
+  ATH_CHECK(evtStore()->retrieve(clustContainer, m_caloClusters));
+  static SG::AuxElement::Decorator<float> sig_dec("sigmaWidth");
+  for(const xAOD::CaloCluster *cl : *clustContainer){
+    double rad;
+    cl->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
+    double cent;
+    cl->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
+    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cl->eta());
+    sig_dec(*cl) = sigmaWidth;
+  }
+  
   // create strings for locations based on input track collection
   // std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters" + m_outputPostFix;
   std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations" + m_outputPostFix;
@@ -86,7 +92,8 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
     }
    
     // create element links
-    ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName,i);
+    //ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName,i);
+    ElementLink< xAOD::TrackParticleContainer > trackLink(*trackParticles,i);
     
     if( trackLink.isValid() && caloClusterLinks.size()!=0){
         xAOD::TrackParticleClusterAssociation* trackAssociation = new xAOD::TrackParticleClusterAssociation();
