@@ -41,7 +41,8 @@ namespace ana
   MuonToolCorrect (const std::string& name)
     : AsgTool (name), AnaToolCorrect<xAOD::MuonContainer> (name),
       m_calib_smear_16 ("MuonCalibrationAndSmearingTool_16", nullptr),
-      m_calib_smear_17 ("MuonCalibrationAndSmearingTool_17", nullptr)
+      m_calib_smear_17 ("MuonCalibrationAndSmearingTool_17", nullptr),
+      m_calib_smear_18 ("MuonCalibrationAndSmearingTool_18", nullptr)
   {
   }
 
@@ -53,16 +54,37 @@ namespace ana
     ATH_MSG_DEBUG("initialize");
 
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_16, CP::MuonCalibrationAndSmearingTool));
+    ATH_CHECK (m_calib_smear_16.setProperty ("Year", "Data16"));
+    ATH_CHECK (m_calib_smear_16.setProperty ("StatComb", false));
+    ATH_CHECK (m_calib_smear_16.setProperty ("SagittaRelease", "sagittaBiasDataAll_03_02_19_Data16"));
     ATH_CHECK (m_calib_smear_16.setProperty ("SagittaCorr", true));
+    ATH_CHECK (m_calib_smear_16.setProperty ("doSagittaMCDistortion", false));
+    ATH_CHECK (m_calib_smear_16.setProperty ("Release", "Recs2018_05_20"));
+    ATH_CHECK (m_calib_smear_16.setProperty ("SagittaCorrPhaseSpace", true));
     ATH_CHECK (m_calib_smear_16.initialize());
     registerTool (&*m_calib_smear_16);
 
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_17, CP::MuonCalibrationAndSmearingTool));
     ATH_CHECK (m_calib_smear_17.setProperty ("Year", "Data17"));
-    ATH_CHECK (m_calib_smear_17.setProperty ("SagittaRelease", "sagittaBiasDataAll_30_07_18"));
+    ATH_CHECK (m_calib_smear_17.setProperty ("StatComb", false));
+    ATH_CHECK (m_calib_smear_17.setProperty ("SagittaRelease", "sagittaBiasDataAll_03_02_19_Data17"));
     ATH_CHECK (m_calib_smear_17.setProperty ("SagittaCorr", true));
+    ATH_CHECK (m_calib_smear_17.setProperty ("doSagittaMCDistortion", false));
+    ATH_CHECK (m_calib_smear_17.setProperty ("Release", "Recs2018_05_20"));
+    ATH_CHECK (m_calib_smear_17.setProperty ("SagittaCorrPhaseSpace", true));
     ATH_CHECK (m_calib_smear_17.initialize());
     registerTool (&*m_calib_smear_17);
+
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_18, CP::MuonCalibrationAndSmearingTool));
+    ATH_CHECK (m_calib_smear_18.setProperty ("Year", "Data18"));
+    ATH_CHECK (m_calib_smear_18.setProperty ("StatComb", false));
+    ATH_CHECK (m_calib_smear_18.setProperty ("SagittaRelease", "sagittaBiasDataAll_03_02_19_Data18"));
+    ATH_CHECK (m_calib_smear_18.setProperty ("SagittaCorr", true));
+    ATH_CHECK (m_calib_smear_18.setProperty ("doSagittaMCDistortion", false));
+    ATH_CHECK (m_calib_smear_18.setProperty ("Release", "Recs2018_05_20"));
+    ATH_CHECK (m_calib_smear_18.setProperty ("SagittaCorrPhaseSpace", true));
+    ATH_CHECK (m_calib_smear_18.initialize());
+    registerTool (&*m_calib_smear_18);
 
     registerCut (SelectionStep::MET, "calib_tool", cut_calib_tool);
 
@@ -87,7 +109,12 @@ namespace ana
     // Apply the CP calibration
     double exp_smear = 0.;
     double exp_nosmear = 0.;
-    if(run>320000){ 
+    if(run>342000){
+      QA_CHECK_CUT (cut_calib_tool, m_calib_smear_18->applyCorrection (muon));
+      exp_nosmear = m_calib_smear_18->expectedResolution("CB", muon, true);
+      exp_smear = m_calib_smear_18->expectedResolution("CB", muon, false);
+    }
+    if(run>320000 && run<342000){ 
       QA_CHECK_CUT (cut_calib_tool, m_calib_smear_17->applyCorrection (muon));
       exp_nosmear = m_calib_smear_17->expectedResolution("CB", muon, true);
       exp_smear = m_calib_smear_17->expectedResolution("CB", muon, false);
