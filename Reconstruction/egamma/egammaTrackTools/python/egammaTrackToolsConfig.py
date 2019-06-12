@@ -72,6 +72,6 @@ if __name__ == "__main__":
     acc.popPrivateTools()
     cfg.merge(acc)
 
-    f = open("egmvatools.pkl", "w")
+    f = open("egtracktools.pkl", "w")
     cfg.store(f)
     f.close()

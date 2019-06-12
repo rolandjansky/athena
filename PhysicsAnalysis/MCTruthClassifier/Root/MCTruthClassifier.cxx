@@ -64,8 +64,8 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
   :  asg::AsgTool(type)
 #ifndef XAOD_ANALYSIS //Add Athena Specific parts in the init list of the constructor
   ,
-     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-     m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool")
+     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+     m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool", this)
 #endif
 {
 
