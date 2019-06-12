@@ -18,7 +18,6 @@ doAOD=False # make AOD objects
 doESD=False # make ESD objects
 doTAG=False
 
-TriggerModernConfig=True
 doTrigger=True
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags

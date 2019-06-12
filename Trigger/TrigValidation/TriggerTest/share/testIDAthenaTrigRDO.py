@@ -21,7 +21,6 @@ if not ('OutputLevel' in dir()):
 doTrigger=True
 rec.doESD.set_Value_and_Lock(False)
 
-TriggerModernConfig=True
 
 rec.doWriteAOD=False
 rec.doWriteESD=False

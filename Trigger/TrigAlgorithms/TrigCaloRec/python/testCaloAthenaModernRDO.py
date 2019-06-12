@@ -26,7 +26,6 @@ doCBNT=False
 doTrigger=True
 doESD=False
 
-TriggerModernConfig=True
 
 doWriteAOD=False
 doWriteESD=False

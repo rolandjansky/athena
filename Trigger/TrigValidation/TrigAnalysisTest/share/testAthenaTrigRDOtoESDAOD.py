@@ -14,7 +14,6 @@ include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=True
 rec.doWriteESD=True
 rec.doWriteTAG=False

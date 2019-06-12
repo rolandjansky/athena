@@ -19,7 +19,6 @@ if ('PoolRDOInput' not in dir()):
 # RecExCommon flags
 
 doTrigger=True
-TriggerModernConfig=True
 doWriteAOD=False
 doWriteESD=False
 doWriteTAG=False
