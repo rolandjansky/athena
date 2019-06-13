@@ -71,7 +71,7 @@ def tauCoreTrackSequence():
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
     TrackRoiUpdater.RoIOutputKey = "RoiForID2"
-    TrackRoiUpdater.fastTracksKey = "TrigFastTrackFinder_Tracks"
+
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("fastTrackViewsMaker")
     fastTrackViewsMaker.RoIsLink = "roi" # -||-
@@ -86,7 +86,15 @@ def tauCoreTrackSequence():
          viewAlg.RoIs = fastTrackViewsMaker.InViewRoIs
        if "roiCollectionName" in viewAlg.properties():
          viewAlg.roiCollectionName = fastTrackViewsMaker.InViewRoIs
+       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+         TrackCollection = viewAlg.TrackName
+
+
+    theFTFCore.TracksName=TrackCollection
+    theFTFCore.RoIs = fastTrackViewsMaker.InViewRoIs
+
     TrackRoiUpdater.RoIInputKey = fastTrackViewsMaker.InViewRoIs
+    TrackRoiUpdater.fastTracksKey = TrackCollection
 
     tauInViewAlgs = parOR("tauInViewAlgs", viewAlgsTP + [ TrackRoiUpdater ])
 
@@ -114,26 +122,30 @@ def tauPrecisionSequence():
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     (viewAlgsPT, eventAlgs) = makeInDetAlgs("FastTrack")
 
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_TauCore
+    TrackParticlesName = ""
+    for viewAlg in viewAlgsPT:
+        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+            TrackParticlesName = viewAlg.TrackParticlesName
+            TrackCollection = viewAlg.TrackName
 
-    theFTF = TrigFastTrackFinder_TauCore("TrigFastTrackFinder_TauCorePre")
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Tau
+    theFTF = TrigFastTrackFinder_Tau()
+    #"TrigFastTrackFinder_TauCorePre"
     theFTF.isRoI_Seeded = True
+    theFTF.TracksName=TrackCollection
     viewAlgsPT.append(theFTF)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
     viewAlgsPT.append(ViewVerify)
 
-    TrackParticlesName = ""
-    for viewAlg in viewAlgsPT:
-        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-            TrackParticlesName = viewAlg.TrackParticlesName
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
     precisionTRU.RoIOutputKey = "RoiForID2"
-    precisionTRU.fastTracksKey = "TrigFastTrackFinder_Tracks"
+    precisionTRU.fastTracksKey = TrackCollection
+    #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=False, doTrackBDT=False, doRNN=False)
@@ -159,8 +171,9 @@ def tauPrecisionSequence():
          viewAlg.RoIs = precisionViewsMaker.InViewRoIs
        if "roiCollectionName" in viewAlg.properties():
          viewAlg.roiCollectionName = precisionViewsMaker.InViewRoIs
+
     precisionTRU.RoIInputKey = precisionViewsMaker.InViewRoIs
-    
+    theFTF.RoIs = precisionViewsMaker.InViewRoIs
 
     tauPInViewAlgs = parOR("tauPInViewAlgs", viewAlgsPT + [ precisionTRU, trigTauMVA ])
 

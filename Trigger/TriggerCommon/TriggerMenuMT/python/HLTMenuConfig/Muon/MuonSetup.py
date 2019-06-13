@@ -585,8 +585,7 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-#    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") this is definitely not working
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='MuonFS',separateTrackParticleCreator="_MuonFS")
+    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") 
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonFS
     theFTF_Muon = TrigFastTrackFinder_MuonFS()
@@ -606,10 +605,10 @@ def muEFCBRecoSequence( RoIs, name ):
 
     theFTF_Muon.TracksName=TrackCollection
   else:
-    TrackCollection="TrigFastTrackFinder_Tracks_Muon" # this is hacking
+    TrackCollection="TrigFastTrackFinder_Tracks_Muon" # this is hacking, please FIX IT
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
-                                   ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
+                                 ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
 
@@ -636,9 +635,9 @@ def muEFCBRecoSequence( RoIs, name ):
     PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
-
   muEFCBRecoSequence += PTSeq
-  # FPP
+
+  # to debug the View content
   muEFCBRecoSequence += CfgMgr.AthViews__ViewTestAlg("view_testMuon")
 
   #Default from FTF
@@ -841,7 +840,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTrackParticles = [] #List of TrackParticleKeys
   
   from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso")
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
 
   PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )
   efmuisoRecoSequence += PTSeq

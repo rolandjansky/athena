@@ -81,7 +81,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getStepDictionary(self):
 
         # Calling inDetSetup here
-        inDetSetup()
+#        inDetSetup()
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
