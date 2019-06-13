@@ -82,6 +82,3 @@ StreamESD.ItemList = ItemList
 
 
 HLTTop = findSubSequence(topSequence, "HLTTop")
-
-# this is a temporary measure until we have L1 menu json files being written out directly 
-include( "TrigConfIO/TransformXML2JSON.py" )

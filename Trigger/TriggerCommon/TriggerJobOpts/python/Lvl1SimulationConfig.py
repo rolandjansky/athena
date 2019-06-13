@@ -26,8 +26,9 @@ def Lvl1SimulationSequence( flags = None ):
     svcMgr += LVL1ConfigSvc()
     svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
-    # L1 menu provider
-    include("TrigConfIO/TrigConfCondSetup.py")
+    # L1 menu provider Run 3
+    from TrigConfIO.TrigConfCondSetup import setupMenuProvider
+    setupMenuProvider()
 
 
     
@@ -154,6 +155,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = False
+    ctp.UseCondL1Menu = True
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
 

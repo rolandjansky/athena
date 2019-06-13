@@ -574,15 +574,15 @@ LVL1CTP::CTPSimulation::loadFixedConditions() {
          }
       
          unsigned int rate1 = (0x1 << (8+random.rate1())) - 1;
-         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
+         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate1, ctpVersion, rndmEngine);
       
          if (random.rate2() < 0) {
-            ATH_MSG_INFO("Rate factor for random trigger RNDM1 below zero (" << random.rate2() << "): only possible in simulation");
+            ATH_MSG_DEBUG("Rate factor for random trigger RNDM1 below zero (" << random.rate2() << "): only possible in simulation");
          }
       
          unsigned int rate2 = (0x1 << (8+random.rate2())) - 1;
-         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
+         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, rate2, ctpVersion, rndmEngine);
       
       } else {//XXX How to treat random triggers in run-II?
@@ -604,9 +604,9 @@ LVL1CTP::CTPSimulation::loadFixedConditions() {
             if(cut==0) { cut = 0x1; }
             double prescale = double(0xFFFFFF) / (0x1000000-cut);
 
-            ATH_MSG_INFO("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << hex << cut << dec << " (" << cut << ")");
-            ATH_MSG_INFO("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
-            ATH_MSG_INFO("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
+            ATH_MSG_DEBUG("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << hex << cut << dec << " (" << cut << ")");
+            ATH_MSG_DEBUG("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
+            ATH_MSG_DEBUG("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
             m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,rndmIdx)] = new RandomTrigger(rndmIdx, (unsigned int)prescale, ctpVersion, rndmEngine);
          }
       }
