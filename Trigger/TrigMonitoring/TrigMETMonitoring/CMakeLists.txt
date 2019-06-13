@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigMonitoring/TrigHLTMonitoring
                           PRIVATE
-			  Control/AthenaMonitoring
+                          Control/AthenaMonitoring
                           Control/StoreGate
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfL1Data )
