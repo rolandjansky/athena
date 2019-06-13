@@ -7,7 +7,7 @@
 # art-include: 21.2/AnalysisBase
 
 import ROOT
-ROOT.gEnv.SetValue("Davix.Debug", 3)
+ROOT.gEnv.SetValue("Davix.Debug", 3.0)
 
 ### no redirection option ###
 f = ROOT.TFile.Open("https://rucio-lb-prod.cern.ch/redirect/mc12_8TeV/AOD.00983781._000001.pool.root.1")
