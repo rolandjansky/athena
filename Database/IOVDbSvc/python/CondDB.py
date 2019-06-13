@@ -294,7 +294,11 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     def setRequireLock(self,lock=True):
         "Set the flag indicating global tags will be required to be locked"
         self.iovdbsvc.CheckLock=lock
-        
+
+    def setWriteDataToFile(self, writeData=False):
+        "Set option to write data to file"
+        self.iovdbsvc.OutputToFile=writeData
+
 
     def extractFolder(self,folderstr):
         "Extract the folder name (non-XML text) from a IOVDbSvc.Folders entry"
