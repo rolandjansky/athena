@@ -51,6 +51,7 @@ public:
     if (opt_xAODJet.has_value()){m_jets.push_back(*opt_xAODJet);}
   }
 
+  std::size_t size() const {return m_jets.size();}
   bool empty() const {return m_jets.empty();}
  
  private:
