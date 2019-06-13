@@ -265,9 +265,11 @@ def muEFInsideOutSequence():
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    efsafsInputMaker = EventViewCreatorAlgorithm("MuonFSInputMaker", RoIsLink="initialRoI")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
+    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("MuonFSInputMaker", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
+    efsafsInputMaker.CreateFSRoI=True
     efsafsInputMaker.ViewPerRoI=True
     efsafsInputMaker.ViewFallThrough=True
 
