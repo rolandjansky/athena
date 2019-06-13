@@ -40,7 +40,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
