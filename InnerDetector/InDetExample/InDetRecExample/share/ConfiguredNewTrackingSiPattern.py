@@ -190,9 +190,9 @@ class  ConfiguredNewTrackingSiPattern:
                                         MaxDeltaZTracksPair       = 1.0,
                                         TrackZ0Window             = 1.0 )
             ToolSvc += ZWindowRoISeedTool
-            ZWindowRoISeedTool.OutputLevel = VERBOSE
-            ServiceMgr.MessageSvc.debugLimit = 1000000
-            ServiceMgr.MessageSvc.verboseLimit = 1000000
+            #ZWindowRoISeedTool.OutputLevel = VERBOSE
+            #ServiceMgr.MessageSvc.debugLimit = 1000000
+            #ServiceMgr.MessageSvc.verboseLimit = 1000000
 
          #
          # --- SCT and Pixel detector elements road builder
