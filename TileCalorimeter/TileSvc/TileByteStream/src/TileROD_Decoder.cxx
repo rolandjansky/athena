@@ -985,6 +985,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
                                    DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p, pDigiVec & pDigits) const
 {
+
+
   int size = *(p) - sizeOverhead;
 
   // second word is frag ID (0x100-0x4ff) and frag type
@@ -1041,9 +1043,9 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
 
   const uint32_t* const end_data = data + size;
   while (data < end_data) {
-    if ((*data & 0x00FFFF00) == 0x00BABE00) {
-      unsigned int miniDrawer = *data & 0xFF;
-
+    if ((*data & 0xFFFF0000) == 0xABCD0000) {
+      unsigned int miniDrawer = *(data+6) & 0xFF;
+     
       if ((++data < end_data) && (*data == 0x12345678) && (++data < end_data)) {
 
         unsigned int fragSize   = *data & 0xFF;
@@ -1061,10 +1063,10 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
         // check trailer
         const uint32_t* trailer = data + paramsSize + 3 + fragSize; // 2 = (BCID + L1ID)
 
-        if ((trailer + 3) <= end_data // 3 = (trailer size)
+
+        if ((trailer + 1) <= end_data // 3 = (trailer size)
             && *trailer == 0x87654321
-            && *(++trailer) == 0xBCBCBCDC
-            && *(++trailer) == (0x00DEAD00 | (miniDrawer) | (miniDrawer << 24))) {
+            ) {
 
           if (paramsSize == 3){
             runNumber[miniDrawer]  = *(++data);
@@ -1087,6 +1089,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
           bcid[miniDrawer] = (*(++data) >> 16) & 0xFFFF;
           l1id[miniDrawer] = *(++data);
 
+
+          
 
           if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << "FRAG6: Found MD[" << miniDrawer << "] fragment"

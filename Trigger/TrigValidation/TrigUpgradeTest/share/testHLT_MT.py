@@ -79,7 +79,7 @@ if opt.doEmptyMenu == True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doBjetSlice=False #Wait for ATR-19439
+#    opt.doBjetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT

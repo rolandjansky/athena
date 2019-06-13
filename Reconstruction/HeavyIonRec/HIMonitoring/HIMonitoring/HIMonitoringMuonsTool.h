@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef HIMONITORINGMUONSTOOL_H
@@ -27,8 +27,6 @@ public:
   void book_hist();
 private:
   /// histograms
-
-  TH1D* m_h_FCalEt {};
 
   TH1D* m_h_Auth_fcal {};
   TH1D* m_h_Type_fcal {};

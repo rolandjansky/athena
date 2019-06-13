@@ -256,7 +256,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
   theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + separateTrackParticleCreator,
                                                             doIBLresidual = False,
-                                                            TrackName = "TrigFastTrackFinder_Tracks",
+                                                            TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
                                                             TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),
                                                             ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"

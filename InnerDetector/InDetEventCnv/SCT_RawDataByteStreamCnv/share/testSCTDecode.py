@@ -7,9 +7,15 @@
 if not "doPrint" in dir():
     doPrint = False
 if not "doDump" in dir():
-    doDump = True
+    doDump = False
 if not "EvtMax" in dir():
     EvtMax = 10
+
+msg = None
+if doPrint:
+    from AthenaCommon.Logging import logging
+    msg = logging.getLogger("testSCTDecode")
+    msg.setLevel(logging.INFO)
 
 #--------------------------------------------------------------
 # Standard includes
@@ -47,7 +53,7 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="bytestream"
 globalflags.DataSource="data"
 if doPrint:
-    print globalflags
+    msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -209,7 +215,7 @@ topSequence += InDetSiTrackerSpacePointFinder
 
 # Print algorithms
 if doPrint:
-    print topSequence
+    msg.info(topSequence)
 
 # Set the number of events to be processed
 theApp.EvtMax = EvtMax

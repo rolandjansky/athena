@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNINTERFACES_ALIGN_TRACK_DRESSER_IH
@@ -33,7 +33,7 @@ namespace Trk {
     static const InterfaceID& interfaceID();
   
     /** Dresses AlignTrack with derivatives and any other information needed for alignment. */
-    virtual bool dressAlignTrack(AlignTrack* alignTrack) const = 0;
+    virtual bool dressAlignTrack(AlignTrack* alignTrack) = 0;
 
      /** sets the output stream for the logfile */
      virtual void setLogStream(std::ostream * os) { m_logStream = os; }

@@ -34,7 +34,9 @@ def fastElectronSequence(ConfigFlags):
     for viewAlg in viewAlgs:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
-      
+            TrackCollection = viewAlg.TrackName
+
+    theFTF.TracksName=TrackCollection
       
     from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
     theElectronFex= L2ElectronFex_1()
@@ -59,8 +61,8 @@ def fastElectronSequence(ConfigFlags):
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs    
     electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
-# FPP
 
+    # to debug the vView content 
     electronInViewAlgs += CfgMgr.AthViews__ViewTestAlg("view_testElectron1")
   
     electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )

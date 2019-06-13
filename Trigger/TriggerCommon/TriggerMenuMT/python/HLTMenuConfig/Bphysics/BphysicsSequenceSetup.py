@@ -37,7 +37,9 @@ def dimuEFSequence(name = 'Dimu'):
     from AthenaCommon import CfgMgr
     from AthenaCommon.CFElements import parOR, seqAND
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
 
+    muNames = muonNames().getNames('RoI')
 
     dimuefViewNode = parOR("dimuefViewNode")
     
@@ -60,7 +62,7 @@ def dimuEFSequence(name = 'Dimu'):
     from TrigBphysHypo.TrigMultiTrkHypoMTMonitoringConfig import TrigMultiTrkHypoAlgMTMonitoring
     
     jpsiHypo = TrigMultiTrkHypoMT(name+"HypoAlgEF")
-    jpsiHypo.MuonCollectionKey = "MuonsCB"
+    jpsiHypo.MuonCollectionKey = muNames.EFCBName
     jpsiHypo.particleType = 1
     jpsiHypo.bphysCollectionKey = "TrigBphysEF"+name
     jpsiHypo.nTrackMassMin = [100]

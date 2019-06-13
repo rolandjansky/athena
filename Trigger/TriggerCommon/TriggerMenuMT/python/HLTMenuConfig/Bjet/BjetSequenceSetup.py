@@ -25,7 +25,6 @@ def getBJetSequence( step ):
 # ==================================================================================================== 
 
 def bJetStep1Sequence():
-    print "CACCA"
     # menu components
     from AthenaCommon.CFElements import parOR, seqAND
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -46,23 +45,29 @@ def bJetStep1Sequence():
     RoIBuilder.RoIOutputKey = "BjetRoIs"
     RoIs=RoIBuilder.RoIOutputKey
 
-    # Fast Tracking 
+    # Fast Tracking
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='evt',separateTrackParticleCreator="bjet")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS")
 
     for viewAlg in viewAlgs:
         if "RoIs" in viewAlg.properties():
             viewAlg.RoIs = RoIs
         if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = RoIs
-        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-            TrackParticlesName = viewAlg.TrackParticlesName 
+        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+            TrackParticlesName = viewAlg.TrackParticlesName # why we need this?
+            TrackCollection = viewAlg.TrackName
+            print "CACCA2 ", viewAlg
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIs
+    theFTF_Jet.TracksName=TrackCollection
     viewAlgs.append( theFTF_Jet )
+
+    print "CACCA1 ", theFTF_Jet
+    
 
     # Primary Vertex goes here
 
@@ -116,12 +121,24 @@ def bJetStep1SequenceALLTE():
 
     # Fast Tracking 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="bjetALLTE")
+#    (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="bjetALLTE")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS")
+
+
+    for viewAlg in viewAlgs:
+        if "RoIs" in viewAlg.properties():
+            viewAlg.RoIs = RoIs
+        if "roiCollectionName" in viewAlg.properties():
+            viewAlg.roiCollectionName = RoIs
+        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+            TrackParticlesName = viewAlg.TrackParticlesName # why we need this?
+            TrackCollection = viewAlg.TrackName
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
+    theFTF_Jet.TracksName=TrackCollection
     viewAlgs.append( theFTF_Jet )
 
     # Primary Vertex goes here
@@ -182,7 +199,7 @@ def bJetStep2Sequence():
     # Precision Tracking
     #def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
@@ -196,7 +213,7 @@ def bJetStep2Sequence():
     step2Sequence = seqAND("step2Sequence",[theGSC])
     InputMakerAlg.ViewNodeName = "step2Sequence"
 
-    # FPP
+    # to debug the View contnets  
     import AthenaCommon.CfgMgr as CfgMgr
     step2Sequence += CfgMgr.AthViews__ViewTestAlg("view_testBjet2")
     

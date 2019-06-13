@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNGENTOOLS_ALIGN_TRACK_CREATOR_H
@@ -43,7 +43,7 @@ namespace Trk {
     StatusCode finalize();
 
     /** creates AlignTrack containing all TSOS on track */
-    bool processAlignTrack(AlignTrack* track) const;
+    bool processAlignTrack(AlignTrack* track);
    
   private:
 

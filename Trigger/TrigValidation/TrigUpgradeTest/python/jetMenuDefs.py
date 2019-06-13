@@ -4,7 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence, jetRecoSequence
 
 def jetDictFromString(jet_def_string):
-    """ Function to create the jet Menu Sequence"""
+    """ Function to retrieve the jet dictionaory from string"""
    
     # Translate the definition string into an approximation
     # of the "recoParts" in the jet chainParts.
@@ -23,11 +23,12 @@ def jetDictFromString(jet_def_string):
     return jetRecoDict
 
 def jetRecoSequenceFromString(jet_def_string):
-    print "CACCA ", jet_def_string
+    """ Function to retrieve jet Reco sequence from string"""
     jetRecoDict=jetDictFromString(jet_def_string)
     return jetRecoSequence(None,**jetRecoDict)	
     
  
 def jetMenuSequenceFromString(jet_def_string):
+    """ Function to retrieve jet menu sequence from string"""
     jetRecoDict=jetDictFromString(jet_def_string)
     return jetMenuSequence(None,**jetRecoDict) # First arg dummy flags for RecoFragmentsPool
