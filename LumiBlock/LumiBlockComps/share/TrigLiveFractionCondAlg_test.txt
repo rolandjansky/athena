@@ -1,0 +1,4 @@
+ApplicationMgr.ExtSvc = {"StoreGateSvc/ConditionStore"};
+TrigLiveFractionCondAlg.DeadtimeFolderInputKey = "testDeadtime";
+TrigLiveFractionCondAlg.LuminosityInputKey = "testLumi";
+TrigLiveFractionCondAlg.TrigLiveFractionOutputKey = "TrigLiveFractionCondData";

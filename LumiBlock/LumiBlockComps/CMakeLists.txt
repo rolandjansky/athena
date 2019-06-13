@@ -92,3 +92,6 @@ atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
    LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
 
+atlas_add_test( TrigLiveFractionCondAlg_test
+   SOURCES test/TrigLiveFractionCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
