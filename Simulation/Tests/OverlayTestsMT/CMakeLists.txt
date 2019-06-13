@@ -1,9 +1,9 @@
 ################################################################################
-# Package: OverlayTests
+# Package: OverlayTestsMT
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( OverlayTests )
+atlas_subdir( OverlayTestsMT )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
