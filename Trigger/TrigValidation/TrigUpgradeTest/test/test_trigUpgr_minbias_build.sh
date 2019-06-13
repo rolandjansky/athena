@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test using IDCalo job options
+# art-description: athenaMT trigger test for min bias reconstruction algorithms.
 # art-type: build
 # art-include: master/Athena
 # art-output: *.log

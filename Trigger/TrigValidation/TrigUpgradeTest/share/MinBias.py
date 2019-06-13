@@ -24,8 +24,13 @@ topSequence.InDetPixelClusterization_FS.RoIs  = "FSRoI"
 print topSequence.InDetTrigTrackParticleCreatorAlgMinBias
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName = "FSRoI"
 
-from AthenaCommon.Constants import *
-#topSequence.InDetSiTrackerSpacePointFinder.OutputLevel=VERBOSE
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MinBias
+theFTF              = TrigFastTrackFinder_MinBias()
+theFTF.isRoI_Seeded = True
+theFTF.RoIs         = "FSRoI"
+topSequence += theFTF
+
+
 
 
 
