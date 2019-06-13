@@ -30,7 +30,6 @@ doAODLVL1=False
 doAOD=False
 
 doTrigger=True
-TriggerModernConfig=True
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 no_Bphysics=True

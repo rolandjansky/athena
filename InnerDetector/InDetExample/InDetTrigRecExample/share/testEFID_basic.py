@@ -49,7 +49,6 @@ if doReadBS:
 
 doTrigger=True
 
-TriggerModernConfig=True
 
 doWriteAOD=False
 doWriteTAG=False

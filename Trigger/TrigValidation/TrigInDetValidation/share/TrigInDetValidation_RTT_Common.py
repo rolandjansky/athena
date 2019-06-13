@@ -146,7 +146,6 @@ InDetFlags.doCaloSeededBrem=False
 doAODLVL1=False
 
 doTrigger=True
-TriggerModernConfig=True
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 no_Bphysics=True

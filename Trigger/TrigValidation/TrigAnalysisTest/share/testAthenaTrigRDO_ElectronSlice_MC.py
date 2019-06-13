@@ -14,7 +14,6 @@ include("TriggerTest/TrigScanFiles.py")
 
 # flags for RecExCommon
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False

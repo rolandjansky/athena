@@ -9,7 +9,6 @@ if not ('doFastCaloAccess' in dir()):
 doCBNT = False
 
 doTrigger = True
-TriggerModernConfig = True
 
 doWriteAOD = False
 doWriteESD = False
