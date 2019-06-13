@@ -298,12 +298,13 @@ if not "HIGG5D3Jets" in OutputJets:
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets']
     replaceAODReducedJets(reducedJetList, higg5d3Seq, "HIGG5D3Jets")
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
     include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    runTCCReconstruction(higg5d3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+    
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d3Seq, "HIGG5D3Jets")
 
