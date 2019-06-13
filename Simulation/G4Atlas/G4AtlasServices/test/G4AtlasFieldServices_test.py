@@ -41,10 +41,10 @@ if __name__ == '__main__':
   import os
   if not "AthSimulation_DIR" in os.environ:
     acc3 = Q1FwdG4FieldSvcCfg(ConfigFlags)
+    cfg.merge(acc3)
 
   cfg.merge(acc1)
   cfg.merge(acc2)
-  cfg.merge(acc3)
 
   # Dump config
   #cfg.getService("StoreGateSvc").Dump = True

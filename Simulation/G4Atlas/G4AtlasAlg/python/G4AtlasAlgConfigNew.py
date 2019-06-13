@@ -8,6 +8,7 @@ from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
 
 from  G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
 
+#This is old style code - to be rewritten in a later MR
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     ## Killing neutrinos
@@ -30,6 +31,8 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     kwargs.setdefault('IsISFJob', simFlags.ISFRun())
     return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
+
+#This is old style code - to be rewritten in a later Multi-threading
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
     kwargs.setdefault('SecondarySavingLevel', 2)
     subDetLevel=1
@@ -69,14 +72,10 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
         ## default true
         kwargs.setdefault('KillAbortedEvents' ,ConfigFlags.Sim.KillAbortedEvents)
 
-    from RngComps.RandomServices import AthEngines,  Ranecu
-    if AthEngines[ConfigFlags.Random.Engine]:  
-        acc =  Ranecu(ConfigFlags.Random.Engine)
-        result.merge(acc)
-    #from RngComps.RandomServices import AthEngines, RNG
-    #if ConfigFlags.Random.Engine in AthEngines.keys():
-    #    result.merge(RNG(AthEngines[ConfigFlags.Random.Engine], name="AthRNGSvc"))
-    #    kwargs.setdefault("AtRndmGenSvc",result.getService("AthRNGSvc"))
+    from RngComps.RandomServices import AthEngines, RNG
+    if ConfigFlags.Random.Engine in AthEngines.keys():
+        result.merge(RNG(ConfigFlags.Random.Engine, name="AthRNGSvc"))
+        kwargs.setdefault("AtRndmGenSvc",result.getService("AthRNGSvc"))
 
     kwargs.setdefault("RandomGenerator", "athena")
 

@@ -27,8 +27,8 @@ if __name__ == '__main__':
   ConfigFlags.Detector.SimulateID = True
   ConfigFlags.Detector.SimulateCalo = True 
   ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.SimulateForward = True
-  ConfigFlags.Detector.GeometryFwdRegion = True
+  ConfigFlags.Detector.SimulateForward = False
+  ConfigFlags.Detector.GeometryFwdRegion = False
 
 
   ConfigFlags.Sim.CavernBG = "Signal"  #for it to go via atlas?

@@ -34,10 +34,16 @@ if __name__ == '__main__':
   #add the algorithm
   acc1 = ATLASFieldManagerToolCfg(ConfigFlags)
   acc2 = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)
-  acc3 = Q1FwdFieldManagerToolCfg(ConfigFlags)
+
   cfg.popToolsAndMerge(acc1)
   cfg.popToolsAndMerge(acc2)
-  cfg.popToolsAndMerge(acc3)
+
+  #don't run for simulation only tests (todo - make new general test)
+  import os
+  if not "AthSimulation_DIR" in os.environ:
+    acc3 = Q1FwdFieldManagerToolCfg(ConfigFlags)
+    cfg.popToolsAndMerge(acc3)
+
 
   # Dump config
   #cfg.getService("StoreGateSvc").Dump = True
