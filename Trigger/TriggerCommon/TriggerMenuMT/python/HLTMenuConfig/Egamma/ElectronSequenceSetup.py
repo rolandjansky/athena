@@ -48,6 +48,7 @@ def fastElectronSequence(ConfigFlags):
     l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
     l2ElectronViewsMaker.Views = "EMElectronViews"
     l2ElectronViewsMaker.ViewFallThrough = True
+    l2ElectronViewsMaker.RequireParentView = True
 
 
     for viewAlg in viewAlgs:
