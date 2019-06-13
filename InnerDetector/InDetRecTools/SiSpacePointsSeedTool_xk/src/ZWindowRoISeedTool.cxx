@@ -82,28 +82,35 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
   listRoIs.clear();
 
   //select tracks, then order by pT
-  TrackCollection* tracks;
+  const TrackCollection* tracks = 0;
   std::vector<Trk::Track*> selectedTracks;
   if ( evtStore()->retrieve(tracks, m_input_tracks_collection).isFailure() ) {
-    if (msgLvl(MSG::INFO)) msg() << "Could not find TrackCollection " << m_input_tracks_collection << " in StoreGate." << endreq;
+    ATH_MSG_DEBUG("Could not find TrackCollection " << m_input_tracks_collection << " in StoreGate.");
     return listRoIs;    
   }
-  ATH_MSG_INFO("Input track collection size "<<tracks->size());
+  ATH_MSG_DEBUG("Input track collection size "<<tracks->size());
   for ( Trk::Track* trk : tracks->stdcont() ) {
     float theta = trk->perigeeParameters()->parameters()[Trk::theta];
-    float ptinv = fabs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);
+    float ptinv = fabs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);    
+    if (ptinv < 0.001) //1 GeV tracks
+      ATH_MSG_VERBOSE("Examining track");
     if (ptinv != 0) {
-      float pt = 1. / ptinv;
+      float pt = 1. / ptinv;      
+      if (pt > 1000.) //1 GeV tracks for printout
+	ATH_MSG_VERBOSE("- pT = " << pt << " MeV");
       if ( pt < m_trk_subleading_pt ) continue;
     }
     float eta = -log( tan( theta/2 ) );
-    if ( fabs(eta) < m_trk_eta_max ) continue;
+    ATH_MSG_VERBOSE("- eta = " << eta);
+    if ( fabs(eta) > m_trk_eta_max ) continue;
     float d0 = trk->perigeeParameters()->parameters()[Trk::d0];
-    if ( fabs(d0) < m_trk_d0_max ) continue;
+    ATH_MSG_VERBOSE("- d0 = " << d0 << "mm");
+    if ( fabs(d0) > m_trk_d0_max ) continue;
+    ATH_MSG_VERBOSE("- Passed all selections");
     selectedTracks.push_back(trk);
   }
-  std::sort(selectedTracks.begin(), selectedTracks.end(), tracks_pt_less_than);
-  ATH_MSG_INFO("Selected track collection size "<<selectedTracks.size());
+  std::sort(selectedTracks.begin(), selectedTracks.end(), tracks_pt_greater_than);
+  ATH_MSG_DEBUG("Selected track collection size "<<selectedTracks.size());
   //create all pairs that satisfy leading pT and delta z0 requirements
   typedef std::vector<Trk::Track*>::iterator iterator_tracks;
   for ( iterator_tracks trk_itr_leading = selectedTracks.begin(); trk_itr_leading != selectedTracks.end(); ++trk_itr_leading ) {
@@ -111,8 +118,10 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
     //kinematic requirements
     float theta_leading = trk_leading->perigeeParameters()->parameters()[Trk::theta];
     float ptinv_leading = fabs(trk_leading->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta_leading);
+    ATH_MSG_VERBOSE("Examining selected track pairs");
     if (ptinv_leading != 0) {
       float pt = 1. / ptinv_leading;
+      ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
       if ( pt < m_trk_leading_pt ) break; //tracks ordered by pT
     }
     //loop over sub-leading track
@@ -121,13 +130,16 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       //kinematic requirements
       float z0_leading = trk_leading->perigeeParameters()->parameters()[Trk::z0];
       float z0 = trk->perigeeParameters()->parameters()[Trk::z0];
+      ATH_MSG_VERBOSE("- z0_leading = " << z0_leading << " mm");
+      ATH_MSG_VERBOSE("- z0_sublead = " << z0 << " mm");
       if ( fabs(z0_leading - z0) > m_max_delta_z ) continue;
       //create the pair in global coordinates 
       float z0_trk_reference = trk->perigeeParameters()->associatedSurface().center().z();
       float z0_trk_leading_reference = trk_leading->perigeeParameters()->associatedSurface().center().z();
       RoI.z_reference = (z0 + z0_trk_reference + z0_leading + z0_trk_leading_reference) / 2;
-      RoI.z_window[0] = RoI.z_reference - m_z0_window; //std::min(z0 + z0_trk_reference, z0_leading + z0_trk_leading_reference);
-      RoI.z_window[1] = RoI.z_reference + m_z0_window; //std::max(z0 + z0_trk_reference, z0_leading + z0_trk_leading_reference);
+      RoI.z_window[0] = RoI.z_reference - m_z0_window; 
+      RoI.z_window[1] = RoI.z_reference + m_z0_window; 
+      ATH_MSG_VERBOSE("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
       listRoIs.push_back(RoI);
     }
   }

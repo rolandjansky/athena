@@ -180,8 +180,6 @@ class  ConfiguredNewTrackingSiPattern:
                InputZWindowTracks = InputCollections[0] ##list(InputCollections)
                print "InputCollections is not empty, ZWindowRoI tool will use the first track colletion in the list"
                print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
-            #if InDetFlags.doTRTExtension() :
-            #   InputZWindowTracks = InDetKeys.SiSpSeededPixelTracks() ##ExtendedTracksPixelPrdAssociation() ##ExtendedTracks() ##Change!!!
 
             ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                         InputTracksCollection     = InputZWindowTracks,
@@ -192,7 +190,9 @@ class  ConfiguredNewTrackingSiPattern:
                                         MaxDeltaZTracksPair       = 1.0,
                                         TrackZ0Window             = 1.0 )
             ToolSvc += ZWindowRoISeedTool
-
+            ZWindowRoISeedTool.OutputLevel = VERBOSE
+            ServiceMgr.MessageSvc.debugLimit = 1000000
+            ServiceMgr.MessageSvc.verboseLimit = 1000000
 
          #
          # --- SCT and Pixel detector elements road builder
