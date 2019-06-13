@@ -29,9 +29,9 @@ public:
   float adcIntegrationWindow() const { return m_adcIntegrationWindow.value(); }
 
 private:
-  SG::ReadHandleKey<MdtDigitContainer> m_bkgInputKey{this, "BkgInputKey", "OriginalEvent_SG+MDT_DIGITS", "ReadHandleKey for Background Input MdtDigitContainer"};
-  SG::ReadHandleKey<MdtDigitContainer> m_signalInputKey{this, "SignalInputKey", "BkgEvent_0_SG+MDT_DIGITS", "ReadHandleKey for Signal Input MdtDigitContainer"};
-  SG::WriteHandleKey<MdtDigitContainer> m_outputKey{this, "OutputKey", "StoreGateSvc+MDT_DIGITS", "WriteHandleKey for Output MdtDigitContainer"};
+  SG::ReadHandleKey<MdtDigitContainer> m_bkgInputKey{this, "BkgInputKey", "Bkg_MDT_DIGITS", "ReadHandleKey for Background Input MdtDigitContainer"};
+  SG::ReadHandleKey<MdtDigitContainer> m_signalInputKey{this, "SignalInputKey", "Sig_MDT_DIGITS", "ReadHandleKey for Signal Input MdtDigitContainer"};
+  SG::WriteHandleKey<MdtDigitContainer> m_outputKey{this, "OutputKey", "MDT_DIGITS", "WriteHandleKey for Output MdtDigitContainer"};
 
   BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
   FloatProperty m_adcIntegrationWindow { this, "IntegrationWindow", 20.0, "ADC Integration Window" };
