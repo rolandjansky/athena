@@ -3,9 +3,10 @@
 #
 
 '''@file TrigMETMonitorAlgorithm_jobOptions.py
-@author E. Bergeaas Kuutmann
-@date 2019-04-16
-@brief Example trigger python configuration for the Run III AthenaMonitoring package (old jobOptions), based on the example by C Burton and P Onyisi
+@author K. Hamano
+@author G. Gallardo
+@date 2019-06-13
+@brief MET Trigger python configuration for Run 3 AthenaMonitoring package (with old job options)
 '''
 
 # The following class will make a sequence, configure algorithms, and link

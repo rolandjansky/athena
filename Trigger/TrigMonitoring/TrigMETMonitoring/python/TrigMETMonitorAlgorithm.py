@@ -4,6 +4,10 @@
 
 '''@file TrigMETMonitoringAlgorithm.py
 @author K. Hamano
+@author G. Gallardo
+@date 2019-05-13
+@brief MET Trigger python configuration for Run 3 AthenaMonitoring package
+
 '''
 
 
@@ -30,7 +34,7 @@ def TrigMETMonConfig(inputFlags):
     # is the algorithm.
     #The added algorithm must exist as a .h file 
 
-    from TrigMETMonitoring.TrigMETMonitoringConfig import TrigMETMonitorAlgorithm
+    from TrigMETMonitoring.TrigMETMonitoringConf import TrigMETMonitorAlgorithm
     trigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
@@ -49,7 +53,7 @@ def TrigMETMonConfig(inputFlags):
     # trigMETMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
     #trigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-    trigMETMonAlg.TriggerChain = 'HLT_e24_lhtight_nod0'
+    trigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
