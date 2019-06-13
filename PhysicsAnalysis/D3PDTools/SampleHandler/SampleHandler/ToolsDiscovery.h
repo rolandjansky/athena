@@ -26,6 +26,7 @@
 
 #include <RootCoreUtils/Deprecated.h>
 #include <string>
+#include <vector>
 
 class TChain;
 
@@ -118,6 +119,14 @@ namespace SH
   /// failures: out of memory II
   /// requires: ds.find ("*") == std::string::npos
   void addGrid (SampleHandler& sh, const std::string& ds);
+
+
+  /// effects: add a combined grid dataset with name dsName for dataset list dsList
+  /// guarantee: strong
+  /// failures: out of memory II
+  /// requires: for each dataset ds: ds.find ("*") == std::string::npos
+  void addGridCombined (SampleHandler& sh, const std::string& dsName,
+                        const std::vector<std::string>& dsList);
 
 
   /// effects: update all grid samples in the sample handler that are
