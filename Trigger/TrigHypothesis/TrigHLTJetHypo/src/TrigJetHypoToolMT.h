@@ -18,11 +18,10 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-
 #include "ITrigJetHypoToolHelperMT.h"
-#include "ITrigJetHypoToolMT.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
 
 struct EventSN{
   std::size_t m_id{0};
