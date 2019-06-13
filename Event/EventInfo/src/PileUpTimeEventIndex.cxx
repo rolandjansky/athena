@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/GaudiException.h"
@@ -11,7 +11,7 @@
 
 const std::string&
 PileUpTimeEventIndex::typeName(PileUpTimeEventIndex::PileUpType typ) {
-  static std::string typNam[PileUpTimeEventIndex::NTYPES+1] =
+  static const std::string typNam[PileUpTimeEventIndex::NTYPES+1] =
     {"Unknown" /*-1*/, "Signal" /*0*/, "MinimumBias" /*1*/, "Cavern" /*2*/,
      "HaloGas"/*3*/, "HighPtMinimumBias" /*4*/, "ZeroBias"/*5*/ };
   assert(typ < PileUpTimeEventIndex::NTYPES);
