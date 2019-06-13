@@ -3,8 +3,8 @@
 */
 
 
-#ifndef IOVDBSVC_IOVSTORE_H
-#define IOVDBSVC_IOVSTORE_H
+#ifndef IOVDbSvc_IovStore_h
+#define IOVDbSvc_IovStore_h
 /**
  * @file IovStore.h
  * @brief helper class for IOVDbFolder managing cached iov since/until pairs
@@ -15,7 +15,8 @@
 #include <utility> //pair
 
 namespace IOVDbNamespace{
-
+  //@brief Manages the caching of IOV since/until pairs but encapsulating the functionality
+  //in a single class
   class IovStore{
   public:
     typedef std::pair<cool::ValidityKey, cool::ValidityKey> Iov_t;

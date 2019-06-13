@@ -75,7 +75,7 @@ int main()
   cool::FolderSpecification fSpec (cool::FolderVersioning::SINGLE_VERSION,
                                    spec,
                                    cool::PayloadMode::INLINEPAYLOAD);
-  std::string desc = "<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+  std::string desc = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
 
   {
     cool::IFolderPtr f = coolDb->createFolder ("/key1", fSpec, desc);

@@ -5,8 +5,8 @@
 // IOVDbFolder.h
 // helper class for IOVDbSvc managing folder access
 // Richard Hawkings, started 24/11/08
-#ifndef IOVDBSVC_IOVDBFOLDER_H
-#define IOVDBSVC_IOVDBFOLDER_H
+#ifndef IOVDbSvc_IOVDbFolder_h
+#define IOVDbSvc_IOVDbFolder_h
 
 #include <string>
 #include "AthenaKernel/MsgStreamMember.h"
@@ -41,7 +41,8 @@ class CondAttrListCollection;
 class IOVDbFolder {
 public:
   IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream & /*msg*/,
-              IClassIDSvc* clidsvc,const bool checkglock);
+              IClassIDSvc* clidsvc,const bool checkglock, const bool outputToFile=false,
+              const std::string & source="COOL_DATABASE");
   ~IOVDbFolder();
   
 
@@ -184,6 +185,18 @@ private:
     }
     return counter;    
   }
+  
+  
+  bool
+  objectIteratorIsValid( cool::IObjectIteratorPtr & objItr){
+    return objItr->goToNext();
+  }
+ 
+  bool
+  objectIteratorIsValid(CoraCoolObjectIterPtr & objItr){
+    return objItr->hasNext();
+  }
+  
 
   // cache update for online mode
   void specialCacheUpdate(CoraCoolObject & obj,
@@ -255,6 +268,8 @@ private:
   std::vector<unsigned int> m_cacheccstart;
   std::vector<unsigned int> m_cacheccend;
   IOVDbNamespace::IovStore m_iovs;
+  const bool m_outputToFile;
+  const std::string m_source;
   
   protected:
    /// Log a message using the Athena controlled logging system

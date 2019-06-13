@@ -5,8 +5,8 @@
 // IOVDbConn.h
 // helper class for IOVDbSvc managing DB connections
 // Richard Hawkings, started 24/11/08
-#ifndef __IOVDBCONN_H__
-#define __IOVDBCONN_H__
+#ifndef IOVDbSvc_IOVDbConn_h
+#define IOVDbSvc_IOVDbConn_h
 
 #include "CoolKernel/IDatabase.h"
 #include "CoraCool/CoraCoolTypes.h"
@@ -58,4 +58,4 @@ inline void IOVDbConn::incUsage() { ++m_nfolder; }
 
 inline void IOVDbConn::decUsage() { --m_nfolder; }
 
-#endif //  __IOVDBCONN_H__
+#endif //  IOVDbSvc_IOVDbConn_h
