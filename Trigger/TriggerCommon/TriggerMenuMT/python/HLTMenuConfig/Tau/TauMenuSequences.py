@@ -78,6 +78,7 @@ def tauCoreTrackSequence():
     fastTrackViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     fastTrackViewsMaker.Views = "TAUIDViews"
     fastTrackViewsMaker.ViewFallThrough = True
+    fastTrackViewsMaker.RequireParentView = True
 
 
     for viewAlg in viewAlgsTP:
@@ -89,7 +90,7 @@ def tauCoreTrackSequence():
 
     tauInViewAlgs = parOR("tauInViewAlgs", viewAlgsTP + [ TrackRoiUpdater ])
 
-    fastTrackViewsMaker.ViewNodeName = "tauInViewAlgs"
+    fastTrackViewsMaker.ViewNodeName = tauInViewAlgs.name()
 
     tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", eventAlgs + [fastTrackViewsMaker, tauInViewAlgs ] )
 
@@ -151,6 +152,7 @@ def tauPrecisionSequence():
     precisionViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
     precisionViewsMaker.ViewFallThrough = True
+    precisionViewsMaker.RequireParentView = True
 
     for viewAlg in viewAlgsPT:
        if "RoIs" in viewAlg.properties():
@@ -162,7 +164,7 @@ def tauPrecisionSequence():
 
     tauPInViewAlgs = parOR("tauPInViewAlgs", viewAlgsPT + [ precisionTRU, trigTauMVA ])
 
-    precisionViewsMaker.ViewNodeName = "tauPInViewAlgs"
+    precisionViewsMaker.ViewNodeName = tauPInViewAlgs.name()
 
     tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", eventAlgs + [precisionViewsMaker, tauPInViewAlgs ] )
 

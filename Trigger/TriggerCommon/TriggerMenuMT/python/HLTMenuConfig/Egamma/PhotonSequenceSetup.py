@@ -29,6 +29,7 @@ def fastPhotonMenuSequence():
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
+    l2PhotonViewsMaker.RequireParentView = True
     
     thePhotonFex.RoIs = l2PhotonViewsMaker.InViewRoIs
 

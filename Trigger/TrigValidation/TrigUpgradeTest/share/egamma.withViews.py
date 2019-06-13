@@ -128,6 +128,7 @@ l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
 l2ElectronViewsMaker.ViewFallThrough = True
+l2ElectronViewsMaker.RequireParentView = True
 l2ElectronViewsMaker.InputMakerOutputDecisions = ["L2ElectronLinks"]
 
 for viewAlg in viewAlgs:
@@ -139,7 +140,7 @@ theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
 
 electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
 
-l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
+l2ElectronViewsMaker.ViewNodeName = electronInViewAlgs.name()
 
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
