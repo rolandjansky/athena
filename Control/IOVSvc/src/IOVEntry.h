@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVENTRY_H
@@ -11,23 +11,16 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: IOVEntry.h,v 1.8 2004-04-19 23:10:26 leggett Exp $
  *
  *  Validity range object that manages start and stop times, holding link
  *  to object DataProxy
  *
  *****************************************************************************/
 
-#ifndef ATHENAKERNEL_IOVRANGE_H
- #include "AthenaKernel/IOVRange.h"
-#endif
-#ifndef SGTOOLS_DATAPROXY_H
- #include "SGTools/DataProxy.h"
-#endif
+#include "AthenaKernel/IOVRange.h"
+#include "SGTools/DataProxy.h"
 
-#ifndef _CPP_SET
- #include <set>
-#endif
+#include <set>
 
 class IOVEntry {
 public: 

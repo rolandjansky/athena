@@ -4,8 +4,8 @@
 //@file IOVDbStringFunctions.h
 //@brief Helper functions for string manipulation and parsing
 //@author Shaun Roe
-#ifndef IOVDbStringFunctions_H
-#define IOVDbStringFunctions_H
+#ifndef IOVDbSvc_IOVDbStringFunctions_h
+#define IOVDbSvc_IOVDbStringFunctions_h
 
 #include <string>
 #include <vector>

@@ -23,8 +23,8 @@
 #include "EventInfo/TagInfo.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
-
 #include "IOVDbParser.h"
+
 #include "IOVDbFolder.h"
 #include "IOVDbSvc.h"
 
@@ -88,6 +88,8 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_par_cacheAlign(0),
     m_par_onlineMode(false),
     m_par_checklock(false),
+    m_par_source("COOL_DATABASE"),
+    m_par_format(""), //default format for the source is empty
     m_h_IOVSvc     ("IOVSvc", name),
     m_h_sgSvc      ("StoreGateSvc", name),
     m_h_detStore   ("DetectorStore", name),
@@ -97,14 +99,12 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_h_poolSvc    ("PoolSvc", name),
     m_h_metaDataTool("IOVDbMetaDataTool"),
     m_h_tagInfoMgr("TagInfoMgr", name),
-    //m_log(0),
     m_poolPayloadRequested(false),
     m_poolSvcContext(0),
     m_state (INITIALIZATION),
     m_globalTag(""),
     m_iovslop(),
-    m_abort(false)//,
-    //m_msg("IOVDbSvc")
+    m_abort(false)
 {
   // declare all properties
   declareProperty("dbConnection",          m_par_defaultConnection);
@@ -126,6 +126,9 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("CacheAlign",            m_par_cacheAlign);
   declareProperty("OnlineMode",            m_par_onlineMode);
   declareProperty("CheckLock",             m_par_checklock);
+  declareProperty("Source",                m_par_source);
+  declareProperty("Format",                m_par_format);
+  declareProperty("OutputToFile",          m_outputToFile);
 }
 
 IOVDbSvc::~IOVDbSvc() {}
@@ -146,8 +149,6 @@ IOVDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
 
 StatusCode IOVDbSvc::initialize() {
   if (StatusCode::SUCCESS!=AthService::initialize()) return StatusCode::FAILURE;
-  // initialise message stream after service init to get correct print level
-  //m_log=new MsgStream(msgSvc(),name());
   // subscribe to events
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
   if (StatusCode::SUCCESS!=incSvc.retrieve()) {
@@ -234,6 +235,7 @@ StatusCode IOVDbSvc::initialize() {
   m_state=IOVDbSvc::INITIALIZATION;
   ATH_MSG_INFO( "Initialised with " << m_connections.size() << 
     " connections and " << m_foldermap.size() << " folders" );
+  if (m_outputToFile) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
   return StatusCode::SUCCESS;
 }
@@ -316,8 +318,6 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         if (fitr->second->folderName()==fname && !(fitr->second->tagOverride())) {
           ATH_MSG_INFO( "Folder " << fname << " will be taken from file metadata" );
           fitr->second->setMetaCon(cont.cptr());
-          // print metadata if in debug mode
-          //ATH_MSG_DEBUG( printMetaDataContainer(cont.cptr()));
           ++nused;
           break;
         }
@@ -1062,7 +1062,7 @@ StatusCode IOVDbSvc::setupFolders() {
     // create the new folder, but only if a folder for this SG key has not
     // already been requested
     IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,msg(),&(*m_h_clidSvc),
-                                        m_par_checklock);
+                                        m_par_checklock, m_outputToFile, m_par_source);
     const std::string& key=folder->key();
     if (m_foldermap.find(key)==m_foldermap.end()) {  //This check is too weak. For POOL-based folders, the SG key is in the folder description (not known at this point).
       m_foldermap[key]=folder;

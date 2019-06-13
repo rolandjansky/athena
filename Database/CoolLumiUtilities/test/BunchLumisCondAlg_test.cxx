@@ -13,6 +13,7 @@
 #include "../src/BunchLumisCondAlg.h"
 #include "CoolLumiUtilities/BunchLumisCondData.h"
 #include "CoolLumiUtilities/FillParamsCondData.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "TestTools/initGaudi.h"
@@ -32,24 +33,6 @@ const std::pair<unsigned int, float> lumiData[] =
    { 30, 12.5 },
    { 40, 13.5 },
    { 55, 15.5 },
-};
-
-
-class TestRCUSvc
-  : public Athena::IRCUSvc
-{
-public:
-  virtual StatusCode remove (Athena::IRCUObject* /*obj*/) override
-  {
-    return StatusCode::SUCCESS;
-  }
-  virtual size_t getNumSlots() const override { return 1; }
-  virtual void add (Athena::IRCUObject* /*obj*/) override
-  { }
-
-  virtual unsigned long addRef() override { std::abort(); }
-  virtual unsigned long release() override { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
 };
 
 
@@ -238,7 +221,7 @@ void test1 (ISvcLocator* svcloc)
   alg.addRef();
   assert( alg.sysInitialize().isSuccess() );
 
-  TestRCUSvc rcu;
+  Athena_test::DummyRCUSvc rcu;
   DataObjID id1 ("testLumi");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
 

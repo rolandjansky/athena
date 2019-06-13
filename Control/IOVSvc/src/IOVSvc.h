@@ -23,7 +23,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/IIOVSvc.h"
-#include "IOVSvc/IOVEntry.h"
+#include "IOVEntry.h"
 #include "SGTools/CallBackID.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVSvcDefs.h"

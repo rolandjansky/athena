@@ -11,8 +11,8 @@ set( extra_libs )
 set( extra_private_deps )
 
 if( NOT SIMULATIONBASE )
-   set( extra_private_deps InnerDetector/InDetConditions/InDetBeamSpotService LumiBlock/LumiBlockComps)
-   set( extra_libs GeoPrimitives LumiBlockCompsLib )
+   set( extra_private_deps InnerDetector/InDetConditions/InDetBeamSpotService LumiBlock/LumiBlockData)
+   set( extra_libs GeoPrimitives LumiBlockData )
 endif()
 
 # Declare the package's dependencies:

@@ -129,7 +129,7 @@ class TriggerGetter(Configured):
                 # StreamBS.ItemList +=["TileRawChannelContainer#*"]
                 StreamBS.ItemList +=["2927#*"]
                 StreamBS.ItemList +=["2934#*"] # added on request from: Arantxa Ruiz Martinez for TileRODMu
-
+                
                 # don't need Muons in transient BS
                 # StreamBS.ItemList +=["MdtCsmContainer#*"]
                 # StreamBS.ItemList +=["RpcPadContainer#*"]

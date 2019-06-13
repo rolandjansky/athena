@@ -10,6 +10,7 @@
 #include "HistogramFiller1D.h"
 #include "HistogramFillerEfficiency.h"
 #include "CumulativeHistogramFiller1D.h"
+#include "HistogramFillerRebinable1D.h"
 #include "VecHistogramFiller1D.h"
 #include "VecHistogramFiller1DWithOverflows.h"
 #include "HistogramFillerProfile.h"
@@ -26,6 +27,8 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   if (boost::starts_with(def.type, "TH1")) {
     if (def.opt.find("kCumulative") != std::string::npos) {
       return new CumulativeHistogramFiller1D(def, histogramProvider);
+    } else if (def.opt.find("kAddBinsDynamically") != std::string::npos) {
+      return new HistogramFillerRebinable1D(def, histogramProvider);
     } else if (def.opt.find("kVecUO") != std::string::npos) {
       return new VecHistogramFiller1DWithOverflows(def, histogramProvider);
     } else if (def.opt.find("kVec") != std::string::npos) {

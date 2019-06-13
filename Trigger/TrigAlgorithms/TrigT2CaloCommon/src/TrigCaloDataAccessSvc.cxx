@@ -158,10 +158,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   }
 
   unsigned int sc = prepareLArFullCollections( context );
-  if ( sc ) return StatusCode::FAILURE;
+  ATH_CHECK( sc == 0 );
 
   sc = prepareTileFullCollections( context );
-  if ( sc ) return StatusCode::FAILURE;
+  ATH_CHECK( sc == 0 );
 
   m_hLTCaloSlot.get(context)->lastFSEvent = context.evt();
 
@@ -171,8 +171,8 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   cont.reserve( cont_to_copy->size() );
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
-  if ( sc ) return StatusCode::FAILURE;
-  else return StatusCode::SUCCESS;
+  ATH_CHECK( sc == 0 );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -180,6 +180,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit() ) {
+    ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
 
@@ -225,6 +226,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit() ) {
+    ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
 
