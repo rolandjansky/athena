@@ -56,7 +56,6 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   m_outputName("TrigTauRecMerged"),
   m_tools(this),
   m_endtools(this),
-  m_lumiTool("LuminosityTool"),
   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
   m_maxeta( 2.5 ),
   m_minpt( 10000 ),
@@ -87,8 +86,7 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** cone for trk seed  */
   declareProperty("trkcone",m_trkcone,"max distance track seed from roi center");
   
-  /** Luminosity tools - first is deprecated but kept in case of need  */
-  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  /** Luminosity tools */
   declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
   
   /** number of cells in ROI */
@@ -293,14 +291,6 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
       ( *p_itTe )->setTauEventData(&m_tauEventData);
     }
   }
-
-  m_lumiTool.disable();   // never used?
-  // // Try to retrieve the lumi tool
-  // if (m_lumiTool.retrieve().isFailure()) {                                     
-  //   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endmsg;     
-  // } else {                                                                     
-  //   msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endmsg; 
-  // }                                                                            
 
   if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
     ATH_MSG_WARNING( "Unable to retrieve LumiBlockMuTool" );
@@ -554,14 +544,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   //-------------------------------------------------------------------------
   // Get the online luminosity                                                                                                               
   //-------------------------------------------------------------------------
-  // double mu = 0.0;
-  // double avg_mu = 0.0;
-  // mu = m_lumiTool->lbLuminosityPerBCID() / m_lumiTool->muToLumi(); // (retrieve mu for the current BCID)                                             
-  // avg_mu = m_lumiTool->lbAverageInteractionsPerCrossing();
-  // msg() << MSG::DEBUG << "REGTEST: lbLuminosityPerBCID : " << m_lumiTool->lbLuminosityPerBCID() << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: muToLumi            : " << m_lumiTool->muToLumi() << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value  : " << mu << endmsg;
-  // msg() << MSG::DEBUG << "REGTEST: Average Mu Value    : " << avg_mu << endmsg;
 
   double mu = 0.0;
   double avg_mu = 0.0;
