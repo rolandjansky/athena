@@ -190,6 +190,31 @@ namespace SH
 
 
 
+  void addGridCombined (SampleHandler& sh, const std::string& dsName,
+                        const std::vector<std::string>& dsList)
+  {
+    std::string name;
+    for (const std::string &ds : dsList)
+    {
+      RCU_ASSERT_SOFT (ds.find ("*") == std::string::npos);
+
+      if (!name.empty())
+        name.append(",");
+
+      if (ds[ds.size()-1] == '/')
+        name.append(ds.substr (0, ds.size()-1));
+      else
+        name.append(ds);
+    }
+
+    std::auto_ptr<SampleGrid> sample (new SampleGrid (dsName));
+    sample->meta()->setString (MetaFields::gridName, name);
+    sample->meta()->setString (MetaFields::gridFilter, MetaFields::gridFilter_default);
+    sh.add (sample.release());
+  }
+
+
+
   void makeGridDirect (SampleHandler& sh, const std::string& disk,
 		       const std::string& from, const std::string& to,
 		       bool allow_partial)
