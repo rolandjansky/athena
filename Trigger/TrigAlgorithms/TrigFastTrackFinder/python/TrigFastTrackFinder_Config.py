@@ -425,6 +425,7 @@ def remapper(type):
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
         "Cosmic"   : "cosmics",
+        "MinBias"  : "minBias400"
     }
     if type in remap.keys():
       return remap[type]
@@ -647,3 +648,7 @@ class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")
+
+class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MinBias"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")
