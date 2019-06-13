@@ -7,7 +7,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
 
-#include "TrigTauHypo/HLTVertexCombo.h"
+#include "HLTVertexCombo.h"
 
 //Constructor
 HLTVertexCombo::HLTVertexCombo(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){}

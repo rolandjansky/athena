@@ -16,9 +16,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <string>
 #include <memory>
-#include <ostream>
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class ConditionBridgeMT{
   // Bridge object: convert polymorphic pointer to monomorphic class
@@ -28,12 +27,12 @@ class ConditionBridgeMT{
   m_pCondition(condition){}
   
   bool isSatisfied(const HypoJetVector& ips,
-                   std::unique_ptr<IConditionVisitor>& v) const{
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>& v) const{
     return m_pCondition -> isSatisfied(ips, v);
   }
 
   bool operator()(const HypoJetVector& ips,
-                  std::unique_ptr<IConditionVisitor> v) const{
+                  std::unique_ptr<ITrigJetHypoInfoCollector> v) const{
     return isSatisfied(ips, v);
   }
 
@@ -41,6 +40,7 @@ class ConditionBridgeMT{
     return m_pCondition -> toString();
   }
 
+  unsigned int capacity() const {return m_pCondition->capacity();}
  private:
   std::shared_ptr<IConditionMT> m_pCondition;
 };

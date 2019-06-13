@@ -121,10 +121,12 @@ namespace Trig {
        * @param[in] eventStore Event store pointer. To migrate to readHandles with the rest of the TDT soon
        * @param[in] condition Condition requirement. Only physics currently supported.
        * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
-       * @return ElementLinkVector with one entry per located feature for the ChainGroup's chain(s)
+       * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
        **/  
       template<class CONTAINER>
-      const ElementLinkVector<CONTAINER> features(EventPtr_t eventStore, unsigned int condition = TrigDefs::Physics, const bool oneFeaturePerLeg = true) const;
+      const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
+                unsigned int condition = TrigDefs::Physics,
+                const bool oneFeaturePerLeg = true) const;
 
       // 
       const std::vector< std::string >& patterns() const {return m_patterns;}

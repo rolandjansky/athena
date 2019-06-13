@@ -205,6 +205,25 @@ def expandPrereqs(reqtype,prereqs):
 
 
 ########################################################################
+# Function producing an EventShapeAlg to calculate
+# medaian energy density for pileup correction
+#
+def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
+
+    rhokey = "Kt4"+constit.label+"EventShape"
+    rhotoolname = "EventDensity_Kt4"+constit.label
+    
+    from EventShapeTools import EventShapeToolsConf
+    rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
+    rhotool.InputContainer = constitpjkey
+    rhotool.OutputContainer = rhokey
+    
+    eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
+    eventshapealg.EventDensityTool = rhotool
+
+    return eventshapealg
+
+########################################################################
 # Function for setting up inputs to jet finding
 #
 # This includes constituent modifications, track selection, copying of
@@ -213,18 +232,17 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
-    jetlog.info("Inspecting first input file")
+    jetlog.info("Inspecting input file contents")
     # Get the list of SG keys for the first input file
     # I consider it silly to run on a set of mixed file types
     firstinput = configFlags.Input.Files[0]
     import os, pickle
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     # PeekFiles returns a dict for each input file
-    filecontents = GetFileMD([firstinput])["SGKeys"].split(' ')
+    filecontents = configFlags.Input.Collections
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
-    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle]:
+    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
         # Protection against reproduction of existing containers
         if constit.inputname in filecontents:
             jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))
@@ -302,17 +320,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             if rhokey in filecontents:
                 jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
             else:
-                rhotoolname = "EventDensity_Kt4"+constit.label
-
-                jetlog.debug("Setting up event density calculation Kt4{0}".format(constit.label))
-                from EventShapeTools import EventShapeToolsConf
-                rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
-                rhotool.InputContainer = constitpjkey
-                rhotool.OutputContainer = rhokey
-
-                eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}Alg".format(rhotoolname))
-                eventshapealg.EventDensityTool = rhotool
-                components.addEventAlgo(eventshapealg)
+                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey) )
 
     return components
 

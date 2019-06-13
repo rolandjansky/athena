@@ -300,12 +300,12 @@ def getHLTmap_fromTM(period, release):
     forceRel21 = not (asetupversion.startswith("21.1") or asetupversion.startswith("22."))
     if (forceRel21 or release) and release!="current":
         sys.path.insert(0, getMenuPathFromRelease(release))
-        import Physics_pp_v7
+        import Physics_pp_v7_primaries as theMenu
     else:
-        from TriggerMenu.menu import Physics_pp_v7
+        from TriggerMenu.menu import Physics_pp_v7_primaries as theMenu
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     
-    Physics_pp_v7.setupMenu()
+    theMenu.setupMenu()
     if not period & TriggerPeriod.future: return {}, 0
     maxlumi = 20000
     if   period & TriggerPeriod.future1p8e34: maxlumi = 17000

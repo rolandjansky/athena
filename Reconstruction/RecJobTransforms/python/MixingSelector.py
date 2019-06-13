@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+
+from builtins import object
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #####################################
@@ -17,7 +21,7 @@ class MixingSelector(object):
 		self.__evPerFile = eventsPerFile
 		self.__aliases = [ datasetName ]
 		self.__physical = []
-		print "*** MixingPartitioner: INFO Created new selector Selector%i requesting an average of %f events per job ***" % (datasetName, eventsRequired)
+		print("*** MixingPartitioner: INFO Created new selector Selector%i requesting an average of %f events per job ***" % (datasetName, eventsRequired))
 	def name(self):
 		return "Selector"+str(self.__dsid)
 	def __str__(self):
@@ -35,16 +39,16 @@ class MixingSelector(object):
 	def addAlias(self,newAlias):
 		"""If some downstream module is weighting prescales based on MC run number, inform it that run number newAlias is equivalent to this __dsid."""
 		if not newAlias in self.__aliases:
-			print "*** MixingPartitioner: INFO \tEventInfo run number %i interpreted like %i. ***" % (newAlias, self.__dsid)
+			print("*** MixingPartitioner: INFO \tEventInfo run number %i interpreted like %i. ***" % (newAlias, self.__dsid))
 			self.__aliases += [ newAlias ]			
 	def addNewCatalog(self, pfnlist):
 		if len(pfnlist) == 0:
-			print "*** MixingPartitioner: WARNING Adding empty list to %s?" % self.name()
+			print("*** MixingPartitioner: WARNING Adding empty list to %s?" % self.name())
 			return
 		if self.numFiles():
-			print "*** MixingPartitioner: INFO Files (%s ...) will be appended to %s. ***" % (pfnlist[0], self.name())
+			print("*** MixingPartitioner: INFO Files (%s ...) will be appended to %s. ***" % (pfnlist[0], self.name()))
 		else:
-			print "*** MixingPartitioner: INFO Using files (%s ...) to initialize %s. ***" % (pfnlist[0], self.name())
+			print("*** MixingPartitioner: INFO Using files (%s ...) to initialize %s. ***" % (pfnlist[0], self.name()))
 		self.__physical += pfnlist
 	### functions to calculate staging and mixer configuration ###				      )
 	def evAvailablePerJob(self):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TriggerTranslatorToolSimple_H
@@ -40,9 +40,9 @@ class TriggerTranslatorToolSimple : public AthAlgTool, virtual public ITriggerTr
 
       virtual ~TriggerTranslatorToolSimple();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      virtual const std::vector<std::string> translate(const std::string&);
+      virtual const std::vector<std::string> translate(const std::string&) const override;
 
 
 

@@ -244,8 +244,6 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 		if (!fi.isReadable())
 			return "File is not readable";
 
-		VP1Msg::messageVerbose("BB");
-
 		VP1Msg::messageVerbose("plugin path: " + fi.absoluteFilePath());
 		VP1Msg::messageVerbose("app path: " + QCoreApplication::applicationDirPath());
 		VP1Msg::messageVerbose("library path: " + QLibraryInfo::location(QLibraryInfo::PluginsPath));
@@ -258,7 +256,9 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 		bool loadOk = loader->load();
 
 		if (!loadOk) {
-			VP1Msg::message("ERROR!!! plugin load failed!!! trying to load the 'dbg' build...");
+      VP1Msg::message("ERROR! Failed to load plugin. Error message: "+loader->errorString());
+
+			VP1Msg::message("Trying to load the 'dbg' build...");
 
 			/*
 			 * when running VP1 sometimes (especially from the devval release) the

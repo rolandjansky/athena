@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRT_DRIFTFUNCTIONTOOL_H
@@ -37,9 +37,9 @@ class ITRT_DriftFunctionTool : virtual public IAlgTool {
 
   virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const = 0;  
 
-  virtual double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false) = 0;
+  virtual double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false) const = 0;
 
-  virtual double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false) = 0;
+  virtual double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false) const = 0;
 
 
 };

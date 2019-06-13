@@ -154,7 +154,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
     }
     ATH_MSG_DEBUG("Rnn container in SG " << getSGContainsRnn());
     ATH_MSG_DEBUG("TrigPhotonContainer in SG " << getSGContainsTrigPhoton());
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setSGContainsRnn(getSGContainsRnn());
         tool->setSGContainsTrigPhoton(getSGContainsTrigPhoton());
     }

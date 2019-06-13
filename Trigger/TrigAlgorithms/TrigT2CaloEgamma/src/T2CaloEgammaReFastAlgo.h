@@ -22,6 +22,7 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -68,6 +69,8 @@ class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
   
     ToolHandleArray<IReAlgToolCalo> m_emAlgTools{
         this, "IReAlgToolList", {}, "list of ReAlgToolCalos for feature extraction"};
+    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey {
+	this, "BCIDAvgKey", "CaloBCIDAverage", "" };
   
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
       this, "RoIs", "OutputRoIs", "input RoIs"};

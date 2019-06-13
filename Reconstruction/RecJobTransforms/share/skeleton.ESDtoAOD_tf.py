@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for ESD->AOD
@@ -96,7 +97,7 @@ if hasattr(runArgs,"preExec"):
 ## Pre-include
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
-        print "preInclude",fragment
+        print("preInclude",fragment)
         include(fragment)
 
 #========================================================
@@ -111,7 +112,7 @@ if hasattr(runArgs,"outputAODFile"):
         try:
             StreamAOD.ExtendProvenanceRecord = False
         except:
-            print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
+            print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 #D3PDMaker outputs
 if hasattr(runArgs,"outputNTUP_MINBIASFile"):

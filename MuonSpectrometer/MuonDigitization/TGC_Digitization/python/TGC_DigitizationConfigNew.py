@@ -49,18 +49,16 @@ def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(TGC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name,**kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
     return acc
 
 def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with TgcDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+TGC_DIGITS")
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+TGC_SDO")
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TGC_DIGITS")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TGC_SDO")
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 
@@ -70,7 +68,5 @@ def TGC_OverlayDigitizerCfg(flags, name="TGC_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
     return acc
 

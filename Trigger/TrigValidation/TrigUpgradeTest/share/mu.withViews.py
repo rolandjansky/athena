@@ -88,8 +88,6 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions

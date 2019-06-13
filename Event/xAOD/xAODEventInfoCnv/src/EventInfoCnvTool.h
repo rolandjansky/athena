@@ -19,7 +19,9 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Luminosity include(s):
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 #endif
 #endif
 
@@ -48,21 +50,23 @@ namespace xAODMaker {
                         const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::EventInfo object with data
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true ) const;
+                                  bool copyPileUpLinks = true,
+                                  const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
    private:
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
       /// Connection to the beam spot service
       ServiceHandle< IBeamCondSvc > m_beamCondSvc;
-      /// Connection to the luminosity tool
-      ToolHandle< ILuminosityTool > m_lumiTool;
+
+      SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+      { this, "LumiDataKey", "", "SG key for luminosity data" };
 #endif
 #endif
 
@@ -70,9 +74,6 @@ namespace xAODMaker {
       bool m_beamCondSvcAvailable;
 
       
-      /// Internal flag for the availability of the luminosity tool
-      bool m_lumiToolAvailable;
-
       /// Flag to disable beamspot service for AthenaMT migration purposes
       bool m_disableBeamSpot;
 

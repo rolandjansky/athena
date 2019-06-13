@@ -9,7 +9,6 @@ testChains = ["HLT_g5_etcut"]
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
 theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.ClustersName="L2CaloClusters"
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
 from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -28,7 +27,6 @@ def createFastCaloSequence(rerun=False):
    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
    clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )
    clusterMaker.ClustersName="L2CaloClusters"
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
 

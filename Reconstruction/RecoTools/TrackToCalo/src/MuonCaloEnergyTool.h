@@ -66,7 +66,6 @@ namespace Rec {
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Trk::ITrackParticleCreatorTool >       m_particleCreator;     /**< The CB Particle Creator Tool */
     
-    // FIXME: mutable
     SG::ReadCondHandleKey<CaloNoise> m_caloNoiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
 

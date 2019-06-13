@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_ATHENAMPTOOLBASE_H
-#define ATHENAMPTOOLS_ATHENAMPTOOLBASE_H 1
+#define ATHENAMPTOOLS_ATHENAMPTOOLBASE_H
 
 #include "AthenaMPTools/IAthenaMPTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -16,7 +16,6 @@
 #include "AthenaInterprocess/IMessageDecoder.h"
 
 #include <boost/filesystem.hpp>
-#include <memory>
 
 class IEvtSelector;
 
@@ -29,27 +28,24 @@ class AthenaMPToolBase : public AthAlgTool
 		   , const std::string& name
 		   , const IInterface* parent);
 
-  virtual ~AthenaMPToolBase();
+  virtual ~AthenaMPToolBase() override;
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
-  virtual int makePool(int maxevt, int nprocs, const std::string& topdir) = 0;
-  virtual StatusCode exec() = 0;
-  virtual StatusCode wait_once(pid_t& pid);
+  virtual StatusCode wait_once(pid_t& pid) override;
 
-  virtual void reportSubprocessStatuses();
-  virtual void subProcessLogs(std::vector<std::string>&) = 0;
-  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport();
+  virtual void reportSubprocessStatuses() override;
+  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() override;
 
-  virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>);
-  virtual void setRandString(const std::string& randStr);
+  virtual void useFdsRegistry(std::shared_ptr<AthenaInterprocess::FdsRegistry>) override;
+  virtual void setRandString(const std::string& randStr) override;
 
-  virtual void killChildren();
+  virtual void killChildren() override;
 
   // _________IMessageDecoder_________
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> operator()(const AthenaInterprocess::ScheduledWork&);
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> operator()(const AthenaInterprocess::ScheduledWork&) override;
 
   // _____ Actual working horses ________
   virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func() = 0;
@@ -95,7 +91,7 @@ class AthenaMPToolBase : public AthAlgTool
   ServiceHandle<IIoComponentMgr> m_ioMgr;
   IEvtSelector*                  m_evtSelector;
   std::string                    m_fileMgrLog;
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> m_fdsRegistry;
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> m_fdsRegistry;
   std::string                    m_randStr;
 
  private:

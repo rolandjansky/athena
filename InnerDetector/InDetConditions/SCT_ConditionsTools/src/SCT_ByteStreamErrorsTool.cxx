@@ -28,8 +28,6 @@ SCT_ByteStreamErrorsTool::initialize() {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
   StatusCode sc{StatusCode::SUCCESS};
 
-  m_bsErrors.clear();
-
   sc = detStore()->retrieve(m_sct_id, "SCT_ID") ;
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Cannot retrieve SCT ID helper!");
@@ -267,8 +265,9 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
 void 
 SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
   for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
-    m_bsErrors[ctx.slot()][errType].clear();
+    ent->m_bsErrors[errType].clear();
   }
   return;
 }
@@ -283,12 +282,13 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
 const std::set<IdentifierHash>*
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     StatusCode sc{fillData(ctx)};
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fillData in getErrorSet fails");
     }
-    return &m_bsErrors[ctx.slot()][errorType];
+    return &(ent->m_bsErrors[errorType]);
   }
   return nullptr;
 }
@@ -312,7 +312,8 @@ SCT_ByteStreamErrorsTool::getErrorSets(const EventContext& ctx) const {
     ATH_MSG_ERROR("fillData in getErrorSet fails");
     return nullptr;
   }
-  return &m_bsErrors[ctx.slot()];
+  CacheEntry* ent{m_cache.get(ctx)};
+  return &(ent->m_bsErrors);
 }
 
 const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>*
@@ -331,24 +332,15 @@ SCT_ByteStreamErrorsTool::getErrorSets() const {
 StatusCode
 SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  
-  if (slot<m_cache.size() and m_cache[slot]==evt) {
+  CacheEntry* ent{m_cache.get(ctx)};
+  if (ent->m_evt == ctx.evt()) {
     // Cache is valid
     return StatusCode::SUCCESS;
   }
 
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};  
-  if (slot>=m_cache.size()) {
-    m_cache.resize(slot+1, invalidValue);
-    m_bsErrors.resize(slot+1);
-    m_tempMaskedChips.resize(slot+1);
-    m_abcdErrorChips.resize(slot+1);
-  }
   resetSets(ctx);
-  m_tempMaskedChips[slot].clear();
-  m_abcdErrorChips[slot].clear();
+  ent->m_tempMaskedChips.clear();
+  ent->m_abcdErrorChips.clear();
 
   SG::ReadHandle<InDetBSErrContainer> errCont (m_bsErrContainerName, ctx);
 
@@ -379,9 +371,9 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     Identifier module_id{m_sct_id->module_id(wafer_id)};
     int side{m_sct_id->side(m_sct_id->wafer_id(elt->first))};
     if ((elt->second>=SCT_ByteStreamErrors::ABCDError_Chip0 and elt->second<=SCT_ByteStreamErrors::ABCDError_Chip5)) {
-      m_abcdErrorChips[slot][module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::ABCDError_Chip0 + side*6));
+      ent->m_abcdErrorChips[module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::ABCDError_Chip0 + side*6));
     } else if (elt->second>=SCT_ByteStreamErrors::TempMaskedChip0 and elt->second<=SCT_ByteStreamErrors::TempMaskedChip5) {
-      m_tempMaskedChips[slot][module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
+      ent->m_tempMaskedChips[module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
     } else {
       std::pair<bool, bool> badLinks{m_config->badLinks(elt->first, ctx)};
       bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
@@ -401,7 +393,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     }
   }
 
-  m_cache[slot] = evt;
+  ent->m_evt = ctx.evt();
 
   return StatusCode::SUCCESS;
 }
@@ -415,8 +407,9 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 void 
 SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    m_bsErrors[ctx.slot()][errorType].insert(id);
+    ent->m_bsErrors[errorType].insert(id);
   }
 }
 
@@ -500,7 +493,8 @@ const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaske
   if (sc.isFailure()) {
     ATH_MSG_ERROR("fillData in getTempMaskedChips fails");
   }
-  return m_tempMaskedChips[ctx.slot()];
+  CacheEntry* ent{m_cache.get(ctx)};
+  return ent->m_tempMaskedChips;
 }
 
 const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getAbcdErrorChips(const EventContext& ctx) const {
@@ -509,5 +503,6 @@ const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getAbcdError
   if (sc.isFailure()) {
     ATH_MSG_ERROR("fillData in getAbcdErrorChips fails");
   }
-  return m_abcdErrorChips[ctx.slot()];
+  CacheEntry* ent{m_cache.get(ctx)};
+  return ent->m_abcdErrorChips;
 }

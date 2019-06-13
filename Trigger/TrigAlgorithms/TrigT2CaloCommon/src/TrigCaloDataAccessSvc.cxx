@@ -11,6 +11,7 @@
 
 TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class( name, pSvcLocator ), m_lateInitDone(false), m_nSlots(0) {
+  m_bcidAvgKey="CaloBCIDAverage";
 }
 
 TrigCaloDataAccessSvc::~TrigCaloDataAccessSvc() {}
@@ -21,6 +22,7 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_tileDecoder.retrieve() );
   CHECK( m_robDataProvider.retrieve() );
   CHECK( m_regionSelector.retrieve() );
+  CHECK( m_bcidAvgKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -63,6 +65,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
@@ -143,6 +146,7 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };

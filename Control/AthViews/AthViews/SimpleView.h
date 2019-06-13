@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_SIMPLEVIEW_H
@@ -11,8 +11,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "StoreGate/StoreGateSvc.h"
-
-//#include "SGTools/CLASS_DEF.h"
 
 #include <string>
 #include <vector>
@@ -171,18 +169,21 @@ class SimpleView : public IProxyDict
 		virtual void registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid );
 
                 // prints content of the view 
-                std::string dump( const std::string& delim = " " ) const;
+                std::string dump( const std::string& indent = "" ) const;
 
 	protected:
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
 		std::string m_name;
-                std::vector<const IProxyDict*> m_parents;
-    bool m_allowFallThrough;
+                std::vector< const SimpleView* > m_parents;
+
+                // The real implementation of proxy(), with control for whole-event store access
+                SG::DataProxy* findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const;
+                bool m_allowFallThrough;
 };
 
 
-//#include "SGTools/CLASS_DEF.h"
+//#include "AthenaKernel/CLASS_DEF.h"
 //CLASS_DEF( std::vector< SimpleView* >, 11111111110, 1 )
 
 

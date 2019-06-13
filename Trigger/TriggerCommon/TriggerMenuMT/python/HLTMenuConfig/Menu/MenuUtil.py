@@ -4,7 +4,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging        import logging
 
 
-log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
+log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil.py')
 
 
 

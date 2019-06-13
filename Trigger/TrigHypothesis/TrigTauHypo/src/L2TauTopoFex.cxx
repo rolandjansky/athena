@@ -11,7 +11,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
 
-#include "TrigTauHypo/L2TauTopoFex.h"
+#include "L2TauTopoFex.h"
 
 //Constructor
 L2TauTopoFex::L2TauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){

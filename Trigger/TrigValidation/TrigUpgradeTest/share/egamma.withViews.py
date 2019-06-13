@@ -43,7 +43,6 @@ def createFastCaloSequence(rerun=False):
 
 
    clusterMaker.ClustersName=clustersKey
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    
    #from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -204,7 +203,7 @@ summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
-egammaCaloViewsMerger = HLTEDMCreator("egammaCaloViewsMerger", FixLinks=True)
+egammaCaloViewsMerger = HLTEDMCreator("egammaCaloViewsMerger", FixLinks=["EgammaCaloDecisions"])
 egammaCaloViewsMerger.TrigCompositeContainer = ["EgammaCaloDecisions"]
 
 egammaCaloViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
@@ -213,7 +212,7 @@ egammaCaloViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
 #[ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
-egammaElectronViewsMerger = HLTEDMCreator("egammaelectronViewsMerger", FixLinks=True)
+egammaElectronViewsMerger = HLTEDMCreator("egammaelectronViewsMerger", FixLinks=["ElectronL2Decisions"])
 egammaElectronViewsMerger.TrigCompositeContainer = ["ElectronL2Decisions"]
 egammaElectronViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaElectronViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]

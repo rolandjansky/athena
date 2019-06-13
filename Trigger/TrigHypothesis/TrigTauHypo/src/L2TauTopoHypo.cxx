@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
 
-#include "TrigTauHypo/L2TauTopoHypo.h"
+#include "L2TauTopoHypo.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 
 #include "xAODTau/TauJetContainer.h"

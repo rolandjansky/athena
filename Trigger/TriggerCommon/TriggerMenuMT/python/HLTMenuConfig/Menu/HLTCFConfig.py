@@ -1,5 +1,30 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+"""
+    ------ Documentation on HLT Tree creation -----
+
+++ Filter creation strategy
+
+++ Connections between InputMaker/HypoAlg/Filter
+
+++ Seeds
+
+++ Combined chain strategy
+
+- The combined chains use duplicates of the single-object-HypoAlg, called HypoAlgName_for_stepName.
+  These duplicates are connected to a dedicated ComboHypoAlg (added by the framework), able to count object multiplicity
+     -- This is needed for two reasons:
+           -- the HypoAlg is designed to have only one input TC (that is already for the single object)
+           -- otherwise the HypoAlg would be equipped with differnt HypoTools with the same name (see for example e3_e8)
+     -- If the combined chain is symmetric (with multiplicity >1), the Hypo is duplicated only once, 
+        equipped with a HypoTool configured as single object and followed by one ComboHypoAlg
+
+
+
+
+
+"""
+
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
 from AthenaCommon.Logging import logging
@@ -7,7 +32,7 @@ from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
-import sys, copy
+import copy
 log = logging.getLogger('HLTCFConfig')
 
 
@@ -99,12 +124,15 @@ def findViewAlgs( inputNodes, viewNodes ):
         if isSequence( node ):
 
             # Identify view CF nodes
-            if node.getName() in viewNodes:
+            if node.getName() in viewNodes.keys():
 
                 # Retrieve view algorithms
                 # (views don't nest, so will be returned in first list)
-                newViewAlgs, dummy = findViewAlgs( node.getChildren(), [] )
+                newViewAlgs, dummy = findViewAlgs( node.getChildren(), {} )
                 viewAlgs += newViewAlgs
+
+                # Record the fact that the view node is found
+                viewNodes[ node.getName() ] = True
 
             # Explore the tree
             else:
@@ -158,6 +186,8 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     if len(l1decoder)  != 1 :
         raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
 
+    # take L1Decoder out of topSeq
+    topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
@@ -165,6 +195,9 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
 
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
+
+    # put L1Decoder here
+    hltTop += l1decoder
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -176,6 +209,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     flatDecisions=[]
     for step in finalDecisions: 
         flatDecisions.extend (step)
+
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
@@ -206,13 +240,21 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
         
     topSequence += hltTop
 
-    # List all CF nodes to be used with EventViews
-    viewNodes = []
+    # List all CF nodes to be used with EventViews (and whether they are found)
+    viewNodes = {}
     for viewMaker in viewMakers:
-      viewNodes.append( viewMaker.ViewNodeName )
+      viewNodes[ viewMaker.ViewNodeName ] = False
+    originalLength = len( viewNodes )
 
     # Identify the algorithms that will run in EventViews
     wholeEventAlgs, viewAlgs = findViewAlgs( topSequence.getChildren(), viewNodes )
+
+    # Check that all view nodes are found
+    if len( viewNodes ) != originalLength:
+        raise RuntimeError( "Something went wrong with view config inspection" )
+    for viewNode in viewNodes.keys():
+        if not viewNodes[ viewNode ]:
+            raise RuntimeError( "EventView CF node " + viewNode + " was not found attached to the topSequence" )
 
     # Look for view algs in the whole event context
     for viewAlgName in viewAlgs:
@@ -309,7 +351,7 @@ def createDataFlow(chains, allDicts):
         for nstep in range(0,len(chain.steps)):
             stepCF_name =  CFNaming.stepName(nstep)
             chain_step=chain.steps[nstep]
-            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
+            log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
 
             filter_input =[]
             if nstep == 0: # L1 seeding
@@ -325,7 +367,6 @@ def createDataFlow(chains, allDicts):
                 
             if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
                 log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
-                sys.exit("ERROR, in configuration of step "+chain_step.name)
                     
 
             # get the filter:
@@ -560,7 +601,6 @@ def findFilter(filter_name, cfseqList):
       #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
       if len(foundFilters) > 1:
           log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
-          sys.exit("ERROR, in filter configuration")
 
       found = bool(foundFilters)
       if found:          

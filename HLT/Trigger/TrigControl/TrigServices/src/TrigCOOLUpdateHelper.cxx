@@ -17,6 +17,7 @@
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/AttributeListException.h"
+#include "StoreGate/DataHandle.h"
 
 // TDAQ includes
 #include "CTPfragment/CTPfragment.h"
@@ -33,19 +34,12 @@ TrigCOOLUpdateHelper::TrigCOOLUpdateHelper(const std::string &type,
     m_robDataProviderSvc("ROBDataProviderSvc", name)
 {}
 
-TrigCOOLUpdateHelper::~TrigCOOLUpdateHelper()
-{}
 
 StatusCode TrigCOOLUpdateHelper::initialize()
 {
   // Do not create these services if they are not available already
   service("IOVSvc", m_iovSvc, /*createIf=*/false).ignore();
   service("IOVDbSvc", m_iovDbSvc, /*createIf=*/false).ignore();
-
-  // Register DataHandle with COOLUPDATE folder
-  if (!m_coolFolderName.empty()) {
-    ATH_CHECK( detStore()->regHandle(m_folderMapHandle, m_coolFolderName) );
-  }
 
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
@@ -77,9 +71,9 @@ StatusCode TrigCOOLUpdateHelper::stop()
 // Read COOL folder info
 // Loop over all registered keys and get folder name and CLID
 //=========================================================================
-void TrigCOOLUpdateHelper::readFolderInfo()
+StatusCode TrigCOOLUpdateHelper::readFolderInfo()
 {
-  if (m_iovDbSvc==0) return;
+  if (m_iovDbSvc==nullptr) return StatusCode::SUCCESS;
 
   m_folderInfo.clear();
   // Loop over all keys registered with IOVDbSvc
@@ -99,18 +93,23 @@ void TrigCOOLUpdateHelper::readFolderInfo()
     
     CLID clid = detStore()->clid(key);
     if (clid!=CLID_NULL)
-      m_folderInfo.insert(FolderInfoMap::value_type(foldername,FolderInfo(clid, key)));
+      m_folderInfo.insert({foldername, FolderInfo(clid, key)});
     else
       ATH_MSG_ERROR("Cannot find CLID for " << key);
   }
 
   if (!m_coolFolderName.empty()) {
+    // Read COOL folder map
+    const DataHandle<CondAttrListCollection> folderMapHandle;
+    ATH_CHECK( detStore()->regHandle(folderMapHandle, m_coolFolderName) );
+
     ATH_MSG_INFO("COOL folder map in " << m_coolFolderName << ":");
-    for (CondAttrListCollection::const_iterator c = m_folderMapHandle->begin();
-         c != m_folderMapHandle->end(); ++c) {
-      ATH_MSG_INFO("   (" << c->first << ") " << c->second["FolderName"].data<std::string>());
+    for (auto const& [idx, attr] : *folderMapHandle) {
+      m_folderNames[idx] = attr["FolderName"].data<std::string>();
+      ATH_MSG_INFO("   (" << idx << ") " << m_folderNames[idx]);
     }
   }
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigCOOLUpdateHelper::resetFolders(const std::vector<std::string>& folders,
@@ -134,13 +133,13 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
 {
   // Force a reset of folders by setting an IOVRange in the past
 
-  if (m_iovSvc==0 || m_iovDbSvc==0) return StatusCode::SUCCESS;
+  if (m_iovSvc==nullptr || m_iovDbSvc==nullptr) return StatusCode::SUCCESS;
   
   // Set IOV in the past to trigger reload in IOVSvc
   IOVRange iov_range(IOVTime(currentRun-2, 0),
                      IOVTime(currentRun-1, 0));
 
-  FolderInfoMap::const_iterator f = m_folderInfo.find(folder);
+  const auto& f = m_folderInfo.find(folder);
   if ( f==m_folderInfo.end() ) {
     ATH_MSG_DEBUG("Folder " << folder << " not registered with IOVDbSvc");
     return StatusCode::SUCCESS;
@@ -216,7 +215,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, const EventContext& ctx)
 {
-  if ( m_iovSvc==0 || m_coolFolderName.empty() ) {
+  if ( m_iovSvc==nullptr || m_coolFolderName.empty() ) {
     ATH_MSG_DEBUG("Passive mode. Not updating COOL folders");
     return StatusCode::SUCCESS;
   }
@@ -232,23 +231,21 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std::string& folderName)
+StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std::string& folderName) const
 {
   if (m_coolFolderName.empty()) return StatusCode::SUCCESS;
-  
-  if (!m_folderMapHandle.isInitialized()) {
-    ATH_MSG_ERROR("DataHandle for '" << m_coolFolderName << "' not initialized.");
-    return StatusCode::FAILURE;
-  }
-  try {
-    folderName = m_folderMapHandle->attributeList(idx)["FolderName"].data<std::string>();
-  }
-  catch (coral::AttributeListException &) {
+
+  const auto& itr = m_folderNames.find(idx);
+  if (itr==m_folderNames.end()) {
     ATH_MSG_ERROR(m_coolFolderName << " does not contain a folder for index/channel " << idx
                   << ". Existing folders are:");
-    m_folderMapHandle->dump();
+    for (auto const& [idx, name] : m_folderNames) {
+      ATH_MSG_INFO("   (" << idx << ") " << name);
+    }
     return StatusCode::FAILURE;
   }
+
+  folderName = itr->second;
   return StatusCode::SUCCESS;
 }
 

@@ -10,9 +10,11 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h" // ReadCondHandleKey wants complete type
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
 
@@ -20,6 +22,7 @@ namespace Acts {
 class TrackingGeometry;
 }
 
+class ActsGeometryContext;
 class IActsTrackingGeometrySvc;
 
 static const InterfaceID IID_ActsTrackingGeometryTool("ActsTrackingGeometryTool", 1, 0);
@@ -36,13 +39,18 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() const;
 
-  StatusCode prepareAlignment() const;
+  const ActsGeometryContext&
+  getGeometryContext(const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+
+  ActsGeometryContext
+  getNominalGeometryContext() const;
+
 
 private:
 
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  SG::ReadCondHandleKey<ActsAlignmentStore> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
+  SG::ReadCondHandleKey<ActsGeometryContext> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
 
 };

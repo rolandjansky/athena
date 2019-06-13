@@ -1,5 +1,8 @@
 """Functionality core of the Rivet_tf transform"""
 
+from future import standard_library
+standard_library.install_aliases()
+
 ##==============================================================
 ## Basic configuration
 ##==============================================================
@@ -84,8 +87,8 @@ acas.dumpMasterSequence()
 from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
 with open("config.pickle", 'w') as f:
-    import cPickle
-    cPickle.dump(runPars, f)
+    import pickle
+    pickle.dump(runPars, f)
 
 
 ##==============================================================

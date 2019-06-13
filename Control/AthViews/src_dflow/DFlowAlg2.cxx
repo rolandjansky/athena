@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg2.cxx 
@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/UpdateHandle.h"
@@ -94,7 +93,7 @@ StatusCode DFlowAlg2::execute()
 
   SG::WriteHandle< std::vector< int > > outputHandle( m_ints, ctx );
   ATH_MSG_INFO("ints w-handle...");
-  outputHandle.record( CxxUtils::make_unique< std::vector< int > >() );
+  outputHandle.record( std::make_unique< std::vector< int > >() );
   outputHandle->push_back( 10 );
 
   if ( inputHandle.isValid() )

@@ -85,18 +85,16 @@ def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 
 def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with RpcDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+RPC_DIGITS")
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+RPC_SDO")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "RPC_DIGITS")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "RPC_SDO")
     acc.setPrivateTools(RpcDigitizationTool(name, **kwargs))
     return acc
 
@@ -106,7 +104,4 @@ def RPC_OverlayDigitizerCfg(flags, name="RPC_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
-

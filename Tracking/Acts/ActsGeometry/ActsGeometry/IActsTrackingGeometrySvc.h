@@ -27,12 +27,12 @@ class IActsTrackingGeometrySvc : virtual public IInterface {
   trackingGeometry() = 0;
 
   virtual
-  void 
-  setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) = 0;
-  
+  void
+  populateAlignmentStore(ActsAlignmentStore *store) const = 0;
+
   virtual
   const ActsAlignmentStore*
-  getAlignmentStore(const EventContext& ctx) const = 0;
+  getNominalAlignmentStore() const = 0;
 
 };
 

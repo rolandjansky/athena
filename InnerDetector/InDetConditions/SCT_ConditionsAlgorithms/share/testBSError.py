@@ -1,5 +1,10 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testBSError")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -29,7 +34,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -107,4 +112,3 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput.get_Val
 theApp.EvtMax = -1
 
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
-

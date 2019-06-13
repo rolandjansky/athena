@@ -19,7 +19,7 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
   class CaloExtension;
 }
@@ -28,7 +28,12 @@ namespace xAOD {
 }
 namespace Rec {
 
-  class ParticleCaloClusterAssociationTool : virtual public IParticleCaloClusterAssociationTool, public AthAlgTool {
+  /* Mark as not ATLAS_NOT_THREAD_SAFE
+   * as it still uses the old style caching
+   * to be updated if needed
+   */
+  class ATLAS_NOT_THREAD_SAFE ParticleCaloClusterAssociationTool :
+    virtual public IParticleCaloClusterAssociationTool, public AthAlgTool {
   public:
     
     ParticleCaloClusterAssociationTool(const std::string&,const std::string&,const IInterface*);

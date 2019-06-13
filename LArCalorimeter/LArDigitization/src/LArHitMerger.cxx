@@ -15,6 +15,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArDigitization/LArHitEMap.h"
+#include "CaloIdentifier/CaloIdManager.h"
 
 // Pile up
 #include "PileUpTools/PileUpMergeSvc.h"

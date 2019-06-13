@@ -156,7 +156,8 @@ class TileRawChannelBuilder: public AthAlgTool {
     TileFragHash::TYPE m_rChType;
     TileRawChannelUnit::UNIT m_rChUnit;
     unsigned int m_bsflags;
-
+    // parameter to determine which sample to start with the analysis
+    int m_firstSample;
     // Should energy be calibrated
     bool m_calibrateEnergy;
 

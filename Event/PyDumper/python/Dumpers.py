@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 # $Id: Dumpers.py,v 1.32 2009-05-22 18:34:31 ssnyder Exp $
@@ -140,6 +140,9 @@ def dump_HLV (v, f):
         m = - math_sqrt (-m2)
     else:
         m = math_sqrt (m2)
+
+    # Be insensitive to some rounding errors.
+    m = fix_neg0 (m, 1e-3)
     #if abs(m-int(m)-0.5) < 1e-4: m += 0.01
 
     pt = math_hypot (v.px(), v.py())

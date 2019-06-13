@@ -91,6 +91,8 @@ class MuonStandalone(ConfiguredMuonRec):
             if not muonStandaloneFlags.patternsOnly():
                 SegmentFinder = getPublicTool("MuonClusterSegmentFinderTool")
                 Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
+                Cleaner.Extrapolator = getPublicTool("MuonStraightLineExtrapolator")
+                Cleaner.Fitter = getPublicTool("MCTBSLFitterMaterialFromTrack")
                 Cleaner.PullCut = 3
                 Cleaner.PullCutPhi = 3
                 SegmentFinder.TrackCleaner = Cleaner
@@ -113,6 +115,7 @@ class MuonStandalone(ConfiguredMuonRec):
             self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
                                                      SegmentFinder = getPublicToolClone("MuonSegmentFinder","MooSegmentFinder",
                                                                                         DoSummary=muonStandaloneFlags.printSummary()),
+                                                     MuonClusterSegmentFinderTool=getPublicTool("MuonClusterSegmentFinder"),
                                                      MuonSegmentOutputLocation = SegmentLocation,
                                                      UseCSC = muonRecFlags.doCSCs(),
                                                      UseMDT = muonRecFlags.doMDTs(),
@@ -125,15 +128,15 @@ class MuonStandalone(ConfiguredMuonRec):
 
             self.addAlg(CfgMgr.MooSegmentFinderAlg("MuonSegmentMaker_NCB",
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                                                        DoSummary=False,
-                                                                                        Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
-                                                                                                                               segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
-                                                                                                                                                                "CscSegmentUtilTool",
-                                                                                                                                                                TightenChi2 = False, 
-                                                                                                                                                                IPconstraint=False)),
-                                                                                        Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                                                               segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-                                                                                        DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
+                                                    DoSummary=False,
+                                                    Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
+                                                                                           segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
+                                                                                                                            "CscSegmentUtilTool",
+                                                                                                                            TightenChi2 = False, 
+                                                                                                                            IPconstraint=False)),
+                                                    Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
+                                                                                           segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
+                                                    DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
                                                      UseCSC = muonRecFlags.doCSCs(),

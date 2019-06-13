@@ -1,10 +1,10 @@
 
-#include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
-#include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
-#include "TrigOnlineSpacePointTool/PixelClusterCacheTool.h"
-#include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
-#include "TrigOnlineSpacePointTool/OnlineSpacePointProviderTool.h"
-#include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
+#include "../PixelSpacePointTool.h"
+#include "../SCT_SpacePointTool.h"
+#include "../PixelClusterCacheTool.h"
+#include "../SCT_ClusterCacheTool.h"
+#include "../OnlineSpacePointProviderTool.h"
+#include "../FastSCT_RodDecoder.h"
 #include "../TrigL2LayerNumberTool.h"
 #include "../TrigSpacePointConversionTool.h"
 

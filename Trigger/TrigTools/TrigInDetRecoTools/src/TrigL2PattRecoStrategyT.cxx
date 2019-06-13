@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 
 #include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
+#include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
@@ -252,7 +253,8 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   m_regionSelector->DetHashIDList(SCT, roi, listOfSCTIds );
   m_regionSelector->DetHashIDList(PIXEL, roi, listOfPixIds);
 
-  m_trackmaker->newRegion(listOfPixIds,listOfSCTIds); //RoI-based reconstruction
+  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
 
   TrackCollection* tempTracks = new TrackCollection;           //Temporary track collection per event
   
@@ -275,7 +277,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     }
 
     nTrtSegGood++;
-    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*trtTrack); //Get the possible Si extensions
+    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trtTrack); //Get the possible Si extensions
       
     if(trackSi.size()==0){
       if (outputLevel <= MSG::INFO) 
@@ -365,7 +367,8 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   if(m_timers) m_timer[2]->stop();
 
   if(m_timers) m_timer[4]->start();
-  m_trackmaker->newTrigEvent(PIX,SCT);
+  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  m_trackmaker->newTrigEvent(combinatorialData, PIX, SCT);
   if(m_timers) m_timer[4]->stop();
 
   // Loop through all seeds and reconsrtucted tracks collection preparation
@@ -394,7 +397,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
 
     ++m_nseeds;
     if(m_timers) m_timer[5]->resume();
-    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(combinatorialData, seed->spacePoints()); 
     if(m_timers) m_timer[5]->pause();
     if(m_timers) m_timer[6]->resume();
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -417,7 +420,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   
 
   if(m_timers) m_timer[7]->start();
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(combinatorialData);
   if(m_timers) m_timer[7]->stop();
 
   // Remove shared tracks with worse quality

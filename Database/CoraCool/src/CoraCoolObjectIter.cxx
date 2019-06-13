@@ -54,7 +54,16 @@ CoraCoolObjectPtr CoraCoolObjectIter::next() {
     // return data directly from the buffer - just increment counter
     ++m_nextobj;
   } else if (iHasNext()) {
-    // read some data from the database - initialise buffer to empty
+    readDataToBuffer();
+  } else {
+    throw CoraCoolException("No more data in CoraCoolObjectIter",
+			    "CoraCoolObjectIter::next");
+  }
+  return m_data.at(m_nextobj-1);
+}
+
+void  CoraCoolObjectIter::readDataToBuffer(){
+   // read some data from the database - initialise buffer to empty
     m_inbuf=0;
     // coloumn name of the FK in the CORAL table
     const std::string& coralkey=m_folder->coralFKey();
@@ -147,15 +156,27 @@ CoraCoolObjectPtr CoraCoolObjectIter::next() {
     // next read will access next object from buffer (if existing)
     // this invocation will return first object
     m_nextobj=1;
-  } else {
-    throw CoraCoolException("No more data in CoraCoolObjectIter",
-			    "CoraCoolObjectIter::next");
-  }
-  return m_data[m_nextobj-1];
+    return;
 }
 
 bool CoraCoolObjectIter::hasNext() {
   return (m_inbuf>m_nextobj || iHasNext());
+}
+
+bool CoraCoolObjectIter::goToNext() {
+  const bool nextExists=hasNext();
+  if (m_inbuf>m_nextobj){
+    ++m_nextobj;//just update the index
+  } else if (iHasNext()){
+    readDataToBuffer();
+  } else {
+    //throw CoraCoolException("No more data in CoraCoolObjectIter","CoraCoolObjectIter::goToNext");
+  }
+  return nextExists;
+}
+
+CoraCoolObject & CoraCoolObjectIter::currentRef(){
+  return *(m_data.at(m_nextobj-1));
 }
 
 void CoraCoolObjectIter::close() {

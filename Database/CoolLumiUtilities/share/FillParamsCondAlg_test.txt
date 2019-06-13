@@ -1,0 +1,3 @@
+ApplicationMgr.ExtSvc = {"StoreGateSvc/ConditionStore"};
+FillParamsCondAlg.FillParamsFolderInputKey = "testFP";
+FillParamsCondAlg.FillParamsOutputKey = "FillParamsCondData";

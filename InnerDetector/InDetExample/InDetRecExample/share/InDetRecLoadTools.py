@@ -939,8 +939,8 @@ if InDetFlags.loadSummaryTool():
             and not InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
 
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-        InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                          isGEANT4=(globalflags.DataSource == 'geant4'))
+        InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
         # Straw status DB Tool
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
         InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",

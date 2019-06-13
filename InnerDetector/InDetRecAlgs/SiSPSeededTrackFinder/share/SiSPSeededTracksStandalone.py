@@ -7,14 +7,25 @@
 #==============================================================
 
 # Configuration flags
-doPixel = True
-doSCT = True
-doBeamSpot = True
-doPrint = True
+if not "doPixel" in dir():
+    doPixel = False
+if not "doSCT" in dir():
+    doSCT = True
+if not "doBeamSpot" in dir():
+    doBeamSpot = True
+if not "doPrint" in dir():
+    doPrint = True
+if not "EvtMax" in dir():
+    EvtMax = 10
+if not "inputBSFiles" in dir():
+    # Set input byte stream file (from q431 test)
+    inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
+
 # Combinations of
 # doPixel = True,  doSCT = True,  doBeamSpot = True,  doPrint = True
 # doPixel = True,  doSCT = False, doBeamSpot = False, doPrint = True
 # doPixel = False, doSCT = True,  doBeamSpot = False, doPrint = True
+# doPixel = False, doSCT = True,  doBeamSpot = True,  doPrint = True
 # were tested.
 
 # Output track location
@@ -125,8 +136,6 @@ conddb.dbdata="CONDBR2"
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
-# Set input byte stream file (from q431 test)
-inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
 ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -588,7 +597,7 @@ if doPrint:
     print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 10
+theApp.EvtMax = EvtMax
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

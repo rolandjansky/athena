@@ -6,7 +6,7 @@
 atlas_subdir( TrigTauRec )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           LumiBlock/LumiBlockComps
@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
                           Calorimeter/CaloEvent
                           Event/EventKernel
                           Event/NavFourMom
@@ -27,18 +26,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces )
 
 # Component(s) in the package:
-atlas_add_library( TrigTauRecLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigTauRec
-                   LINK_LIBRARIES GaudiKernel TrigParticle TrigSteeringEvent LumiBlockCompsLib tauRecToolsLib TrigInterfacesLib TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES CaloEvent EventKernel NavFourMom xAODJet xAODTau xAODTracking Particle VxVertex TrigT1Interfaces )
-
 atlas_add_component( TrigTauRec
-                     src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel LumiBlockCompsLib tauRecToolsLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent EventKernel NavFourMom xAODJet xAODTau xAODTracking Particle VxVertex TrigT1Interfaces TrigTauRecLib )
+                     src/*.cxx src/components/*.cxx
+                     LINK_LIBRARIES GaudiKernel LumiBlockCompsLib tauRecToolsLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent EventKernel NavFourMom xAODJet xAODTau xAODTracking Particle VxVertex TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.root )
-

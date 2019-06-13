@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaPoolSTLAllocator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -37,6 +37,7 @@ struct Payload
   static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
+// cppcheck-suppress uninitMemberVar  // false positive
 Payload::Payload(int the_y)
 {
   x = n++;

@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#include "IOVSvc/CondSvc.h"
+#include "CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "AthenaKernel/StoreID.h"

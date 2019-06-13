@@ -35,7 +35,7 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
-    m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
+    m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
   {
     declareInterface<IMuonSegmentCombinationCleanerTool>(this);
 

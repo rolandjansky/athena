@@ -28,7 +28,7 @@ def _createCfgFlags():
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
 
     def _inputCollections(inputFile):
-        rawCollections = GetFileMD(inputFile).get("SGKeys").split()
+        rawCollections = GetFileMD(inputFile).get("SGKeys","").split()
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 
@@ -44,6 +44,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowControlFlow', True)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
+    acf.addFlag('Common.doExpressProcessing', False)
 
     def _checkProject():
         import os
@@ -82,6 +83,18 @@ def _createCfgFlags():
         from G4AtlasApps.SimConfigFlags import createSimConfigFlags
         return createSimConfigFlags()
     _addFlagsCategory (acf, "Sim", __simulation, 'G4AtlasApps' )
+
+#Digitization Flags:
+    def __digitization():
+        from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
+        return createDigitizationCfgFlags()
+    _addFlagsCategory(acf, "Digitization", __digitization, 'Digitization' )
+
+#Overlay Flags:
+    def __overlay():
+        from OverlayConfiguration.OverlayConfigFlags import createOverlayConfigFlags
+        return createOverlayConfigFlags()
+    _addFlagsCategory(acf, "Overlay", __overlay, 'OverlayConfiguration' )
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout

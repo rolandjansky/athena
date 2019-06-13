@@ -508,10 +508,10 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode AthenaEventLoopMgr::beginRunAlgorithms() {
+StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventContext& ctx) {
 
   // Fire BeginRun "Incident"
-  m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,m_eventContext));
+  m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
 
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
@@ -622,10 +622,11 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
 
 
 //=========================================================================
-// executeEvent(void* par)
+// Execute one event
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)    
+StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)    
 {
+
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
   unsigned int conditionsRun = EventIDBase::UNDEFNUM;
@@ -731,7 +732,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     } 
   }
 
-  if (installEventContext (eventID, conditionsRun).isFailure())
+  if (installEventContext (ctx, eventID, conditionsRun).isFailure())
   {
     error() 
           << "Error installing event context object" << endmsg;
@@ -750,7 +751,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
            << endmsg;
  
-    if (!(this->beginRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
+    if (!(this->beginRunAlgorithms(ctx)).isSuccess()) return (StatusCode::FAILURE);
   }
 
   bool toolsPassed=true;
@@ -767,7 +768,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     tool_store::iterator lastTool  = m_tools.end();
     while(toolsPassed && theTool!=lastTool ) 
       {
-        toolsPassed = (*theTool)->passEvent(pEvent); //FIXME, pEvent might be NULL
+        toolsPassed = (*theTool)->passEvent(ctx.eventID()); 
 	m_toolInvoke[toolCtr]++;
         {toolsPassed ? m_toolAccept[toolCtr]++ : m_toolReject[toolCtr]++;}
         toolCtr++;
@@ -788,7 +789,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Reset the timeout singleton
-  resetTimeout(Athena::Timeout::instance(m_eventContext));
+  resetTimeout(Athena::Timeout::instance(ctx));
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
   //m_incidentSvc->fireIncident(Incident(*pEvent, name(),"BeginEvent"));
@@ -801,19 +802,14 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     return (StatusCode::SUCCESS);
   }
 
-  // Execute Algorithms
-  //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
-
-  CHECK( m_conditionsCleaner->event (m_eventContext, false) );
+  CHECK( m_conditionsCleaner->event (ctx, false) );
 
   // Call the execute() method of all top algorithms 
-  StatusCode sc = executeAlgorithms(m_eventContext);
-
-  
+  StatusCode sc = executeAlgorithms(ctx);
 
   if(!sc.isSuccess()) {
     eventFailed = true; 
-    m_aess->setEventStatus( EventStatus::AlgFail, m_eventContext );
+    m_aess->setEventStatus( EventStatus::AlgFail, ctx );
 
  /// m_failureMode 1, 
  ///    RECOVERABLE: skip algorithms, but do not terminate job
@@ -838,12 +834,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 
   }  else {
 
-    m_aess->setEventStatus( EventStatus::Success, m_eventContext );
+    m_aess->setEventStatus( EventStatus::Success, ctx );
 
     // Call the execute() method of all output streams 
     for (ListAlg::iterator ito = m_outStreamList.begin(); 
 	 ito != m_outStreamList.end(); ito++ ) {
-      sc = (*ito)->sysExecute(m_eventContext); 
+      sc = (*ito)->sysExecute(ctx); 
       if( !sc.isSuccess() ) {
 	eventFailed = true; 
       } 
@@ -926,7 +922,6 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
   //  int nevt(0);
   bool noTimeLimit(false);
 
-
   while((maxevt == -1 || m_nevt < maxevt) && 
 	(noTimeLimit = (m_pITK == nullptr || m_pITK->nextIter()) ) ) {
 
@@ -1000,8 +995,10 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     }
     if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr_preexec");
     if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStart("EventLoopMgr_execute");
+    // create an empty EventContext that will get set inside executeEvent
+    EventContext ctx;
     // Execute event for all required algorithms
-    sc = executeEvent(nullptr);
+    sc = executeEvent( std::move( ctx ) );
     if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr_execute");
     if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStart("EventLoopMgr_postexec");
     if( !sc.isSuccess() )
@@ -1096,6 +1093,9 @@ int AthenaEventLoopMgr::size()
   return cs->size (*m_evtSelCtxt);
 }
 
+//=========================================================================
+// Handle incidents
+//=========================================================================
 void AthenaEventLoopMgr::handle(const Incident& inc)
 {
   if(inc.type()!="BeforeFork")
@@ -1162,12 +1162,13 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
         conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
     }
   }
-  if (installEventContext (eventID, conditionsRun).isFailure()) {
+  EventContext ctx;
+  if (installEventContext (ctx, eventID, conditionsRun).isFailure()) {
     error() << "Unable to install EventContext object" << endmsg;
     return;
   }
 
-  sc = beginRunAlgorithms();
+  sc = beginRunAlgorithms(ctx);
   if (!sc.isSuccess()) {
     error() << "beginRunAlgorithms() failed" << endmsg;
     return;
@@ -1186,11 +1187,13 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   }
 }
 
+//=========================================================================
 // Query the interfaces.
 //   Input: riid, Requested interface ID
 //          ppvInterface, Pointer to requested interface
 //   Return: StatusCode indicating SUCCESS or FAILURE.
 // N.B. Don't forget to release the interface after use!!!
+//=========================================================================
 StatusCode 
 AthenaEventLoopMgr::queryInterface(const InterfaceID& riid, 
 				   void** ppvInterface) 
@@ -1213,23 +1216,25 @@ AthenaEventLoopMgr::eventStore() const {
 }
 
 
+//=========================================================================
 // Fill in our EventContext object and make it current.
-StatusCode AthenaEventLoopMgr::installEventContext (const EventID& pEvent,
+//=========================================================================
+StatusCode AthenaEventLoopMgr::installEventContext (EventContext& ctx,
+                                                    const EventID& pEvent,
                                                     unsigned int conditionsRun)
 {
-  m_eventContext.setEventID(pEvent);
-  m_eventContext.set(m_nev,0);
+  ctx.setEventID(pEvent);
+  ctx.set(m_nev,0);
 
-  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
-                                                            conditionsRun) );
-  Gaudi::Hive::setCurrentContext( m_eventContext );
+  ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                 conditionsRun) );
+  Gaudi::Hive::setCurrentContext( ctx );
 
-  m_aess->reset(m_eventContext);
-  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
+  m_aess->reset( ctx );
+  if (eventStore()->record(std::make_unique<EventContext> ( ctx ),
                            "EventContext").isFailure())
   {
-    error() 
-          << "Error recording event context object" << endmsg;
+    error() << "Error recording event context object" << endmsg;
     return (StatusCode::FAILURE);
   }
 

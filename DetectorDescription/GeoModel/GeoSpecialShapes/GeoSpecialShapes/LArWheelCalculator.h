@@ -9,7 +9,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #ifndef XAOD_STANDALONE
-    #include "SGTools/CLASS_DEF.h"
+    #include "AthenaKernel/CLASS_DEF.h"
 #endif // XAOD_STANDALONE
 
 #include "GeoSpecialShapes/LArWheelCalculatorEnums.h"

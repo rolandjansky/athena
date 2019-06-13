@@ -7,19 +7,20 @@ from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
 jobproperties.egammaRecFlags.print_JobProperties("full")
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
+from PrecisionCaloSequenceSetup import precisionCaloMenuDefs
 
 def precisionCaloRecoSequence(RoIs):
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'egammaTopoClusterCopier' ,
                                           #InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
                                           InputTopoCollection= "caloclusters",
-                                          OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+                                          OutputTopoCollection=precisionCaloMenuDefs.precisionCaloClusters,
                                           #OutputTopoCollection="ClustersName",
                                           OutputTopoCollectionShallow="tmp_"+jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
                                           doAdd = False )
 
-    from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence, RoIs)
+    from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence
+    (precisionRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(HLTRoITopoRecoSequence, RoIs)
 
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters

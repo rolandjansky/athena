@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from .lib import DCSC_Subdetector, DCSC_Variable
 
@@ -14,7 +14,7 @@ class TDQ(DCSC_Subdetector):
     }
 
     variables = [
-        DCSC_Variable("WIENER/LVL1", lambda iov: iov.General_Status_GetPowerOn == True),
+        DCSC_Variable("WIENER/LVL1", lambda iov: iov.General_Status_GetPowerOn is True),
     ]
     
     dead_fraction_caution = 0.00000005

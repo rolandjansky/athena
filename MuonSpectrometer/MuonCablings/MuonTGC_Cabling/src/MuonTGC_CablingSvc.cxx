@@ -17,8 +17,8 @@
 #include <fstream>
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "PathResolver/PathResolver.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "MuonIdHelpers/TgcIdHelper.h"
 
@@ -33,8 +33,6 @@ MuonTGC_CablingSvc::MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc
   : ITGCcablingSvc(name, svc),
     m_idHelper(0),
     m_cabling(0),
-    m_log(msgSvc(), name),
-    m_debuglevel(false),
     m_condDataTool("TGCCablingDbTool")
 {
   declareProperty("AsideId", m_AsideId=103);
@@ -81,72 +79,67 @@ void MuonTGC_CablingSvc::getReadoutIDRanges(int& maxRodId,
 ///////////////////////////////////////////////////////////////
 StatusCode MuonTGC_CablingSvc::initialize(void)
 { 
-  m_log.setLevel(outputLevel());  // inidividual outputlevel not known before initialize
-  m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
-
-  m_log << MSG::INFO << "for 1/12 sector initialize" << endmsg;
+  ATH_MSG_INFO("for 1/12 sector initialize");
 
   // TgcIdHelper
   StoreGateSvc* detStore=0;
   StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
 
   if(sc.isFailure()) {
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+    ATH_MSG_FATAL("DetectorStore service not found !");
     return sc;
   }
 
   sc = detStore->retrieve(m_idHelper, "TGCIDHELPER");
   if(sc.isFailure()) {
-    m_log << MSG::FATAL << "Could not get TgcIdHelper !" << endmsg;
+    ATH_MSG_FATAL("Could not get TgcIdHelper !");
     return sc;
   }
 
   // private databases
   std::string dbASDToPP = PathResolver::find_file(m_databaseASDToPP, "DATAPATH");
-  m_log << MSG::DEBUG << "found  " << dbASDToPP << endmsg;
+  ATH_MSG_DEBUG("found  " << dbASDToPP);
   std::ifstream inASDToPP;
   if(dbASDToPP!= "") {
     inASDToPP.open(dbASDToPP.c_str());
   } else {
-    m_log << MSG::FATAL << "Could not find input file " << m_databaseASDToPP << endmsg;
+    ATH_MSG_FATAL("Could not find input file " << m_databaseASDToPP);
     return StatusCode::FAILURE;
   }
   if(inASDToPP.bad()) {
-    m_log << MSG::FATAL << "Could not open file " << dbASDToPP << endmsg;
+    ATH_MSG_FATAL("Could not open file " << dbASDToPP);
     return StatusCode::FAILURE;
   }
   inASDToPP.close();
 
 
   std::string dbInPP = PathResolver::find_file(m_databaseInPP, "DATAPATH");
-  m_log << MSG::DEBUG << "found  " << dbInPP << endmsg;
+  ATH_MSG_DEBUG("found  " << dbInPP);
   std::ifstream inInPP;
   if(dbInPP!="") {
     inInPP.open(dbInPP.c_str());
   } else {
-    m_log << MSG::FATAL << "Could not find input file " << m_databaseInPP << endmsg;
+    ATH_MSG_FATAL("Could not find input file " << m_databaseInPP);
     return StatusCode::FAILURE;
   }
   if(inInPP.bad()) {
-    m_log << MSG::FATAL << "Could not open file " << dbInPP << endmsg;
+    ATH_MSG_FATAL("Could not open file " << dbInPP);
     return StatusCode::FAILURE;
   }
   inInPP.close();
 
 
   std::string dbPPToSL = PathResolver::find_file(m_databasePPToSL, "DATAPATH");
-  if(m_debuglevel) {
-    m_log << MSG::DEBUG << "found  " << dbPPToSL << endmsg;
-  }
+  ATH_MSG_DEBUG("found  " << dbPPToSL);
   std::ifstream inPPToSL;
   if(dbPPToSL!="") {
     inPPToSL.open(dbPPToSL.c_str());
   } else {
-    m_log << MSG::FATAL << "Could not find input file " << m_databasePPToSL << endmsg;
+    ATH_MSG_FATAL("Could not find input file " << m_databasePPToSL);
     return StatusCode::FAILURE;
   }
   if(inPPToSL.bad()) {
-    m_log << MSG::FATAL << "Could not open file " << dbPPToSL << endmsg;
+    ATH_MSG_FATAL("Could not open file " << dbPPToSL);
     return StatusCode::FAILURE;
   }
   inPPToSL.close();
@@ -154,18 +147,16 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
 
 
   std::string dbSLBToROD = PathResolver::find_file(m_databaseSLBToROD, "DATAPATH");
-  if(m_debuglevel) {
-    m_log << MSG::DEBUG << "found  " << dbSLBToROD << endmsg;
-  }
+  ATH_MSG_DEBUG("found  " << dbSLBToROD);
   std::ifstream inSLBToROD;
   if(dbSLBToROD!="") {
     inSLBToROD.open(dbSLBToROD.c_str());
   } else {
-    m_log << MSG::FATAL << "Could not find input file " << m_databaseSLBToROD << endmsg;
+    ATH_MSG_FATAL("Could not find input file " << m_databaseSLBToROD);
     return StatusCode::FAILURE;
   }
   if(inSLBToROD.bad()) {
-    m_log << MSG::FATAL << "Could not open file " << dbSLBToROD << endmsg;
+    ATH_MSG_FATAL("Could not open file " << dbSLBToROD);
     return StatusCode::FAILURE;
   }
   inSLBToROD.close();
@@ -179,14 +170,14 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
   
   sc = m_condDataTool.retrieve();
   if(sc.isFailure()) {
-    m_log << MSG::FATAL << "Could not retrieve TGCCablingDbTool" << endmsg;
+    ATH_MSG_FATAL("Could not retrieve TGCCablingDbTool");
     return StatusCode::FAILURE;
   }
   std::string folderName = m_condDataTool->getFolderName();
 
   bool isContained = detStore->contains<CondAttrListCollection>(folderName);
   if(!isContained) {
-    m_log << MSG::FATAL << "Could not found " << folderName << " in DetectorStore." << endmsg;
+    ATH_MSG_FATAL("Could not found " << folderName << " in DetectorStore.");
     return StatusCode::FAILURE;
   } 
 
@@ -197,7 +188,7 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
 			folderName, 
 			true);
   if(!sc.isSuccess()) {
-    m_log << MSG::FATAL << "Could not register &updateCableASDToPP against folder " << folderName << endmsg; 
+    ATH_MSG_FATAL("Could not register &updateCableASDToPP against folder " << folderName); 
     return StatusCode::FAILURE; 
   }
 
@@ -303,14 +294,11 @@ bool MuonTGC_CablingSvc::hasAdjacentChannel(const int subsystemNumber,
   int sswID;
   int sbLoc;
   int channelID;
-  if(m_debuglevel) {
-    m_log << MSG::DEBUG << "hasAdjacentChannel() "
-	  << " side=" << subsystemNumber << " octant=" << octantNumber 
-	  << " module=" << moduleNumber << " layer=" << layerNumber
-	  << " chamber=" << rNumber << " w/s=" << wireOrStrip
-	  << " channel=" << channelNumber  
-	  << endmsg;
-  }
+  ATH_MSG_DEBUG("hasAdjacentChannel() "
+  << " side=" << subsystemNumber << " octant=" << octantNumber 
+  << " module=" << moduleNumber << " layer=" << layerNumber
+  << " chamber=" << rNumber << " w/s=" << wireOrStrip
+  << " channel=" << channelNumber);
  
   return getReadoutIDfromOnlineID(subDetectorID,
 				  rodID,
@@ -360,17 +348,16 @@ bool MuonTGC_CablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 					 wireOrStrip,
 					 channelNumber,
 					 orChannel);
-  if(m_debuglevel && (!status) && (!orChannel)) {
-    m_log << MSG::VERBOSE
-	  << " getOfflineIDfromReadoutID :"
+  if((!status) && (!orChannel)) {
+    ATH_MSG_VERBOSE(
+	     " getOfflineIDfromReadoutID :"
 	  << " Cannot get OnineID for "
 	  << " subdetectorID=" << subDetectorID
 	  << " rodID=" << rodID 
 	  << " sswID=" << sswID
 	  << " sbLoc=" << sbLoc  
 	  << " channel=" << channelID
-	  << " [ Or =" << orChannel <<"] "
-	  << endmsg;
+	  << " [ Or =" << orChannel <<"] ");
   }
   if(!status) {
     return status;
@@ -386,15 +373,13 @@ bool MuonTGC_CablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 				    wireOrStrip,
 				    channelNumber);
   
-  if(m_debuglevel && !status)  {
-    m_log << MSG::VERBOSE 
-	  << " getOfflineIDfromReadoutID :"
+  if(!status)  {
+    ATH_MSG_VERBOSE(" getOfflineIDfromReadoutID :"
 	  << " Cannot get OfflineID for "
 	  << " side=" << subsystemNumber << " octant=" << octantNumber 
 	  << " module=" << moduleNumber << " layer=" << layerNumber
 	  << " chamber=" << rNumber << " w/s=" << wireOrStrip
-	  << " channel=" << channelNumber  
-	  << endmsg;
+	  << " channel=" << channelNumber);
   }
   
   return status;
@@ -431,23 +416,18 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOfflineID(const Identifier & offlineID,
   
 
   if(!status) {
-    m_log << MSG::WARNING
-	  << " Fail to getOnlineIDfromOfflineID "
-	  << " for OfflineID=" << offlineID
-	  << endmsg;
+    ATH_MSG_WARNING(" Fail to getOnlineIDfromOfflineID " << " for OfflineID=" << offlineID);
   } 
   if(!status) return status;  
 
-  if(m_debuglevel) {
-    m_log << MSG::DEBUG << "getOnlineIDfromOfflineID() "
-	  << " offlineID=" << offlineID << endmsg
-	  << " onlineID:  "
-	  << " side=" << subsystemNumber << " octant=" << octantNumber 
-	  << " module=" << moduleNumber << " layer=" << layerNumber
-	  << " chamber=" << rNumber << " w/s=" << wireOrStrip
-	  << " channel=" << channelNumber  
-	  << endmsg;
-  }
+  ATH_MSG_DEBUG("getOnlineIDfromOfflineID() "
+	<< " offlineID=" << offlineID
+	<< " onlineID:  "
+	<< " side=" << subsystemNumber << " octant=" << octantNumber 
+	<< " module=" << moduleNumber << " layer=" << layerNumber
+	<< " chamber=" << rNumber << " w/s=" << wireOrStrip
+	<< " channel=" << channelNumber);
+
   // OnlineID -> ReadoutID
   status = getReadoutIDfromOnlineID(subDetectorID,
 				    rodID,
@@ -465,42 +445,30 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOfflineID(const Identifier & offlineID,
 
   if(!status) {
     if(adChannel) {
-      if(m_debuglevel) {
-	m_log << MSG::DEBUG
-	      << " Fail to getReadoutIDfromOnlineID" << endmsg;
-	m_log << MSG::DEBUG
-	      << " side=" << subsystemNumber << " octant=" << octantNumber 
+      ATH_MSG_DEBUG(" Fail to getReadoutIDfromOnlineID");
+      ATH_MSG_DEBUG(" side=" << subsystemNumber << " octant=" << octantNumber 
 	      << " module=" << moduleNumber << " layer=" << layerNumber
 	      << " chamber=" << rNumber << " w/s=" << wireOrStrip
-	      << " channel=" << channelNumber  
-	      << endmsg;
-      }
+	      << " channel=" << channelNumber);
     } else {
-      m_log << MSG::WARNING
-	    << " getReadoutIDfromOnlineID: "
+      ATH_MSG_WARNING(" getReadoutIDfromOnlineID: "
 	    << " Cannot get ReadoutID for "
 	    << " side=" << subsystemNumber << " octant=" << octantNumber 
 	    << " module=" << moduleNumber << " layer=" << layerNumber
 	    << " chamber=" << rNumber << " w/s=" << wireOrStrip
-	    << " channel=" << channelNumber  
-	    << endmsg;
+	    << " channel=" << channelNumber);
     }
   } else {
-    if(m_debuglevel) {
-      m_log << MSG::DEBUG
-	    << " SUCCESS  getReadoutIDfromOnlineID" << endmsg;
-      m_log << MSG::DEBUG
-	    << " side=" << subsystemNumber << " octant=" << octantNumber 
+      ATH_MSG_DEBUG(" SUCCESS  getReadoutIDfromOnlineID");
+      ATH_MSG_DEBUG(" side=" << subsystemNumber << " octant=" << octantNumber 
 	    << " module=" << moduleNumber << " layer=" << layerNumber
 	    << " chamber=" << rNumber << " w/s=" << wireOrStrip
 	    << " channel=" << channelNumber 
-	    << "adjacent=" << adChannel << endmsg;
-      m_log << MSG::DEBUG
-	    << " subDetectorID" << subDetectorID 
+	    << "adjacent=" << adChannel);
+      ATH_MSG_DEBUG(" subDetectorID" << subDetectorID 
 	    << " rodID=" << rodID 
 	    << " sswID=" << sswID
-	    << " channelID=" << channelID  <<  endmsg;
-    }
+	    << " channelID=" << channelID);
   }
 
   return status;
@@ -718,13 +686,11 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
   if(wireOrStrip==0) signalType = TGCIdBase::Wire;
   if(wireOrStrip==1) signalType = TGCIdBase::Strip;
 
-  if(m_debuglevel) {
-    m_log << MSG::VERBOSE << "getOfflineIDfromOnlineID for " 
-	  << " side=" << sideType << " octant=" << octantNumber 
-	  << " module=" << moduleNumber << " layer=" << layerNumber
-	  << " chamber=" << rNumber << " w/s=" << signalType
-	  << " channel=" << channelNumber << endmsg;
-  }
+  ATH_MSG_VERBOSE("getOfflineIDfromOnlineID for " 
+	<< " side=" << sideType << " octant=" << octantNumber 
+	<< " module=" << moduleNumber << " layer=" << layerNumber
+	<< " chamber=" << rNumber << " w/s=" << signalType
+	<< " channel=" << channelNumber);
   
   // ASDOut
   MuonTGC_Cabling::TGCChannelASDOut asdout(sideType,
@@ -735,13 +701,11 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 					   rNumber,
 					   channelNumber);  
   if(!asdout.isValid()) {
-    m_log << MSG::WARNING
-	  << " Illegal AsdOut for "
+    ATH_MSG_WARNING(" Illegal AsdOut for "
 	  << " side=" << sideType << " octant=" << octantNumber 
 	  << " module=" << moduleNumber << " layer=" << layerNumber
 	  << " chamber=" << rNumber << " w/s=" << signalType
-	  << " channel=" << channelNumber 
-	  <<  endmsg;
+	  << " channel=" << channelNumber);
   }
   if(!asdout.isValid()) return false;
 
@@ -751,14 +715,12 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 			  TGCIdBase::ASDIn,
 			  false);
   if(!asdin || !asdin->isValid()) {
-    m_log << MSG::WARNING
-	  << " getOfflineIDfromOnlineID :"
+    ATH_MSG_WARNING(" getOfflineIDfromOnlineID :"
 	  << " Illegal AsdIn for "
 	  << " side=" << sideType << " octant=" << octantNumber 
 	  << " module=" << moduleNumber << " layer=" << layerNumber
 	  << " chamber=" << rNumber << " w/s=" << signalType
-	  << " channel=" << channelNumber 
-	  <<  endmsg;
+	  << " channel=" << channelNumber);
   }
   if(asdin==0) return false;
   if(!asdin->isValid()) {
@@ -881,32 +843,26 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 				    orChannel);
   if(asdout==0) {
     if(!orChannel) {
-      if(m_debuglevel) {
-	m_log << MSG::VERBOSE
-	      << " getOnlineIDfromReadoutID :"
-	      << " Cannot get OnlineID of "
-	      << " side=" << sideType
-	      << " rodID=" << rodID 
-	      << " sswID=" << sswID
-	      << " sbLoc=" << sbLoc  
-	      << " channel=" << channelID
-	      << " [ Or =" << orChannel <<"] "
-	      <<  endmsg;
-      }
+      ATH_MSG_VERBOSE(" getOnlineIDfromReadoutID :"
+          << " Cannot get OnlineID of "
+          << " side=" << sideType
+          << " rodID=" << rodID 
+          << " sswID=" << sswID
+          << " sbLoc=" << sbLoc  
+          << " channel=" << channelID
+          << " [ Or =" << orChannel <<"] ");
     }
     return false;
   }
   if(!asdout->isValid()) {
-    m_log << MSG::WARNING
-	  << " getOnlineIDfromReadoutID :"
+    ATH_MSG_WARNING(" getOnlineIDfromReadoutID :"
 	  << " Illegal ASDout for "
 	  << " side=" << sideType
 	  << " rodID=" << rodID 
 	  << " sswID=" << sswID
 	  << " sbLoc=" << sbLoc  
 	  << " channel=" << channelID
-	  << " [ Or =" << orChannel <<"] "
-	  << endmsg;
+	  << " [ Or =" << orChannel <<"] ");
 
     delete asdout;
     asdout = 0;
@@ -972,8 +928,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 					   rNumber,
 					   channelNumber);  
   if(!asdout.isValid()) {
-    m_log << MSG::WARNING
-	  << " getReadoutIDfromOnlineID() :"
+    ATH_MSG_WARNING(" getReadoutIDfromOnlineID() :"
 	  << " Cannot get ASDout for  "
 	  << " side=" << sideType
 	  << " signal=" << signalType
@@ -981,8 +936,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 	  << " module=" << moduleNumber
 	  << " layer=" << layerNumber
 	  << " chamber=" << rNumber
-	  << " channel=" << channelNumber
-	  <<  endmsg;
+	  << " channel=" << channelNumber);
   }
   
   if(!asdout.isValid()) return false;
@@ -997,13 +951,10 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 						adChannel);
   if(!status) {
     if(adChannel) {
-      if(m_debuglevel) {
-	m_log << MSG::DEBUG
-	      << "getReadoutIDfromASDOut fails for adjacent" << endmsg;
+      ATH_MSG_DEBUG("getReadoutIDfromASDOut fails for adjacent");
       }
     } else {
-      m_log << MSG::WARNING
-	    << " getReadoutIDfromASDOut :"
+      ATH_MSG_WARNING(" getReadoutIDfromASDOut :"
 	    << " Cannot get ReadoutID for "
 	    << " side=" << sideType
 	    << " signal=" << signalType
@@ -1011,9 +962,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 	    << " module=" << moduleNumber
 	    << " layer=" << layerNumber
 	    << " chamber=" << rNumber
-	    << " channel=" << channelNumber
-	    << endmsg;
-    }
+	    << " channel=" << channelNumber);
   }
   if(!status) return false;
 
@@ -1087,20 +1036,16 @@ bool MuonTGC_CablingSvc::getElementIDfromReadoutID(Identifier & elementID,
   if((sswID > maxSswId) || 
      (channelID < minChannelId) ||
      (channelID > maxChannelId))  {
-    if(m_debuglevel) {
-      m_log << MSG::DEBUG
-	    << " getElementIDfromReadoutID() :"
+      ATH_MSG_DEBUG(" getElementIDfromReadoutID() :"
 	    << " Illeagal channel ID"
 	    << " subdetectorID=" << subDetectorID
 	    << " rodID=" << rodID 
 	    << " sswID=" << sswID
 	    << " sbLoc=" << sbLoc  
 	    << " channel=" << channelID
-	    << " [ Or =" << orChannel <<"] "
-	    << endmsg;
-    }
+	    << " [ Or =" << orChannel <<"] ");
     return false; 
-  }	
+  }
 
   bool status = getOfflineIDfromReadoutID(offlineID,
 					  subDetectorID,
@@ -1110,12 +1055,8 @@ bool MuonTGC_CablingSvc::getElementIDfromReadoutID(Identifier & elementID,
 					  channelID,
 					  orChannel);
   if(!status) {
-    if(m_debuglevel) { 
-      m_log << MSG::DEBUG
-	    << " getElementIDfromReadoutID :"
-	    << " Cannot get OfflineID "
-	    <<  endmsg;
-    }
+    ATH_MSG_DEBUG(" getElementIDfromReadoutID :"
+        << " Cannot get OfflineID ");
     return false;
   }
   
@@ -1141,16 +1082,12 @@ bool MuonTGC_CablingSvc::getSLBIDfromReadoutID(int & phi,
 
   const MuonTGC_Cabling::TGCModuleId * slb = m_cabling->getSLBFromReadout(side, rodID, sswID, sbLoc);
   if(!slb) {
-    if(m_debuglevel) {
-      m_log << MSG::VERBOSE
-	    << " getSLBIDfromReadoutID :"
-	    << " Cannot get SLB of "
-	    << " side" << side 
-	    << " rodID=" << rodID 
-	    << " sswID=" << sswID
-	    << " sbLoc=" << sbLoc  
-	    <<  endmsg;
-    }
+    ATH_MSG_VERBOSE(" getSLBIDfromReadoutID :"
+	  << " Cannot get SLB of "
+	  << " side" << side 
+	  << " rodID=" << rodID 
+	  << " sswID=" << sswID
+	  << " sbLoc=" << sbLoc);
     return false;
   }
 
@@ -1190,22 +1127,19 @@ bool MuonTGC_CablingSvc::getSLBAddressfromReadoutID(int & slbAddr,
 
   const MuonTGC_Cabling::TGCModuleId * slb = m_cabling->getSLBFromReadout(side, rodID, sswID, sbLoc);
   if(!slb)   {
-    m_log << MSG::WARNING
-	  << " getSLBAddressfromReadoutID :"
-	  << " Cannot get SLB of "
-	  << " side" << side 
-	  << " rodID=" << rodID 
-	  << " sswID=" << sswID
-	  << " sbLoc=" << sbLoc  
-	  <<  endmsg;
+    ATH_MSG_WARNING(" getSLBAddressfromReadoutID :"
+        << " Cannot get SLB of "
+        << " side" << side 
+        << " rodID=" << rodID 
+        << " sswID=" << sswID
+        << " sbLoc=" << sbLoc);
     return false;
   }
 
   const MuonTGC_Cabling::TGCModuleSLB* modSlb = dynamic_cast<const MuonTGC_Cabling::TGCModuleSLB*>(slb);
   if(!modSlb) {
-    m_log << MSG::WARNING 
-	  << "MuonTGC_CablingSvc::getSLBAddressfromReadoutID "
-	  << "dynamic_cast<const MuonTGC_Cabling::TGCModuleSLB*>(slb) failed." << endmsg; 
+    ATH_MSG_WARNING("MuonTGC_CablingSvc::getSLBAddressfromReadoutID "
+	  << "dynamic_cast<const MuonTGC_Cabling::TGCModuleSLB*>(slb) failed."); 
     return false;
   }
 
@@ -1228,14 +1162,12 @@ bool  MuonTGC_CablingSvc::getRxIDfromReadoutID(int &rxId,
   
   rxId  = m_cabling->getRxIdFromReadout(side, rodID, sswID, sbLoc);
   if(rxId<0) {
-    m_log << MSG::WARNING
-	  << " getRxIDfromReadoutID :"
+    ATH_MSG_WARNING(" getRxIDfromReadoutID :"
 	  << " Cannot get rxId of "
 	  << " side" << side 
 	  << " rodID=" << rodID 
 	  << " sswID=" << sswID
-	  << " sbLoc=" << sbLoc  
-	  <<  endmsg;
+	  << " sbLoc=" << sbLoc);
     return false;
   }
   return true;
@@ -1258,14 +1190,12 @@ bool MuonTGC_CablingSvc::getSLBIDfromRxID(int &phi,
 
   MuonTGC_Cabling::TGCModuleId * slb = m_cabling->getSLBFromRxId(side, rodID, sswID, rxId);
   if(!slb) {
-    m_log << MSG::WARNING
-	  << "geSLBIDfromRxID :"
+    ATH_MSG_WARNING("geSLBIDfromRxID :"
 	  << " Cannot get SLB of "
 	  << " side" << side 
 	  << " rodID=" << rodID 
 	  << " sswID=" << sswID
-	  << " rxId=" << rxId  
-	  <<  endmsg;
+	  << " rxId=" << rxId);
     return false;
   }
   
@@ -1317,14 +1247,13 @@ bool MuonTGC_CablingSvc::getReadoutIDfromSLBID(const int phi,
   MuonTGC_Cabling::TGCModuleSLB slb(side, module, region, sector, id);
   
    if(!slb.isValid()) {
-    m_log << MSG::WARNING 
-	  << "getReadoutIDfromSLBID "
+    ATH_MSG_WARNING("getReadoutIDfromSLBID "
 	  << " phi=" << phi
 	  << " side=" << ((isAside) ? "A" : "C") 
 	  << " region=" << ((isEndcap) ? "Endcap" : "Forward")
 	  << " type=" << moduleType
 	  << " id=" << id 
-	  << " Invalid SLB" << endmsg;
+	  << " Invalid SLB");
    } 
    if(!slb.isValid()) return false;
   
@@ -1333,16 +1262,10 @@ bool MuonTGC_CablingSvc::getReadoutIDfromSLBID(const int phi,
   bool status = m_cabling->getReadoutFromSLB(&slb, side, rodID, sswID, sbLoc);
   
   if(!status) {
-    if(m_debuglevel) {
-      m_log << MSG::DEBUG
-	    << " FAIL  getReadoutIDfromSLBID" << endmsg;
-    }
+    ATH_MSG_DEBUG(" FAIL  getReadoutIDfromSLBID");
   } else {
-    if(m_debuglevel) {
-      m_log << MSG::DEBUG
-	    << " SUCCESS  getReadoutIDfromSLBID" << endmsg;
-      m_log << MSG::DEBUG
-	    << " phi=" << phi
+      ATH_MSG_DEBUG(" SUCCESS  getReadoutIDfromSLBID");
+      ATH_MSG_DEBUG(" phi=" << phi
 	    << " side=" << ((isAside) ? "A" : "C") 
 	    << " region=" << ((isEndcap) ? "Endcap" : "Forward")
 	    << " type=" << moduleType
@@ -1350,8 +1273,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromSLBID(const int phi,
 	    << " side" << side 
 	    << " rodID=" << rodID 
 	    << " sswID=" << sswID
-	    << " sbLoc=" << sbLoc  <<  endmsg;
-    } 
+	    << " sbLoc=" << sbLoc);
   }
   if(!status) return false;
   return true;
@@ -1370,11 +1292,9 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
 {
   isAside = (subsectorID==m_AsideId);
   if(!isAside && (subsectorID!=m_CsideId)) {
-    m_log << MSG::WARNING
-	  << " getSLIDfromReadoutID : "
+    ATH_MSG_WARNING(" getSLIDfromReadoutID : "
 	  << " ERROR  illegal subsectorID [=" 
-	  << subsectorID  <<"] " 
-	  <<endmsg;
+	  << subsectorID  <<"] ");
     return false;
   } 
   int sectorInReadout = (rodID -1); // rodID = 1..12 for both sides
@@ -1383,11 +1303,9 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
   // sswID
   // sswID for SL is fixed to 9
   if(sswID!= 9) {
-    m_log << MSG::WARNING
-	  << " getSLIDfromReadoutID : "
+    ATH_MSG_WARNING(" getSLIDfromReadoutID : "
 	  << " ERROR  sswID for SL should be 9 [now =" 
-	  << sswID  <<"] " 
-	  <<endmsg;
+	  << sswID  <<"] ");
     return false;
   }
   
@@ -1405,11 +1323,9 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
     sector = numOfSector * sectorInReadout /  MuonTGC_Cabling::TGCId::NumberOfReadoutSector;
     phi = (sector + (sbLoc-4) + offset)% numOfSector+1;
   } else {
-    m_log << MSG::WARNING
-	  << " getSLIDfromReadoutID : "
+    ATH_MSG_WARNING(" getSLIDfromReadoutID : "
 	  << " ERROR  illegal sbLoc for SL [=" 
-	  << sbLoc  <<"] " 
-	  <<endmsg;
+	  << sbLoc  <<"] ");
     return false;
   }
   return true;  
@@ -1918,17 +1834,17 @@ bool MuonTGC_CablingSvc::getLowPtCoincidenceIDfromOfflineID(const Identifier & o
 }
 
 StatusCode MuonTGC_CablingSvc::updateCableASDToPP(IOVSVC_CALLBACK_ARGS_P(I, keys)) { 
-  m_log << MSG::INFO << "updateCableASDToPP called" << endmsg;
+  ATH_MSG_INFO("updateCableASDToPP called");
 
   StatusCode sc = m_condDataTool->loadASD2PP_DIFF_12(I, keys);
   if(!sc.isSuccess()) {
-    m_log << MSG::WARNING << "loadASD2PP_DIFF_12 failed" << endmsg;
+    ATH_MSG_WARNING("loadASD2PP_DIFF_12 failed");
     return StatusCode::SUCCESS;
   }
 
   sc = m_cabling->updateCableASDToPP();
   if(!sc.isSuccess()) {
-    m_log << MSG::WARNING << "updateCableASDToPP failed" << endmsg;
+    ATH_MSG_WARNING("updateCableASDToPP failed");
     return StatusCode::SUCCESS;
   }
 

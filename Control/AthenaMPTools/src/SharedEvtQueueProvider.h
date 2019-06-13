@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_SHAREDEVTQUEUEPROVIDER_H
-#define ATHENAMPTOOLS_SHAREDEVTQUEUEPROVIDER_H 1
+#define ATHENAMPTOOLS_SHAREDEVTQUEUEPROVIDER_H
 
 #include "AthenaMPToolBase.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -11,7 +11,7 @@
 
 class IEventShare;
 
-class SharedEvtQueueProvider : public AthenaMPToolBase
+class SharedEvtQueueProvider final : public AthenaMPToolBase
   , public IIncidentListener
 {
  public:
@@ -19,25 +19,25 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
 			 , const std::string& name
 			 , const IInterface* parent);
 
-  virtual ~SharedEvtQueueProvider();
+  virtual ~SharedEvtQueueProvider() override;
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // _________IAthenaMPTool_________   
-  int makePool(int maxevt, int nprocs, const std::string& topdir);
-  StatusCode exec();
+  virtual int makePool(int maxevt, int nprocs, const std::string& topdir) override;
+  virtual StatusCode exec() override;
 
-  void subProcessLogs(std::vector<std::string>&);
-  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport();
+  virtual void subProcessLogs(std::vector<std::string>&) override;
+  virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport() override;
 
   // _________IIncidentListener___________
-  void handle(const Incident& inc);
+  virtual void handle(const Incident& inc) override;
 
   // _____ Actual working horses ________
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
-  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func() override;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func() override;
 
  private:
   SharedEvtQueueProvider();

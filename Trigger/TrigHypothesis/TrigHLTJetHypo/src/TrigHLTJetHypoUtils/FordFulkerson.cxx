@@ -24,14 +24,35 @@
 
 FordFulkerson::FordFulkerson(const FlowNetwork& G, int s, int t):
   m_marked{}, m_edgeTo{}, m_value(0){
-  validate(s, G.V());
-  validate(t, G.V());
-  if(s == t){
-    throw std::invalid_argument("FordFulkerson: source equals sink");
-  }
-  
-  checkFeasibility(G, s, t);  // throws if error
 
+
+    auto V = G.V();
+    if (not validate(s, V)){
+      m_hasError = true;
+      m_errMsg = "FordFulkerson: source: " + 
+	std::to_string(s) + 
+	" must be in [0, " +
+	std::to_string(V) +
+	")";
+    }
+    
+    if (not validate(t, V)){
+      m_hasError = true;
+      m_errMsg = "FordFulkerson: sink: " + 
+	std::to_string(s) + 
+	" must be in [0, " +
+	std::to_string(V) +
+	")";
+    }
+
+    if(s == t){
+      m_hasError = true;
+      m_errMsg = "FordFulkerson: source equals sink";
+    }
+    
+  
+  checkFeasibility(G, s, t);
+  
   // while there exists an augmenting path, use it
   m_value = excess(G, t);
   while (hasAugmentingPath(G, s, t)) {
@@ -50,71 +71,75 @@ FordFulkerson::FordFulkerson(const FlowNetwork& G, int s, int t):
     m_value += bottle;
   }
 
-  check(G, s, t);  // check optimality conditions, throws if error
+  check(G, s, t);
 
  }
  
 
-double FordFulkerson::value() const noexcept {return m_value;}
+double FordFulkerson::value() const {
+  if(m_hasError){
+    throw std::runtime_error("FordFulkerson: Invalid state: value() " +
+			     m_errMsg);
+  }
+  return m_value;
+}
 
 // is v in the s side of the min s-t cut?
 
- bool FordFulkerson::inCut(int v) {
+ bool FordFulkerson::inCut(int v){
+   if(m_hasError){
+     throw std::runtime_error("FordFulkerson: inCut() Invalid state " +
+			      m_errMsg);}
    validate(v, m_marked.size());
    return m_marked[v];
  }
 
 
-void FordFulkerson::validate(int v, int V) {
-  if (v < 0 || v >= V) {
-
-    throw std::out_of_range("FordFulkerson: invalid vertex: " + 
-                            std::to_string(v) + 
-                            " must be in [0, " +
-                            std::to_string(V) +
-                            ")"
-                            );
-  }
+bool FordFulkerson::validate(int v, int V) {
+  return  !(v < 0 || v >= V);
 }
 
 
-void FordFulkerson::checkFeasibility(const FlowNetwork& G, int s, int t) const{
+void FordFulkerson::checkFeasibility(const FlowNetwork& G, int s, int t){
   constexpr auto EPSILON = 1E-11;
     
   // check that capacity constraints are satisfied
   for(auto v = 0; v < G.V(); v++) {
-    for(auto e : G.adj(v)) {
+    for(const auto& e : G.adj(v)) {
       if (e->flow() < -EPSILON || e->flow() > e->capacity() + EPSILON) {
-        throw 
-          std::runtime_error("Edge does not satisfy capacity constraints");
+	m_hasError = true;
+	m_errMsg = "Ford Fulkerson: Edge does not satisfy capacity constraints";
       }
     }
   }
 
   // check that net flow into a vertex equals zero, except at source and sink
   if (std::abs(m_value + excess(G, s)) > EPSILON) {
-    throw std::runtime_error("FordFulkerson: " 
-                             "Excess at source = " + 
-                             std::to_string(excess(G, s)) + 
-                             '\n' + 
-                             "Max flow         = " + 
-                             std::to_string(m_value));
+
+    m_hasError = true;
+    m_errMsg = "FordFulkerson: " 
+      "Excess at source = " + 
+      std::to_string(excess(G, s)) + 
+      '\n' + 
+      "Max flow         = " + 
+      std::to_string(m_value);
   }
     
   if (std::abs(m_value - excess(G, t)) > EPSILON) {
-    throw std::runtime_error("FordFulkerson: "
-                             "Excess at sink   = " + 
-                             std::to_string(excess(G, t)) + 
-                             "Max flow         = " + 
-                             std::to_string(m_value));
+    m_hasError = true;
+    m_errMsg = "FordFulkerson: Excess at sink   = " + 
+      std::to_string(excess(G, t)) + 
+      "Max flow         = " + 
+      std::to_string(m_value);
   }
         
   for (int v = 0; v < G.V(); v++) {
     if (v == s || v == t) continue;
     else if (std::abs(excess(G, v)) > EPSILON) {
-      throw std::runtime_error("Net flow out of " + 
-                                 std::to_string(v) + 
-                               " doesn't equal zero");
+      m_hasError = true;
+      m_errMsg = "FordFulkerson: Net flow out of " + 
+	std::to_string(v) + 
+	" doesn't equal zero";
     }
   }
 }
@@ -134,7 +159,8 @@ double FordFulkerson::excess(const FlowNetwork& G, int v) const noexcept{
 }
   
 
-void FordFulkerson::check(const FlowNetwork& G, int s, int t) {
+void FordFulkerson::check(const FlowNetwork& G, int s, int t)  {
+  if(m_hasError){return;}
   // check optimality conditions
   
   // check that flow is feasible
@@ -143,14 +169,16 @@ void FordFulkerson::check(const FlowNetwork& G, int s, int t) {
   // check that s is on the source side of min cut and that t 
   // is not on source side
   if (!inCut(s)) {
-    throw std::runtime_error("FordFulkerson: source " + 
-                             std::to_string(s) + 
-                             " is not on source side of min cut");
+    m_hasError = true;
+    m_errMsg = "FordFulkerson: source " + 
+      std::to_string(s) + 
+      " is not on source side of min cut";
   }
   if (inCut(t)) {
-    throw std::runtime_error("FordFulkerson: sink " + 
-                             std::to_string(t) + 
-                             " is on source side of min cut");
+    m_hasError = true;
+    m_errMsg = "FordFulkerson: sink " + 
+      std::to_string(t) + 
+      " is on source side of min cut";
   }
 
   // check that value of min cut = value of max flow
@@ -164,15 +192,17 @@ void FordFulkerson::check(const FlowNetwork& G, int s, int t) {
 
   constexpr auto EPSILON = 1E-11;
   if (std::abs(mincutValue - m_value) > EPSILON) {
-    throw std::runtime_error("Max flow value = " + 
-                             std::to_string(m_value) +
-                             ", min cut value = " + 
-                             std::to_string(mincutValue));
+	m_hasError = true;
+	m_errMsg = "FordFulkerson: Max flow value = " + 
+	  std::to_string(m_value) +
+	  ", min cut value = " + 
+	  std::to_string(mincutValue);
   }
   
 }
  
-bool FordFulkerson::hasAugmentingPath(const FlowNetwork& G, int s, int t) {
+bool
+FordFulkerson::hasAugmentingPath(const FlowNetwork& G, int s, int t) {
   /* is there an augmenting path? 
      if so, upon termination m_edgeTo[] will contain a parent-link 
      representation of such a path

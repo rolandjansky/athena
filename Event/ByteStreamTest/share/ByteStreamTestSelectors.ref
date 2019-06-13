@@ -8,7 +8,6 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186525031
@@ -71,7 +70,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186524665
@@ -134,7 +132,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186542447
@@ -197,7 +194,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186543405
@@ -260,7 +256,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186548387
@@ -323,7 +318,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186515186
@@ -388,7 +382,6 @@ EventSelector.E...   INFO Rejecting event
 EventSelector        INFO skipping event 6
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186556019
@@ -451,7 +444,6 @@ EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 8388608
 EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
 EventSelector.E...   INFO EvenEventsSelectorTool::postNext
 EventSelector.E...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
 EventSelector.E...   INFO Found attribute list
 EventSelector.E...   INFO Spec element RunNumber (long) : 327265
 EventSelector.E...   INFO Spec element EventNumber (long) : 186542866

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 ###############################################################
 #
@@ -18,22 +19,22 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D2PDMaker.D2PDFlags import D2PDFlags
     listOfFlags.append(D2PDFlags)
 except ImportError:
-    print "WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis."
+    print("WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis.")
 try:
     from TopPhysD2PDMaker.TopPhysD2PDFlags import topPhysDPD
     listOfFlags.append(topPhysDPD)
 except ImportError:
-    print "WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -43,7 +44,7 @@ if hasattr(runArgs, "reductionConf"):
     msg.info('Will attempt to make the following reduced formats: {0}'.format(runArgs.reductionConf))
 else:
     msg.error('NTUP Reduction job started, but with no "reductionConf" array - aborting')
-    raise RuntimeError, "No reductions configured"
+    raise RuntimeError("No reductions configured")
 
 ## max/skip events
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -69,7 +70,7 @@ for arg in dir(runArgs):
         inFile = getattr(runArgs,arg)
         athenaCommonFlags.FilesInput.set_Value_and_Lock(inFile)
         inFileArgs+=1
-        print "Using argument ", arg, " = ",inFile, ", tree name = ", prodFlags.TreeName()
+        print("Using argument ", arg, " = ",inFile, ", tree name = ", prodFlags.TreeName())
 if inFileArgs!=1:
     raise TransformArgumentError(message='Wrong number of inputNTUPXXXFile arguments: {0:d} instead of 1. Stopping!'.format(inFileArgs))
 
@@ -78,7 +79,7 @@ listOfFlags=[]
 try:
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING NTUPtoNTUPProdFlags.py is not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING NTUPtoNTUPProdFlags.py is not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 from NTUPtoNTUPCore.NTUPUtils import SetupOutputNTUPs
 from AthenaCommon.JobProperties import jobproperties

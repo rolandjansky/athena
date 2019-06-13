@@ -89,6 +89,9 @@ fi
 _PRELOAD="${ASETUP_PRELOAD}"
 _VERBOSE="${ASETUP_VERBOSE}"
 _EXTRA_SW_PATH="${ASETUP_EXTRA_SW_PATH}"
+# Need to protect input parameters since asetup overwrites cmd
+_cmd=${cmd}
+_args=${args}
 
 echo "$LOG Executing asetup ${ASETUP_ARGS}"
 source ${AtlasSetup}/scripts/asetup.sh --input=None ${ASETUP_ARGS}
@@ -107,6 +110,10 @@ set -o allexport
 eval $protect_env
 set +o allexport
 
+# Restore input parameters
+cmd=${_cmd}
+args=${_args}
+
 # Now add any extra directory if specified
 update_paths
 
@@ -118,6 +125,7 @@ if [ ! -z "${_VERBOSE}" ]; then
 fi
 
 unset _PRELOAD _VERBOSE
+unset _cmd _args
 
 echo "$LOG exec $cmd $args"
 exec $cmd $args

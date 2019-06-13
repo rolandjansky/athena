@@ -6,10 +6,10 @@ from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonCacheNames:
-    MdtCsmCache = "MdtCsmCache"
-    CscCache    = "CscCache"
-    RpcCache    = "RpcCache"
-    TgcCache    = "TgcCache"
+    MdtCsmCache = "MdtCsmRdoCache"
+    CscCache    = "CscRdoCache"
+    RpcCache    = "RpcRdoCache"
+    TgcCache    = "TgcRdoCache"
 
 ## This configuration function creates the IdentifiableCaches for RDO
 #
@@ -52,8 +52,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
+    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                Decoder = RPCRodDecoder )
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache

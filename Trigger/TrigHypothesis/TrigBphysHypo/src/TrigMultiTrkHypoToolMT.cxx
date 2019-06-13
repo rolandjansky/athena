@@ -88,7 +88,7 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
  
   using namespace Monitored;
 
-    ATH_MSG_DEBUG( "in TrigMultiTrkHypoToolMT::decideOnSingleObject(), looking at TrigBphys object");
+  ATH_MSG_DEBUG( "in TrigMultiTrkHypoToolMT::decideOnSingleObject(), looking at TrigBphys object");
 
   bool thisPassedMassCut = false;
   bool thisPassedChi2Cut = false;

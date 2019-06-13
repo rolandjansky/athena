@@ -4,6 +4,33 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
+## Small class to hold the names for cache containers, should help to avoid copy / paste errors
+class MuonPrdCacheNames:
+    MdtCache  = "MdtPrdCache"
+    CscCache  = "CscPrdCache"
+    RpcCache  = "RpcPrdCache"
+    TgcCache  = "TgcPrdCache"
+    sTgcCache = "sTgcPrdCache"
+    MmCache   = "MmPrdCache"  
+
+## This configuration function creates the IdentifiableCaches for PRD
+#
+# The function returns a ComponentAccumulator which should be loaded first
+# If a configuration wants to use the cache, they need to use the same names as defined here
+def MuonPrdCacheCfg():
+    acc = ComponentAccumulator()
+
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MuonPRDCacheCreator
+    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
+                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
+                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    acc.addEventAlgo( cacheCreator, primary=True )
+    return acc
+
+
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
 # The forTrigger paramater is used to put the algorithm in RoI mode
@@ -76,8 +103,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)  )
+    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    acc.merge (MdtCalibDbAlgCfg(flags))
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -249,6 +276,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
+    return cfg
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
@@ -300,11 +328,12 @@ def muonRdoDecodeTestMC():
     with open('MuonRdoDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
+    return cfg
     
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRdoDecodeConfig.py
-    muonRdoDecodeTestData()
+    cfg = muonRdoDecodeTestData()
     #muonRdoDecodeTestMC()
 
 

@@ -25,8 +25,9 @@ AndHelperTool::AndHelperTool(const std::string& type,
 }
 
 
-bool AndHelperTool::pass(HypoJetVector& jets,
-                         ITrigJetHypoInfoCollector* collector) const {
+bool
+AndHelperTool::pass(HypoJetVector& jets,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("AndHelperTool::pass... " << jets.size() << " jets");
 
   JetTrigTimer timer;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -81,7 +81,6 @@ bool Parser::parse_chain_name(const std::string & chain_name)
       num_objects = std::atoi(L1_trig_object.substr(0,1).c_str());
       L1_trig_object = L1_trig_object.substr(1);
     }
-    L1_trig_object = L1_trig_object;
     m_nonTOPO_items[L1_trig_object] = num_objects;
     m_all_items.push_back(L1_trig_object);
   }

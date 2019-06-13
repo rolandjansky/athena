@@ -18,6 +18,8 @@
 class IActsTrackingGeometrySvc;
 class ActsAlignmentStore;
 
+class ActsGeometryContext;
+
 
 /// @class NominalAlignmentCondAlg
 /// Conditions algorithm which produces an (effectively)
@@ -25,12 +27,12 @@ class ActsAlignmentStore;
 /// nominal alignments (= identity deltas)
 ///
 class NominalAlignmentCondAlg  :  public AthAlgorithm {
-  
+
 public:
-    
+
   NominalAlignmentCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~NominalAlignmentCondAlg();
-  
+
   virtual bool isClonable() const override { return true; }
 
   virtual StatusCode initialize() override;
@@ -38,11 +40,10 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  
-  SG::WriteCondHandleKey<ActsAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
+
+  SG::WriteCondHandleKey<ActsGeometryContext> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
 };
-

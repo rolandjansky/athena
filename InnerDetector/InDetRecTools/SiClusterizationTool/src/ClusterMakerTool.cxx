@@ -76,7 +76,7 @@ StatusCode  ClusterMakerTool::initialize(){
      m_sctLorentzAngleTool.disable();
    }
 
-   ATH_CHECK(m_clusterErrorKey.initialize());
+   ATH_CHECK(m_clusterErrorKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }

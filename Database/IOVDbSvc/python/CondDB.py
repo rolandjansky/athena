@@ -228,7 +228,9 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            condInputLoader.Load += [ (className, self.extractFolder(folder)) ]
+            key = (className, self.extractFolder(folder))
+            if not key in condInputLoader.Load:
+                condInputLoader.Load += [ key ]
 
     def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False,className=None):
         "Add access to the given folder/schema, using a specified tag"

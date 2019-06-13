@@ -32,7 +32,7 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
 #include "TileEvent/TileMuContainer.h"
-#include "TrigTileMuId/TrigTileMuFex.h"
+#include "TrigTileMuFex.h"
 #include "TrigMuonEvent/TileMuFeature.h"
 #include "TrigMuonEvent/TileTrackMuFeature.h"
 

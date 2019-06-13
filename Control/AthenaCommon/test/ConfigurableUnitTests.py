@@ -162,10 +162,10 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## which is why I've added the MacOSX-specific hack.
       from sys import platform
       if platform != 'darwin' :
-          self.failUnless(os.path.exists(pickleName))
+          self.assertTrue(os.path.exists(pickleName))
       else:
-          self.failUnless(os.path.exists(pickleName+'.db'))
-      self.failUnless(os.path.exists(asciiFileName+'.ref'))
+          self.assertTrue(os.path.exists(pickleName+'.db'))
+      self.assertTrue(os.path.exists(asciiFileName+'.ref'))
 
       ## load what we have stored...
       from AthenaCommon.ConfigurationShelve import loadFromPickle
@@ -173,15 +173,15 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
 
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      self.failUnless(hasattr(topSequence, 'MyOutputStream'),
+      self.assertTrue(hasattr(topSequence, 'MyOutputStream'),
                       "topSequence is missing 'MyOutputStream' !")
-      self.failUnless(hasattr(topSequence, 'MyConditionStream' ),
+      self.assertTrue(hasattr(topSequence, 'MyConditionStream' ),
                       "topSequence is missing 'MyConditionStream' !")
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      self.failUnless(hasattr(svcMgr, 'MyTHistSvc'),
+      self.assertTrue(hasattr(svcMgr, 'MyTHistSvc'),
                       "svcMgr is missing 'MyTHistSvc' !")
-      self.failUnless(svcMgr.MyTHistSvc.Output == thistSvcOutput)
+      self.assertTrue(svcMgr.MyTHistSvc.Output == thistSvcOutput)
 
       ## create a job loading the pickle
       job = """
@@ -222,7 +222,7 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       del jobO
 
       ## check needed files have been produced
-      self.failUnless(os.path.exists(asciiFileName))
+      self.assertTrue(os.path.exists(asciiFileName))
 
       ## test hysteresis...
       cmd = 'diff -u %s.ref %s' % (asciiFileName, asciiFileName)
@@ -299,9 +299,9 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## which is why I've added the MacOSX-specific hack.
       from sys import platform
       if platform != 'darwin' :
-          self.failUnless(os.path.exists(pickleName))
+          self.assertTrue(os.path.exists(pickleName))
       else:
-          self.failUnless(os.path.exists(pickleName+'.db'))
+          self.assertTrue(os.path.exists(pickleName+'.db'))
       
       ## create a job loading the pickle (smallCfg)
       job = """

@@ -7,7 +7,6 @@ atlas_subdir( LArGeoAlgsNV )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/IOVSvc
                           DetectorDescription/GeoModel/GeoModelUtilities
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           PRIVATE
@@ -17,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/GeoModel/GeoModelInterfaces
-			  DetectorDescription/GeoPrimitives
+			              DetectorDescription/GeoPrimitives
                           GaudiKernel
                           LArCalorimeter/LArGeoModel/LArGeoBarrel
                           LArCalorimeter/LArGeoModel/LArGeoCode
@@ -38,7 +37,7 @@ atlas_add_component( LArGeoAlgsNV
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${EIGEN_LIBRARIES} IOVSvcLib GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${EIGEN_LIBRARIES} GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV )
 
 # Install files from the package:
 atlas_install_headers( LArGeoAlgsNV )

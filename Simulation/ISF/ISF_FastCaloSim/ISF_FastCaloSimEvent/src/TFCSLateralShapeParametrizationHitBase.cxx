@@ -16,6 +16,11 @@ TFCSLateralShapeParametrizationHitBase::TFCSLateralShapeParametrizationHitBase(c
 {
 }
 
+double TFCSLateralShapeParametrizationHitBase::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+{
+  return -1;
+}
+
 int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   return -1;

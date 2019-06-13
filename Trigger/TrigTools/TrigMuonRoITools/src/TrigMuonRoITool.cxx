@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonRoITool.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
@@ -16,7 +15,7 @@
 TrigMuonRoITool::TrigMuonRoITool(const std::string& type, 
 				 const std::string& name,
 				 const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
+  base_class(type,name,parent),
   m_run_no(0),
   m_event_number(0),
   m_bunch_crossing_id(0),
@@ -26,23 +25,14 @@ TrigMuonRoITool::TrigMuonRoITool(const std::string& type,
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
   m_decodeMuCTPiFromROB(false)
 {
-  declareInterface <ITrigMuonRoITool> ( this );
-
   // Declare the properties
   declareProperty("DaqMuCTPiROBid",m_daqMuCTPiROBid=0x760000);
   declareProperty("DecodeMuCTPiFromROB",m_decodeMuCTPiFromROB=false);
 }
 
 
-TrigMuonRoITool::~TrigMuonRoITool() 
-{
-}
-
-
 StatusCode TrigMuonRoITool::initialize()
 {
-  msg(MSG::INFO) << "Initializing TrigMuonRoITool - package version " << PACKAGE_VERSION << endmsg ;
-  
   ATH_CHECK( AthAlgTool::initialize() );
   ATH_CHECK( evtStore().retrieve() );
   ATH_CHECK( m_robDataProviderSvc.retrieve() );
@@ -54,15 +44,6 @@ StatusCode TrigMuonRoITool::initialize()
   // Build the vector with ROB Ids to retrieve
   m_muCTPiRobIds.push_back(m_daqMuCTPiROBid.value());
   
-  return StatusCode::SUCCESS; 
-}
-
-
-StatusCode TrigMuonRoITool::finalize()
-{
-  msg(MSG::INFO) << "Finalizing TrigMuonRoITool - package version " << PACKAGE_VERSION << endmsg ;
-
-  ATH_CHECK( AthAlgTool::finalize() );
   return StatusCode::SUCCESS; 
 }
 

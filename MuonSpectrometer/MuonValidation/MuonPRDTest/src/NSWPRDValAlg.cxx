@@ -37,6 +37,9 @@
 
 // Misc includes
 #include "GaudiKernel/ITHistSvc.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -249,9 +252,16 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_DEBUG("execute()");
 
   // Event information
-  const EventContext& context = getContext();
-  m_runNumber = context.eventID().run_number();
-  m_eventNumber = context.eventID().event_number();
+  const EventInfo* pevt(0);
+  if( evtStore()->retrieve(pevt).isSuccess() ) {
+    m_runNumber = pevt->event_ID()->run_number();
+    m_eventNumber = pevt->event_ID()->event_number();
+    ATH_MSG_DEBUG("Now processing event number:" << m_eventNumber << ", run number:" << m_runNumber);
+  } else {
+    ATH_MSG_WARNING("Could not retrieve event info!");
+    m_runNumber = -1;
+    m_eventNumber = -1;
+  }
 
   if (m_doTruth) ATH_CHECK( m_TruthVar->fillVariables() );
 
@@ -475,7 +485,7 @@ StatusCode NSWPRDValAlg::setDataAdress (EDM_object &oData, TString branch_name) 
   if (branch_name.EndsWith("stationPhi")) { m_tree->SetBranchAddress(branch_name, &oData.m_stationPhi); setBranch = true; }
   if (branch_name.EndsWith("multiplet")) { m_tree->SetBranchAddress(branch_name, &oData.m_multiplet); setBranch = true; }
   if (branch_name.EndsWith("gas_gap")) { m_tree->SetBranchAddress(branch_name, &oData.m_gas_gap); setBranch = true; }
-  if (branch_name.EndsWith("channel")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
+  if (branch_name.EndsWith("channel") && !branch_name.Contains("rdos")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
   if (branch_name.EndsWith("channel_type")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel_type); setBranch = true; }
   if (setBranch) { ATH_MSG_DEBUG("Set data adress of branch " << branch_name); }
   
