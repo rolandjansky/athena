@@ -1,6 +1,13 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+
+def getPixelFillCablingData(name="PixelFillCablingData",**kwargs):
+  from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags  
+  if geoFlags.isSLHC():
+    # This is a temporary fix for ITK, where the mapping is not essential
+    kwargs.setdefault("DisableChecks",True)
+  return CfgMgr.PixelFillCablingData(name, **kwargs)
 
 def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
     from AthenaCommon.Logging import logging
@@ -123,5 +130,5 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
         else:
             logger.warning("Unknown input source. Pixel cabling map cannot be set at this point")
 
-
+    kwargs.setdefault("PixelCablingTool","PixelFillCablingData")
     return CfgMgr.PixelCablingSvc(name, **kwargs)

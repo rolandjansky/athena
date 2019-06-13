@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -75,6 +75,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_dbm_FEsPerHalfModule(0),
     m_eta_module_offset(0)
 {
+  declareProperty("PixelCablingTool", m_cablingTool);
     // "Final": use text file, "COOL": read from COOL
     declareProperty("MappingType", m_mappingType = "COOL");
     // Name of mapping file to use, if mappingType == Final
@@ -97,66 +98,6 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     // Write out the cabling map to a text file
     declareProperty("DumpMapToFile", m_dump_map_to_file = false);
 }
-
-/*
-////////////////////////
-// Copy constructor
-////////////////////////
-PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc) :
-    AthService(name,svc),
-    m_cablingTool("PixelFillCablingData"),
-    m_detStore("DetectorStore", name),
-    m_IBLParameterSvc("IBLParameterSvc",name),
-    m_idHelper(0),
-    m_cabling(0),
-    m_callback_calls(0),
-    m_dataString(""),
-    m_key("/PIXEL/ReadoutSpeed"),
-    m_keyFEI4("/PIXEL/HitDiscCnfg"),
-    m_keyCabling("/PIXEL/CablingMap"),
-    m_dump_map_to_file(false),
-    m_useIBLParameterSvc(true),
-    m_IBLpresent(false),
-    m_isHybrid(false),
-    m_DBMpresent(false),
-    m_dbm_columnsPerFE(0),
-    m_dbm_rowsPerFE(0),
-    m_dbm_FEsPerHalfModule(0),
-    m_eta_module_offset(0)
-{
-    // Copy everyzing
-    m_mappingType = other.m_mappingType;
-    m_final_mapping_file = other.m_final_mapping_file;
-    m_bandwidth = other.m_bandwidth;
-    m_coraldbconnstring = other.m_coraldbconnstring;
-    m_dictTag = other.m_dictTag;
-    m_connTag = other.m_connTag;
-    m_key = other.m_key;
-    m_keyFEI4 = other.m_keyFEI4;
-    m_keyCabling = other.m_keyCabling;
-    m_dump_map_to_file = other.m_dump_map_to_file;
-}
-
-////////////////////////
-// Assignment operator
-////////////////////////
-PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
-
-    if (&other != this) {
-        m_mappingType = other.m_mappingType;
-        m_final_mapping_file = other.m_final_mapping_file;
-        m_bandwidth = other.m_bandwidth;
-        m_coraldbconnstring = other.m_coraldbconnstring;
-        m_dictTag = other.m_dictTag;
-        m_connTag = other.m_connTag;
-        m_key = other.m_key;
-        m_keyFEI4 = other.m_keyFEI4;
-        m_keyCabling = other.m_keyCabling;
-        m_dump_map_to_file = other.m_dump_map_to_file;
-    }
-    return *this;
-}
-*/
 
 ////////////////////////
 // destructor
