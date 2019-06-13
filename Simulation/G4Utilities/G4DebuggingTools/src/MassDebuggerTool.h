@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef G4DEBUGGINGTOOLS_G4UA__MASSDEBUGGERTOOL_H
 #define G4DEBUGGINGTOOLS_G4UA__MASSDEBUGGERTOOL_H
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
