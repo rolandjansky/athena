@@ -169,13 +169,19 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # ------------------------------------------------------------
 
-         if InDetFlags.doLowPtRoI():
+         if NewTrackingCuts.mode() == "LowPtRoI" :
 
             # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
-            InputZWindowTracks = SiSPSeededTrackCollectionKey  #list(InputCollections)
-            if InDetFlags.doTRTExtension() :
-               InputZWindowTracks = SiSPSeededTrackCollectionKey #Change!!!
+            if (len(InputCollections) == 0) :
+               InputZWindowTracks = ""
+               print "InputCollections is empty, ZWindowRoI tool needs at least one"
+            else :
+               InputZWindowTracks = InputCollections[0] ##list(InputCollections)
+               print "InputCollections is not empty, ZWindowRoI tool will use the first track colletion in the list"
+               print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
+            #if InDetFlags.doTRTExtension() :
+            #   InputZWindowTracks = InDetKeys.SiSpSeededPixelTracks() ##ExtendedTracksPixelPrdAssociation() ##ExtendedTracks() ##Change!!!
 
             ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                         InputTracksCollection     = InputZWindowTracks,
@@ -331,6 +337,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     TracksLocation     = self.__SiTrackCollection,
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
                                                                     ZWindowRoISeedTool = ZWindowRoISeedTool)
+          #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),

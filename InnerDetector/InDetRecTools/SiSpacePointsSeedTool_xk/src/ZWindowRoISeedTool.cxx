@@ -85,9 +85,10 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
   TrackCollection* tracks;
   std::vector<Trk::Track*> selectedTracks;
   if ( evtStore()->retrieve(tracks, m_input_tracks_collection).isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_input_tracks_collection << " in StoreGate." << endreq;
+    if (msgLvl(MSG::INFO)) msg() << "Could not find TrackCollection " << m_input_tracks_collection << " in StoreGate." << endreq;
     return listRoIs;    
   }
+  ATH_MSG_INFO("Input track collection size "<<tracks->size());
   for ( Trk::Track* trk : tracks->stdcont() ) {
     float theta = trk->perigeeParameters()->parameters()[Trk::theta];
     float ptinv = fabs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);
@@ -102,7 +103,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
     selectedTracks.push_back(trk);
   }
   std::sort(selectedTracks.begin(), selectedTracks.end(), tracks_pt_less_than);
-
+  ATH_MSG_INFO("Selected track collection size "<<selectedTracks.size());
   //create all pairs that satisfy leading pT and delta z0 requirements
   typedef std::vector<Trk::Track*>::iterator iterator_tracks;
   for ( iterator_tracks trk_itr_leading = selectedTracks.begin(); trk_itr_leading != selectedTracks.end(); ++trk_itr_leading ) {
