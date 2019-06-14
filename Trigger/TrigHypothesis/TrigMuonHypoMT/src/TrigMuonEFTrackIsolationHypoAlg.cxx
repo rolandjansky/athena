@@ -128,7 +128,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     }
   } // End of tool algorithm
 
-  ATH_CHECK(printDebugInformation(outputHandle));
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

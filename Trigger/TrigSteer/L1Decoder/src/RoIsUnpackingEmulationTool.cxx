@@ -214,7 +214,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << MSG::dec );      
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
     
     for ( auto th: roi.passedThresholdIDs ) {
       ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains" );
@@ -222,7 +222,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
       
       
       // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail("Thresholds", passedThresholds); // record passing threshold names (for easy debugging)            
-      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     }
   }
   

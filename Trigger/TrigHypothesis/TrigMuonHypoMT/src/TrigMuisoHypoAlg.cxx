@@ -110,7 +110,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     }
   } // End of tool algorithms */
 
-  ATH_CHECK(printDebugInformation(outputHandle));
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute success");
   return StatusCode::SUCCESS;
