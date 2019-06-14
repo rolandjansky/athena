@@ -18,7 +18,7 @@ from logging import getLogger; log = getLogger("DQDefects.db")
 
 from contextlib import contextmanager
 
-from DQUtils import fetch_iovs, write_iovs, IOVSet
+from DQUtils import fetch_iovs, IOVSet
 from DQUtils.channel_mapping import list_to_channelselection
 
 from DQDefects import DEFAULT_CONNECTION_STRING
@@ -86,7 +86,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         else:
             try:
                 tag = tagtype._make(tag)
-            except:
+            except Exception:
                 raise TypeError('tag argument must be a 2-element sequence')
             if len(tag) != 2:
                 raise TypeError('tag argument must be a 2-element sequence')
@@ -224,7 +224,6 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
                 logic.set_evaluation(evaluate_full)
         
         # Figure out if the set of channels will produce too many ranges for COOL
-        filter_channels = None
         if query_channels is not None:
             query_channels = sorted(query_channels)
             query_ranges = list_to_channelselection(query_channels, None, True)
@@ -283,7 +282,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
             self.defects_folder.setupStorageBuffer()
             try:
                 yield
-            except:
+            except Exception:
                 log.warning("Exception raised during DefectsDB.storage_buffer. "
                             "Not flushing storage buffer - but COOL has no way "
                             "to empty it. ")

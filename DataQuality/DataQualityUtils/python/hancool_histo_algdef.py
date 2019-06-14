@@ -2,18 +2,14 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import string, os
-import re
-CWD = os.getcwd()
-import sys
-import pdb
-import ROOT
+import os
+CWD = os.getcwd() # noqa
 from ROOT import gSystem
-os.chdir(CWD)
 
 ## Import the ROOT library for reading han results
-gSystem.Load('libDataQualityUtils')
+gSystem.Load('libDataQualityUtils') # noqa
 from ROOT import dqutils
+os.chdir(CWD)
 
 def ExtractMean( mean_rms ):
     global mean
@@ -260,7 +256,3 @@ def ExtractNEntries( file, rootFolder , histo_string):
     nentries = of.getNEntries(rootFolder, histo_string)
     return nentries
 
-
-
-                                        
-                                                                    
