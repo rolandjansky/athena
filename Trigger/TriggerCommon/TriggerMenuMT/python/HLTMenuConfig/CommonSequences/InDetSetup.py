@@ -227,6 +227,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
 
   from AthenaCommon.DetFlags import DetFlags
   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
+  from SiSpacePointFormation.InDetOnlineMonitor import InDetMonitoringTool
   InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder" + signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
@@ -238,7 +239,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
-                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
+                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
+                                                                    monTool            = InDetMonitoringTool())
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
 
