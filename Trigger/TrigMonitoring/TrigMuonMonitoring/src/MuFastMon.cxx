@@ -612,9 +612,19 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
   // Get mu6 and mu10 chains using TDT
   // ---------------------------------
 
-  Trig::FeatureContainer fc_mu6 = getTDT()->features("HLT_mu6");
-  std::vector<Trig::Combination> combs_mu6 = fc_mu6.getCombinations();
-  std::vector<Trig::Combination>::const_iterator p_comb_mu6;
+  std::vector<Trig::Combination> combs_mu6; //!< R2. To be deprecated
+  using TrigCompositeUtils::LinkInfo;
+  using TrigCompositeUtils::findLink;
+  using TrigCompositeUtils::Decision;
+  std::vector< LinkInfo<xAOD::L2StandAloneMuonContainer> > features_mu6; //!< R3.
+  if (getTDT()->getNavigationFormat() == "TriggerElement") {
+    Trig::FeatureContainer fc_mu6 = getTDT()->features("HLT_mu6");
+    std::vector<Trig::Combination> combs_mu6 = fc_mu6.getCombinations();
+  } else {
+    features_mu6 =  getTDT()->features<xAOD::L2StandAloneMuonContainer>("HLT_mu6", TrigDefs::alsoDeactivateTCs);
+    // TODO only want to get features from container of name "MuonL2SAInfo"
+  }
+
 
   ATH_MSG_DEBUG("isPassed mu6="  << getTDT()->isPassed("HLT_mu6",  TrigDefs::Physics));
 
@@ -792,23 +802,55 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
     float dRmin_mu6 = 1000;
     float forIDroi_eta_mu6 = 0;
     float forIDroi_phi_mu6 = 0;
-	 for(p_comb_mu6=combs_mu6.begin();p_comb_mu6!=combs_mu6.end();++p_comb_mu6) {
-       std::vector<Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
-	      (*p_comb_mu6).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);	
-       if(!fs_MF.size()) continue;
-       const xAOD::L2StandAloneMuonContainer* mf_cont = fs_MF[0];
-       float eta_mf = mf_cont->at(0)->eta();
-       float phi_mf = mf_cont->at(0)->phi();
-       float dR = calc_dR(eta_mf, phi_mf, eta_offl, phi_offl);
-       if( dR < dRmin_mu6 ) {
-	      dRmin_mu6 = dR;
-	      std::vector<Trig::Feature<TrigRoiDescriptor> > fs_roi = 
-	        p_comb_mu6->get<TrigRoiDescriptor>("forID",TrigDefs::alsoDeactivateTEs);	
-       if(!fs_roi.size()) continue;
-	      forIDroi_eta_mu6 = fs_roi.at(0).cptr()->eta();
-	      forIDroi_phi_mu6 = fs_roi.at(0).cptr()->phi();
-       }
+    
+    if (getTDT()->getNavigationFormat() == "TriggerElement") {
+    
+      std::vector<Trig::Combination>::const_iterator p_comb_mu6;
+      for(p_comb_mu6=combs_mu6.begin();p_comb_mu6!=combs_mu6.end();++p_comb_mu6) {
+        std::vector<Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
+            (*p_comb_mu6).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);	
+        if(!fs_MF.size()) {
+          continue;
+        }
+        const xAOD::L2StandAloneMuonContainer* mf_cont = fs_MF[0];
+        float eta_mf = mf_cont->at(0)->eta();
+        float phi_mf = mf_cont->at(0)->phi();
+        float dR = calc_dR(eta_mf, phi_mf, eta_offl, phi_offl);
+        if( dR < dRmin_mu6 ) {
+          dRmin_mu6 = dR;
+          std::vector<Trig::Feature<TrigRoiDescriptor> > fs_roi = 
+              p_comb_mu6->get<TrigRoiDescriptor>("forID",TrigDefs::alsoDeactivateTEs);	
+          if(!fs_roi.size()) {
+            continue;
+          }
+          forIDroi_eta_mu6 = fs_roi.at(0).cptr()->eta();
+          forIDroi_phi_mu6 = fs_roi.at(0).cptr()->phi();
+        }
+      }
+    
+    } else { // getTDT()->getNavigationFormat() == "TrigComposite"
+
+      for(const LinkInfo<xAOD::L2StandAloneMuonContainer>& muLinkInfo : features_mu6) {
+        ATH_CHECK( muLinkInfo.isValid() );
+        const ElementLink<xAOD::L2StandAloneMuonContainer> muEL = muLinkInfo.link;
+        const Decision* muDecision = muLinkInfo.source; 
+        float eta_mf = (*muEL)->eta();
+        float phi_mf = (*muEL)->phi();
+        float dR = calc_dR(eta_mf, phi_mf, eta_offl, phi_offl);
+        if( dR < dRmin_mu6 ) {
+          dRmin_mu6 = dR;
+          const LinkInfo<TrigRoiDescriptorCollection> roiLinkInfo = findLink<TrigRoiDescriptorCollection>(muDecision, "initialRoI");
+          // TODO - check if the R3 trigger will still create the "forID" ROIDescriptor.
+          // (SShaw: In Run2 this was a special ROIDescriptor centred on the L2 muon)
+          ATH_CHECK( roiLinkInfo.isValid() );
+          const ElementLink<TrigRoiDescriptorCollection> roiEL = roiLinkInfo.link;
+          forIDroi_eta_mu6 = (*roiEL)->eta();
+          forIDroi_phi_mu6 = (*roiEL)->phi();
+        }
+      }
     }
+
+
     if( dRmin_mu6 < DR_MATCHED ) {
        float dr   = calc_dR(eta_offl,phi_offl,forIDroi_eta_mu6,forIDroi_phi_mu6);
        float deta = forIDroi_eta_mu6-eta_offl;

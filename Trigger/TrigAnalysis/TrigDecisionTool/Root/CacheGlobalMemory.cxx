@@ -60,6 +60,7 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
 {}
 
 Trig::CacheGlobalMemory::~CacheGlobalMemory() {
+   std::lock_guard<std::mutex> lock(m_cgmMutex);
 
    delete m_unpacker;
 
@@ -82,6 +83,7 @@ Trig::CacheGlobalMemory::~CacheGlobalMemory() {
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias) {
+  std::lock_guard<std::mutex> lock(m_cgmMutex);  
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
@@ -112,7 +114,7 @@ void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup) {
 
 void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
                                      const TrigConf::CTPConfig* ctp) {
-
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   ATH_MSG_DEBUG( "Updating configuration" );
   // store a global reference to the initial answer
   m_confChains = confChains;
@@ -178,33 +180,30 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
     for(auto ch : *m_confChains) {
       if (( ch->level() == "EF" || ch->level() == "HLT") && ch->streams().size()>0 ) {
-	ATH_MSG_DEBUG( "Stream: " << ch->chain_name() << " "
-		       << ch->streams().size() );
-	for(auto stream : ch->streams()) {
-	    if( msgLvl( MSG::DEBUG ) ) {
-	      msg() << " " << stream->stream();
-	    }
-             m_streams[stream->stream()].push_back(ch->chain_name());
-          }
+        ATH_MSG_DEBUG( "Stream: " << ch->chain_name() << " " << ch->streams().size() );
+        for(auto stream : ch->streams()) {
           if( msgLvl( MSG::DEBUG ) ) {
-	    msg() << endmsg;
-	  }
+            msg() << " " << stream->stream();
+          }
+          m_streams[stream->stream()].push_back(ch->chain_name());
+        }
+        if( msgLvl( MSG::DEBUG ) ) {
+          msg() << endmsg;
+        }
       }
       if ( ( ch->level() == "EF" || ch->level() == "HLT") && ch->groups().size()>0 ) {
-	ATH_MSG_DEBUG( "Groups: " << ch->chain_name()
-		       << " " << ch->groups().size() );
-	for(auto& group : ch->groups()) {
-	    if( msgLvl( MSG::DEBUG ) ) {
-	      msg() << " " << group;
-	    }
-	    m_groups[group].push_back(ch->chain_name());
+        ATH_MSG_DEBUG( "Groups: " << ch->chain_name() << " " << ch->groups().size() );
+        for(auto& group : ch->groups()) {
+          if( msgLvl( MSG::DEBUG ) ) {
+            msg() << " " << group;
           }
-	  if( msgLvl( MSG::DEBUG ) ) {
-	    msg() << endmsg;
-	  }
+          m_groups[group].push_back(ch->chain_name());
+        }
+        if( msgLvl( MSG::DEBUG ) ) {
+	        msg() << endmsg;
+	      }
       }
     }
-   
     //
     std::map<std::string, std::vector<std::string> >::iterator mstIt;
     for (mstIt=m_streams.begin(); mstIt != m_streams.end(); mstIt++) {      
@@ -212,8 +211,8 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
       ChGrIt preIt = m_chainGroupsRef.find(key_alias);
       if (  preIt != m_chainGroupsRef.end()) {
-	ATH_MSG_INFO( "Replacing predefined, stream based, chain group: "
-		      << alias );
+        ATH_MSG_INFO( "Replacing predefined, stream based, chain group: "
+          << alias );
         // cg already exists (from previous config, we need to update it)
         preIt->second->m_patterns = mstIt->second;
         updateChainGroup(preIt->second);	
@@ -227,7 +226,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
       ChGrIt preIt = m_chainGroupsRef.find(key_alias);
       if (preIt != m_chainGroupsRef.end()) {
-	ATH_MSG_INFO( "Replacing predefined, config group based, chain "
+        ATH_MSG_INFO( "Replacing predefined, config group based, chain "
 		      << "group: " << alias );
         preIt->second->m_patterns = mstIt->second;
         updateChainGroup(preIt->second);
@@ -253,11 +252,11 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
 const HLT::Chain* Trig::CacheGlobalMemory::chain(const std::string& name) const {
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   auto i = m_efchainsByName.find(name);
   if (i != m_efchainsByName.end()) {
     return i->second;
   }
-
   i = m_l2chainsByName.find(name);
   if ( i != m_l2chainsByName.end() ) {
     return i->second;
@@ -293,6 +292,7 @@ const TrigConf::TriggerItem* Trig::CacheGlobalMemory::config_item(const std::str
 }
 
 float Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   // find items in cache
   if ( m_itemsCache.count(ctpid) == 0 ) {
     ATH_MSG_ERROR( "item of CTP: " << ctpid
@@ -317,6 +317,7 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
 }
 
 const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContainer() const {
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   if(!m_expressStreamContainer){
     StatusCode sc = store()->retrieve(m_expressStreamContainer, "HLT_Express_stream_HLT");
     if(sc.isFailure()){
@@ -327,7 +328,7 @@ const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContai
 }
 
 bool Trig::CacheGlobalMemory::assert_decision() {
-
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
@@ -389,23 +390,21 @@ bool Trig::CacheGlobalMemory::assert_decision() {
 }
 
 StatusCode Trig::CacheGlobalMemory::unpackDecision() {
-  
   ATH_MSG_DEBUG("Unpacking TrigDecision ");
   ATH_MSG_DEBUG("clearing the delete-end-of-event store");
   m_deleteAtEndOfEvent.clear();
   
   bool unpackHLT = ( m_confChains != 0 );
- ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
+  ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
 					m_l2chainsByName, m_l2chainsCache,
 					m_efchainsByName, m_efchainsCache,
 					m_bgCode, unpackHLT ) );
- 
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
-  
+  std::lock_guard<std::mutex> lock(m_cgmMutex);
   // Navigation
   // protect from unpacking in case HLT was not run
   // (i.e. configuration chains are 0)
@@ -422,7 +421,6 @@ StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
       warningPrinted = true;
     }
   }
-  
   // Return gracefully:
   return StatusCode::SUCCESS;
 }

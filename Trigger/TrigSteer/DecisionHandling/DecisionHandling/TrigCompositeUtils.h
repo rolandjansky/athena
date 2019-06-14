@@ -210,12 +210,20 @@ namespace TrigCompositeUtils {
   private:
     std::string m_name;
   };
+
+  /**
+   * @brief
+   * @param[in] eventStore 
+   * @param[out] output
+   * @param[in] id
+   **/
+  StatusCode getRejectedDecisionNodes(EventPtr_t eventStore, std::vector<const Decision*>& output, const DecisionID id = 0) {
   
   /**
    * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
    * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
-   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
+   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    **/
   void recursiveGetDecisions( const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0 );
 

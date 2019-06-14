@@ -246,6 +246,7 @@ StatusCode TrigEDMChecker::initialize() {
   if (m_doTDTCheck) {
     ATH_CHECK( m_trigDec.retrieve() );
     m_trigDec->ExperimentalAndExpertMethods()->enable();
+    ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
 
 	return StatusCode::SUCCESS;
@@ -4018,8 +4019,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
-    const bool isRunThree = evtStore()->contains<xAOD::TrigCompositeContainer>("HLT_Summary");
-    if (isRunThree && passed) {
+    if (m_trigDec->getNavigationFormat() == "TrigComposite" && passed) {
       std::vector< LinkInfo<xAOD::IParticleContainer> > features = m_trigDec->features<xAOD::IParticleContainer>(item);
       ATH_MSG_INFO("    " << item << " IParticle features size: " << features.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : features) {

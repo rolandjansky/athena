@@ -68,7 +68,7 @@ if l1decoder:
     ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
     ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
     ItemList += [ "xAOD::EventInfo#EventInfo" ]
-
+    ItemList += [ "xAOD::EventAuxInfo#EventInfoAux." ]
     ItemList = list(set(ItemList))
 
 else:

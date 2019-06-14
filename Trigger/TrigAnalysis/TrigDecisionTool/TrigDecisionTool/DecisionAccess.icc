@@ -47,6 +47,7 @@ template<class CONTAINER>
 const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,
                                                                   const unsigned int condition,
                                                                   const bool oneFeaturePerLeg) const {
+  // const TrigCompositeUtils::DecisionContainer* terminusNode = SG::get(m_HLTSummaryKeyIn/*, context*/);
   return group->features<CONTAINER>(cgm()->store(), condition, oneFeaturePerLeg);
 }
 

@@ -38,6 +38,7 @@
 
 #endif
 
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 // interface to implement for offline access (outside AtlasTrigger)
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
@@ -108,6 +109,8 @@ namespace Trig {
 
     bool msgLvl(const MSG::Level lvl) const { return Logger::msgLvl(lvl); }
 
+    const std::string& getNavigationFormat() const; //!< Note: Temporary
+
   private:
       
     bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
@@ -127,6 +130,13 @@ namespace Trig {
     bool m_acceptMultipleInstance;
     bool m_useAODDecision;
     std::string m_decisionKey;
+
+    /// @name Run 3 properties
+    /// @{
+    Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TrigComposite", "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
+
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};
+    /// @}
 
     TrigDecisionTool& operator= (const TrigDecisionTool&);
 
