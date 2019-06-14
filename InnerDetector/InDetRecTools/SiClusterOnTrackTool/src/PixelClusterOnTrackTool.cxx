@@ -31,8 +31,6 @@
 #include "StoreGate/ReadCondHandle.h"
 #include <cmath>
 #include "TrkRIO_OnTrack/check_cast.h"
-using CLHEP::mm;
-using CLHEP::micrometer;
 
 //clustermap is most likely to be removed at later date
 #define __clustermap
@@ -324,6 +322,8 @@ InDet::PixelClusterOnTrackTool::correct
 const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correctDefault
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
+  using CLHEP::micrometer;
+
   //  const InDet::SiCluster* SC = dynamic_cast<const InDet::SiCluster*> (&rio);
   const InDet::PixelCluster *pix = nullptr;
 
