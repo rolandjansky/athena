@@ -354,7 +354,7 @@ def muonIDFastTrackingSequence( RoIs ):
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
-  #(viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="_Muon")
+
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF_Muon = TrigFastTrackFinder_Muon()
@@ -637,8 +637,6 @@ def muEFCBRecoSequence( RoIs, name ):
 
   muEFCBRecoSequence += PTSeq
 
-  # to debug the View content
-  muEFCBRecoSequence += CfgMgr.AthViews__ViewTestAlg("view_testMuon")
 
   #Default from FTF
   #trackParticles = "xAODTracks"

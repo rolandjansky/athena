@@ -11,7 +11,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragm
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
-from TrigUpgradeTest.InDetSetup import inDetSetup
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
 #----------------------------------------------------------------
@@ -23,7 +22,6 @@ def electronFastCaloCfg( flags ):
     return fastCaloMenuSequence("ElectronFastCalo")
     
 def fastElectronSequenceCfg( flags ):    
-    inDetSetup()
     return fastElectronMenuSequence()
 
 def precisionCaloSequenceCfg( flags ):

@@ -63,9 +63,6 @@ def fastElectronSequence(ConfigFlags):
     electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
-    # to debug the vView content 
-    electronInViewAlgs += CfgMgr.AthViews__ViewTestAlg("view_testElectron1")
-  
     electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
 

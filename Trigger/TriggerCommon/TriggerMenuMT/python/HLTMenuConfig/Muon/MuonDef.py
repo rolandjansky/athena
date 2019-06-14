@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFInsideOutSequence
 
-#from TrigUpgradeTest.InDetSetup import inDetSetup
+
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -80,8 +80,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     def getStepDictionary(self):
 
-        # Calling inDetSetup here
-#        inDetSetup()
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration

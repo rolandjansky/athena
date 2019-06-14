@@ -30,8 +30,7 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  from TrigUpgradeTest.InDetSetup import inDetSetup
-  inDetSetup()
+
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
   (viewAlgs, eventAlgs) = makeInDetAlgs()

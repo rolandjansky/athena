@@ -23,10 +23,6 @@ def fastCaloSequence(ConfigFlags):
     from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
     (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs)
 
-     # FPP
-    import AthenaCommon.CfgMgr as CfgMgr
-    fastCaloInViewSequence += CfgMgr.AthViews__ViewTestAlg("view_testFastCalo1")
-
      # connect EVC and reco
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)

@@ -28,11 +28,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, Re
 testChains = []
 
 
- 
-
-#from TrigUpgradeTest.InDetSetup import inDetSetup
-#inDetSetup()
-
 
 ##################################################################
 # egamma chains
@@ -134,7 +129,7 @@ if opt.doMuonSlice == True:
 # jet chains
 ##################################################################
 if opt.doJetSlice == True:
-    from TrigUpgradeTest.jetMenuDefs import jetMenuSequenceFromString
+    from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
 
     # small-R jets, different calibrations
     jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")

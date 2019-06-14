@@ -30,7 +30,7 @@ def getBJetSequence( step ):
 
 def bJetStep1Sequence():
 
-    from TrigUpgradeTest.jetMenuDefs import jetRecoSequenceFromString
+    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
     (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
 				 
 
@@ -96,7 +96,7 @@ def bJetStep1Sequence():
 def bJetStep1SequenceALLTE():
 
     # Construct jets
-    from TrigUpgradeTest.jetMenuDefs import jetRecoSequenceFromString
+    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
 	#from TrigUpgradeTest.jetDefs import jetAthSequence
 
 
