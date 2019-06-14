@@ -329,7 +329,7 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
        std::map< int,std::vector<uint16_t> > ovlSamples;
        uint32_t sigHash;
        uint32_t ovlHash;
-       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , true); // real data
+       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , m_isDataOverlay); // need to patch in the case of real data
        uint32_t ovlAddress = this->stripData( ovlData, nOvlSamples, ovlSamples, ovlHash, spuID, j , false); // simulation
        if (sigSamples.size()==0 && ovlSamples.size()==0) continue;
 
