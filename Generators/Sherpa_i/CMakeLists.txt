@@ -36,7 +36,7 @@ atlas_add_component( Sherpa_i
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${SHERPA_LIBRARIES}
    GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
-add_definitions(-DSHERPA_ROOT="${SHERPA_LCGROOT}")
+add_definitions(-DSHERPA_LCGROOT="${SHERPA_LCGROOT}")
 
 atlas_install_joboptions( share/common/*.py )
 
