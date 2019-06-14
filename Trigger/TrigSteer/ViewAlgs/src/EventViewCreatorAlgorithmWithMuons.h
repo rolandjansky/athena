@@ -37,6 +37,7 @@ class EventViewCreatorAlgorithmWithMuons : public EventViewCreatorAlgorithm {
     double m_roiEtaWidth;
     double m_roiPhiWidth;
     bool m_linkToParent;
+    bool m_doFSRoI;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC16-style simulation using the G4FastCalo simulator in AthenaMP
+# art-description: MC16-style simulation using ATLFASTII
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
@@ -16,7 +16,7 @@ Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'G4FastCalo' \
+--simulator 'ATLFASTII' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
