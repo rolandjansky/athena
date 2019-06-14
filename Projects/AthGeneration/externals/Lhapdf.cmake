@@ -3,5 +3,5 @@
 #
 
 set( LHAPDF_VERSION 6.2.1 )
-set( LHAPDF_ROOT
+set( LHAPDF_LCGROOT
    ${LCG_RELEASE_DIR}/MCGenerators/lhapdf/${LHAPDF_VERSION}/${LCG_PLATFORM} )
