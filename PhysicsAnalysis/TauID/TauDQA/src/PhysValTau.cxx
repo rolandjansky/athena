@@ -37,14 +37,20 @@ PhysValTau::PhysValTau(const std::string& type,
 		       const std::string& name, 
                        const IInterface* parent) : 
    ManagedMonitorToolBase(type, name, parent),
-   m_truthTool("TauTruthMatchingTool"),
-   m_primTauSel("PrimitiveTauSelectionTool"),
-   m_nomiTauSel("NominalTauSelectionTool")
+   m_truthTool("TauAnalysisTools::TauTruthMatchingTool/"
+	       "TauTruthMatchingTool", this),
+   m_primTauSel("TauAnalysisTools::TauSelectionTool/"
+		"PrimitiveTauSelectionTool", this),
+   m_nomiTauSel("TauAnalysisTools::TauSelectionTool/"
+		"NominalTauSelectionTool", this)
 {
    declareProperty("TauContainerName", m_TauJetContainerName = "TauRecContainer");
    declareProperty("TruthParticleContainerName", m_TruthParticleContainerName = "TruthParticle");
    declareProperty("TauDetailsContainerName", m_TauDetailsContainerName = "TauRecDetailsContainer");
    declareProperty("isMC", m_isMC = false);
+   declareProperty("TauTruthMatchingTool", m_truthTool);
+   declareProperty("PrimitiveTauSelectionTool", m_primTauSel);
+   declareProperty("NominalTauSelectionTool", m_nomiTauSel);
 }
 
 // Destructor
@@ -60,30 +66,11 @@ StatusCode PhysValTau::initialize()
    ATH_CHECK(ManagedMonitorToolBase::initialize());
 
    if ( m_isMC ) {
-      CHECK(m_truthTool.setProperty("TruthElectronContainerName",
-      				    "TruthElectrons"));
-      CHECK(m_truthTool.setProperty("TruthMuonContainerName",
-      				    "MuonTruthParticles"));
-      CHECK(m_truthTool.setProperty("WriteTruthTaus", true));
-      CHECK(m_truthTool.sysInitialize());
+      ATH_CHECK(m_truthTool.retrieve());
    }
-   // setup a "primitive" tau selection tool with basically no cuts
-   CHECK(m_primTauSel.setProperty("PtMin",0.0));
-   CHECK(m_primTauSel.setProperty("JetIDWP",int(TauAnalysisTools::JETIDNONE)));
-   CHECK(m_primTauSel.setProperty("EleOLR",false));
-   CHECK(m_primTauSel.setProperty("NTracks",std::vector<int>{0,1,2,3,4,5}));
-   CHECK(m_primTauSel.setProperty("AbsCharges",std::vector<int>{0,1,2,3}));
-   CHECK(m_primTauSel.setProperty("AbsEtaRegion",std::vector<double>{0.0,10.0}));
-   m_primTauSel.msg().setLevel(MSG::DEBUG);
-   CHECK(m_primTauSel.initialize());
-   // setup a "nominal" tau selection tool (just eta and pt cuts)
-   CHECK(m_nomiTauSel.setProperty("PtMin",20.0));
-   CHECK(m_nomiTauSel.setProperty("JetIDWP",int(TauAnalysisTools::JETIDNONE)));
-   CHECK(m_nomiTauSel.setProperty("EleOLR",false));
-   CHECK(m_nomiTauSel.setProperty("NTracks",std::vector<int>{0,1,2,3,4,5}));
-   CHECK(m_nomiTauSel.setProperty("AbsCharges",std::vector<int>{0,1,2,3}));
-   m_nomiTauSel.msg().setLevel(MSG::DEBUG);
-   CHECK(m_nomiTauSel.initialize());
+   // selections are configured in PhysicsValidation job options
+   ATH_CHECK(m_primTauSel.retrieve());
+   ATH_CHECK(m_nomiTauSel.retrieve());
    
    return StatusCode::SUCCESS;
 }
@@ -107,7 +94,7 @@ StatusCode PhysValTau::bookHistograms()
 
 StatusCode PhysValTau::fillHistograms()
 {
-    
+
    ATH_MSG_INFO ("Filling hists " << name() << "...");
 
    // Retrieve tau container:
@@ -135,8 +122,8 @@ StatusCode PhysValTau::fillHistograms()
    // Loop through reco tau jet container
    for (auto tau : *taus) {
       if ( m_detailLevel < 10 ) continue;
-      if ( m_primTauSel.accept(*tau) ) continue;
-      asg::AcceptData nominal = m_nomiTauSel.accept(*tau);
+      if ( !static_cast<bool>(m_primTauSel->accept(*tau)) ) continue;
+      bool nominal = static_cast<bool>(m_nomiTauSel->accept(*tau));
       
       // fill histograms for reconstructed taus
       m_oTauValidationPlots->m_oRecoTauAllProngsPlots.fill(*tau);
@@ -171,12 +158,11 @@ StatusCode PhysValTau::fillHistograms()
       if ( !m_isMC ) continue;
       
       ATH_MSG_DEBUG("Trying to truth-match tau");
-      auto trueTau = m_truthTool.getTruth(*tau);
+      auto trueTau = m_truthTool->getTruth(*tau);
 
       // Fill truth and fake histograms
       if ( (bool)tau->auxdata<char>("IsTruthMatched") ) {
       	 ATH_MSG_DEBUG("Tau is truth-matched");
-	 // std::cout << "Truth pdgId = " << trueTau->pdgId() << std::endl; 
 	 if ( trueTau->isTau() ) {
 	    if ( (bool)trueTau->auxdata<char>("IsHadronicTau") ) {
 	       ATH_MSG_DEBUG("Tau is hadronic tau");
@@ -209,7 +195,7 @@ StatusCode PhysValTau::fillHistograms()
 	       }
 
 	       xAOD::TauJetParameters::DecayMode trueMode
-		  = m_truthTool.getDecayMode(*trueTau);
+		  = m_truthTool->getDecayMode(*trueTau);
 	       m_oTauValidationPlots->m_oMigrationPlots.fill(*tau, trueMode);
 	       if ( nominal ) {
 		  m_oTauValidationPlots->m_oMigrationPlotsNom.fill(*tau, trueMode);
@@ -226,7 +212,6 @@ StatusCode PhysValTau::fillHistograms()
 	    if ( truth->status() != 1 ) continue;
 	    if ( truth->pt() < 10000.0 ) continue;
 	    if ( tau->p4().DeltaR(truth->p4()) > 0.2 ) continue;
-	    std::cout << "Found electron!" << std::endl;
 	    // OK, now it probably is an electron
 	    isElectron = true;
 	    break;
