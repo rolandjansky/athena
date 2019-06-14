@@ -152,6 +152,11 @@ def _createCfgFlags():
         return createEgammaConfigFlags()
     _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
 
+    def __pflow():
+        from eflowRec.PFConfigFlags import createPFConfigFlags
+        return createPFConfigFlags()
+    _addFlagsCategory(acf,"PF",__pflow)
+
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
         dqf = createDQConfigFlags()
