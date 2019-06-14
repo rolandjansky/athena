@@ -92,18 +92,17 @@ if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
    reducedJetList.append("AntiKt4TruthWZJets")
    reducedJetList.append("AntiKt4TruthJets")  
-   replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
+replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
+addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
 
-updateJVT_xAODColl("AntiKt4EMTopo")
-addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
+#updateJVT_xAODColl("AntiKt4EMTopo")
+#addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 # alias for VR
 #BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=True)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
@@ -137,30 +136,25 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "TauJets",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
                                        "AntiKt4TruthWZJets",
-                                       "AntiKt4TruthJets"
+                                       "AntiKt4TruthJets",
+                                       "BTagging_AntiKt2Track"
                                       ]
 
 
-#PHYSSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
-#                                      "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-#                                      "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex"
-#                                    ]
-
 # Trigger content
 PHYSSlimmingHelper.IncludeTriggerNavigation = False
-PHYSSlimmingHelper.IncludeJetTriggerContent = True
+PHYSSlimmingHelper.IncludeJetTriggerContent = False
 PHYSSlimmingHelper.IncludeMuonTriggerContent = True
 PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
-PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-PHYSSlimmingHelper.IncludeJetTriggerContent = True
+PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
 PHYSSlimmingHelper.IncludeTauTriggerContent = True
-PHYSSlimmingHelper.IncludeEtMissTriggerContent = True
-PHYSSlimmingHelper.IncludeBJetTriggerContent = True
-PHYSSlimmingHelper.IncludeBPhysTriggerContent = True
+PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
+PHYSSlimmingHelper.IncludeBJetTriggerContent = False
+PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
 PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
-addJetOutputs(PHYSSlimmingHelper,["PHYS"])
+#addJetOutputs(PHYSSlimmingHelper,["PHYS"])
 
 # Truth containers
 PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
@@ -189,8 +183,10 @@ PHYSSlimmingHelper.AllVariables = ["MET_Truth",
                                    "TruthBoson",
                                    "TruthWbosonWithDecayParticles",
                                    "TruthWbosonWithDecayVertices"]
+
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
-                                     "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
+                                     "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection",
+                                     "AntiKt2PV0TrackJets.pt.eta.phi.m"]
 
 # Add trigger matching
 PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
