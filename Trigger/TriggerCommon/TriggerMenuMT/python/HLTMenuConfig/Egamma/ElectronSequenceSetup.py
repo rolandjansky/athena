@@ -34,7 +34,9 @@ def fastElectronSequence(ConfigFlags):
     for viewAlg in viewAlgs:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
-      
+            TrackCollection = viewAlg.TrackName
+
+    theFTF.TracksName=TrackCollection
       
     from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
     theElectronFex= L2ElectronFex_1()
