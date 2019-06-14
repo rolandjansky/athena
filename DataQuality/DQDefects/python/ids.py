@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.defect_ids")
 
-from bisect import bisect
-from copy import copy
 from ctypes import Union, Structure, c_uint
 
 from DQUtils.channel_mapping import get_channel_ids_names
 
-from .exceptions import (DefectExistsError, DefectUnknownError,
+from .exceptions import (DefectUnknownError,
                          InvalidLogicTagError)
 
 
@@ -53,7 +51,6 @@ def choose_new_defect_id(existing_map, defect_name, virtual=False):
     when none exist yet.
     """
     existing = sorted(_ for _ in existing_map.itervalues() if not isinstance(_, basestring))
-    print existing
     if len(existing) == 0:
         newid = 0
     else:
@@ -66,7 +63,7 @@ def choose_new_defect_id(existing_map, defect_name, virtual=False):
             newid = existing[-1] + 1
     did = DefectID(newid)
     did.is_virtual=virtual
-    log.info("Chose new id: %r", did)
+    log.debug("Chose new id: %r", did)
     return int(did)
 
 class DefectsDBIDsNamesMixin(object):

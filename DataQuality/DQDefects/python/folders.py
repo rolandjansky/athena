@@ -1,17 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.folders")
-
-from PyCool import cool
-ST = cool.StorageType
-FV = cool.FolderVersioning
 
 from DQUtils import Databases
 
 from DQDefects import (DEFECTS_FOLDER, DEFECT_FOLDER_DESC, DEFECT_LOGIC_FOLDER, 
                        DEFECT_LOGIC_FOLDER_DESC, PARENT_FOLDERSET)
 
-from .exceptions import InvalidDefectTagError, InvalidLogicTagError
+from PyCool import cool
+ST = cool.StorageType
+FV = cool.FolderVersioning
 
 class DefectsDBFoldersMixin(object):
     """

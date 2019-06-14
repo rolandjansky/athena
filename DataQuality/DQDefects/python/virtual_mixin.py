@@ -199,7 +199,7 @@ class DefectsDBVirtualDefectsMixin(object):
             
             logics = [self.virtual_defect_logics[d] for d in defects]
         
-        class MasterNode:
+        class MasterNode(object):
             dependencies = logics
             
         resolved = _resolve_dependencies(MasterNode)
