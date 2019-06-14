@@ -111,6 +111,11 @@ namespace asg {
    }
 
    template< typename T >
+   StatusCode SgTEvent::record( std::unique_ptr<T> pobj, const std::string& name ) {
+     return record( pobj.release(), name );
+   }
+
+   template< typename T >
    StatusCode SgTEvent::record( T* pobj, const std::string& name ) {
 
       // Make sure the object is initialised:

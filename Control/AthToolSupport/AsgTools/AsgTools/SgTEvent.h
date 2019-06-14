@@ -4,6 +4,7 @@
 #define ASGTOOLS_SGTEVENT_H
 
 // System include(s):
+#include <memory>
 #include <string>
 
 // Local include(s):
@@ -70,6 +71,10 @@ namespace asg {
       /// Retrieve a container from the input file or the memory
       template< typename T >
       StatusCode retrieve( const T*& pobj, const std::string& name ) const;
+
+      /// Record an object/container using a smart pointer for ownership
+      template< typename T >
+      StatusCode record( std::unique_ptr<T> pobj, const std::string& cname );
 
       /// Record an object/container
       template< typename T >
