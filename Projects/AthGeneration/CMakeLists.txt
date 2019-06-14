@@ -30,6 +30,17 @@ find_package( AtlasCMake QUIET )
 find_package( AthGenerationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Additional externals needed for the build/runtime:
+find_package( Xrootd )
+find_package( GSL )
+find_package( Davix )
+find_package( PNG )
+find_package( BLAS )
+
+# AIDA dependency, because Gaudi needs it
+# Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
+find_package( AIDA )
+
 # Temporarily setting additional compile flags here:
 add_definitions( -DGENERATIONBASE )
 
