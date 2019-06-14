@@ -18,6 +18,7 @@ TileNtuple.TileRawChannelContainerOpt  = ""
 TileNtuple.TileRawChannelContainerQIE  = ""
 TileNtuple.TileRawChannelContainerOF1  = ""
 TileNtuple.TileRawChannelContainerMF = ""
+TileNtuple.TileRawChannelContainerWiener = ""
 TileNtuple.TileRawChannelContainerDsp  = ""
 TileNtuple.TileLaserObject = ""
 TileNtuple.TileMuRcvRawChannelContainer= ""
@@ -86,6 +87,9 @@ else:
 
     if doTileMF:
         TileNtuple.TileRawChannelContainerMF = "TileRawChannelMF"
+
+    if doTileWiener:
+        TileNtuple.TileRawChannelContainerWiener = "TileRawChannelWiener"
 
     if useTMDB:
         TileNtuple.TileMuRcvRawChannelContainer = "MuRcvRawChCnt"

@@ -53,7 +53,8 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_useZPointingCnst(false),
     m_usePassNear(false),
     m_usePassWithTrkErr(false),
-    m_useMagFieldRotation(false)
+    m_useMagFieldRotation(false),
+    m_ErrMtx(nullptr)
    {
     declareInterface<IVertexFitter>(this);
     declareInterface<ITrkVKalVrtFitter>(this);

@@ -46,13 +46,13 @@ RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string&
   AthAlgTool(type,name,parent),
   m_defaultRamo( 1 ),
   m_defaultEField( 1 ),
+  m_EfieldInterpolator(""),
   m_betaElectrons(4.5e-16),
   m_betaHoles(6.0e-16),
-  m_EfieldInterpolator(nullptr),
   m_saveDebugMaps(false),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0)
+  m_rndmEngine(nullptr)
 { 
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in RadDamageUtil");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
@@ -239,12 +239,10 @@ double RadDam::RadDamageUtil::weighting2D(double x, double z, double Lx, double 
 //=========================================
 // G E N E R A T E   E - F I E L D   M A P
 //=========================================
-const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDetDD::PixelModuleDesign* module  ){
+const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F*& eFieldMap, InDetDD::PixelModuleDesign* module  ){
 
     //TODO: from DB
     double biasVoltage          = 600.;
-    double depletionVoltage     = 80.;
-    double depletionLength      = 0.2;
     double sensorThickness      = module->thickness(); //default should be 0.2?
     double fluence              = 8.;//*e14 neq/cm^2 
     eFieldMap = new TH1F("hefieldz","hefieldz",200,0,sensorThickness*1e3);
@@ -291,7 +289,7 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
   return StatusCode::SUCCESS;
 }
 
-StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence,  double biasVoltage, int layer, std::string TCAD_list, bool interpolate ){
+StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::PixelModuleDesign* /*module*/, double fluence,  double biasVoltage, int layer, std::string TCAD_list, bool interpolate ){
 
     TString id;
     //TODO adapt saving location for documentation of E field interpolation
@@ -379,7 +377,6 @@ const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* &distance
     ATH_MSG_DEBUG ("Did not find time and/or distance maps.  Will compute them from the E-field map..");
 
     for (int i=1; i<= distanceMap_e->GetNbinsX(); i++){ //Loop over initial position of charge carrier (in z)
-	    double z_i = distanceMap_e->GetXaxis()->GetBinCenter(i);
 	    double time_e = 0.; //ns
 	    double time_h = 0.; //ns
 	    double distanceTravelled_e=0; //mm 
