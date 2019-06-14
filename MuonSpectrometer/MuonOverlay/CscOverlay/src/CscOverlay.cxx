@@ -402,8 +402,8 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
             if (measuresPhi) {
               int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
               if (stationEta>0) {
+                ATH_MSG_VERBOSE("FLIP strip. Formerly strip="<<strip<<", now strip="<<49-strip);
                 strip = 49-strip;
-                ATH_MSG_VERBOSE("FLIP strip, now strip="<<strip);
               }
             }
             insertedstrips.insert(strip);//for checks
@@ -428,8 +428,12 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
        //check
        if (readstrips!=insertedstrips){
          ATH_MSG_WARNING("Readstrips != Insertedstrips: ");
-         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
-         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
+         std::ostringstream readstream;
+         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){readstream<<*i<<" ";}
+         ATH_MSG_WARNING(readstream.str());
+         std::ostringstream insertstream;
+         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){insertstream<<*i<<" ";}
+         ATH_MSG_WARNING(insertstream.str());
        }
 
     }
