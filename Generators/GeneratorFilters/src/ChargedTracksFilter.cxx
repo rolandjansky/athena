@@ -13,6 +13,7 @@ ChargedTracksFilter::ChargedTracksFilter(const std::string& name, ISvcLocator* p
   declareProperty("Ptcut", m_Ptmin = 50.0);
   declareProperty("Etacut", m_EtaRange = 2.5);
   declareProperty("NTracks", m_NTracks = 40);
+  declareProperty("NTracksMax", m_NTracksMax = -1);
 }
 
 
@@ -51,9 +52,12 @@ StatusCode ChargedTracksFilter::filterEvent() {
   ATH_MSG_DEBUG("# of tracks " << nChargedTracks <<
                 " with pT >= " << m_Ptmin <<
                 " |eta| < " << m_EtaRange <<
-                " minNTracks = " << m_NTracks);
+                " minNTracks = " << m_NTracks <<
+		" maxNTracks = " << m_NTracksMax);
 
-  // Record passed status
-  setFilterPassed(nChargedTracks > m_NTracks);
+  // Record passed status  
+  setFilterPassed( ((m_NTracksMax == -1) or (nChargedTracks <= m_NTracksMax)) && 
+		   ((m_NTracks    == -1) or (nChargedTracks >= m_NTracks   )) );
+
   return StatusCode::SUCCESS;
 }

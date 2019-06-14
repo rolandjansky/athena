@@ -23,7 +23,10 @@ private:
   double m_EtaRange;
 
   // Minimum number of tracks
-  double m_NTracks;
+  int m_NTracks;
+
+  // Maximum number of tracks
+  int m_NTracksMax;
 
 };
 
