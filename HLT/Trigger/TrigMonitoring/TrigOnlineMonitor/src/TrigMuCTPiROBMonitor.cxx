@@ -457,7 +457,8 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
     if (p_EventInfo) {
       StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
       vecStreamTags.push_back( TriggerInfo::StreamTag(m_debugStreamName,"debug",false) );
-      p_EventInfo->trigger_info()->setStreamTags(vecStreamTags);
+      // FIXME: const_cast
+      const_cast<TriggerInfo*>(p_EventInfo->trigger_info())->setStreamTags(vecStreamTags);
     }
   }
 
