@@ -9,7 +9,7 @@ find_package( Rivet )
 find_package( YODA )
 
 if( RIVET_FOUND AND YODA_FOUND )
-  get_filename_component( _rivetPath "${RIVET_ROOT}" DIRECTORY )
+  get_filename_component( _rivetPath "${RIVET_LCGROOT}" DIRECTORY )
   set( RIVETENVIRONMENT_ENVIRONMENT 
         FORCESET RIVETVER ${RIVET_VERSION} 
         FORCESET YODAVER ${YODA_VERSION}

@@ -3,5 +3,5 @@
 #
 
 set( RIVET_VERSION 2.6.2 )
-set( RIVET_ROOT
+set( RIVET_LCGROOT
    ${LCG_RELEASE_DIR}/MCGenerators/rivet/${RIVET_VERSION}/${LCG_PLATFORM} )

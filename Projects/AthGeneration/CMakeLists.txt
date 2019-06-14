@@ -12,16 +12,16 @@ unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
 set( TDAQ-COMMON_VERSION "02-03-00" )
-set( TDAQ-COMMON_ROOT
+set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
 set( DQM-COMMON_VERSION "01-03-00" )
-set( DQM-COMMON_ROOT
+set( DQM-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
 
 set( TDAQ_PROJECT_NAME "tdaq")
 set( TDAQ_VERSION "07-01-00" )
-set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
+set( TDAQ_ATROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
 
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
@@ -42,7 +42,7 @@ foreach( _external ${_externals} )
    include( ${_external} )
    get_filename_component( _extName ${_external} NAME_WE )
    string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
    unset( _extName )
    unset( _extNameUpper )
 endforeach()
@@ -91,13 +91,13 @@ install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
 
 # Configure and install the post-configuration file:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake

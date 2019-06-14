@@ -9,7 +9,7 @@ find_package( Herwig3 )
 find_package ( ThePEG )
 
 if( HERWIG3_FOUND AND THEPEG_FOUND )
-  get_filename_component( _herwig3Path "${HERWIG3_ROOT}" DIRECTORY )
+  get_filename_component( _herwig3Path "${HERWIG3_LCGROOT}" DIRECTORY )
   set( HERWIG7ENVIRONMENT_ENVIRONMENT 
         FORCESET HERWIG7_PATH ${_herwig3Path}/${LCG_PLATFORM}
         FORCESET HERWIG7VER ${HERWIG3_VERSION} 

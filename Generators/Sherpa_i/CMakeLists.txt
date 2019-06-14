@@ -3,7 +3,8 @@
 ################################################################################
 
 #set( SHERPA_VERSION 2.2.5 )
-#set( SHERPA_ROOT ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${LCG_PLATFORM} )
+#set( SHERPA_ROOT ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${LCG_PLATFORM} 
+)
 #set( SHERPA_ROOT /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/sherpa/${SHERPA_VERSION}/x86_64-slc6-gcc62-opt )
 #set( SHERPA_ROOT /afs/cern.ch/user/f/fsiegert/public/atlas/rel21/sherpa-installation/SHERPA-MC-${SHERPA_VERSION} )
 
@@ -36,7 +37,7 @@ atlas_add_component( Sherpa_i
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${SHERPA_LIBRARIES}
    GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
-add_definitions(-DSHERPA_ROOT="${SHERPA_ROOT}")
+add_definitions(-DSHERPA_ROOT="${SHERPA_LCGROOT}")
 
 atlas_install_joboptions( share/common/*.py )
 

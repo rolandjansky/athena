@@ -3,5 +3,5 @@
 #
 
 set( SHERPA_VERSION 2.2.6p1 )
-set( SHERPA_ROOT
+set( SHERPA_LCGROOT
    ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${LCG_PLATFORM} )
