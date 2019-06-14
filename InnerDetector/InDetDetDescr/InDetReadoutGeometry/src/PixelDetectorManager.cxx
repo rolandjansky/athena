@@ -458,6 +458,12 @@ namespace InDetDD {
   return alignmentChange;
   }
 
+  bool PixelDetectorManager::processSpecialAlignment(const std::string& /*key*/,
+                                                     const CondAttrListCollection* /*obj*/,
+                                                     GeoVAlignmentStore* /*alignStore*/) const {
+    return false;
+  }
+
   // New global alignment folders
   bool PixelDetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame, const CondAttrListCollection* /*obj*/, GeoVAlignmentStore* alignStore) const
   {

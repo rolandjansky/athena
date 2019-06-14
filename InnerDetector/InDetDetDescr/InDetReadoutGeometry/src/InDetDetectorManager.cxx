@@ -251,6 +251,10 @@ namespace InDetDD
             } 
             else if(m_specialFolders.find(key)!=m_specialFolders.end()) {
                 // To Do: do we really need this?
+                // => Yes, this is where the IBL bowing is handled
+
+                ATH_MSG_FATAL("Special folder " << key << " handling requested, but not currently implemented!");
+                return StatusCode::FAILURE;
 
                 /*
                   try {

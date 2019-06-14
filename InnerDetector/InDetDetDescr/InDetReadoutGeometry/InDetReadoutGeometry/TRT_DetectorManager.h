@@ -219,9 +219,15 @@ namespace InDetDD {
     bool processGlobalAlignment(const std::string &, int level, FrameType frame,
                                 const CondAttrListCollection* obj,
                                 GeoVAlignmentStore* alignStore) const;
- 
- private:  
-  
+
+    bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const override;
+
+    bool processSpecialAlignment(const std::string& key,
+                                 const CondAttrListCollection* obj=nullptr,
+                                 GeoVAlignmentStore* alignStore=nullptr) const override;
+
+ private:
+
 
     // Illegal operations:---------------------------------------------------------//
     //                                                                             //
@@ -262,7 +268,6 @@ namespace InDetDD {
 
     // here temporarily
     virtual const TRT_ID *getIdHelper() const;                                             //
-    virtual bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const;
 
     //-----------------------------------------------------------------------------//
   };
