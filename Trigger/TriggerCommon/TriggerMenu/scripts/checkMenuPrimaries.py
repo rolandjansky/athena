@@ -7,6 +7,7 @@ def main():
     log = logging.getLogger("checkMenuPrimaries")
     log.setLevel(logging.INFO)
 
+    TriggerAPI.setRelease("current")
     inconsistent =  TriggerAPI.checkPeriodConsistency(TriggerPeriod.future2e34, TriggerType.ALL)
     if inconsistent:
         log.error("Some items are tighter than primaries but are lacking the 'Primary:20000' tag, please fix")
