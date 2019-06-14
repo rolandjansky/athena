@@ -93,6 +93,7 @@ if (DerivationFrameworkIsMonteCarlo):
    reducedJetList.append("AntiKt4TruthWZJets")
    reducedJetList.append("AntiKt4TruthJets")  
 replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
+addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
 
 #updateJVT_xAODColl("AntiKt4EMTopo")
 #addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
@@ -102,8 +103,6 @@ replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
 #====================================================================
 # alias for VR
 #BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=True)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
