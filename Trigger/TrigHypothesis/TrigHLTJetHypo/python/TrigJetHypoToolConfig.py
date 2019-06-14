@@ -4,8 +4,12 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+
 from  TrigHLTJetHypo.chainDict2jetLabel import (make_simple_label,
-                                                make_vbenf_label)
+                                                make_vbenf_label,
+                                                make_multijetInvmLegacy_label,
+)
+
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 
 from AthenaCommon.Logging import logging
@@ -20,6 +24,9 @@ def  trigJetHypoToolFromDict(chain_dict):
     if 'vbenf' in hypo_scenario_0:
         assert len(chain_dict['chainParts']) == 1
         chain_label = make_vbenf_label(hypo_scenario_0)
+    if hypo_scenario_0.startswith('multijetInvmLegacy'):
+        assert len(chain_dict['chainParts']) == 1
+        chain_label = make_multijetInvmLegacy_label(hypo_scenario_0)
     else:
         chain_label = make_simple_label(chain_dict)
     parser = ChainLabelParser(chain_label)
@@ -89,5 +96,20 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         self.assertFalse(tool.visit_debug) 
 
 
+def _test0():
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+    chainNameDecoder = DictFromChainName.DictFromChainName()
+    chain_name = 'HLT_j0'
+    chain_dict = chainNameDecoder.getChainDict(chain_name)
+    chain_dict['chainParts'][0]['hypoScenario'] = 'multijetInvmLegacySEPmult4SEP35etSEP0eta490SEP1000mass'
+    for d in chain_dict['chainParts']:
+        print d
+
+    tool = trigJetHypoToolFromDict(chain_dict)
+    print 'tool:\n', tool
+    self.assertIsNotNone(tool) 
+    self.assertFalse(tool.visit_debug) 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    _test0()

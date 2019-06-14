@@ -20,7 +20,7 @@ reject_substr_res = re.compile(r'%s' % '|'.join(reject_substr))
 def select_simple_chains(cd):
     """Select chains for which to make an simple chain label.
 
-    Chains selected by reuiring that the signature os 'Jet'. Chains are
+    Chains selected by requiring that the signature os 'Jet'. Chains are
     vetoed if specific substrings occur in any of the chainPartNames"""
 
     chain_parts = [c for c in cd['chainParts'] if c['signature'] == 'Jet']
@@ -39,9 +39,11 @@ def make_simple_label(chain_dict):
     
     cps = select_simple_chains(chain_dict)
     if not cps:
-        raise NotImplementedError(
-            'chain fails substring selection: not "simple": %s' % (
-                chain_dict['chainName']))
+        msg = 'Jet Configuration error: '\
+              'chain fails substring selection: not "simple" '
+        msg +=  chain_dict['chainName']
+
+        raise NotImplementedError(msg)
     
     label = 'simple(['
     for cp in cps:
@@ -76,25 +78,27 @@ def select_vbenf_chains(scenario):
     return ''
 
 
+def args_from_scenario(scenario):
+    separator = 'SEP'
+    
+    args = scenario.split(separator)
+    if len(args) > 1:
+        return args[1:]
+    return ''
+
+
 def make_vbenf_label(scenario):
     """Marshal information from the selected chainParts to create a
-    vbenf label. USe a Reducer for elimination of unusable jets
+    vbenf label. Use a Reducer for elimination of unusable jets
     """
 
-    # toy label for developement: run simple and dijet independently.
+    # toy label for development: run simple and dijet independently.
     # simple makes Et cuts on two jets. Independently (sharing possible)
     # of jets choosean by simple,  the dijet
     # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
     assert scenario.startswith('vbenf')
-    separator = 'SEP'
-    def get_args(scenario):
-        args = scenario.split(separator)
-        if len(args) > 1:
-            return args[1:]
-        return ''
-
-    args = get_args(scenario)
+    args = args_from_scenario(scenario)
     if not args:
         return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900mass, 26dphi)])))'        
     arg_res = [
@@ -155,30 +159,79 @@ def make_vbenf_label(scenario):
       )
     )""" % argvals
 
-    # return """
-    # and
-    # (
-    #   []
-    #   simple
-    #   (
-    #     [(%(etlo).0fet)(%(etlo).0fet)]
-    #   )
-    #   combgen
-    #   (
-    #     [(2)]
-    #     dijet
-    #     (
-    #       [(%(masslo).0fmass, 26dphi)]
-    #     ) 
-    #     simple
-    #     (
-    #       [(10et)(20et)]
-    #     )
-    #   )
-    # )""" % argvals
+
+def make_multijetInvmLegacy_label(scenario):
+    assert scenario.startswith('multijetInvmLegacy')
+
+    arg_res = [
+        re.compile(r'^(?P<key>mult)(?P<val>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>eta)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)$'),
+    ]
+
+    defaults = {
+        'et': ('100', 'inf'),
+        'mass': ('1000', 'inf'),
+        'eta': ('0', '320'),
+        'mult': '4',
+    }
 
 
+    args = args_from_scenario(scenario)
+    argvals = {}
+    while args:
+        assert len(args) == len(arg_res)
+        arg = args.pop()
+        for r in arg_res:
+            m = r.match(arg)
+            if m is not None:
+                arg_res.remove(r)
+                gd = m.groupdict()
+                key = gd['key']
 
+                if key == 'mult':
+                    try:
+                        val = int(gd['val'])
+                    except ValueError:
+                        val = int(defaults[key])
+                    break
+                
+                try:
+                    lo = float(gd['lo'])
+                except ValueError:
+                    lo = defaults[key][0]
+                argvals[key+'lo'] = lo 
+                try:
+                    hi = float(gd['hi'])
+                except ValueError:
+                    hi = defaults[key][1]
+                argvals[key+'hi'] =  hi
+
+    assert len(args) == len(arg_res)
+    assert len(args) == 0
+
+
+    simple_args = 4*'(%(etlo).0fet,%(etalo).0feta%(etahi).0f)' % argvals
+    argvals['simple_args'] = simple_args
+
+    return """
+    and
+    (
+      []
+      simple
+      (
+        [%(simple_args)s]
+      )
+      combgen
+      (
+        [(2)(%(etlo).0fet)]
+        dijet
+        (
+          [(%(masslo).0fmass)]
+        ) 
+      )
+    )""" % argvals
 
 
 def _test0():
@@ -201,13 +254,21 @@ def _test0():
 
 def _test1():
     scenario = 'vbenfSEP81etSEP34mass35SEP503fbet'
-    print scenario
-    print make_vbenf_label(scenario)
+    print 'scenario: ', scenario
+    print 'label: ', make_vbenf_label(scenario)
     print
     scenario = 'vbenf'
-    print scenario, ' - note: no arguments'
-    print make_vbenf_label(scenario)
+    print 'scenario: ',scenario, ' - note: no arguments'
+    print  'label: ', make_vbenf_label(scenario)
 
+def _test2():
+    scenario = 'multijetInvmLegacySEPmult4SEP35etSEP0eta490SEP1000mass'
+    print 'scenario: ', scenario
+
+    print 'label: ',  make_multijetInvmLegacy_label(scenario)
 
 if __name__ == '__main__':
+    print '_test1'
     _test1()
+    print '\n_test2'
+    _test2()
