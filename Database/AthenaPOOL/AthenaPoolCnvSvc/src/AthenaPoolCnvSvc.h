@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_H
@@ -192,6 +192,7 @@ private: // data
    ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    std::size_t     m_streamServer;
+   int m_metadataClient;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:
