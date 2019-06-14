@@ -431,6 +431,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      std::vector<const xAOD::Electron*> goodelectrons;
      std::vector<const xAOD::Muon*> goodmuonsZ;
+     std::vector<const xAOD::Muon*> goodmuonsTP;
      std::vector<CLHEP::HepLorentzVector> goodmuonsJPsi;
      std::vector<Int_t> goodmuonJPsicharge;
 
@@ -526,47 +527,50 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        }
 	 
 	 
-	 ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
-	 ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
-	 ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
-	 ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
-	 ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
-	 if (pVtx) 
-	   ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
-	 ATH_MSG_DEBUG("Muon isBad: " << isBad);
+	   ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
+	   ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
+	   ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
+	   ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
+	   ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
+	   if (pVtx) ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
+	   ATH_MSG_DEBUG("Muon isBad: " << isBad);
 	 
-         if ( m_muonSelectionTool->accept(**muonItr) &&
-              ((*muonItr)->pt() > m_muonPtCut*GeV) &&
-	      m_isolationSelectionTool->accept(**muonItr) &&
-	      fabs(d0sig) < 3 &&
-	      pVtx &&
-	      fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
-	      !isBad
-	      ) {
+       if (m_muonSelectionTool->accept(**muonItr) &&
+           ((*muonItr)->pt() > 0.8*m_muonPtCut*GeV) &&
+	       m_isolationSelectionTool->accept(**muonItr) &&
+	       fabs(d0sig) < 3 &&
+	       pVtx &&
+	       fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
+	       !isBad)
+       {
 
+           goodmuonsTP.push_back(*muonItr);
+           if (((*muonItr)->pt() > m_muonPtCut*GeV))
+           {
              MuZ_N++;
-
-	     m_muon_Pt->Fill((*muonItr)->pt()/GeV, m_evtWeight);
-	     m_muon_Eta->Fill((*muonItr)->eta(), m_evtWeight);
+             m_muon_Pt->Fill((*muonItr)->pt()/GeV, m_evtWeight);
+	         m_muon_Eta->Fill((*muonItr)->eta(), m_evtWeight);
              goodmuonsZ.push_back(*muonItr);
-         }
-         if ( ((*muonItr)->pt() > minptCutJPsi) ) {
-             MuJPsi_N++;
+           }
+       }
 
-             Float_t px = (*muonItr)->p4().Px();
-             Float_t py = (*muonItr)->p4().Py();
-             Float_t pz = (*muonItr)->p4().Pz();
-             Float_t e = (*muonItr)->p4().E();
-             Int_t charge = 0;//(Int_t)((*muonItr)->charge()); // TODO update when xAODMuon-00-06-00
 
-             CLHEP::HepLorentzVector thislepton;
-             thislepton.setPx(px);
-             thislepton.setPy(py);
-             thislepton.setPz(pz);
-             thislepton.setE(e);
-             goodmuonsJPsi.push_back(thislepton);
-             goodmuonJPsicharge.push_back(charge);
-         }
+       if (((*muonItr)->pt() > minptCutJPsi)){
+         MuJPsi_N++;
+         Float_t px = (*muonItr)->p4().Px();
+         Float_t py = (*muonItr)->p4().Py();
+         Float_t pz = (*muonItr)->p4().Pz();
+         Float_t e = (*muonItr)->p4().E();
+         Int_t charge = 0;//(Int_t)((*muonItr)->charge()); // TODO update when xAODMuon-00-06-00
+
+         CLHEP::HepLorentzVector thislepton;
+         thislepton.setPx(px);
+         thislepton.setPy(py);
+         thislepton.setPz(pz);
+         thislepton.setE(e);
+         goodmuonsJPsi.push_back(thislepton);
+         goodmuonJPsicharge.push_back(charge);
+       }
      }
 
      if (thisEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
@@ -582,16 +586,16 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
     for (UInt_t iEle = 0; iEle < allElectrons.size(); iEle++) {
         Float_t pt = allElectrons[iEle]->pt();
         ATH_MSG_DEBUG("Ele pt " << pt);
-        if (! leadingAllEle || pt > leadingAllEle->pt()) {
+        if (!leadingAllEle || pt > leadingAllEle->pt()){
            subleadingAllEle = leadingAllEle;
            leadingAllEle = allElectrons[iEle];
         }
-        else if (! subleadingAllEle || pt > subleadingAllEle->pt()) {
+        else if (!subleadingAllEle || pt > subleadingAllEle->pt()){
            subleadingAllEle = allElectrons[iEle];
         }
      }
 
-     doMuonLooseTP(goodmuonsZ, pVtx);
+     doMuonLooseTP(goodmuonsTP, pVtx);
      doMuonInDetTP(goodmuonsZ, pVtx);
      doEleTP(leadingAllEle, subleadingAllEle, pVtx, thisEventInfo, isBad);
      doEleContainerTP(allElectrons, goodelectrons);
@@ -1240,77 +1244,78 @@ void DQTGlobalWZFinderTool::doMuonTruthEff(std::vector<const xAOD::Muon*>& goodm
   }
 }
 
-void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx) {
+void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsTP, const xAOD::Vertex* pVtx) {
   const xAOD::TrackParticleContainer* idTracks(0);
   evtStore()->retrieve(idTracks, "InDetTrackParticles");
   if (!idTracks) {
     ATH_MSG_FATAL("Unable to retrieve ID tracks to do muon T&P");
     return;
   }
-  for (const auto& tagmu : goodmuonsZ) {
+  for (const auto& tagmu : goodmuonsTP) {
     // only consider trigger-matched tags to avoid bias on probes
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
       if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {
-	matched=true;
-	break;
+	    matched=true;
+	    break;
       }
     }
+
     if (!matched) continue;
     auto tagmup4(tagmu->p4());
     for (const auto& trk : *idTracks) {
-      if (trk->pt() <  m_muonPtCut*GeV || fabs(trk->eta()) > m_muonMaxEta) {
-	continue;
-      }
-      if (fabs((trk->z0()+trk->vz()-pVtx->z())*std::sin(trk->theta())) > 2*mm) {
-	continue;
-      }
+      if (trk->pt() <  m_muonPtCut*GeV || fabs(trk->eta()) > m_muonMaxEta) continue;     
+      if (fabs((trk->z0()+trk->vz()-pVtx->z())*std::sin(trk->theta())) > 2*mm) 	continue;
+      
       auto trkp4(trk->p4());
       Float_t mass = (tagmup4+trkp4).M();
-      if (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV) {
-	bool matched = false;
-	for (const auto& mu2 : goodmuonsZ) {
-	  if (tagmu == mu2) continue;
-	  auto idlink = mu2->inDetTrackParticleLink();
-	  if (*(idlink.cptr()) == trk) {
-	    //if (mu2->author() != 1) { ATH_MSG_WARNING("MATCH WOOO, author " << mu2->author()); };
-	    ATH_MSG_DEBUG("MATCH WOOO, authors " << mu2->allAuthors());
-	    if (trk->charge() != tagmu->charge()) {
-	      m_muloosetp_match_os->Fill(mass); 
+      if (mass < m_zCutLow*GeV || mass > m_zCutHigh*GeV) continue; 
+	  
+      bool matched = false;
+	  for (const auto& mu2 : goodmuonsTP) {
+	    if (tagmu == mu2) continue;
+	    auto idlink = mu2->inDetTrackParticleLink();
+	    if (*(idlink.cptr()) == trk) {
+	      //if (mu2->author() != 1) { ATH_MSG_WARNING("MATCH WOOO, author " << mu2->author()); };
+	      ATH_MSG_DEBUG("MATCH WOOO, authors " << mu2->allAuthors());
+	      (trk->charge() != tagmu->charge()) ? m_muloosetp_match_os->Fill(mass) : m_muloosetp_match_ss->Fill(mass);
+	      matched = true;
+	      break;
 	    } else { 
-	      m_muloosetp_match_ss->Fill(mass); 
-	    }
-	    matched = true;
-	    break;
-	  } else { ATH_MSG_DEBUG("MUON NO MATCH, author " << mu2->author());
-	    ATH_MSG_DEBUG("MUON NO MATCH, pt " << mu2->pt()/GeV << " " << trk->pt()/GeV << " eta " << mu2->eta() << " " << trk->eta());
-}
-	}
-	if (!matched) {
-	  ATH_MSG_DEBUG("NO MATCH BOOO");
-	  ATH_MSG_DEBUG("idtrk pt " << trk->pt()/GeV);
-	  if (trk->charge() != tagmu->charge()) {
-              m_muloosetp_nomatch_os->Fill(mass); 
-	  } else { 
-              m_muloosetp_nomatch_ss->Fill(mass); 
+          ATH_MSG_DEBUG("MUON NO MATCH, author " << mu2->author());	        
+          ATH_MSG_DEBUG("MUON NO MATCH, pt " << mu2->pt()/GeV << " " << trk->pt()/GeV << " eta " << mu2->eta() << " " << trk->eta());
+        }
 	  }
-	}
-      }
+
+	  if (!matched) {
+	    ATH_MSG_DEBUG("NO MATCH BOOO");
+	    ATH_MSG_DEBUG("idtrk pt " << trk->pt()/GeV);
+	    (trk->charge() != tagmu->charge()) ? m_muloosetp_nomatch_os->Fill(mass) : m_muloosetp_nomatch_ss->Fill(mass);
+	  }      
     }
   }
 }
  
-
-
 void DQTGlobalWZFinderTool::doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx) {
   const xAOD::EventInfo* thisEventInfo;
   StatusCode sc = evtStore()->retrieve(thisEventInfo);
-  const xAOD::TrackParticleContainer* msTracks(0);                                                                                                                                                             evtStore()->retrieve(msTracks, "ExtrapolatedMuonTrackParticles");
+
+  const xAOD::TrackParticleContainer* msTracks(0);
+  evtStore()->retrieve(msTracks, "ExtrapolatedMuonTrackParticles");
+
+  const xAOD::TrackParticleContainer* idTracks(0);
+  evtStore()->retrieve(idTracks, "InDetTrackParticles");
+            
+  if (!idTracks) {
+    ATH_MSG_FATAL("Unable to retrieve ID tracks to do muon T&P");
+    return;
+  }
   if (!msTracks) {
     ATH_MSG_FATAL("Unable to retrieve MS tracks to do muon T&P");
     return;
   }
-
+                                        
+                                        
   for (const auto& tagmu : goodmuonsZ) {
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
@@ -1319,34 +1324,47 @@ void DQTGlobalWZFinderTool::doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmu
         break;
       }
     }
-
     if (!matched) continue;
     auto tagmup4(tagmu->p4());
+    // For Every ID track....
     for (const auto& trk : *msTracks) {
-      if (trk->pt() <  m_muonPtCut*GeV || fabs(trk->eta()) > m_muonMaxEta) continue;
-      
+      if (trk->pt() <  m_muonPtCut*GeV || fabs(trk->eta()) > m_muonMaxEta)     
+        continue; 
+      if (fabs((trk->z0()+trk->vz()-pVtx->z())*std::sin(trk->theta())) > 2*mm) 
+        continue;
+                                                                                                            
       auto trkp4(trk->p4());
       Float_t mass = (tagmup4+trkp4).M();
       bool matched = false;
-
+                                                                                                                
       if (mass < m_zCutLow*GeV || mass > m_zCutHigh*GeV) continue;
-      for (const auto& mu2 : goodmuonsZ) {
-        auto mslink = mu2->extrapolatedMuonSpectrometerTrackParticleLink();
-        if (*(mslink.cptr()) == trk) {
-          (trk->charge() != tagmu->charge()) ? static_cast<void>(m_mu_InDet_tp_match_os->Fill(mass)) : static_cast<void>(m_mu_InDet_tp_match_ss->Fill(mass));
-          matched = true;
-          break;
-        }
-      }
+                                                                                                                                
+      //for all ms tracks
+      for (const auto& mu2 : *idTracks) {
+        auto idtrkp4(mu2->p4());
+        auto mstrkp4(trk->p4());
+                                                                                                                                        
+        Float_t dPhi = idtrkp4.DeltaPhi(mstrkp4);
+        Float_t dR = idtrkp4.DeltaR(mstrkp4);
+        Float_t dEta = mstrkp4.Eta() - idtrkp4.Eta();
+        Float_t dPT = mstrkp4.Pt() - idtrkp4.Pt();
+    
+        if (fabs(dPT) < 10000 && dR < 0.05) 
+          matched = true;                
+        
+        if (!matched) 
+          continue;
 
-      if (!matched)  
-        (trk->charge() != tagmu->charge()) ? static_cast<void>(m_mu_InDet_tp_nomatch_os->Fill(mass)) : static_cast<void>(m_mu_InDet_tp_nomatch_ss->Fill(mass));      
+        (trk->charge() != tagmu->charge()) ? static_cast<void>(m_mu_InDet_tp_match_os->Fill(mass)) : static_cast<void>(m_mu_InDet_tp_match_ss->Fill(mass));
+        return; // once a match is found no need to continue
+      }
+                                        
+      // should only reach this point if a match was not made
+      (trk->charge() != tagmu->charge()) ? static_cast<void>(m_mu_InDet_tp_nomatch_os->Fill(mass)) : static_cast<void>(m_mu_InDet_tp_nomatch_ss->Fill(mass));
 
     }
   }
 }
-
-
 
 
 
