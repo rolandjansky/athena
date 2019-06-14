@@ -162,14 +162,6 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
             return conf
          except KeyError:
             pass
-
-       # the following is purely for debugging support and should realistically bomb
-         try:
-            conf = cls.allConfigurables[ name ]
-            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
-                             (name,conf.__class__.__name__,cls.__name__) )
-         except KeyError:
-            pass
       else:
          #Run 3 style config
          #Uncomment this line to verify that RecExCommon doesn't use that
@@ -190,7 +182,9 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
          cls.configurables[ name ] = conf
 
     # update generics super-cache
-      if cls.configurableRun3Behavior==0:
+         if cls.allConfigurables.has_key(name) and conf.getType() != cls.allConfigurables[ name ].getType():
+            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
+                             (name,conf.__class__.__name__,cls.__name__) )
          cls.allConfigurables[ name ] = conf
 
       return conf
