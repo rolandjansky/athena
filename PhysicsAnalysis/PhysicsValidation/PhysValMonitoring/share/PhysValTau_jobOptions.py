@@ -36,20 +36,18 @@ tool1.PrimitiveTauSelectionTool.EleOLR = False
 tool1.PrimitiveTauSelectionTool.NTracks = (0, 1, 2, 3, 4, 5)
 tool1.PrimitiveTauSelectionTool.AbsCharges = (0, 1, 2, 3)
 tool1.PrimitiveTauSelectionTool.AbsEtaRegion = (0.0, 10.0)
-tool1.PrimitiveTauSelectionTool.OutputLevel = DEBUG
 
 # configuration of the 'nominal' tau selection
 tool1.NominalTauSelectionTool.ConfigPath = ""
 tool1.NominalTauSelectionTool.SelectionCuts \
     = int(TauAnalysisTools.CutPt | TauAnalysisTools.CutAbsEta | 
           TauAnalysisTools.CutAbsCharge | TauAnalysisTools.CutNTrack)
-tool1.NominalTauSelectionTool.PtMin = 2000000.0
+tool1.NominalTauSelectionTool.PtMin = 20.0
 tool1.NominalTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
 tool1.NominalTauSelectionTool.EleOLR = False
 tool1.NominalTauSelectionTool.NTracks = (0, 1, 2, 3, 4, 5)
 tool1.NominalTauSelectionTool.AbsCharges = (0, 1, 2, 3)
 tool1.NominalTauSelectionTool.AbsEtaRegion = (0.0, 1.37, 1.52, 2.5)
-tool1.NominalTauSelectionTool.OutputLevel = DEBUG
 
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
