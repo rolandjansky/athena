@@ -41,8 +41,12 @@ public:
 
   MOCK_CONST_METHOD0(position, unsigned int());
   MOCK_CONST_METHOD2(getAttribute, bool (const std::string&, float&));
-  // MOCK_CONST_METHOD0(toString, std::string());
 
+  // Had problems compiling mock method
+  // MOCK_CONST_METHOD0(xAODJet, std::optional<const xAOD::Jet*>);
+  virtual std::optional<const xAOD::Jet*> xAODJet() const override{
+    return std::optional<const xAOD::Jet*> ();
+  }
  private:
   TLorentzVector m_lv;
 

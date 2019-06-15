@@ -7,6 +7,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include <TLorentzVector.h>
+#include "xAODJet/Jet.h"
 
 class TLorentzVectorAsIJet: public HypoJet::IJet {
  public:
@@ -32,6 +33,9 @@ class TLorentzVectorAsIJet: public HypoJet::IJet {
   unsigned int position() const override {return m_position;}
   bool getAttribute(const std::string&, float&) const {return true;}
   std::string toString() const {return "TLorentzVectorAsIJet";}
+  virtual std::optional<const xAOD::Jet*> xAODJet() const override {
+    return std::optional<const xAOD::Jet*>();
+  }
 
  private:
   double m_pt;

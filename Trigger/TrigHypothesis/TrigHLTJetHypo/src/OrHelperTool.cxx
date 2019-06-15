@@ -27,6 +27,7 @@ OrHelperTool::OrHelperTool(const std::string& type,
 
 bool
 OrHelperTool::pass(HypoJetVector& jets,
+		   xAODJetCollector& jetCollector,
 		   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("OrHelperTool::pass... " << jets.size() << " jets");
 
@@ -35,12 +36,12 @@ OrHelperTool::pass(HypoJetVector& jets,
        timer.start();
   }
   
-  bool pass = m_lhs->pass(jets, collector);
+  bool pass = m_lhs->pass(jets, jetCollector, collector);
   if (pass){
     ATH_MSG_DEBUG("LHS passed");
     return pass;
   } else {
-    pass = m_rhs->pass(jets, collector);
+    pass = m_rhs->pass(jets, jetCollector, collector);
     ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
   }    
 
