@@ -110,9 +110,9 @@ LuminosityCondAlg::updateAvgLumi (const CondAttrListCollection& lumiData,
   bunchInstLumiBlob = nullptr;
 
   const coral::AttributeList& attrList = lumiData.attributeList (m_lumiChannel);
-  if (attrList["Valid"].isNull()) {
-    ATH_MSG_ERROR ("Can't find luminosity information for channel " << m_lumiChannel);
-    return StatusCode::FAILURE;
+  if (attrList.size() == 0 || attrList["Valid"].isNull()) {
+    ATH_MSG_DEBUG ("Can't find luminosity information for channel " << m_lumiChannel);
+    return StatusCode::SUCCESS;
   }
 
   if (msgLvl (MSG::DEBUG)) {
