@@ -223,7 +223,7 @@ void Sherpa_i::compilePlugin(std::string pluginCode) {
   FILE *file = fopen("Sherpa_iPlugin.C","w");
   fputs(pluginCode.c_str(),file);
   fclose(file);
-  std::string prefix = SHERPA_ROOT; // from Sherpa_i/CMakeLists.txt compile def
+  std::string prefix = SHERPA_LCGROOT; // from Sherpa_i/CMakeLists.txt compile def
   std::string command;
   // Python -> C++ string conversion seems to add quote character as first
   // and last line if the string contains quotes (like always in a plugin)

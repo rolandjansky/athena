@@ -3,5 +3,5 @@
 #
 
 set( HYDJET_VERSION 1.6 )
-set( HYDJET_ROOT
+set( HYDJET_LCGROOT
    ${LCG_RELEASE_DIR}/MCGenerators/hydjet/${HYDJET_VERSION}/${LCG_PLATFORM} )
