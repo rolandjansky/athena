@@ -4,10 +4,11 @@ m_storingFolder = ""
 m_recordsFileName = ""
 m_athenaVersion = ""
 m_testArea = ""
+m_packagePath = ""
 m_theUser = ""
-m_scriptName = "runzmumu_UserConstants.py"
 m_savingFile = "acZmumu_history.txt"
 m_reconmerge = "merge" #"%"
+m_workDirPlatform = ""
 
 # options
 m_minEvents = 10000
@@ -21,23 +22,21 @@ m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
-m_usingMC = False
 m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
+m_scriptName = "runzmumu_UserConstants.py"
+m_userDataSet = "NONE"
 
 ###################################################################################################
 def findListOfDataSets():
     import os
+    import sys
 
     listOfDataSets = []
-    #ami list datasets data18_13TeV.%.physics_Main.merge.DESDM_ZMUMU%
-    #theAMIsearchCommand = "ami list datasets %s.%%.physics_Main.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
-    #theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
     theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
-    #theAMIsearchCommand = "ami list datasets %s.%%.physics_HardProbes.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
     
-    # case of using MC 
-    if (m_usingMC):
-        theAMIsearchCommand = "ami list datasets %s --order run_number --fields events,nfiles"  %(m_mcDataSetName)
+    # case of using data set provided by the user
+    if ("NONE" not in m_userDataSet):
+        theAMIsearchCommand = "ami list datasets %s --fields events,nfiles"  %(m_userDataSet)
 
     print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
     amiReturn = os.popen(theAMIsearchCommand).readlines()
@@ -50,10 +49,20 @@ def findListOfDataSets():
         if ("events" in theLine):
             lineWithContent = False # remove the header
 
-        if (lineWithContent):
+        if (lineWithContent and "NONE" in m_userDataSet):
             theLine.rstrip() # remove trailing blank spaces
             listOfDataSets.append(theLine) # add this data set
+        
+        if ("NONE" not in m_userDataSet):
+            tempstring = str(m_userDataSet[0:30])
+            if (tempstring in theLine):
+                listOfDataSets.append(m_userDataSet)
     
+    # if user provides the data set name, it may happen (if errors) the data set is not found or does not exist
+    if (len(listOfDataSets) == 0 and "NONE" not in m_userDataSet):
+        print " <acZmumu> ** WARNING ** user data set: %s not found " %m_userDataSet
+        sys.exit(" >> STOP excution")
+
     return listOfDataSets
 
 ###################################################################################################
@@ -98,8 +107,10 @@ def preliminaries ():
     global m_athenaVersion
     global m_testArea
     global m_theUser
+    global m_packagePath
+    global m_workDirPlatform
 
-    m_athenaVersion, m_testArea, m_theUser = getAthenaBasics () 
+    m_athenaVersion, m_testArea, m_theUser, m_packagePath, m_workDirPlatform = getAthenaBasics () 
     m_year = getYear ()
 
     # reports folder
@@ -133,7 +144,7 @@ def extractRunsAndProperties (listOfDataSets):
     # the list of data sets can contain dummy lines
     infoFromAMI = {}
 
-    if (len(listOfDataSets)>0):
+    if (len(listOfDataSets)>0 and ("NONE" in m_userDataSet)):
         print (" <acZmumu> #data sets= %d" %(len(listOfDataSets)))
         # extract data set name
         # first is the data project
@@ -173,8 +184,9 @@ def extractRunsAndProperties (listOfDataSets):
                 infoFromAMI[theRunNumber]["dataset"] = "%s%s" %(infoFromAMI[theRunNumber]["dataset"],theDataSet)
                 continue
     else:
-        print (" <acZmumu> ERROR ** list of data sets is empty. Stop Execution")
-        exit ()
+        if ("NONE" in m_userDataSet):
+            print (" <acZmumu> ERROR ** list of data sets is empty. Stop Execution")
+            exit ()
 
     return infoFromAMI
 
@@ -253,6 +265,35 @@ def crossCheckInfo(infoFromAMI, infoFromRecordsFile):
 
 ###################################################################################################                                                                                
 def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
+    
+    # submitting jobs with real data -> listOfNewRuns must be filled
+    if (len(listOfNewRuns) > 0):
+        submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    
+    # submitting job when the user provides the data set
+    if ("NONE" not in m_userDataSet):
+        submitGridJobsUserDataSet () 
+
+    return
+
+###################################################################################################                                                                                
+def submitGridJobsUserDataSet ():
+    import os
+
+    print " <acZmumu> submitting grid job when user provides the data set name "
+    theCommand = getGridSubmissionCommand(0, infoFromAMI)
+    if (m_submitExec): 
+        print (" <acZmumu> m_submitExec = True --> job to be submmited");
+        # move to the submission folder
+        submissionPath = "%s/run" %(m_testArea) 
+        os.chdir(submissionPath)
+        print (" <acZmumu> path: %s" %(submissionPath))
+        os.system(theCommand)
+
+    return
+
+###################################################################################################                                                                                
+def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     import os
 
     listOfSubmittedRuns = []
@@ -349,6 +390,26 @@ def getAthenaBasics ():
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
         exit()
 
+    workdirplatform = ""
+    try:
+        workdirplatform = os.getenv("WorkDir_PLATFORM","")
+    except:
+        print (" <acZmumu> ERROR ** no WorkDir_PLATFORM defined --> job submission is not possible. STOP execution")
+        exit()
+
+    print " == athenabasics == workdirplatform = %s" %workdirplatform
+
+    packagePath = ""
+    try:
+        thepwd = os.getcwd()
+        thisfoldername = os.path.basename(thepwd)
+        tempList = thepwd.split("athena")
+        tempword = tempList[-1]
+        tempList = tempword.split(thisfoldername)
+        packagePath = tempList[0]
+    except:
+        packagePath = ""
+
     # voms proxy must be initiated
     goodVoms = True
     vomsInfoReturn = os.popen("voms-proxy-info").readlines()
@@ -365,7 +426,7 @@ def getAthenaBasics ():
         print (" <acZmumu> ERROR ** no voms initiated --> It is not possible to consult AMI. Stop execution")
         exit()
 
-    return (athenaVersion, testArea, theUser)
+    return (athenaVersion, testArea, theUser, packagePath, workdirplatform)
 
 ###################################################################################################                                                                                
 def getGridSubmissionCommand(runNumber, infoFromAMI):
@@ -373,13 +434,41 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     # build the command for submission
 
     #theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/runzmumu_run2paper.py" %(m_testArea)
-    theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" %(m_testArea, m_scriptName)
-    theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
-    theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
-    #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged --nFilesPerJob %d" %(infoFromAMI[runNumber]["nfiles"], 20)
-    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --excludedSite=ANALY_HPC2N" %(infoFromAMI[runNumber]["nfiles"])
-    
-    theCommand = "pathena %s %s %s %s" %(theScript, theInput, theOutput, theOptions)
+    #theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" %(m_testArea, m_scriptName)
+    theScript = "%s%sshare/%s" %(m_testArea, m_packagePath, m_scriptName)
+
+    theInput = "NONE"
+    if (runNumber>0):
+        theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
+    else:
+        if ("NONE" not in m_userDataSet):
+            theInput = "--inDS=%s" %m_userDataSet
+    if ("NONE" in theInput):
+        sys.exit(" <acZmumu> ** ERROR ** no input available for the grid submission command. ** STOP execution **")
+
+    theOuput = "NONE"
+    if (runNumber>0):
+        theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
+    else: 
+        if ("NONE" not in m_userDataSet):
+            theOutput = "--outDS=user.%s.%s_Zmumu_%s" %(m_theUser, m_athenaVersion, m_userLabel)
+    if ("NONE" in theOutput):
+        sys.exit(" <acZmumu> ** ERROR ** no output available for the grid submission command. ** STOP execution **")
+
+    # warning: if one wants to limit the file per job just add to the options: --nFilesPerJob Nfiles
+    #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --site=ANALY_ECDF_SL7" %(infoFromAMI[runNumber]["nfiles"])
+
+    theOptions = "NONE"
+    if (runNumber>0):
+        theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+    else: 
+        if ("NONE" not in m_userDataSet):
+            theOptions = "--useShortLivedReplicas  --forceStaged"
+
+    theExtraOptions = "" 
+    theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+
+    theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print "%s " %theCommand
 
     return theCommand
@@ -387,13 +476,14 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
 ###################################################################################################                                                                                
 def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
 
-    print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
-    fileToUpdate = open(m_recordsFileName, "a");
-    fileToUpdate.write("\n")
-    for runNumber in listOfSubmittedRuns:
-        fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
+    if ("NONE" in m_userDataSet):
+        print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
+        fileToUpdate = open(m_recordsFileName, "a");
+        fileToUpdate.write("\n")
+        for runNumber in listOfSubmittedRuns:
+            fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
     
-    fileToUpdate.close()
+        fileToUpdate.close()
 
     return
 
@@ -407,9 +497,6 @@ def welcomeBanner ():
     print ("\n")
     print ("  config:")
     print ("  ** Exec: %r" %m_submitExec)
-    print ("  ** using MC? %r" %m_usingMC)
-    if (m_usingMC):
-        print ("  ** mc data set %s" %m_mcDataSetName)
     print ("  ** data project: %s " %m_dataProject)
     print ("  ** min events: %d"  %m_minEvents)
     print ("  ** min Run: %d"  %m_firstRun)
@@ -421,6 +508,9 @@ def welcomeBanner ():
     if (m_userFiles > 0):
         print ("  ** user requested files: %d" %m_userFiles)
     print ("  ** AMI tag: %s" %m_amitag) 
+    print "  ** script: %s" %m_scriptName
+    if ("NONE" not in m_userDataSet):
+        print "  ** user data set: %s" %m_userDataSet
     print ("\n")
 
     return
@@ -446,22 +536,22 @@ def optParsing():
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
-    p_usingMC = m_usingMC
-    p_mcDataSetName = m_mcDataSetName
+    p_scriptName = m_scriptName
+    p_userDataSet = m_userDataSet
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
     parser.add_option("--dataProject", dest="p_dataProject", help="data project of the data sets (examples: data17_13TeV). Default %s" %(p_dataProject), default = p_dataProject)
+    parser.add_option("--dataSet", dest="p_userDataSet", help="User defined data set. Default %s" %(p_userDataSet), default = p_userDataSet)
     parser.add_option("--dataType", dest="p_dataType", help="User defined data type (examples: DAOD_ZMUMU, DESDM_MCP). Default %s" %(p_dataType), default = p_dataType)
-    parser.add_option("--dataSet", dest="p_mcDataSetName", help="User defined full data set name", default = p_mcDataSetName)
     parser.add_option("--EXEC", dest="p_submitExec", help="Submit the Grid jobs. Default: no submission", action="store_true", default = False)
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
-    parser.add_option("--MC", dest="p_usingMC", help="Use MC. The data set must be provided in full. Default: no MC", action="store_true", default = p_usingMC)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
     parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
     parser.add_option("--physicsType", dest="p_physicsType", help="Physics type to use (physics_Main, Hardprobes...) Default %s" %(p_physicsType), default = p_physicsType)
+    parser.add_option("--script", dest="p_scriptName", help="Name of the python script to be executed. Default %s" %p_scriptName, default = p_scriptName)
     parser.add_option("--userLabel", dest="p_userLabel", help="User defined label. Default %s" %(p_userLabel), default = p_userLabel)
 
     (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -517,8 +607,8 @@ if __name__ == '__main__':
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
-    m_usingMC = config.p_usingMC
-    m_mcDataSetName = config.p_mcDataSetName
+    m_scriptName = config.p_scriptName
+    m_userDataSet = config.p_userDataSet
 
     welcomeBanner ()
     preliminaries ()
