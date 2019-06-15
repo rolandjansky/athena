@@ -289,6 +289,7 @@ class TriggerConfigGetter(Configured):
             self.setupCOOLWriting()
             self.setupxAODWriting()
 
+
         # all went fine we are configured
         return True
 
