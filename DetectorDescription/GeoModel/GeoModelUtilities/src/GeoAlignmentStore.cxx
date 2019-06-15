@@ -6,8 +6,7 @@
 
 void GeoAlignmentStore::setDelta(const GeoAlignableTransform* axf, const GeoTrf::Transform3D& xf)
 {
-  if(!m_deltas.setTransform(axf,xf))
-    throw ExcAlignmentStore("Attempted to overwrite Delta in the Alignment Store");    
+  m_deltas.setTransform(axf, xf);
 }
 
 const GeoTrf::Transform3D* GeoAlignmentStore::getDelta(const GeoAlignableTransform* axf) const
