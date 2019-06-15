@@ -252,6 +252,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   // counter for pt range warnings
   const static int maxNWarn = 10;
   static int nWarn = 0;
+  static int nWarn_ntrk = 0;
 
   // check basic kinematic selection
   if (std::fabs(jet.eta()) > m_jetEtaMax) {
@@ -365,7 +366,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
 	  if(acc_Ntrk.isAvailable(*ungroomedJet)){
 
-	    std::vector<int> NTrkPt500 = acc_Ntrk(*ungroomedJet);
+	    const std::vector<int> NTrkPt500 = acc_Ntrk(*ungroomedJet);
 	    m_accept.setCutResult("ValidJetContent", true);
 	    
 	    int jet_ntrk = NTrkPt500.at(primaryVertex->index());
@@ -374,17 +375,24 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 	      m_accept.setCutResult("PassNtrk",true);
 	  }
 	  else {
-	    ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't have Ntrk of the ungroomed jet available. Please make sure they are in your derivation!!!");
-	    m_accept.setCutResult("ValidJetContent", false);
+	    if(nWarn_ntrk++ < maxNWarn){
+	      ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't have Ntrk of the ungroomed jet available. Please make sure they are in your derivation!!!");
+	      m_accept.setCutResult("ValidJetContent", false);
+	    }
 	  }
         }
         else{
-          m_accept.setCutResult("ValidJetContent", false);
+	  if(nWarn_ntrk++ < maxNWarn){
+	    ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't have the ungroomed jet available. Please make sure they are in your derivation!!!");
+	    m_accept.setCutResult("ValidJetContent", false);
+	  }
         }
       }
       else{
-        ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
-        m_accept.setCutResult("ValidJetContent", false);
+	if(nWarn_ntrk++ < maxNWarn){
+	  ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
+	  m_accept.setCutResult("ValidJetContent", false);
+	}
       }
     }
     else{
