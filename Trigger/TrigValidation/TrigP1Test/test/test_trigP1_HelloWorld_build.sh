@@ -4,7 +4,7 @@
 # art-type: build
 # art-include: master/Athena
 
-export NAME=HelloWorldHLT
+export NAME=HelloWorld
 # use export ART_FILE_NAME=... to set the INPUT_FILE value 
 export ART_CMD="athenaHLT.py -n 10 -f INPUT_FILE AthExHelloWorld/HelloWorldOptions.py"
 export ART_TIMEOUT="20m"
