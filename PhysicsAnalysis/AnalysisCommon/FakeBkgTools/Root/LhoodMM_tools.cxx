@@ -242,11 +242,11 @@ StatusCode LhoodMM_tools::addEventCustom() {
 
     if (particles_it == m_particles.begin() ){
     
-      for(auto& kv : p.real_efficiency.uncertainties)
+      for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.real_efficiency.uncertainties)
         {
 	  ATH_MSG_DEBUG("real eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
         }
-for(auto& kv : p.fake_efficiency.uncertainties)
+for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.fake_efficiency.uncertainties)
         {
 	  ATH_MSG_DEBUG("fake eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
         }
@@ -1721,7 +1721,7 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
       std::vector<UShort_t> r_systUIDvec = std::vector<UShort_t>(); 
       std::vector<float> r_systUpvec = std::vector<float>(); 
       std::vector<float> r_systDownvec = std::vector<float>(); 
-      for (systIter = r.begin(); systIter != r.end(); systIter++) {
+       for (systIter = r.begin(); systIter != r.end(); systIter++) {
 	r_systUIDvec.push_back(systIter->first);
 	r_systUpvec.push_back(systIter->second.up);
 	r_systDownvec.push_back(systIter->second.down);
