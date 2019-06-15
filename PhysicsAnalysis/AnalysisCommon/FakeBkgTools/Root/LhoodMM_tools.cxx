@@ -237,8 +237,9 @@ StatusCode LhoodMM_tools::addEventCustom() {
     isTight_vals.push_back(p.tight);
     realEff_vals.push_back(p.real_efficiency);
     fakeEff_vals.push_back(p.fake_efficiency);
-     auto r_eff = p.real_efficiency.value(this);
-     auto f_eff = p.fake_efficiency.value(this);
+    double r_eff = p.real_efficiency.value(this);
+    double f_eff = p.fake_efficiency.value(this);
+
     if (particles_it == m_particles.begin() ){
     
       for(auto& kv : p.real_efficiency.uncertainties)
