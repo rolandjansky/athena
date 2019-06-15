@@ -250,27 +250,22 @@ namespace InDetDD
                 }
             } 
             else if(m_specialFolders.find(key)!=m_specialFolders.end()) {
-                // To Do: do we really need this?
-                // => Yes, this is where the IBL bowing is handled
-
-                ATH_MSG_FATAL("Special folder " << key << " handling requested, but not currently implemented!");
-                return StatusCode::FAILURE;
-
-                /*
-                  try {
+                try {
                   // Detector specific alignments
-                  bool status = processSpecialAlignment(key, aligninfo.AlignFolder(),alignStore);
+                  const CondAttrListCollection *obj =
+                    static_cast<const CondAttrListCollection*>(alignObj.second);
+                  bool status = processSpecialAlignment(key, obj, alignStore);
                   alignmentChange = (alignmentChange || status);
-                  } 
-                  catch(std::runtime_error& err) {
-                  // Should always exist if the folder was requested so we return fatal if we could not process the alignment for this key
+                }
+                catch(std::runtime_error& err) {
+                  // Should always exist if the folder was requested so we return fatal if
+                  // we could not process the alignment for this key
                   ATH_MSG_FATAL(err.what());
                   return StatusCode::FAILURE;
-                  }
-                */
+                }
             } 
             else {
-                // Should not be any other keys specified in call back.
+                // Should not be any other keys specified in raw alignment object.
                 ATH_MSG_ERROR("Unrecognized folder name.");
                 return StatusCode::RECOVERABLE;
             }

@@ -133,6 +133,8 @@ StatusCode PixelAlignCondAlg::execute()
     readCdoContainerDynamicL3.emplace(m_readKeyDynamicL3.key(), readCdoDynamicL3);
     ATH_CHECK(m_detManager->align(readCdoContainerDynamicL3, writeCdo.get()));
 
+    // This absolutely needs to go last, since it relies on deltas from other alignment
+    // already be set in the alignment store!!!
     InDetDD::RawAlignmentObjects readCdoContainerDynamicIBL;
     readCdoContainerDynamicIBL.emplace(m_readKeyDynamicIBL.key(), readCdoDynamicIBL);
     ATH_CHECK(m_detManager->align(readCdoContainerDynamicIBL, writeCdo.get()));
