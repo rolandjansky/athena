@@ -146,8 +146,6 @@ std::unique_ptr<CondAttrListCollection> make_run1_attrlist()
   al["LBAvInstLumi"].setValue (1.5f);
   al["LBAvEvtsPerBX"].setValue (10.5f);
   unsigned int valid = (42) << 22;
-  // Round up to next 100.
-  valid = ((valid+99)/100) * 100;
   al["Valid"].setValue (valid);
   attrs->add (0, al);
   return attrs;
@@ -348,7 +346,7 @@ void test2 (ISvcLocator* svcloc)
   assert( data->lbAverageLuminosity() == 1.5 );
   assert( data->lbAverageInteractionsPerCrossing() == 10.5 );
   assert( (data->lbAverageValid() >> 22) == 42 );
-  assert( (data->lbAverageValid() % 100) == 0 );
+  assert( ((data->lbAverageValid()&0x3ff) % 100) == 0 );
   assert( data->muToLumi() == 2.5 );
 
   std::vector<float> vec = data->lbLuminosityPerBCIDVector();
