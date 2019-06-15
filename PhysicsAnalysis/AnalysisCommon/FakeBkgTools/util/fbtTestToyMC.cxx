@@ -588,7 +588,7 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
 
   int nbin = 100;
 
-  TFile* file = TFile::Open(name.c_str(), "RECREATE");
+  std::unique_ptr<TFile> file(TFile::Open(name.c_str(), "RECREATE"));
 
   if(type == 0)
     {

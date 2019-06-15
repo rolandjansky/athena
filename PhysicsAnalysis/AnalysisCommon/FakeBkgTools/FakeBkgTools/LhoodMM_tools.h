@@ -134,8 +134,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
   static double logPoisson(double obs, double pred);
 
   StatusCode addEventCustom(const std::vector<bool>& isTight_vals,
-       const std::vector<Efficiency>& realEff_vals,
-       const std::vector<Efficiency>& fakeEff_vals,
+       const std::vector<FakeBkgTools::Efficiency>& realEff_vals,
+       const std::vector<FakeBkgTools::Efficiency>& fakeEff_vals,
        const std::vector<int>& charges,
        float weight);
 

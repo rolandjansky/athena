@@ -26,6 +26,8 @@
 #endif
 
 using namespace CP;
+using FakeBkgTools::Efficiency;
+using FakeBkgTools::Uncertainty;
 using std::string;
 using std::vector;
 using Clock=std::chrono::high_resolution_clock;

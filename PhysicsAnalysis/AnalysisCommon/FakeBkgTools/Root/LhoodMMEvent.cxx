@@ -8,7 +8,10 @@
 
 #include <stdexcept>
 #include <iostream>
- 
+
+using FakeBkgTools::Efficiency;
+using CP::BaseFakeBkgTool;
+
 void LhoodMMEvent::Init(int nlep, const std::vector<Efficiency>& realEff, const std::vector<Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, double aux, double aux2) {
 
   m_nlep = nlep;
