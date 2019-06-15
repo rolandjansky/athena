@@ -473,13 +473,13 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  if (ievt > 0 &&  (((10*ievt)%nevents ==0) || ievt == nevents -1) ) {
 	    string saveFileName = saveFileNameBase;
 	    saveFileName+=  "_lhm_"+to_string(ievt)+".root";
-	    TFile *saveFile =  new TFile(saveFileName.c_str(), "RECREATE");
+	    std::unique_ptr<TDirectory>saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
 	    cout << "testing save/merge" << endl;
-	    lhmTool.saveProgress(saveFile);
+	    lhmTool.saveProgress(saveFile.get());
 	    saveFile->Close();
 	    saveFileName =  saveFileNameBase+"_asm_"+to_string(ievt)+".root";
-	    saveFile =  new TFile(saveFileName.c_str(), "RECREATE");
-	    asmTool.saveProgress(saveFile);
+	    saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
+	    asmTool.saveProgress(saveFile.get());
 	    saveFile->Close();
 	  }
 	}
