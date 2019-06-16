@@ -1718,17 +1718,14 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
       fnominal[i] = m.fakeEff(i);
       tight[i] = m.isTight(i);
       charge[i] = m.charge(i);
-      boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>::iterator systIter;
       boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> r =  m.realEffObj(i).uncertainties;
       std::vector<UShort_t> r_systUIDvec = std::vector<UShort_t>(); 
       std::vector<float> r_systUpvec = std::vector<float>(); 
       std::vector<float> r_systDownvec = std::vector<float>(); 
-       for (systIter = r.begin(); systIter != r.end(); systIter++) {
-	r_systUIDvec.push_back(systIter->first);
-	r_systUpvec.push_back(systIter->second.up);
-	r_systDownvec.push_back(systIter->second.down);
-	// the following is to mark the end of the systematics on the real efficiency
-	//	if ( systIter != r.end() && systIter == --r.end()) systUp[ictr] = -systUp[ictr];
+      for (const auto syst : r ) {
+	r_systUIDvec.push_back(syst.first);
+	r_systUpvec.push_back(syst.second.up);
+	r_systDownvec.push_back(syst.second.down);
       } 
       r_systUID.push_back(r_systUIDvec);
       r_systUp.push_back(r_systUpvec);
@@ -1738,10 +1735,10 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
       std::vector<UShort_t> f_systUIDvec = std::vector<UShort_t>(); 
       std::vector<float> f_systUpvec = std::vector<float>(); 
       std::vector<float> f_systDownvec = std::vector<float>(); 
-      for (systIter = f.begin(); systIter != f.end(); systIter++) {
-	f_systUIDvec.push_back(systIter->first);
-	f_systUpvec.push_back(systIter->second.up);
-	f_systDownvec.push_back(systIter->second.down);
+      for (const auto& syst : f) {
+	f_systUIDvec.push_back(syst.first);
+	f_systUpvec.push_back(syst.second.up);
+	f_systDownvec.push_back(syst.second.down);
 	// the following is to mark the end of the systematics on the fake efficiency
 	//if ( systIter != f.end() && systIter == --f.end()) systUp[ictr] = -systUp[ictr];
       } 
