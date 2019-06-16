@@ -329,8 +329,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
-  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
-
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
   std::string diLepStr     = "diLepton";

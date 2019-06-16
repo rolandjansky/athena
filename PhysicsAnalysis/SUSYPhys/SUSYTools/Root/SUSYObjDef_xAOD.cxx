@@ -191,7 +191,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_mud0sig(-99.),
     m_muz0(-99.),
     m_mubaselined0sig(-99.),
-    m_mubaselinez0(-99),
+    m_mubaselinez0(-99.),
     m_murequirepassedHighPtCuts(false),
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
