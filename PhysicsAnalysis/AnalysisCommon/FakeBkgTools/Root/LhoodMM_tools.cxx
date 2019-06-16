@@ -1739,8 +1739,6 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 	f_systUIDvec.push_back(syst.first);
 	f_systUpvec.push_back(syst.second.up);
 	f_systDownvec.push_back(syst.second.down);
-	// the following is to mark the end of the systematics on the fake efficiency
-	//if ( systIter != f.end() && systIter == --f.end()) systUp[ictr] = -systUp[ictr];
       } 
       f_systUID.push_back(f_systUIDvec);
       f_systUp.push_back(f_systUpvec);
