@@ -546,7 +546,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon isolation tool
-  if (!m_muonIsolationSFTool.isUserConfigured()) {
+  if (!m_muonIsolationSFTool.isUserConfigured() && !m_muIso_WP.empty()) {
     toolName = "MuonIsolationScaleFactors_" + m_muIso_WP;
 
     std::string tmp_muIso_WP = m_muIso_WP;
@@ -575,7 +575,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   }
 
-  if (!m_muonHighPtIsolationSFTool.isUserConfigured()) {
+  if (!m_muonHighPtIsolationSFTool.isUserConfigured() && !m_muIsoHighPt_WP.empty()) {
     toolName = "MuonHighPtIsolationScaleFactors_" + m_muIsoHighPt_WP;
 
     std::string tmp_muIsoHighPt_WP = m_muIsoHighPt_WP;
@@ -1526,9 +1526,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise Isolation Tool
   if (!m_isoTool.isUserConfigured()) {
     m_isoTool.setTypeAndName("CP::IsolationSelectionTool/IsoTool");
-    ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP) );
-    ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP ) );
-    ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP ) );
+    ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP.empty()    ? "Gradient" : m_eleIso_WP) );
+    ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP.empty()     ? "FCLoose" : m_muIso_WP) );
+    ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP.empty() ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoTool.retrieve() );
   }
@@ -1544,9 +1544,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_isoHighPtTool.isUserConfigured()) {
     m_isoHighPtTool.setTypeAndName("CP::IsolationSelectionTool/IsoHighPtTool");
-    ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP) );
-    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP ) );
-    ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP ) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP.empty() ? "Gradient" : m_eleIsoHighPt_WP) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP.empty()  ? "FCLoose" : m_muIsoHighPt_WP ) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP.empty()    ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoHighPtTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoHighPtTool.retrieve() );
   }
