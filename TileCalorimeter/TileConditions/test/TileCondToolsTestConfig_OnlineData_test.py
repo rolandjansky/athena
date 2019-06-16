@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Common.isOnline = True
+    ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
     acc = ComponentAccumulator()

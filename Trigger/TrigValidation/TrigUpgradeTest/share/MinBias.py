@@ -4,9 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
-
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
 eventAlgs,viewAlgs = makeInDetAlgs(whichSignature='FS', separateTrackParticleCreator='MinBias') 
 

@@ -4,7 +4,7 @@
 # art-type: build
 # art-include: master/Athena
 
-export NAME=HelloWorldHLT_forkAndMT
+export NAME=HelloWorld_forkAndMT
 # use export ART_FILE_NAME=... to set the INPUT_FILE value
 export ART_CMD="athenaHLT.py --nprocs 2 --threads 2 --concurrent-events 2 -n 20 -f INPUT_FILE AthExHelloWorld/HelloWorldOptions.py"
 export ART_TIMEOUT="20m"

@@ -14,7 +14,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCoreTrackSequence, tauPrecisionSequence
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -43,9 +42,6 @@ class TauChainConfiguration(ChainConfigurationBase):
     def assembleChain(self):                            
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
-
-        # Calling inDetSetup here 
-        inDetSetup()
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 

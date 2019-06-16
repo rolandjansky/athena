@@ -18,6 +18,8 @@ TrigConf::L1MenuCondAlg::initialize() {
    if( m_inputType == "none" ) {
       renounce(m_l1MenuOutputKey);
       ATH_MSG_INFO("Configured to not provide an L1 trigger menu"); 
+   } else if ( m_inputType == "file" ) {
+      ATH_MSG_INFO("Configured to provide an L1 trigger menu from " << m_fileName); 
    }
    return StatusCode::SUCCESS;
 }

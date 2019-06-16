@@ -39,7 +39,17 @@ def TileTMDBCondAlgCfg(flags, **kwargs):
         from TileConditions.TileFolders import TileFolders
         folders = TileFolders(isMC = flags.Input.isMC, isOnline = flags.Common.isOnline)
 
-        run = flags.Tile.RunType
+        runType = flags.Tile.RunType
+        runType = runType.upper()
+
+        if runType not in ['PHY', 'PED', 'CIS', 'MONOCIS', 'LAS', 'BILAS']:
+            raise(Exception("Invalid Tile run type: %s" % runType))
+
+        actualRunType = {'PHY' : 'PHY', 'PED' : 'PHY',
+                         'LAS' : 'LAS', 'BILAS' : 'LAS',
+                         'CIS' : 'CIS', 'MONICIS' : 'CIS'}
+
+        run = actualRunType.get(runType, runType)
 
         if flags.IOVDb.DatabaseInstance  == 'CONDBR2':
             thrFolder = folders.addSplitMC('/TILE/ONL01/TMDB/THRESHOLD/' + run, '/TILE/ONL01/TMDB/THRESHOLD/' + run)

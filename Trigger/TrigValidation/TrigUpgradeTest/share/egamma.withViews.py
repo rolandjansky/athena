@@ -8,8 +8,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",

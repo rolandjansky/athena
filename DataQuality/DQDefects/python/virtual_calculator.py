@@ -60,8 +60,8 @@ def calculate_virtual_defects(primary_iovs, evaluation_order,
     (sorted by channelID, then by since)
     """
     
-    if since == None: since = 0
-    if until == None: until = 2**63-1
+    if since is None: since = 0
+    if until is None: until = 2**63-1
     since, until = RunLumi(since), RunLumi(until)
     
     result = defaultdict(IOVSet)

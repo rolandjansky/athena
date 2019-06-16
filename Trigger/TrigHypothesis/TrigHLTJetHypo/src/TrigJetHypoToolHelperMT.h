@@ -29,6 +29,7 @@
 #include "ITrigJetHypoToolConfig.h"
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class TrigJetHypoToolHelperMT:
 public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
@@ -40,7 +41,11 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
   StatusCode initialize() override;
   virtual bool
+
+    // pass - tests wethewr a jet collection passes cuts, and collects
+    // information about the decision.
     pass(HypoJetVector&,
+	 xAODJetCollector&,
 	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;

@@ -304,7 +304,7 @@ def muEFSAFSSequence():
 ######################
 def muEFCBFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker")
+    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker") #can we call it EFCBFSEventViewCreator?
     efcbfsInputMaker.ViewFallThrough = True
     efcbfsInputMaker.ViewPerRoI = True
     efcbfsInputMaker.Views = "MUCBFSViews"

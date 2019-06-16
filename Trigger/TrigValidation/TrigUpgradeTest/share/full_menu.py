@@ -13,14 +13,17 @@ rec.doWriteESD=True
 include("TrigUpgradeTest/testHLT_MT.py")
 
 
+
 ##################################################################
 # Generate the menu
 ##################################################################
+
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 menu = GenerateMenuMT()
+
 
 def signaturesToGenerate():
     TriggerFlags.Slices_all_setOff()

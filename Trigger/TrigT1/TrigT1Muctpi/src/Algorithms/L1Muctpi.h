@@ -15,6 +15,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "TrigT1Interfaces/MuCTPICTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Forward declaration(s):
 namespace TrigConf {
@@ -102,6 +106,9 @@ namespace LVL1MUCTPI {
       static const std::string m_DEFAULT_L1MuctpiStoreLocationTGC;
       static const std::string m_DEFAULT_AODLocID;
       static const std::string m_DEFAULT_RDOLocID;
+
+      
+      SG::WriteHandleKey<LVL1::MuCTPICTP> m_muctpi2CtpKey { LVL1MUCTPI::DEFAULT_MuonCTPLocation };
 
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;

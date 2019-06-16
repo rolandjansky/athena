@@ -73,8 +73,6 @@ def __mon(finalCollName, stepColls=[]):
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
 ### Load data from Muon detectors ###
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags

@@ -48,7 +48,6 @@ class opt :
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')
@@ -80,7 +79,6 @@ if opt.doEmptyMenu == True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doBjetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
@@ -384,6 +382,15 @@ if opt.doL1Unpacking:
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
+
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+  
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------

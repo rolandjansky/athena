@@ -7,6 +7,7 @@
 #include "TrigHLTJetHypo/../src/ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/../src/conditionsFactoryMT.h"
 #include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
+#include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include "TrigHLTJetHypo/../src/MultijetFlowNetworkBuilder.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
@@ -345,11 +346,19 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
   collector.reset(new DebugInfoCollector("mj0"));
+
+  xAODJetCollector jetCollector;
   
-  auto pass = matcher.match(groups.begin(), groups.end(), collector);
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector);
+  
   if (m_debug){collector->write();}
 
   for(auto j : jets){delete j;}
+
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -397,12 +406,20 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj1){
   if(m_debug){
     collector.reset(new DebugInfoCollector("mj1"));
   }
-  
-  auto pass = matcher.match(groups.begin(), groups.end(), collector, m_debug);
+
+  xAODJetCollector jetCollector;
+
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector,
+			    m_debug);
 
   if(m_debug){collector->write();}
   
   for(auto j : jets){delete j;}
+
+  EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
 }
 
@@ -452,12 +469,21 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj2){
   if(m_debug){
     collector.reset(new DebugInfoCollector("mj2"));
   }
-  
-  auto pass = matcher.match(groups.begin(), groups.end(), collector, m_debug);
+
+  xAODJetCollector jetCollector;
+
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector,
+			    m_debug);
 
   if(m_debug){collector->write();}
   
   for(auto j : jets){delete j;}
+
+  EXPECT_TRUE(jetCollector.empty()); // not xAOD jets
+  
   EXPECT_TRUE(*pass);
 }
 
@@ -494,6 +520,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj3){
   auto jets = makeHypoJets(g_jets);
 
   EXPECT_TRUE(jets.size() == 4);
+
   if(m_debug){
     for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
   }
@@ -503,12 +530,18 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj3){
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
   collector.reset(new DebugInfoCollector("mj3"));
-  
-  auto pass = matcher.match(groups.begin(), groups.end(), collector);
+
+  xAODJetCollector jetCollector;
+
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector);
 
   if(m_debug){collector->write();}
   
   for(auto j : jets){delete j;}
+  EXPECT_TRUE(jetCollector.empty()); //not xAOD jets
   EXPECT_TRUE(*pass);
 }
 
@@ -564,11 +597,18 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj4){
     collector.reset(new DebugInfoCollector("mj4"));
   }
 
-  auto pass = matcher.match(groups.begin(), groups.end(), collector, m_debug);
+  xAODJetCollector jetCollector;
+  auto pass = matcher.match(groups.begin(),
+			    groups.end(),
+			    jetCollector,
+			    collector,
+			    m_debug);
 
   if(m_debug){collector->write();}
   
   for(auto j : jets){delete j;}
+
+  EXPECT_TRUE(jetCollector.empty()); // not xAOD jets
   EXPECT_TRUE(*pass);
 }
 

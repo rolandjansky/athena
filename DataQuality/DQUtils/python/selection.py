@@ -2,10 +2,8 @@
 
 from DQUtils.quick_retrieve import make_fieldselection, make_selection_vector
 
-import pyparsing
-
 from pyparsing import (Word, Literal, oneOf, QuotedString, Optional, 
-    operatorPrecedence, opAssoc, nums, alphanums, Regex, StringStart, StringEnd,
+    operatorPrecedence, opAssoc, nums, alphanums, StringStart, StringEnd,
     Combine, CaselessLiteral)
 
 # Taken from "Good usage of setWhitespaceChars" on pyparsing's discussion

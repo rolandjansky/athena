@@ -1034,7 +1034,6 @@ outList = CfgItemList( 'EGAMMA',
     'xAOD::MuonSegmentAuxContainer#MuonSegmentsAux.',
     'xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux.',
     'Muon::TgcPrepDataContainer#TGC_MeasurementsAllBCs',
-    'MuonCaloEnergyContainer#MuonCaloEnergyCollection',
     'DataHeader#StreamESD']
 )
 
