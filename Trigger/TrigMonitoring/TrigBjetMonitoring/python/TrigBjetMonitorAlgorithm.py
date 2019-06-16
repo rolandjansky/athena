@@ -56,8 +56,15 @@ def TrigBjetMonConfig(inputFlags):
 
     ### STEP 4 ###
     # Read in the Bjet trigger chain names
-    from TrigBjetMonitoring import TrigBjetMonitCategory
-    bjet_triglist = TrigBjetMonitCategory.monitoring_bjet
+
+    # Directly from TrigBjetMonitCategory
+    #from TrigBjetMonitoring import TrigBjetMonitCategory
+    #bjet_triglist = TrigBjetMonitCategory.monitoring_bjet
+
+    # From the hltmonList where TrigHLTMonitoring filtered the run type
+    from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
+    bjet_triglist = hltmonList.monitoring_bjet
+
     print bjet_triglist
     expert = []
     shifter = []
