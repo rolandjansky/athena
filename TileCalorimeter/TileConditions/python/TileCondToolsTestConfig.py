@@ -40,6 +40,10 @@ def TileCondToolsTestCfg(flags):
     onlineTimingTool = acc.popToolsAndMerge( TileCondToolOnlineTimingCfg(flags) )
     msg.info(onlineTimingTool)
 
+    from TileOFCConfig import TileCondToolOfcCoolCfg
+    ofcCoolTool = acc.popToolsAndMerge( TileCondToolOfcCoolCfg(flags) )
+    msg.info(ofcCoolTool)
+
     if flags.IOVDb.DatabaseInstance  == 'CONDBR2':
         from TileTMDBConfig import TileCondToolTMDBCfg
         tmdbTool = acc.popToolsAndMerge( TileCondToolTMDBCfg(flags) )
@@ -53,6 +57,15 @@ def TileCondToolsTestCfg(flags):
         from TilePulseShapeConfig import TileCondToolPulseShapeCfg
         pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
         msg.info(pulseShapeTool)
+
+        from TileAutoCorrelationConfig import TileCondToolAutoCrCfg
+        autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
+        msg.info(autoCorrelationTool)
+
+        from TileOFCConfig import TileCondToolOfcCfg
+        ofcTool = acc.popToolsAndMerge( TileCondToolOfcCfg(flags) )
+        msg.info(ofcTool)
+
 
     if not (flags.Input.isMC or flags.Common.isOnline):
         from TileConditions.TileDCSConfig import TileDCSToolCfg
