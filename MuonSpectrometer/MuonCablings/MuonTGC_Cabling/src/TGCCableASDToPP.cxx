@@ -109,6 +109,12 @@ void TGCCableASDToPP::initialize(std::string& filename)
 StatusCode TGCCableASDToPP::updateDatabase()
 {
   if(m_tgcCablingDbTool.retrieve().isFailure()) return StatusCode::FAILURE;
+
+  StatusCode sc = m_tgcCablingDbTool->readASD2PP_DIFF_12FromText();
+  if(!sc.isSuccess()) {
+    return StatusCode::SUCCESS;
+  }
+
   std::vector<std::string> *tmp_ASD2PP_DIFF_12 = m_tgcCablingDbTool->giveASD2PP_DIFF_12();
   if(!tmp_ASD2PP_DIFF_12) return StatusCode::FAILURE;
 
