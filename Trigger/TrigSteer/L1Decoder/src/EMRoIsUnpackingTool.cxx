@@ -22,6 +22,8 @@ EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
 {
 }
 
+using namespace TrigCompositeUtils;
+
 
 StatusCode EMRoIsUnpackingTool::initialize() {
 
@@ -104,7 +106,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 			  
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
 
       std::vector<unsigned> passedThresholdIDs;
       for ( auto th: m_emThresholds ) {
@@ -121,8 +123,8 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	}
       }
       decision->setDetail( "thresholds", passedThresholdIDs );
-      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-      decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
+      decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
   for ( auto roi: *trigRoIs ) {
