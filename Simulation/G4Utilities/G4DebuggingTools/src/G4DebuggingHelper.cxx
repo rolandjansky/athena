@@ -5,6 +5,9 @@
 #include "G4Gamma.hh"
 #include "G4Neutron.hh"
 #include "G4Proton.hh"
+#include "G4PionPlus.hh"
+#include "G4PionMinus.hh"
+#include "G4PionZero.hh"
 
 namespace G4DebuggingHelpers {
 
@@ -19,6 +22,8 @@ namespace G4DebuggingHelpers {
       return "neutron";
     else if (def == G4Proton::Proton())
       return "proton";
+    else if (def == G4PionPlus::PionPlus() || def == G4PionMinus::PionMinus() || def == G4PionZero::PionZero())
+      return "pion";
     return "other";
   }
 

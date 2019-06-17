@@ -2,28 +2,52 @@
 
 from AthenaCommon.Include import include  # to include old style job options
 
-def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
+def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False, setupOutput = False):
 
-    ## print some information about the conditions the simulation
-    ## is running in
+    outputCollections = list()
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger( 'TrigT1CaloFexSim.L1Sim' )
     log.setLevel(logging.INFO)
 
+
+    ## print some information about the conditions the simulation is running in
     from RecExConfig.RecFlags import rec
     from AthenaCommon.GlobalFlags import globalflags, jobproperties
     log.info("Begin setup of L1 Calo Run 3 simulation chain")
-    log.info("rec.read.*     : RDO: %s, ESD: %s, AOD: %s" % (rec.readRDO(), rec.readESD(), rec.readAOD()) )
-    log.info("rec.do*        : RDOTrigger: %s, ESD: %s, AOD: %s" % (rec.doRDOTrigger(), rec.doESD(), rec.doAOD()))
-    log.info("rec.doWrite.*  : ESD: %s, AOD: %s, TAG: %s" % (rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG()) )
-
+    log.info("rec.read.*              : RDO: %s, ESD: %s, AOD: %s" % (rec.readRDO(), rec.readESD(), rec.readAOD()) )
+    log.info("rec.do*                 : RDOTrigger: %s, ESD: %s, AOD: %s" % (rec.doRDOTrigger(), rec.doESD(), rec.doAOD()))
+    log.info("rec.doWrite.*           : ESD: %s, AOD: %s, TAG: %s" % (rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG()) )
+    log.info("globalflags.DataSource  : %s" % globalflags.DataSource())
     from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
     log.info(simflags._context_name)
     simflags.print_JobProperties('tree&value')
 
-    ## Setup the histogramming, if it does not exist yet
 
+    ## SuperCell setup
+    # consistency check:
+    # * on data rerun we need to emulate SuperCells for now
+    # * on MC we need to simulate them (in the previous, HITs->DIGI step)
+    if globalflags.DataSource()=='data':
+        if simflags.Calo.SCellType() != "Emulated":
+            log.error("Running on data and SuperCell-type is set to %s. On data SuperCells currently need to be emulated." % simflags.Calo.SCellType())
+    else:
+        if simflags.Calo.SCellType() == "Emulated":
+            log.warning("Running on simulation and SuperCell-type is set to Emulated. Simulation should run from simulated SuperCells")
+    # if SuperCells are not emulated, they need to be present in the input data
+    from RecExConfig.InputFilePeeker import inputFileSummary
+    if simflags.Calo.SCellType() != "Emulated" \
+       and not ('CaloCellContainer','SCell') in inputFileSummary['eventdata_items']:
+        log.warning("No container 'CaloCellContainer#SCell' available in input data %s. Forcing SuperCell-type to 'Emulated'" % inputFileSummary['file_name'] )
+        simflags.Calo.SCellType.set_Value_and_Lock("Emulated")
+    # printout
+    if simflags.Calo.SCellType() == "Emulated":
+        log.info("Running with emulated SuperCells")
+    else:
+        log.info("Running with simulated SuperCells")
+
+
+    ## Setup the histogramming, if it does not exist yet
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     if not hasattr(svcMgr,"THistSvc"):
         import AthenaCommon.CfgMgr as CfgMgr
@@ -32,33 +56,36 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
     if not hStream in [entry.split()[0] for entry in svcMgr.THistSvc.Output]:
         svcMgr.THistSvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % tuple(simflags.OutputHistFile().split('#')) ]
 
-    ## The L1 simulation algorithms will be added to a special sequence
-    ## It will be merged later into the AthAlgSequence
 
+    ## Compiling the sequence
+    # The L1 simulation algorithms will be added to a special sequence
+    # It will be merged later into the AthAlgSequence
     from AthenaCommon.AlgSequence import AthSequencer, AlgSequence
     l1simAlgSeq = AthSequencer("L1Run3SimulationSequence")
     topSequence = AlgSequence()
 
 
-    ## scheduling eventinfo unless it exists already
+    ## scheduling EventInfo unless it exists already
     from RecExConfig.ObjKeyStore import objKeyStore
     if not objKeyStore.isInInput( "xAOD::EventInfo" ):
         if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
             from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
             topSequence += xAODMaker__EventInfoCnvAlg()
-            pass
     else:
         if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
             topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
-            pass
 
     ## when running on data the ROBDataProviderSvc needs to be setup 
     if  jobproperties.Global.InputFormat() == 'bytestream':
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
+
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
-    doCaloCellCreation = rec.readRDO()
+    # CaloCellGetter schedules the offline CaloCellMaker
+    # CaloCellMaker produces CaloCellContainer#AllCalo
+    # only needed by the LarSCSimpleMaker, when emulating the SuperCells
+    doCaloCellCreation = (rec.readRDO() and simflags.Calo.SCellType() == "Emulated")
     if doCaloCellCreation:
         # Setting up the CaloCell creation
         # turn off the digits->raw channel reconstruction
@@ -80,7 +107,6 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
         topSequence.removeAll()
         for alg in topSequenceSnapshot:
             topSequence += alg 
-
 
 
     ## Setup the provider of the SuperCells
@@ -125,35 +151,51 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
 
+        #include L1Topo Simulation
+        if simflags.Topo.RunTopoAlgorithms():
+
+            if 'L1TopoSimulation' not in algseq:
+                from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+                include ( "TrigT1CaloFexSim/EnableTopoAlgorithms.py" )
+                enableL1TopoSimulation()
+
     # Schedule CTP Simulation
     if not skipCTPEmulation and simflags.CTP.RunCTPEmulation():
         from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
         enableCTPEmulation(l1simAlgSeq)
 
-    #algSequence = AthSequencer("AthAlgSeq")
+    if useAlgSequence:
+        sequence = AthSequencer("AthAlgSeq") # everything is added to the AthAlqSequence (which is then put in front of everything) 
+    else:
+        sequence = AlgSequence() # everything is added to the topSequence
+
     for alg in l1simAlgSeq:
-        topSequence += alg
+        sequence += alg
     l1simAlgSeq.removeAll()
+
+
 
     if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")
         from AthenaCommon.AlgSequence import dumpSequence
-        dumpSequence(topSequence)
+        dumpSequence(sequence)
 
 
-    ## Configure the output content
-    if rec.doWriteAOD():
-        from TrigT1CaloFexSim.SetupOutput import fillAOD
-        stream = fillAOD( SuperCellContainer=SCIn,
-                          WriteAllCalo=False)
+    ## Configure the output content if requested
+    # usually this is done as part of the framework according to TrigEDMConfig/TriggerEDM.py
+    if setupOutput:
+        if rec.doWriteAOD():
+            from TrigT1CaloFexSim.SetupOutput import fillAOD
+            stream = fillAOD( SuperCellContainer=SCIn,
+                              WriteAllCalo=False, otherOutput = outputCollections)
 
-    if rec.doRDOTrigger():
-        from TrigT1CaloFexSim.SetupOutput import fillRDO
-        stream = fillRDO( SuperCellContainer=SCIn,
-                          WriteAllCalo=False)
+        if rec.doRDOTrigger():
+            from TrigT1CaloFexSim.SetupOutput import fillRDO
+            stream = fillRDO( SuperCellContainer=SCIn,
+                              WriteAllCalo=False, otherOutput = outputCollections)
 
-    if simflags.EnableDebugOutput():
-        from TrigT1CaloFexSim.SetupOutput import printStreamingInfo
-        printStreamingInfo()
+        if simflags.EnableDebugOutput():
+            from TrigT1CaloFexSim.SetupOutput import printStreamingInfo
+            printStreamingInfo()
 
     log.info("Finished setup of L1 Calo Run 3 simulation chain")

@@ -43,11 +43,11 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
         return containerfiller
 
     filler.HistoTools += [
-        
+
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-
+        selectionAndHistos("40000<pt<50000",["pt"]),
         jhm.Width,
 
         # distances between 2 leading jets.
@@ -56,7 +56,7 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
 
     if "Topo" in container or "PFlow" in container:
         filler.HistoTools += [
-
+         
             # jet states
             jhm.basickinematics_emscale,
             jhm.basickinematics_constscale,
@@ -96,7 +96,7 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
             jhm.TileExt0,
             jhm.TileExt1,
 
-            ]
+	     ]
         
         if refcontainer:
             # efficiency
@@ -105,61 +105,68 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
 
         if "Trimmed" in container:
             filler.HistoTools += [
-                jhm.KtDR,
-                jhm.Tau1,
-                jhm.Tau2,
-                jhm.Tau3,
-                jhm.Tau1_wta,
-                jhm.Tau2_wta,
-                jhm.Tau3_wta,
-                jhm.Tau21,
-                jhm.Tau32,
-                jhm.Tau21_wta,
-                jhm.Tau32_wta,
-                jhm.Dip12,
-                jhm.Dip13,
-                jhm.Dip23,
-                jhm.DipExcl12,
-                jhm.Split12,
-                jhm.Split23,
-                jhm.Split34,
-                jhm.ZCut12,
-                jhm.ZCut23,
-                jhm.ZCut34,
-                jhm.Angularity,
-                jhm.PlanarFlow,
-                jhm.Mu12,
-                jhm.ECF1,
-                jhm.ECF2,
-                jhm.ECF3,
-                jhm.ECF1_Beta2,
-                jhm.ECF2_Beta2,
-                jhm.ECF3_Beta2,
-                jhm.C1,
-                jhm.C2,
-                jhm.D2,
-                jhm.C1_Beta2,
-                jhm.C2_Beta2,
-                jhm.D2_Beta2,
-                jhm.ThrustMin,
-                jhm.ThrustMaj,
-                jhm.FoxWolfram0,
-                jhm.FoxWolfram1,
-                jhm.FoxWolfram2,
-                jhm.FoxWolfram3,
-                jhm.FoxWolfram4,
-                jhm.Sphericity,
-                jhm.Aplanarity,
-                jhm.PullMag,
-                jhm.PullPhi,
-                jhm.Pull_C00,
-                jhm.Pull_C01,
-                jhm.Pull_C10,
-                jhm.Pull_C11,
-                jhm.Charge,
-                jhm.ShowerDeconstructionW,
-                jhm.ShowerDeconstructionTop,
-                jhm.Volatility,
+               
+              #main list of substrcture variables
+              jhm.ECF1,
+              jhm.ECF2,
+              jhm.ECF3,
+              jhm.Tau1_wta,
+              jhm.Tau2_wta,
+              jhm.Tau3_wta,
+              jhm.Split12,
+              jhm.Split23,
+              jhm.NTrimSubjets,
+              jhm.DetectorEta,
+              jhm.TrackSumPt,
+              jhm.TrackSumMass,      
+              jhm.Qw,
+              jhm.PlanarFlow,
+              jhm.FoxWolfram2,
+              jhm.FoxWolfram0,
+              jhm.Angularity,
+              jhm.Aplanarity,
+              jhm.KtDR,
+              jhm.ZCut12,
+              
+              # other substructure variables:
+               jhm.Tau21,
+               jhm.Tau32,
+               jhm.Tau21_wta,
+               jhm.Tau32_wta,
+               jhm.Dip12,
+               jhm.Dip13,
+               jhm.Dip23,
+               jhm.DipExcl12,
+               jhm.Split34,
+               jhm.ZCut23,
+               jhm.ZCut34,
+               jhm.Mu12,
+               jhm.ECF1_Beta2,
+               jhm.ECF2_Beta2,
+               jhm.ECF3_Beta2,
+               jhm.C1,
+               jhm.C2,
+               jhm.D2,
+               jhm.C1_Beta2,
+               jhm.C2_Beta2,
+               jhm.D2_Beta2,
+               jhm.ThrustMin,
+               jhm.ThrustMaj,
+               jhm.FoxWolfram1,
+               jhm.FoxWolfram3,
+               jhm.FoxWolfram4,
+               jhm.Sphericity,
+               jhm.Aplanarity,
+               jhm.PullMag,
+               jhm.PullPhi,
+               jhm.Pull_C00,
+               jhm.Pull_C01,
+               jhm.Pull_C10,
+               jhm.Pull_C11,
+               jhm.Charge,
+               jhm.ShowerDeconstructionW,
+               jhm.ShowerDeconstructionTop,
+               jhm.Volatility,
                 ]
 
     #filler.OutputLevel =2 
@@ -176,15 +183,15 @@ globalSelection = ""
 ###
 
 athenaMonTool = JetMonitoringTool(HistoTools = [
-    commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
+   commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
+   commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
 #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-#   commonPhysValTool( "AntiKt10LCTopoJets" ),
-#   commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-#   commonPhysValTool( "AntiKt2PV0TrackJets" ),
-    commonPhysValTool( "AntiKt4EMPFlowJets" ),
-    commonPhysValTool( "AntiKt4TruthJets" ),
-#    commonPhysValTool( "AntiKt10TruthJets" ),
+   #commonPhysValTool( "AntiKt10LCTopoJets" ),
+    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+   #commonPhysValTool( "AntiKt10PV0TracksJets" ),
+   #commonPhysValTool( "AntiKt10TruthJets" ),
+    commonPhysValTool( "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ),
+   #commonPhysValTool( "AntiKt10TruthWZJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
@@ -193,14 +200,13 @@ if (isMC==False):
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
 #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-#    commonPhysValTool( "AntiKt10LCTopoJets" ),
-#    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+    commonPhysValTool( "AntiKt10LCTopoJets" ),
+    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
 #    commonPhysValTool( "AntiKt2PV0TrackJets" ),
-    commonPhysValTool( "AntiKt4EMPFlowJets" ),
+#    commonPhysValTool( "AntiKt4EMPFlowJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
 ToolSvc += athenaMonTool
 
 def athenaPhysValTool():
     return athenaMonTool
-

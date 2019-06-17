@@ -61,13 +61,12 @@ namespace NSWL1{
     //-------------------------------------
     //S.I : a method should not have so many arguments..
     std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::buildSingleWedgeTriggers(
-        const std::vector< std::shared_ptr<PadOfflineData> > &pads, const std::vector< size_t > &padIndicesLayer0,
-        const std::vector< size_t > &padIndicesLayer1, const std::vector< size_t > &padIndicesLayer2,
-        const std::vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
-        bool isLayer3, bool isLayer4) {
+    const std::vector< std::shared_ptr<PadOfflineData> > &pads, const std::vector< size_t > &padIndicesLayer0,
+    const std::vector< size_t > &padIndicesLayer1, const std::vector< size_t > &padIndicesLayer2,
+    const std::vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
+    bool isLayer3, bool isLayer4) {
     
-        std::vector< SingleWedgePadTrigger > triggers;
-
+    std::vector< SingleWedgePadTrigger > triggers;
     size_t nHL1 = (isLayer1 ? padIndicesLayer0.size() : 1);
     size_t nHL2 = (isLayer2 ? padIndicesLayer1.size() : 1);
     size_t nHL3 = (isLayer3 ? padIndicesLayer2.size() : 1);
@@ -115,8 +114,8 @@ namespace NSWL1{
                 std::string sl3("33");
                 if (isLayer3) {
                     l3Idx = padIndicesLayer2.at(il3);
-                if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
-                    continue;
+                    if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
+                        continue;
                 }
                 for (size_t il4 = 0; il4 < nHL4; il4++) {
                     int l4Idx = -1;
@@ -128,6 +127,124 @@ namespace NSWL1{
                     }
                     
                     std::string pattern(sl4 + sl3 + sl2 + sl1);
+                    // the above line is replaced by a normal order l1,l2,l3,l4 and
+                    // separated in phi and eta but it remains the same for later usage in
+                    // the trigger selection
+                    // Hence the following is only for internal ease of calculation. The
+                    // pattern to be passed is the "pattern" not "patternPhi" or
+                    // "patternEta"
+                    std::string patternPhi;
+                    patternPhi.push_back(sl1.at(1));
+                    patternPhi.push_back(sl2.at(1));
+                    patternPhi.push_back(sl3.at(1));
+                    patternPhi.push_back(sl4.at(1));
+
+                    std::string patternEta;
+                    patternEta.push_back(sl1.at(0));
+                    patternEta.push_back(sl2.at(0));
+                    patternEta.push_back(sl3.at(0));
+                    patternEta.push_back(sl4.at(0));
+
+                    int multipletid=-999;
+                    int moduleid=-999;
+                    int sectortype=-999;
+                    //Please mind the indentation
+                    if (sl1 == "11") {
+                        multipletid = pads.at(l1Idx)->multipletId() ;
+                        moduleid = pads.at(l1Idx)->moduleId();
+                        sectortype = pads.at(l1Idx)->sectorType();
+                    } 
+                    else if (sl2 == "11") {
+                        multipletid = pads.at(l2Idx)->multipletId() ;
+                        moduleid = pads.at(l2Idx)->moduleId();
+                        sectortype = pads.at(l2Idx)->sectorType();
+                    }
+                    else continue;
+                    std::string etamove, phimove;
+                    if (sectortype == 1) {
+                        if (multipletid == 1) {
+                            etamove = "D";
+                            phimove = "U";
+                            if (moduleid == 2) {
+                                etamove = "U";
+                                phimove = "U";
+                            }
+                        } 
+                        else{ // multiplet = 2   15-7-18 YR - Confirm   new geometry
+                            etamove = "U";
+                            phimove = "DU";
+                        }
+                    }
+ 
+                    if (sectortype == 0) {
+                        if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
+                            if (moduleid == 1) {
+                                etamove = "U";
+                                phimove = "DU";
+                            }
+                            if (moduleid == 2) {
+                                etamove = "D";
+                                phimove = "UD";
+                            }
+                            if (moduleid == 3) {
+                                etamove = "U";
+                                phimove = "UD";
+                            }
+                        } 
+                        else { // multiplet = 2
+                            if (moduleid == 1) {
+                                etamove = "U";
+                                phimove = "D";
+                            }
+                            else{
+                                etamove = "U";
+                                phimove = "U";
+                            }
+                        }
+                    }
+
+                    if (etamove == "D") {
+                        if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
+                            patternEta) == PatternsEtaDown.end()) {
+                            continue;
+                        }
+                    }
+
+                    if (etamove == "U") {
+                        if (find(PatternsEtaUp.begin(), PatternsEtaUp.end(),
+                            patternEta) == PatternsEtaUp.end()) {
+                            continue;
+                        }
+                    }
+
+                    if (phimove == "U") {
+                        if (find(PatternsPhiUp.begin(), PatternsPhiUp.end(),
+                            patternPhi) == PatternsPhiUp.end()) {
+                            continue;
+                        }
+                    }
+            
+                    if (phimove == "D") {
+                        if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
+                            patternPhi) == PatternsPhiDown.end()) {
+                            continue;
+                        }
+                    }
+            
+                    if (phimove == "UD") {
+                        if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
+                            patternPhi) == PatternsPhiUpDown.end()) {
+                            continue;
+                        }
+                    }
+            
+                    if (phimove == "DU") {
+                        if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
+                            patternPhi) == PatternsPhiDownUp.end()) {
+                            continue;
+                        }
+                    }
+
                     std::vector< size_t > padIndices;
 
                     if (isLayer1) {
@@ -138,14 +255,17 @@ namespace NSWL1{
                         assert(l2Idx > -1);
                         padIndices.push_back(l2Idx);
                     }
+            
                     if (isLayer3) {
                         assert(l3Idx > -1);
                         padIndices.push_back(l3Idx);
                     }
+            
                     if (isLayer4) {
                         assert(l4Idx > -1);
                         padIndices.push_back(l4Idx);
                     }
+
                     triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
 
                     if (triggers.size() > 4) {

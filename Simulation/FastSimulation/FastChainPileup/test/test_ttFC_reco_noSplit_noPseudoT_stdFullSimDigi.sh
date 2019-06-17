@@ -5,7 +5,6 @@
 
 # specify branches of athena that are being targeted:
 
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 
 # job 1: Simulation from evgen

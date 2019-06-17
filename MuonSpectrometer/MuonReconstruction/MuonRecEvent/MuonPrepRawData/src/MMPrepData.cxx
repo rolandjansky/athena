@@ -20,8 +20,8 @@ namespace Muon
     m_detEl(detEl),
     m_time(time),
     m_charge(charge),
-    m_angle(0),
-    m_chisqProb(0)
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -34,8 +34,8 @@ namespace Muon
     m_detEl(detEl),
     m_time(0),
     m_charge(0),
-    m_angle(0),
-    m_chisqProb(0)
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   // Destructor:
@@ -50,8 +50,8 @@ namespace Muon
     m_detEl(0),
     m_time(0),
     m_charge(0),
-    m_angle(0),
-    m_chisqProb(0)
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   //copy constructor:

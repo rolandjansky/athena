@@ -44,6 +44,7 @@ namespace TrigConf {
       int                    bcDelay()                  const { return m_BCDelay; }
       unsigned int           bitnum()                   const { return m_Bitnum; }
       const std::string&     input()                    const { return m_Input; }
+      unsigned int           run()                      const { return m_run; }
 
       // setters
       void setType                    (L1DataDef::TriggerType type);
@@ -62,6 +63,7 @@ namespace TrigConf {
       void setBCDelay                 (int bcdelay)                   { m_BCDelay = bcdelay; }
       void setBitnum                  (unsigned int bitnum)           { m_Bitnum = bitnum; }
       void setInput                   (const std::string& input);
+      void setRun                     (unsigned int run)              { m_run = run; }
 
       // is internal threshold
       bool isInternal() const;
@@ -96,6 +98,7 @@ namespace TrigConf {
       int                                   m_BCDelay{3564};
       unsigned int                          m_Bitnum{1};
       std::string                           m_Input{"ctpin"};
+      unsigned int                          m_run{2}; // run can be 2 or 3 to distinguish between old and new thresholds
    };
 
 } 

@@ -67,12 +67,13 @@ StatusCode Muon::MM_DigitContainerCnv_p1::initialize(MsgStream &log) {
 
 void Muon::MM_DigitContainerCnv_p1::transToPers(const MmDigitContainer* transCont,  Muon::MM_DigitContainer_p1* persCont, MsgStream &log) 
 {
-  if(log.level() <= MSG::DEBUG && !m_isInitialized) {
-      if (this->initialize(log) != StatusCode::SUCCESS) {
-          log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p1 " << endmsg;
-      } 
+  if(!m_isInitialized) {
+    
+    if (this->initialize(log) != StatusCode::SUCCESS) {
+      log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p1 " << endmsg;
+    } 
   }
-    // The transient model has a container holding collections and the
+  // The transient model has a container holding collections and the
     // collections hold channels.
     //
     // The persistent model flattens this so that the persistent
@@ -138,10 +139,8 @@ void Muon::MM_DigitContainerCnv_p1::transToPers(const MmDigitContainer* transCon
       MM_Digit_p1*   pchan = &(persCont->m_digits[pchanIndex]); // persistent version to fill
       chanCnv.transToPers(chan, pchan, log); // convert from MmDigit to MM_Digit_p1
       unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
-      unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
-      unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::WARNING<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
-      persCont->m_digitDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
+
+      persCont->m_digitDeltaId[pchanIndex]=clusIdCompact; //store delta identifiers, rather than full identifiers
     }
   }
   if (log.level() <= MSG::DEBUG) 
@@ -164,6 +163,12 @@ void  Muon::MM_DigitContainerCnv_p1::persToTrans(const Muon::MM_DigitContainer_p
     //
     // So here we loop over all collection and extract their channels
     // from the vector.
+
+  if(!m_isInitialized) { 
+    if (this->initialize(log) != StatusCode::SUCCESS) {
+      log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p1 " << endmsg;
+    } 
+  }
 
   MmDigitCollection* coll = 0;
 

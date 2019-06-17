@@ -67,6 +67,7 @@ ISF::FastCaloSimSvcV2::~FastCaloSimSvcV2()
 StatusCode ISF::FastCaloSimSvcV2::initialize()
 {
 
+
   ATH_MSG_INFO(m_screenOutputPrefix << "Initializing ...");
 
   ATH_CHECK(m_rndGenSvc.retrieve());
@@ -104,7 +105,7 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   
   m_param->set_geometry(m_caloGeo);
   m_param->Print("short");
-  m_param->setLevel(MSG::DEBUG);
+  m_param->setLevel(msg().level());
   
   // Get FastCaloSimCaloExtrapolation
   if(m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
@@ -226,7 +227,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   TFCSSimulationState simulstate(m_randomEngine);
 
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
-  m_param->setLevel(MSG::DEBUG);
+  m_param->setLevel(msg().level());
 
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
   if (status != FCSSuccess) {

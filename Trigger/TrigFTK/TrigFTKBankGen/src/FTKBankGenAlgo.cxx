@@ -6,7 +6,7 @@
 #include "TrigFTKBankGen/FTKPattKDTree.h"
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTK_SGHitInput.h"
-#include "TrigFTKSim/atlClustering.h"
+#include "TrigFTKSim/FTKClusteringEngine.h"
 
 #include "GaudiKernel/MsgStream.h"
 

@@ -1292,7 +1292,7 @@ if InDetFlags.doPattern() and InDetFlags.doDisplacedSoftPion():
     # ROI Tool needed for InDet__SiSpacePointsSeedMaker_TrkSeeded tool
     from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RoISeedTool
     RoISeedTool = InDet__RoISeedTool (name                    = 'InDetRoISeedTool_DSP',
-                                      RoISeedTrackContainer   = "ResolvedPixelThreeLayerTracks",
+                                      RoISeedTrackContainer   = InDetKeys.ResolvedPixelPrdAssociationTracks(), #"ResolvedPixelThreeLayerTracks",
                                       TracksForIsolation      = "ResolvedTracks",
                                       RoISeedRTrackD0         = 10.0,
                                       RoISeedTrackPt          = 20000.0,

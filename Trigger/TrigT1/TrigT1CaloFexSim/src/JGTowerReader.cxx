@@ -160,15 +160,7 @@ StatusCode JGTowerReader::finalize() {
 
 StatusCode JGTowerReader::execute() {  
   
-  if(m_eventCount % 100 == 0){
-    ATH_MSG_INFO ("Executing " << name() << " on event " << m_eventCount);
-  }
-  else if(m_eventCount % 10 == 0){
-    ATH_MSG_INFO ("    Executing " << name() << " on event " << m_eventCount);
-  }
-  else {
-    ATH_MSG_DEBUG ("Executing " << name() << " on event " << m_eventCount);
-  }
+  ATH_MSG_DEBUG ("Executing " << name() << " on event " << m_eventCount);
   m_eventCount += 1;
 
   setFilterPassed(false); //optional: start with algorithm not passed

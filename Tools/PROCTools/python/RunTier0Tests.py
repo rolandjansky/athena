@@ -204,8 +204,8 @@ def GetReleaseSetup(isCImode=False):
 
     current_nightly = os.environ['AtlasBuildStamp']
     release_base=os.environ['AtlasBuildBranch']
-    release_head=os.environ['Athena_VERSION']
-    platform=os.environ['Athena_PLATFORM']
+    release_head=os.environ['AtlasVersion']
+    platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
@@ -701,7 +701,10 @@ def main():
             logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
-            list_patch_packages(ciMode)
+            try:
+                list_patch_packages(ciMode)
+            except:
+                logging.warning("Cannot list patch packages...\n")
 
 ########### Get unique name for the clean run directory
         UniqName = str(uuid.uuid4())

@@ -40,19 +40,19 @@ namespace HLT {
        Generic structure representing one LVL1 threshold which is used in all LVL1 RoIs
    */
    struct ConfigThreshold {
-      ConfigThreshold(std::string n = "", unsigned int h=0, bool a = false, uint32_t m = 0)
+      ConfigThreshold(std::string n = "", unsigned int h=0, bool a = false, unsigned long int m = 0)
          : name(n), hashId(h), activeHLT(a), mask(m) { }
       std::string name;    //!< threshold name, e.g. EM25i
       unsigned int hashId; //!< hash number of name, to speed up internal usage
       bool activeHLT;      //!< is this LVL1 threshold used in HLT ?
-      uint32_t mask;       //!< bit position of this LVL1 threshold in the RoI word
+      unsigned long int mask;       //!< bit position of this LVL1 threshold in the RoI word
    };
 
    /** @struct
        modifed ConfigThreshold to incorporate the JetEnergy type
    */
    struct ConfigJetEThreshold : public ConfigThreshold {
-      ConfigJetEThreshold(std::string n = "", unsigned int h=0, bool a = false, uint32_t m = 0, JetRoIType t = Unknown)
+      ConfigJetEThreshold(std::string n = "", unsigned int h=0, bool a = false, unsigned long m = 0, JetRoIType t = Unknown)
          : ConfigThreshold(n, h, a, m), type(t) { }
       JetRoIType type; //!< JetEnergy type, see JetRoIType enumeration
    };
@@ -70,15 +70,15 @@ namespace HLT {
       std::vector<const ConfigThreshold*>::const_iterator begin() const { return m_thresholds.begin(); } //!< begin() method - for thresholds
       std::vector<const ConfigThreshold*>::const_iterator end()   const { return m_thresholds.end(); }   //!< end() method   - for thresholds
       unsigned int size() const  { return m_thresholds.size(); }                                         //!< size() method - for thresholds
-      unsigned int thresholdMask() const { return m_thresholdMask; }
+      unsigned long int thresholdMask() const { return m_thresholdMask; }
 
    protected:
       void addThreshold(const ConfigThreshold* t) { m_thresholds.push_back(t); } //!< add threshold to this RoI object
-      void setThresholdMask(unsigned int mask) { m_thresholdMask = mask; } // Update threshold mask word 
+      void setThresholdMask(unsigned long int mask) { m_thresholdMask = mask; } // Update threshold mask word 
 
       R m_lvl1RoI; //!< underlying LVL1 RoI object
       std::vector<const ConfigThreshold*> m_thresholds; //!< vector holding all configured thresholds
-      unsigned int m_thresholdMask;
+      unsigned long int m_thresholdMask;
    };
 
 

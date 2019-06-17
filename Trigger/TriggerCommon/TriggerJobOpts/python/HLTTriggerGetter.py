@@ -164,12 +164,10 @@ class HLTSimulationGetter(Configured):
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
-            
             from TrigSteering.TrigSteeringConfig import TrigSteer_HLT, ReruningTrigSteer_HLT
             if TriggerFlags.doFEX():
                 from RecExConfig.RecFlags  import rec
                 from AthenaCommon.GlobalFlags  import globalflags
-
                 # schedule the conversion of the L1Calo ROIB data to topo simulation input
 
                 # this ROIB converter should only be scheduled if
@@ -187,7 +185,7 @@ class HLTSimulationGetter(Configured):
                 log.info("configuring HLT merged system, for normal running (FEX + Hypo)")
                 TrigSteer_HLT = TrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
                 TrigSteer_HLT.doHypo = TriggerFlags.doHypo()
-
+                TrigSteer_HLT.LvlConverterTool.useRun3FEXOutput = TriggerFlags.doLVL1PhaseI()
             if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
                 log.info("configuring merged HLT for re-running (Hypo only)")
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             

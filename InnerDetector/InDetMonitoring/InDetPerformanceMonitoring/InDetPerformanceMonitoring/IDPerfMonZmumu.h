@@ -1,6 +1,3 @@
-/*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
- */
 
 #ifndef IDPERFMON_ZMUMU_H
 #define IDPERFMON_ZMUMU_H
@@ -167,6 +164,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   mutable unsigned int            m_runNumber;
   mutable unsigned int            m_evtNumber;
   mutable unsigned int            m_lumi_block;
+  mutable unsigned int            m_event_mu;
 
   double m_positive_px;
   double m_positive_py;
@@ -194,6 +192,10 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_negative_z0_PVerr;
   double m_negative_d0_PVerr;
 
+  double m_pv_x;
+  double m_pv_y;
+  double m_pv_z;
+  mutable unsigned int            m_nTrkInVtx;
   
   int m_triggerPrescale;
 

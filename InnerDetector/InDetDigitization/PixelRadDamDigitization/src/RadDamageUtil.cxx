@@ -44,15 +44,15 @@ using namespace std;
 // Constructor with parameters:
 RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_betaElectrons(4.5e-16),
-  m_betaHoles(6.0e-16),
   m_defaultRamo( 1 ),
   m_defaultEField( 1 ),
+  m_betaElectrons(4.5e-16),
+  m_betaHoles(6.0e-16),
   m_EfieldInterpolator(nullptr),
+  m_saveDebugMaps(false),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0),
-  m_saveDebugMaps(false)
+  m_rndmEngine(0)
 { 
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in RadDamageUtil");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");

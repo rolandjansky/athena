@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTRatioNoiseMonTool.cxx
@@ -165,7 +165,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_current_lb(0),
   m_last_reset_lb(0),
   set_timebin(-1),
-  tbin(-1),
   modNum(0),
   ratio(-1.0),
   ratioside0(-1.0),
@@ -236,7 +235,7 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_dataObjectName("SCT_RDOs"),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr),
-  m_pSummarySvc("SCT_ConditionsSummarySvc", name),
+  m_pSummarySvc("InDetSCT_ConditionsSummarySvc", name),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
   /** sroe 3 Sept 2015:
@@ -336,7 +335,6 @@ SCTRatioNoiseMonTool::fillHistograms() {
 
   // Declare Time Bin
   set_timebin = 4;
-  tbin = -1;
 
   // Declaring Counting variables
   nNoSides_ev = 0;
@@ -412,22 +410,25 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {
         count_SCT_RDO++;
         SCT3_RawData *rdo3 = dynamic_cast<SCT3_RawData *>(*p_rdo);
+        int tbin = -1;
+        int groupSize = 1;
         if (rdo3 != 0) {
           tbin = (rdo3)->getTimeBin();
+          groupSize = (rdo3)->getGroupSize();
         }
         if (timeBinInPattern(tbin, XIX) && goodModule) {
           // fill hit info in barrel
           if (thisBec == 0) {
             int layer = thisLayerDisk;
-            m_numberHitsinBarrel[layer]->Fill(thisPhi, 1.);
+            m_numberHitsinBarrel[layer]->Fill(thisPhi, groupSize);
           }
 
           if (thisSide == 1) {
-            nLink1[modNum] += 1;
-            m_side->Fill(1);
+            nLink1[modNum] += groupSize;
+            m_side->Fill(1, groupSize);
           } else {
-            nLink0[modNum] += 1;
-            m_side->Fill(3);
+            nLink0[modNum] += groupSize;
+            m_side->Fill(3, groupSize);
           }
         }
       }

@@ -48,11 +48,13 @@ void MM_DigitCnv_p1::transToPers( const MmDigit *transObj, Muon::MM_Digit_p1 *pe
   persObj->m_chipResponseCharge      = transObj->chipResponseCharge();
   persObj->m_chipResponsePosition    = transObj->chipResponsePosition();
 
-  persObj->m_stripTimeForTrigger     = (transObj->stripTimeForTrigger()).front();
-  persObj->m_stripPositionForTrigger = (transObj->stripPositionForTrigger()).front();
-  persObj->m_stripChargeForTrigger   = (transObj->stripChargeForTrigger()).front();
-  persObj->m_MMFE_VMM_idForTrigger   = (transObj->MMFE_VMM_idForTrigger()).front();
-  persObj->m_VMM_idForTrigger        = (transObj->VMM_idForTrigger()).front();
+  if ( (transObj->stripTimeForTrigger()).size() > 0 ) { 
+    persObj->m_stripTimeForTrigger     = (transObj->stripTimeForTrigger()).front();
+    persObj->m_stripPositionForTrigger = (transObj->stripPositionForTrigger()).front();
+    persObj->m_stripChargeForTrigger   = (transObj->stripChargeForTrigger()).front();
+    persObj->m_MMFE_VMM_idForTrigger   = (transObj->MMFE_VMM_idForTrigger()).front();
+    persObj->m_VMM_idForTrigger        = (transObj->VMM_idForTrigger()).front();
+  }
 }
 
 

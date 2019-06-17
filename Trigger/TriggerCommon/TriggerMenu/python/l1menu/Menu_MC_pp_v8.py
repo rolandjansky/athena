@@ -63,7 +63,8 @@ def defineMenu():
         'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 
         # 6 x new EM1
         'eEM15VHI', 'eEM18VHI', 'eEM20VH', 'eEM20VHI', 'eEM22', 'eEM22VHI', 
-
+        # 5 x new EM1
+        'eEM3', 'eEM8', 'eEM10', 'eEM15', 'eEM20',
         # 1 x ZB/
         'ZB_EM15',
 
@@ -72,7 +73,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100',
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA90', 'HA100',
         # ATR-19437
         # 3 x new TAU1
         'eTAU12', 'eTAU12IM', 'eTAU20', 
@@ -134,7 +135,8 @@ def defineMenu():
         # ATR-19437
         # 8 x new XE
         'gXERHO20', 'gXERHO30', 'gXERHO35', 'gXERHO40',   'gXERHO45', 'gXERHO50', 'gXEPUFIT20',  'gXEPUFIT50', 
-       
+        'gXE50',
+        'jXE50',
         
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
@@ -411,6 +413,20 @@ def defineMenu():
         '0INVM70-27DPHI32-EM10his1-EM10his6',
         '0INVM70-27DPHI32-EM10his1-EM12his6',
 
+        #ATR-19720
+        '8INVM15-0DR22-2MU6ab',
+        '2INVM9-2DR15-2MU6ab',
+        '2INVM9-0DR15-MU6ab-MU4ab',
+        '8INVM15-0DR22-MU6ab-MU4ab',
+        '2INVM9-0DR15-2MU4ab',
+
+        #ATR-19510
+        '5DETA99-5DPHI99-2MU4ab',
+            
+        #ATR-17320
+        'CEP-CJ60s6',
+        'CEP-CJ50s6',
+        'CEP-CJ50s6ETA21'
         ]
 
     
@@ -429,10 +445,13 @@ def defineMenu():
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         #'L1_EM15_BGRP7',
+        'L1_eEM3', 'L1_eEM8', 'L1_eEM10', 'L1_eEM15', 'L1_eEM20',
         'L1_eEM22',
         'L1_eEM22VHI',
         'L1_eEM20VH',
         'L1_eEM20VHI',
+        'L1_2eEM8',
+        'L1_2eEM10',
 
         # see savannah https://savannah.cern.ch/bugs/?103935
 
@@ -459,7 +478,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU5", "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
-        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU90", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY",
         'L1_eTAU12', 'L1_eTAU100',
 
@@ -613,6 +632,8 @@ def defineMenu():
          'L1_gXEPUFIT50',
          'L1_gXERHO20',
          'L1_gXEPUFIT20',
+         'L1_gXE50',
+         'L1_jXE50',
         
         #XS
         'L1_EM12_XS20', 'L1_EM15_XS30',
@@ -813,6 +834,13 @@ def defineMenu():
         'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
 
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6',
+        'L1_BPH-2M9-2DR15-2MU6',
+        'L1_BPH-2M9-0DR15-MU6MU4',
+        'L1_BPH-8M15-0DR22-MU6MU4-BO',
+        'L1_BPH-2M9-0DR15-2MU4',
+
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR3-EM7J15',
         'L1_BPH-0M9-EM7-EM5_MU6',
@@ -899,6 +927,15 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4',
+                
+        #ATR-17320
+        'L1_CEP-CJ60',
+        'L1_CEP-CJ50' ,
+        'L1_CEP-CJ50.ETA21'
+
         ]
     
 
@@ -924,6 +961,13 @@ def defineMenu():
         'L1_EM22VH' : 295,
         'L1_EM3_EMPTY' : 12,
         'L1_EM7_EMPTY' : 13,
+        'L1_eEM3': 212, 
+        'L1_eEM8': 213, 
+        'L1_eEM10': 214, 
+        'L1_eEM15': 215, 
+        'L1_eEM20': 217,
+        'L1_2eEM8': 221,         
+        'L1_2eEM10': 226,         
         'L1_eEM22' : 25,
         'L1_2eEM15VHI' : 42,
         'L1_2eEM20VH' : 49,
@@ -983,6 +1027,7 @@ def defineMenu():
         'L1_TAU30' : 53,
         'L1_TAU40' : 54,
         'L1_TAU60' : 55,
+        'L1_TAU90' : 222,
         'L1_TAU100' : 52,
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
@@ -1122,6 +1167,8 @@ def defineMenu():
         'L1_gXERHO50' : 30,
         'L1_gXEPUFIT20' : 174,
         'L1_gXEPUFIT50' : 31,
+        'L1_gXE50' : 218,
+        'L1_jXE50' : 219,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
@@ -1392,6 +1439,21 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
+
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6' : 205,
+        'L1_BPH-2M9-2DR15-2MU6' : 206,
+        'L1_BPH-2M9-0DR15-MU6MU4' : 207,
+        'L1_BPH-8M15-0DR22-MU6MU4-BO' : 208,
+        'L1_BPH-2M9-0DR15-2MU4' : 209,
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4' : 199,
+        
+        #ATR-17320
+        'L1_CEP-CJ60' : 203,
+        'L1_CEP-CJ50' : 210,
+        'L1_CEP-CJ50.ETA21': 211
 
 }
 

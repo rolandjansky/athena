@@ -58,27 +58,38 @@ svcMgr.EventSelector.InputCollections=glob.glob(customInput)
 from AthenaCommon.DetFlags import DetFlags
 
 #with tgc setOn we get sagfault and crash
-DetFlags.ID_setOff()
-DetFlags.Calo_setOff()
-DetFlags.Muon_setOff()
-DetFlags.MDT_setOff()
-DetFlags.CSC_setOff()
-DetFlags.TGC_setOff()
-DetFlags.RPC_setOff()
+#DetFlags.ID_setOff()
+#DetFlags.Calo_setOff()
+#DetFlags.Muon_setOff()
+#DetFlags.MDT_setOff()
+#DetFlags.CSC_setOff()
+#DetFlags.TGC_setOff()
+#DetFlags.RPC_setOff()
 DetFlags.sTGC_setOn()
 DetFlags.Micromegas_setOff()
 
-DetFlags.digitize.MDT_setOff() 
-DetFlags.digitize.TGC_setOff() 
-DetFlags.digitize.RPC_setOff() 
-DetFlags.digitize.CSC_setOff() 
-DetFlags.digitize.Micromegas_setOff() 
-DetFlags.digitize.sTGC_setOff() 
-DetFlags.Truth_setOff()
+#DetFlags.digitize.MDT_setOff() 
+#DetFlags.digitize.TGC_setOff() 
+#DetFlags.digitize.RPC_setOff() 
+#DetFlags.digitize.CSC_setOff() 
+#DetFlags.digitize.Micromegas_setOff() 
+DetFlags.digitize.sTGC_setOn() 
+#DetFlags.Truth_setOff()
 
 # initialize GeoModel with layout set in globalflags.DetDescrVersion
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.09.00.NSW"
+from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
+MuonDetectorTool=MuonDetectorTool(UseCSC=False)
+DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
+DetDescrCnvSvc.UseCSC = False
+
+
+
 
 # get AGDD service
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
@@ -110,54 +121,62 @@ include ('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
 topSequence.NSWL1Simulation.DosTGC=True
-topSequence.NSWL1Simulation.DoPadTrigger=True
 topSequence.NSWL1Simulation.DoMM=False
-
-
-
-topSequence.NSWL1Simulation.DoNtuple=True
-topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
-topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
-
+topSequence.NSWL1Simulation.DoPadTrigger=True
 topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
 topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="NSWTRGRDO"
-
-
-
-
-
-#Tools' Messaging Levels
-topSequence.NSWL1Simulation.OutputLevel=INFO
-topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=INFO
-topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=INFO
-topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=INFO
-topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
-topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
-
 # Simulation parameters
 #topSequence.NSWL1Simulation.PadTdsTool.VMM_DeadTime=3
 #topSequence.NSWL1Simulation.PadTdsTool.ApplyVMM_DeatTime=True
+
+
+
+#Toggle Ntuple making 
+topSequence.NSWL1Simulation.DoNtuple=True
+topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=False
+topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=False
+topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+
+
+#Tools' Messaging Levels
+topSequence.NSWL1Simulation.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=DEBUG
+
+
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------
 
-if not hasattr( ServiceMgr, "THistSvc" ):
-  from GaudiSvc.GaudiSvcConf import THistSvc
-  ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='Monitoring.root' OPT='RECREATE'"];
+if topSequence.NSWL1Simulation.DoNtuple:
 
-if not hasattr( theApp.Dlls, "RootHistCnv" ):
-  theApp.Dlls += [ "RootHistCnv" ]
-  theApp.HistogramPersistency = "ROOT"
+    if not hasattr( ServiceMgr, "THistSvc" ):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        ServiceMgr += THistSvc()
+    ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='Monitoring.root' OPT='RECREATE'"];
 
-if not hasattr( ServiceMgr, "NTupleSvc" ):
-  from GaudiSvc.GaudiSvcConf import NTupleSvc
-  ServiceMgr += NTupleSvc()
+    if not hasattr( theApp.Dlls, "RootHistCnv" ):
+        theApp.Dlls += [ "RootHistCnv" ]
+        theApp.HistogramPersistency = "ROOT"
 
-ServiceMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
+    if not hasattr( ServiceMgr, "NTupleSvc" ):
+        from GaudiSvc.GaudiSvcConf import NTupleSvc
+        ServiceMgr += NTupleSvc()
 
-print ServiceMgr
+    ServiceMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
 
+    print ServiceMgr
+
+else:#to avoid any possible crash. If DoNtuple is set to true for a tool but false for NSWL1Simulation the code will crash
+     # ideally that should have been already handled in C++ side
+    topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=False
+    topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=False
+    topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=False
+    topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
+    topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False

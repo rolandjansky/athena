@@ -40,7 +40,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/L1Topo/L1TopoCommon
                           Trigger/TrigT1/L1Topo/L1TopoConfig
-                          Trigger/TrigT1/TrigT1Interfaces )
+                          Trigger/TrigT1/TrigT1Interfaces 
+                          Trigger/TrigT1/TrigT1CaloUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -59,7 +60,7 @@ atlas_add_library( TrigSteeringLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent TrigT1CaloToolInterfaces TrigT1Result AthenaMonitoringLib StoreGateLib SGtests TrigROBDataProviderSvcLib L1TopoSimulationLib TrigT1CaloEventLib TrigTimeAlgsLib ByteStreamCnvSvcBaseLib TrigSerializeResultLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} TestTools xAODTrigger TrigConfL1Data TrigStorageDefinitions L1TopoCommon L1TopoConfig TrigT1Interfaces )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} TestTools xAODTrigger TrigConfL1Data TrigStorageDefinitions L1TopoCommon L1TopoConfig TrigT1Interfaces TrigT1CaloUtils )
 
 atlas_add_component( TrigSteering
                      src/components/*.cxx

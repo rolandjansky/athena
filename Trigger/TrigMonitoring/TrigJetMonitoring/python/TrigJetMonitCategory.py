@@ -9,7 +9,9 @@ monitoring_l1jet = [ 'L1_J10',
                      'L1_J75',
                      'L1_J100',
                      'L1_J100.31ETA49',
-                     'L1_J400']
+                     'L1_J400',
+                     'L1_jJ100',
+                     'L1_4jJ15']
 
 monitoring_jet = ['j35',
                   'j35_jes',
@@ -54,7 +56,9 @@ primary_l1jet = ['L1_J10',
                  'L1_J75',
                  'L1_J100',
                  'L1_J100.31ETA49',
-                 'L1_J400']
+                 'L1_J400',
+                 'L1_jJ100',
+                 'L1_4jJ15']
 
 primary_jet = ['j35',
                'j35_jes',
@@ -101,7 +105,9 @@ monitoring_l1jet_pp = [ 'L1_J10',
                         'L1_J75',
                         'L1_J100',
                         'L1_J100.31ETA49',
-                        'L1_J400']
+                        'L1_J400',
+                        'L1_jJ100',
+                        'L1_4jJ15']
 
 
 monitoring_jet_pp = ['j35',
@@ -147,7 +153,9 @@ primary_l1jet_pp = ['L1_J10',
                     'L1_J75',
                     'L1_J100',
                     'L1_J100.31ETA49',
-                    'L1_J400']
+                    'L1_J400',
+                    'L1_jJ100',
+                    'L1_4jJ15']
 
 primary_jet_pp = ['j35',
                   'j35_jes',
@@ -196,7 +204,9 @@ monitoring_l1jet_validation = [ 'L1_J10',
                                 'L1_J75',
                                 'L1_J100',
                                 'L1_J100.31ETA49',
-                                'L1_J400']
+                                'L1_J400',
+                                'L1_jJ100',
+                                'L1_4jJ15']
 
 
 monitoring_jet_validation = ['j35',
@@ -243,7 +253,9 @@ primary_l1jet_validation = ['L1_J10',
                             'L1_J75',
                             'L1_J100',
                             'L1_J100.31ETA49',
-                            'L1_J400']
+                            'L1_J400',
+                            'L1_jJ100',
+                            'L1_4jJ15']
 
 
 primary_jet_validation = ['j35',

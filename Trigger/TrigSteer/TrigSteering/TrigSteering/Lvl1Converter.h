@@ -26,6 +26,13 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
+#include "xAODTrigger/JetRoIContainer.h"
+#include "xAODTrigger/EnergySumRoI.h"
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigger/EmTauRoIContainer.h"
+
+
 // forward declarations
 class ITrigTimerSvc;
 class TrigTimer;
@@ -78,7 +85,7 @@ namespace HLT {
       bool m_doTiming;       //!< do timing measurements ?
       bool m_gotL1Config;     //!< retrieve of Lvl1ConfigSvc pointer successful?
       bool m_ignoreL1Prescales; //!< ignores L1 prescales (takes But Before Prescale)
-    
+      bool m_useRun3FEXOutput; //!< uses ROIBResult and Run3 FEX algo output for creating thresholds
 
       unsigned m_overallRoIsLimit; //!< limit above which the event is considered busy
       unsigned m_jetRoIsLimit;     //!< limit above which the event is considered busy
@@ -92,6 +99,31 @@ namespace HLT {
       // muon specific svc
       const LVL1::RecMuonRoiSvc* m_recRPCRoiSvc; //!< Muon RoI svc
       const LVL1::RecMuonRoiSvc* m_recTGCRoiSvc; //!< Muon RoI svc
+
+      // Inputs from the new L1Calo
+      // gFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETPufit;   //!< MET from gFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETRho;     //!< MET from gFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETJwoJ;    //!< MET from gFEX
+      const DataHandle< xAOD::JetRoIContainer > m_gJet;           //!< jets from gFEX
+
+      // eFEX
+      const DataHandle< xAOD::TrigEMClusterContainer > m_eFEXCluster; //!< cluster from eFEX
+      const DataHandle< xAOD::EmTauRoIContainer > m_eFEXTau; //!< taus from eFEX
+
+      // jFEX
+      const DataHandle< xAOD::JetRoIContainer > m_jJet;           //!< jets from jFEX
+      const DataHandle< xAOD::JetRoIContainer > m_jLJet;          //!< large jets from jFEX
+
+      // new FEX collections
+      StringProperty m_gFEXMETPufitLoc {"gXEPUFIT_MET"};
+      StringProperty m_gFEXMETRhoLoc {"gXERHO_MET"};
+      StringProperty m_gFEXMETJwoJLoc {"gXEJWOJ_MET"};
+      StringProperty m_gJetLoc {"gL1Jets"};
+      StringProperty m_jJetLoc {"jRoundJets"};
+      StringProperty m_jLJetLoc {"jRoundLargeRJets"};
+      StringProperty m_eFEXClusterLoc {"SClusterCl"};
+      StringProperty m_eFEXTauLoc {"SClusterTau"};
 
       ITrigTimerSvc* m_timerSvc;    //!< the service with all the timers
       TrigTimer* m_totalTime;       //!< total time of execution of this algo

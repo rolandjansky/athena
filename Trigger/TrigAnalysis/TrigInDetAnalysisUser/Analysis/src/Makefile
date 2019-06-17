@@ -48,7 +48,7 @@ endif
 CMTCONFIG=
 
 
-USEATHENALIBS = 0	
+USEATHENALIBS = 0       
 
 TID   = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysis
 TIDU  = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
@@ -59,7 +59,7 @@ TIDUB = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
 #      TIDU  = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
 #      TIDUB = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
 
-CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC 	
+CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC  
 
 
 ARCH_TYPE = $(ATLAS_ARCH)
@@ -149,21 +149,22 @@ CHOBJECTS = $(OBJDIR)/chains.o
 WOBJECTS  = $(OBJDIR)/wmain.o 
 SOBJECTS  = $(OBJDIR)/skim.o 
 ROBJECTS  = \
-	$(OBJDIR)/rmain.o  \
-	$(OBJDIR)/ConfAnalysis.o  \
-	$(OBJDIR)/ConfVtxAnalysis.o  \
-	$(OBJDIR)/PurityAnalysis.o \
-	$(OBJDIR)/globals.o \
-	$(OBJDIR)/computils.o
+        $(OBJDIR)/rmain.o  \
+        $(OBJDIR)/ConfAnalysis.o  \
+        $(OBJDIR)/ConfVtxAnalysis.o  \
+        $(OBJDIR)/PurityAnalysis.o \
+        $(OBJDIR)/globals.o \
+        $(OBJDIR)/computils.o \
+        $(OBJDIR)/TagNProbe.o 	
 
 LOBJECTS  = \
-	$(OBJDIR)/TIDAEvent.o \
-	$(OBJDIR)/Track.o \
-	$(OBJDIR)/TIDAVertex.o   \
-	$(OBJDIR)/TIDAChain.o   \
-	$(OBJDIR)/TIDARoi.o   \
-	$(OBJDIR)/TIDARoiParameters.o  \
-	$(OBJDIR)/TIDARoiDescriptor.o  \
+        $(OBJDIR)/TIDAEvent.o \
+        $(OBJDIR)/Track.o \
+        $(OBJDIR)/TIDAVertex.o   \
+        $(OBJDIR)/TIDAChain.o   \
+        $(OBJDIR)/TIDARoi.o   \
+        $(OBJDIR)/TIDARoiParameters.o  \
+        $(OBJDIR)/TIDARoiDescriptor.o  \
         $(OBJDIR)/TrackTrigObject.o \
         $(OBJDIR)/ChainString.o \
         $(OBJDIR)/TrigInDetAnalysisDict.o
@@ -171,8 +172,8 @@ LOBJECTS  = \
 
 
 DICTHEADERS = \
-	$(TID)/TrigInDetAnalysis/TIDAEvent.h \
-	$(TID)/TrigInDetAnalysis/TIDAChain.h \
+        $(TID)/TrigInDetAnalysis/TIDAEvent.h \
+        $(TID)/TrigInDetAnalysis/TIDAChain.h \
         $(TID)/TrigInDetAnalysis/TIDARoi.h \
         $(TID)/TrigInDetAnalysis/TFileString.h \
         $(TID)/TrigInDetAnalysis/TIDARoiParameters.h \
@@ -206,23 +207,23 @@ $(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(ROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 wdict : $(EXEDIR)/wdict 
-$(EXEDIR)/wdict : dirs $(WOBJECTS) $(LIBSO)	
+$(EXEDIR)/wdict : dirs $(WOBJECTS) $(LIBSO)     
 	$(CXX) $(LDFLAGS) -o $@ $(WOBJECTS) $(LIBS) $(GLIBS)
 
 reader : $(EXEDIR)/reader 
-$(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  $(LIBSO)	
+$(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  $(LIBSO)    
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
 
 skim : dirs $(EXEDIR)/skim 
-$(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  $(LIBSO)	
+$(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  $(LIBSO)        
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/skim.o $(LIBS) $(GLIBS)
 
 fastadd : dirs $(EXEDIR)/fastadd 
-$(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  $(LIBSO)	
+$(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  $(LIBSO)  
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/fastadd.o $(LIBS) $(GLIBS)
 
 refit : dirs $(EXEDIR)/refit 
-$(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)	
+$(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)      
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
 
 comparitor : $(EXEDIR)/comparitor  

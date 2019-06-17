@@ -18,7 +18,7 @@
  std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, TString metName, bool usegFEX, bool useRhoSub, bool usePUfit){
+StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, TString metName, bool usegFEX, bool useRhoSub, bool){
   float met_x = 0;
   float met_y = 0;
   std::shared_ptr<MET> met  = std::make_shared<MET>();

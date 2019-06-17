@@ -1,3 +1,3 @@
 
 from TrigT1CaloFexSim.L1SimulationSequence import setupRun3L1CaloSimulationSequence
-setupRun3L1CaloSimulationSequence()
+setupRun3L1CaloSimulationSequence(useAlgSequence = True)

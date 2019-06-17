@@ -78,12 +78,12 @@ void ReadCards::Construct(const std::string& filename) {
 
   int pid = getpid();
 
-  char tfile[512];
+  char tfile[1024];
 
   if ( mFileName.find("/")==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
   else                                          std::sprintf( tfile, ".readcards-%d", pid );
 
-  char cmd[512];
+  char cmd[2056];
   std::sprintf( cmd, "cpp -I. -P %s > %s", mFileName.c_str(), tfile );
 
   std::system( cmd );

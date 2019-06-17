@@ -51,6 +51,12 @@
 #include <sstream>
 #include <string>
 
+// Path resolver
+#include "PathResolver/PathResolver.h"
+
+#include <TFile.h>
+#include <TH1.h>
+
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 //Barcodes at the HepMC level are int
 
@@ -84,9 +90,11 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_mergeCluster(true),
   m_DiffusionShiftX_barrel(4),
   m_DiffusionShiftY_barrel(4),
-  m_DiffusionShiftX_endcap(15),
-  m_DiffusionShiftY_endcap(15),
-  m_sctMinimalPathCut(90.)
+  m_DiffusionShiftX_endcap(2),
+  m_DiffusionShiftY_endcap(2),
+  m_sctMinimalPathCut(90.),
+  m_inefficiencySF(0.008),
+  m_ineffSF_filename("FastSiDigitization/fast_pixel_inefficiency_SF.root")
 {
   declareInterface<ISCT_FastDigitizationTool>(this);
   declareProperty("InputObjectName"               , m_inputObjectName,          "Input Object name" );
@@ -111,6 +119,8 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty("UseMcEventCollectionHelper",   m_needsMcEventCollHelper = false);
+  declareProperty("InefficiencySF", m_inefficiencySF);
+  declareProperty("ineffSF_filename", m_ineffSF_filename);
 }
 
 //----------------------------------------------------------------------
@@ -153,6 +163,13 @@ StatusCode SCT_FastDigitizationTool::initialize()
 
   //locate the PileUpMergeSvc and initialize our local ptr
   CHECK(m_mergeSvc.retrieve());
+  
+  //Retrieve the histograms to calculate inefficency SF
+  m_ineffSF_histograms = {"low_pileup","med_pileup","high_pileup"};
+  if ( ReadInefficiencyScaleFactor(m_ineffSF_filename,m_ineffSF_histograms).isFailure() ){
+    ATH_MSG_ERROR ( "Unable to retrieve the inefficiency scale factor ");
+    return StatusCode::FAILURE;
+  }
 
   //Initialize threshold
   m_sctMinimalPathCut = m_sctMinimalPathCut * Gaudi::Units::micrometer;
@@ -282,6 +299,12 @@ StatusCode SCT_FastDigitizationTool::processAllSubEvents() {
     }
   m_thpcsi = &thpcsi;
 
+  //Get mu value
+  const EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo)) {
+    m_mu_val = eventInfo->averageInteractionsPerCrossing();
+  }
+  
   // Process the Hits
   CHECK(this->digitize());
 
@@ -297,6 +320,12 @@ StatusCode SCT_FastDigitizationTool::mergeEvent()
 {
   CHECK(this->createOutputContainers());
 
+  //Get mu value
+  const EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo)) {
+    m_mu_val = eventInfo->averageInteractionsPerCrossing();
+  }
+  
   if (m_thpcsi != 0)
     {
       CHECK(this->digitize());
@@ -383,7 +412,29 @@ StatusCode SCT_FastDigitizationTool::digitize()
     
       HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
       HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+    
+    
+      //TEST ON CLUSTER SIZE 04/03  
+      // get the identifier of the entry and the exit
+     /* 
+      const double localEntryX_prediffuse = localStartPosition.x();
+      const double localEntryY_prediffuse = localStartPosition.y();
+      const double localEntryZ_prediffuse = localStartPosition.z();
+      const double localExitX_prediffuse = localEndPosition.x();
+      const double localExitY_prediffuse = localEndPosition.y();
+      const double localExitZ_prediffuse = localEndPosition.z();
       
+      const Amg::Vector2D localEntry_prediffuse(localEntryX_prediffuse,localEntryY_prediffuse);
+      const Amg::Vector2D localExit_prediffuse(localExitX_prediffuse,localExitY_prediffuse);
+      
+      const Identifier entryId_prediffuse = hitSiDetElement->identifierOfPosition(localEntry_prediffuse);
+      const Identifier exitId_prediffuse  = hitSiDetElement->identifierOfPosition(localExit_prediffuse);
+      // now get the cellIds and check whether they're valid
+      const InDetDD::SiCellId entryCellId_prediffuse = hitSiDetElement->cellIdFromIdentifier(entryId_prediffuse);
+      const InDetDD::SiCellId exitCellId_prediffuse = hitSiDetElement->cellIdFromIdentifier(exitId_prediffuse);
+      
+      std::cout<<"Entry and exit ID before diffuse "<< entryCellId_prediffuse.phiIndex() << "  " << exitCellId_prediffuse.phiIndex() <<std::endl;
+      */
       Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
@@ -432,6 +483,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
       // entry / exit validity
       const bool entryValid = entryCellId.isValid();
       const bool exitValid  = exitCellId.isValid();
+      
       
       // the intersecetion id and cellId of it
       const double par = -localEntryZ/(localExitZ-localEntryZ);
@@ -554,10 +606,12 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  // -------------------------------------------------------------------------------------------------
 	  // current phi/eta indices
 	  const int currentPhiIndex = currentCellId.phiIndex();
+	  
 	  // record for the full validation
 	  // (a) steps through the strips
 	  // sct break for last strip or if you step out of the game
-	  if (lastStrip || currentPosition3D.z() > 0.5*thickness || strips > 4)
+	  
+	  if (lastStrip || currentPosition3D.z() > 0.5*thickness || strips > 8)
 	  {
 	    break;
 	  }
@@ -569,6 +623,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  // cache it
 	  phiIndexMinRaw = currentPhiIndex < phiIndexMinRaw ?  currentPhiIndex : phiIndexMinRaw;
 	  phiIndexMaxRaw = currentPhiIndex > phiIndexMaxRaw ?  currentPhiIndex : phiIndexMaxRaw;
+	  
 	  // find out if this is the last step
 	  lastStrip = (currentPhiIndex == exitCellId.phiIndex());
 	  // get the current Pitch
@@ -692,6 +747,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  const Amg::Vector2D currentInsidePosition(currentPosition3D.x()+0.01*signX,currentPosition3D.y()+0.01*signY);
 	  currentId              = hitSiDetElement->identifierOfPosition(currentInsidePosition);
 	  currentCellId          = hitSiDetElement->cellIdFromIdentifier(currentId);
+	  
 	  // just to be sure also for fan structure cases
 	  currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
 	  // The new current Position && the path length for monitoring
@@ -756,6 +812,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	// path statistics
 	potentialClusterPath_Drift += chargeWeight;
 	const Identifier chargeId = (weightIter)->first;
+	
 	// charge smearing if set : 2 possibilities landau/gauss
 	// two options fro charge smearing: landau / gauss
 	if ( m_sctSmearPathLength > 0. )
@@ -769,6 +826,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 
 	// the threshold cut
 	if (!(chargeWeight > m_sctMinimalPathCut)) { continue; }
+	
 	
 	// get the position according to the identifier
 	const Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
@@ -800,6 +858,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
       const IdentifierHash waferID = m_sct_ID->wafer_hash(hitSiDetElement->identify());
       
+      
+      	
       // merging clusters
       if(m_mergeCluster){
 	unsigned int countC(0);
@@ -827,8 +887,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	    potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
 	    potentialClusterId = hitSiDetElement->identifierOfPosition(potentialClusterPosition);
 	    //FIXME - also need to tidy up any associations to the deleted cluster in the truth container too.
-	    SCT_DetElClusterMap.erase(currentExistingClusterIter);
-	    
+	    SCT_DetElClusterMap.erase(currentExistingClusterIter);    
 	    
 	    //Store HepMcParticleLink connected to the cluster removed from the collection
 	    std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_sctPrdTruth->equal_range(existingCluster->identify());	    
@@ -846,6 +905,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	}
 	ATH_MSG_INFO("After cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
       }
+      
       // check whether this is a trapezoid
       const bool isTrapezoid(design->shape()==InDetDD::Trapezoid);
       // prepare & create the siWidth
@@ -950,6 +1010,29 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
     } // end hit while
     
+  //check inefficiency SF
+  if (m_inefficiencySF > 0.0 ){
+       
+	  for(SCT_detElement_RIO_map::iterator currentClusIter = SCT_DetElClusterMap.begin(); currentClusIter != SCT_DetElClusterMap.end();)
+	  {
+	   
+	   SCT_detElement_RIO_map::iterator clusIter = currentClusIter++;
+           const InDet::SCT_Cluster* currentCluster = clusIter->second;
+	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
+	   double random= rand()%10000/10000.0;
+	   
+	   //Retrieve an eta and mu dependent inefficiency SF
+	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),m_mu_val,isBarrel);
+	   //Apply an eta and mu dependent inefficiency SF
+	   if  ( random < inefficiencySF ){
+	      m_sctPrdTruth->erase(currentCluster->identify());
+	      delete currentCluster;
+	      SCT_DetElClusterMap.erase(clusIter);
+     }
+	  }
+   }
+  
+
     (void) m_sctClusterMap->insert(SCT_DetElClusterMap.begin(), SCT_DetElClusterMap.end());
   }
   return StatusCode::SUCCESS;
@@ -1014,17 +1097,29 @@ Amg::Vector3D SCT_FastDigitizationTool::stepToStripBorder(
     }
   else
     {
-      // the end position of this particular strip
+      //In case of endcap cluster calculate carefully the strip border, taking into account the shape 
       std::pair<Amg::Vector3D,Amg::Vector3D> stripEndGlobal = sidetel.endsOfStrip(stripCenter);
-      Amg::Vector3D oneStripEndLocal = coef*stripEndGlobal.first;
-      Amg::Vector3D twoStripEndLocal = coef*stripEndGlobal.second;
-
-      double oneStripPitch = sidetel.phiPitch(Amg::Vector2D(oneStripEndLocal.x(), oneStripEndLocal.y()));
-      double twoStripPitch = sidetel.phiPitch(Amg::Vector2D(twoStripEndLocal.x(), twoStripEndLocal.y()));
+      Amg::Vector2D stripEndLocal_inner = sidetel.localPosition(stripEndGlobal.first);
+      Amg::Vector2D stripEndLocal_outer = sidetel.localPosition(stripEndGlobal.second);
+      const double minWidth(sidetel.phiPitch(stripEndLocal_inner));
+      const double maxWidth(sidetel.phiPitch(stripEndLocal_outer));
+   
+      const double angle=atan((stripEndLocal_inner.x()-stripCenter.x())/stripEndLocal_inner.y());
+      const double angle1=atan((stripEndLocal_outer.x()-stripCenter.x())/stripEndLocal_outer.y());
+    
+      const double InnerX= stripEndLocal_inner.x()+ cos(angle) * direction * minWidth *0.5;
+      const double InnerY= stripEndLocal_inner.y()+ sin(angle) * direction * minWidth *0.5;
+      
+      const double OuterX= stripEndLocal_outer.x()+ cos(angle1) * direction * maxWidth *0.5;
+      const double OuterY= stripEndLocal_outer.y()+ sin(angle1) * direction * maxWidth *0.5;
+   
+      
       // now intersect track with border
       Trk::LineIntersection2D intersectStripBorder(localStartX,localStartY,localEndX,localEndY,
-                                                   oneStripEndLocal.x()+direction*0.5*oneStripPitch,oneStripEndLocal.y(),
-                                                   twoStripEndLocal.x()+direction*0.5*twoStripPitch,twoStripEndLocal.y());
+                                                   InnerX,InnerY,
+                                                   OuterX,OuterY);
+      
+      
       // the step in x
       stepExitX = intersectStripBorder.interX - localStartX;
       stepExitY = slopeYX*stepExitX;
@@ -1090,4 +1185,68 @@ void SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, Hep
     localEntry.setY(localEntryY);
     localExit.setY(localExitY);
         
+}
+
+StatusCode SCT_FastDigitizationTool::ReadInefficiencyScaleFactor(std::string filename, std::vector<std::string> histonames)
+{
+    std::string fullpath = PathResolverFindCalibFile(filename);
+  
+    TFile* file = new TFile();
+    file=file->Open(fullpath.c_str(),"READ");
+    if (!file->IsOpen())
+    {
+        std::string error="The file "+fullpath+" wasn't found or is impossible to open";
+        ATH_MSG_ERROR(error);
+        return StatusCode::FAILURE;
+    }
+    else {
+      file->ls();
+      std::string info="The file "+fullpath+ " found and opened";
+      ATH_MSG_INFO(info);
+    }
+    //Define detector sectors
+    std::vector<std::string> sectors={"barrel","endcap"};
+    // Find the histogram by name
+    for (auto histoname: histonames){
+      for (auto sector: sectors){
+	std::string full_histoname="sct/"+sector+"/"+histoname;
+	TH1F* h = (TH1F*) file->Get(full_histoname.c_str());
+	if (!h)
+	{
+	  std::string error="The histogram "+full_histoname+" wasn't found";
+	  ATH_MSG_ERROR(error);
+	  return StatusCode::FAILURE;
+	}
+	h->SetDirectory(0);
+	Ineff_scale_factors[sector+"_"+histoname]=h;
+      }
+    } 
+    
+    
+    file->Close(); 
+    delete file;
+    return StatusCode::SUCCESS;
+}
+
+double SCT_FastDigitizationTool::RetrieveInefficiencySF(double eta,double mu, bool isBarrel){
+  
+ std::string pileup_level;
+ if (mu < 20.){
+  pileup_level="low_pileup";}
+ else if( mu < 35.){
+  pileup_level="med_pileup";
+ }
+ else{
+  pileup_level="high_pileup"; 
+ }
+ 
+ if( isBarrel){
+   pileup_level="barrel_"+pileup_level;
+ }
+ else{
+   pileup_level="endcap_"+pileup_level;
+ }
+   
+  int bin =  Ineff_scale_factors[pileup_level]->FindBin(eta);
+  return (Ineff_scale_factors[pileup_level]->GetBinContent(bin) - 1);
 }

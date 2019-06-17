@@ -226,6 +226,10 @@ TrigConf::TriggerThreshold::writeXML(std::ostream & xmlfile, int indentLevel, in
               << "\" seed_multi=\"" << m_ZBSeedingThresholdMulti
               << "\" bcdelay=\"" << m_BCDelay;
 
+   if(run()==3) {
+      xmlfile << "\" run=\"" << run();
+   }
+
    xmlfile << "\" version=\"" << version() <<"\">" << endl;
 
    auto sortedThresholdValues = m_TriggerThresholdValueVector;

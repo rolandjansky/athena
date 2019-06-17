@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -16,6 +16,8 @@
 // this should go away
 #include <iomanip>
 #include <algorithm>
+
+#include "GaudiKernel/PhysicalConstants.h"
 
 using namespace std;
 using namespace LVL1;
@@ -92,7 +94,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << ", word = " << hex << topoData->roiWord() << dec
 		   );     
     
-    TCS::JetTOB jet( topoData->et8x8(), topoData->et4x4(), topoData->eta(), topoData->phi(), topoData->roiWord() );
+    TCS::JetTOB jet( topoData->et8x8()/Gaudi::Units::GeV, topoData->et4x4()/Gaudi::Units::GeV, topoData->eta(), topoData->phi(), topoData->roiWord() );
     jet.setEtaDouble( topoData->eta() );
     jet.setPhiDouble( topoData->phi() );
     inputEvent.addJet( jet );

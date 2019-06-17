@@ -500,7 +500,7 @@ class NeutronEnergyCut(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = -1.
 
-class RussianRouletteThreshold(JobProperty):
+class NRRThreshold(JobProperty):
     """
     Energy threshold for the Neutron Russian Roulette in MeV
     """
@@ -508,9 +508,25 @@ class RussianRouletteThreshold(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 1. # MeV
 
-class RussianRouletteWeight(JobProperty):
+class NRRWeight(JobProperty):
     """
     Weight for the Neutron Russian Roulette
+    """
+    statusOn = False
+    allowedTypes = ['int','float']
+    StoredValue = 10
+
+class PRRThreshold(JobProperty):
+    """
+    Energy threshold for the Photon Russian Roulette in MeV
+    """
+    statusOn = False
+    allowedTypes = ['int','float']
+    StoredValue = 1. # MeV
+
+class PRRWeight(JobProperty):
+    """
+    Weight for the Photon Russian Roulette
     """
     statusOn = False
     allowedTypes = ['int','float']

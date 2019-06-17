@@ -165,7 +165,7 @@ void RecJetRoI::constructRun2(
               std::map<int, unsigned int>::value_type(num, etCut));
           m_windowSize.insert(
               std::map<int, unsigned int>::value_type(num, window));
-          m_thresholdMask |= (1 << num);
+          m_thresholdMask |= (1L << num);
         } // passes cuts
       }   // JetThresholdValue pointer valid
     }     // correct threshold type
@@ -241,7 +241,7 @@ unsigned int RecJetRoI::etSmall() const {
 }
 
 /** returns mask of thresholds passed */
-unsigned int RecJetRoI::thresholdPattern() const { return m_thresholdMask; }
+unsigned long int RecJetRoI::thresholdPattern() const { return m_thresholdMask; }
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */

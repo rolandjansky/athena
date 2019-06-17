@@ -80,11 +80,14 @@ Lvl1Converter::Lvl1Converter(const std::string& name, const std::string& type,
    declareProperty( "muonRoIsLimit", m_muonRoIsLimit = 0,           "Return failure (specific one) if number of MU RoIs > that. 0 means no limit." );
    declareProperty( "ignoreL1Prescales", m_ignoreL1Prescales=false, "If true  L1 prescales are ignored (takes But Before Prescale)");
 
+   declareProperty( "useRun3FEXOutput", m_useRun3FEXOutput=false, "Extracts ROIs with thresholds from ROIBResult and from L1Calo Run3 containers" ); 
 }
 
 ErrorCode Lvl1Converter::hltInitialize()
 {
-  
+ 
+   ATH_MSG_INFO("Setup to use Run 3 input TOBs : " << (m_useRun3FEXOutput ? "yes" : "no") );
+ 
   // retrieve Lvl1ResultAccessTool :
   //  StatusCode sc = toolSvc()->retrieveTool("HLT::Lvl1ResultAccessTool", m_lvl1Tool);
 
@@ -179,8 +182,8 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    // =============================================================
    if(m_doTiming) m_sgTime->start();
 
-   const ROIB::RoIBResult* result;
-   StatusCode sc = evtStore()->retrieve(result);
+   const ROIB::RoIBResult* result = nullptr;
+   StatusCode sc = evtStore()->retrieve(result); // always needed for creation of L1Items
 
    if(sc.isFailure()){
       ATH_MSG_WARNING("Unable to retrieve RoIBResult from storeGate!");
@@ -192,7 +195,61 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_1, HLT::SteeringInternalReason::NO_LVL1_RESULT);
    }
 
-   //  m_lvl1Tool->updateResult(*result, m_updateCaloRoIs);// is done in each step ..
+   if ( m_useRun3FEXOutput ) {
+      // MET
+      sc = evtStore()->retrieve( m_gFEXMETPufit, m_gFEXMETPufitLoc );
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve gFEX MET '" << m_gFEXMETPufitLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETPufitLoc << "'");
+      }
+      sc = evtStore()->retrieve( m_gFEXMETRho, m_gFEXMETRhoLoc );
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve gFEX MET '" << m_gFEXMETRhoLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETRhoLoc << "'");
+      }
+      sc = evtStore()->retrieve( m_gFEXMETJwoJ, m_gFEXMETJwoJLoc );
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve gFEX MET '" << m_gFEXMETJwoJLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETJwoJLoc << "'");
+      }
+      // jets
+      sc = evtStore()->retrieve( m_jJet, m_jJetLoc);
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve jFEX Jet container '" << m_jJetLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved jFEX Jet container '" << m_jJetLoc << "' with size " << m_jJet->size());
+      }
+      sc = evtStore()->retrieve( m_jLJet, m_jLJetLoc);
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve jFEX large-R Jet container '" << m_jLJetLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved jFEX large-R Jet container '" << m_jLJetLoc << "' with size " << m_jLJet->size());
+      }
+      sc = evtStore()->retrieve( m_gJet, m_gJetLoc);
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve gFEX Jet container '" << m_gJetLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gJetLoc << "' with size " << m_gJet->size());
+      }
+      // em clusters
+      sc = evtStore()->retrieve( m_eFEXCluster, m_eFEXClusterLoc);
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve eFEX em cluster container '" << m_eFEXClusterLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved eFEX em cluster container '" << m_eFEXClusterLoc << "' with size " << m_eFEXCluster->size());
+      }
+      // taus
+      sc = evtStore()->retrieve( m_eFEXTau, m_eFEXTauLoc);
+      if(sc.isFailure()){
+         ATH_MSG_WARNING("Unable to retrieve eFEX em tau container '" << m_eFEXTauLoc << "' from storeGate!");
+      } else {
+         ATH_MSG_DEBUG( "Retrieved eFEX em tau container '" << m_eFEXTauLoc << "' with size " << m_eFEXTau->size());
+      }
+   }
+
    unsigned int l1Id = m_config->getLvl1Id();
 
    if(m_doTiming) m_sgTime->stop();
@@ -367,7 +424,9 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       // reconstruct RoIs
       ATH_MSG_DEBUG("EmTau RoIs");
 
-      const std::vector< HLT::EMTauRoI >& emTauRoIs = m_lvl1Tool->createEMTauThresholds(*result, m_updateCaloRoIs);
+      const std::vector< HLT::EMTauRoI >& emTauRoIs = m_useRun3FEXOutput ? 
+         m_lvl1Tool->createEMTauThresholds(*result, *m_eFEXCluster, *m_eFEXTau, m_updateCaloRoIs) :
+         m_lvl1Tool->createEMTauThresholds(*result, m_updateCaloRoIs);
 
       for (std::vector<  HLT::EMTauRoI >::const_iterator emTauRoI = emTauRoIs.begin();
            emTauRoI != emTauRoIs.end(); ++emTauRoI) {
@@ -447,8 +506,17 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
       // reconstruct RoIs
       ATH_MSG_DEBUG("JetEnergy RoIs");
+      const std::vector<const xAOD::JetRoIContainer *> & jetContainers = { &*m_jJet, &*m_jLJet, &*m_gJet };
+      const std::vector<std::string> & jetThresholdFilters = {"jJ", "jLJ", "gJ"};
+      const std::vector<const xAOD::EnergySumRoI *> & metROIs = { &*m_gFEXMETPufit, &*m_gFEXMETRho, &*m_gFEXMETJwoJ };
+      const std::vector<std::string> & metThresholdFilters  = { "gXEPUFIT", "gXERHO", "gXEJWOJ" };
 
-      const std::vector< HLT::JetEnergyRoI >& jetERoIs = m_lvl1Tool->createJetEnergyThresholds(*result, m_updateCaloRoIs);
+      const std::vector< HLT::JetEnergyRoI >& jetERoIs = m_useRun3FEXOutput ?
+         m_lvl1Tool->createJetEnergyThresholds(*result,
+                                               jetContainers, jetThresholdFilters,
+                                               metROIs, metThresholdFilters ) :
+         m_lvl1Tool->createJetEnergyThresholds(*result, m_updateCaloRoIs);
+
       unsigned jetRoIsCount = 0;
 
       for ( std::vector<  HLT::JetEnergyRoI >::const_iterator jetERoI = jetERoIs.begin();

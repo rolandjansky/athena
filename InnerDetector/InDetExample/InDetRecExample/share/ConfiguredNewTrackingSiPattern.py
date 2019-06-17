@@ -125,7 +125,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
             InDetSiSpacePointsSeedMaker.useDBM = True
-         if NewTrackingCuts.mode() == "PixelThreeLayer":
+         if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation") :
             InDetSiSpacePointsSeedMaker.SkipIBLcut = True
          if NewTrackingCuts.mode() == "DisplacedSoftPion" :
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 50
@@ -235,7 +235,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
          
 
-         if NewTrackingCuts.mode() == "PixelThreeLayer":
+         if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation"):
             InDetSiTrackMaker.CleanSpuriousSCTClus = True
 
          if NewTrackingCuts.mode() == "DBM":

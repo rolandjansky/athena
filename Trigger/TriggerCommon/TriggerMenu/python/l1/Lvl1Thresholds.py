@@ -212,7 +212,7 @@ class LVL1Threshold(object):
         inputboard = "ctpcore"
         if self.cableinfo and not self.cableinfo.isDirectIn:
             inputboard = "ctpin"
-        bitnum = self.cableinfo.bitnum if self.cableinfo else -1
+        bitnum = self.cableinfo.bitnum if self.cableinfo else 999 # bitnum is unsigned int in C++
         s = ind * step * ' ' + '<TriggerThreshold active="%i" bitnum="%i" id="%i" mapping="%i" name="%s" type="%s" input="%s"%s%s%s%s version="1">\n' % \
             (self.active, bitnum, int(idgen.get('TriggerThreshold')), self.mapping, self.name, self.ttype, inputboard, seed, seed_multi, bcdelay, run)
         for thrv in sorted(self.thresholdValues):

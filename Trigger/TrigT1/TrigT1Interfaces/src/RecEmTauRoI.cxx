@@ -208,7 +208,7 @@ void RecEmTauRoI::constructRun2(
           m_thresholdType.insert(
               std::map<int, TrigT1CaloDefs::ClusterAlgorithm>::value_type(
                   num, type));
-          m_thresholdMask |= (1 << num);
+          m_thresholdMask |= (1L << num);
         } // passes cuts
       }   // ClusterThresholdValue pointer valid
     }     // correct threshold type
@@ -257,7 +257,7 @@ unsigned int RecEmTauRoI::isolation() const {
 }
 
 /** returns bitmask of thresholds passed by RoI */
-unsigned int RecEmTauRoI::thresholdPattern() const { return m_thresholdMask; }
+unsigned long int RecEmTauRoI::thresholdPattern() const { return m_thresholdMask; }
 
 /** returns type of RoI */
 TrigT1CaloDefs::RoIType RecEmTauRoI::roiType() const { return m_type; }

@@ -8,12 +8,19 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     if "ATLAS" in simFlags.SimLayout():
         kwargs.setdefault('KillAllNeutrinos',  True)
     ## Neutron Russian Roulette
-    if hasattr(simFlags, 'RussianRouletteThreshold') and simFlags.RussianRouletteThreshold.statusOn and \
-       hasattr(simFlags, 'RussianRouletteWeight') and simFlags.RussianRouletteWeight.statusOn:
+    if hasattr(simFlags, 'NRRThreshold') and simFlags.NRRThreshold.statusOn and \
+       hasattr(simFlags, 'NRRWeight') and simFlags.NRRWeight.statusOn:
         if simFlags.CalibrationRun.statusOn:
             raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('RussianRouletteThreshold',  simFlags.RussianRouletteThreshold.get_Value())
-        kwargs.setdefault('RussianRouletteWeight',  simFlags.RussianRouletteWeight.get_Value())
+        kwargs.setdefault('NRRThreshold',  simFlags.NRRThreshold.get_Value())
+        kwargs.setdefault('NRRWeight',  simFlags.NRRWeight.get_Value())
+    ## Photon Russian Roulette
+    if hasattr(simFlags, 'PRRThreshold') and simFlags.PRRThreshold.statusOn and \
+       hasattr(simFlags, 'PRRWeight') and simFlags.PRRWeight.statusOn:
+        if simFlags.CalibrationRun.statusOn:
+            raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
+        kwargs.setdefault('PRRThreshold',  simFlags.PRRThreshold.get_Value())
+        kwargs.setdefault('PRRWeight',  simFlags.PRRWeight.get_Value())
     kwargs.setdefault('IsISFJob', simFlags.ISFRun())
     return CfgMgr.G4UA__AthenaStackingActionTool(name, **kwargs)
 

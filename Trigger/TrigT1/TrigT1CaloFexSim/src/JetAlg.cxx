@@ -377,10 +377,7 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
     float pt_cone = blocks[b].Pt();
 
     float j_Et = 0;
-    float j_totalnoise = 0;
-    //std::cout << "cone pT : " << pt_cone << std::endl; 
     if(pt_cone > pt_cone_cut){
-      //std::cout << "cone pT : " << pt_cone << std::endl;
       for(unsigned int t = 0; t < towers.size(); t++){
 	const xAOD::JGTower* tower = towers.at(t);
 	if(fabs(tower->et()) < noise.at(t) * jet_tower_noise_multiplier)  continue;

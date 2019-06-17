@@ -4,6 +4,8 @@
 met_triggers_l1_shifter = [
     "L1_XE50",
     "L1_XE55",
+    "L1_gXERHO50",
+    "L1_gXEPUFIT50",
 ]
 
 met_triggers_l1_expert = [

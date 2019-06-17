@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
 
     itemList = []
 
@@ -33,28 +33,31 @@ def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False )
     itemList += [ "xAOD::EmTauRoIContainer#SClusterTau",
                   "xAOD::EmTauRoIAuxContainer#SClusterTauAux.*" ]
 
+    itemList += otherOutput
+    
+
     from OutputStreamAthenaPool.MultipleStreamManager import AugmentedPoolStream
     if isinstance(stream,AugmentedPoolStream):
         stream.AddItem(itemList)
     else:
         stream.ItemList += itemList
 
-def fillAOD ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillAOD ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamAOD" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
-def fillESD ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillESD ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamESD" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
-def fillRDO ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
+def fillRDO ( SuperCellContainer="SCellBCID", WriteAllCalo=False, otherOutput=[] ):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     stream = MSMgr.GetStream( "StreamRDO" )
-    fillOutStream( stream, SuperCellContainer, WriteAllCalo )
+    fillOutStream( stream, SuperCellContainer, WriteAllCalo, otherOutput )
     return stream
 
 
