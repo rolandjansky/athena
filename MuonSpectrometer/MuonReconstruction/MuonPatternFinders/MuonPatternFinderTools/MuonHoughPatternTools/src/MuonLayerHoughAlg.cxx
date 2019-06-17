@@ -86,8 +86,10 @@ StatusCode MuonLayerHoughAlg::execute()
   }
 
   // write hough data to SG
-  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
-  ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
+  if (houghDataPerSectorVec) {
+    SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+    ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
+  }
 
   return StatusCode::SUCCESS;
 } // execute
