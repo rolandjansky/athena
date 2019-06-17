@@ -25,16 +25,16 @@ def recordable( name ):
         pass
     else: #negative filtering
         if not name.startswith( "HLT_" ):
-            __log.warning( "The collection name {0} does not start with HLT_".format( name ) )
+            __log.error( "The collection name {0} does not start with HLT_".format( name ) )
         if "Aux" in name and not name[-1] != ".":
-            __log.warning( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
+            __log.error( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
 
     for entry in TriggerHLTList:
         if entry[0].split( "#" )[1] == name:
             return name
-    msg = "The collection name {0} is not declared to be stored by HLT".format( name )
-    __log.warning( msg )
-    #raise RuntimeError( msg )
+    msg = "The collection name {0} is not declared to be stored by HLT. Add it to TriggerEDMRun3.py".format( name )
+    __log.error("ERROR in recordable() - see following stack trace.")
+    raise RuntimeError( msg )
     return name
 
 TriggerHLTList = [
@@ -77,6 +77,9 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonFS',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonFSAux.',          'BS ESD AODFULL', 'Muon'),
 
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonIso',                 'BS ESD AODFULL', 'Muon', 'inViews:MUIsoViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonIsoAux.',          'BS ESD AODFULL', 'Muon'),
+
     # Tau
 
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauCore',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
@@ -89,23 +92,33 @@ TriggerHLTList = [
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_METAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
     ('xAOD::TrigMissingETContainer#HLT_MET_mht',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
+    ('xAOD::TrigMissingETContainer#HLT_MET_tcPufit',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcPufitAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_tc',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersFS',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
 
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # tau calo clusters
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFull', 'Tau', 'inViews:TAUCaloRoIs'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFull', 'Tau'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCLCAux.',         'BS ESD AODFULL', 'Tau'),
 
     # tau tracks
     ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
+    ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
 
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
