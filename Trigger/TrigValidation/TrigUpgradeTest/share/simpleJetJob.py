@@ -48,17 +48,23 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Chains = testChains
 
          #inputmaker
-         from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-         InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
-         InputMakerAlg.RoIs='FSJETRoI'
-         InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
-         InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
-         inputRoIs= InputMakerAlg.RoIs
-         hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
+         ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+         ## InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
+         ## InputMakerAlg.RoIs='FSJETRoI'
+         ## InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
+         ## InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
+         ## inputRoIs= InputMakerAlg.RoIs
+         ## hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
          
      # get the reco sequence
-     from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
-     (recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
+     #from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
+     #(recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
+
+     from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
+     (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+     inputRoIs= InputMakerAlg.RoIs
+     hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
+
 
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
      from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
