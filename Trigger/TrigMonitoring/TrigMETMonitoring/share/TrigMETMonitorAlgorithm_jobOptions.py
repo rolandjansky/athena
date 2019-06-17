@@ -24,13 +24,10 @@ from TrigMETMonitoring.TrigMETMonitoringConf import TrigMETMonitorAlgorithm
 trigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
 
 # Examples of setting a trigger, or of running with debug messages on
-#trigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+#trigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
 #trigMETMonAlg.OutputLevel = DEBUG
 
-myGroup = helper.addGroup( trigMETMonAlg,
-        "TrigMETMonitor",
-        "HLT/METMon/Expert"
-    )
+myGroup = helper.addGroup( trigMETMonAlg,"TrigMETMonitor","HLT/METMon/Expert")
 
 myGroup.defineHistogram("lumiPerBCID;lumiPerBCID", title="Luminosity;L/BCID;Events",
                         path='lumi',xbins=10,xmin=0.0,xmax=10.0)

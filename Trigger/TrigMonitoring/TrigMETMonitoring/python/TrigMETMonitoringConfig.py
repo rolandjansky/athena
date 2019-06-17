@@ -103,29 +103,3 @@ def HLTMETMonitoringTool():
 	#ToolSvc += HLTMETMon;
 	list = [ HLTMETMon ];
 	return list
-
-def TrigMETMonitoringTool():
-	from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
-	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # access to central tool
-	print "shifter list " 
-	print hltmonList.monitoring_met_shifter
-	HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
-                                  histoPathBase = "/Trigger/HLT", 
-                                  MonPathBase   = "/HLT/METMon",
-                                  comp_names   = compNames_all,
-                                  bit_names    = bitNames_allHLT,
-				  monitoring_met_shifter         = hltmonList.monitoring_met_shifter,
-				  monitoring_met_expert          = hltmonList.monitoring_met_expert,
-                                  monitoring_alg         = met_alt_algorithms_shifter,
-                                  monitoring_alg_shifter = met_alt_algorithms_shifter,
-                                  monitoring_alg_expert  = met_alt_algorithms_expert,
-				  muon_base              = "HLT_mu26",
-                                  muon_pt_thresh         = 18,
-                                  electron_pt_thresh     = 20,
-                                  primary_met            = ["pufit"],
-                                  prescaled_met          = [],
-                                  );
-	from AthenaCommon.AppMgr import ToolSvc
-	#ToolSvc += HLTMETMon;
-	list = [ HLTMETMon ];
-	return list
