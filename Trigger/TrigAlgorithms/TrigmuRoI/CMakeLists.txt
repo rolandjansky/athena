@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigMuonRoITools
                           PRIVATE
+                          Control/CxxUtils
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigT1/TrigT1Result )
 

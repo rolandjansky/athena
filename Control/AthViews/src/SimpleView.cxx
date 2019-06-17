@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
 #include <stdexcept>
 #include "AthViews/SimpleView.h"
-
-using namespace std;
+#include "AthViews/View.h"
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, "SimpleView" ),
@@ -20,7 +18,11 @@ SimpleView::~SimpleView()
 }
 
 void SimpleView::linkParent( const IProxyDict* parent ) {
-  m_parents.push_back( parent );
+  auto castParent = dynamic_cast< const SG::View* >( parent );
+  if ( castParent )
+    m_parents.push_back( castParent->impl() );
+  else
+    throw std::runtime_error( "Unable to link parent view that cannot be cast to SG::View" );
 }
 
 
@@ -31,11 +33,9 @@ void SimpleView::linkParent( const IProxyDict* parent ) {
  * Find an exact match; no handling of aliases, etc.
  * Returns 0 to flag failure.
  */
-SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
+SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t /*sgkey*/ ) const
 {
-  cout << "Not implemented: SimpleView::proxy_exact" << endl;
-  //TODO - view rename
-  return m_store->proxy_exact( sgkey );
+  return nullptr;
 }
 
 
@@ -54,17 +54,21 @@ SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
  */
 SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) const
 {
+  return findProxy( id, key, m_allowFallThrough );
+}
+
+SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const
+{
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
   auto localProxy = m_store->proxy( id, viewKey );
   
-  //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
   for ( auto parent: m_parents ) {
-    auto inParentProxy = parent->proxy( id, key );
-    //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
+    // Don't allow parents to access whole-event store independently of this view
+    auto inParentProxy = parent->findProxy( id, key, false );
     if ( isValid( inParentProxy ) ) {
       if ( isValid( localProxy ) ) {
-	throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
+        throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
       }
       localProxy = inParentProxy;
       break;
@@ -72,11 +76,10 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
   }
   
   //Look in the default store if cound not find in any view - for instance for event-wise IDCs
-  if ( (not isValid( localProxy ))  and  m_allowFallThrough ) {
+  if ( (not isValid( localProxy )) and allowFallThrough ) {
     auto mainStoreProxy = m_store->proxy( id, key );
-    //std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
     return mainStoreProxy;
-  }	
+  }
   return localProxy; // can be the nullptr still
 }
 
@@ -89,8 +92,7 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-  cout << "Not implemented: SimpleView::proxy" << endl;
-  //TODO - view rename
+  throw std::runtime_error( "Not implemented: SimpleView::proxy" );
   return m_store->proxy( pTransient );
 }
 
@@ -132,8 +134,8 @@ StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
  */
 bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_out, size_t & index_out )
 {
-  cout << "Not implemented: SimpleView::tryELRemap" << endl;
-  return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out ); //TODO
+  throw std::runtime_error( "Not implemented: SimpleView::tryELRemap" );
+  return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out );
 }
 
 /**
@@ -175,18 +177,18 @@ void SimpleView::unboundHandle( IResetable * handle )
 
 unsigned long SimpleView::addRef()
 {
-  cout << "Not implemented: SimpleView::addRef" << endl;
-  return 0; //TODO
+  throw std::runtime_error( "Not implemented: SimpleView::addRef" );
+  return 0;
 }
 unsigned long SimpleView::release()
 {
-  cout << "Not implemented: SimpleView::release" << endl;
-  return 0; //TODO
+  throw std::runtime_error( "Not implemented: SimpleView::release" );
+  return 0;
 }
 StatusCode SimpleView::queryInterface( const InterfaceID &/*ti*/, void** /*pp*/ )
 {
-  cout << "Not implemented: SimpleView::queryInterface" << endl;
-  return StatusCode::FAILURE; //TODO
+  throw std::runtime_error( "Not implemented: SimpleView::queryInterface" );
+  return StatusCode::FAILURE;
 }
 const std::string& SimpleView::name() const
 {
@@ -201,14 +203,12 @@ IStringPool::sgkey_t SimpleView::stringToKey( const std::string& str, CLID clid 
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key ) const
 {
-  cout << "Not implemented: SimpleView::keyToString" << endl;
-  //TODO - view rename maybe?
+  throw std::runtime_error( "Not implemented: SimpleView::keyToString" );
   return m_store->keyToString( key );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid ) const
 {
-  cout << "Not implemented: SimpleView::keyToString" << endl;
-  //TODO - view rename maybe?
+  throw std::runtime_error( "Not implemented: SimpleView::keyToString" );
   return m_store->keyToString( key, clid );
 }
 void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid )
@@ -218,20 +218,29 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 }
 
 
-std::string SimpleView::dump( const std::string& delim ) const {
-  std::string ret = "in view: "+name() + delim +" [ ";
+std::string SimpleView::dump( const std::string& indent ) const {
+
+  // Dump view contents
+  std::string ret = indent + "Dump " + name() + "\n";
+  ret += indent + "[";
   for ( const SG::DataProxy* dp: proxies() ) {
     if ( dp->name().find( name() ) == 0 ) 
-      ret += dp->name() + delim;
+      ret += " " + dp->name();
   }
-  ret += " ] ";
+  ret += " ]\n";
+
+  // Dump parent views
+  if ( m_parents.size() ) ret += indent + "Parents:\n";
   for ( auto p : m_parents ) {
-    const SimpleView * parent = dynamic_cast<const SimpleView*>( p );
-    if ( parent ) {
-      ret += delim;
-      ret += parent->dump( delim );
+    ret += p->dump( indent + "  " );
+  }
+
+  // Fallthrough
+  if ( indent == "" ) {
+    if ( m_allowFallThrough ) {
+      ret += indent + "May access main store: " + m_store->name();
     } else {
-      ret += delim + "main store";
+      ret += indent + "May not access main store";
     }
   }
   return ret;

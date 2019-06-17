@@ -370,6 +370,7 @@ private:
     int m_towerE1 = E1_TOWER;
     bool m_notUpgradeCabling;
     bool m_run2;
+    bool m_run2plus;
 };
 
 #endif

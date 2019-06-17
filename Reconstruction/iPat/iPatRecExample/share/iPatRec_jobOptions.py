@@ -66,7 +66,6 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
         name                      = 'iPatMaterialAllocator',
         #AggregateMaterial         = True,
         Extrapolator              = iPatExtrapolator,
-        SpectrometerExtrapolator  = "",
         TrackingGeometrySvc       = ServiceMgr.AtlasTrackingGeometrySvc)
     ToolSvc += iPatMaterialAllocator
 

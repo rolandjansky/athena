@@ -10,9 +10,6 @@ from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
-from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # TGC imports
 from TGC_Digitization.TGC_DigitizationConfigNew import (
@@ -27,19 +24,11 @@ Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-ConfigFlags.join(createDigitizationCfgFlags())
-ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(TGC_DigitizerCfg(ConfigFlags))
-# Add configuration to write HITS pool file
-ItemList = [
-    "MuonSimDataCollection#*",
-    "TgcRdoContainer#*",
-]
-acc.merge(OutputStreamCfg(ConfigFlags, "RDO", ItemList=ItemList))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True

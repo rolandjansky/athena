@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
@@ -14,6 +14,8 @@ import string
 tileCoolMgr = TileCoolMgr(isMC=(globalflags.DataSource()!='data'), 
                           isOnline=athenaCommonFlags.isOnline(),
                           dbInstance=conddb.GetInstance())
+
+defConnStr = 'TILE'
 
 def GetTileOfcCoolSource(ofcType, runType = 'PHY'):
     return 'Ofc' + string.capwords(ofcType,'/').replace('/','') + runType.lower().capitalize()

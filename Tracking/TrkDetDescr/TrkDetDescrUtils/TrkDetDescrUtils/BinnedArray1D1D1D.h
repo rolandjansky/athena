@@ -233,7 +233,7 @@ namespace Trk {
 	if (!(*m_binUtilArray)[bin1][bin2]->inside(lp)) return 0;
 	int bin3 = (*m_binUtilArray)[bin1][bin2]->bin(lp);
 
-	return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).getPtr();
+	return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
       }
 
       /** Returns the pointer to the templated class object from the BinnedArray,
@@ -249,7 +249,7 @@ namespace Trk {
 
         if (bin3 >= (*m_binUtilArray)[bin1][bin2]->bins()) return 0;
 
-	return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).getPtr();
+	return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
       }
 
       /** Returns the pointer to the templated class object from the BinnedArray - entry point */
@@ -259,7 +259,7 @@ namespace Trk {
           int bin2  = m_binUtil2->entry(gp, 0);
           int bin3 = (*m_binUtilArray)[bin1][bin2]->entry(gp,0);
       
-      	  return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).getPtr();
+      	  return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
             
       }
  
@@ -275,7 +275,7 @@ namespace Trk {
 	  for (size_t ibin1=0; ibin1<m_binUtil1->bins(); ++ibin1) {
 	    for (size_t ibin2=0; ibin2<m_binUtil2->bins(); ++ibin2) {               
 	      for (size_t ibin3 = 0; ibin3< (*m_binUtilArray)[ibin1][ibin2]->bins(); ++ibin3) {
-	        m_arrayObjects->push_back(((*((*((*m_array)[ibin1]))[ibin2]))[ibin3]).getPtr());
+	        m_arrayObjects->push_back(((*((*((*m_array)[ibin1]))[ibin2]))[ibin3]).get());
 	      }
 	    }
 	  }

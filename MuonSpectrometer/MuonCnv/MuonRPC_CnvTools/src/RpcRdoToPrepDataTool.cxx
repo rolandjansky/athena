@@ -87,6 +87,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("InputCollection", 		m_rpcCoinDataContainerKey = std::string("RPC_triggerHits"),"Muon::RpcCoinDataContainer to record");
 
   m_rpcCoinDataContainer = nullptr;
+  m_rpcPrepDataContainer = nullptr;
 }
 
 //___________________________________________________________________________
@@ -941,18 +942,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
     ATH_MSG_ERROR ( "RpcRdoToCscPrepDataTool doesn't yet work with MT." );
     return StatusCode::FAILURE;
   }
-  bool first = false;
-  ATH_CHECK( manageOutputContainers (first) );
-  if (!m_rpcPrepDataContainer) {
-    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
-    ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
-    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
-  }
-  if (!m_rpcCoinDataContainer) {
-    const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
-    ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
-    m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
-  }
 
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
@@ -1457,7 +1446,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       return status;
     } else {
       m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
-      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
+      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key() << ", " << rpcPrepDataHandle.key());
     }
 
     if (m_producePRDfromTriggerWords){
@@ -1478,7 +1467,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
     m_decodedRobIds.clear();
 
   }
-  else {
+  else{
+    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
+    ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
+    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
     ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
     if (m_producePRDfromTriggerWords){
       SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
@@ -1486,6 +1478,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
         ATH_MSG_FATAL("Muon::RpcPrepDataContainer found while Muon::RpcCoinDataContainer not found in Event Store");
         return StatusCode::FAILURE;
       }
+      const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
+      ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
+      m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
       ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
     }
   }

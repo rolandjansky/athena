@@ -31,6 +31,14 @@ if [ -z ${TEST} ]; then
   export TEST="TrigUpgradeTest"
 fi
 
+if [ -z ${ESDTOCHECK} ]; then
+  export ESDTOCHECK="ESD.pool.root"
+fi
+
+if [ -z ${AODTOCHECK} ]; then
+  export AODTOCHECK="AOD.pool.root"
+fi
+
 if [ -z ${REF_FOLDER} ]; then
   # Try eos first
   export REF_FOLDER="/eos/atlas/atlascerngroupdisk/data-art/grid-input/${TEST}/ref/${BRANCH}/test_${NAME}"
@@ -91,21 +99,45 @@ fi
 
 mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
+### ROOTCOMP
+
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
   echo "art-result: ${PIPESTATUS[0]} RootComp"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
-  echo "art-result:  999 RootComp"
+  echo "art-result: 999 RootComp"
 fi
 
 ### CHAINDUMP
+# SKIP_CHAIN_DUMP=1 skips this step
 
 # Using temporary workaround to dump HLTChain.txt
-if [ -f expert-monitoring.root ]; then
+if [ -f expert-monitoring.root ] && [ $[SKIP_CHAIN_DUMP] != 1 ]; then
   echo "Running chainDumpWorkaround.sh"
   chainDumpWorkaround.sh expert-monitoring.root
+fi
+
+### CHECKFILE
+
+if [ -f ${ESDTOCHECK} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
+  timeout 10m checkFile.py ${ESDTOCHECK} 2>&1 | tee ${ESDTOCHECK}.checkFile
+  echo "art-result: ${PIPESTATUS[0]} CheckFileESD"
+else
+  echo $(date "+%FT%H:%M %Z")"     No ESD file to check"
+fi
+
+if [ -f ${AODTOCHECK} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
+  timeout 10m checkFile.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkFile
+  echo "art-result: ${PIPESTATUS[0]} CheckFileAOD"
+  echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
+  timeout 10m checkxAOD.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkxAOD
+  echo "art-result: ${PIPESTATUS[0]} CheckXAOD"
+else
+  echo $(date "+%FT%H:%M %Z")"     No AOD file to check"
 fi
 
 ### SUMMARY

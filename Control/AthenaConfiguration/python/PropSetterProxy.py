@@ -1,8 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence
 from AthenaCommon.Configurable import ConfigurableAlgTool
 from GaudiKernel.GaudiHandles import PrivateToolHandle, PrivateToolHandleArray
+import six
 
 msg = logging.getLogger('PropSetterProxy')
 
@@ -24,7 +26,7 @@ class PropSetterProxy(object):
 
        
        import fnmatch
-       for component_path, component in PropSetterProxy.__compPaths.iteritems():
+       for component_path, component in six.iteritems(PropSetterProxy.__compPaths):
            if fnmatch.fnmatch( component_path, self.__path ):
                if name in component.getProperties():
                    try:
@@ -36,7 +38,7 @@ class PropSetterProxy(object):
                                     name, str(value), component_path, self.__path, str(ex) )
                        pass
                else:
-                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s",
+                   msg.warning( "No such property: %s in component %s, tried to set it because it matched %s",
                                 name, component_path, self.__path )
 
 
@@ -58,7 +60,7 @@ class PropSetterProxy(object):
            def __nestAlg(startpath, comp): # it actually dives inside the algorithms and (sub) tools               
                if comp.getName() == "":
                    return
-               for name, value in comp.getProperties().iteritems():
+               for name, value in six.iteritems(comp.getProperties()):
                    if isinstance( value, ConfigurableAlgTool ) or isinstance( value, PrivateToolHandle ):
                        __add( startpath+"/"+name+"/"+value.getFullName(), value )
                        __nestAlg( startpath+"/"+name+"/"+value.getName(), value )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_H
@@ -36,28 +36,50 @@ namespace Trk
      * allowing a Track to be incomplete (and in general a Track WILL be
      * incomplete).
      *
-     * A Track can contain:
+     * A Track typically is constructed via
      *
      * - Trk::FitQuality          - the fit quality of a track
-     * - Trk::TrackStateOnSurface - this is a sub-container, which holds
-     *                              various properties defining a Track,
-     *                              on a particular surface. It can contain:
+     * - A DataVector of Trk::TrackStateOnSurface
+     *
+     * A TrackStateOnSurface is a sub-container, which holds
+     * various properties defining a Track, on a particular surface.
+     * It can contain:
      * - Trk::FitQualityOnSurface
      * - Trk::TrackParameters 
      * - Trk::MeasurementBase
      * - Trk::MaterialEffectsOnTrack
      * - Trk::ScatteringAngleOnTrack
-     * - Trk::TrackInfo
      * 
-     * - Trk::TrackSummary - used to cash TrackSummary. Might be 0!
-     *                       One still needs to use the TrackSummaryTool to create it.
-     *                       SummaryTool will return the cashed pointer if it exists.
+     * This class provides convenient helpers to retrieve and cache
+     * DataVectors (VIEW ELEMENTs) to 
+     * - TrackParameters
+     * - Measurements
+     * - Outliers
+     * from the TrackStateOnSurface DataVector
+     *
+     * It also allows for retrieving/caching 
+     * the Track Parameter at perigee
+     *
+     *
+     *  Furthermore a Track can contain 
+     * - Trk::TrackInfo
+     * - Trk::TrackSummary - used to cache the TrackSummary. Might be 0! 
+     * 
+     * They can be modified for a non-const Track 
+     * But not for a const one
+     *  
+     * For the TrackSummary one still needs 
+     * to use the TrackSummaryTool to create it.
+     *The SummaryTool will return the cashed pointer if it exists.
+     *  
      *
      * Please look at the mainpage of this package (see the link at the top
      * of the page) for more information.
      *
      * @author edward.moyse@cern.ch
      * @author Kirill.Prokofiev@cern.ch
+     *
+     * MT modification Christos
      */
     
     class Track
@@ -67,9 +89,7 @@ namespace Trk
        friend class TrackSummaryTool;						     	    
        friend class TrackSlimmingTool;  					     	    
  
-
        Track (); //!<needed by POOL. DO NOT USE YOURSELF!			            
-
        /**									            
         * Full constructor							            
         *									            
@@ -101,7 +121,9 @@ namespace Trk
         * return fit quality. this pointer is NULL (==0) if no FitQuality	            
         * is assigned to the Track						            
         */									            
-       const FitQuality* fitQuality () const;					            
+       const FitQuality* fitQuality () const	{ 
+         return m_fitQuality;
+       }
 
        /**									            
         * return Perigee. this pointer is NULL (==0) if no perigee parameters	            
@@ -155,17 +177,35 @@ namespace Trk
         * The pointer will be NULL (==0) if the track was created without	            
         * TrackStateOnSurfaces. 						            
         */									            
-       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const;           
+       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const{
+         return m_trackStateVector;
+       }
+       /**									            
+        * returns a const info for const tracks.           
+        */									            
+       const TrackInfo& info() const{
+         return m_trackInfo;
+       }
 
        /**									            
-        * returns the info of the track.           
+        * returns the info (non-const) for non-const tracks.           
         */									            
-       const TrackInfo& info() const;					            
+       TrackInfo& info() {
+         return m_trackInfo;
+       }
         											            
        /**									            
-        * Returns  A pointer to the Trk::TrackSummary owned by this track (could be 0)     
+        * Returns  a const pointer to the Trk::TrackSummary owned by this const track (could be 0)     
         */									            
-       const Trk::TrackSummary* trackSummary() const;				            
+       const Trk::TrackSummary* trackSummary() const{
+         return m_trackSummary;
+       }
+       /**									            
+        * Returns a  pointer to the Trk::TrackSummary owned by this  track (could be 0)     
+        */									            
+       Trk::TrackSummary* trackSummary() {
+         return m_trackSummary;
+       }
         	
        /**
         * reset all caches
@@ -249,7 +289,7 @@ namespace Trk
        /**									   
         * Datamember to cache the TrackSummary  				   
         */									   
-       const Trk::TrackSummary* m_trackSummary; 
+       Trk::TrackSummary* m_trackSummary; 
        
        /**									   
         * This is aclass which stores the identity of where the track 	   
@@ -263,7 +303,7 @@ namespace Trk
        private:
        /**
         * find PerigeeImpl. 
-        * Assumes that Perigee parameters are currently inValid
+        * Assumes that Perigee parameters are currently inValid.
         */
        void findPerigeeImpl() const;						   
              
@@ -282,19 +322,8 @@ namespace Trk
 
 }//end of namespace definitions
 
-inline const Trk::FitQuality* Trk::Track::fitQuality() const
-{
-    return m_fitQuality;
-}
-
-inline const Trk::TrackSummary* Trk::Track::trackSummary() const
-{
-    return m_trackSummary;
-}     
-
 inline const Trk::Perigee* Trk::Track::perigeeParameters() const
 {
-
     if(!m_perigeeParameters.isValid()){
     //findPerigee performs the setting of the parameters
     //i.e does the CachedValue set
@@ -302,16 +331,6 @@ inline const Trk::Perigee* Trk::Track::perigeeParameters() const
     }
     //Here the cached value type is a pointer 
     return *(m_perigeeParameters.ptr());
-}
-
-inline const DataVector<const Trk::TrackStateOnSurface>* Trk::Track::trackStateOnSurfaces() const
-{
-    return m_trackStateVector;
-}
-
-inline const Trk::TrackInfo& Trk::Track::info() const
-{
-    return m_trackInfo;
 }
 
 #endif

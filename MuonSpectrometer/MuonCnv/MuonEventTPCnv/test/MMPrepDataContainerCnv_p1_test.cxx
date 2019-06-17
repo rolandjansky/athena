@@ -94,12 +94,13 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 
   for (int hash=2; hash <= 3; hash++) {
     auto coll = CxxUtils::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
+
     coll->setIdentifier (muo_dd.mmIdHelper()->elementID (55, 1, hash));
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
       Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash,
-                                                          1, 1, 1, 1+i);
+                                                          1, 1, 1+i);
       int clusHash = 567 + offs;
       
       Amg::Vector2D locpos (2.5+offs, 0);

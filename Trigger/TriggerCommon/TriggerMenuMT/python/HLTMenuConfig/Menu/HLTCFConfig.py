@@ -1,13 +1,38 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+"""
+    ------ Documentation on HLT Tree creation -----
+
+++ Filter creation strategy
+
+++ Connections between InputMaker/HypoAlg/Filter
+
+++ Seeds
+
+++ Combined chain strategy
+
+- The combined chains use duplicates of the single-object-HypoAlg, called HypoAlgName_for_stepName.
+  These duplicates are connected to a dedicated ComboHypoAlg (added by the framework), able to count object multiplicity
+     -- This is needed for two reasons:
+           -- the HypoAlg is designed to have only one input TC (that is already for the single object)
+           -- otherwise the HypoAlg would be equipped with differnt HypoTools with the same name (see for example e3_e8)
+     -- If the combined chain is symmetric (with multiplicity >1), the Hypo is duplicated only once, 
+        equipped with a HypoTool configured as single object and followed by one ComboHypoAlg
+
+
+
+
+
+"""
+
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND, seqOR
+from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
-import sys
+import copy
 log = logging.getLogger('HLTCFConfig')
 
 
@@ -53,8 +78,13 @@ def createCFTree(CFseq):
     """ Creates AthSequencer nodes with sequences attached """
 
     log.debug(" *** Create CF Tree for CFSequence %s", CFseq.step.name)
-
     filterAlg = CFseq.filter.Alg
+
+    #empty step:
+    if len(CFseq.step.sequences)==0:
+        seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg])
+        return seqAndWithFilter
+        
     stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algoritms from al lthe sequences in a parallel sequence
     seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
@@ -81,9 +111,74 @@ def createCFTree(CFseq):
 ## CORE of Decision Handling
 #######################################
 
+def findViewAlgs( inputNodes, viewNodes ):
+    """ Make lists of algorithms that run in views, and those that don't """
+
+    allAlgs = []
+    viewAlgs = []
+
+    # Examine all nodes
+    for node in inputNodes:
+
+        # If node is a sequence, explore further
+        if isSequence( node ):
+
+            # Identify view CF nodes
+            if node.getName() in viewNodes.keys():
+
+                # Retrieve view algorithms
+                # (views don't nest, so will be returned in first list)
+                newViewAlgs, dummy = findViewAlgs( node.getChildren(), {} )
+                viewAlgs += newViewAlgs
+
+                # Record the fact that the view node is found
+                viewNodes[ node.getName() ] = True
+
+            # Explore the tree
+            else:
+                newAlgs, newViewAlgs = findViewAlgs( node.getChildren(), viewNodes )
+                allAlgs += newAlgs
+                viewAlgs += newViewAlgs
+        
+        # Node is an algorithm
+        else:
+            allAlgs += [ node.getName() ]
+
+    return allAlgs, viewAlgs
 
 
-def makeHLTTree(HLTChains, triggerConfigHLT = None):
+def checkVDV( inputNodes, parentName, allEVCAs ):
+    """ Try to make sure each VDV has a correctly-configred EVCA upstream """
+
+    for node in inputNodes:
+
+        # Node is a VDV
+        if "AthViews__ViewDataVerifier" in type( node ).__name__:
+
+            # Check that VDV has a corresponding, correctly-configured EVCA
+            if parentName in allEVCAs.keys():
+                if not hasattr( allEVCAs[ parentName ], "RequireParentView" ) or not allEVCAs[ parentName ].RequireParentView:
+                    raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has upstream EventViewCreatorAlgorithm with RequireParentView = False" )
+            else:
+                raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has no corresponding upstream EventViewCreatorAlgorithm" )
+
+        # Node is an EVCA
+        if "EventViewCreatorAlgorithm" in type( node ).__name__:
+
+            # Store EVCA in a dictionary by the node it refers to
+            if node.ViewNodeName in allEVCAs.keys():
+                if node.name() != allEVCAs[ node.ViewNodeName ].name():
+                    raise RuntimeError( "Found duplicate view node name " + node.ViewNodeName + " configured for EVCAs " + node.name() + " and " + allEVCAs[ node.ViewNodeName ].name() )
+            allEVCAs[ node.ViewNodeName ] = node
+
+        # Explore nested CF
+        if isSequence( node ):
+
+            checkVDV( node.getChildren(), node.name(), allEVCAs )
+
+
+def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
+    """ creates the full HLT tree"""
 
     # Check if triggerConfigHLT exits, if yes, derive information from this
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely 
@@ -105,8 +200,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
             chainDict = decodeChainName.getChainDict(chain.name)
             allChainDicts.append(chainDict)
 
-    """ creates the full HLT tree"""
-
     # lock flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
@@ -123,6 +216,8 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     if len(l1decoder)  != 1 :
         raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
 
+    # take L1Decoder out of topSeq
+    topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
@@ -130,23 +225,31 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
 
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
+
+    # put L1Decoder here
+    hltTop += l1decoder
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
     hltTop +=  steps
     
-    # make CF tree
-    finalDecisions = decisionTree_From_Chains(steps, allChainConfigs, allChainDicts)
+    # make DF and CF tree from chains
+    finalDecisions = decisionTree_From_Chains(steps, allChainConfigs, allChainDicts, newJO)
         
     flatDecisions=[]
     for step in finalDecisions: 
         flatDecisions.extend (step)
+
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
+
 
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
         triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
@@ -162,9 +265,36 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
     edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
     hltTop += edmAlg
+
+    Configurable.configurableRun3Behavior=0
         
     topSequence += hltTop
 
+    # List all CF nodes to be used with EventViews (and whether they are found)
+    viewNodes = {}
+    for viewMaker in viewMakers:
+      viewNodes[ viewMaker.ViewNodeName ] = False
+    originalLength = len( viewNodes )
+
+    # Identify the algorithms that will run in EventViews
+    wholeEventAlgs, viewAlgs = findViewAlgs( topSequence.getChildren(), viewNodes )
+
+    # Check that all view nodes are found
+    if len( viewNodes ) != originalLength:
+        raise RuntimeError( "Something went wrong with view config inspection" )
+    for viewNode in viewNodes.keys():
+        if not viewNodes[ viewNode ]:
+            raise RuntimeError( "EventView CF node " + viewNode + " was not found attached to the topSequence" )
+
+    # Look for view algs in the whole event context
+    for viewAlgName in viewAlgs:
+        if viewAlgName in wholeEventAlgs:
+            from AthenaCommon.AlgSequence import dumpSequence
+            dumpSequence(topSequence)
+            raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
+
+    # Make sure that VDVs are configured correctly
+    checkVDV( topSequence.getChildren(), topSequence.name(), {} )
 
 def matrixDisplay( allSeq ):
     from collections import defaultdict
@@ -203,50 +333,60 @@ def matrixDisplay( allSeq ):
 
         
 
-def decisionTree_From_Chains(HLTNode, chains, allDicts):
+def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
 
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     HLTNodeName= HLTNode.name()
-
     if len(chains) == 0:
         log.info("Configuring empty decisionTree")
-        return []
+        return []    
+    
+    # add chains to multiplicity map (new step here, as this was originally in the __init__ of Chain class
 
-    # find nsteps
+    (finalDecisions, CFseq_list) = createDataFlow(chains, allDicts) 
+    if not newJO:
+        createControlFlow(HLTNode, CFseq_list)
+    else:
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import createControlFlowNewJO
+        createControlFlowNewJO(HLTNode, CFseq_list)
+
+    log.debug("finalDecisions: %s", finalDecisions)
+    all_DataFlow_to_dot(HLTNodeName, CFseq_list)
+
+    # matrix display
+    matrixDisplay( CFseq_list )
+
+    return finalDecisions
+
+
+def createDataFlow(chains, allDicts):
+    """ Creates the filters and connect them to the menu sequences"""
+    
+    # find tot nsteps
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
     NSTEPS = len(chainWithMaxSteps.steps)
 
-    # add chains to multiplicity map (new step here, as this was originally in the __init__ of Chain class
+    log.debug("createDataFlow for %d chains and total %d steps", len(chains), NSTEPS)
 
-    #loop over chains to configure hypotools
-    # must be done after all chains are created, to avoid conflicts 
-    log.debug("Loop over chains to decode hypo tools")
-    for chain in chains:
-        chain.decodeHypoToolConfs(allDicts) 
-
-    finalDecisions = [] # needed for monitor
-    allSeq_list = []
-
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
+    # initialize arrays for monitor
+    finalDecisions = [] 
+    CFseq_list = []
     for nstep in range(0, NSTEPS):
         finalDecisions.append([]) # list of final deciisons per step
-        stepCF_name =  CFNaming.stepName(nstep)
-        CFseq_list = []
-        step_decisions = []
+        CFseq_list.append([]) # list of all CFseq per step
 
-        for chain in chains:
-            # skip this step if missing
-            if len(chain.steps) <= nstep:               
-                continue
 
+    # loop over chains
+    for chain in chains:
+        lastCFseq = None
+        
+        for nstep in range(0,len(chain.steps)):
+            stepCF_name =  CFNaming.stepName(nstep)
             chain_step=chain.steps[nstep]
-            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
-            # one filter per ChainStep - same name indeed
-            # one filter input per previous menusequence output (the L1Seed for first step)
-            # one filter output per menuSeq
-            
+            log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
+
             filter_input =[]
             if nstep == 0: # L1 seeding
                 seeds = chain.group_seed
@@ -254,63 +394,116 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
                 log.debug("Found these seeds from the chain: %s", seeds)
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
-                prev = chain.steps[nstep-1].sequences
-                ## for seq in prev:                   
-                ##     filter_input.extend(seq.outputs)
-                ## log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                for out in lastCFseq.decisions:
+                    filter_input.append(out)
+                    log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
 
-
-                # previous filter name
-                pre_filter_name = CFNaming.filterName(chain.steps[nstep-1].name)
-                # searching the correct sequence outut to connect to the filter
-                for seq in prev:
-                    for out in seq.outputs:
-                        if pre_filter_name in out:
-                            filter_input.append(out)
-                            log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
-
+                
             if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
                 log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
-                sys.exit("ERROR, in configuration of sequence "+seq.name)
                     
 
             # get the filter:
-            filter_name = CFNaming.filterName(chain_step.name)
-            (foundFilter, sfilter) = findFilter(filter_name, CFseq_list)
-            if not foundFilter:           
-                sfilter = buildFilter(filter_name, filter_input)
+            sfilter= None
+            base_filter_name = CFNaming.filterName(chain_step.name)
+            (foundFilter, foundCFSeq) = findCFSequences(base_filter_name, CFseq_list[nstep])
+            log.debug("Found %d CF sequences with base filter name %s", foundFilter, base_filter_name)
+            if not foundFilter:
+                fil_name="%s_0"%(base_filter_name)
+                sfilter = buildFilter(fil_name, filter_input)
                 CF_seq = CFSequence( ChainStep=chain_step, FilterAlg=sfilter)
-                CFseq_list.append(CF_seq)
-                for sequence in chain_step.sequences:                
-                    step_decisions.extend(sequence.outputs)
+                CFseq_list[nstep].append(CF_seq)
+                lastCFseq=CF_seq                
             else:
-                log.debug("foundFilter %s", filter_name)
+                count_fil=0
+                for  cfseq in foundCFSeq:
+                    thefilt=cfseq.filter
+                    #exactly same filter with the same inputs (same gropu of chains);
+                    if filter_input==thefilt.getInputList():
+                        sfilter=thefilt
+                        chain.steps[nstep] = cfseq.step
+                        lastCFseq=cfseq
+                        break
+                    else:
+                        count_fil+=1
+
+                # if we have the same filter, with differnt inputs:
+                # duplicate the Filter with different name
+                # deepcopy all the seqeunces
+                # duplicate the Hypo with differnt name
+                # create a new CFsequence with different name
+
+                if (count_fil and sfilter is None):
+                    # must create new CF sequence from step %s"%(chain_step.name)
+                    fil_name="%s_%d"%(base_filter_name, count_fil)
+                    sfilter = buildFilter(fil_name, filter_input)
+                    new_sequences = []
+                    
+                    for sequence in chain_step.sequences:
+                        new_sequence=copy.deepcopy(sequence)
+                        new_sequence.resetConnections()
+                        new_sequence.name = "%s_%d"%(sequence.name, count_fil)
+                        oldhypo=sequence.hypo.Alg
+                        newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
+                        new_hypoAlg=oldhypo.clone(newHypoAlgName)
+                        new_sequence.replaceHypoForDuplication(new_hypoAlg)
+                        new_sequences.append(new_sequence)
+
+                    new_chain_step_name="%s_%d"%(chain_step.name, count_fil)
+                    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+                    # making new ChainStep
+                    new_chain_step=ChainStep(new_chain_step_name, new_sequences)                 
+                    chain.steps[nstep] = new_chain_step # replace chain step
+                    chain_step = chain.steps[nstep]
+                    CF_seq = CFSequence( ChainStep=new_chain_step, FilterAlg=sfilter)
+                    CFseq_list[nstep].append(CF_seq)
+                    lastCFseq=CF_seq
+          
 
             sfilter.setChains(chain.name)
             log.debug("Adding chain %s to %s", chain.name,sfilter.Alg.name())
-            log.debug(sfilter.getChains())
+            log.debug("Now Filter has chains: %s", sfilter.getChains())
 
             if len(chain.steps) == nstep+1:  
                 log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
-#            else:
-#                log.debug("len(chain.steps) != nstep+1")
-            #end of loop over menu sequences
-                
-        #end of loop over chains for this step, now implement CF:
+
+        #end of loop over steps
+        
+    #end of loop over chains
+
+    # decode and attach HypoTools:
+    #must be done after the creation of the CFsequences, since HypoAlgs are duplicated in the previous loop
+    for chain in chains:
+        chain.decodeHypoToolConfs(allDicts)
+
+
+    return (finalDecisions, CFseq_list)
+
+
+def createControlFlow(HLTNode, CFseq_list):
+    """ Creates Control Flow Tree starting from the CFSequences"""
     
+    HLTNodeName= HLTNode.name()
+    log.debug("createControlFlow on node %s",HLTNodeName)
+        
+    for nstep in range(0, len(CFseq_list)):
+        step_decisions = []
+        for CFseq in CFseq_list[nstep]:
+            step_decisions.extend(CFseq.decisions)
+            
+        stepCF_name =  CFNaming.stepName(nstep)
         log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)
 
         #first make the filter step
-        stepFilter = createStepFilterNode(stepCF_name, CFseq_list, dump=False)
+        stepFilter = createStepFilterNode(stepCF_name, CFseq_list[nstep], dump=False)
         HLTNode += stepFilter
-        allSeq_list.append(CFseq_list)
 
         # then the reco step
         recoNodeName = CFNaming.stepRecoNodeName(HLTNodeName, stepCF_name)
-        stepCF = createStepRecoNode(recoNodeName, CFseq_list, dump=False)
+        stepCF = createStepRecoNode(recoNodeName, CFseq_list[nstep], dump=False)
         HLTNode += stepCF
 
 
@@ -318,24 +511,15 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
         summary=makeSummary(CFNaming.stepSummaryName(stepCF_name), step_decisions)
         HLTNode += summary
 
-
         log.debug("Now Draw...")
-        stepCF_DataFlow_to_dot(recoNodeName, CFseq_list)
+        stepCF_DataFlow_to_dot(recoNodeName, CFseq_list[nstep])
         stepCF_ControlFlow_to_dot(stepCF)
 
         log.info("************* End of step %d, %s", nstep+1, stepCF_name)
-        # end of steps
+
+    return
 
 
-
-    log.debug("finalDecisions: %s", finalDecisions)
-    all_DataFlow_to_dot(HLTNodeName, allSeq_list)
-
-    # matrix display
-    matrixDisplay( allSeq_list )
-
-
-    return finalDecisions
 
 
 """
@@ -396,8 +580,6 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
             if nstep == 0:
                 filter_input = firstChain.group_seed
-#                previous_seeds = firstChain.group_seed
-
             else:
                 filter_input = []
                 for sequence in firstChain.steps[nstep - 1].sequences:
@@ -449,10 +631,10 @@ def findFilter(filter_name, cfseqList):
       searches for a filter, with given name, in the CF sequence list of this step
       """
       log.debug( "findFilter: filter name %s", filter_name )
-      foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
+      foundFilters = [cfseq for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
+      #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
       if len(foundFilters) > 1:
           log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
-          sys.exit("ERROR, in filter configuration")
 
       found = bool(foundFilters)
       if found:          
@@ -460,6 +642,20 @@ def findFilter(filter_name, cfseqList):
           return (found, foundFilters[0])
       return (found, None)
 
+def findCFSequences(filter_name, cfseqList):
+      """
+      searches for a filter, with given name, in the CF sequence list of this step
+      """
+      log.debug( "findCFSequences: filter base name %s", filter_name )
+      foundFilters = [cfseq for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
+      #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
+
+      log.debug("found %d filters with base name %s", len( foundFilters ), filter_name)
+
+      found=len(foundFilters)
+      if found:          
+          return (found, foundFilters)
+      return (found, None)
 
 
 def buildFilter(filter_name,  filter_input):

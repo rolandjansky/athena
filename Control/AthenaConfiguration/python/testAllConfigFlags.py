@@ -1,20 +1,21 @@
+from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 acf=AthConfigFlags()
-acf.addFlag("flag1",1)
-acf.addFlag("flag2",2)
-acf.addFlag("flag3", lambda prev: prev.get("flag2")*2 )
-acf.addFlag("flag7", lambda prev: prev.get("flag1")+27)
+acf.addFlag("x.flag1",1)
+acf.addFlag("x.flag2",2)
+acf.addFlag("x.flag3", lambda prev: prev.x.flag2*2 )
+acf.addFlag("x.flag7", lambda prev: prev.x.flag1+27)
 
-print(acf.flag1)
-print(acf.flag3)
+print(acf.x.flag1)
+print(acf.x.flag3)
 
 #acf.addFlag("flag4", lambda prev: prev.get("flag5")*2 )
 #acf.addFlag("flag5", lambda prev: prev.get("flag4")*2 )
-#print acf.get("flag4") -> Circular dependency!  
+#print (acf.get("flag4") -> Circular dependency!  )
 
 
 acf.addFlag("domain1.flag1","bla")
-acf.addFlag("domain1.flag2",lambda prev: prev.get("domain1.flag1")*2)
+acf.addFlag("domain1.flag2",lambda prev: prev.domain1.flag1*2)
 acf.addFlag("domain2.flag1","geh")
 acf.addFlag("domain2.flag2","xyz")
 #acf.addFlag("domain2.flagxxx","will fail")

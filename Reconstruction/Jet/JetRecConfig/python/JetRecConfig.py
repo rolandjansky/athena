@@ -58,13 +58,16 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     # 
     # To facilitate running in serial mode, we also prepare
     # the constituent PseudoJetGetter here (needed for rho)
-    inputcomps, constitpjkey = JetInputCfgAndConstitPJName(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    constitpjalg = inputcomps.getPrimary()
+    constitpjkey = constitpjalg.PJGetter.OutputContainer
+
     components.merge(inputcomps)
     pjs = [constitpjkey]
 
     # Schedule the ghost PseudoJetGetterAlgs
     for ghostdef in deps["ghosts"]:
-        ghostpjalg = GhostPJGAlg( ghostdef )
+        ghostpjalg = getGhostPJGAlg( ghostdef )
         components.addEventAlgo( ghostpjalg, sequencename )
         ghostpjkey = ghostpjalg.PJGetter.OutputContainer
         pjs.append( ghostpjkey )
@@ -202,26 +205,44 @@ def expandPrereqs(reqtype,prereqs):
 
 
 ########################################################################
+# Function producing an EventShapeAlg to calculate
+# medaian energy density for pileup correction
+#
+def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
+
+    rhokey = "Kt4"+constit.label+"EventShape"
+    rhotoolname = "EventDensity_Kt4"+constit.label
+    
+    from EventShapeTools import EventShapeToolsConf
+    rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
+    rhotool.InputContainer = constitpjkey
+    rhotool.OutputContainer = rhokey
+    
+    eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
+    eventshapealg.EventDensityTool = rhotool
+
+    return eventshapealg
+
+########################################################################
 # Function for setting up inputs to jet finding
 #
 # This includes constituent modifications, track selection, copying of
 # input truth particles and event density calculations
-def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
+def JetInputCfg(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
-    jetlog.info("Inspecting first input file")
+    jetlog.info("Inspecting input file contents")
     # Get the list of SG keys for the first input file
     # I consider it silly to run on a set of mixed file types
     firstinput = configFlags.Input.Files[0]
     import os, pickle
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     # PeekFiles returns a dict for each input file
-    filecontents = GetFileMD([firstinput])["SGKeys"].split(' ')
+    filecontents = configFlags.Input.Collections
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
-    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle]:
+    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
         # Protection against reproduction of existing containers
         if constit.inputname in filecontents:
             jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))
@@ -230,13 +251,16 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
             # May need to generate constituent modifier sequences to
             # produce the input collection
             import ConstModHelpers
-            constitalg = ConstModHelpers.ConstitModAlg(constit.basetype,constit.modifiers)
-            components.addEventAlgo(constitalg)
+            constitalg = ConstModHelpers.getConstitModAlg(constit)
+            if constitalg:
+                components.addEventAlgo(constitalg)
 
     # Schedule the constituent PseudoJetGetterAlg
-    constitpjalg = ConstitPJGAlg( constit )
+    constitpjalg = getConstitPJGAlg( constit )
     constitpjkey = constitpjalg.PJGetter.OutputContainer
-    components.addEventAlgo( constitpjalg )
+    # Mark the constit PJGAlg as the primary so that the caller
+    # can access the output container name
+    components.addEventAlgo( constitpjalg, primary=True )
 
     # Track selection and vertex association kind of go hand in hand, though it's not
     # completely impossible that one might want one and not the other
@@ -296,19 +320,9 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
             if rhokey in filecontents:
                 jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
             else:
-                rhotoolname = "EventDensity_Kt4"+constit.label
+                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey) )
 
-                jetlog.debug("Setting up event density calculation Kt4{0}".format(constit.label))
-                from EventShapeTools import EventShapeToolsConf
-                rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
-                rhotool.InputContainer = constitpjkey
-                rhotool.OutputContainer = rhokey
-
-                eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}Alg".format(rhotoolname))
-                eventshapealg.EventDensityTool = rhotool
-                components.addEventAlgo(eventshapealg)
-
-    return components, constitpjkey
+    return components
 
 ########################################################################
 # Functions for generating PseudoJetGetters, including determining
@@ -335,7 +349,7 @@ def getGhostPrereqs(ghostdef):
         prereqs = ["input:JetInputTruthParticles"]
     return prereqs
 
-def ConstitPJGAlg(basedef):
+def getConstitPJGAlg(basedef):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
     # 
     getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
@@ -352,7 +366,7 @@ def ConstitPJGAlg(basedef):
         )
     return pjgalg
 
-def GhostPJGAlg(ghostdef):
+def getGhostPJGAlg(ghostdef):
     label = "Ghost"+ghostdef.inputtype
     kwargs = {
         "OutputContainer":    "PseudoJet"+label,

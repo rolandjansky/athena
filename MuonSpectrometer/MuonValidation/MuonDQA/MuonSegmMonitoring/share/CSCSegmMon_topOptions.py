@@ -113,12 +113,13 @@ OutputFile = 'Monitoring.CSC.root'
 
 myc = 0
 if 1:
-  isdata = inputFileSummary['evt_type'][0]
+  from PyUtils.MetaReaderPeeker import metadata
+  isdata = metadata['eventTypes'][0]
   isdata = isdata.replace('IS_','')
-  runno = inputFileSummary['run_number'][0]
-  streamname = inputFileSummary['stream_names'][0]
+  runno = metadata['runNumbers'][0]
+  streamname = metadata['processingTags'][0]
   streamname = streamname.replace('Stream','')
-  events = inputFileSummary['nentries']
+  events = metadata['nentries']
   OutputFile = 'Monitoring.CSC.'+isdata.lower()+'.'+str(runno)+'.'+streamname.lower()+'.'+str(events)+'.root'
 
 

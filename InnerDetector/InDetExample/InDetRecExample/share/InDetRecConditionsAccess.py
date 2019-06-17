@@ -64,8 +64,7 @@ if DetFlags.haveRIO.pixel_on():
     # Calibration Setup #
     #####################
     if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
-
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
     if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
         condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
@@ -380,7 +379,9 @@ if DetFlags.haveRIO.TRT_on():
 
     # Dead/Noisy Straw Service
     useOldStyle = False
-    if DetFlags.simulate.any_on() or athenaCommonFlags.EvtMax==1:
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
          useOldStyle = True
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
     InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
@@ -394,6 +395,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
     InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
                                                             isGEANT4 = useOldStyle)
+    # CalDb tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -411,6 +416,13 @@ if DetFlags.haveRIO.TRT_on():
     # dEdx probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
     TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
+
+    if InDetFlags.doCosmics() :
+        # Average T0 CondAlg
+        from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTPhaseCondAlg
+        TRTPhaseCondAlg = TRTPhaseCondAlg(name = "TRTPhaseCondAlg",
+                                          TRTCalDbTool = InDetTRTCalDbTool)
+        condSeq += TRTPhaseCondAlg
 
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):

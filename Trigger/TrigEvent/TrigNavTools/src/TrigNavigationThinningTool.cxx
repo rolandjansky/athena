@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/HLTResult.h"
@@ -37,12 +37,6 @@ StatusCode TrigNavigationThinningTool::finalize() {
 }
 
 
-
-template<class ResultType>
-ResultType* TrigNavigationThinningTool::createAndRecordResult(const std::string&) const { return nullptr; }
-
-
-
 template<>
 xAOD::TrigNavigation* TrigNavigationThinningTool::createAndRecordResult(const std::string& key) const { 
   auto nav = new xAOD::TrigNavigation();
@@ -63,37 +57,35 @@ xAOD::TrigNavigation* TrigNavigationThinningTool::createAndRecordResult(const st
 }
 
 
-
-template<class ResultType>
-ResultType* TrigNavigationThinningTool::retrieveResult(const std::string& key) const {
-  if ( key.empty() ) {
-    //    ATH_MSG_DEBUG( "Key for type "  << ClassID_traits<ResultType>::typeName() <<" is empty, dooing nothing");      
-    return nullptr;
-  }
-
-  if ( not evtStore()->contains<ResultType>( key ) ) {
-    ATH_MSG_DEBUG( "Absent " << ClassID_traits<ResultType>::typeName() << " of key " << key << " creating new and registering it");      
-    return createAndRecordResult<ResultType>(key);    
-  }
-
-  ResultType *result = nullptr;  
-  if ( evtStore()->retrieve( result,  key ).isFailure() || result == nullptr ) {
-    ATH_MSG_WARNING( "Unable to load " << ClassID_traits<ResultType>::typeName() << " using key " << key );
-    return nullptr;
-  }    
-  return result;
-}
-
-
 StatusCode TrigNavigationThinningTool::doThinning() const {
   ATH_MSG_DEBUG( "TrigNavigationThinningTool::doThinning()" );
 
-  // check if the result is there (do nothing if is not)
-  HLT::HLTResult *hltresult = retrieveResult<HLT::HLTResult>(m_HLTResultKey);
-  xAOD::TrigNavigation *xaodresult = retrieveResult<xAOD::TrigNavigation>(m_xAODNavigationKey);
+  // Check if there is a (const) HLTResult
+  HLT::HLTResult *hltresult = nullptr;
+  if ( not m_HLTResultKey.empty() and evtStore()->contains<HLT::HLTResult>(m_HLTResultKey) ) {
+    const HLT::HLTResult* cres = nullptr;
+    if ( evtStore()->retrieve( cres, m_HLTResultKey).isFailure() or cres==nullptr ) {
+      ATH_MSG_WARNING( "Unable to load HLT::HLTResult using key " << m_HLTResultKey );
+    }
+    else {
+      hltresult = const_cast<HLT::HLTResult*>(cres);
+    }
+  }
+
+  // Check if there is a xAOD::TrigNavigation, or create it
+  xAOD::TrigNavigation *xaodresult = nullptr;
+  if ( not m_xAODNavigationKey.empty() ) {
+    if ( not evtStore()->contains<xAOD::TrigNavigation>(m_xAODNavigationKey) ) {
+      ATH_MSG_DEBUG( "Absent xAOD::TrigNavigation of key " << m_xAODNavigationKey << ". Creating new one and registering it");
+      xaodresult = createAndRecordResult<xAOD::TrigNavigation>(m_xAODNavigationKey);
+    }
+    if ( evtStore()->retrieve( xaodresult, m_xAODNavigationKey).isFailure() or xaodresult==nullptr ) {
+      ATH_MSG_WARNING( "Unable to load xAOD::TrigNavigation using key " << m_xAODNavigationKey );
+    }
+  }
 
   if ( hltresult == nullptr and xaodresult == nullptr ) {
-    ATH_MSG_DEBUG( "Neither xAOD, not HLT navigations are present or required, dooing nothing");  
+    ATH_MSG_DEBUG( "Neither xAOD, not HLT navigations are present or required, doing nothing");
     return StatusCode::SUCCESS;
   }
 
@@ -110,7 +102,7 @@ StatusCode TrigNavigationThinningTool::doThinning() const {
       xaodresult->setSerialized(slimmedPayload);
     }
   } else {
-    ATH_MSG_DEBUG( "Scheduling trigger navigation slimming while writting output file" );
+    ATH_MSG_DEBUG( "Scheduling trigger navigation slimming while writing output file" );
     if ( hltresult ) {
       SlimmingHandler<HLT::HLTResult> *hdlr 
 	= new SlimmingHandler<HLT::HLTResult>(hltresult, this, m_slimmingTool.operator->());      

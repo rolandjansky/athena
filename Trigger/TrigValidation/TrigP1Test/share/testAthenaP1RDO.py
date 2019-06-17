@@ -65,7 +65,6 @@ rec.doCBNT=False
 doTrigger=True
 rec.doESD=False
 
-TriggerModernConfig=True
 
 rec.doWriteAOD=False
 rec.doWriteESD=False

@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -25,9 +24,10 @@ const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
 
     result.path = nextProperty(propertiesIterator);
     result.type = nextProperty(propertiesIterator);
+    result.weight = nextProperty(propertiesIterator);
     result.name.push_back(nextProperty(propertiesIterator));
 
-    if (result.type.find("TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
+    if (result.type.compare(0, 3, "TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
       result.name.push_back(nextProperty(propertiesIterator));
     } else if (result.type == "TProfile2D") {
       result.name.push_back(nextProperty(propertiesIterator));
@@ -107,32 +107,44 @@ void HistogramDef::resolveAlias(HistogramDef &histogramDefinition) {
 }
 
 void HistogramDef::resolveAxies(HistogramDef &histogramDefinition, std::vector<std::string> &properties, std::vector<std::string>::iterator &propertiesIterator) {
-  if (distance(propertiesIterator, properties.end()) < 3) {
+  if (distance(propertiesIterator, properties.end()) < 1) {
     throw TokenException("NOT enough parameters for defining 1-D histogram");
   }
+  std::string xbins = nextProperty(propertiesIterator);
+  // Parse information regarding x-bins
+  if ( xbins.find(":")!=std::string::npos ) { // Bins are specified by array
+    std::vector<std::string> splitResult = splitWithSeparator(xbins, ":");
+    for (auto binString : splitResult ) // Convert to vector of floats
+      histogramDefinition.xArray.push_back(parseToken<double>(binString,"double expected for bin edge"));
+    histogramDefinition.xbins = histogramDefinition.xArray.size()-1;
+  } else { // Bins are specified by nx,xmin,xmax (equal spacing)
+    if (distance(propertiesIterator, properties.end()) < 2) // Must have xmin and xmax available
+      throw TokenException("NOT enough parameters for defining 1-D histogram by N,xmin,xmax");
+    histogramDefinition.xbins = parseToken<int>(xbins, "int expected for xbins");
+    histogramDefinition.xmin = parseToken<double>(nextProperty(propertiesIterator), "double expected for xmin");
+    histogramDefinition.xmax = parseToken<double>(nextProperty(propertiesIterator), "double expected for xmax");
+  }
 
-  histogramDefinition.xbins = parseToken<int>(nextProperty(propertiesIterator), "int expected for xbins");
-  histogramDefinition.xmin = parseToken<double>(nextProperty(propertiesIterator), "double expected for xmin");
-  histogramDefinition.xmax = parseToken<double>(nextProperty(propertiesIterator), "double expected for xmax");
-
-  if (histogramDefinition.type.find("TH2") == 0) {
-    if (distance(propertiesIterator, properties.end()) < 3) {
-      throw TokenException("y-axis definition expected for TH2");
+  // Parse information regarding y-bins
+  if (histogramDefinition.type.compare(0, 3, "TH2")==0 || histogramDefinition.type.compare(0, 10, "TProfile2D")==0) {
+    if (distance(propertiesIterator, properties.end()) < 1) {
+      throw TokenException("y-axis definition expected for TH2 or TProfile2D");
     }
-
-    histogramDefinition.ybins = parseToken<int>(nextProperty(propertiesIterator), "int expected for ybins");
-    histogramDefinition.ymin = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymin");
-    histogramDefinition.ymax = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymax");
-  } else if (histogramDefinition.type == "TProfile2D") {
-    if (distance(propertiesIterator, properties.end()) < 3) {
-      throw TokenException("y-axis definition expected for TProfile2D");
+    std::string ybins = nextProperty(propertiesIterator);
+    if ( ybins.find(":")!=std::string::npos ) { // Bins are specified by array
+      std::vector<std::string> splitResult = splitWithSeparator(ybins, ":");
+      for (auto binString : splitResult) // Convert to vector of floats
+        histogramDefinition.yArray.push_back(parseToken<double>(binString,"double expected for bin edge"));
+      histogramDefinition.ybins = histogramDefinition.yArray.size()-1;
+    } else { // Bins are specified by ny,ymin,ymax (equal spacing)
+      if (distance(propertiesIterator, properties.end()) < 2) // Must have ymin and ymax available
+        throw TokenException("NOT enough parameters for defining 1-D histogram by N,ymin,ymax");
+      histogramDefinition.ybins = parseToken<int>(ybins, "int expected for ybins");
+      histogramDefinition.ymin = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymin");
+      histogramDefinition.ymax = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymax");
     }
-
-    histogramDefinition.ybins = parseToken<int>(nextProperty(propertiesIterator), "int expected for ybins");
-    histogramDefinition.ymin = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymin");
-    histogramDefinition.ymax = parseToken<double>(nextProperty(propertiesIterator), "double expected for ymax");
-
-    if (distance(propertiesIterator, properties.end()) >= 2) {
+    // Parse information regarding z range
+    if (histogramDefinition.type=="TProfile2D" && distance(propertiesIterator, properties.end())>1) {
       histogramDefinition.zmin = parseToken<double>(nextProperty(propertiesIterator), "double expected for zmin of TProfile2D");
       histogramDefinition.zmax = parseToken<double>(nextProperty(propertiesIterator), "double expected for zmax of TProfile2D");
       histogramDefinition.zcut = true;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -37,6 +37,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_allowMetaDataStop(false),
+        m_outputPreprared(false),
 	m_persToClid(),
 	m_toolForClid(),
 	m_streamForKey() {
@@ -324,16 +325,20 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 StatusCode MetaDataSvc::prepareOutput()
 {
    StatusCode rc(StatusCode::SUCCESS);
-   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
-      if ( (*it)->metaDataStop().isFailure() ) {
-         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
-         rc = StatusCode::FAILURE;
+   // Check if already called
+   if (!m_outputPreprared) { 
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
+         if ( (*it)->metaDataStop().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+            rc = StatusCode::FAILURE;
+         }
+      }
+      if (!m_metaDataTools.release().isSuccess()) {
+         ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
    }
-   if (!m_metaDataTools.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-   }
+   m_outputPreprared=true;
    return rc;
 }
 
@@ -402,7 +407,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
 
-   // Set to be listener for end of event
+   // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 
    Incident metaDataStopIncident(name(), "MetaDataStop");
@@ -414,6 +419,8 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }
+   // Reset flag to allow calling prepareOutput again at next transition
+   m_outputPreprared = false;
 
    return(StatusCode::SUCCESS);
 }
@@ -426,6 +433,7 @@ StatusCode MetaDataSvc::io_reinit() {
  	     last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attached MetadDataTool: " << (*iter)->name());
    }
+   m_outputPreprared = false;
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -516,6 +524,13 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const std::string par[3] = { "SHM" , keyName , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
+   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
+   if (iter == m_streamForKey.end()) {
+      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
+   } else if (fileName != iter->second) { // Remove duplicated objects
+      ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
+      m_inputDataStore->proxy(clid, keyName)->reset();
+   }
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
       return(StatusCode::FAILURE);
@@ -531,13 +546,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    }
    if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink (clid, keyName, 187169987).isFailure()) {
       ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
-   }
-   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
-   if (iter == m_streamForKey.end()) {
-      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
-   } else if (fileName != iter->second) { // Remove duplicated objects
-      ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
-      m_inputDataStore->proxy(clid, keyName)->reset();
    }
    return(StatusCode::SUCCESS);
 }

@@ -3,12 +3,11 @@
 #
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from CaloTools.CaloLumiBCIDConfig import CaloLUMIBCIDToolCfg
 
 
-def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
+def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
+
     acc = ComponentAccumulator()
-    from AthenaCommon.Constants import DEBUG
     # configure calo data access
     from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
     cdaSvcAcc = trigCaloDataAccessSvcCfg( flags )
@@ -17,8 +16,6 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
 
     from TileConditions.TileConditionsConfig import tileCondCfg
     acc.merge( tileCondCfg( flags ) )    
-
-    acc.merge( CaloLUMIBCIDToolCfg( flags ) ) # this tool is required by the LArCellCont - 
 
     # configure tools (this can be simplified further,
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex
@@ -37,37 +34,44 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
-    #from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
-    #ring = RingerFexConfig('RingsMaker')
-    #ring.OutputLevel=DEBUG
-    #ring.RingsKey='CaloRings'
-    #acc.addPublicTool( ring )
-
-    __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
-    for t in __fex_tools:
-        t.TrigTimerSvc = ""
-        t.trigDataAccessMT = cdaSvc # set data access svc
-        t.OutputLevel = DEBUG
-
-    
     alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-
-    alg.IReAlgToolList = __fex_tools
     alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2
-    alg.OutputLevel = DEBUG
 
+
+    __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
+   
+    from AthenaCommon.Constants import DEBUG
+    if doRinger:
+      from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
+      ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
+      ringer.OutputLevel=DEBUG
+      #ringer.RingsKey= recordable("L2CaloRinger")
+      ringer.RingerKey= "HLT_L2CaloRinger"
+      ringer.ClustersName = alg.ClustersName
+      acc.addPublicTool( ringer )
+      __fex_tools.append(ringer)
+ 
+    alg.IReAlgToolList = __fex_tools
+    
+    for t in __fex_tools:
+        t.trigDataAccessMT = cdaSvc # set data access svc
+        t.OutputLevel = DEBUG
+
+    
     # set calibration
-    from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaHitsCalibrationBarrelConfig, EgammaGapCalibrationConfig, EgammaTransitionRegionsConfig
+    from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaHitsCalibrationBarrelConfig, \
+                                                              EgammaGapCalibrationConfig, EgammaTransitionRegionsConfig
     alg.CalibListBarrel  = [EgammaSshapeCalibrationBarrelConfig()]
     alg.CalibListBarrel += [EgammaHitsCalibrationBarrelConfig()]
     alg.CalibListBarrel += [EgammaGapCalibrationConfig()]
     alg.CalibListBarrel += [EgammaTransitionRegionsConfig()]
 
-    from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationEndcapConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
+    from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationEndcapConfig, EgammaHitsCalibrationEndcapConfig, \
+                                                              EgammaGapCalibrationConfig
     alg.CalibListEndcap  = [EgammaSshapeCalibrationEndcapConfig()]
     alg.CalibListEndcap += [EgammaHitsCalibrationEndcapConfig()]
     alg.CalibListEndcap += [EgammaGapCalibrationConfig()]

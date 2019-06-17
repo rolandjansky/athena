@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtData.h"
@@ -68,7 +68,7 @@ class MuFastPatternFinder: public AthAlgTool
 
    private:
       // MDT calibration service
-      ServiceHandle<MdtCalibrationSvc> m_mdtCalibrationSvc;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
 
       // Id helper
       const MdtIdHelper* m_mdtIdHelper;

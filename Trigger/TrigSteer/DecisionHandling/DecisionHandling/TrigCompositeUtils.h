@@ -210,13 +210,20 @@ namespace TrigCompositeUtils {
   private:
     std::string m_name;
   };
-
   
   /**
-   * @brief collects all TC linked back to the start TC
-   * @return true if search worked, false if a composite TC was found but not links back were found there
+   * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
+   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
+   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
+   * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
    **/
-  bool recursiveGetObjectLinks( const xAOD::TrigComposite* start, ElementLinkVector<xAOD::TrigCompositeContainer>& linkVector);
+  void recursiveGetDecisions( const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0 );
+
+
+  /**
+   * @brief Used by recursiveGetDecisions
+   **/
+  void recursiveGetDecisionsInternal( const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0);
 
   /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
@@ -239,6 +246,15 @@ namespace TrigCompositeUtils {
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
   };
+
+  /**
+   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
+   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
+   * @param[oneFeaturePerLeg] oneFeaturePerLeg If True, stops at the first feature (of the correct type) found per path through the navigation.
+   * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
+   **/
+  template<class CONTAINER>
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg = true );
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)

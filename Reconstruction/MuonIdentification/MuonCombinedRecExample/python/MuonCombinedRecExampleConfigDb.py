@@ -8,7 +8,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
-
 # combined tools
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
@@ -31,15 +30,14 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilder",'Combine
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauCandidateTrackBuilderTool","MuonStauCandidateTrackBuilderTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauInsideOutRecoTool","MuonStauInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauRecoTool","MuonStauRecoTool")
-
-
-
-addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagTool")
 addTool("Rec::MuonMomentumBalanceSignificanceTool","MuonMomentumBalanceSignificanceTool")
 addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignificanceTool")
+addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonMaterialProviderTool")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
@@ -55,6 +53,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreat
 
 # tracking tools
 addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "AtlasTrackSummaryTool" )
+addTool("Trk::ParticleCaloExtensionTool", "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
 
 # put this here until it is set in the appropriate package
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagMatchingTool","MuTagMatchingTool")
@@ -70,7 +69,6 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorT
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTrackSummaryTool","MuonCombinedTrackSummaryTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.MuonSimpleAmbiProcessorTool","MuonSimpleAmbiProcessorTool")
 
 #addTool("MuonCombinedRecExample.CombinedMuonTrackSummary.CombinedMuonTrackSummary","CombinedMuonTrackSummary")
 

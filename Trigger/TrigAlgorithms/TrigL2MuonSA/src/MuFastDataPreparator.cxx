@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
@@ -14,15 +14,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MuFastDataPreparator("IID_MuFastDataPreparator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuFastDataPreparator::interfaceID() { return IID_MuFastDataPreparator; }
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -30,30 +21,10 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
                                                          const std::string& name,
                                                          const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_options(),
-  m_regionSelector("RegSelSvc", name ),
-  m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
-  m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator", this),
-  m_mdtDataPreparator("TrigL2MuonSA::MdtDataPreparator", this),
-  m_cscDataPreparator("TrigL2MuonSA::CscDataPreparator"),
-  m_rpcRoadDefiner("TrigL2MuonSA::RpcRoadDefiner"),
-  m_tgcRoadDefiner("TrigL2MuonSA::TgcRoadDefiner"),
-  m_rpcPatFinder("TrigL2MuonSA::RpcPatFinder")
-{
-   declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
-   declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
-   declareProperty("RPCDataPreparator", m_rpcDataPreparator );
-   declareProperty("TGCDataPreparator", m_tgcDataPreparator );
-   declareProperty("MDTDataPreparator", m_mdtDataPreparator );
-   declareProperty("CSCDataPreparator", m_cscDataPreparator );
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::MuFastDataPreparator::~MuFastDataPreparator() 
+  m_regionSelector("RegSelSvc", name)
 {
 }
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -225,10 +196,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   StatusCode sc = StatusCode::SUCCESS;
   
-  if(!m_use_rpc){
+  if(m_use_rpc) {
 
-  } else {
-    
     m_rpcPatFinder->clear();
 
     unsigned int roiWord = p_roi->roiWord();
@@ -346,21 +315,3 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
   return StatusCode::SUCCESS; 
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastDataPreparator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuFastDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not finalize the AthAlgTool base class.");
-     return sc;
-   }
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

@@ -107,7 +107,6 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
-  IntegerProperty  m_vetoThisBarcode;
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
   Pixel_detElement_RIO_map* m_pixelClusterMap;

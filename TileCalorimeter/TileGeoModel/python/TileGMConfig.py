@@ -8,6 +8,8 @@ def TileGMCfg(configFlags):
 
     from TileGeoModel.TileGeoModelConf import TileDetectorTool
     result.getPrimary().DetectorTools += [ TileDetectorTool() ]
+    if not configFlags.Detector.SimulateCalo:
+        result.getPrimary().DetectorTools["TileDetectorTool"].GeometryConfig = "RECO"
 
     return result
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ComboHypo.h"
@@ -86,7 +86,7 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
           std::inserter( common, common.end() ) );
 
         Decision*  newDec = newDecisionIn( outDecisions );
-        linkToPrevious( newDec, inputDecision );
+        linkToPrevious( newDec, inputDecision, context );
         ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec, "initialRoI")).isValid()
           << " valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");   
 

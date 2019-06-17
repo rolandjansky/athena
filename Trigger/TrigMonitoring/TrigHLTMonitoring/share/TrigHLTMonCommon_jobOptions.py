@@ -102,7 +102,6 @@ if data_type == 'bytestream':
 
     theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
     theByteStreamAddressProviderSvc.TypeNames += ['HLT::HLTResult/HLTResult_HLT',
-        "ROIB::RoIBResult/RoIBResult",
         "MuCTPI_RDO/MUCTPI_RDO",
         "CTP_RDO/CTP_RDO",
         ]

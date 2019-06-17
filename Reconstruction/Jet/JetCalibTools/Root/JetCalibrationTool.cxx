@@ -37,6 +37,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
+  declareProperty( "rhkRhoKey", m_rhkRhoKey);
 
 }
 

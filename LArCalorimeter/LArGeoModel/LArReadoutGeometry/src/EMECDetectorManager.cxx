@@ -20,8 +20,10 @@
 // Class EMECDetectorManager 
 
 EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
-					 , const EMECHVManager* hvManagerOuter)
-  :m_MagicNumbers(new EMECMagicNumbers())
+					 , const EMECHVManager* hvManagerOuter
+					 , const EMECPresamplerHVManager* presamplerHVManager)
+  : m_MagicNumbers(new EMECMagicNumbers())
+  , m_presamplerHVManager(presamplerHVManager)
 {
   setName("LArEMEC");
   
@@ -37,7 +39,6 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
 
   m_HVManager[0]=hvManagerInner;
   m_HVManager[1]=hvManagerOuter;
-  m_presamplerHVManager=NULL;
 
   // The EMEC gets and managers certain arrays needed to build descriptors.  Here is that:
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -138,15 +139,14 @@ const EMECHVManager& EMECDetectorManager::getHVManager (EMECHVManager::IOType io
   return *(m_HVManager[io]);
 }
 
-const EMECPresamplerHVManager * EMECDetectorManager::getPresamplerHVManager () const
+const EMECPresamplerHVManager& EMECDetectorManager::getPresamplerHVManager () const
 {
-
   if (!m_presamplerHVManager) {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
+    const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_presamplerHVManager=manager->getEMECPresamplerHVManager();
+      m_presamplerHVManager=&(manager->getEMECPresamplerHVManager());
     }
   } 
-  return m_presamplerHVManager;
+  return *m_presamplerHVManager;
 }

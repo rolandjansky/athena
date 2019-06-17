@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoolLumiUtilities/OnlineLumiCalibrator.h"
@@ -10,6 +10,12 @@
 
 #include <cmath>
 #include <iostream>
+
+#ifdef __linux__
+#include <endian.h>
+static_assert (__FLOAT_WORD_ORDER == __LITTLE_ENDIAN,
+               "OnlineLumiCalibrator assumes little-endian byte ordering.");
+#endif
 
 //--------------------------------------------------
 OnlineLumiCalibrator::OnlineLumiCalibrator() :

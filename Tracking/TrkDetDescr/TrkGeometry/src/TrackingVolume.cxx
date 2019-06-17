@@ -384,13 +384,13 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   const Trk::TrackingVolume* in  = 0;
   const Trk::TrackingVolume* out = 0;
   for (unsigned int ib = 0; ib < trVol.boundarySurfaces().size() ; ib++) {
-    in = trVol.boundarySurfaces()[ib].getRef().m_insideVolume == &trVol ? this : 0;
+    in = trVol.boundarySurfaces()[ib].get()->m_insideVolume == &trVol ? this : 0;
     out = in == 0 ? this : 0;
-    const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (trVol.boundarySurfaces()[ib].getPtr());
-    const Trk::DiscSurface*     dis = dynamic_cast<const Trk::DiscSurface*> (trVol.boundarySurfaces()[ib].getPtr());
-    const Trk::PlaneSurface*    pla = dynamic_cast<const Trk::PlaneSurface*> (trVol.boundarySurfaces()[ib].getPtr());
-    const Trk::SubtractedCylinderSurface* scyl = dynamic_cast<const Trk::SubtractedCylinderSurface*> (trVol.boundarySurfaces()[ib].getPtr());
-    const Trk::SubtractedPlaneSurface*    spla = dynamic_cast<const Trk::SubtractedPlaneSurface*> (trVol.boundarySurfaces()[ib].getPtr());
+    const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (trVol.boundarySurfaces()[ib].get());
+    const Trk::DiscSurface*     dis = dynamic_cast<const Trk::DiscSurface*> (trVol.boundarySurfaces()[ib].get());
+    const Trk::PlaneSurface*    pla = dynamic_cast<const Trk::PlaneSurface*> (trVol.boundarySurfaces()[ib].get());
+    const Trk::SubtractedCylinderSurface* scyl = dynamic_cast<const Trk::SubtractedCylinderSurface*> (trVol.boundarySurfaces()[ib].get());
+    const Trk::SubtractedPlaneSurface*    spla = dynamic_cast<const Trk::SubtractedPlaneSurface*> (trVol.boundarySurfaces()[ib].get());
     if (scyl) m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
                  (new Trk::BoundarySubtractedCylinderSurface<Trk::TrackingVolume>(in,out,*scyl,transform)));
     else if (spla)  m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
@@ -847,7 +847,7 @@ const std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVol
 
 const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySurface(const ObjectAccessor::value_type& oa) const
 {
-  return (m_boundarySurfaces->operator[](oa)).getPtr();
+  return (m_boundarySurfaces->operator[](oa)).get();
 }
 
 void Trk::TrackingVolume::createBoundarySurfaces()
@@ -1049,7 +1049,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV(Amg::Transform3D& transf
       const Trk::PlaneLayer* lay = dynamic_cast<const Trk::PlaneLayer*> (layers[i]); 
       if (lay) {
         Trk::PlaneLayer* newlay = new Trk::PlaneLayer(*lay, transform);
-        layerOrder.push_back( Trk::SharedObject<const Trk::Layer>(newlay, false)); 
+        layerOrder.push_back( Trk::SharedObject<const Trk::Layer>(newlay)); 
       }
     }
     // recreate LayerArray  
@@ -1103,7 +1103,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV(Amg::Transform3D& transf
     std::vector<Trk::SharedObject<const TrackingVolume> > volOrder;
     for (unsigned int i=0; i < volumes.size(); i++) {
       const Trk::TrackingVolume* vol = volumes[i]->cloneTV( transform );
-      volOrder.push_back(Trk::SharedObject<const TrackingVolume>(vol, false)); 
+      volOrder.push_back(Trk::SharedObject<const TrackingVolume>(vol)); 
     }
     // recreate TrackingVolumeArray
     const Trk::NavBinnedArray1D<Trk::TrackingVolume>* confVolsNav = dynamic_cast<const Trk::NavBinnedArray1D<Trk::TrackingVolume>*> (confVolumes);

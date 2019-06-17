@@ -50,6 +50,9 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_lumiTool("LuminosityTool/OnlLuminosityTool"),//online mu
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
+    declareProperty("ElectronLHVLooseTool"      , m_electronLHVLooseTool        );
+    declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
+    declareProperty("ElectronLikelihoodTool", m_electronLHTool);
     declareProperty("MatchTool",m_matchTool);
     declareProperty("EmulationTool",m_emulationTool);
     declareProperty("doEmulation", m_doEmulation=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateEmulation,this);
@@ -105,14 +108,14 @@ void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
 
 void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
     plot()->setTP(m_tp);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
 void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
     plot()->setEmulation(m_doEmulation);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
         tool->setEmulationTool(m_emulationTool);
@@ -169,6 +172,14 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     try {
         ATH_MSG_DEBUG("child Initialize " << name());
         sc = childInitialize();
+    	if ( (m_electronIsEMTool.retrieve()).isFailure() ){
+    	    ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
+    	    return StatusCode::FAILURE;
+    	}
+    	if ( (m_electronLHTool.retrieve()).isFailure() ){
+    	    ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
+    	    return StatusCode::FAILURE;
+    	}
     } catch(const ValidationException &e) {
         ATH_MSG_ERROR("Exception thrown: " << e.msg());
         return StatusCode::FAILURE;
@@ -179,7 +190,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
 
     // propagate the emulation tool for all tools
     if( m_doEmulation ){
-      for( const auto& tool : m_tools) {
+      for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
         tool->setEmulationTool(m_emulationTool);  
       }
@@ -234,14 +245,14 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
     setAvgOnlineMu();
     setAvgOfflineMu();
     try {
-        ATH_MSG_DEBUG("Running execute() for " << name());
+        ATH_MSG_DEBUG("Running execute() "  << name());
         sc = childExecute();
     } catch(const ValidationException &e) {
-        ATH_MSG_ERROR("Exception thrown: " << e.msg() );
+        ATH_MSG_ERROR("Exception thrown: " << e.msg() << " by " << name() );
         return StatusCode::FAILURE;
     } catch(...) {
         sc.ignore();
-        ATH_MSG_WARNING("Unknown exception caught, while filling histograms");
+        ATH_MSG_WARNING("Unknown exception caught, while filling histograms " << name());
         return StatusCode::SUCCESS;
     }
     return sc;
@@ -256,10 +267,10 @@ StatusCode TrigEgammaAnalysisBaseTool::finalize() {
             ATH_MSG_DEBUG("child Finalize " << tool->name());
             sc = tool->childFinalize();
         } catch(const ValidationException &e) {
-            ATH_MSG_ERROR("Exception thrown: " << e.msg());
+            ATH_MSG_ERROR("Exception thrown: " << e.msg() << " for " << tool->name());
             return StatusCode::FAILURE;
         } catch(...) {
-            ATH_MSG_ERROR("Unknown exception caught, while initializing");
+            ATH_MSG_ERROR("Unknown exception caught, while finalizing " << tool->name() );
             return StatusCode::FAILURE;
         }
     
@@ -417,14 +428,15 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
             pidname = defaultPid;
             etcut=true;
         }
-        else {
-	    if (type == "electron" && boost::contains(trigger, "ion")){
-		    ATH_MSG_DEBUG("Heavy ion electron chain being used. Using LHMediumHI tune for offline.");
-		        pidname="LHMediumHI";
-	    } else {
-		pidname = getProbePid(strs.at(1));
-	    }
-	}
+	// HI is not working in master any more. So commenting out untill fixed
+        // else {
+	//     if (type == "electron" && boost::contains(trigger, "ion")){
+	// 	    ATH_MSG_DEBUG("Heavy ion electron chain being used. Using LHMediumHI tune for offline.");
+	// 	        pidname="LHMediumHI";
+	//     } else {
+	// 	pidname = getProbePid(strs.at(1));
+	//     }
+	// }
 
         //Get the L1 information
 

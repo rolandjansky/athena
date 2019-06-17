@@ -3,7 +3,7 @@
 */
 #
 #include "./EtaEtConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 
 #include <sstream>
@@ -18,18 +18,18 @@ EtaEtConditionMT::EtaEtConditionMT(double etaMin,
 
 
 bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
-                                   std::unique_ptr<IConditionVisitor>& visitor) const {
+                                   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   auto abseta = std::abs(ip->eta());
   auto et = ip->et();
   bool result =
     m_etaMin <= abseta and
     m_etaMax > abseta and
     m_threshold <= et;
-  if(visitor){
-    visitor->visit(this,
-                   std::to_string(abseta) + " " +
-                   std::to_string(et) + " " +
-                   std::to_string(result) + '\n');
+  if(collector){
+    collector->collect("EtaEtConditionMT",
+		       std::to_string(abseta) + " " +
+		       std::to_string(et) + " " +
+		       std::to_string(result) + '\n');
   }
   return result;
 }
@@ -37,15 +37,15 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
 
 bool 
 EtaEtConditionMT::isSatisfied(const HypoJetVector& ips,
-                              std::unique_ptr<IConditionVisitor>& v) const {
-  auto result =  isSatisfied(ips[0], v);
+                              const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const {
+  auto result =  isSatisfied(ips[0], c);
   return result;
 }
 
 
 std::string EtaEtConditionMT::toString() const noexcept {
   std::stringstream ss;
-  ss << "Eta Et ConditionMT: etaMin "
+  ss << "EtaEtConditionMT: etaMin "
      <<  m_etaMin 
      << " etaMax " 
      << m_etaMax 

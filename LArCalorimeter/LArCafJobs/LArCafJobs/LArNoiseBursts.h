@@ -86,7 +86,6 @@ class LArNoiseBursts : public AthAlgorithm  {
 
    //functions
    int GetPartitionLayerIndex(const Identifier& id);
-   std::vector<int>* GetHVLines(const Identifier& id);
      
    StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont);
 

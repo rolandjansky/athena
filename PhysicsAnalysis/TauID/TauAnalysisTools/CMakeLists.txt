@@ -82,7 +82,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( ut_TauAnalysisTools_test
       SOURCES test/ut_TauAnalysisTools_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       GaudiKernel AsgTools xAODTau TauAnalysisToolsLib )
 endif()
 

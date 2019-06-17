@@ -307,11 +307,11 @@ private:
   ToolHandle<INavigator>                        m_navigator;                        //!< Navigator
   ToolHandle<IMaterialMixtureConvolution>       m_materialUpdator;                  //!< (Multi-component) material effects updator
   ToolHandle<IMultiComponentStateMerger>        m_merger;                           //!< Multi-component state reduction
-  PublicToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
+  ToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
   {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};    //!< Multi-component State combiner
-  PublicToolHandle< IMultipleScatteringUpdator >      m_msupdators
+  ToolHandle< IMultipleScatteringUpdator >      m_msupdators
   {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!<  Array of MultipleScattering Updators
-  PublicToolHandle< IEnergyLossUpdator >              m_elossupdators
+  ToolHandle< IEnergyLossUpdator >              m_elossupdators
   {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};                         //!<  Array of EnergyLoss Updators
 
   bool                               m_propagatorStickyConfiguration;    //!< Switch between simple and full configured propagators

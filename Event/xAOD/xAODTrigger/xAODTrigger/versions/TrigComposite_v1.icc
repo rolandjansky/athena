@@ -109,7 +109,7 @@ namespace xAOD {
       return true;
     }
   }
-  
+
    template< class CONTAINER >
    ElementLink< CONTAINER >
    TrigComposite_v1::objectLink( const std::string& name ) const {
@@ -118,17 +118,17 @@ namespace xAOD {
       const std::vector< std::string >& names = linkColNames();
       for( size_t i = 0; i < names.size(); ++i ) {
          if( names[ i ] != name ) continue;
-         // Check that it is of the right type:
-         if( linkColClids()[ i ] != ClassID_traits< CONTAINER >::ID() ) {
-            const std::string typeName =
-               SG::normalizedTypeinfoName( typeid( CONTAINER ) );
-            throw std::runtime_error( "xAOD::TrigComposite::objectLink: "
-                                      "Wrong type (" + typeName + ") requested "
-                                      "for name \"" + name + "\"" );
+         checkTypes< CONTAINER >(linkColClids()[ i ], name);
+         // Construct the link. Try to remap, if remap collections are available:
+         ElementLink< CONTAINER > linkTryRemap( linkColKeys()[ i ],
+                                                linkColIndices()[ i ] );
+         if (linkTryRemap.isValid()) {
+            return linkTryRemap;
          }
-         // Construct the link:
-         return ElementLink< CONTAINER >( linkColKeys()[ i ],
-                                          linkColIndices()[ i ] );
+
+         // Try again, without remapping
+         return ElementLink< CONTAINER >( linkColKeysNoRemap()[ i ],
+                                          linkColIndicesNoRemap()[ i ] );
       }
 
       // We didn't find the link. :-(
@@ -150,24 +150,21 @@ namespace xAOD {
       for( size_t i = 0; i < names.size(); ++i ) {
          if( names[ i ] != name ) continue;
          // Check that it is of the right type:
-         if( linkColClids()[ i ] !=
-             ClassID_traits< DataVector< OBJECT > >::ID() ) {
-            const std::string typeName =
-               SG::normalizedTypeinfoName( typeid( OBJECT ) );
-            std::cerr << "xAOD::TrigComposite_v1::object WARNING Wrong type ("
-                      << typeName << ") requested for CLID "
-                      << linkColClids()[ i ] << " and name \"" << name
-                      << std::endl;
-            return 0;
-         }
+         checkTypes< DataVector< OBJECT > >(linkColClids()[ i ], name);
          // Create a temporary ElementLink:
-         ElementLink< DataVector< OBJECT > > link( linkColKeys()[ i ],
-                                                   linkColIndices()[ i ] );
-         if( ! link.isValid() ) {
-            return 0;
+         ElementLink< DataVector< OBJECT > > linkTryRemap( linkColKeys()[ i ],
+                                                           linkColIndices()[ i ] );
+         if( linkTryRemap.isValid() ) {
+            return *linkTryRemap;
          }
-         // Get the pointer:
-         return *link;
+
+         // This time forbid remapping
+         ElementLink< DataVector< OBJECT > > link( linkColKeysNoRemap()[ i ],
+                                                   linkColIndicesNoRemap()[ i ] );
+
+         if( link.isValid() ) {
+            return *link;
+         }
       }
 
       // There was an internal error. :-(
@@ -215,20 +212,29 @@ namespace xAOD {
     const std::vector< std::string >& names = linkColNames();
     for( size_t i = 0; i < names.size(); ++i ) {
        if( names[ i ] != mangledName ) continue;
-       // Check that it is of the right type:
-       if( linkColClids()[ i ] != ClassID_traits< CONTAINER >::ID() ) {
-          const std::string typeName =
-             SG::normalizedTypeinfoName( typeid( CONTAINER ) );
-          throw std::runtime_error( "xAOD::TrigComposite::objectCollectionLinks: "
-                                    "Wrong type (" + typeName + ") requested "
-                                    "for collection name \"" + collectionName + "\"" );
-       }
+        // Check that it is of the right type:
+       checkTypes< CONTAINER >(linkColClids()[ i ], collectionName);
        // Construct and add the link:
        links.push_back( ElementLink< CONTAINER >(linkColKeys()[ i ],
                                                  linkColIndices()[ i ]) );
      }
      return links;
   }
+
+   template<class CONTAINER>
+   void TrigComposite_v1::checkTypes(const uint32_t storedCLID, const std::string& name) const {
+      if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+         if (!derivesFromIParticle(storedCLID)) {
+            throw std::runtime_error( "xAOD::TrigComposite::checkTypes: "
+                                      "Cannot retrieve \"" + name + "\" as an IParticle");
+         }
+      } else if (ClassID_traits< CONTAINER >::ID() != storedCLID) {
+         const std::string typeName = SG::normalizedTypeinfoName( typeid( CONTAINER ) );
+         throw std::runtime_error( "xAOD::TrigComposite::checkTypes: "
+                                   "Wrong type (" + typeName + ") requested "
+                                   "for name \"" + name + "\"" );
+      }
+   }
 
 } // namespace xAOD
 

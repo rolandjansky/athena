@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IToolSvc.h"
@@ -90,14 +90,13 @@ namespace Analysis {
     // prepare readKey for calibration data:
     ATH_CHECK(m_readKey.initialize());
 
-    m_egammaBDTs.clear();
+    //m_egammaBDTs.clear();
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode MV2Tag::finalize() {
     ATH_MSG_DEBUG("#BTAG# Finalizing MV2.");
-    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     for (auto& iter: m_local_inputvals) {
         delete iter.second;
     }
@@ -132,17 +131,23 @@ namespace Analysis {
     if (m_forceMV2CalibrationAlias) {
       author = m_MV2CalibAlias;
     }
-    std::unique_ptr<MVAUtils::BDT> bdt(nullptr); std::map<std::string, const MVAUtils::BDT*>::iterator it_egammaBDT;
 
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
-    //readCdo->printHistosStatus();
 
     std::string alias = readCdo->getChannelAlias(author);
 
+    //Retrieve BDT from cond object
+    MVAUtils::BDT *bdt(nullptr);
+    ATH_MSG_DEBUG("#BTAG# Getting MVAUtils::BDT for "<<m_taggerNameBase);
+    bdt = readCdo->retrieveBdt(m_taggerNameBase,author);
+    if (!bdt) {
+      ATH_MSG_WARNING("#BTAG# No BDT for " << m_taggerNameBase<<" exists in the condition object.. Disabling algorithm.");
+      m_disableAlgo=true;
+      return;
+    }
 
     TObjArray* toa=readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
-    TTree *tree = readCdo->retrieveTObject<TTree>(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_treeName);
     std::string commaSepVars="";
     if (toa) {
       TObjString *tos= nullptr;
@@ -162,20 +167,8 @@ namespace Analysis {
     }
     inputVars.push_back(commaSepVars.substr(0,-1));
 
-    ATH_MSG_DEBUG("#BTAG# tree name= "<< tree->GetName() <<" inputVars.size()= "<< inputVars.size());// <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
+    ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
     for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
-
-    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-  
-    if (tree) {
-      ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
-      bdt = std::make_unique<MVAUtils::BDT>(tree);
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-      m_disableAlgo=true;
-      return;
-    }
 
     CreateLocalVariables( inputs );
 
@@ -190,7 +183,6 @@ namespace Analysis {
       m_disableAlgo=true;
       return;
     }
- 
     bdt->SetPointers(inputPointers);
 
     // #2 fill inputs
@@ -198,13 +190,13 @@ namespace Analysis {
     //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
     ReplaceNaN_andAssign(inputs);
 
-    // #3: Calcuation of MVA output variable(s)
+    // #3: Calculation of MVA output variable(s)
     /* compute MV2: */
     double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10.;
 
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(bdt.get());//this gives back double
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(bdt);//this gives back double
       else { //if it is MV2m
-        std::vector<float> outputs= GetMulticlassResponse(bdt.get());//this gives back float
+        std::vector<float> outputs= GetMulticlassResponse(bdt);//this gives back float
       	//vector size is checked in the function above
       	mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
       }

@@ -5,16 +5,12 @@
 #ifndef LARHV_LARHVMANAGER_H
 #define LARHV_LARHVMANAGER_H
 
-class HECHVManager;
-class FCALHVManager;
-class EMBPresamplerHVManager;
-class EMECPresamplerHVManager;
-
-#include "LArHV/EMECHVManager.h"
 #include "LArHV/EMBHVManager.h"
-
-#include "IOVSvc/IOVSvc.h"
-#include "StoreGate/DataHandle.h"
+#include "LArHV/EMECHVManager.h"
+#include "LArHV/HECHVManager.h"
+#include "LArHV/FCALHVManager.h"
+#include "LArHV/EMBPresamplerHVManager.h"
+#include "LArHV/EMECPresamplerHVManager.h"
  
 /**
  * @class LArHVManager
@@ -26,54 +22,48 @@ class EMECPresamplerHVManager;
 
 class LArHVManager
 {
-  public:
+ public:
   
-    typedef EMECHVManager::IOType IOType;
+  typedef EMECHVManager::IOType IOType;
   
-    // Constructor
-    // 
-    LArHVManager(const HECHVManager *hecHv, const FCALHVManager *fcalHv, const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
+  LArHVManager();
+  ~LArHVManager();
     
-    //  Destructor
-    virtual ~LArHVManager();
-    
-    // Returns the EMBHVManager
-    const EMBHVManager& getEMBHVManager() const;
-
-    // Returns the Barrel Presampler Manager:
-    const EMBPresamplerHVManager *getEMBPresamplerHVManager() const;
+  // Returns the EMBHVManager
+  const EMBHVManager& getEMBHVManager() const;
   
-    // Returns the EMECHVManager
-    const EMECHVManager& getEMECHVManager(IOType IO) const;
+  // Returns the Barrel Presampler Manager:
+  const EMBPresamplerHVManager& getEMBPresamplerHVManager() const;
   
-    // Returns the Endcap Presampler Manager:
-    const EMECPresamplerHVManager *getEMECPresamplerHVManager() const;
+  // Returns the EMECHVManager
+  const EMECHVManager& getEMECHVManager(IOType IO) const;
   
-    // Returns the HECHVManager
-    const HECHVManager *getHECHVManager() const;
+  // Returns the Endcap Presampler Manager:
+  const EMECPresamplerHVManager& getEMECPresamplerHVManager() const;
   
-    // Returns the FCALHVManager
-    const FCALHVManager *getFCALHVManager() const;
-    
-    void reset() const;
-    
+  // Returns the HECHVManager
+  const HECHVManager& getHECHVManager() const;
+  
+  // Returns the FCALHVManager
+  const FCALHVManager& getFCALHVManager() const;
+  
+  void reset() const;
+  
  protected:
-
-    LArHVManager& operator=(const LArHVManager& right);
-    
+  
+  LArHVManager& operator=(const LArHVManager& right);
+  
  private:
 
   LArHVManager(const LArHVManager& right);
   
-
-  EMBHVManager   m_embHV;
-  EMECHVManager  m_emecHVInner;
-  EMECHVManager  m_emecHVOuter;
-  const HECHVManager            *m_hecHV;
-  const FCALHVManager           *m_fcalHV;
-  const EMBPresamplerHVManager  *m_embPreHV;
-  const EMECPresamplerHVManager *m_emecPreHV;
-
+  EMBHVManager            m_embHV;
+  EMECHVManager           m_emecHVInner;
+  EMECHVManager           m_emecHVOuter;
+  HECHVManager            m_hecHV;
+  FCALHVManager           m_fcalHV;
+  EMBPresamplerHVManager  m_embPreHV;
+  EMECPresamplerHVManager m_emecPreHV;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

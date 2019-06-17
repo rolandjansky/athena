@@ -68,20 +68,30 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
     auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
-    
-    auto d = newDecisionIn( decisions, name() );
+    // Loop over the clusterHandles
+    size_t validclusters=0;
+    for (size_t cl=0; cl< clusterHandle->size(); cl++){
+	{
+	    auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, cl );
+	    ATH_MSG_DEBUG ( "Checking el.isValid()...");
+	    if( !el.isValid() ) {
+		ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
+	    }
+	    ATH_CHECK(el.isValid());
+
+	    ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " processing...");
+	    auto d = newDecisionIn( decisions, name() );
+	    d->setObjectLink( "feature",  el );
+	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+	    d->setObjectLink( "roi", roiELInfo.link );
+	    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(cl), previousDecision );
+	    validclusters++;
 
 
-    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
-
-    {
-      	 auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
-      	 ATH_CHECK( el.isValid() );
-      	 d->setObjectLink( "feature",  el );
+	}
     }
-    d->setObjectLink( "roi", roiELInfo.link );
+    ATH_MSG_DEBUG( "Clusters with valid links: " << validclusters );
     
-    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
     ATH_MSG_DEBUG( "roi, cluster, previous decision to new decision " << counter << " for roi " );
     counter++;
 

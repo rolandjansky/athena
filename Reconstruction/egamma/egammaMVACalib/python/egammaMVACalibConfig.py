@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaMVACalib.egammaMVACalibConf import egammaMVACalibTool, egammaMVASvc
 from ROOT import xAOD
@@ -8,11 +8,18 @@ import cppyy
 cppyy.loadDictionary('xAODEgammaDict')
 
 
-def egammaMVASvcCfg(flags):
+def egammaMVASvcCfg(flags, name="egammaMVASvc"):
+
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
 
-    folder = flags.Egamma.Calib.MVAVersion
+    if flags.Egamma.Calib.MVAVersion is not None:
+        folder = flags.Egamma.Calib.MVAVersion
+        mlog.debug('MVA version: %s', folder)
+    else:
+        raise KeyError("Egamma.Calib.MVAVersion is not set")
 
     electronMVATool = egammaMVACalibTool(name="electronMVATool",
                                          ParticleType=xAOD.EgammaParameters.electron,
@@ -24,7 +31,8 @@ def egammaMVASvcCfg(flags):
                                                 ParticleType=xAOD.EgammaParameters.convertedPhoton,
                                                 folder=folder)
 
-    egMVASvc = egammaMVASvc(ElectronTool=electronMVATool,
+    egMVASvc = egammaMVASvc(name=name,
+                            ElectronTool=electronMVATool,
                             UnconvertedPhotonTool=unconvertedPhotonMVATool,
                             ConvertedPhotonTool=convertedPhotonMVATool)
 
@@ -42,7 +50,7 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = ["valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6699_10evt.pool.root"]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myRDO.pool.root"]
     ConfigFlags.lock()
 
     cfg = ComponentAccumulator()

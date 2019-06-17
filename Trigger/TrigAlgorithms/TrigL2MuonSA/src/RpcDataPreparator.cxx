@@ -1,39 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
+#include <cmath>
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "CLHEP/Units/PhysicalConstants.h"
-
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
-#include "Identifier/IdentifierHash.h"
-
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-using namespace Muon;
-using namespace MuonGM;
-using namespace SG;
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_RpcDataPreparator("IID_RpcDataPreparator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::RpcDataPreparator::interfaceID() { return IID_RpcDataPreparator; }
+#include "Identifier/IdentifierHash.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "CxxUtils/phihelper.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -42,22 +22,7 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_storeGateSvc( "StoreGateSvc", name ),
-   m_activeStore( "ActiveStoreSvc", name ),
-   m_regionSelector( "RegSelSvc", name ),
-   m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
-   m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
-   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
-{
-   declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
-   declareProperty("RpcRawDataProvider", m_rawDataProviderTool);
-   declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::RpcDataPreparator::~RpcDataPreparator() 
+   m_regionSelector( "RegSelSvc", name )
 {
 }
 
@@ -66,26 +31,11 @@ TrigL2MuonSA::RpcDataPreparator::~RpcDataPreparator()
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 {
-   // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing RpcDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
-   ATH_CHECK( m_storeGateSvc.retrieve() ); 
-
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name()); 
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   ATH_CHECK( detStore->retrieve( m_muonMgr ) );
+   ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
   
@@ -95,17 +45,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_idHelperTool.retrieve() );
    ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
 
-   // Retrieve ActiveStore
-   ATH_CHECK( m_activeStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
-
    // Retreive PRC raw data provider tool
    ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
-     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
-     return StatusCode::FAILURE;
-   } else
-     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }) );
+   ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
@@ -119,8 +62,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    } 
    
    ATH_CHECK(m_rpcPrepContainerKey.initialize());
-   
-   // 
+
    return StatusCode::SUCCESS; 
 }
 
@@ -130,14 +72,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
 {
   m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
 }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
-							unsigned int roiWord,
+                                                        unsigned int roiWord,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         ToolHandle<RpcPatFinder>*   rpcPatFinder)
 {
@@ -179,7 +120,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
    std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
    std::vector<IdentifierHash> rpcHashList;
-   std::vector<IdentifierHash>  rpcHashList_cache;
+   std::vector<IdentifierHash> rpcHashList_cache;
 
    if (m_use_RoIBasedDataAccess) {
 
@@ -223,60 +164,41 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
    if (!rpcHashList.empty()) {
      
      // Get RPC container
-     const RpcPrepDataContainer* rpcPrds;
-     if (m_activeStore) {		//m_activeStore->m_storeGateSvc
-       auto rpcPrepContainerHandle = SG::makeHandle(m_rpcPrepContainerKey);
-       rpcPrds = rpcPrepContainerHandle.cptr();                                 
-       if (!rpcPrepContainerHandle.isValid()) {
-         ATH_MSG_ERROR("Cannot retrieve RPC PRD Container key: " << m_rpcPrepContainerKey.key());
-         return StatusCode::FAILURE;
-       } else {
-         ATH_MSG_DEBUG(" RPC PRD Container retrieved with key: " << m_rpcPrepContainerKey.key());
-       }         
-     } else {
-       ATH_MSG_ERROR("Null pointer to ActiveStore");
+     const Muon::RpcPrepDataContainer* rpcPrds;
+     auto rpcPrepContainerHandle = SG::makeHandle(m_rpcPrepContainerKey);
+     rpcPrds = rpcPrepContainerHandle.cptr();
+     if (!rpcPrepContainerHandle.isValid()) {
+       ATH_MSG_ERROR("Cannot retrieve RPC PRD Container key: " << m_rpcPrepContainerKey.key());
        return StatusCode::FAILURE;
+     } else {
+       ATH_MSG_DEBUG("RPC PRD Container retrieved with key: " << m_rpcPrepContainerKey.key());
      }
+
      // Get RPC collections
+     for(const IdentifierHash& id : rpcHashList) {
 
-     RpcPrepDataContainer::const_iterator RPCcoll;
-     for(std::vector<IdentifierHash>::const_iterator idit = rpcHashList.begin(); idit != rpcHashList.end(); ++idit) {
-
-       RPCcoll = rpcPrds->indexFind(*idit);
+       Muon::RpcPrepDataContainer::const_iterator RPCcoll = rpcPrds->indexFind(id);
 
        if( RPCcoll == rpcPrds->end() ) {
          continue;
        }
 
-       if( (*RPCcoll)->size() == 0)    {
+       if( (*RPCcoll)->size() == 0) {
          ATH_MSG_DEBUG("Empty RPC list");
          continue;
        }
 
-       rpcHashList_cache.push_back(*idit);
-       
+       rpcHashList_cache.push_back(id);
        rpcCols.push_back(*RPCcoll);
-
-       if (rpcCols.empty()) {
-         ATH_MSG_DEBUG("No Rpc data collections selected");
-       }
      }
    }
 
-   std::vector< const RpcPrepDataCollection*>::const_iterator it = rpcCols.begin();
-   std::vector< const RpcPrepDataCollection*>::const_iterator it_end = rpcCols.end();
+   for( const Muon::RpcPrepDataCollection* rpc : rpcCols ){
 
-   for( ;it!=it_end;++it ){
-     Muon::RpcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-     Muon::RpcPrepDataCollection::const_iterator cit_end = (*it)->end();
-     if (cit_begin == cit_end) return StatusCode::SUCCESS;
-     
-     Muon::RpcPrepDataCollection::const_iterator cit = cit_begin;   
-     
-     cit = cit_begin;   
-     for( ; cit!=cit_end;++cit ) {
-       const Muon::RpcPrepData* prd = *cit;
-       Identifier id = prd->identify();
+     rpcHits.reserve( rpcHits.size() + rpc->size() );
+     for( const Muon::RpcPrepData* prd : *rpc ) {
+
+       const Identifier id = prd->identify();
 
        const int doubletR      = m_rpcIdHelper->doubletR(id);
        const int doubletPhi    = m_rpcIdHelper->doubletPhi(id);
@@ -328,15 +250,15 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.stationName = stationName;
        lutDigit.layer       = layer;
        
-       float r = sqrt(hitx*hitx+hity*hity);
+       const float r2 = hitx*hitx+hity*hity;
        float phi = atan(hity/hitx);
-       if (hitx<0 && hity>0) phi = phi + CLHEP::pi;
-       if (hitx<0 && hity<0) phi = phi - CLHEP::pi;
-       float l = sqrt(hitz*hitz+r*r);
-       float tan = sqrt( (l-hitz)/(l+hitz) );
-       float eta = -log(tan);
-       float deta = p_roids->eta() - eta;
-       float dphi = acos(cos( p_roids->phi() - phi ) );
+       if (hitx<0 && hity>0) phi += M_PI;
+       if (hitx<0 && hity<0) phi -= M_PI;
+       const float l = sqrt(hitz*hitz+r2);
+       const float tan = sqrt( (l-hitz)/(l+hitz) );
+       const float eta = -log(tan);
+       const float deta = fabs(p_roids->eta() - eta);
+       const float dphi = fabs(CxxUtils::wrapToPi(p_roids->phi() - phi));
 
        lutDigit.eta = eta;
        lutDigit.phi = phi;
@@ -344,10 +266,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        rpcHits.push_back(lutDigit);
        
        if (m_use_RoIBasedDataAccess) {
-         if ( fabs(deta)<0.1 && fabs(dphi)<0.1)
+         if ( deta<0.1 && dphi<0.1)
            (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        } else {
-         if ( fabs(deta)<0.15 && fabs(dphi)<0.1)
+         if ( deta<0.15 && dphi<0.1)
            (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        }
      }
@@ -355,15 +277,3 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
   return StatusCode::SUCCESS;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::RpcDataPreparator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing RpcDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
-}
-

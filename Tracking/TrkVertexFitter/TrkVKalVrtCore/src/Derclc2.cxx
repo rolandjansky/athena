@@ -17,13 +17,13 @@ namespace Trk {
 //      cnstV and cnstP values are used!!!
 //-----------------------------------------------
 extern void cfnewp(long int*, double*, double*, double*, double*, double*);
-extern std::array<double, 4> getCnstParticleMom( VKTrack *, double );
-extern vkalMagFld      myMagFld;
+extern std::array<double, 4> getCnstParticleMom( const VKTrack *, double );
+extern const vkalMagFld      myMagFld;
 
 void  calcPointConstraint( VKPointConstraint * cnst )
 {
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
+    const VKVertex * vk=cnst->getOriginVertex();
 //
 //  Magnetic field in fitted vertex position
     double cnstPos[3];
@@ -37,10 +37,10 @@ void  calcPointConstraint( VKPointConstraint * cnst )
     int it,Charge=0;
     double ptot[4]={0.,0.,0.,0.};  
     int NTRK = vk->TrackList.size();
-    VKTrack * trk;
+    
     std::vector< std::array<double, 4> > pp(NTRK);
     for( it=0; it<NTRK; it++){
-      trk = vk->TrackList[it];
+      VKTrack * trk = vk->TrackList[it].get();
       pp[it]=getCnstParticleMom( trk, localField );
       ptot[0] += pp[it][0];    
       ptot[1] += pp[it][1];    

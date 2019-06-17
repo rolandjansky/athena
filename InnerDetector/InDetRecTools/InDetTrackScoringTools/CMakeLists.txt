@@ -13,10 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkTools/TrkToolInterfaces
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces

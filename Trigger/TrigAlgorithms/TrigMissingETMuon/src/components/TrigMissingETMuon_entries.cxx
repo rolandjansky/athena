@@ -1,3 +1,3 @@
-#include "TrigMissingETMuon/TrigMissingETMuon.h"
+#include "../TrigMissingETMuon.h"
 
 DECLARE_COMPONENT( TrigMissingETMuon )

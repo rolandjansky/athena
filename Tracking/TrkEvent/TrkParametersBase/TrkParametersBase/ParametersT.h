@@ -15,7 +15,7 @@
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "TrkParametersBase/SurfaceUniquePtrT.h"
 template<typename T>
 class TrackParametersCovarianceCnv;
 class TrackParametersCnv_p2;
@@ -53,7 +53,9 @@ namespace Trk
   class ParametersT : public ParametersBase<DIM,T>
   {
   public:
-    /** default constructor only for POOL and dervied classes */
+    /** 
+     * default constructor ONLY for POOL and derived classes 
+     */
     ParametersT();
     
     /** Constructor with local arguments - uses global <-> local for parameters */
@@ -140,19 +142,19 @@ namespace Trk
     
     /** --- Protected constructors : for persistency purpose only */
     ParametersT (const AmgVector(DIM)& parameters,
-		 const S* surface,
-		 AmgSymMatrix(DIM)* covariance = 0);
+                 const S* surface,
+                 AmgSymMatrix(DIM)* covariance = 0);
     
     ParametersT (const Amg::Vector3D& pos,
-		 const Amg::Vector3D& mom,
-		 AmgSymMatrix(DIM)* covariance = 0);
+                 const Amg::Vector3D& mom,
+                 AmgSymMatrix(DIM)* covariance = 0);
     
-    AmgVector(DIM)        m_parameters;       //!< contains the n parameters
-    AmgSymMatrix(DIM)*    m_covariance;       //!< contains the n x n covariance matrix
-    Amg::Vector3D         m_position;         //!< point on track
-    Amg::Vector3D         m_momentum;         //!< momentum at this point on track
-    const S*              m_surface;          //!< surface template
-    T                     m_chargeDef;        //!< charge definition for this track
+    AmgVector(DIM)              m_parameters;       //!< contains the n parameters
+    AmgSymMatrix(DIM)*          m_covariance;       //!< contains the n x n covariance matrix
+    Amg::Vector3D               m_position;         //!< point on track
+    Amg::Vector3D               m_momentum;         //!< momentum at this point on track
+    SurfaceUniquePtrT<const S>  m_surface;     //!< surface template
+    T                           m_chargeDef;        //!< charge definition for this track
 
     /** DESIGN TO BE REVISITED */
   public:

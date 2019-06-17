@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKTOCALO_CALOCELLCOLLECTOR_H
@@ -14,7 +14,7 @@
 // forward declarations
 namespace Trk  { class CaloExtension; }
 class CaloCellContainer;
-class ICaloNoiseTool;
+class CaloNoise;
 
 
 namespace Rec {
@@ -38,8 +38,7 @@ namespace Rec {
 
         void               collectEtCore( const xAOD::CaloCluster& cluster,
                                           std::vector<float>& et_core,
-                                          const ToolHandle <ICaloNoiseTool>& caloNoiseTool,
-                                          bool  applyNoiseCut = true,
+                                          const CaloNoise* caloNoise,
                                           float sigmaNoiseCut = 3.4) const;
 
         void               resetCoreParameters (const std::vector<std::pair<float, float> >& dEtadPhiCore,

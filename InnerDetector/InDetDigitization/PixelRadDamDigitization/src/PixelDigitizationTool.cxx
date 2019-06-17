@@ -27,9 +27,6 @@
 
 using namespace RadDam;
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
-
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
@@ -45,7 +42,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_fesimTool(nullptr),
   m_energyDepositionTool(nullptr),
   m_detID(nullptr),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
   m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
@@ -67,7 +63,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("RndmEngine",       m_rndmEngineName,  "Random engine name");
   declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //=======================================

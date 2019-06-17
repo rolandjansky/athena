@@ -10,7 +10,7 @@ from RecExConfig.RecoFunctions import AddValidItemToList
 def SetupOutputDPDs(runArgs,flagContainerList):
     DPDMakerScripts=[]
     for flagContainer in flagContainerList:
-        for flagName in flagContainer.__dict__.keys():
+        for flagName in flagContainer.__dict__:
             flag=getattr(flagContainer,flagName)
             if hasattr(flag,"StreamName"):
                 dpdName=flag.StreamName.lstrip("Stream")
@@ -45,7 +45,7 @@ def SetupDPDIncludes(runArgs,flagContainerList,includeType):
     logger = logging.getLogger( "SetupDPDIncludes" )
     # Loop over all DPD job properties:
     for flagContainer in flagContainerList:
-        for flagName in flagContainer.__dict__.keys():
+        for flagName in flagContainer.__dict__:
             flag=getattr(flagContainer,flagName)
             # Check if this DPD type has been requested in the job:
             if hasattr(flag,"StreamName"):
@@ -68,7 +68,7 @@ def SetupDPDIncludes(runArgs,flagContainerList,includeType):
                     includeTypeList.append(argName)
                     # Make sure that we have a list of scripts, not just one:
                     includes = getattr(flag,includeType)
-                    if type(includes) != list:
+                    if not isinstance(includes, list):
                         includes = [includes]
                         pass
                     # Now include all the specified scripts:

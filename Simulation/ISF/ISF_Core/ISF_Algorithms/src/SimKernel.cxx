@@ -431,10 +431,10 @@ StatusCode ISF::SimKernel::execute()
       //  -> releaseEvent()
       if ( curSimSvc){
         if( curSimSvc->releaseEvent().isFailure() ) {
-          ATH_MSG_WARNING( "Event setup failed for "
+          ATH_MSG_WARNING( "Event release failed for "
                            << curSimSvc->simSvcDescriptor() );
         } else {
-          ATH_MSG_DEBUG  ( "Event setup done for "
+          ATH_MSG_DEBUG  ( "Event release done for "
                            << curSimSvc->simSvcDescriptor() );
         }
       }

@@ -237,10 +237,19 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbour
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
 ServiceMgr += TRTStrawNeighbourSvc
 
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
+
+
+
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
                                                    AllowDataMCOverride = True,
-                                                   TRTCalDbTool=TRTCalSvc,
+                                                   TRTCalDbTool=InDetCalDbTool,
                                                    ForceData = True,
                                                    IsMC=(globalflags.DataSource == 'geant4'))
 
@@ -263,7 +272,9 @@ from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits', 
 				      TRTCalDbSvc  = TRTCalSvc,
                                       minTimebinsOverThreshold=0,
-                                      NeighbourSvc=TRTStrawNeighbourSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 
@@ -321,7 +332,9 @@ TRTCalibrator = TRTCalibrator ( name = 'TRTCalibrator',
     ostring+="""
                                 TrtManagerLocation  = InDetKeys.TRT_Manager(),
                                 NeighbourSvc=TRTStrawNeighbourSvc,
-                                TRTCalDbSvc=TRTCalSvc)
+                                TRTCalDbTool = InDetCalDbTool,
+                                TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += TRTCalibrator
 print      TRTCalibrator
 

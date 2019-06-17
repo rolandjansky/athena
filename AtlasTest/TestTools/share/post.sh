@@ -31,7 +31,7 @@ test=$1
 # Concatenate them here so the same code works also from the command line.
 pat="$2 $3"
 if [[ "$pat" = "-s "* ]]; then
-    selectpatterns=`echo "$pat" | sed 's/-s\s*//'`
+    selectpatterns=`echo "$pat" | sed 's/-s\s*//' | sed 's/ $//'`
 else
     extrapatterns="$2"
 fi
@@ -223,6 +223,13 @@ PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
 
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
+
+# gtest
+PP="$PP"'|Ran [0-9]+ tests in'
+
+# Verbosity cleanup in TileInfoLoader.
+PP="$PP"'|^TileInfoLoader +INFO'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  LateMuonTOB.cpp
 //  TopoCore
@@ -10,10 +10,10 @@
 unsigned int TCS::LateMuonTOB::fg_instances = 0;
 TCS::Heap<TCS::LateMuonTOB> TCS::LateMuonTOB::fg_heap("LateMuon");
 
-unsigned int TCS::LateMuonTOB::g_nBitsEt = 8;
-unsigned int TCS::LateMuonTOB::g_nBitsIsolation = 5;
-unsigned int TCS::LateMuonTOB::g_nBitsEta = 6;
-unsigned int TCS::LateMuonTOB::g_nBitsPhi = 6;
+const unsigned int TCS::LateMuonTOB::g_nBitsEt = 8;
+const unsigned int TCS::LateMuonTOB::g_nBitsIsolation = 5;
+const unsigned int TCS::LateMuonTOB::g_nBitsEta = 6;
+const unsigned int TCS::LateMuonTOB::g_nBitsPhi = 6;
 
 // default constructor
 TCS::LateMuonTOB::LateMuonTOB(uint32_t roiWord) :

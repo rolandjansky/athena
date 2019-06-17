@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -43,7 +43,7 @@ void test1()
 
   const char* testin1 = "alkdkjasldjaldjalkdjaldjoqiwj;lknnfaoiuuhewfuasuhfaiuuhffiuuhaffoiuahfefiuauheofiuhapkjjjhdhfpiauw3hpkjajshhdfpkkuawheoiuahwefpiuawhfeiauehfpiauwehfpawieufhpaw";
   const char* testout1 = "047BDD061CE68225";
-  const char* testin2 = "alkdkjasldjaldjalkdjalejoqiwj;lknnfaoiuuhewfuasuhfaiuuhffiuuhaffoiuahfefiuauheofiuhapkjjjhdhfpiauw2hpkjajshhdfpkkuawheoiuahwefpiuawhfeiauehfpiauwehfpawieufhpaw"; // DIffers from 1st in two bits.
+  const char* testin2 = "alkdkjasldjaldjalkdjalejoqiwj;lknnfaoiuuhewfuasuhfaiuuhffiuuhaffoiuahfefiuauheofiuhapkjjjhdhfpiauw2hpkjajshhdfpkkuawheoiuahwefpiuawhfeiauehfpiauwehfpawieufhpaw"; // Differs from 1st in two bits.
   const char* testout2 = "6051B184A58A80C6";
 
   uint64_t crc1 = CxxUtils::crc64_bytewise (*table, testin1, strlen (testin1));

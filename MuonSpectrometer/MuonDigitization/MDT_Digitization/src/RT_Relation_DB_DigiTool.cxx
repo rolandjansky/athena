@@ -19,11 +19,11 @@ RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const
 : AthAlgTool(type,name,parent)
 , m_maxRadius(0)
 , m_muonGeoMgr(0)
-, m_calibDbSvc("MdtCalibrationDbSvc", name)
+, m_calibrationDbTool("MdtCalibrationDbTool",this)
 {
   declareInterface<IMDT_DigitizationTool>(this);
   declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
-  declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
+  declareProperty("CalibrationDbTool",m_calibrationDbTool);
 }
 
 
@@ -54,12 +54,6 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 //         if(!m_idHelper) return status;
       }
     }
-  }
-  
-  if ( !m_calibDbSvc.retrieve().isSuccess() )
-  {
-    ATH_MSG_FATAL("Unable to retrieve pointer to MdtCalibrationDbSvc");
-    return StatusCode::FAILURE;
   }
   
   initializeTube();
@@ -100,7 +94,7 @@ bool RT_Relation_DB_DigiTool::initializeTube()
 double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine) const
 {
   //Get RT relation from DB
-  const MuonCalib::MdtRtRelation *data = m_calibDbSvc->getRtCalibration( DigitId );
+  const MuonCalib::MdtRtRelation *data = m_calibrationDbTool->getRtCalibration( DigitId );
   
   double time        = 0.0;
   double t           = 0.0;

@@ -86,7 +86,6 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("DecodeRpcRDO", m_decodeRpcRDO = true);
   declareProperty("DecodeTgcRDO", m_decodeTgcRDO = true);
   
-  declareProperty("RetrievePrivateCopy", m_retrievePrivateCopy=false);
   declareProperty("cscCalibTool",  m_cscCalibTool);
   declareProperty("mdtRdoDecoderTool",  m_mdtRdoDecoderTool);
   declareProperty("cscRdoDecoderTool",  m_cscRdoDecoderTool);
@@ -131,44 +130,22 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK( m_cscCalibTool.retrieve() );
 
-  // create empty digit containers ready for filling
 
-  try{
-    m_mdtContainer = new MdtDigitContainer(m_mdtHelper->module_hash_max());
-  } catch(const std::bad_alloc&){
-    ATH_MSG_FATAL( "Could not create a new MdtDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_mdtContainer->addRef();
+  ATH_CHECK(m_mdtRdoKey.initialize(m_decodeMdtRDO));
+  ATH_CHECK(m_mdtDigitKey.initialize(m_decodeMdtRDO));
+  ATH_CHECK(m_cscRdoKey.initialize(m_decodeCscRDO));
+  ATH_CHECK(m_cscDigitKey.initialize(m_decodeCscRDO));
+  ATH_CHECK(m_rpcRdoKey.initialize(m_decodeRpcRDO));
+  ATH_CHECK(m_rpcDigitKey.initialize(m_decodeRpcRDO));
+  ATH_CHECK(m_tgcRdoKey.initialize(m_decodeTgcRDO));
+  ATH_CHECK(m_tgcDigitKey.initialize(m_decodeTgcRDO));
 
-  try{
-    m_cscContainer = new CscDigitContainer(m_cscHelper->module_hash_max());
-  } catch(const std::bad_alloc&){
-    ATH_MSG_FATAL( "Could not create a new CscDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_cscContainer->addRef();
-
-  try{
-    m_rpcContainer = new RpcDigitContainer(m_rpcHelper->module_hash_max());
-  } catch(const std::bad_alloc&){
-    ATH_MSG_FATAL( "Could not create a new RpcDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_rpcContainer->addRef();
-
-  try{
-    m_tgcContainer = new TgcDigitContainer(m_tgcHelper->module_hash_max());
-  } catch(const std::bad_alloc&){
-    ATH_MSG_FATAL( "Could not create a new TgcDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_tgcContainer->addRef();
 
   ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
   ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
   ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
+
 
   return StatusCode::SUCCESS;
 }
@@ -178,13 +155,41 @@ StatusCode MuonRdoToMuonDigitTool::digitize() {
   ATH_MSG_DEBUG( " *************** in MuonRdoToMuonDigitTool::digitize()"  );
   ATH_MSG_DEBUG( "in digitize()"  );
 
-  if (m_decodeMdtRDO) ATH_CHECK( decodeMdtRDO() );
-  if (m_decodeCscRDO) ATH_CHECK( decodeCscRDO() );
-  if (m_decodeRpcRDO && m_rpcCabling) ATH_CHECK( decodeRpcRDO() );
+  // create digit containers and decode
+
+  if (m_decodeMdtRDO){
+    SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey);
+    ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_mdtHelper->module_hash_max())));
+    m_mdtContainer = wh_mdtDigit.ptr();
+    m_mdtContainer->addRef();
+    ATH_CHECK( decodeMdtRDO() );
+  }
+
+  if (m_decodeCscRDO){
+    SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey);
+    ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_cscHelper->module_hash_max())));
+    m_cscContainer = wh_cscDigit.ptr();
+    m_cscContainer->addRef();
+    ATH_CHECK( decodeCscRDO() );
+  }
+
+  if (m_decodeRpcRDO && m_rpcCabling){
+    SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey);
+    ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_rpcHelper->module_hash_max())));
+    m_rpcContainer = wh_rpcDigit.ptr();
+    m_rpcContainer->addRef();
+    ATH_CHECK( decodeRpcRDO() );
+  }
 
   if(!m_tgcCabling && getTgcCabling().isFailure()) return StatusCode::FAILURE;
+  if (m_decodeTgcRDO && m_tgcCabling){
+    SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey);
+    ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_tgcHelper->module_hash_max())));
+    m_tgcContainer = wh_tgcDigit.ptr();
+    m_tgcContainer->addRef();
+    ATH_CHECK( decodeTgcRDO() );
+  }
 
-  if (m_decodeTgcRDO && m_tgcCabling) ATH_CHECK( decodeTgcRDO() );
 
   return StatusCode::SUCCESS;
 }
@@ -214,46 +219,22 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO() {
   MdtDigitCollection * collection = 0;
   const MdtCsmContainer* rdoContainer;
 
-  if ( !m_retrievePrivateCopy ) {
-     m_acSvc->setStore( &*evtStore() );
-     StatusCode status = evtStore()->retrieve( rdoContainer, "MDTCSM" );
-     if (status.isFailure()) {
-        ATH_MSG_WARNING( "No MDT RDO container in StoreGate!"  );
-        return StatusCode::SUCCESS;
-     }
-     ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
-     
-     // now decode RDO into digits
-     m_acSvc->setStore( &*evtStore() );
-     MdtCsmContainer::const_iterator mdtCSM = rdoContainer->begin();
-       
-     for (; mdtCSM!=rdoContainer->end();++mdtCSM)
-     {
-         status = this->decodeMdt( *mdtCSM, collection, oldId); 
-         if ( status.isFailure() ) return status;
-     }
-  } else {
-     m_acSvc->setStore( &*evtStore() );
-     std::auto_ptr<MdtCsmContainer> cdata(evtStore()->retrievePrivateCopy<MdtCsmContainer>("MDTCSM"));
-     if( !cdata.get() ) {
-       ATH_MSG_WARNING( "Could not get real data MDT RDO container \"" << " MDTCSM " << "\""  );
-       return StatusCode::SUCCESS;
-     }
+  SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_WARNING( "No MDT RDO container found!"  );
+    return StatusCode::SUCCESS;
+  }
+  rdoContainer=rdoRH.cptr();
+  ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
+  
+  // now decode RDO into digits
+  MdtCsmContainer::const_iterator mdtCSM = rdoContainer->begin();
+  for (; mdtCSM!=rdoContainer->end();++mdtCSM)
+    {
+      StatusCode status = this->decodeMdt( *mdtCSM, collection, oldId); 
+      if ( status.isFailure() ) return status;
+    }
 
-     MdtCsmContainer::const_iterator it_rdoColl  = (cdata.get())->begin();
-     MdtCsmContainer::const_iterator lastRdoColl = (cdata.get())->end();
-     for (; it_rdoColl!=lastRdoColl; ++it_rdoColl)
-     {
-        const MdtCsm * rdoColl = *it_rdoColl;
-        StatusCode status = this->decodeMdt( rdoColl, collection, oldId );
-        if ( status.isFailure() ) return status;
-     }
-  } 
-
-  // record the container in storeGate
-  std::string key = "MDT_DIGITS";
-  m_acSvc->setStore( &*evtStore() );
-  ATH_CHECK( evtStore()->record(m_mdtContainer,key) );
 
   return StatusCode::SUCCESS;
 }
@@ -275,50 +256,22 @@ StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
   const CscRawDataContainer* rdoContainer;
 
   // retrieve the collection of RDO
-  if ( !m_retrievePrivateCopy ) {
-     m_acSvc->setStore( &*evtStore() );
-     StatusCode status = evtStore()->retrieve( rdoContainer, "CSCRDO" );
-     if (status.isFailure()) {
-       ATH_MSG_WARNING( "No CSC RDO container in StoreGate!"  );
-       return StatusCode::SUCCESS;
-     }
-     ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
-     // now decode RDO into digits
-     m_acSvc->setStore( &*evtStore() );
-     const DataHandle<CscRawDataCollection> rdoColl;
-     const DataHandle<CscRawDataCollection> lastRdoColl;
-     m_acSvc->setStore( &*evtStore() );
-     if (StatusCode::SUCCESS != evtStore()->retrieve(rdoColl,lastRdoColl)) {
-       ATH_MSG_DEBUG( "Cannot retrieve CscRawDataCollection"  );
-     }
-  
-     for (; rdoColl!=lastRdoColl; ++rdoColl) {
-       //        status = this->decodeCsc ( rdoColl, collection, oldId, decoder );
-       status = this->decodeCsc ( rdoColl, collection, oldId);
-        if ( status.isFailure() ) return status;
-     }
-  } else {
-     m_acSvc->setStore( &*evtStore() );
-     std::auto_ptr<CscRawDataContainer> cdata(evtStore()->retrievePrivateCopy<CscRawDataContainer>("CSCRDO"));
-     if( !cdata.get() ) {
-       ATH_MSG_WARNING( "Could not get real data CSC RDO container \"" << " CSCRDO " << "\""  );
-         return StatusCode::SUCCESS;
-     }
-     CscRawDataContainer::const_iterator it_rdoColl  = (cdata.get())->begin();
-     CscRawDataContainer::const_iterator lastRdoColl = (cdata.get())->end();
-     for (; it_rdoColl!=lastRdoColl; ++it_rdoColl)
-     {
-        const CscRawDataCollection * rdoColl = *it_rdoColl;
-        //        status = this->decodeCsc( rdoColl, collection, oldId, decoder );
-        StatusCode status = this->decodeCsc( rdoColl, collection, oldId);
-        if ( status.isFailure() ) return status;
-     }
-  } 
-  /** record the container in storeGate */
-  std::string key = "CSC_DIGITS";
-  m_acSvc->setStore( &*evtStore() );
-  ATH_CHECK( evtStore()->record(m_cscContainer,key) );
-  ATH_CHECK( evtStore()->setConst(m_cscContainer) );
+  SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_WARNING( "No CSC RDO container found!"  );
+    return StatusCode::SUCCESS;
+  }
+  rdoContainer=rdoRH.cptr();
+  ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
+  // now decode RDO into digits
+  auto it_rdoColl = rdoContainer->begin();
+  auto lastRdoColl = rdoContainer->end();
+
+  for (; it_rdoColl!=lastRdoColl; ++it_rdoColl) {
+    const CscRawDataCollection * rdoColl = *it_rdoColl;
+    StatusCode status = this->decodeCsc ( rdoColl, collection, oldId);
+    if ( status.isFailure() ) return status;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -334,46 +287,23 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO() {
     const RpcPadContainer* rdoContainer;
 
     // retrieve the collection of RDO
-    if ( !m_retrievePrivateCopy ) {
-       m_acSvc->setStore( &*evtStore() );
-       StatusCode status = evtStore()->retrieve( rdoContainer, "RPCPAD" );
-       if (status.isFailure()) {
-          ATH_MSG_WARNING( "No RPC RDO container in StoreGate!"  );
-          return StatusCode::SUCCESS;
-       }
-       ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " RPC RDOs." );
-       // now decode RDO into digits
-       m_acSvc->setStore( &*evtStore() );
-       RpcPadContainer::const_iterator rpcPAD = rdoContainer->begin();
+    SG::ReadHandle<RpcPadContainer> rdoRH(m_rpcRdoKey);
+    if (!rdoRH.isValid()) {
+      ATH_MSG_WARNING( "No RPC RDO container found!"  );
+      return StatusCode::SUCCESS;
+    }
+    rdoContainer = rdoRH.cptr();
+    ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " RPC RDOs." );
+    // now decode RDO into digits
+    RpcPadContainer::const_iterator rpcPAD = rdoContainer->begin();
        
-       for (; rpcPAD!=rdoContainer->end();++rpcPAD)
-       {
-          if ( (*rpcPAD)->size() > 0 ) {
-             status = this->decodeRpc ( *rpcPAD, collection ); 
-             if ( status.isFailure() ) return status;
-          }
-       }
-    } else {
-      m_acSvc->setStore( &*evtStore() );
-      std::auto_ptr<RpcPadContainer> cdata(evtStore()->retrievePrivateCopy<RpcPadContainer>("RPCPAD"));
-      if( !cdata.get() ) {
-        ATH_MSG_WARNING( "Could not get real data CSC RDO container \"" << " RPCPAD " << "\""  );
-         return StatusCode::SUCCESS;
-      }
-      RpcPadContainer::const_iterator it_rdoColl  = (cdata.get())->begin();
-      RpcPadContainer::const_iterator lastRdoColl = (cdata.get())->end();
-      for (; it_rdoColl!=lastRdoColl; ++it_rdoColl)
+    for (; rpcPAD!=rdoContainer->end();++rpcPAD)
       {
-         const RpcPad * rdoColl = *it_rdoColl;
-         StatusCode status = this->decodeRpc( rdoColl, collection );
-         if ( status.isFailure() ) return status;
+	if ( (*rpcPAD)->size() > 0 ) {
+	  StatusCode status = this->decodeRpc ( *rpcPAD, collection ); 
+	  if ( status.isFailure() ) return status;
+	}
       }
-    } 
-
-    // record the container in storeGate
-    std::string key = "RPC_DIGITS";
-    m_acSvc->setStore( &*evtStore() );
-    ATH_CHECK( evtStore()->record(m_rpcContainer,key) );
 
     return StatusCode::SUCCESS;
 }
@@ -390,49 +320,26 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgcRDO() {
   Identifier oldElementId;
 
   // retrieve the collection of RDO
-  if ( !m_retrievePrivateCopy ) {
-     m_acSvc->setStore( &*evtStore() );
-     const TgcRdoContainer* rdoContainer;
-     StatusCode status = evtStore()->retrieve( rdoContainer, "TGCRDO" );
-     if (status.isFailure())
-     {
-        ATH_MSG_WARNING( "No TGC RDO container in StoreGate!"  );
-        return StatusCode::SUCCESS;
-     }  
-     ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
+  const TgcRdoContainer* rdoContainer;
+  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_WARNING( "No TGC RDO container found!"  );
+    return StatusCode::SUCCESS;
+  }
 
-     m_acSvc->setStore( &*evtStore() );
-     TgcRdoContainer::const_iterator tgcRDO = rdoContainer->begin();
+  rdoContainer = rdoRH.cptr();
+  ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
+
+  TgcRdoContainer::const_iterator tgcRDO = rdoContainer->begin();
        
-     for (; tgcRDO!=rdoContainer->end();++tgcRDO)
-     {
-         if ( (*tgcRDO)->size() > 0 ) {
-             status = this->decodeTgc ( *tgcRDO, oldElementId ); 
-             if ( status.isFailure() ) return status;
-         }
-     }
+  for (; tgcRDO!=rdoContainer->end();++tgcRDO)
+    {
+      if ( (*tgcRDO)->size() > 0 ) {
+	StatusCode status = this->decodeTgc ( *tgcRDO, oldElementId ); 
+	if ( status.isFailure() ) return status;
+      }
+    }
      
-  } else {
-     m_acSvc->setStore( &*evtStore() );
-     std::auto_ptr<TgcRdoContainer> cdata(evtStore()->retrievePrivateCopy<TgcRdoContainer>("TGCRDO"));
-     if( !cdata.get() ) {
-        ATH_MSG_WARNING( "Could not get real data TGC RDO container \"" << " TGCRDO " << "\""  );
-         return StatusCode::SUCCESS;
-     }
-     TgcRdoContainer::const_iterator it_rdoColl  = (cdata.get())->begin();
-     TgcRdoContainer::const_iterator lastRdoColl = (cdata.get())->end();
-     for (; it_rdoColl!=lastRdoColl; ++it_rdoColl)
-     {
-        const TgcRdo * rdoColl = *it_rdoColl;
-        StatusCode status = this->decodeTgc( rdoColl, oldElementId );
-        if ( status.isFailure() ) return status;
-     }
-  } 
-  // record the container in storeGate
-  std::string key = "TGC_DIGITS";
-  m_acSvc->setStore( &*evtStore() );
-  ATH_CHECK( evtStore()->record(m_tgcContainer,key) );
-
   return StatusCode::SUCCESS;
 }
 
@@ -546,7 +453,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
           int errorfindCharge = m_cscCalibTool->findCharge(samplingTime, samplingPhase, charges, charge, time);
           // WPARK: Potential problem! error code includes time out of range and aa>0
           // If this is the case, only very nice samples are converted to Digit. Sep 11, 2009
-	  if ( !adctocharge || errorfindCharge ) { 
+	  if ( !adctocharge || !errorfindCharge ) { 
 	    ATH_MSG_WARNING( " CSC conversion ADC to Charge failed " 
                              << "CSC Digit not build ... " 
                              << " or charge finding failed " << " ... skipping "  );

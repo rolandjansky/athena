@@ -18,13 +18,8 @@ def BTagTrackToVertexIPEstimatorCfg( flags, name = 'TrkToVxIPEstimator', useBTag
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        #btagFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'FullLinearizedTrackFactory')
-        accFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'FullLinearizedTrackFactory')
-        btagFullLinearizedTrackFactory = accFullLinearizedTrackFactory.popPrivateTools()
-        acc.merge(accFullLinearizedTrackFactory)
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator')
-        atlasExtrapolator = accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        btagFullLinearizedTrackFactory = acc.popToolsAndMerge(BTagFullLinearizedTrackFactoryCfg(flags, 'FullLinearizedTrkFactory'))
+        atlasExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator'))
         defaults = { 'Extrapolator' : atlasExtrapolator,
                      'LinearizedTrackFactory' : btagFullLinearizedTrackFactory, }
         for option in defaults:

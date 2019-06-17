@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTRUN_H
@@ -21,7 +21,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CoolLumiUtilities/BunchGroupTool.h"
 
 // Trigger
 #include "TrigTimeAlgs/ITrigTimerSvc.h"

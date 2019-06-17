@@ -167,20 +167,20 @@ private:
 	bool m_rootVolumeFound;
 	bool m_unconnectedTree;
 
-	std::vector<QStringList> _logVols;
-	std::vector<QStringList> _physVols;
-	std::vector<QStringList> _fullPhysVols;
-	std::vector<QStringList> _shapes;
-	std::vector<QStringList> _materials;
-	std::vector<QStringList> _transforms;
-	std::vector<QStringList> _alignableTransforms;
-	std::vector<QStringList> _serialDenominators;
-	std::vector<QStringList> _serialTransformers;
-	std::vector<QStringList> _functions;
-	std::vector<QStringList> _nameTags;
+	std::vector<QStringList> m_logVols;
+	std::vector<QStringList> m_physVols;
+	std::vector<QStringList> m_fullPhysVols;
+	std::vector<QStringList> m_shapes;
+	std::vector<QStringList> m_materials;
+	std::vector<QStringList> m_transforms;
+	std::vector<QStringList> m_alignableTransforms;
+	std::vector<QStringList> m_serialDenominators;
+	std::vector<QStringList> m_serialTransformers;
+	std::vector<QStringList> m_functions;
+	std::vector<QStringList> m_nameTags;
 
-	std::vector<QStringList> _childrenPositions;
-	QStringList _rootVolume;
+	std::vector<QStringList> m_childrenPositions;
+	QStringList m_rootVolume;
 
 };
 

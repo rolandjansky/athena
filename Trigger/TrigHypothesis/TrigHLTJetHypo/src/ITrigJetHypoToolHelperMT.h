@@ -10,6 +10,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class ITrigJetHypoToolHelperMT : virtual public ::IAlgTool {
 
@@ -22,8 +23,9 @@ public:
   // generated at L1.
 
   virtual bool pass(HypoJetVector& jets,
-                    ITrigJetHypoInfoCollector*) const = 0;
-
+		    xAODJetCollector&,
+                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const = 0;
    
 };

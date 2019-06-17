@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,7 @@ namespace xAOD{
     AUXSTORE_OBJECT_SETTER_AND_GETTER(TrigRNNOutput_v2, std::vector<float>, rnnDecision, setRnnDecision)
 
     void TrigRNNOutput_v2::setRnnDecision(float d){
-        static Accessor< std::vector<float> > acc( "rnnDecision" );
+        static const Accessor< std::vector<float> > acc( "rnnDecision" );
         acc(*this).push_back(d);
     }
 
@@ -39,7 +39,7 @@ namespace xAOD{
     const TrigRingerRings* TrigRNNOutput_v2::ringer() const {
   
        // The link accessor:
-       static Accessor< RingerLink_t > acc( "ringerLink" );
+       static const Accessor< RingerLink_t > acc( "ringerLink" );
   
        // Check if the link is available:
        if( ! acc.isAvailable( *this ) ) {

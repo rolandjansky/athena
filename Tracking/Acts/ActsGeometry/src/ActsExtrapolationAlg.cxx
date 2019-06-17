@@ -21,6 +21,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsInterop/Logger.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 //#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
@@ -57,12 +58,11 @@ StatusCode ActsExtrapolationAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const 
+StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 {
 
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__);
 
-  m_extrapolationTool->prepareAlignment();
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
   rngWrapper->setSeed( name(), ctx );
   CLHEP::HepRandomEngine* rngEngine = rngWrapper->getEngine(ctx);
@@ -92,27 +92,27 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   double charge = rngEngine->flat() > 0.5 ? -1 : 1;
 
   double qop =  charge / momentum.norm();
-    
-  std::shared_ptr<Acts::PerigeeSurface> surface 
+
+  std::shared_ptr<Acts::PerigeeSurface> surface
     = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0, 0, 0));
 
 
   Acts::ActsVectorD<5> pars;
   pars << d0, z0, phi, theta, qop;
   std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-      
+
   std::vector<Acts::detail::Step> steps;
 
   if(charge != 0.) {
-      // charged extrapolation - with hit recording
-      Acts::BoundParameters startParameters(
+      // Perigee, no alignment -> default geo context
+      ActsGeometryContext gctx
+        = m_extrapolationTool->trackingGeometryTool()->getNominalGeometryContext();
+      auto anygctx = gctx.any();
+      Acts::BoundParameters startParameters(anygctx,
           std::move(cov), std::move(pars), std::move(surface));
-      steps = m_extrapolationTool->propagate(startParameters);
+      steps = m_extrapolationTool->propagate(ctx, startParameters);
       m_propStepWriterSvc->write(steps);
   }
-
-
-  
 
 
   ATH_MSG_VERBOSE(name() << " execute done");
@@ -142,4 +142,3 @@ void ActsExtrapolationAlg::writeStepsObj(std::vector<Acts::detail::Step> steps) 
 
   out << lstr.str() << std::endl;
 }
-

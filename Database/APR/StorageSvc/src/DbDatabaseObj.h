@@ -144,10 +144,12 @@ namespace pool    {
     /// Execute Database Transaction action
     DbStatus transAct(Transaction::Action action);
 
-    /// Retrieve association link from token with redirection when file is merged.
-    DbStatus getRedirection(const Token& token, Token::OID_t& obj_linkH);
-    /// Retrieve association link from link container with also using section information
-    DbStatus getLink(const Token::OID_t& lnkH, Token* pToken, const DbSection& section);
+    /// read an object referenced by the token
+    DbStatus read(const Token& token, ShapeH shape, void** object);
+    /// Calculate required OID modification (shift) for source OID (oid) for a given merge section 
+    DbStatus getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift);
+    /// Expand OID into a full Token, based on the Links table. For merged files provide links section#
+    DbStatus getLink(const Token::OID_t& oid, int merge_section, Token* pTok);
     /// Retrieve container name from link container (using token oid, rather than contID)
     std::string cntName(const Token& token);
     /// Add association link to link container

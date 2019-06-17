@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -197,7 +197,7 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
   cache.originalTrack=track;
   
   //Set pointer to the original perigee
-  cache.originalTrackPerigee=dynamic_cast<const Trk::Perigee*>( cache.originalTrack->perigeeParameters() );
+  cache.originalTrackPerigee=cache.originalTrack->perigeeParameters();
   
   if (cache.originalTrackPerigee!=nullptr){
       double od0 = cache.originalTrackPerigee->parameters()[Trk::d0];
@@ -241,7 +241,7 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
 
   // Store refitted perigee pointers
   if (cache.refittedTrack) {
-    cache.refittedTrackPerigee=dynamic_cast<const Trk::Perigee*>(cache.refittedTrack->perigeeParameters() );
+    cache.refittedTrackPerigee=cache.refittedTrack->perigeeParameters();
     
     if (cache.refittedTrackPerigee!=nullptr){
         double d0 = cache.refittedTrackPerigee->parameters()[Trk::d0];
@@ -398,7 +398,11 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   Trk::LocalParameters beamSpotParameters(Par0);
   
   // calculate perigee parameters wrt. beam-spot
-  const Trk::Perigee * perigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*track, *surface));
+  const Trk::Perigee * perigee = nullptr;
+  const Trk::TrackParameters* tmp =m_extrapolator->extrapolate(*track, *surface);
+  if(tmp->associatedSurface().type()==Trk::Surface::Perigee){
+    perigee= static_cast<const Trk::Perigee*> (tmp);
+  }
   if (!perigee) {// if failure 
     const Trk::Perigee * trackPerigee = track->perigeeParameters();
     if ( trackPerigee && ((trackPerigee->associatedSurface())) == *surface )
@@ -429,16 +433,19 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
   //store all silicon measurements into the measurementset
   DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
   for ( ; trackStateOnSurface != track->trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
-    
+
     if ( !(*trackStateOnSurface) ){
       ATH_MSG_WARNING( "This track contains an empty MeasurementBase object that won't be included in the fit" );
       continue;
-    }
-    
+    } 
     if ( (*trackStateOnSurface)->measurementOnTrack() ){
       if ( (*trackStateOnSurface)->type( Trk::TrackStateOnSurface::Measurement) ){
-        const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
-        if (rio != 0) {
+        const Trk::RIO_OnTrack* rio = nullptr;
+        const Trk::MeasurementBase* tmp = (*trackStateOnSurface)->measurementOnTrack() ;
+        if(tmp->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+           rio =static_cast <const Trk::RIO_OnTrack*>( tmp);   
+        }
+        if (rio != nullptr) {
           const Identifier& surfaceID = (rio->identify()) ;
           if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
@@ -448,8 +455,12 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
         }        				
       }
       else if ( m_reintegrateOutliers && (*trackStateOnSurface)->type( Trk::TrackStateOnSurface::Outlier) ){
-        const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
-        if (rio != 0) {
+        const Trk::RIO_OnTrack* rio = nullptr;
+        const Trk::MeasurementBase* tmp = (*trackStateOnSurface)->measurementOnTrack() ;
+        if(tmp->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+           rio =static_cast <const Trk::RIO_OnTrack*>( tmp);   
+        }
+        if (rio != nullptr) {
           const Identifier& surfaceID = (rio->identify()) ;
           if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );

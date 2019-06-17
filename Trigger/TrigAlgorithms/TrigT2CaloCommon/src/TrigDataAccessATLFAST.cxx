@@ -40,6 +40,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
 StatusCode TrigDataAccessATLFAST::initialize()

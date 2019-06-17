@@ -33,8 +33,6 @@ PURPOSE: Tool for calibrating the TRT
 #include "TRT_ConditionsData/DinesRtRelation.h"
 #include "TRT_ConditionsData/BinnedRtRelation.h"
 #include "CommissionEvent/ComTime.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include <TNtuple.h>
@@ -47,9 +45,9 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   m_DetID(nullptr),
   m_TRTID(nullptr),
   m_trtmanager(nullptr),
-  m_trtcaldbSvc("ITRT_CalDbSvc", name),
+  m_trtcaldbTool("ITRT_CalDbTool", this),
   m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
-  m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+  m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this),
   m_maxDistance(2.8),
   m_maxTimeResidual(150),
   m_minTimebinsOverThreshold(2),
@@ -77,7 +75,7 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   m_histfile(nullptr)
 {
   declareInterface<ITRTCalibrator>(this);
-  declareProperty("TRTCalDbSvc",m_trtcaldbSvc);
+  declareProperty("TRTCalDbTool",m_trtcaldbTool);
   declareProperty("NeighbourSvc",m_neighbourSvc);
   declareProperty("maxDistance",m_maxDistance) ;
   declareProperty("maxTimeResidual",m_maxTimeResidual) ;
@@ -107,7 +105,7 @@ TRTCalibrator::TRTCalibrator(const std::string& type, const std::string& name, c
   declareProperty("T0Offset",m_t0offset);
   declareProperty("DoShortStrawCorrection",m_DoShortStrawCorrection);
   declareProperty("DoArXenonSep",m_DoArXenonSep);
-  declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
+  declareProperty("TRTStrawSummaryTool",  m_TRTStrawSummaryTool);
 }
 
 
@@ -129,7 +127,7 @@ StatusCode TRTCalibrator::initialize()
     msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if(m_trtcaldbSvc.retrieve().isFailure()) {
+  if(m_trtcaldbTool.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Could not get TRTCalDbTool !" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -141,12 +139,11 @@ StatusCode TRTCalibrator::initialize()
 
   // The tool to get the argon status:
 
-   if (!m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
-      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+   if (m_TRTStrawSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummaryTool << endmsg;
    }
 
 
@@ -616,12 +613,12 @@ bool TRTCalibrator::calibrate() {
       std::vector<float> rvalues ;
       const float defaultpcal[] = {0,0,0,0} ;
       if (isdines){
-        const TRTCond::DinesRtRelation* rtr = dynamic_cast<const TRTCond::DinesRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
+        const TRTCond::DinesRtRelation* rtr = dynamic_cast<const TRTCond::DinesRtRelation*>(m_trtcaldbTool->getRtRelation(ident)) ;
         pcal = rtr ? rtr->cal() : defaultpcal ;
       }
 
       else {
-        const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtcaldbSvc->getRtRelation(ident)) ;
+        const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtcaldbTool->getRtRelation(ident)) ;
         pcal = rtr ? rtr->cal() : defaultpcal ;
       }
       hitdata.rtpar[0]=pcal[0];
@@ -646,7 +643,7 @@ bool TRTCalibrator::calibrate() {
       hitdata.res=0; 
       hitdata.t=0; 
       hitdata.r=0;
-      hitdata.t0=m_trtcaldbSvc->getT0(ident);
+      hitdata.t0=m_trtcaldbTool->getT0(ident);
       hitdata.x=(strawelement->center(ident)).x();
       hitdata.y=(strawelement->center(ident)).y();
       hitdata.z=(strawelement->center(ident)).z();
@@ -654,8 +651,8 @@ bool TRTCalibrator::calibrate() {
       //in the short straws corrections, autodetect if it was applied on the previous step
       if ( m_DoShortStrawCorrection &&  hitdata.lay==0 && hitdata.stl<9){
         //If correction was done in ctes in db (readed), undo the correction: This fixes problem on t0 averaging....
-        double t0test1=m_trtcaldbSvc->getT0((Identifier)301998432);
-        double t0test2=m_trtcaldbSvc->getT0((Identifier)302001504);
+        double t0test1=m_trtcaldbTool->getT0((Identifier)301998432);
+        double t0test2=m_trtcaldbTool->getT0((Identifier)302001504);
         if (t0test1 != t0test2) hitdata.t0+=0.75; //short straw compensation
       }
       
@@ -664,12 +661,9 @@ bool TRTCalibrator::calibrate() {
      
            // Prepare for Xe-Ar mixed conditions:
             int isArgonStraw = 0;
-            if (!m_TRTStrawSummarySvc.empty()) {
-              if (m_TRTStrawSummarySvc->getStatusHT(ident) != TRTCond::StrawStatus::Good) {
+            if (m_TRTStrawSummaryTool->getStatusHT(ident) != TRTCond::StrawStatus::Good) {
                   isArgonStraw = 1;
-              }
             }
-
 
  
       //add histogram to the Calibrators (A and C side separated)
@@ -888,7 +882,7 @@ bool TRTCalibrator::calibrate() {
           //hitdata.t=t-t0+averageT0-20.0; 
           hitdata.t=t-t0; 
           hitdata.r=fabs(rtrack);
-          hitdata.t0=m_trtcaldbSvc->getT0(ident);
+          hitdata.t0=m_trtcaldbTool->getT0(ident);
           hitdata.rt0=reft0map[std::string(Form("_%i_%i_%i",hitdata.det,hitdata.brd,hitdata.chp))];
           hitdata.x=(strawelement->center(ident)).x();
           hitdata.y=(strawelement->center(ident)).y();

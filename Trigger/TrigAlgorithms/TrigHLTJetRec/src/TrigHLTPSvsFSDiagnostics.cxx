@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,7 +20,7 @@
 #include "TString.h"
 #include <TProfile.h>
 #include <cmath>
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -374,7 +374,7 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
       //!Compute delta R
       double delta_eta = PS_Cluster->eta() - FS_Cluster->eta();
       double delta_phi = PS_Cluster->phi() - FS_Cluster->phi();
-      double delta_phiCorr = HLT::wrapPhi(delta_phi);
+      double delta_phiCorr = CxxUtils::wrapToPi(delta_phi);
       delta_R = std::sqrt((delta_eta*delta_eta) + (delta_phiCorr*delta_phiCorr));
 
       //!Found the closest FS cluster to the PS one in evaluation
@@ -444,7 +444,7 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
       for(unsigned int i=0; i<m_superRoi->size(); i++){
         double delta_eta = PS_Cluster->eta() - m_superRoi->at(i)->eta();
         double delta_phi = PS_Cluster->phi() - m_superRoi->at(i)->phi();
-        double delta_phiCorr = HLT::wrapPhi(delta_phi);
+        double delta_phiCorr = CxxUtils::wrapToPi(delta_phi);
         tmp_deltaRoI = std::sqrt((delta_eta*delta_eta) + (delta_phiCorr*delta_phiCorr));
 
         if(tmp_deltaRoI<min_deltaRoI){
@@ -790,7 +790,7 @@ void TrigHLTPSvsFSDiagnostics::findPassJets(const xAOD::JetContainer* jetContain
 /      Calculates the deltaR
 ---------------------------------------------------------**/
 double TrigHLTPSvsFSDiagnostics::deltaR(double delta_eta, double delta_phi){
-  double delta_phiCorr = HLT::wrapPhi(delta_phi);
+  double delta_phiCorr = CxxUtils::wrapToPi(delta_phi);
   return std::sqrt((delta_eta*delta_eta) + (delta_phiCorr*delta_phiCorr));
 }
 

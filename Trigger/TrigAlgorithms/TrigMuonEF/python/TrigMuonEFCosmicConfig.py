@@ -340,9 +340,9 @@ else:
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     MuidTrackSummaryTool = Trk__TrackSummaryTool(name ="MuidTrackSummaryTool",
                                                  InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                 InDetHoleSearchTool = InDetTrigHoleSearchTool,
-                                                 MuonSummaryHelperTool = MuonTrackSummaryHelperTool,
-                                                 doSharedHits           = False)     
+                                                 MuonSummaryHelperTool  = MuonTrackSummaryHelperTool,
+                                                 doSharedHits           = False,
+                                                 doHolesInDet           = True)
 
 ToolSvc += MuidTrackSummaryTool
 #END SUMMARY TOOL

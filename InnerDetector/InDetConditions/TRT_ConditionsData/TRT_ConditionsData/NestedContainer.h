@@ -65,6 +65,8 @@
 #include <functional>
 #include <algorithm>
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 
 namespace TRTCond
@@ -312,7 +314,6 @@ namespace TRTCond
 	  T defaultvalue(Trait::initialvalue()) ;
 	  if( firstvaliddaughter < m_daughters.size() ) 
 	    Trait::copy(defaultvalue,NestedContainerDaughterAccessor<Daughter,T,Trait>::get(m_daughters[firstvaliddaughter])) ;
-	  //else { printindent() ; std::cout << "found not a single valid daughter! " << m_daughters.size() << std::endl ; }
 	  clear() ; // this clears pointers in the daughters. would rather replace that with destructors.
 	  m_daughters = DaughterContainer(0) ;
 	  m_default = defaultvalue ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -1422,7 +1422,7 @@ const
 void CaloDetDescrManager_Base::build_sample (const CaloCell_ID::SUBCALO subCalo,
                                              const bool barrel,
                                              const int sampling_or_module,
-                                             CaloCell_ID::CaloSample& sample) const
+                                             CaloCell_ID::CaloSample& sample)
 {
   if ( subCalo == CaloCell_ID::LAREM ) {
     if ( barrel ) {
@@ -1465,7 +1465,7 @@ void CaloDetDescrManager_Base::build_sample (const CaloCell_ID::SUBCALO subCalo,
 void CaloDetDescrManager_Base::decode_sample (CaloCell_ID::SUBCALO& subCalo,
                                               bool& barrel,
                                               int& sampling_or_module,
-                                              const CaloCell_ID::CaloSample sample) const
+                                              const CaloCell_ID::CaloSample sample)
 {
   if ( sample == CaloCell_ID::PreSamplerB) {
     subCalo = CaloCell_ID::LAREM;

@@ -1,34 +1,26 @@
-// emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TrigRoiBuilderMT.h        
 //
-
-
-#ifndef  TRIGROIBUILDER_MT_H
-#define  TRIGROIBUILDER_MT_H
-
-#include <iostream>
+#ifndef  TRIGBJETHYPO_TRIGROIBUILDER_MT_H
+#define  TRIGBJETHYPO_TRIGROIBUILDER_MT_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 class TrigRoiBuilderMT : public AthAlgorithm {
 
  public:
   TrigRoiBuilderMT(const std::string&, ISvcLocator*);
-  ~TrigRoiBuilderMT();
-  
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
   Gaudi::Property< float > m_etaHalfWidth {this,"EtaHalfWidth",0.1,"Eta Half Width"};
@@ -43,9 +35,5 @@ class TrigRoiBuilderMT : public AthAlgorithm {
   SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","EMViewRoIs","Output RoI Collection Key"};
 };
- 
 
 #endif
-
-//** ---------------------------------------------------------------------------------------
-

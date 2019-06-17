@@ -191,7 +191,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	ader_ref(3,2) = ader_ref(2,3);
 
 	for (it=1; it<=NTRK; it++) {
-            t_trk=vk->tmpArr[it-1];
+            t_trk=vk->tmpArr[it-1].get();
 	    ader_ref(1, it*3 + 1) = -vcov[0] * t_trk->wbci[0] 
 	                           - vcov[1] * t_trk->wbci[1] 
 				   - vcov[3] * t_trk->wbci[2];
@@ -232,7 +232,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 
 
 	for (it = 1; it<=NTRK; ++it) {
-            t_trk=vk->tmpArr[it-1];
+            t_trk=vk->tmpArr[it-1].get();
 	    for (jt=1; jt<=NTRK; ++jt) {
 	        int j3   = jt*3;
 	        int i3   = it*3;

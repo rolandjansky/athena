@@ -31,7 +31,6 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "TrkDetDescrUtils/GeometryStatics.h"
 

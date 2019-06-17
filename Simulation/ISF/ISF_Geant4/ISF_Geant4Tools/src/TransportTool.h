@@ -83,11 +83,7 @@ namespace iGeant4
 
     virtual StatusCode setupEvent() override;
 
-    virtual StatusCode setupEventST() override;
-
     virtual StatusCode releaseEvent() override;
-
-    virtual StatusCode releaseEventST() override;
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Geant4; };
 

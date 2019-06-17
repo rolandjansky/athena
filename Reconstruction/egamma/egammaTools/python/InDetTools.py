@@ -8,8 +8,8 @@ from egammaRec.Factories import FcnWrapper, ToolFactory, PublicToolFactory
 ###############
 #egammaExtrapolator: just use the AtlasExtrapolator, making a tool factory
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-egammaExtrapolator = PublicToolFactory(AtlasExtrapolator,
-                                       name = 'AtlasExtrapolator')
+egammaExtrapolator = ToolFactory(AtlasExtrapolator,
+                                 name = 'AtlasExtrapolator')
 
 #egammaInDetTrackSummaryTool: just use the AtlasTrackSummaryTool, making a tool factory
 from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool

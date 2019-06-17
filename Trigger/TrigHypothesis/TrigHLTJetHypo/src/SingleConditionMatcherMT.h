@@ -20,9 +20,9 @@
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include <utility>  // std::pair
 #include <set>
 
+class xAODJetCollector;
 
 class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 
@@ -35,9 +35,14 @@ class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 public:
   SingleConditionMatcherMT(const ConditionBridgeMT&);
   ~SingleConditionMatcherMT(){}
-  bool match(const HypoJetGroupCIter&,
-             const HypoJetGroupCIter&,
-             std::unique_ptr<IConditionVisitor>&) override;
+
+  virtual std::optional<bool>
+    match(const HypoJetGroupCIter&,
+	  const HypoJetGroupCIter&,
+	  xAODJetCollector&,
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	  bool debug) const override;
+  
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
 private:

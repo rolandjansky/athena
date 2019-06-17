@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for AOD->DPD 
@@ -20,22 +21,22 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D2PDMaker.D2PDFlags import D2PDFlags
     listOfFlags.append(D2PDFlags)
 except ImportError:
-    print "WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis."
+    print("WARNING D2PDFlags not available. Requires D2PDMaker-00-00-50 in AtlasAnalysis.")
 try:
     from TopPhysD2PDMaker.TopPhysD2PDFlags import topPhysDPD
     listOfFlags.append(topPhysDPD)
 except ImportError:
-    print "WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING TopPhysD2PDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 try:
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
     listOfFlags.append( prodFlags )
 except ImportError:
-    print "WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING D3PDProdFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -153,7 +154,7 @@ if hasattr(runArgs,"preInclude"):
 from PATJobTransforms.DPDUtils import SetupDPDPreIncludes
 dpdPreInclude = SetupDPDPreIncludes(runArgs, listOfFlags)
 # Examine if we have more output types
-if type(dpdPreInclude) is not list:
+if not isinstance(dpdPreInclude, list):
     recoLog.warning("Old return value from SetupDPDPostIncludes() - no check for output incompatibility done")
 else:
     additionalOutputs = set( [ outfile for outfile in dir(runArgs) if outfile.startswith('output') and outfile.endswith('File') ] ) - set(dpdPreInclude)
@@ -174,7 +175,7 @@ try:
     ## Make "old style" D3PDs.
     for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
 except ImportError:
-    print "WARNING: Old prod flags could not be included this. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING: Old prod flags could not be included this. Only OK if you're using job transforms without the AtlasAnalysis project.")
     
 ## Offline prescales (has to be *after* the topOptions)
 if hasattr(runArgs,"prescales"):
@@ -192,7 +193,7 @@ if hasattr(runArgs,"postInclude"):
 ## Post-includes defined for the DPDs:
 from PATJobTransforms.DPDUtils import SetupDPDPostIncludes
 dpdPostIncludeUsed = SetupDPDPostIncludes(runArgs, listOfFlags)
-if type(dpdPostIncludeUsed) is not list:
+if not isinstance(dpdPostIncludeUsed, list):
     recoLog.warning("Old return value from SetupDPDPostIncludes() - no check for output incompatibility done")
 else:
     additionalOutputs = set( [ outfile for outfile in dir(runArgs) if outfile.startswith('output') and outfile.endswith('File') ] ) - set(dpdPostIncludeUsed)

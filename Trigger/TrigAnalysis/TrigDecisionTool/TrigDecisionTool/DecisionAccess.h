@@ -94,16 +94,40 @@ namespace Trig {
     char getBGCode() const;
     
     /**
-     * @brief returns all features related to given chain group
+     * @brief Runs 1, 2. Returns all features related to given chain group
      **/
-    FeatureContainer features(const ChainGroup* group, 
+    FeatureContainer features(const Trig::ChainGroup* group, 
                               unsigned int condition = TrigDefs::Physics) const;
 
     /**
-     * @brief returns features related to given chain
+     * @brief Runs 1, 2. Returns features related to given chain
      **/
     FeatureContainer features(const std::string& chainName = "EF_.*", 
                               unsigned int condition = TrigDefs::Physics) const;
+
+    /**
+     * @brief Runs 3+. Returns all features related to given chain group
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition bits which the chain group must satisfy.
+     * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
+     **/
+    template<class CONTAINER>
+    const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const Trig::ChainGroup* group,
+                                                                          const unsigned int condition = TrigDefs::Physics,
+                                                                          const bool oneFeaturePerLeg = true) const;
+
+    /**
+     * @brief Runs 3+. Returns features related to given chain
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition bits which the chain group must satisfy.
+     * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
+     **/
+    template<class CONTAINER>
+    const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const std::string& chainName = "HLT_.*",
+                                                                          const unsigned int condition = TrigDefs::Physics,
+                                                                          const bool oneFeaturePerLeg = true) const;
 
     /**
      * @brief gives back feature matching (by seeding relation)
@@ -140,54 +164,6 @@ namespace Trig {
   };
 } // End of namespace
 
-
-
-
-
-
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-template<class T> 
-const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
-  Trig::Feature<T> f;
-  std::vector<Trig::Feature<T> > data;
-  FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-
-  BOOST_FOREACH( Feature<T>& f, data ) {
-    if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
-    }
-  }
-
-  if (data.size() == 1)
-    f = data[0];  
-  return f;
-}
-
-
-template<class T>
-const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
-  std::vector<Trig::Feature<T> > data;
-  FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-  BOOST_FOREACH( Feature<T>& f, data ) {
-    if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
-    }
-  }
-  return data;
-}
-#else
-template<class T> 
-const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
-  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
-  return Trig::Feature<T>();
-}
-template<class T>
-const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
-  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
-  return  std::vector<Trig::Feature<T> >();
-}
-
-#endif
-
+#include "DecisionAccess.icc"
 
 #endif

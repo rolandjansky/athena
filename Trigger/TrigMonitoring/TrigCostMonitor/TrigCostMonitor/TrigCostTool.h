@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTTOOL_H
@@ -12,7 +12,8 @@
 // Framework
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CoolLumiUtilities/BunchGroupTool.h"
+#include "CoolLumiUtilities/BunchGroupCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Trigger
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
@@ -39,21 +40,21 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
 	       const IInterface* parent);
   virtual ~TrigCostTool();
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  StatusCode bookHists();
-  StatusCode fillHists();
-  StatusCode finalHists();
+  virtual StatusCode bookHists() override;
+  virtual StatusCode fillHists() override;
+  virtual StatusCode finalHists() override;
 
-  StatusCode setupOutputStreams(std::vector<std::string> Mapping
-				= std::vector<std::string>());
+  virtual StatusCode setupOutputStreams(std::vector<std::string> Mapping
+                                        = std::vector<std::string>()) override;
 
-  bool preSelector();
+  virtual bool preSelector() override;
 
-  StatusCode runStat()         { return StatusCode::SUCCESS; }
-  StatusCode checkHists(bool)  { return StatusCode::SUCCESS; }
-  StatusCode convertLWHists()  { return StatusCode::SUCCESS; }
+  virtual StatusCode runStat()         override { return StatusCode::SUCCESS; }
+  virtual StatusCode checkHists(bool)  override { return StatusCode::SUCCESS; }
+  virtual StatusCode convertLWHists()  override { return StatusCode::SUCCESS; }
 
  private:
   
@@ -106,9 +107,10 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   const HLT::TrigSteer                  *m_parentAlg;
   TrigTimer                             *m_timer;
   ServiceHandle<ITrigTimerSvc>          m_timerSvc; 
-  ToolHandle<IBunchGroupTool>           m_toolBunchGroup;
   ToolHandle<HLT::IReusableScaler>      m_scalerTool;
   ToolHandle<HLT::IEventInfoAccessTool> m_eventInfoAccessTool;
+  SG::ReadCondHandleKey<BunchGroupCondData> m_bunchGroupKey
+  { this, "BunchGroupKey", "BunchGroupCondData", "" };
 
   // Tools for operational data collection
   ToolHandle<Trig::ITrigNtTool>      m_toolConf;

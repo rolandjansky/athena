@@ -83,7 +83,7 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator>           m_rioOnTrackCreator;
-  PublicToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
+  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
      {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
   double                                    m_cutChiSquaredPerNumberDOF;
 

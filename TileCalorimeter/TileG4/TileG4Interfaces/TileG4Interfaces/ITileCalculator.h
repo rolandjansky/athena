@@ -71,10 +71,7 @@ class ITileCalculator : virtual public IService {
   ///
   virtual ~ITileCalculator() {}
   ///
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_ITileCalculator( "ITileCalculator" , 1 , 0 ) ;
-    return IID_ITileCalculator;
-  }
+  DeclareInterfaceID(ITileCalculator, 1, 0);
 
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const = 0;

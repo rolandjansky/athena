@@ -13,7 +13,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
-#include "TrigTauHypo/T2IDIsoTauHypo.h"
+#include "T2IDIsoTauHypo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 

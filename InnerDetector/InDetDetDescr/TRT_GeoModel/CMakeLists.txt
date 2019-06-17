@@ -41,7 +41,7 @@ atlas_add_component( TRT_GeoModel
 
 atlas_add_test( TRT_GMConfig_test
                 SCRIPT test/TRT_GMConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

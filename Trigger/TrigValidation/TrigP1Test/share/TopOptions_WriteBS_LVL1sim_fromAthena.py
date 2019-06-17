@@ -142,7 +142,6 @@ ByteStreamAddressProviderSvc.TypeNames += [
 	"MdtCsmContainer/MDTCSM",
 	"TgcRdoContainer/TGCRDO",
 	"CscRawDataContainer/CSCRDO",
-	"ROIB::RoIBResult/RoIBResult",
 	"MuCTPI_RDO/MUCTPI_RDO",
         "CTP_RDO/CTP_RDO"
 	] 

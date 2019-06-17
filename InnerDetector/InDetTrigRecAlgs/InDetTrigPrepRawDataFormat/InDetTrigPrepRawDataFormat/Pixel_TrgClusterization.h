@@ -131,7 +131,7 @@ namespace InDet {
     ServiceHandle<IPixelByteStreamErrorsSvc>   m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     bool                     m_doTimeOutChecks;   //check global timer
-
+    bool                     m_skipBSDecoding;    //option to skip BS decoding in MC
     
     // Timing
     TrigTimer   *m_timerRegSel;

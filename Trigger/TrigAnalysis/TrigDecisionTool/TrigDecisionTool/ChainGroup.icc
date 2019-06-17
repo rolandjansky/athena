@@ -1,0 +1,64 @@
+template<class CONTAINER>
+const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
+        unsigned int condition, const bool oneFeaturePerLeg) const {
+
+  // Proper adherence to the condition bits in Run 3 is to follow.
+  bool errState = false;
+  if ( !(condition & TrigDefs::Physics) ) {
+    ATH_MSG_ERROR("Only TrigDefs::Physics is currently supported for Run 3 feature retrieval");
+    errState = true;
+  }
+  if ( condition & TrigDefs::allowResurrectedDecision ) {
+    ATH_MSG_ERROR("TrigDefs::allowResurrectedDecision is not yet supported for feature retrieval for Run 3");
+    errState = true;
+  }
+
+  // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
+  const TrigCompositeUtils::DecisionContainer* navigationSummaryContainer = nullptr;
+  if (eventStore->retrieve(navigationSummaryContainer, "HLTSummary").isFailure() || navigationSummaryContainer == nullptr) {
+    ATH_MSG_ERROR("Unable to read Run 3 trigger navigation. Cannot retrieve features.");
+    errState = true;
+  }
+
+  // We just support Physics decision for now
+  const TrigCompositeUtils::Decision* terminusNode = nullptr;
+
+  if (!errState) {
+    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryContainer) {
+      if (decision->name() == "HLTPassRaw") {
+        terminusNode = decision;
+        break;
+      }
+    }
+    if (terminusNode == nullptr) {
+      ATH_MSG_ERROR("Unable to locate HLTPassRaw element of HLTSummary");
+      errState = true;
+    }
+  }
+
+  if (errState) {
+    ATH_MSG_ERROR("Encountered one or more errors in Trig::ChainGroup::features. Returning empty vector.");
+    return std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >();
+  }
+
+  // For each chain, collect Navigation information
+  std::vector< ElementLinkVector<TrigCompositeUtils::DecisionContainer> > allLinearNavigationPaths;
+
+  // Loop over HLT chains
+  std::set<const TrigConf::HLTChain*>::const_iterator chIt;
+  for (chIt=conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
+    const HLT::Chain* fchain = cgm()->chain(**chIt);
+    if (fchain) {
+      TrigCompositeUtils::recursiveGetDecisions(terminusNode, allLinearNavigationPaths, fchain->getChainHashId());
+      ATH_MSG_DEBUG("Added all navigation paths for chain " << fchain->getChainName() << ", total paths:" << allLinearNavigationPaths.size());
+    } else {
+      ATH_MSG_ERROR("Cannot access configuration for one of the ChainGroup's chains");
+    }
+  }
+
+  if (allLinearNavigationPaths.size() == 0) {
+    ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
+  }
+
+  return TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg);
+}

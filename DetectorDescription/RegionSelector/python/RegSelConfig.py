@@ -112,14 +112,14 @@ def regSelCfg( flags ):
     return acc
 
 if __name__ == "__main__":
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
+
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    from AthenaCommon.Configurable import Configurable
     from AthenaCommon.Constants import DEBUG
-
-    Configurable.configurableRun3Behavior=True
 
     ConfigFlags.Detector.GeometryPixel = True     
     ConfigFlags.Detector.GeometrySCT   = True 
@@ -131,7 +131,6 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryCSC   = True     
     ConfigFlags.Detector.GeometryRPC   = True     
     
-
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
     ConfigFlags.Input.isMC = False
     ConfigFlags.dump()

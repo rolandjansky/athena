@@ -64,9 +64,11 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   useTRT          = DetFlags.haveRIO.TRT_on() )
  
 # default CombinedMuonTrackSummary
+# @TODO doHolesMuon = False correct ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   doSharedHits             = False,
+                                  doHolesInDet             = True,
                                   doHolesMuon              = False,
                                   AddDetailedInDetSummary  = True,
                                   AddDetailedMuonSummary   = True,
@@ -74,7 +76,6 @@ ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   TRT_ElectronPidTool      = None,
                                   PixelToTPIDTool          = None,
                                   MuonSummaryHelperTool    = muonTrackSummaryHelper,
-                                  InDetHoleSearchTool      = ToolSvc.CombinedMuonIDHoleSearch,
                                   PixelExists              = True )
 
 # load tools requiring pixels

@@ -19,7 +19,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/EFTauDiKaonHypo.h"
+#include "EFTauDiKaonHypo.h"
 //
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTracking/TrackParticle.h"

@@ -58,6 +58,9 @@
  * - ROOT histogram settings group:
  *    - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
  *    - `Sumw2` activate the storage of the sum of squares of errors
+ * - ROOT histogram extensions group:
+ *    - `kAddBinsDynamically` enable adding new bins on the fly, when new data doesn't fit into current \n
+ *      range of the histogram's values 
  * - Lumiblock awareness group:
  *    - `kLBNHistoryDepth=value` makes the histogram lumiblock aware and groups incoming data based on lumiblock number,\n
  *      'value' should be defined as positive integer
@@ -89,7 +92,8 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t lumiBlock();
 private:
-  ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
+  /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
+  ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };

@@ -23,7 +23,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
-
 #include "CommissionEvent/ComTime.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -61,10 +60,8 @@ public:
   virtual StatusCode finalize  ();
   /** make the conversion from RDOs to DriftCircles */
   virtual InDet::TRT_DriftCircleCollection*  
-  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels );  
-  /** test validity gate for corrected drift times */
+  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels ); 
   virtual bool passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const;
-
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
@@ -75,20 +72,18 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-  SG::ReadHandleKey<ComTime> m_comTimeName {this,"ComTimeName","ComTime","RHK to retrieve ComTime"}; //!< RHK for ComTime
+  SG::ReadHandleKey<ComTime> m_evtPhaseKey {this,"TRT_Phase","TRT_Phase","RHK to retrieve TRT Phase"};
+
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;  //!< DriftFunctionTool
-//  ServiceHandle< IInDetConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
   ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 
   bool                                 m_useConditionsStatus;     //!< SHall the ConditionsSummaryTool be used?
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 
   std::string                          m_trt_mgr_location ;  //!< Manager name
-  //std::string                          m_comTimeName      ;  //!< Phase handler name
   const InDetDD::TRT_DetectorManager * m_trt_mgr          ;  //!< Manager handle
   const TRT_ID                       * m_trtid            ;  //!< TRT id helper handle
-  unsigned int                         m_coll_pll         ;  //!< phase offset (in clock bins)
-  double                               m_global_offset    ;  //!< Global offset to TRT Phase to make TRT Calibration happy ...
+  float                                m_global_offset    ;  //!< Global offset to TRT Phase to make TRT Calibration happy ...
   bool				       m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?
   bool                                 m_useHTCorrection;  //!< Shall the High Threshold correction be used?
 

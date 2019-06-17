@@ -1,7 +1,5 @@
-// emacs: this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -11,8 +9,8 @@
 //                   
 
 
-#include "src/TrigRoiBuilderMT.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "TrigRoiBuilderMT.h"
+#include "CxxUtils/phihelper.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -23,7 +21,6 @@ TrigRoiBuilderMT::TrigRoiBuilderMT(const std::string & name, ISvcLocator* pSvcLo
 
 
 StatusCode TrigRoiBuilderMT::initialize() {
-  ATH_MSG_INFO( "Initializing " << name() << " ... " );
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_etaHalfWidth    );
@@ -44,13 +41,6 @@ StatusCode TrigRoiBuilderMT::initialize() {
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-TrigRoiBuilderMT::~TrigRoiBuilderMT(){}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
 
 StatusCode TrigRoiBuilderMT::execute() {
 
@@ -112,8 +102,8 @@ StatusCode TrigRoiBuilderMT::execute() {
 
     ATH_MSG_DEBUG( "Creating RoI corresponding to Jet" );
     // create RoI correspondinding to the jet
-    double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-    double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+    double phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth); 
+    double phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth); 
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
 
@@ -132,15 +122,3 @@ StatusCode TrigRoiBuilderMT::execute() {
 
   return StatusCode::SUCCESS;
 }
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-StatusCode TrigRoiBuilderMT::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() << " ... " );
-  return StatusCode::SUCCESS;
-}
-
-
-

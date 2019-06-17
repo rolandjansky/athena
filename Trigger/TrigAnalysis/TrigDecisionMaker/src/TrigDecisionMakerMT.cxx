@@ -72,6 +72,8 @@ StatusCode TrigDecisionMakerMT::finalize()
 
 StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const 
 {
+  using namespace TrigCompositeUtils;
+
   // increment event counter
   m_nEvents++;
 
@@ -84,7 +86,7 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     }
   }
 
-  const TrigCompositeUtils::DecisionContainer* hltResult = nullptr;
+  const DecisionContainer* hltResult = nullptr;
   if (m_doHLT) {
     ATH_CHECK(getHLTResult(hltResult, context));
   }
@@ -112,24 +114,43 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
   outputVectors.insert( &hltRerunBits );
 
   if (hltResult) {
-    ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size() << " (typically expect size=3)");
-    TrigCompositeUtils::DecisionIDContainer passRawInput; //!< The chains which returned a positive decision
-    TrigCompositeUtils::DecisionIDContainer prescaledInput; //!< The chains which did not run due to being prescaled out
-    TrigCompositeUtils::DecisionIDContainer rerunInput; //!< The chains which were activate only in the rerun (not physics decisions)
+    ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size());
+    const Decision* HLTPassRaw = nullptr;
+    const Decision* HLTPrescaled = nullptr;
+    const Decision* HLTRerun = nullptr;
+
+    DecisionIDContainer passRawInput; //!< The chains which returned a positive decision
+    DecisionIDContainer prescaledInput; //!< The chains which did not run due to being prescaled out
+    DecisionIDContainer rerunInput; //!< The chains which were activate only in the rerun (not physics decisions)
 
     // Read the sets of chain IDs
-    for (const TrigCompositeUtils::Decision* decisionObject : *hltResult) {
+    for (const Decision* decisionObject : *hltResult) {
       // Collect all decisions (IDs of passed/prescaled/rerun chains) from named decisionObjects
       if (decisionObject->name() == "HLTPassRaw") {
-        TrigCompositeUtils::decisionIDs(decisionObject, passRawInput);
+        HLTPassRaw = decisionObject;
       } else if (decisionObject->name() == "HLTPrescaled") {
-        TrigCompositeUtils::decisionIDs(decisionObject, prescaledInput);
+        HLTPrescaled = decisionObject;
       } else if (decisionObject->name() == "HLTRerun") {
-        TrigCompositeUtils::decisionIDs(decisionObject, rerunInput);
-      } else {
-        ATH_MSG_WARNING("TrigDecisionMakerMT encountered an unknown set of decisions with name '" << decisionObject->name() << "'");
+        HLTRerun = decisionObject;
+      }
+      if (HLTPassRaw && HLTPrescaled && HLTRerun) {
+        break;
       }
     }
+
+    ATH_CHECK(HLTPassRaw != nullptr);
+    ATH_CHECK(HLTPrescaled != nullptr);
+    ATH_CHECK(HLTRerun != nullptr);
+
+    // Get all passed IDs.
+    decisionIDs(HLTPassRaw, passRawInput);
+
+    // Simpler structure for prescaled. 
+    decisionIDs(HLTPrescaled, prescaledInput);
+
+    // Get all passed IDs. 
+    decisionIDs(HLTRerun, rerunInput);   
+
     if (passRawInput.size()) {
       ++m_hltPassed;
     }
@@ -230,8 +251,10 @@ size_t TrigDecisionMakerMT::makeBitMap(
 void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
   const size_t block = bit / std::numeric_limits<uint32_t>::digits;
   const size_t requiredSize = block + 1;
-  for (std::vector<uint32_t>* vecPtr : vectors) {
-    vecPtr->resize(requiredSize, 0);
+  if (vectors.size() && requiredSize > (*vectors.begin())->size()) {
+    for (std::vector<uint32_t>* vecPtr : vectors) {
+      vecPtr->resize(requiredSize, 0); // Resize can shrink, here we only ever want to expand
+    }
   }
   return;
 }

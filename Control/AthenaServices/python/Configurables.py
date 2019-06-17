@@ -37,7 +37,7 @@ class ThinningSvc( _ThinningSvc ):
         if not isinstance(handle, ThinningSvc):
             return
 
-        from AthenaCommon.AlgSequence import AlgSequence
+        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
         ## get a handle on the ToolSvc
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -137,6 +137,13 @@ class ThinningSvc( _ThinningSvc ):
         ## first loop over TopAlg (as output stream can be located
         ## into that sequence)
         for o in AlgSequence("TopAlg"):
+            if (isinstance(o, AthenaOutputStream) and
+                hasattr(o, 'HelperTools') and
+                _doScheduleTool(o, streams)):
+                outstreams.append (o)
+                pass
+        ## then loop over OutputStream sequence
+        for o in AthSequencer("AthOutSeq"):
             if (isinstance(o, AthenaOutputStream) and
                 hasattr(o, 'HelperTools') and
                 _doScheduleTool(o, streams)):

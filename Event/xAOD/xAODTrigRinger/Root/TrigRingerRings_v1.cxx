@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // create by: joao victor da fonseca pinto, joao.victor.da.fonseca.pinto@cern.ch
@@ -26,7 +26,7 @@ namespace xAOD{
     
  
     unsigned TrigRingerRings_v1::size() const{
-        static Accessor< std::vector<float> > acc( "rings" );
+        static const Accessor< std::vector<float> > acc( "rings" );
         return acc(*this).size();
     }
     

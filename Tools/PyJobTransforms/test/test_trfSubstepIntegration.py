@@ -7,6 +7,7 @@
 #  @author atlas-comp-transforms-dev@cern.ch
 #  @version $Id: test_trfSubstepIntegration.py 649424 2015-02-24 22:06:20Z graemes $
 
+from __future__ import print_function
 import re
 import subprocess
 import unittest
@@ -26,7 +27,7 @@ class trfExitTests(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         p.wait()
         for line in p.stdout:
-            print line,
+            print(line, end=' ')
             m = re.match(r"Executor Step: (\w+)", line)
             if m:
                 steps.append(m.group(1))
@@ -41,7 +42,7 @@ class trfExitTests(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         p.wait()
         for line in p.stdout:
-            print line,
+            print(line, end=' ')
             m = re.match(r"Executor Step: (\w+)", line)
             if m:
                 steps.append(m.group(1))

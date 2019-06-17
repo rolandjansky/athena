@@ -72,8 +72,6 @@ private:
     //const LArHEC_ID*    m_larHec_ID;
     //const LArFCAL_ID*   m_larFcal_ID;
 
-    const CaloDetDescrManager*   m_caloDDMgr;
-
     std::vector<LArCell*> m_Cells_Tot;
     std::vector<LArCell*> m_Cells_Vis;
     std::vector<LArCell*> m_Cells_Em;

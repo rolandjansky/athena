@@ -185,7 +185,7 @@ namespace VKalVrtAthena {
         
       }
 
-      exit(1);
+      std::abort();
     }
 
     void clear();

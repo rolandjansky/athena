@@ -32,8 +32,9 @@
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+
+#include <memory>
 
 /** Base Class for Tools used for Egamma and Tau Feature Extraction Algorithms */
 class IReAlgToolCalo : public AthAlgTool {
@@ -58,22 +59,14 @@ protected:
   /** Very useful function to check about the Cluster structure.
   It prints out a grid of cells eta and phi positions and energies.
   Only exist in DEBUG versions of the code. */
-  void PrintCluster(const double energyFromAlg, const int nCaloType, const int nCaloSamp,
+  void PrintCluster(const double /*energyFromAlg*/, const int /*nCaloType*/, const int /*nCaloSamp*/,
                     const CaloSampling::CaloSample, const CaloSampling::CaloSample) const
   {}
 #endif
 
-  /** Timing measure items in all IReAlgToolCalos.
-  m_timer[0] is the complete exec timer. m_timer[1] is the
-  Region Selector timer, m_timer[2] is the LoadCollection
-  timer (Data Preparation), m_timer[3] is the real algorithmic
-  timer and m_timer[4] is the saving data (to TrigCaloEvent
-  object) timer. */
-  TrigTimer* m_timer[5];
-
   /** Objects will need T2Calibration. So far, a given tool will
   not need more than one of such objects. */
-  T2Calibration* m_calib{nullptr};
+  std::unique_ptr<T2Calibration> m_calib;
 
   /** Input objects to calibration. This will be changed in such
   a way the the calibration tool will have to know alone about
@@ -91,9 +84,6 @@ protected:
 
   Gaudi::Property<float> m_cellkeepthr{this, "ThresholdKeepCells", 1e5,
                                        "Threshold to keep cells incontainer"};
-
-  ServiceHandle<ITrigTimerSvc> m_timersvc{this, "TrigTimerSvc", "TrigTimerSvc/TrigTimerSvc",
-                                          "Trigger Timer Service for benchmarking algorithms"};
 
   ToolHandle<IT2GeometryTool> m_geometryTool{
       this, "T2GeometryTool", "T2GeometryTool/T2GeometryTool",

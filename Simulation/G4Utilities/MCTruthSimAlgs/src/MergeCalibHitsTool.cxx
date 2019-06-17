@@ -1,27 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeCalibHitsTool.h"
 
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 MergeCalibHitsTool::MergeCalibHitsTool(const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_firstSubEvent(true),
-  m_pMergeSvc("PileUpMergeSvc", name),
-  m_oldFormat(false)
+  PileUpToolBase(type, name, parent)
 {
-  declareProperty("OldFormat", m_oldFormat);
 }
 
 StatusCode MergeCalibHitsTool::initialize() {
   ATH_MSG_VERBOSE ( "initialize()" );
+
+  ATH_CHECK(m_pMergeSvc.retrieve());
+
   // list of CaloCalibrationHit containers
   if(m_oldFormat) {
     m_CalibrationHitContainer.reserve(5);
@@ -58,8 +56,8 @@ StatusCode MergeCalibHitsTool::prepareEvent(unsigned int nInputEvents) {
 }
 
 StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
-                                                            SubEventIterator bSubEvents,
-                                                            SubEventIterator eSubEvents)
+                                                SubEventIterator bSubEvents,
+                                                SubEventIterator eSubEvents)
 {
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
@@ -126,12 +124,6 @@ StatusCode MergeCalibHitsTool::mergeEvent() {
 
 StatusCode MergeCalibHitsTool::processAllSubEvents() {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  if(!m_pMergeSvc) {
-    if (!(m_pMergeSvc.retrieve()).isSuccess()) {
-      ATH_MSG_FATAL ( "processAllSubEvents: Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
-  }
 
   // loop over containers
   for (unsigned int iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();iHitContainer++) {

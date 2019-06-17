@@ -17,8 +17,7 @@ namespace Trk{
   void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK)
   {
     m_FitStatus = 0;     // Drop all previous fit results
-    ForCFT newforcft;    //Create fresh ForCFT
-    std::swap(m_vkalFitControl->vk_forcft,newforcft);
+    m_vkalFitControl->vk_forcft = ForCFT();
   
     //Set input particle masses
     for(int it=0; it<NTRK; it++){

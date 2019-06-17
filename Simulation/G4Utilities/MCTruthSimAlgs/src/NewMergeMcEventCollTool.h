@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_NEWMERGEMCEVENTCOLLTOOL_H
@@ -50,9 +50,9 @@ private:
   //** Handle for the PileUpMergeSvc (provides input McEventCollections)
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
   //** Name of input McEventCollection
-  StringProperty m_truthCollInputKey{"TruthEvent"};
+  StringProperty m_truthCollInputKey{this,"TruthCollInputKey", "TruthEvent", ""};
   //** Depends on PileUpTimeEventIndex::PileUpType; provide one instance of this tool for each type
-  int m_pileUpType{-1}; // initialise to PileUpTimeEventIndex::PileUpType::Unknown
+  Gaudi::Property<int> m_pileUpType{this, "PileUpType", -1, ""}; // initialise to PileUpTimeEventIndex::PileUpType::Unknown
   //** Writing to StoreGate safely in MT
   SG::WriteHandle<McEventCollection> m_outputMcEventCollection{};
   //** Writing to StoreGate safely in MT

@@ -23,9 +23,6 @@ namespace InDet {
     : ::AthAlgorithm( name, pSvcLocator )
   {}
 
-  TTrainedNetworkCondAlg::~TTrainedNetworkCondAlg()
-  {}
-
   StatusCode TTrainedNetworkCondAlg::initialize() {
     ATH_CHECK( m_condSvc.retrieve() );
     ATH_CHECK( m_poolsvc.retrieve() );

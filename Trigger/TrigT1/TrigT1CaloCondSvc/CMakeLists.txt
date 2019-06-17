@@ -10,7 +10,6 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/SGTools
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/RegistrationServices
@@ -21,7 +20,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( TrigT1CaloCondSvcLib
    TrigT1CaloCondSvc/*.h TrigT1CaloCondSvc/*.icc src/*.cxx
    PUBLIC_HEADERS TrigT1CaloCondSvc
-   LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib
+   LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib
    AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions )
 
 atlas_add_component( TrigT1CaloCondSvc

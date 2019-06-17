@@ -28,6 +28,7 @@ JetTagCalibCondData::JetTagCalibCondData()
 
 JetTagCalibCondData::~JetTagCalibCondData() {
     this->deleteHistos();
+    this->deleteBdts();
 }
 
 void JetTagCalibCondData::deleteHistos() {
@@ -36,11 +37,23 @@ void JetTagCalibCondData::deleteHistos() {
     for(unsigned int i=0;i<m_histos.size();i++) {
       iter_hist = m_histos[i].begin();
       for(;iter_hist!=m_histos[i].end();++iter_hist) {
-        log << MSG::DEBUG << "#BTAG# delete histo of " << iter_hist->first << endmsg;
+        log << MSG::DEBUG << "#BTAG# delete histo of tagger " << i << " for channel " << iter_hist->first << endmsg;
         delete iter_hist->second;
       }
     }
 }
+
+void JetTagCalibCondData::deleteBdts() {
+    MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+    for( auto const &tagger : m_bdts) {
+      for( auto const &channel : tagger.second) {
+        log << MSG::DEBUG << "#BTAG# Delete BDT of tagger " << tagger.first << " for channel " << channel.first << endmsg;
+        delete channel.second;
+      }
+    }
+    m_bdts.clear();
+}
+
 
 void JetTagCalibCondData::resize(const std::vector<std::string> taggers) {
     m_histos.reserve(taggers.size());
@@ -48,7 +61,7 @@ void JetTagCalibCondData::resize(const std::vector<std::string> taggers) {
       m_taggers.push_back(taggers[i]);
       std::map<std::string, TObject* > hmap;
       m_histos.push_back(hmap);
-    }  
+    }
 }
 
 void JetTagCalibCondData::clear() {
@@ -56,7 +69,16 @@ void JetTagCalibCondData::clear() {
 }
 
 void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, TObject * obj) {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   m_histos[indexTagger].insert(std::make_pair(name, obj));
+  log << MSG::DEBUG << "#BTAG# m_histos size " << m_histos.size() << endmsg;
+}
+
+void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& channel, MVAUtils::BDT* bdt) {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# Adding BDT of " << tagger << " in cond data for channel " << channel << endmsg;
+  m_bdts[tagger].insert(std::make_pair(channel, bdt));
+  log << MSG::DEBUG << "#BTAG# m_bdts size " << m_bdts.size() << endmsg;
 }
 
 void JetTagCalibCondData::addDL1NN(const std::string&tagger, const std::string& channel, const lwt::JSONConfig& obj) {
@@ -107,8 +129,45 @@ void JetTagCalibCondData::printHistosStatus() const {
   }
 }
 
+void JetTagCalibCondData::printBdtsStatus() const {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# There are " << m_bdts.size() << " BDTs build with TTree retrieved from DB" << endmsg;
+  for( auto const &tagger : m_bdts) {
+    log << MSG::DEBUG << "#BTAG# BDT for Tagger " << tagger.first << endmsg;
+    for( auto const &channel : tagger.second) {
+      log << MSG::DEBUG << "#BTAG# Channel "<< channel.first << " has many trees " << channel.second->GetNTrees() << endmsg;
+    }
+  }
+}
+
 TH1* JetTagCalibCondData::retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const {
   return this->retrieveTObject<TH1>(folder,channel,hname);
+}
+
+MVAUtils::BDT* JetTagCalibCondData::retrieveBdt(const std::string& tagger, const std::string& channel) const {
+  MVAUtils::BDT* bdt(nullptr);
+  std::string channelAlias = this->getChannelAlias(channel);
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# retrieving BDT for " << tagger
+	   << " (channel " << channel << " -> " << channelAlias << ") " << endmsg;
+  std::map< std::string , std::map<std::string, MVAUtils::BDT*>>::const_iterator mI;
+  mI = m_bdts.find(tagger);
+  if (mI != m_bdts.end()) {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " BDT config found"<< endmsg;
+    std::map<std::string, MVAUtils::BDT*>::const_iterator mJ = mI->second.find(channelAlias);
+    if (mJ != mI->second.end()) {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " BDT config found for jet collection " << channel << endmsg;
+      bdt = mJ->second;
+    }
+    else {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " BDT config not found for jet collection " << channel << endmsg;
+    }
+  }
+  else {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " BDT config not found"<< endmsg;
+  }
+
+  return bdt;
 }
 
 lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(std::string& tagger, const std::string& channel) const {

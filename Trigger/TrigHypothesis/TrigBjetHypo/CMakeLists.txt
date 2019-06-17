@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/AthContainers
+                          Control/CxxUtils
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo
                           Event/EventPrimitives

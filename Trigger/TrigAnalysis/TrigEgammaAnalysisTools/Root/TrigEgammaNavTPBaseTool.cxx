@@ -38,8 +38,6 @@ TrigEgammaNavTPBaseTool::
 TrigEgammaNavTPBaseTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname)
 {
-  declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
-  declareProperty("ElectronLikelihoodTool", m_electronLHTool);
   declareProperty("ZeeLowerMass",m_ZeeMassMin=80);
   declareProperty("ZeeUpperMass",m_ZeeMassMax=100);
   declareProperty("OfflineTagSelector",m_offTagTightness="Tight");
@@ -97,14 +95,6 @@ StatusCode
 TrigEgammaNavTPBaseTool::childInitialize() {
 
     ATH_MSG_VERBOSE( "child Initialize tool " << name() );
-    if ( (m_electronIsEMTool.retrieve()).isFailure() ){
-        ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
-        return StatusCode::FAILURE;
-    }
-    if ( (m_electronLHTool.retrieve()).isFailure() ){
-        ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
-        return StatusCode::FAILURE;
-    }
     m_offProbeTightness = m_defaultProbeTightness;
 
     return StatusCode::SUCCESS;
@@ -420,12 +410,12 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
     auto ctx = Gaudi::Hive::currentContext() ;
     for(int ipid=0;ipid<3;ipid++){
-        bool accept = (bool) m_electronIsEMTool[ipid]->accept(ctx,eg);
+        bool accept = (bool) this->m_electronIsEMTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
     for(int ipid=0;ipid<2;ipid++){
-        bool accept = (bool) m_electronLHTool[ipid]->accept(ctx,eg);
+        bool accept = (bool) this->m_electronLHTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
@@ -435,29 +425,27 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
 bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
     auto ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "Tight"){
-        return (bool) m_electronIsEMTool[0]->accept(ctx,eg);
+        return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
     else if (pidname == "Medium"){
-        return  (bool) m_electronIsEMTool[1]->accept(ctx,eg);
+        return  (bool) this->m_electronIsEMTool[1]->accept(ctx,eg);
     }
     else if (pidname == "Loose"){
-        return (bool) m_electronIsEMTool[2]->accept(ctx,eg);
+        return (bool) this->m_electronIsEMTool[2]->accept(ctx,eg);
     }
     else if (pidname == "LHTight"){
-        return (bool) m_electronLHTool[0]->accept(ctx,eg);
+        return (bool) this->m_electronLHTool[0]->accept(ctx,eg);
     }
     else if (pidname == "LHMedium"){
-        return (bool) m_electronLHTool[1]->accept(ctx,eg);
+        return (bool) this->m_electronLHTool[1]->accept(ctx,eg);
     }
     else if (pidname == "LHLoose"){
-        return (bool) m_electronLHTool[2]->accept(ctx,eg);
+        return (bool) this->m_electronLHTool[2]->accept(ctx,eg);
     }
-    else if (pidname == "LHMediumHI"){
-        return (bool) m_electronLHTool[3]->accept(ctx,eg);
-    }
-    else if (pidname == "LHMediumHI"){
-        return (bool) m_electronLHTool[3]->accept(ctx,eg);
-    }
+    // LHMediumHI not working in master. Commenting out untill fixed 
+    //else if (pidname == "LHMediumHI"){
+    //    return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
+    //}
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
 }

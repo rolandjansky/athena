@@ -46,11 +46,11 @@ AthAlgTool(t,n,p),
   m_trt_dEdxTool("", this),
   m_dedxtool("", this),
   m_muonTool("", this),
-  m_idHoleSearch("", this),
   m_pixelExists(true)
 {
   declareInterface<ITrackSummaryTool>(this);
   declareProperty("doSharedHits",               m_doSharedHits);
+  declareProperty("doHolesInDet",               m_doHolesInDet);
   declareProperty("doHolesMuon",                m_doHolesMuon);
   declareProperty("AddDetailedInDetSummary",    m_addInDetDetailedSummary=true);
   declareProperty("AddDetailedMuonSummary",     m_addMuonDetailedSummary=true);
@@ -59,7 +59,6 @@ AthAlgTool(t,n,p),
   declareProperty("TRT_ToT_dEdxTool",           m_trt_dEdxTool);
   declareProperty("PixelToTPIDTool",            m_dedxtool);
   declareProperty("MuonSummaryHelperTool",      m_muonTool);
-  declareProperty("InDetHoleSearchTool",        m_idHoleSearch);
   declareProperty("PixelExists",                m_pixelExists);
 
   declareProperty("TRTdEdx_DivideByL",        (m_TRTdEdx_DivideByL=true) );
@@ -122,17 +121,6 @@ StatusCode
         return StatusCode::FAILURE;
     } else {
        if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endmsg;
-    }
-
-    if ( !m_idHoleSearch.empty() ) {
-        if (m_idHoleSearch.retrieve().isFailure() ) {
-            ATH_MSG_ERROR ("Failed to retrieve InDet hole search tool "<< m_idHoleSearch);
-            ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-            return StatusCode::FAILURE;
-        } else {
-            msg(MSG::INFO) << "Retrieved tool " << m_idHoleSearch<<endmsg;
-            m_doHolesInDet = true;
-        }
     }
 
     if ( !m_muonTool.empty() && m_muonTool.retrieve().isFailure() ) 
@@ -369,7 +357,7 @@ void Trk::TrackSummaryTool::updateSharedHitCount(Track& track) const
       createSummary( track, true );
       return;
   } 
-  Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
+  Trk::TrackSummary* tSummary = track.m_trackSummary;
   m_idTool->updateSharedHitCount(track, *tSummary);
   return;
 }
@@ -381,7 +369,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
       createSummary( track, true );
       return;
   } 
-  Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
+  Trk::TrackSummary* tSummary = track.m_trackSummary;
   
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5); 
@@ -622,7 +610,6 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
 
       // ME : revert to take the summary helper, this is a temporary thing for 16.0.X
       m_idTool->searchForHoles(track,information,Trk::pion);
-      //m_idHoleSearch->countHoles(track,information,Trk::pion) ; //TC: shouldn't it take the particle hypothesis from the track?
 
     }
     if (!m_muonTool.empty() && doHolesMuon)

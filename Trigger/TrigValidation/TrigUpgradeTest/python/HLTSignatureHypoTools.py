@@ -9,27 +9,30 @@ def TestHypoTool(name, prop, threshold_value):
     return h
 
 def MuTestHypoTool(chainDict):
-    #threshold = conf.replace("HLT_mu","")
-    conf = name = chainDict['chainName']
-    threshold = getThreshold(conf, 'mu') 
+    name = chainDict['chainName']
+    threshold = getThreshold(name, 'mu') 
     return TestHypoTool(name,prop="pt", threshold_value=threshold)
 
 def ElTestHypoTool(chainDict):
-    #threshold = conf.replace("HLT_e","")
-    conf = name = chainDict['chainName']
-    threshold = getThreshold(conf, 'e') 
+    name = chainDict['chainName']
+    threshold = getThreshold(name, 'e') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 def GammTestHypoTool(chainDict):
-    conf = name = chainDict['chainName']
-    threshold = getThreshold(conf, 'g') 
+    name = chainDict['chainName']
+    threshold = getThreshold(name, 'g') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
 def MuTest2HypoTool(chainDict):
-    conf = name = chainDict['chainName']
-    threshold = getThreshold(conf, 'mu')  
+    name = chainDict['chainName']
+    threshold = getThreshold(name, 'mu')  
     return TestHypoTool(name,prop="pt2", threshold_value=threshold)
+
+def ElTest2HypoTool(chainDict):
+    name = chainDict['chainName']
+    threshold = getThreshold(name, 'e') 
+    return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
 def getThreshold(name, signature):

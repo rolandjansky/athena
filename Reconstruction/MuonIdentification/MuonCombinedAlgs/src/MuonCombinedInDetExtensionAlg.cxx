@@ -19,6 +19,7 @@ MuonCombinedInDetExtensionAlg::~MuonCombinedInDetExtensionAlg(){}
 
 StatusCode MuonCombinedInDetExtensionAlg::initialize()
 {
+  ATH_MSG_VERBOSE(" usePRDs = "<< m_usePRDs << " and m_useNSW = "<<m_useNSW);
   ATH_CHECK(m_muonCombinedInDetExtensionTools.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
   ATH_CHECK(m_MDT_ContainerName.initialize(m_usePRDs));
@@ -43,6 +44,10 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
     return StatusCode::FAILURE;
   }
+  
+  ATH_MSG_VERBOSE("Loaded InDetCandidateCollection "<<m_indetCandidateCollectionName<< " with  "<<indetCandidateCollection->size()<<" elements.");
+  for ( const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection )
+    ATH_MSG_VERBOSE(candidate->toString());
 
   SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap);
   ATH_CHECK( tagMap.record (std::make_unique<MuonCombined::InDetCandidateToTagMap>()) );

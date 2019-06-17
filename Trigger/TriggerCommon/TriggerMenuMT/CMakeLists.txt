@@ -5,10 +5,12 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
 
-
 # Declare the package's dependencies: 
 atlas_depends_on_subdirs( PRIVATE
                           Trigger/TriggerCommon/TriggerJobOpts)
+
+# External dependencies:
+find_package( six )
 
 atlas_add_test( flake8
    SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
@@ -119,8 +121,10 @@ atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfi
                 PROPERTIES TIMEOUT 500 
               )
 
+atlas_add_test( ViewCFTest     SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest POST_EXEC_SCRIPT nopost.sh )
+
 atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
-                PROPERTIES TIMEOUT 1000 
+                PROPERTIES TIMEOUT 4000 
               )
 
 #----------------------------------

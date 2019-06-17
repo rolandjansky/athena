@@ -10,9 +10,6 @@
 
 __all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 
-# Code from JetRecUtils
-# define the convention that we write R truncating the decimal point
-# if R>=1, then we write R*10
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
@@ -25,6 +22,9 @@ except:
 from ROOT import xAODType
 xAODType.ObjectType
 
+# Code from JetRecUtils
+# define the convention that we write R truncating the decimal point
+# if R>=1, then we write R*10
 def formatRvalue(parameter):
     # impose precision limits where there could be ambiguity
     if int(10*parameter)>=1 and int(100*parameter % 10):
@@ -44,12 +44,18 @@ def buildJetAlgName(finder, mainParam, variableRMassScale=None, variableRMinRadi
     return finder + formatRvalue(mainParam)
 
 # A class that defines the type of object used to build a jet
+# Normally defaults to standard offline input containers, but
+# can be overridden.
 class JetConstit(object):
-    def __init__(self, type, modifiers=[]):
-        self.__basetype = type
+    def __init__(self, objtype, modifiers=[], rawname=None, inputname=None):
+        self.__basetype = objtype
         self.__modifiers = modifiers
+        # Override for unmodified container name
+        self.__rawname = rawname
+        # Override for final container name
+        self.__inputname = inputname
 
-        self.defineLabelAndContainerName()
+        self.defineLabelAndContainerNames()
         pass
 
     def __hash__(self):
@@ -70,7 +76,7 @@ class JetConstit(object):
     @basetype.setter
     def basetype(self,basetype):
         self.__basetype = basetype
-        self.defineLabelAndContainerName()
+        self.defineLabelAndContainerNames()
 
     @property
     def modifiers(self):
@@ -78,19 +84,21 @@ class JetConstit(object):
     @modifiers.setter
     def modifiers(self,modifiers):
         self.__modifiers = modifiers
-        self.defineLabelAndContainerName()
+        self.defineLabelAndContainerNames()
 
-    def defineLabelAndContainerName(self):
+    def defineLabelAndContainerNames(self):
         labelnames = {
             xAODType.CaloCluster:      "Topo",
             xAODType.ParticleFlow:     "EMPFlow",
             xAODType.TrackParticle:    "Track",
             xAODType.TruthParticle:    "Truth",
             xAODType.TrackCaloCluster: "TrackCaloCluster",
-            xAODType.Jet:              "Jets",
+            xAODType.Jet:              "Jet",
             }
 
+        # Need capability to override label?
         self.label = ""
+        self.rawname = ""
         self.inputname = ""
 
         # Truth "modifiers" specify the selection tool config
@@ -99,24 +107,21 @@ class JetConstit(object):
         # Other "modifiers" determine the constit mods e.g.
         # origin correction, PU suppression etc
         # Topoclusters should also specify EM or LC
-        # Jets just specify the jet definition
+        # Jets could specify a filter e.g. pt cut or JVT??
         modstring = ""
         if self.__modifiers:
             for mod in self.__modifiers:
                 # Handle special case of topocluster state
                 if mod in ["EM","LC"]:
                     self.label += mod
-                    self.inputname += mod
                 else:
                     modstring += mod
 
-        if self.__basetype==xAODType.Jet:
-            self.label += labelnames[self.__basetype]
-        else:
-            self.label += labelnames[self.__basetype]
+        self.label += labelnames[self.basetype]
+        if self.basetype!=xAODType.Jet:
             self.label += modstring
-            if self.__basetype==xAODType.TruthParticle:
-                self.label = self.label.replace("NoWZ","WZ")
+        if self.basetype==xAODType.TruthParticle:
+            self.label = self.label.replace("NoWZ","WZ")
 
         containernames = {
             xAODType.CaloCluster:      "TopoClusters",
@@ -126,22 +131,36 @@ class JetConstit(object):
             xAODType.TrackCaloCluster: "TrackCaloClusters",
             xAODType.Jet:              "Jets",
             }
-        defaultaffixes = {
+        # Sometimes the unmodified container name is longer
+        defaultaffixesraw = {
             xAODType.CaloCluster:      "CaloCal",
-            xAODType.ParticleFlow:     "CHS",
-            xAODType.TrackParticle:    "",
-            xAODType.TruthParticle:    "",
+            xAODType.ParticleFlow:     "JetETMiss",
             xAODType.TrackCaloCluster: "CombinedAndNeutral",
-            xAODType.Jet:              "",
+            }
+        # Sometimes the standard contstit container has default mods not in modlist
+        defaultaffixesinput = {
+            xAODType.ParticleFlow:     "CHS",
             }
 
-        if not modstring:
-            modstring = defaultaffixes[self.__basetype]
-        modsfirst = [xAODType.TruthParticle, xAODType.TrackCaloCluster]
-        if self.__basetype in modsfirst:
-            self.inputname += containernames[self.basetype]+modstring
-        else:
-            self.inputname += modstring+containernames[self.basetype]
+        # User-specified override
+        if self.__rawname:
+            self.rawname = self.__rawname
+        else: # Default to standard container
+            if self.basetype in defaultaffixesraw.keys():
+                self.rawname = defaultaffixesraw[self.basetype]
+            self.rawname += containernames[self.basetype]
+
+        # User-specified override
+        if self.__inputname:
+            self.inputname = self.__inputname
+        else: # Default to naming with modifiers if requested, else default container
+            if not modstring and self.basetype in defaultaffixesinput.keys():
+                modstring = defaultaffixesinput[self.basetype]
+            modslast = [xAODType.TruthParticle, xAODType.TrackCaloCluster]
+            if self.basetype in modslast:
+                self.inputname = containernames[self.basetype]+modstring
+            else:
+                self.inputname = modstring+containernames[self.basetype]
 
     pass
 

@@ -9,7 +9,6 @@ atlas_subdir( CaloIdCnv )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Control/SGTools
                           DetectorDescription/DetDescrCnvSvc
                           PRIVATE
                           Control/StoreGate
@@ -20,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_component( CaloIdCnv
                      src/*.cxx
-                     LINK_LIBRARIES CaloIdentifier AthenaKernel SGTools DetDescrCnvSvcLib StoreGateLib SGtests IdDictDetDescr Identifier GaudiKernel )
+                     LINK_LIBRARIES CaloIdentifier AthenaKernel DetDescrCnvSvcLib StoreGateLib SGtests IdDictDetDescr Identifier GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( CaloIdCnv )

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def tileCondCfg( flags ):
@@ -19,30 +19,29 @@ def tileCondCfg( flags ):
     emScale = 'TileEMScale'
     from TileConditions.TileConditionsConf import TileEMScaleCondAlg
     emScaleCondAlg = TileEMScaleCondAlg(name = emScale + 'CondAlg', TileEMScale = emScale)
-    emScaleCondAlg.OnlCacheUnit      = 'OnlineMegaElectronVolts'
-    emScaleCondAlg.OflCesProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OflCes',    Source = '/TILE/OFL02/CALIB/CES') 
-    emScaleCondAlg.OflCisLinProxy = TileCondProxyCoolFlt('TileCondProxyCool_OflCisLin', Source = '/TILE/OFL02/CALIB/CIS/LIN') 
-    emScaleCondAlg.OflCisNlnProxy = TileCondProxyCoolFlt('TileCondProxyCool_OflCisNln', Source = '/TILE/OFL02/CALIB/CIS/NLN') 
-    emScaleCondAlg.OflEmsProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OflEms',    Source = '/TILE/OFL02/CALIB/EMS') 
-    emScaleCondAlg.OflLasFibProxy = TileCondProxyCoolFlt('TileCondProxyCool_OflLasFib', Source = '/TILE/OFL02/CALIB/LAS/FIBER') 
-    emScaleCondAlg.OflLasLinProxy = TileCondProxyCoolFlt('TileCondProxyCool_OflLasLin', Source = '/TILE/OFL02/CALIB/LAS/LIN') 
-    emScaleCondAlg.OflLasNlnProxy = TileCondProxyCoolFlt('TileCondProxyCool_OflLasNln', Source = '/TILE/OFL02/CALIB/LAS/NLN') 
-    emScaleCondAlg.OnlCesProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OnlCes',    Source = '/TILE/ONL01/CALIB/CES') 
-    emScaleCondAlg.OnlCisProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OnlCis',    Source = '/TILE/ONL01/CALIB/CIS/LIN') 
-    emScaleCondAlg.OnlEmsProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OnlEms',    Source = '/TILE/ONL01/CALIB/EMS') 
-    emScaleCondAlg.OnlLasProxy    = TileCondProxyCoolFlt('TileCondProxyCool_OnlLas',    Source = '/TILE/ONL01/CALIB/LAS/LIN')
 
-    __addFolder( '/TILE/OFL02/CALIB/CES')       
-    __addFolder( '/TILE/OFL02/CALIB/CIS/LIN')   
-    __addFolder( '/TILE/OFL02/CALIB/CIS/NLN')   
-    __addFolder( '/TILE/OFL02/CALIB/EMS')       
-    __addFolder( '/TILE/OFL02/CALIB/LAS/FIBER') 
-    __addFolder( '/TILE/OFL02/CALIB/LAS/LIN')   
-    __addFolder( '/TILE/OFL02/CALIB/LAS/NLN')   
-    __addFolder( '/TILE/ONL01/CALIB/CES')       
-    __addFolder( '/TILE/ONL01/CALIB/CIS/LIN')   
-    __addFolder( '/TILE/ONL01/CALIB/EMS')       
-    __addFolder( '/TILE/ONL01/CALIB/LAS/LIN')   
+    # Defaults for offline data
+    folder_OFL_CALIB_CIS = "CALIB/CIS/"
+    emScaleCondAlg.OnlCacheUnit   = 'OnlineMegaElectronVolts'
+    if flags.Input.isMC:
+        folder_OFL_CALIB_CIS = "CALIB/CIS/FIT/"
+        emScaleCondAlg.OnlCacheUnit   = 'Invalid'
+
+    def getTileCondProxyCoolFlt(name, folder):
+        __addFolder(folder)
+        return TileCondProxyCoolFlt(name, Source=folder)
+
+    emScaleCondAlg.OflCesProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OflCes',    '/TILE/OFL02/CALIB/CES')
+    emScaleCondAlg.OflCisLinProxy = getTileCondProxyCoolFlt('TileCondProxyCool_OflCisLin', '/TILE/OFL02/'+folder_OFL_CALIB_CIS+'LIN')
+    emScaleCondAlg.OflCisNlnProxy = getTileCondProxyCoolFlt('TileCondProxyCool_OflCisNln', '/TILE/OFL02/'+folder_OFL_CALIB_CIS+'NLN')
+    emScaleCondAlg.OflEmsProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OflEms',    '/TILE/OFL02/CALIB/EMS')
+    emScaleCondAlg.OflLasFibProxy = getTileCondProxyCoolFlt('TileCondProxyCool_OflLasFib', '/TILE/OFL02/CALIB/LAS/FIBER')
+    emScaleCondAlg.OflLasLinProxy = getTileCondProxyCoolFlt('TileCondProxyCool_OflLasLin', '/TILE/OFL02/CALIB/LAS/LIN')
+    emScaleCondAlg.OflLasNlnProxy = getTileCondProxyCoolFlt('TileCondProxyCool_OflLasNln', '/TILE/OFL02/CALIB/LAS/NLN')
+    emScaleCondAlg.OnlCesProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OnlCes',    '/TILE/ONL01/CALIB/CES')
+    emScaleCondAlg.OnlCisProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OnlCis',    '/TILE/ONL01/CALIB/CIS/LIN')
+    emScaleCondAlg.OnlEmsProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OnlEms',    '/TILE/ONL01/CALIB/EMS')
+    emScaleCondAlg.OnlLasProxy    = getTileCondProxyCoolFlt('TileCondProxyCool_OnlLas',    '/TILE/ONL01/CALIB/LAS/LIN')
 
     acc.addCondAlgo( emScaleCondAlg )
 
@@ -59,44 +58,54 @@ def tileCondCfg( flags ):
 
 
     sampleNoise = 'TileSampleNoise'
-    sampleNoiseProxy = TileCondProxyCoolFlt( 'TileCondProxyCool_NoiseSample', Source = '/TILE/OFL02/NOISE/SAMPLE' )
-    __addFolder( '/TILE/OFL02/NOISE/SAMPLE' )
+    sampleNoiseProxy = getTileCondProxyCoolFlt( 'TileCondProxyCool_NoiseSample', '/TILE/OFL02/NOISE/SAMPLE' )
     __addCondAlg(sampleNoise, sampleNoiseProxy)
-
-    onlineSampleNoise = 'TileOnlineSampleNoise'
-    onlineSampleNoiseProxy = TileCondProxyCoolFlt( 'TileCondProxyCool_OnlineNoiseSample', Source = '/TILE/ONL01/NOISE/SAMPLE' )
-    __addFolder( '/TILE/ONL01/NOISE/SAMPLE' )    
-    __addCondAlg(onlineSampleNoise, onlineSampleNoiseProxy)
 
     from TileConditions.TileConditionsConf import TileCondToolNoiseSample
     noiseSampleTool = TileCondToolNoiseSample(name = 'TileCondToolNoiseSample', 
-                                              TileSampleNoise = sampleNoise, 
-                                              TileOnlineSampleNoise = onlineSampleNoise)
+                                              TileSampleNoise = sampleNoise)
+
+    if flags.Common.isOnline:
+        onlineSampleNoise = 'TileOnlineSampleNoise'
+        onlineSampleNoiseProxy = getTileCondProxyCoolFlt( 'TileCondProxyCool_OnlineNoiseSample', '/TILE/ONL01/NOISE/SAMPLE' )
+        __addCondAlg(onlineSampleNoise, onlineSampleNoiseProxy)
+        noiseSampleTool.TileOnlineSampleNoise = onlineSampleNoise
     acc.addPublicTool( noiseSampleTool )
 
 
     timing = 'TileTiming'
-    timingProxy = TileCondProxyCoolFlt('TileCondProxyCool_AdcOffset', Source = '/TILE/OFL02/TIME/CHANNELOFFSET/PHY' )
-    __addFolder( '/TILE/OFL02/TIME/CHANNELOFFSET/PHY' )
+    timingProxy = getTileCondProxyCoolFlt('TileCondProxyCool_AdcOffset', '/TILE/OFL02/TIME/CHANNELOFFSET/PHY' )
     __addCondAlg(timing, timingProxy)
 
     from TileConditions.TileConditionsConf import TileCondToolTiming
     timingTool = TileCondToolTiming(name = 'TileCondToolTiming', TileTiming = timing)
     acc.addPublicTool( timingTool )
 
+    def getTileCondProxyCoolBch(name, folder):
+        __addFolder(folder)
+        return TileCondProxyCoolBch(name, Source=folder)
+
 
     badChannels = 'TileBadChannels'
     from TileConditions.TileConditionsConf import TileBadChannelsCondAlg
     badChannelsCondAlg = TileBadChannelsCondAlg( name = badChannels + 'CondAlg', TileBadChannels = badChannels)
-    badChannelsCondAlg.OflBchProxy = TileCondProxyCoolBch('TileCondProxyCool_OflBch', Source = '/TILE/OFL02/STATUS/ADC' )
-    badChannelsCondAlg.OnlBchProxy = TileCondProxyCoolBch('TileCondProxyCool_OnlBch', Source = '/TILE/ONL01/STATUS/ADC' )
-    __addFolder( '/TILE/OFL02/STATUS/ADC' )
-    __addFolder( '/TILE/ONL01/STATUS/ADC' )
+    badChannelsCondAlg.OflBchProxy = getTileCondProxyCoolBch('TileCondProxyCool_OflBch', '/TILE/OFL02/STATUS/ADC' )
+    badChannelsCondAlg.OnlBchProxy = getTileCondProxyCoolBch('TileCondProxyCool_OnlBch', '/TILE/ONL01/STATUS/ADC' )
     acc.addCondAlgo( badChannelsCondAlg )
 
     from TileConditions.TileConditionsConf import TileBadChanTool
     badChanTool = TileBadChanTool(name = 'TileBadChanTool', TileBadChannels = badChannels)
     acc.addPublicTool( badChanTool )
+
+    # Defaults for offline data
+    dbname = "LAR_OFL"
+    badchannelsfolder = "BadChannelsOfl"
+    if flags.Common.isOnline:
+        dbname = "LAR"
+    if flags.Common.isOnline or flags.Input.isMC:
+        badchannelsfolder = "BadChannels"
+    acc.merge( addFolders(flags, ['/LAR/'+badchannelsfolder+'/BadChannels', 
+                                  '/LAR/'+badchannelsfolder+'/MissingFEBs'], dbname))
     
 
     from TileConditions.TileConditionsConf import TileInfoLoader, TileCablingSvc
@@ -121,7 +130,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     acc.merge( tileCondCfg(ConfigFlags) )
 

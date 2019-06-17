@@ -2812,7 +2812,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2822,7 +2822,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
 
 
@@ -2856,7 +2856,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2866,7 +2866,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
 
 </IdDictionary>

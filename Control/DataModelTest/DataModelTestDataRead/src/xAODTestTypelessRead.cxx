@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -235,15 +235,16 @@ xAODTestTypelessRead::testit (const char* key)
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
   std::map<std::string, SG::auxid_t> auxid_map = get_map (obj);
-  std::cout << key << " types: ";
+  std::ostringstream ost1;
+  ost1 << key << " types: ";
   for (const auto& m : auxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
+    ost1 << r.getName(m.second) << "/" 
+         << System::typeinfoName (*r.getType(m.second)) << " ";
+  ATH_MSG_INFO (ost1.str());
 
-  std::ostringstream ost;
-  dumpobj (ost, obj, auxid_map);
-  std::cout << ost.str();
+  std::ostringstream ost2;
+  dumpobj (ost2, obj, auxid_map);
+  ATH_MSG_INFO (ost2.str());
 
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.
@@ -269,10 +270,10 @@ xAODTestTypelessRead::testit_view (const char* key)
 
   if (!obj->empty()) {
     std::map<std::string, SG::auxid_t> auxid_map = get_map (obj->front());
-    std::cout << key << "\n";
+    ATH_MSG_INFO (key);
     std::ostringstream ost;
     dumpobj (ost, obj, auxid_map);
-    std::cout << ost.str();
+    ATH_MSG_INFO (ost.str());
   }
 
   if (!m_writePrefix.empty()) {
@@ -289,7 +290,7 @@ xAODTestTypelessRead::testit_view (const char* key)
 StatusCode xAODTestTypelessRead::execute()
 {
   ++m_count;
-  std::cout << m_count << "\n";
+  ATH_MSG_INFO (m_count);
 
   CHECK(( testit<CVec, CAuxContainer>     ("cvec") ));
   CHECK(( testit<C,    CInfoAuxContainer> ("cinfo") ));

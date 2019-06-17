@@ -73,8 +73,6 @@ def __mon(finalCollName, stepColls=[]):
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
 ### Load data from Muon detectors ###
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
@@ -87,8 +85,6 @@ muonCombinedRecFlags.printSummary = False
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq

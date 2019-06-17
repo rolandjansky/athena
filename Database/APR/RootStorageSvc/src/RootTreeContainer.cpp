@@ -124,9 +124,6 @@ void fixupPackedConversion (TBranch* br)
 static UCharDbArrayAthena  s_char_Blob;
 static IntDbArray   s_int_Blob;
 
-//#include <iostream>
-//using namespace std;
-
 
 RootTreeContainer::RootTreeContainer()
 : m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
@@ -171,13 +168,12 @@ TBranch* RootTreeContainer::branch(const std::string& nam)  const  {
   return nullptr;
 }
 
-
 DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
 {
    //clear aux branches write marker
    for( auto &descMapElem: m_auxBranchMap ) {
       descMapElem.second.written = false;
-   }      
+   }
    int icol;
    int num_bytes = 0;
    Branches::iterator k;
@@ -191,8 +187,6 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
           dsc.object            = p.ptr;
           p.ptr                 = &dsc.object;
           if( dsc.aux_iostore_IFoffset >= 0 ) {
-             // cout << "---  write object IAuxStoreIO "<<endl;
-             // DbPrint::setMsgVerbosity(coral::Debug);
              DbPrint log(m_name);
              log << DbPrintLvl::Debug << " SG::IAuxStoreIO* detected in " << dsc.branch->GetName() << DbPrint::endmsg;
              auto *store = reinterpret_cast<SG::IAuxStoreIO*>( (char*)dsc.object + dsc.aux_iostore_IFoffset );

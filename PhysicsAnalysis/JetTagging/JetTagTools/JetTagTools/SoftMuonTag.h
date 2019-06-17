@@ -81,7 +81,6 @@ namespace Analysis
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
 
-    std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
     float deltaR(float eta1, float eta2, float phi1, float phi2); 

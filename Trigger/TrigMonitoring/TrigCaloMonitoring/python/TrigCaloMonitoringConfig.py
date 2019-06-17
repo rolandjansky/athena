@@ -54,6 +54,9 @@ def HLTCaloMonitoringTool():
                          roifcalhadcellcontmaker,
                          RoITileCellContMaker()]
     HLTCaloFEB.sigma = 3
+
+    HLTCaloFEB.NoiseTool=theCaloNoiseTool
+
 #
     # Add Region Selector if there is none
     from AthenaCommon.AppMgr import ServiceMgr

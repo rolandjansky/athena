@@ -7,7 +7,7 @@ class MockITHistSvc : public ITHistSvc {
   private:
     const std::string m_name = "MockITHistSvc";
   public:   
-    virtual const std::string& name() const { return m_name; };
+    virtual const std::string& name() const override { return m_name; };
     Gaudi::StateMachine::State FSMState() const override { return Gaudi::StateMachine::OFFLINE; }
     Gaudi::StateMachine::State targetFSMState() const override { return Gaudi::StateMachine::OFFLINE; }
     StatusCode queryInterface(const InterfaceID&, void**) override { return StatusCode::SUCCESS; }
@@ -42,7 +42,7 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode getTTrees(TDirectory*, TList&, bool) const override { return StatusCode::SUCCESS; }
     StatusCode getTTrees(TDirectory*, TList&, bool, bool) override { return StatusCode::SUCCESS; }
     StatusCode getTTrees(const std::string&, TList&, bool) const override { return StatusCode::SUCCESS; }
-    StatusCode getTTrees(const std::string&, TList&, bool, bool) { return StatusCode::SUCCESS; }
+    StatusCode getTTrees(const std::string&, TList&, bool, bool) override { return StatusCode::SUCCESS; }
     StatusCode getTree(const std::string&, TTree*&) const override { return StatusCode::SUCCESS; }
     StatusCode merge(TObject*) override { return StatusCode::SUCCESS; }
     StatusCode merge(const std::string&) override { return StatusCode::SUCCESS; }

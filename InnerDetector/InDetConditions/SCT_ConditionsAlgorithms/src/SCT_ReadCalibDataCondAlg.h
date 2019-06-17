@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -46,13 +48,13 @@ class SCT_ReadCalibDataCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<SCT_AllGoodStripInfo> m_writeKeyInfo{this, "WriteKeyInfo", "SCT_AllGoodStripInfo", "Key of output (derived) good strip information conditions data"};
 
   // Defect type map, contains Fit, NPtGain and No defects for now
-  std::map<int, std::string> m_defectMapIntToString;
+  std::map<int, std::string> m_defectMapIntToString{};
   // Arrays to hold defects to ignore/limits
   StringArrayProperty m_ignoreDefects{this, "IgnoreDefects", {}, "Defects to ignore"};
   FloatArrayProperty m_ignoreDefectParameters{this, "IgnoreDefectsParameters", {}, "Limit on defect to ignore parameters"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
-  const SCT_ID* m_id_sct; //!< Handle to SCT ID helper
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+  const SCT_ID* m_id_sct{nullptr}; //!< Handle to SCT ID helper
 };
 
 #endif // SCT_ReadCalibDataCondAlg_h

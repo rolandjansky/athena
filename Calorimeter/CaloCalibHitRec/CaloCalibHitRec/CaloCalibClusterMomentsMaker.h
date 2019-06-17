@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCALIBCLUSTERMOMENTSMAKER_H
@@ -125,8 +125,6 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
    * The containers specified in this property should hold calibration
    * hits outside the calorimeter systems - i.e. dead material hits ... */
   SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
-
-  const CaloDetDescrManager* m_calo_dd_man; 
 
   const CaloCell_ID* m_calo_id;
 

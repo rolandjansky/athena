@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,112 +9,73 @@
 
  AUTHOR:   Denis Oliveira Damazio
 
- PURPOSE:  New Algorithm to play with Future Framework
-	     in reentrand mode
+ PURPOSE:  Reentrant algorithm for egamma reconstruction
+
  **/
 
 #ifndef TRIGT2CALOEGAMMA_T2CALOEGAMMAREFASTALGO_H
 #define TRIGT2CALOEGAMMA_T2CALOEGAMMAREFASTALGO_H
 
-#include <string>
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "IRegionSelector/IRegSelSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "TrigT2CaloCalibration/IEgammaCalibration.h"
+#include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
+
+#include <string>
 
 class IReAlgToolCalo;
-class IEgammaCalibration;
-//class ITrigDataAccess;
-class MsgStream;
 
 /** Main LVL2 Algorithm. Processes LVL1 information, call FEX
     IReAlgToolCalos and produces the TrigEMCluster output. */
-class T2CaloEgammaReFastAlgo: public AthReentrantAlgorithm {
-
+class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
 
   public:
-    /** Constructor */
-    T2CaloEgammaReFastAlgo(const std::string & name, ISvcLocator* pSvcLocator);
-    /** Destructor */
-    ~T2CaloEgammaReFastAlgo();
-
-    /** main execute will call FEX IAlgToolCalo::execute() to process RoI.
-	called by the Steering per EMRoI. */
-    StatusCode execute(const EventContext& context ) const;
-    /** initialize. Called by the Steering. */
-    StatusCode initialize();
-    /** hltFinalize. Called by the Steering. */
-    StatusCode finalize();
+    T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator);
+  
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& context) const override;
     /** calculate zo mass */
-    //float calculateZ0(const float etaLayer1, const float etaLayer2);
-
+    // float calculateZ0(const float etaLayer1, const float etaLayer2);
+  
   private:
-    /** log output cached to avoid fetching MsgStream once per RoI */
-    MsgStream* m_log;
-    /** To support new monitoring. Values must be copied to
-	this monitored Cluster for each RoI. */
-    //const xAOD::TrigEMCluster* m_monitoredCluster;
-    /** To monitor rCore */
-    //float m_rCore;
-    /** To monitor eRatio */
-    //float m_eRatio;
-    /** To monitor r strips */
-    //float m_stripRatio;
-    /** Forced LVL1 eta */
-    float m_l1eta;
-    /** Forced LVL1 phi */
-    float m_l1phi;
-    /** counter for conversion error */
-    //unsigned int m_conversionError;
-    /** counter for algorithm error */
-    //unsigned int m_algorithmError;
-    /** Monitored Eta and Phi */
-    //float m_MonEta, m_MonPhi;
-
-    //int m_index;
-    /** Calibration tools for the Barrel*/
-    ToolHandleArray<IEgammaCalibration> m_calibsBarrel;
-    /** Calibration tools for the Endcap*/
-    ToolHandleArray<IEgammaCalibration> m_calibsEndcap;
-
+    ServiceHandle<IRegSelSvc> m_regionSelector;
+  
     // Properties:
-    std::string m_trigEmClusterKey;
-    /** Should or not storeCells into a cell container attached to output RoI */
-    bool m_storeCells;
-    /** container pointer */
-    //CaloCellContainer* m_Container;
-    /** Correction tool for the cluster width */
-    //ToolHandle<Iegammaqweta2c> m_egammaqweta2c;
-
-    /* Variables to calculate Z0 position */
-    //std::vector<float> m_rhoFirstLayer, m_rhoMiddleLayer, m_zFirstLayer, m_zMiddleLayer;
-    std::vector<float> m_rhoEta, m_zEta;/* Variables to calculate Z0 position */
-
-    // variables that were in T2CaloBase
-    /** Eta width of Region of Interest. Should be 0.2 for EGamma. */
-    double            m_etaWidth;
-    /** Phi width of Region of Interest. Should be 0.2 for EGamma. */
-    double            m_phiWidth;
-    ToolHandleArray<IReAlgToolCalo>   m_emAlgTools;
-    //ToolHandle<ITrigDataAccess>     m_data;
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-    SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey;
-    SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;
-    SG::WriteHandle<xAOD::TrigEMClusterContainer> m_trigEmClusterCollection;
-    SG::WriteHandle<xAOD::TrigEMClusterAuxContainer> m_trigEmClusterAuxCollection;
-    ServiceHandle<IRegSelSvc>     m_regionSelector; 
-
-
-
-    //    SG::WriteHandleKey<TrigEMClusterContainer> m_clusterContainerKey;
-
+    Gaudi::Property<float> m_l1eta{this, "L1ForceEta", -10.0, "Forced LVL1 eta"};
+    Gaudi::Property<float> m_l1phi{this, "L1ForcePhi", -10.0, "Forced LVL1 phi"};
+    Gaudi::Property<double> m_etaWidth{this, "EtaWidth", 0.1, "Eta Width of the Region of Interest"};
+    Gaudi::Property<double> m_phiWidth{this, "PhiWidth", 0.1, "Phi Width of the Region of Interest"};
+  
+    Gaudi::Property<bool> m_storeCells{this, "StoreCells", false,
+                                       "store cells in container attached to RoI"};
+  
+    ToolHandleArray<IEgammaCalibration> m_calibsBarrel{
+        this, "CalibListBarrel", {}, "list of calib tools for the Barrel clusters"};
+    ToolHandleArray<IEgammaCalibration> m_calibsEndcap{
+        this, "CalibListEndcap", {}, "list of calib tools for the EndCap clusters"};
+  
+    Gaudi::Property<std::vector<float>> m_rhoEta{
+        this, "RhoEta", {}, "Variables to calculate Z0 position"};
+    Gaudi::Property<std::vector<float>> m_zEta{
+        this, "ZEta", {}, "Variables to calculate Z0 position"};
+  
+    ToolHandleArray<IReAlgToolCalo> m_emAlgTools{
+        this, "IReAlgToolList", {}, "list of ReAlgToolCalos for feature extraction"};
+    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey {
+	this, "BCIDAvgKey", "CaloBCIDAverage", "" };
+  
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
+      this, "RoIs", "OutputRoIs", "input RoIs"};
+    SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey{
+        this, "ClustersName", "CaloClusters", "Calo cluster container"};
 };
 
 #endif

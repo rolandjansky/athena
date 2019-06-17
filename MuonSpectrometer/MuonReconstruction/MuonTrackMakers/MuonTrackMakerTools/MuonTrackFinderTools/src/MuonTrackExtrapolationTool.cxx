@@ -280,7 +280,7 @@ namespace Muon {
     std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >::const_iterator bit = boundarySurfs.begin();
     std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >::const_iterator bit_end = boundarySurfs.end();
     for( ;bit!=bit_end;++bit ){
-      const Trk::Surface& surf = bit->getRef().surfaceRepresentation();
+      const Trk::Surface& surf = bit->get()->surfaceRepresentation();
       Trk::DistanceSolution solution = surf.straightLineDistanceEstimate(pars.position(),pars.momentum());
       double distance = solution.currentDistance();
       if( distance < minDistance ) minDistance = distance;

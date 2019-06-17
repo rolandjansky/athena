@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,6 @@
 #include "HepMC/GenVertex.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-#include "TrigSteeringEvent/MessageSvcProvider.h"
 #include <iostream>
 
 class TrigInDetTrackTruth {

@@ -13,10 +13,11 @@ def ExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration 
-    # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    # If you need to set up special tools, etc., you will need your own ComponentAccumulator;
+    # uncomment the following 2 lines and use the last three lines of this function instead of the ones
+    # just before
+    # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    # result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -83,9 +84,13 @@ def ExampleMonitoringConfig(inputFlags):
     myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
                             path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
+                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
+    myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6])
+    myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
     myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
                             path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
@@ -113,7 +118,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags

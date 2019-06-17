@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,9 +25,6 @@ InDetPerfPlot_duplicate::InDetPerfPlot_duplicate(InDetPlotBase* pParent, const s
   m_duplicateDeltaPtZoomed{},
   m_duplicateDeltaEta{},
   m_duplicateDeltaPhi{},
-  m_duplicateLPTvsHPT{},
-  m_duplicateLEtavsHEta{},
-  m_duplicateLPhivsHPhi{},
   m_duplicateDeltaPTvsTruthPT{},
   m_duplicateDeltaPTvsTruthPTZoomed{},
 

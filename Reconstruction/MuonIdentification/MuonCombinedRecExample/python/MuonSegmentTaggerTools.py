@@ -31,6 +31,7 @@ def MuTagAmbiguitySolverTool(name='MuTagAmbiguitySolverTool', **kwargs ):
 
 
 def MuonSegmentTagTool( name="MuonSegmentTagTool", **kwargs ):
+    kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool"))
     kwargs.setdefault("MuTagMatchingTool", getPublicTool("MuTagMatchingTool") )
     kwargs.setdefault("MuTagAmbiguitySolverTool", getPublicTool("MuTagAmbiguitySolverTool") )
     return CfgMgr.MuonCombined__MuonSegmentTagTool(name,**kwargs)

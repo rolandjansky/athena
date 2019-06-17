@@ -30,6 +30,8 @@
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
@@ -39,6 +41,11 @@
 #include "xAODTrigMuon/L2IsoMuonAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing
@@ -68,9 +75,9 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
  private: 
 
   HLTEDMCreator();
-  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", false, "Fix links that may be pointing objects in views"};
-  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint32_t> > m_remapLinkCollKeys{ this, "DoNotSet_RemapLinkCollKeys", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
-  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint16_t> > m_remapLinkColIndices{ this, "DoNotSet_RemapLinkCollIndices", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+  Gaudi::Property<std::vector<std::string>> m_fixLinks{ this, "FixLinks", {}, "Which keys of the TrigCompositeContainer WriteHandleKeyArray might need to have their (e.g. feature) element links re-mapped outside of views"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint32_t> > m_remapLinkColKeys{ this, "DoNotSet_RemapLinkColKeys", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint16_t> > m_remapLinkColIndices{ this, "DoNotSet_RemapLinkColIndices", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
 
   Gaudi::Property<bool> m_dumpSGBefore{ this, "dumpSGBefore", false, "Dump SG content before the merging"}; // for debugging 
   Gaudi::Property<bool> m_dumpSGAfter { this, "dumpSGAfter", false, "Dump SG content after the merging"};
@@ -98,12 +105,13 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigElectronContainer );
   DEF_XAOD_KEY( TrigPhotonContainer );
   DEF_XAOD_KEY( TrackParticleContainer );
-
+  DEF_XAOD_KEY( TrigMissingETContainer );
   DEF_XAOD_KEY( L2StandAloneMuonContainer );
   DEF_XAOD_KEY( L2CombinedMuonContainer );
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
-
+  DEF_XAOD_KEY( TauJetContainer );
+  DEF_XAOD_KEY( CaloClusterContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY
@@ -142,7 +150,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
     const SG::ReadHandleKeyArray< ViewContainer >& views;
   };
 
-  StatusCode fixLinks( const ConstHandlesGroup< xAOD::TrigCompositeContainer >& handles ) const;
+  StatusCode fixLinks() const;
 
   template<typename T, typename G, typename M >
     StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, 

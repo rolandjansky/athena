@@ -1584,7 +1584,7 @@ MuonDetectorManager::initABlineContainers() const
 
         Identifier id;
         //= m_mdtIdHelper->elementID(stType, jzz, jff);
-        if (stType.substr(0,1)=="T") 
+        if (m_tgcIdHelper && stType.substr(0,1)=="T") 
         {
             // TGC case
             int stPhi = MuonGM::stationPhiTGC(stType,jff,jzz,geometryVersion());
@@ -1593,19 +1593,19 @@ MuonDetectorManager::initABlineContainers() const
             id = m_tgcIdHelper->elementID(stType, stEta, stPhi);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_tgcIdHelper->show_to_string(id)<<std::endl;
         }
-        else if (stType.substr(0,1)=="C")
+        else if (m_cscIdHelper && stType.substr(0,1)=="C")
         {
             // CSC case
             id = m_cscIdHelper->elementID(stType, jzz, jff);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_cscIdHelper->show_to_string(id)<<std::endl;
         }
-        else if (stType.substr(0,3)=="BML" && abs(jzz)==7) 
+        else if (m_rpcIdHelper && stType.substr(0,3)=="BML" && abs(jzz)==7) 
         {
             // RPC case
             id = m_rpcIdHelper->elementID(stType, jzz, jff, 1);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_rpcIdHelper->show_to_string(id)<<std::endl;
         }
-        else
+        else if (m_mdtIdHelper)
         {
             id = m_mdtIdHelper->elementID(stType, jzz, jff);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_mdtIdHelper->show_to_string(id)<<std::endl;

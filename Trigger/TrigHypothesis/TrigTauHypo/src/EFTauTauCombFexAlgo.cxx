@@ -16,7 +16,7 @@
  **************************************************************************/
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigTauHypo/EFTauTauCombFexAlgo.h"
+#include "EFTauTauCombFexAlgo.h"
 #include "tauEvent/TauJetContainer.h"
 #include "tauEvent/TauJet.h"
 #include "tauEvent/TauDetailsContainer.h"

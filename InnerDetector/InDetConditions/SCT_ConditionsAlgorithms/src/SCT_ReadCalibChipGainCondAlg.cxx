@@ -18,8 +18,6 @@ using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
-  , m_id_sct{nullptr}
 {
 }
 

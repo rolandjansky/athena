@@ -4,9 +4,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the RpcDigitizationTool.
@@ -15,6 +17,10 @@ def RPC_FirstXing():
 
 def RPC_LastXing():
     return 125
+
+def RPC_ItemList():
+    """Return list of item names needed for RPC output"""
+    return ["MuonSimDataCollection#*", "RpcPadContainer#*"]
 
 def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for RPC"""
@@ -35,6 +41,9 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
+    # folder for RPCCondSummarySvc
+    acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL"))
+    # config
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    
     # kwargs.setdefault("PatchForRpcTimeShift", 9.6875)  
@@ -76,16 +85,16 @@ def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
+    acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 
 def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with RpcDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+RPC_DIGITS")
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+RPC_SDO")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "RPC_DIGITS")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "RPC_SDO")
     acc.setPrivateTools(RpcDigitizationTool(name, **kwargs))
     return acc
 
@@ -94,6 +103,5 @@ def RPC_OverlayDigitizerCfg(flags, name="RPC_OverlayDigitizer", **kwargs):
     acc = MuonGeoModelCfg(flags)
     tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
+    acc.addEventAlgo(RPC_Digitizer(name, **kwargs))
     return acc
-

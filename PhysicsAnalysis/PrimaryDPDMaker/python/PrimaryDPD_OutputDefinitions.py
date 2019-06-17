@@ -199,7 +199,7 @@ def addMuons(streamName=""):
             stream.AddItem( ["Muon::MdtPrepDataContainer#MDT_DriftCircles"] )
             stream.AddItem( ["Muon::RpcPrepDataContainer#RPC_Measurements"] )
             stream.AddItem( ["Muon::TgcPrepDataContainer#TGC_Measurements"] )
-            stream.AddItem( ["MuonCaloEnergyContainer#MuonCaloEnergyCollection"] )
+
             if primDPD.UseMCTruth() :
                 stream.AddItem( ["PRD_MultiTruthCollection#*"] )
         
@@ -667,7 +667,6 @@ def excludeContainersList():
         'MissingEtCalo#MET_LocHadTopo',
         'MissingETSigHypoContainer#EtMissHypoCollection',
         'Rec::MuonSpShowerContainer#MuonSpShowers',
-        'MuonCaloEnergyContainer#MuonCaloEnergyCollection',
         #'MuonContainer#CaloMuonCollection', #AT 19-Feb-2009
         'TileContainer<TileMu>#TileMuObj',
         'TileCellVec#MBTSContainer',

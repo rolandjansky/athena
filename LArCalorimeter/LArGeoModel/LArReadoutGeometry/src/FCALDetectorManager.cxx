@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Bootstrap.h"
@@ -10,8 +10,9 @@
 #include "LArHV/LArHVManager.h"
 #include "StoreGate/StoreGate.h"
 
-FCALDetectorManager::FCALDetectorManager ()
-  :GeoVDetectorManager(),m_HVManager(NULL)
+FCALDetectorManager::FCALDetectorManager (const FCALHVManager* hvManager)
+  : GeoVDetectorManager()
+  , m_HVManager(hvManager)
 {
   setName("LArFCAL");
   for (int s=0;s<2;s++) {
@@ -89,17 +90,9 @@ void FCALDetectorManager::addTreeTop (PVLink treeTop)
   treeTop->ref();
 }
 
-const FCALHVManager * FCALDetectorManager::getHVManager () const
+const FCALHVManager& FCALDetectorManager::getHVManager () const
 {
-
-  if (!m_HVManager) {
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
-    if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_HVManager=manager->getFCALHVManager();
-    }
-  }
-  return m_HVManager;
+  return *m_HVManager;
 }
 
 

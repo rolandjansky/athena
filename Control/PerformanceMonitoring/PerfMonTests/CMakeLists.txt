@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/PerformanceMonitoring/PerfMonComps
                           Control/PerformanceMonitoring/PerfMonKernel
-                          Control/SGTools
                           Control/StoreGate
                           GaudiKernel
                           PhysicsAnalysis/TruthParticleID/McParticleTests
@@ -27,7 +26,7 @@ atlas_add_component( PerfMonTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthAllocators AthContainers PerfMonKernel SGTools StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthAllocators AthContainers PerfMonKernel StoreGateLib SGtests GaudiKernel )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

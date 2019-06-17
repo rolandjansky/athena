@@ -30,6 +30,8 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
+#include "RecoToolInterfaces/IMuonCaloEnergyTool.h"
+
 namespace MagField {
   class IMagFieldSvc;
 }
@@ -43,7 +45,6 @@ namespace Rec {
   class IMuidCaloEnergyMeas;
   class IMuidCaloEnergyParam;
   class IMuidTrackIsolation;
-  class IMuonCaloEnergyTool;
 }
 
 class AtlasDetectorID;
@@ -186,7 +187,8 @@ namespace Trk{
     ToolHandle<Rec::IMuidCaloEnergyMeas>  m_caloMeasTool;
     ToolHandle<Rec::IMuidCaloEnergyParam> m_caloParamTool;
     ToolHandle<Rec::IMuidTrackIsolation>  m_trackIsolationTool;
-    ToolHandle<Rec::IMuonCaloEnergyTool>  m_muonCaloEnergyTool;
+    ToolHandle<Rec::IMuonCaloEnergyTool>  m_muonCaloEnergyTool {this, 
+	"MuonCaloEnergyTool", ""};
 
     const AtlasDetectorID *m_DetID;
     const Trk::Volume* m_calorimeterVolume;

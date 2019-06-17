@@ -22,14 +22,12 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include <vector>
 #include <string>
-
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace Trk {
   class IExtrapolator;
   class Track;
   class TrackSummary;
-  class IBeamCondSvc;
 
 }
 
@@ -101,7 +99,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/
   std::vector<Trk::TrackScore>           m_summaryTypeScore;
   
-  ServiceHandle<IBeamCondSvc>            m_iBeamCondSvc; //!< pointer to the beam condition service
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   ToolHandle<Trk::IExtrapolator>         m_extrapolator;
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;

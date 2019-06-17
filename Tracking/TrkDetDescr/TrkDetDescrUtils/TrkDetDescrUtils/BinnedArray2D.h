@@ -132,7 +132,7 @@ namespace Trk {
      const T* object(const Amg::Vector2D& lp) const
      {
       if (m_binUtility->inside(lp)) 
-          return ((*((*m_array)[m_binUtility->bin(lp, 1)]))[m_binUtility->bin(lp, 0)]).getPtr();
+          return ((*((*m_array)[m_binUtility->bin(lp, 1)]))[m_binUtility->bin(lp, 0)]).get();
       return 0;
      }
 
@@ -142,14 +142,14 @@ namespace Trk {
      const T* object(const Amg::Vector3D& gp) const
      {
        if (m_binUtility->inside(gp))
-           return ((*((*m_array)[m_binUtility->bin(gp, 1)]))[m_binUtility->bin(gp, 0)]).getPtr();
+           return ((*((*m_array)[m_binUtility->bin(gp, 1)]))[m_binUtility->bin(gp, 0)]).get();
       return 0;
      }
 
      /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
      const T* entryObject(const Amg::Vector3D& pos) const
      { 
-         return ((*((*m_array)[m_binUtility->entry(pos, 1)]))[m_binUtility->entry(pos, 0)]).getPtr();
+         return ((*((*m_array)[m_binUtility->entry(pos, 1)]))[m_binUtility->entry(pos, 0)]).get();
      }
      
      /** Returns the pointer to the templated class object from the BinnedArray
@@ -160,7 +160,7 @@ namespace Trk {
       if (associatedResult) return object(gp);
       size_t nextFirst  = m_binUtility->next(gp, mom, 0);
       size_t nextSecond = m_binUtility->next(gp, mom, 1);
-      return ( nextFirst > 0 && nextSecond > 0 ) ? ((*((*m_array)[nextSecond]))[nextFirst]).getPtr() : 0;
+      return ( nextFirst > 0 && nextSecond > 0 ) ? ((*((*m_array)[nextSecond]))[nextFirst]).get() : 0;
      }
 
      /** Return all objects of the Array */
@@ -170,7 +170,7 @@ namespace Trk {
         m_arrayObjects->reserve(arrayObjectsNumber());
           for (size_t ihl=0; ihl< (m_binUtility->bins(1)); ++ihl)
             for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
-               m_arrayObjects->push_back( ((*((*m_array)[ihl]))[ill]).getPtr() );
+               m_arrayObjects->push_back( ((*((*m_array)[ihl]))[ill]).get() );
        }
        return (*m_arrayObjects);
      }

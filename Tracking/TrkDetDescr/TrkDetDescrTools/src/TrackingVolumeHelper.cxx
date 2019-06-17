@@ -254,7 +254,11 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 std::unique_ptr<const Trk::LayerMaterialProperties> lmps( layerMaterialProperties(*mLayerSurface) );
                 // MaterialLayer clones the LayerMaterialPropteries.
 
-                if (lmps) mLayer.reset( new Trk::MaterialLayer(mLayerSurface.release(), *lmps) );
+                if (lmps) {
+                  mLayer.reset( new Trk::MaterialLayer(
+                                                       std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)), 
+                                                       *lmps) );
+                }
             }
             if (boundaryFaceExchange){
                 // creating only one boundary surface
@@ -323,7 +327,9 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 // create a MaterialLayer
                 std::unique_ptr<const Trk::LayerMaterialProperties>  lmps( layerMaterialProperties(*mLayerSurface) );
                 // LayerMaterialProperties will be cloned in MaterialLayer
-                if (lmps) mLayer.reset( new Trk::MaterialLayer(mLayerSurface.release(), *lmps) );
+                if (lmps) mLayer.reset( new Trk::MaterialLayer( 
+                                                               std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)), 
+                                                               *lmps) );
             }
             // check if boundary face should be exchanged
             if (boundaryFaceExchange) {
@@ -803,7 +809,7 @@ void Trk::TrackingVolumeHelper::setOutsideTrackingVolumeArray(const Trk::Trackin
                                                               Trk::BoundarySurfaceFace face,
                                                               Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> > outsidevolarray) const
 { 
-    unsigned int numVols = outsidevolarray.getPtr()->arrayObjects().size() ;
+    unsigned int numVols = outsidevolarray.get()->arrayObjects().size() ;
     ATH_MSG_VERBOSE( "     -> Glue " << numVols << " volumes at face " << face << " to '" << tvol.volumeName() );
     Trk::TrackingVolumeManipulator::setOutsideVolumeArray( tvol, face, outsidevolarray );
 }

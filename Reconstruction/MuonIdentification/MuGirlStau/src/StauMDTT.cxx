@@ -9,7 +9,7 @@
 #include "MuGirlStau/StauTool.h"
 #include "MuGirlStau/IStauBetaTofTool.h"
 #include "TrkTrack/Track.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
@@ -30,7 +30,7 @@ StauMDTT::MDTT::MDTT(StauTool* pStau, MsgStream&, const Muon::MdtDriftCircleOnTr
     driftRadius = mdcot->driftRadius();
     driftTime = mdcot->driftTime();
     auto detEl = mdcot->detectorElement();
-    auto data = pStau->mdtCalibrationDbSvc()->getCalibration(detEl->collectionHash(),
+    auto data = pStau->mdtCalibrationDbTool()->getCalibration(detEl->collectionHash(),
             detEl->detectorElementHash());
     auto rtRelation = data.rtRelation;
     bool out_of_bound_flag = false;

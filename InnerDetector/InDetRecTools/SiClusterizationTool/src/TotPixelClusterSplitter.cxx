@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiClusterizationTool/TotPixelClusterSplitter.h"
@@ -13,16 +13,12 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type, const std::string & name, const IInterface * parent) :
-  AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_minPixels(3),
   m_maxPixels(25),
   m_doLongPixels(true)
 {
-  declareInterface<IPixelClusterSplitter>(this);
 }
-
-InDet::TotPixelClusterSplitter::~TotPixelClusterSplitter()
-{}
 
 StatusCode InDet::TotPixelClusterSplitter::initialize() {
 

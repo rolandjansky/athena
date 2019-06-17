@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <TrigMinBias/TrigTrackCounterHypo.h>
-#include <xAODTrigMinBias/TrigTrackCounts.h>
-#include <xAODTrigMinBias/TrigHisto2D.h>
+#include "TrigTrackCounterHypo.h"
+#include "xAODTrigMinBias/TrigTrackCounts.h"
+#include "xAODTrigMinBias/TrigHisto2D.h"
 
 
 //---------------------------------------------------------------------------------

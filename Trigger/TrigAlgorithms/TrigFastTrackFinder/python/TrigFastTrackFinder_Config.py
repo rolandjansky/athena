@@ -425,6 +425,7 @@ def remapper(type):
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
         "Cosmic"   : "cosmics",
+        "MinBias"  : "minBias400"
     }
     if type in remap.keys():
       return remap[type]
@@ -517,7 +518,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
             InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
 
 
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
@@ -555,7 +555,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             TrackMaker_FTF.useBremModel = True
   
           if remapped_type=="cosmics":
-            TrackMaker_FTF.RoadTool.CosmicTrack=True
+            TrackMaker_FTF.CosmicTrack=True
 
           ToolSvc += TrackMaker_FTF
           self.initialTrackMaker = TrackMaker_FTF
@@ -613,6 +613,10 @@ class TrigFastTrackFinder_MuonFS(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MuonFS"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonFS","Muon")
 
+class TrigFastTrackFinder_MuonIso(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MuonIso"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonIso","Muon")
+
 class TrigFastTrackFinder_eGamma(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_eGamma"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_eGamma","eGamma")
@@ -644,3 +648,7 @@ class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")
+
+class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MinBias"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")

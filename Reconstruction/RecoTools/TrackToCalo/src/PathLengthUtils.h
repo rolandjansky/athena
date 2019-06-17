@@ -34,33 +34,29 @@
       ~PathLengthUtils();
 
 
-      double pathInsideCell(const CaloCell& cell, const CaloExtensionHelpers::EntryExitLayerMap&  entryExitLayerMap);
-      double get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit, double drFix, double dzFix );
+      double pathInsideCell(const CaloCell& cell, const CaloExtensionHelpers::EntryExitLayerMap&  entryExitLayerMap) const;
+      double get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit, double drFix, double dzFix ) const;
 
-      double getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit );
+      double getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit ) const;
       //double path(xAOD::TrackParticle& trackParticle, const CaloCell* cell);
       //double path(xAOD::TrackParticle& trackParticle, const CaloCell_ID::CaloSample sample); 
       
   private:
-      CaloSampling::CaloSample tileEntrance(CaloSampling::CaloSample sample);
-      CaloSampling::CaloSample tileExit(CaloSampling::CaloSample sample);
+      CaloSampling::CaloSample tileEntrance(CaloSampling::CaloSample sample) const;
+      CaloSampling::CaloSample tileExit(CaloSampling::CaloSample sample) const;
 
-      double phiMean(double a, double b);
-      bool   crossedPhi(const CaloCell& cell, double phi_entrance, double phi_exit);
-      double getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit);
-      double getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit);
-      double getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit);
-      bool   crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path);
-      //static double CellZB[9];
-      //static double CellDZB[9];
-      //static double CellZC[9];
-      //static double CellDZC[9];
+      double phiMean(double a, double b) const;
+      bool   crossedPhi(const CaloCell& cell, double phi_entrance, double phi_exit) const;
+      double getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit) const;
+      double getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) const;
+      double getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) const;
+      bool   crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) const;
   }; 
 
-inline double PathLengthUtils::phiMean(double a, double b) { return 0.5*(a+b) + (a*b < 0)*M_PI; }
+inline double PathLengthUtils::phiMean(double a, double b) const { return 0.5*(a+b) + (a*b < 0)*M_PI; }
 
 /** Return true if the cell crossed was crossed by the track in phi **/
-inline bool PathLengthUtils::crossedPhi(const CaloCell& cell, double phi_entrance, double phi_exit) {
+inline bool PathLengthUtils::crossedPhi(const CaloCell& cell, double phi_entrance, double phi_exit) const {
   double mean_phi = phiMean(phi_entrance, phi_exit);
   double dphi = fabs( CaloPhiRange::diff(phi_entrance, phi_exit) );
   double phi_min = mean_phi - dphi, phi_max = mean_phi + dphi;
@@ -70,7 +66,7 @@ inline bool PathLengthUtils::crossedPhi(const CaloCell& cell, double phi_entranc
 }
 
 /** Return the % of path length crossed by the track inside a cell in eta **/
-inline double PathLengthUtils::getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit) {
+inline double PathLengthUtils::getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit) const {
   double etaMin = cell.eta() - 0.5*cell.caloDDE()->deta();
   double etaMax = cell.eta() + 0.5*cell.caloDDE()->deta();
   if ( fabs(eta_entrance  - eta_exit) < 1e-6 ) // to avoid FPE
@@ -82,7 +78,7 @@ inline double PathLengthUtils::getPathLengthInEta(const CaloCell& cell, double e
 }
 
 /** Return the % of path length crossed by the track inside a cell in Z **/
-inline double PathLengthUtils::getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) {
+inline double PathLengthUtils::getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) const {
   if ( fabs(z_entrance  - z_exit) < 1e-6 ) // to avoid FPE
     return z_entrance > zMin && z_entrance < zMax;
  
@@ -92,7 +88,7 @@ inline double PathLengthUtils::getPathLengthInZ(double zMin, double zMax, double
 }
 
 /** Return the % of path length crossed by the track inside a cell in Z **/
-inline double PathLengthUtils::getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) {
+inline double PathLengthUtils::getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) const {
   return getPathLengthInZ(cell.z() - 0.5*cell.caloDDE()->dz(), cell.z() + 0.5*cell.caloDDE()->dz(), z_entrance, z_exit);
 }
 

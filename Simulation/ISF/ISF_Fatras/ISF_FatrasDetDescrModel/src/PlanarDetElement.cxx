@@ -83,7 +83,7 @@ namespace iFatras{
     if (lengthXmax == 0.0 || lengthXmax == lengthXmin){
       m_surface = new Trk::PlaneSurface(*this);
       Trk::RectangleBounds* rbounds = new Trk::RectangleBounds(lengthXmin/2., lengthY/2.);
-      m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(rbounds, true);
+      m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(rbounds,  [](const Trk::SurfaceBounds*){});
       m_shape = InDetDD::Box;
       if (m_debug){
 	std::cout << "DEBUG: Created Rectangle bounds " << std::endl;
@@ -92,7 +92,7 @@ namespace iFatras{
       if (useTrapezoidal) {
 	m_surface = new Trk::PlaneSurface(*this);
 	Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(lengthXmin/2., lengthXmax/2., lengthY/2.);
-	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(tbounds, true);
+	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(tbounds, [](const Trk::SurfaceBounds*){});
 	m_shape = InDetDD::Trapezoid;
 	if (m_debug)
 	  std::cout << "DEBUG: Created Trapezoid bounds " << std::endl;
@@ -103,7 +103,7 @@ namespace iFatras{
 
 	Trk::DiscTrapezoidalBounds* dtbounds = new Trk::DiscTrapezoidalBounds(lengthXmin/2., lengthXmax/2., rMin, rMax, avephi, stereo);
 	
-	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(dtbounds, true);
+	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(dtbounds, [](const Trk::SurfaceBounds*){});
 	m_shape = InDetDD::Other;
 	if (m_debug){
 	  std::cout << "DEBUG: Using Parameters =  " << lengthXmin/2. << ", " << lengthXmax/2. << ", " << rMin << ", "<< rMax << ", "<< avephi << ", " << stereo << std::endl;
@@ -140,7 +140,7 @@ namespace iFatras{
     
     if (!m_idHash.is_valid()) throw std::runtime_error("PlanarDetElement: Unable to set IdentifierHash");
     
-    const Trk::MaterialLayer* materialLayer = new Trk::MaterialLayer(m_surface, layerMaterial);
+    const Trk::MaterialLayer* materialLayer = new Trk::MaterialLayer(Trk::SharedObject<Trk::Surface>(m_surface), layerMaterial);
     m_surface->setMaterialLayer(*materialLayer);
     
     if (isPixel)

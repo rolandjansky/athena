@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Dear emacs, this is -*-c++-*- */
@@ -19,13 +19,13 @@ public:
 
   /** standard Athena-Algorithm method */
   virtual StatusCode
-  initialize() {
+  initialize() override {
     return StatusCode::SUCCESS;
   }
 
   /** standard Athena-Algorithm method */
   virtual StatusCode
-  finalize() {
+  finalize() override {
     return StatusCode::SUCCESS;
   }
 

@@ -53,9 +53,9 @@ public:
 private:
   StatusCode fillData();
 
-  StringArrayProperty m_badElements; //list of bad detector elements (= strips)
+  StringArrayProperty m_badElements{this, "BadStripIdentifiers", {}, "list of bad detector elements (= strips). Identifiers should be given as strings and decimal."};
   std::set<Identifier> m_badIds;
-  const SCT_ID* m_pHelper;
+  const SCT_ID* m_pHelper{nullptr};
   
 };
 

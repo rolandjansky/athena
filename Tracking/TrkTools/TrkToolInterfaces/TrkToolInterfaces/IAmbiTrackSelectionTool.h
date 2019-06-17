@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ namespace Trk
     */
     virtual StatusCode registerPRDs(const Trk::Track* ptrTrack) = 0;
     virtual void reset() = 0;
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack)=0;
+    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const =0;
   };
 
   inline const InterfaceID& Trk::IAmbiTrackSelectionTool::interfaceID()

@@ -328,6 +328,8 @@ class TileAANtuple : public AthAlgorithm {
     };
     std::unique_ptr<Arrays> m_arrays;
 
+    bool m_qdctimeout;
+    bool m_tdctimeout;
     int m_daqtype;
     int m_nBadDr;
     int m_nBadHV;

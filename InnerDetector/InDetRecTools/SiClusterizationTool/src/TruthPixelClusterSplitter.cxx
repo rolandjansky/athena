@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,20 +23,10 @@
 InDet::TruthPixelClusterSplitter::TruthPixelClusterSplitter(const std::string &type,
         const std::string &name,
         const IInterface *parent) :
-        AthAlgTool(type,name,parent),
-        m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this)
-{
+        AthAlgTool(type,name,parent)
+ {
    declareInterface<IPixelClusterSplitter>(this);
-
-   declareProperty("NnClusterizationFactory",m_truthClusterizationFactory);
-   declareProperty("ThresholdSplittingIntoTwoClusters",m_thresholdSplittingIntoTwoClusters=0.95);
-   declareProperty("ThresholdSplittingIntoThreeClusters",m_thresholdSplittingIntoThreeClusters=0.90);
-   declareProperty("SplitOnlyOnBLayer",m_splitOnlyOnBLayer=true);
-   
 }
-
-InDet::TruthPixelClusterSplitter::~TruthPixelClusterSplitter()
-{}
 
 StatusCode InDet::TruthPixelClusterSplitter::initialize() {
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -59,16 +59,17 @@ private:
   ReFitTrack(const ReFitTrack&);
   ReFitTrack &operator=(const ReFitTrack&);
   
+  const Trk::RecVertex* setupConstrainedFit();
+  
 
   // --- job options
-  SG::ReadHandleKey<TrackCollection> m_TrackName;
-  SG::WriteHandleKey<TrackCollection> m_NewTrackName;
+  SG::ReadHandleKey<TrackCollection>  m_trackName;
+  SG::WriteHandleKey<TrackCollection> m_newTrackName;
 
   // --- fitter steering
-  Trk::RunOutlierRemoval          m_runOutlier;             //!< switch whether to run outlier logics or not
-  int                             m_matEffects;             //!< type of material interaction in extrapolation
-  Trk::ParticleHypothesis         m_ParticleHypothesis;     //!< nomen est omen 
-  bool                            m_fitRIO_OnTrack;         //!< switch to fit directly from MeasurementBase / RIO_OnTrack
+  Trk::RunOutlierRemoval              m_runOutlier;             //!< switch whether to run outlier logics or not
+  int                                 m_matEffects;             //!< type of material interaction in extrapolation
+  Trk::ParticleHypothesis             m_ParticleHypothesis;     //!< nomen est omen 
 
   
   // -- algorithm members
@@ -79,10 +80,10 @@ private:
   ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool;         //!< association tool for PRDs
   ToolHandle<Trk::ITrackSelectorTool> m_trkSelectorTool;     //!< the track selector tool
                                                             
-  unsigned int                     m_constrainFitMode;       //!< 0 - not constraint, 1 - vertex, 2 - beamspot
-  SG::ReadHandleKey<VxContainer>  m_vxContainerName;   
+  unsigned int                        m_constrainFitMode;       //!< 0 - not constrained, 1 - vertex, 2 - beamspot
+  SG::ReadHandleKey<VxContainer>      m_vxContainerName;   
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-  ToolHandle<Trk::IExtrapolator>   m_extrapolator;           //!< the extrapoaltor for the consistent measurement frame
+  ToolHandle<Trk::IExtrapolator>      m_extrapolator;           //!< the extrapolator for the consistent measurement frame
   
   bool m_usetrackhypo;                                       //!< Fit using particle hypothesis from input track    
 

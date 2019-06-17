@@ -7,4 +7,4 @@
 athena eflowRec/run_ESDStandardReco.py | tee temp.log
 echo "art-result: ${PIPESTATUS[0]}"
 
-./test_postProcessing_Errors.sh temp.log
+test_postProcessing_Errors.sh temp.log

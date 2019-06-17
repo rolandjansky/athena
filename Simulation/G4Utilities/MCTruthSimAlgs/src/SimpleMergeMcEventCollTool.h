@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_SIMPLEMERGEMCEVENTCOLLTOOL_H
@@ -14,7 +14,6 @@
 
 class McEventCollection;
 class StoreGateSvc;
-class PileUpMergeSvc;
 
 namespace HepMC {
   class GenParticle;
@@ -65,7 +64,7 @@ private:
   //** Writing to StoreGate safely in MT
   SG::WriteHandleKey<McEventCollection> m_truthCollOutputKey{this, "TruthCollOutputKey","TruthEvent",""};
   //** Name of input McEventCollection
-  StringProperty m_truthCollInputKey{"TruthEvent"};
+  Gaudi::Property<std::string> m_truthCollInputKey{this, "TruthCollInputKey", "TruthEvent", ""};
   //** The total number of GenEvents that will be passed for the current signal event
   unsigned int m_nInputMcEventColls{0};
   //** How many background events have been read so far for this signal event

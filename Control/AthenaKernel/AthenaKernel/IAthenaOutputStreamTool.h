@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENAOUTPUTSTREAMTOOL_H
@@ -101,7 +101,7 @@ public:
 
     /// Stream out a vector of objects
     ///   Must convert to DataObject, e.g.    
-    ///   #include "SGTools/StorableConversions.h"
+    ///   #include "AthenaKernel/StorableConversions.h"
     ///     T* obj = xxx;
     ///     DataObject* dataObject = SG::asStorable(obj);
     typedef std::vector< DataObject* >            DataObjectVec;

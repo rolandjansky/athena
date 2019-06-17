@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.variable import CodeIOV
 from DCSCalculator2.lib import DCSC_Subdetector, DCSC_Global_Variable
-from DCSCalculator2.consts import BLACK, WHITE, GREY, RED, YELLOW, GREEN
+from DCSCalculator2.consts import GREY, YELLOW, GREEN
 
 IDBS = 150
     

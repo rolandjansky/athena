@@ -7,6 +7,7 @@
 #  @author graeme.andrew.stewart@cern.ch
 #  @version $Id: test_trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
 
+from __future__ import print_function
 import os
 import subprocess
 import unittest
@@ -90,7 +91,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                 open(os.path.join(delement[0], fname), "w")
         
         with open("athenaMP-outputs-RAWtoESD-r2e", "w") as mpoutput:
-            print >>mpoutput, """<?xml version="1.0" encoding="utf-8"?>
+            print("""<?xml version="1.0" encoding="utf-8"?>
 <athenaFileReport>
   <Files OriginalName="data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002">
     <File description="POOL" mode="WRITE|CREATE" name="{CWD}/athenaMP-workers-RAWtoESD-r2e/worker_0/data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002" shared="True" technology="ROOT"/>
@@ -113,7 +114,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
     <File description="HIST" mode="WRITE" name="{CWD}/athenaMP-workers-RAWtoESD-r2e/worker_7/tmp.HIST_ESD_INT" shared="False" technology="ROOT"/>
   </Files>
 </athenaFileReport>
-""".format(CWD=os.getcwd())
+""".format(CWD=os.getcwd()), file=mpoutput)
 
     def tearDown(self):
         subprocess.call(['rm -fr athenaMP* data15* tmp.*'], shell=True)

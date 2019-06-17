@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
@@ -8,23 +9,59 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
+from AthenaConfiguration.Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
 
 import ast
 import collections
+import six
+import copy
 
-from UnifyProperties import unifySet
+from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
 
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
+def printProperties(msg, c, nestLevel = 0):
+    # Iterate in sorted order.
+    props = c.getValuedProperties()
+    propnames = list(props.keys())
+    propnames.sort()
+    for propname in propnames:
+        propval = props[propname]
+        # Ignore empty lists
+        if propval==[]:
+            continue
+        # Printing EvtStore could be relevant for Views?
+        if propname in ["DetStore","EvtStore"]:
+            continue
+
+        propstr = str(propval)
+        if isinstance(propval,GaudiHandles.PublicToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
+            ths = [th.getFullName() for th in propval]
+            propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,ConfigurableAlgTool):
+            propstr = propval.getFullName()
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+    return
+
+
 class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._sequence=AthSequencer(sequenceName,Sequential=True)    #(Nested) sequence of event processing algorithms per sequence + their private tools
+        if not Configurable.configurableRun3Behavior:
+            msg = "discovered Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
+            self._msg.error(msg)
+            raise ConfigurationError(msg)
+        
+        self._sequence=AthSequencer(sequenceName,Sequential=True)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
+        self._allSequences = [ self._sequence ] 
+        self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
@@ -41,49 +78,38 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
 
-        self._algorithms = {}
+
 
     def empty(self):
         return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
             len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0
 
     def __del__(self):
-        if not self._wasMerged and not self.empty():
-            raise RuntimeError("ComponentAccumulator was not merged!")
-            #log = logging.getLogger("ComponentAccumulator")
-            #log.error("The ComponentAccumulator listed below was never merged!")
+         if not getattr(self,'_wasMerged',True) and not self.empty():
+             raise RuntimeError("ComponentAccumulator was not merged!")
+             #log = logging.getLogger("ComponentAccumulator")
+             #log.error("The ComponentAccumulator listed below was never merged!")
 
-        if self._privateTools is not None:
-            raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
+         if getattr(self,'_privateTools',None) is not None:
+             raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
         #pass
 
 
+
+    def printCondAlgs(self, summariseProps=False):
+        self._msg.info( "Condition Algorithms" )
+        for c in self._conditionsAlgs:
+            self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
+            if summariseProps:
+                printProperties(self._msg, c, 1)
+        return
+        
 
     def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
 
-        def printProperties(c, nestLevel = 0):
-            for propname, propval in c.getValuedProperties().iteritems():
-                # Ignore empty lists
-                if propval==[]:
-                    continue
-                # Printing EvtStore could be relevant for Views?
-                if propname in ["DetStore","EvtStore"]:
-                    continue
-
-                propstr = str(propval)
-                if isinstance(propval,GaudiHandles.PublicToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-                    ths = [th.getFullName() for th in propval]
-                    propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,ConfigurableAlgTool):
-                    propstr = propval.getFullName()
-                self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
-            return
 
         if withDetails:
             self._msg.info( self._sequence )
@@ -103,11 +129,13 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
                         if summariseProps:
-                            printProperties(c, nestLevel)
-            printSeqAndAlgs(self._sequence)
+                            printProperties(self._msg, c, nestLevel)
 
-        self._msg.info( "Condition Algorithms" )
-        self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
+            for n,s in enumerate(self._allSequences):
+                self._msg.info( "Top sequence {}".format(n) )
+                printSeqAndAlgs(s)
+
+        self.printCondAlgs (summariseProps = summariseProps)
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
@@ -118,7 +146,7 @@ class ComponentAccumulator(object):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
             if summariseProps:
-                printProperties(t)
+                printProperties(self._msg, t)
         self._msg.info( "]" )
 
 
@@ -136,7 +164,7 @@ class ComponentAccumulator(object):
 
         parent += newseq
         algsByName = findAllAlgorithmsByName(newseq)
-        for name, existingAlgs in algsByName.iteritems():
+        for name, existingAlgs in six.iteritems(algsByName):
             startingIndex = 0
             if name not in self._algorithms:
                 firstAlg, parent, idx = existingAlgs[0]
@@ -385,9 +413,6 @@ class ComponentAccumulator(object):
         if not other._isMergable:
             raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
 
-        if not Configurable.configurableRun3Behavior:
-            raise ConfigurationError("discoverd Configurable.configurableRun3Behavior=False while working woth ComponentAccumulator")
-
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
         #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
@@ -400,7 +425,7 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
                         algorithmsByName = findAllAlgorithmsByName(c)
-                        for name, existingAlgs in algorithmsByName.iteritems():
+                        for name, existingAlgs in six.iteritems(algorithmsByName):
                             startingIndex = 0
                             if name not in self._algorithms:
                                 firstAlg, parent, idx = existingAlgs[0]
@@ -420,21 +445,41 @@ class ComponentAccumulator(object):
 
                     existingAlgInDest = findAlgorithm( dest, c.name(), depth=1 )
                     if not existingAlgInDest:
-                        self._msg.debug("Adding algorithm %s to a sequence %s", c.name(), dest.name() )
+                        self._msg.debug("   Adding algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
 
             checkSequenceConsistency(self._sequence)
 
-        #Merge sequences:
-        #if (self._sequence.getName()==other._sequence.getName()):
-        if sequenceName:
-            destSeq = self.getSequence( sequenceName )
+        # Merge sequences:
+        # mergeSequences(destSeq, other._sequence)
+        # if sequenceName is provided it means we should be ignoring the actual main seq name there and use the sequenceName
+        # that means the first search in the destination seqence needs to be cheated
+        # the sequenceName argument is ambigous when the other CA has more than one sequence and this is checked
+        
+        if sequenceName is None:
+            for otherSeq in other._allSequences:
+                found=False
+                for ourSeq in self._allSequences:
+                    ourSeq = findSubSequence(ourSeq, otherSeq.name()) # try to add sequence to the main structure first, to each seq in parent?
+                    if ourSeq:
+                        mergeSequences(ourSeq, otherSeq)
+                        found=True
+                        self._msg.verbose("   Succeeded to merge sequence %s to %s", otherSeq.name(), ourSeq.name() )
+                    else:
+                        self._msg.verbose("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name() )
+                if not found: # just copy the sequence as a dangling one
+                    self._allSequences.append( copy.copy(otherSeq) )
+                    mergeSequences( self._allSequences[-1], otherSeq )
         else:
-            destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
-        mergeSequences(destSeq,other._sequence)
+            if len(other._allSequences) > 1:
+                raise ConfigurationError('Merging of the accumulator that has mutiple top level sequences and changing the destination sequence is not supported')
+            destSeq = self.getSequence(sequenceName) if sequenceName else self._sequence
+            mergeSequences(destSeq, other._sequence)
 
+
+            
         # Additional checking and updating other accumulator's algorithms list
-        for name, alg in other._algorithms.iteritems():
+        for name, alg in six.iteritems(other._algorithms):
             if name not in self._algorithms:
                 raise ConfigurationError('Error in merging. Algorithm {} missing in destination accumulator'.format(name))
             other._algorithms[name] = self._algorithms[name]
@@ -456,14 +501,14 @@ class ComponentAccumulator(object):
                 self._outputPerStream[k]=other._outputPerStream[k]
 
         #Merge AppMgr properties:
-        for (k,v) in other._theAppProps.iteritems():
+        for (k,v) in six.iteritems(other._theAppProps):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
 
 
     def appendToGlobals(self):
-
+        self.wasMerged()
         #Cache old configurable behavior
         oldstat=Configurable.configurableRun3Behavior
 
@@ -487,13 +532,13 @@ class ComponentAccumulator(object):
         for c in self._conditionsAlgs:
             deduplicate(c,condseq)
 
-        for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+        for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
             for alg in algoList:
                 seq+=alg
 
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             if k not in [ 'CreateSvc', 'ExtSvc']:
                 setattr(theApp,k,v)
 
@@ -527,11 +572,15 @@ class ComponentAccumulator(object):
                     self._jocat[name] = {}
                 self._jocat[name][k]=str(v)
 
-        #print "All Children:",confElem.getAllChildren()
+        #print ("All Children:",confElem.getAllChildren())
         for ch in confElem.getAllChildren():
             self.appendConfigurable(ch)
         return
 
+    def __verifyFinalSequencesStructure(self):
+        if len(self._allSequences) != 1:
+            raise ConfigurationError('It is not allowed for the storable CA to have more than one top sequence, now it has: {}'\
+                                         .format(','.join([ s.name() for s in self._allSequences])))
 
     def store(self,outfile,nEvents=10,useBootStrapFile=True,threaded=False):
         from AthenaCommon.Utils.unixtools import find_datafile
@@ -549,7 +598,7 @@ class ComponentAccumulator(object):
             else:
                 bsfilename = "./"+localbs[0]
 
-            bsfile=open(bsfilename)
+            bsfile=open(bsfilename,'rb')
             self._jocat=pickle.load(bsfile)
             self._jocfg=pickle.load(bsfile)
             self._pycomps=pickle.load(bsfile)
@@ -571,6 +620,8 @@ class ComponentAccumulator(object):
               basecfg = MainServicesSerialCfg()
               basecfg.merge(self)
               self = basecfg
+              self.__verifyFinalSequencesStructure()
+
             self._jocat={}
             self._jocfg={}
             self._pycomps={}
@@ -595,7 +646,7 @@ class ComponentAccumulator(object):
                                                         'JobOptionsSvc/JobOptionsSvc']"
 
             #Code seems to be wrong here
-            for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+            for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
                 self._jocat[seqName] = {}
                 for alg in algoList:
                   self._jocat[alg.name()] = {}
@@ -603,13 +654,13 @@ class ComponentAccumulator(object):
                 self._jocat[self._sequence.getName()][k]=str(v)
 
         #EventAlgorithms
-        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList  in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             evtalgseq=[]
             for alg in algoList:
                 self.appendConfigurable( alg )
                 evtalgseq.append( alg.getFullName() )
 
-        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList  in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
             for prop in self._jocat[seqName]:
                 if prop == "Members":
@@ -627,7 +678,7 @@ class ComponentAccumulator(object):
 
         #Public Tools:
         for pt in self._publicTools:
-            #print "Appending public Tool",pt.getFullName(),pt.getJobOptName()
+            #print ("Appending public Tool",pt.getFullName(),pt.getJobOptName())
             self.appendConfigurable(pt)
 
 
@@ -650,7 +701,7 @@ class ComponentAccumulator(object):
         self._jocfg["ApplicationMgr"]["EvtMax"]=nEvents
 
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             if k not in [ 'CreateSvc', 'ExtSvc']:
                 self._jocfg["ApplicationMgr"][k]=v
 
@@ -675,7 +726,7 @@ class ComponentAccumulator(object):
         bsh=BootstrapHelper()
         app=bsh.createApplicationMgr()
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             app.setProperty(k,str(v))
 
         #Assemble createSvc property:
@@ -686,16 +737,16 @@ class ComponentAccumulator(object):
             if svc.getJobOptName() in _servicesToCreate:
                 svcToCreate+=[svc.getFullName(),]
 
-        #print self._services
-        #print extSvc
-        #print svcToCreate
+        #print (self._services)
+        #print (extSvc)
+        #print (svcToCreate)
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
 
         app.configure()
 
         msp=app.getService("MessageSvc")
-        bsh.setProperty(msp,"OutputLevel",str(OutputLevel))
+        bsh.setProperty(msp,b"OutputLevel",str(OutputLevel).encode())
         #Feed the jobO service with the remaining options
         jos=app.getService("JobOptionsSvc")
 
@@ -711,7 +762,7 @@ class ComponentAccumulator(object):
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
                         self._msg.debug("Adding "+name+"."+k+" = "+str(v))
-                        bsh.addPropertyToCatalogue(jos,name,k,str(v))
+                        bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),str(v).encode())
                     pass
                 pass
             for ch in comp.getAllChildren():
@@ -724,9 +775,9 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
-        for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
-            bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
+            bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
                 pass
@@ -748,9 +799,9 @@ class ComponentAccumulator(object):
 
         return app
 
-
     def run(self,maxEvents=None,OutputLevel=3):
         app = self.createApp (OutputLevel)
+        self.__verifyFinalSequencesStructure()
 
         #Determine maxEvents
         if maxEvents is None:

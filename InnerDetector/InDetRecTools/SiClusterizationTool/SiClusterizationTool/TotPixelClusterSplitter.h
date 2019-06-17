@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ namespace InDet
 
       @author Kurt Barry, Tim Nelsen, Andreas Salzburger
   */
-  class TotPixelClusterSplitter : public AthAlgTool, virtual public IPixelClusterSplitter 
+  class TotPixelClusterSplitter : public extends<AthAlgTool, IPixelClusterSplitter>
   {
     public :
       /** Constructor*/
@@ -39,7 +39,7 @@ namespace InDet
         const IInterface * parent);
           
       /** Destructor*/
-      ~TotPixelClusterSplitter();
+      ~TotPixelClusterSplitter() = default;
           
       /** AthAlgTool interface methods */
       StatusCode initialize();            

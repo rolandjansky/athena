@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
 
-//#include "SGTools/BuiltinsClids.h"
-//#include "SGTools/StlVectorClids.h"
-//#include "SGTools/StlMapClids.h"
 #include "AthenaKernel/DataBucket.h"
 #include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/ILockable.h"

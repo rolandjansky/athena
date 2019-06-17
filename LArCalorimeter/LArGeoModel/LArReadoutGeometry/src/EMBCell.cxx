@@ -6,13 +6,11 @@
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "LArReadoutGeometry/EMBDetectorManager.h"
 #include "LArHV/EMBHVManager.h"
-#include "LArHV/EMBHVDescriptor.h"
 #include "LArHV/EMBHVModule.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMBPresamplerHVDescriptor.h"
-#include "LArHV/EMBPresamplerHVModule.h"
 
 EMBCell::~EMBCell()
 {
@@ -37,23 +35,23 @@ const EMBHVElectrode & EMBCell::getElectrode (unsigned int i) const {
   return *(m_electrode[i]);
 }
 
-const EMBPresamplerHVModuleConstLink & EMBCell::getPresamplerHVModule () const {
+const EMBPresamplerHVModule& EMBCell::getPresamplerHVModule () const {
   if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  return m_presamplerModule;
+  return *m_presamplerModule;
 }
 
 
 void EMBCell::initHV() const {
 
   if (getSamplingIndex()==0) {
-    const EMBPresamplerHVManager *presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
+    const EMBPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
     double phiUpper = getPhiMaxNominal();
     double phiLower = getPhiMinNominal();
     double eta=fabs(getEtaMax()+getEtaMin())/2.0;
     double phi=fabs(phiUpper+phiLower)/2.0;
 
-    const CellPartitioning & etaBinning=presamplerHVManager->getDescriptor()->getEtaPartitioning();
-    const CellBinning & phiBinning=presamplerHVManager->getDescriptor()->getPhiBinning();
+    const CellPartitioning & etaBinning=presamplerHVManager.getDescriptor()->getEtaPartitioning();
+    const CellBinning & phiBinning=presamplerHVManager.getDescriptor()->getPhiBinning();
 
     unsigned int iPhi = int((phi - phiBinning.getStart())/phiBinning.getDelta()) + phiBinning.getFirstDivisionNumber();
     unsigned int iEta = etaBinning.getFirstDivisionNumber();
@@ -67,7 +65,7 @@ void EMBCell::initHV() const {
     if (iEta==lastDivision) throw std::runtime_error ("Error in EMBCell:  Presampler HV not found");
 
     unsigned int iSide=getEndcapIndex();
-    m_presamplerModule = presamplerHVManager->getHVModule(iSide,iEta,iPhi);
+    m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iEta,iPhi));
 
   }
   else {

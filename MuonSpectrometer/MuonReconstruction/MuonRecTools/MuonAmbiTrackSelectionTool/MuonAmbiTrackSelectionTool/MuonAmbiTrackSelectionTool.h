@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ namespace Muon
     virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) ;
     virtual StatusCode registerPRDs(const Trk::Track* ptrTrack);
     virtual void reset();
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack);
+    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const;
       
       
   private:
@@ -85,7 +85,7 @@ inline void Muon::MuonAmbiTrackSelectionTool::reset()
 {
   m_assoTool->reset();
 }
-inline std::vector<const Trk::PrepRawData*> Muon::MuonAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack)
+inline std::vector<const Trk::PrepRawData*> Muon::MuonAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack) const
 {
   return m_assoTool->getPrdsOnTrack(*ptrTrack);
 }

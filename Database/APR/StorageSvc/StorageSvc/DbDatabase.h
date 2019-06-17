@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDatabase.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbDatabase and related class definitions
 //--------------------------------------------------------------------
@@ -42,6 +41,7 @@ namespace pool  {
   class DbContainerObj;
   class DbOption;
   class DbTypeInfo;
+  typedef const class Shape        *ShapeH;
 
   /** @class DbDatabase DbDatabase.h StorageSvc/DbDatabase.h
    *
@@ -160,15 +160,15 @@ namespace pool  {
     DbStatus param(const std::string& nam, std::string& val) const;
     /// Retrieve all parameters
     DbStatus params(Parameters& vals) const;
-    /// Retrieve association link from link container with also using section information
-    DbStatus getRedirection(const Token& token, Token::OID_t& linkH) const;
     /// Access to all token redirections from merged files
     const Redirections& redirections() const;
 
-    /// Retrieve association link from link container with also using section information
-    DbStatus getLink(const Token::OID_t& lnkH, Token* pToken, const DbSection& section) const;
-    /// Retrieve association link from link container
-    DbStatus getLink(const Token::OID_t& lnkH, Token* pToken) const;
+    /// read an object referenced by the token
+    DbStatus read(const Token& token, ShapeH shape, void** object);
+    /// Calculate required OID modification (shift) for source OID (oid) for a given merge section 
+    DbStatus getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift);
+    /// Expand OID into a full Token, based on the Links table. For merged files provide links section#
+    DbStatus getLink(const Token::OID_t& oid, int merge_section, Token* pTok);
     /// Retrieve container name from link container (using token oid, rather than contID)
     std::string cntName(const Token& token) const;
     /// Add association link to link container

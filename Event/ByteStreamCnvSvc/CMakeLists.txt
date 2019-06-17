@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/PersistentDataModel
    Event/EventInfo
+   Event/xAOD/xAODEventInfo
    Event/ByteStreamCnvSvcLegacy )
 
 # External dependencies:
@@ -39,7 +40,7 @@ atlas_add_library( ByteStreamCnvSvcLib
    ByteStreamCnvSvcBaseLib StoreGateLib rt
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
    AthenaKernel SGTools CollectionBase FileCatalog
-   AthenaPoolUtilities PersistentDataModel EventInfo
+   AthenaPoolUtilities PersistentDataModel EventInfo xAODEventInfo
    ByteStreamCnvSvcLegacy )
 
 atlas_add_component( ByteStreamCnvSvc
@@ -91,7 +92,7 @@ function( _add_test testName toExecute )
    # Set up the test:
    atlas_add_test( ${testName}
       SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 600
       ${_options} )
 
 endfunction( _add_test )

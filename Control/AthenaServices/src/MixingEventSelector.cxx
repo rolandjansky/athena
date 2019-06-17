@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MixingEventSelector.h"
@@ -9,8 +9,8 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/getMessageSvc.h"

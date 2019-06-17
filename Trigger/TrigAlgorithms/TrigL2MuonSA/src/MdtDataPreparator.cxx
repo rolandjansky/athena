@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/phihelper.h"
 
 #include "MuonRDO/MdtCsmContainer.h"
 
@@ -23,7 +24,6 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "MuonCablingData/MdtAmtMap.h"
@@ -815,7 +815,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
        << phiMaxChamber[chamber] );
      TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
-                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             CxxUtils::phiBisect(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
@@ -885,7 +885,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
        << phiMaxChamber[chamber] );
      TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
-                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             CxxUtils::phiBisect(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {

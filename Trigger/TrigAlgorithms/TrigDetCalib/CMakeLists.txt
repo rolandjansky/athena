@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon

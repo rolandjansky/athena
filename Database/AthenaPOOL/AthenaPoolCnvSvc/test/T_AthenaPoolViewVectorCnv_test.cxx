@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
 #include "SGTools/TestStore.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "TestTools/initGaudi.h"
 #include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/MsgStream.h"
@@ -264,7 +264,7 @@ void test3 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/, DataVector<Y_v2>& vec)
 
 DataVector<Y_v2>& makeVecs()
 {
-  auto vec = CxxUtils::make_unique<DataVector<Y_v2> >();
+  auto vec = std::make_unique<DataVector<Y_v2> >();
   for (size_t i = 0; i < 10; i++)
     vec->push_back (new Y_v2(i));
   DataVector<Y_v2>& ret = *vec.get();

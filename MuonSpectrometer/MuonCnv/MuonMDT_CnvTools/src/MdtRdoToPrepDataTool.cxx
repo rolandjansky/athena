@@ -17,7 +17,7 @@
 #include "MdtRDO_Decoder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 
@@ -36,7 +36,7 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_muonMgr(0),
   m_mdtHelper(0),
-  m_calibrationSvc(0),
+  m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
   m_calibHit( 0 ),
   m_invSpeed(1./299.792458),
@@ -72,6 +72,8 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   // DataHandle
   declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
   declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
+
+  declareProperty("CalibrationTool",m_calibrationTool);
 }
 
 
@@ -86,13 +88,14 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
     ATH_MSG_FATAL(" Cannot retrieve MuonDetectorManager ");
     return StatusCode::FAILURE;
   }
-  
-  // get MDT Calibration service
-  if (!serviceLocator()->service("MdtCalibrationSvc", m_calibrationSvc).isSuccess() || 0 == m_calibrationSvc) {
-    ATH_MSG_ERROR(" Could not initialize MDT Calibration service Service");
-    return StatusCode::FAILURE;
+
+  StatusCode sc = m_calibrationTool.retrieve();
+  if ( sc.isFailure() ){
+    ATH_MSG_ERROR( "Could not retrieve MdtCalibrationTool"  );
+  } else {
+    ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with statusCode = "<<sc<<" pointer = "<<m_calibrationTool );
   }
-  
+
   /// create an empty MDT PrepData container for filling
   m_mdtHelper = m_muonMgr->mdtIdHelper();
 
@@ -1316,7 +1319,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtDriftRadius(const MdtDigit * di
     // MdtCalibHit calib_hit( channelId, digit->tdc(), digit->adc(), measured_position, descriptor );
     m_calibHit->setGlobalPointOfClosestApproach(position);
 
-    bool drift_ok = m_calibrationSvc->driftRadiusFromTime(*m_calibHit,inputData,*m_mdtCalibSvcSettings,false);
+    bool drift_ok = m_calibrationTool->driftRadiusFromTime(*m_calibHit,inputData,*m_mdtCalibSvcSettings,false);
     if (!drift_ok) {
       if( m_calibHit->driftTime() < 0. ) return MdtStatusBeforeSpectrum;
       else                             return MdtStatusAfterSpectrum;
@@ -1414,8 +1417,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtTwinPosition(const MdtDigit * d
     // calculate and calibrate radius for both hits and calculate twin position
     second_calib_hit.setGlobalPointOfClosestApproach(second_measured_position);
 
-
-    bool second_ok = m_calibrationSvc->twinPositionFromTwinHits(calib_hit, second_calib_hit, signedTrackLength, second_signedTrackLength, secondHitIsPrompt);
+    bool second_ok = m_calibrationTool->twinPositionFromTwinHits(calib_hit, second_calib_hit, signedTrackLength, second_signedTrackLength, secondHitIsPrompt);
     if (!second_ok){
       if( calib_hit.driftTime() < 0. || second_calib_hit.driftTime() < 0. ) return MdtStatusBeforeSpectrum;
       else                             return MdtStatusAfterSpectrum;

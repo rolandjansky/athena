@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -28,7 +28,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
@@ -175,7 +175,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
     if(trkIsGood(trk) && fabs((trk->z0() + trk->vz() - primaryVertex->z())*sin(trk->theta())) <= 1.0){
 
       float dEta = (trk->eta() - jet.p4().Eta());
-      float dPhi =  HLT::deltaPhi(trk->phi(), jet.p4().Phi());
+      float dPhi =  CxxUtils::deltaPhi(trk->phi(), jet.p4().Phi());
       width += trk->pt() * sqrt( dEta*dEta + dPhi*dPhi);
       ptsum += trk->pt();
 

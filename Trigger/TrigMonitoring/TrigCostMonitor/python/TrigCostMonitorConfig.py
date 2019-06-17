@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigCostMonitor.TrigCostMonitorConf import *
 from AthenaCommon.Logging import logging
@@ -21,6 +21,9 @@ class TrigCostTool_Target(TrigCostTool):
 
         from TrigSteering.TrigSteeringConfig import RandomScaler
         self.scalerTool = RandomScaler('TrigCostScaler')
+
+        from CoolLumiUtilities.BunchGroupCondAlgDefault import BunchGroupCondAlgDefault
+        BunchGroupCondAlgDefault()
         
     def target(self):
         return [self.monitoringTarget]

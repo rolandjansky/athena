@@ -58,7 +58,6 @@ if l1caloRawMon:
             from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
             svcMgr += ByteStreamAddressProviderSvc()
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "CTP_RDO/CTP_RDO" ]
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
     
     if isData and isCalo and (Online or rec.triggerStream() == "express"
                                      or rec.triggerStream() == "JetTauEtmiss"):

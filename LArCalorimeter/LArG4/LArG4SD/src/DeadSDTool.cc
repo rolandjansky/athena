@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DeadSDTool.h"
@@ -120,7 +120,7 @@ namespace LArG4
         // Initialize the escaped energy processing for LAr volumes.
         // This is from initialize processing in the former LArG4CalibSD.
         // I still think we can do better than this, though.
-        // FIXME: I don't think this is thread safe!!
+        // UPDATE: this is thread-safe now
         ATH_MSG_DEBUG("Creating EscapedEnergyProcessing and adding to registry");
         CaloG4::VEscapedEnergyProcessing* eep =
           new EscapedEnergyProcessing( uninstSD.get() );

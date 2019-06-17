@@ -3,7 +3,7 @@
 */
 
 #include "./DijetConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include <sstream>
 #include <stdexcept>
 #include <TLorentzVector.h>
@@ -27,7 +27,7 @@ DijetConditionMT::DijetConditionMT(double massMin,
 
 bool
 DijetConditionMT::isSatisfied(const HypoJetVector& ips,
-                              std::unique_ptr<IConditionVisitor>& visitor) const{
+                              const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
 
   if(ips.size() != 2){
     std::stringstream ss;
@@ -52,30 +52,36 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto dphi = std::abs(rj0.DeltaPhi(rj1));
 
 
-  typedef std::pair<std::string, double> CallHistoryElement;
-
   bool pass{true};
   
   if (m_dphiMin > dphi or dphi >= m_dphiMax){pass = false;}
   if (m_massMin > mass or mass >= m_massMax){pass = false;}
   if (m_detaMin > adeta or adeta >= m_detaMax){pass = false;}
 
-   if(visitor){
-    visitor->visit(this,
-                   std::to_string(dphi)+ " " +
-                   std::to_string(mass) + " " +
-                   std::to_string(adeta) + " " +
-                   std::to_string(pass) +
-                   '\n');
+   if(collector){
+     std::stringstream ss;
+     const void* address = static_cast<const void*>(this);
+     ss << "DijetConditionMT: " << address << " "
+        << dphi <<  " " <<  mass <<  " "  << adeta <<  " " 
+        <<std::boolalpha << pass <<  " jet group: \n";
+     for(auto ip : ips){
+       address = static_cast<const void*>(ip);
+       ss << "    "  << address << " " << ip->eta() << "\n";
+     }
+     ss << '\n';
+     collector->collect("DijetConditionMT", ss.str());
    }
   return pass;
 
 }
 
 std::string DijetConditionMT::toString() const noexcept {
-  std::stringstream ss;
-  ss << "DijetConditionMT: "
 
+
+  std::stringstream ss;
+  const void* address = static_cast<const void*>(this);
+  ss << "DijetConditionMT: " << address << " "
+    
      << " mass min: " 
      << m_massMin
      << " mass max: " 

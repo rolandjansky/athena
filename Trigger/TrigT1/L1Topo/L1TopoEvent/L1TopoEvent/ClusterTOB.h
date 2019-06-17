@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ClusterTOB.h
 //  TopoCore
@@ -70,10 +70,10 @@ namespace TCS {
       inputTOBType_t tobType() const { return m_tobType; }
 
    private:
-      static unsigned int g_nBitsEt;
-      static unsigned int g_nBitsIsolation;
-      static unsigned int g_nBitsEta;
-      static unsigned int g_nBitsPhi;
+      static const unsigned int g_nBitsEt;
+      static const unsigned int g_nBitsIsolation;
+      static const unsigned int g_nBitsEta;
+      static const unsigned int g_nBitsPhi;
       
       unsigned int m_Et {0};
       unsigned int m_isolation {0};

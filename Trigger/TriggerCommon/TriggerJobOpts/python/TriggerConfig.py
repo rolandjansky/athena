@@ -72,43 +72,63 @@ def collectFilters( steps ):
     for stepSeq in steps.getChildren():
         if "filter" in stepSeq.name():
             filters[stepSeq.name()] = stepSeq.getChildren()
+            __log.info("Found Filters in Step {} : {}".format(stepSeq.name(), stepSeq.getChildren()))
+
     return filters
 
+
+def collectL1DecoderDecisionObjects(l1decoder):
+    decisionObjects = set()
+    __log.info("Collecting decision objects from L1 decoder instance")
+    decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
+    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
+    return decisionObjects
+
+def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
+    decisionObjects = set()
+    __log.info("Collecting decision objects from hypos")
+    for step, stepHypos in hypos.iteritems():
+        for hypoAlg in stepHypos:
+            __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
+            if isinstance( hypoAlg.HypoInputDecisions, list):
+                if inputs:
+                    [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
+                if outputs:
+                    [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
+            else:
+                if inputs:
+                    decisionObjects.add( hypoAlg.HypoInputDecisions )
+                if outputs:
+                    decisionObjects.add( hypoAlg.HypoOutputDecisions )
+    return decisionObjects
+
+def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
+    decisionObjects = set()
+    __log.info("Collecting decision objects from filters")
+    for step, stepFilters in filters.iteritems():
+        for filt in stepFilters:
+            if inputs:
+                decisionObjects.update( filt.Input )
+            if outputs:
+                decisionObjects.update( filt.Output )
+    return decisionObjects
 
 def collectDecisionObjects(  hypos, filters, l1decoder ):
     """
     Returns the set of all decision objects of HLT
     """
+    decObjL1 = collectL1DecoderDecisionObjects(l1decoder)
+    decObjHypo = collectHypoDecisionObjects(hypos)
+    decObjFilter = collectFilterDecisionObjects(filters)
     decisionObjects = set()
-    __log.info("Collecting decision obejcts from L1 decoder instance")
-    decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
-    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
-
-
-    __log.info("Collecting decision obejcts from hypos")
-    __log.info(hypos)
-    for step, stepHypos in hypos.iteritems():
-        for hypoAlg in stepHypos:
-            __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
-            if isinstance( hypoAlg.HypoInputDecisions, list):
-                [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
-                [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
-            else:
-                decisionObjects.add( hypoAlg.HypoInputDecisions )
-                decisionObjects.add( hypoAlg.HypoOutputDecisions )
-
-    __log.info("Collecting decision obejcts from filters")
-    for step, stepFilters in filters.iteritems():
-        for filt in stepFilters:
-            decisionObjects.update( filt.Input )
-            decisionObjects.update( filt.Output )
-
+    decisionObjects.update(decObjL1)
+    decisionObjects.update(decObjHypo)
+    decisionObjects.update(decObjFilter)
     return decisionObjects
-
 
 def triggerSummaryCfg(flags, hypos):
     """
-    Configures an algorithm(s) that should be run after the slection process
+    Configures an algorithm(s) that should be run after the section process
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
@@ -169,7 +189,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 def triggerOutputStreamCfg( flags, decObj, outputType ):
     """
     Configure output stream according to the menu setup (decision objects)
-    and TrigEDMCOnfig
+    and TrigEDMConfig
     """
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     itemsToRecord = []
@@ -185,10 +205,10 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
 
     # summary objects
-    __log.debug( outputType + " trigger content "+str( itemsToRecord ) )
+    __log.info( outputType + " trigger content "+str( itemsToRecord ) )
     acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")]
+    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")] # OutputStream has a data dependency on HLTSummary
 
     return acc
 
@@ -259,22 +279,17 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             setattr(tool, collType, [ collName ] )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
-                __log.info("The producer of the {} not in the menu".format( viewsColl ) )
+                __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( viewsColl ) )
                 continue
             if len(producer) > 1:
                 for pr in producer[1:]:
                     if pr != producer[0]:
                         __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
                         continue
-
-            producer = producer[0]
-            tool.TrigCompositeContainer = producer.InputMakerOutputDecisions
-            tool.FixLinks = True
         alg.OutputTools += [ tool ]
 
-
+    tool = HLTEDMCreator( "GapFiller" )
     if len(edmSet) != 0:
-        tool = HLTEDMCreator( "GapFiller" )
         from collections import defaultdict
         groupedByType = defaultdict( list )
     
@@ -291,13 +306,17 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             propName = collType.split(":")[-1]
             if hasattr( tool, propName ):
                 setattr( tool, propName, collNameList )
+                __log.info("GapFiller will create EDM collection type '{}' for '{}'".format( collType, collNameList ))
             else:
-                __log.info("The {} is not going to be added if missing".format( collType ))
+                __log.info("EDM collections of type {} are not going to be added to StoreGate, if not created by the HLT".format( collType ))
 
-        # append all decision objects
-        tool.TrigCompositeContainer += list(decObj)
-        alg.OutputTools += [tool]
-        
+    __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
+    # Append and hence confirm all TrigComposite collections
+    # Gap filler is also used to perform re-mapping of the HypoAlg outputs which is a sub-set of decObj
+    tool.FixLinks = list(collectHypoDecisionObjects(hypos, inputs=False, outputs=True))
+    tool.TrigCompositeContainer += list(decObj)
+    alg.OutputTools += [tool]
+
     return alg
 
 
@@ -365,10 +384,12 @@ def triggerRunCfg( flags, menu=None ):
     edmSet = []
 
     if flags.Output.ESDFileName != "":
+        __log.debug( "Setting up trigger EDM output for ESD" )
         acc.merge( triggerOutputStreamCfg( flags, decObj, "ESD" ) )
         edmSet.append('ESD')
 
     if flags.Output.AODFileName != "":
+        __log.debug( "Setting up trigger EDM output for AOD" )
         acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
         edmSet.append('AOD')
         
@@ -378,6 +399,7 @@ def triggerRunCfg( flags, menu=None ):
 
     # configure actual streams
     if flags.Trigger.writeBS:
+        __log.debug( "Setting up trigger output for ByteStream" )
         acc.merge( triggerBSOutputCfg( flags, decObj ) )
 
     return acc

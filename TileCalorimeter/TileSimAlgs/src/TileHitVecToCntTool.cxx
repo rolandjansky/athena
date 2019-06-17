@@ -15,7 +15,6 @@
 #include "TileEvent/TileHitNonConstContainer.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCablingSvc.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -25,8 +24,6 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "StoreGate/WriteHandle.h"
 
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
 // Trigger time
 #include "AthenaKernel/ITriggerTime.h"
 #include "AthenaKernel/errorcheck.h"
@@ -34,10 +31,6 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
-
-// Gaudi includes
-#include "GaudiKernel/SystemOfUnits.h"
-
 
 #include "CLHEP/Random/Randomize.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -53,48 +46,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
     : PileUpToolBase(type,name,parent)
-    , m_infoName("TileInfo")
-    , m_run2(false)
-    , m_pileUp(false)
-    , m_deltaT(1.0 * Gaudi::Units::nanosecond)
-    , m_timeFlag(0)
-    , m_triggerTime(0.0)
-    , m_maxHitTime(150.5 * Gaudi::Units::nanosecond)
-    , m_photoStatisticsWindow(62.5  * Gaudi::Units::nanosecond)
-    , m_photoElectronStatistics(2)
-    , m_skipNoHit(false)
-    , m_rndmEvtOverlay(false)
-    , m_useTriggerTime(false)
-    , m_triggerTimeTool("")
-    , m_mergeSvc(0)
-    , m_tileID(0)
-    , m_tileTBID(0)
-    , m_tileInfo(0)
-    , m_tileMgr(0)
-    , m_hits(0)
-    , m_hits_DigiHSTruth(0)
-    , m_mbtsOffset(0)
-    , m_cablingSvc("TileCablingSvc", name)
-    , m_cabling(0)
 {
-
-    m_hitVectorNames.push_back("TileHitVec");
-
-    declareProperty("TileHitVectors", m_hitVectorNames,  "Name of input hit vectors (default=TileHitVec)" );
-    declareProperty("TileInfoName", m_infoName,          "Name of TileInfo store (default=TileInfo");
-    declareProperty("PileUp",m_pileUp,                   "To switch on pileup (default=false)");
-    declareProperty("DeltaT",m_deltaT,                   "Minimal Time granularity in TileHit (default=1ns)");
-    declareProperty("HitTimeFlag",m_timeFlag,            "Specail options to deal with times of hits for cosmics and TB (default=0)");
-    declareProperty("TriggerTime",m_triggerTime,         "Fixed trigger time value (default=0)");
-    declareProperty("UseTriggerTime",m_useTriggerTime,   "Take trigger time from external tool (default=false)");
-    declareProperty("TriggerTimeTool",m_triggerTimeTool, "Name of trigger time tool (default='')");
-    declareProperty("MaxHitTime", m_maxHitTime,           "All sub-hits with time above m_maxHitTime will be ignored");
-    declareProperty("PhotostatWindow", m_photoStatisticsWindow, "Sum up energy in [-m_photoStatWindow,+m_photoStatWindow] and use it for photostatistics");
-    declareProperty("PhotostatType", m_photoElectronStatistics,          "Method to apply photostatistics (default=2)");
-    declareProperty("SkipNoHit",m_skipNoHit,              "Skip events with no Tile hits (default=false)");
-    declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false, "Pileup and/or noise added by overlaying random events (default=false)");
-    declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true, "DigiTruth reconstruction");
-    m_doDigiTruth = true;
 }
 
 StatusCode TileHitVecToCntTool::initialize() {
@@ -119,6 +71,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   m_cabling = m_cablingSvc->cablingService();
 
   m_run2 = m_cabling->isRun2Cabling();
+  m_run2plus = m_cabling->isRun2PlusCabling();
 
   for (int i = 0; i < 7; ++i) {
     Identifier pmt_id;
@@ -175,17 +128,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   if (m_pileUp || m_rndmEvtOverlay) {
     ATH_MSG_INFO("take events from PileUp service");
 
-    //
-    // locate the PileUpMergeSvc and initialize our local ptr
-    //
-    if (service("PileUpMergeSvc", m_mergeSvc).isFailure()) {
-      error = true;
-      ATH_MSG_ERROR("Can not retrive PileUpMergeSvc");
-      ATH_MSG_ERROR("Setting PileUp and RndmOverlay flags to FALSE ");
-      m_pileUp = m_rndmEvtOverlay = false;
-    } else {
-      ATH_MSG_INFO("PileUpMergeSvc successfully initialized");
-    }
+    ATH_CHECK(m_mergeSvc.retrieve());
 
     if (m_useTriggerTime) {
       ATH_MSG_INFO(" In case of pileup, the trigger time subtraction is done in PileUpSvc");
@@ -200,8 +143,7 @@ StatusCode TileHitVecToCntTool::initialize() {
       if (m_run2){
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
         m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
-      }
-      else{
+      } else {
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS);
         m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS);
       }
@@ -296,7 +238,7 @@ StatusCode TileHitVecToCntTool::initialize() {
     }
   }
 
-  if (m_run2) {
+  if (m_run2plus) {
     const TileHWID* tileHWID;
     CHECK(detStore()->retrieve(tileHWID));
 
@@ -309,8 +251,8 @@ StatusCode TileHitVecToCntTool::initialize() {
       for (int drawer = 0; drawer < 64; ++drawer) {
         int frag_id = tileHWID->frag(ros, drawer);
         IdentifierHash frag_hash = m_fragHashFunc(frag_id);
-        m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2(ros, drawer) != 0);
-        m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2(drawer));
+        m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2plus(ros, drawer) != 0);
+        m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2plus(drawer));
       }
     }
     ATH_MSG_INFO("Number of E1 cell to be merged: " << std::count (m_E1merged.begin(), m_E1merged.end(), true));
@@ -941,7 +883,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     //                    << " eHitTot=" << eHitTot );
   }
 
-  if (m_run2) {
+  if (m_run2plus) {
     // Merge MBTS and E1 where it is needed.
 
     for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {

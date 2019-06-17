@@ -58,7 +58,6 @@ if DetFlags.readRDOBS.Tile_on():
 
 if DetFlags.readRDOBS.LVL1_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [                
-        "ROIB::RoIBResult/RoIBResult",
         "MuCTPI_RDO/MUCTPI_RDO",        
         "CTP_RDO/CTP_RDO",
         "L1TopoRDOCollection/L1TopoRDOCollection"

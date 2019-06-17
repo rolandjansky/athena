@@ -10,7 +10,9 @@ def TrigBSReadCfg( inputFlags ):
     Creates accumulator for BS reading
     """
     filenames = inputFlags.Input.Files
+
     
+
     acc = ComponentAccumulator()
     
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream
@@ -76,7 +78,6 @@ def TrigBSReadCfg( inputFlags ):
     # this is trigger specific and should only be loaded if some doTrigger flags is set
     # or it should be moved elsewhere, however, since there is no better location now let is stick here
     bsCnvSvc.InitCnvs += [ "EventInfo",
-                        "ROIB::RoIBResult",
                         "HLT::HLTResult" ]
     
     bsAddressProviderSvc.TypeNames += [
@@ -85,7 +86,6 @@ def TrigBSReadCfg( inputFlags ):
         "RpcDigitContainer/RPC_DIGITS",
         "TgcDigitContainer/TGC_DIGITS",
         "CscDigitContainer/CSC_DIGITS",
-        "ROIB::RecRoIBResult/RecRoIBResult",
         "MuCTPI_RIO/MUCTPI_RIO",
         "CTP_RIO/CTP_RIO"
     ]
@@ -93,7 +93,6 @@ def TrigBSReadCfg( inputFlags ):
     bsAddressProviderSvc.TypeNames += [
         "LArRawChannelContainer/LArRawChannels",
         "TileRawChannelContainer/TileRawChannelCnt",
-        "ROIB::RoIBResult/RoIBResult",
         "MuCTPI_RDO/MUCTPI_RDO",
         "HLT::HLTResult/HLTResult_L2",
         "HLT::HLTResult/HLTResult_EF",
@@ -115,6 +114,8 @@ def TrigBSReadCfg( inputFlags ):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags    
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 

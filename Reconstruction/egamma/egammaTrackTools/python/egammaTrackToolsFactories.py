@@ -20,15 +20,15 @@ EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionToo
 
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                     name ="EMExtrapolationTools",
-                                    LastCaloExtentionTool=EMLastCaloExtensionTool,
-                                    PerigeeCaloExtentionTool = EMParticleCaloExtensionTool,
+                                    LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                    PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                     Extrapolator=egammaExtrapolator,
                                     useCaching=False)
 
 EMExtrapolationToolsCache = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                          name ="EMExtrapolationToolsCache",
-                                         LastCaloExtentionTool=EMLastCaloExtensionTool,
-                                         PerigeeCaloExtentionTool = EMParticleCaloExtensionTool,
+                                         LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                         PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                          Extrapolator=egammaExtrapolator,
                                          GSFPerigeeCache='GSFPerigeeCaloExtension',
                                          GSFLastCache='GSFLastCaloExtension',

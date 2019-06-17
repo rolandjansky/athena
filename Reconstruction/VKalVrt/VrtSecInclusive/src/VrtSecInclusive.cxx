@@ -38,12 +38,6 @@
 
 using namespace std;
 
-namespace Trk {
-  extern 
-  int  pgraphm_(
-		long int *weit, long int *edges, long int *nodes,
-		long int *set, long int *nptr,  long int *nth);
-}
 
 namespace VKalVrtAthena {
   

@@ -167,17 +167,21 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
 
 ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::string& name ) const {
     // get the pointer to the tool, and check that it exists
-    const ToolHandle<GenericMonitoringTool> toolHandle = *(m_tools[name]);
+    const ToolHandle<GenericMonitoringTool>* toolPtr = m_tools[name];
+    if ( !toolPtr ) {
+        ATH_MSG_FATAL("The tool "<<name<<" could not be found in the monitoring algorithm's tool array. \n"<<
+            "This probably reflects a difference between your python configuration and c++ filling code."<<endmsg);
+    }
+    const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
     if ( toolHandle.empty() ) {
-        ATH_MSG_FATAL("The tool "<<name<<" could not be found in the monitoring algorithm's tool array."<<endmsg);
+        ATH_MSG_FATAL("The tool "<<name<<" could not be found because of an empty tool handle."<<endmsg);
     }
     // return the tool handle
     return toolHandle;
 }
 
 
-
-const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() {
+const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
     return m_trigDecTool;
 }
 
@@ -290,7 +294,7 @@ double AthMonitorAlgorithm::lbDuration() const {
 }
 
 
-StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) {
+StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) const {
     std::string item;
     std::stringstream ss(line);
 
@@ -306,7 +310,7 @@ StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<s
 }
 
 
-void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) {
+void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) const {
     for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
         std::string& thisName = vTrigChainNames[i];
 

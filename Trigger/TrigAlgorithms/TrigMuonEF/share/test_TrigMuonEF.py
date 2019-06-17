@@ -13,7 +13,6 @@ if not ('EvtMax' in dir()):
     theApp.EvtMax = 10
 
 # do trigger
-TriggerModernConfig = True # not sure this actually does anything 
 recFlags.doTrigger  = True
 recFlags.doESD      = True
 

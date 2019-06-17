@@ -97,7 +97,7 @@ atlas_add_test( TestSummary
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestTdaqEnabled
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testTdaqEnabled.py
-                PROPERTIES TIMEOUT 600
+                PROPERTIES TIMEOUT 720
                 ENVIRONMENT THREADS=5 )
 
 # Install files from the package:

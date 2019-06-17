@@ -81,7 +81,7 @@ public:
     virtual ~CompetingRIOsOnTrack();
 
     //! Pseudo-constructor:  needed to avoid excessive RTTI
-    virtual CompetingRIOsOnTrack* clone() const = 0;
+    virtual CompetingRIOsOnTrack* clone() const override = 0;
 
     /** @brief Number of RIO_OnTracks to be contained by this CompetingRIOsOnTrack.
      - extends MeasurementBase */
@@ -106,6 +106,11 @@ public:
     /** @brief recalculate the LocalParameters and ErrorMatrix */
     virtual void setLocalParametersAndErrorMatrix();
 
+    /** Extended method checking the type*/
+    virtual bool type(MeasurementBaseType::Type type) const override{
+      return (type==MeasurementBaseType::CompetingRIOsOnTrack);
+    }
+
 protected:
     friend class ::CompetingRIOsOnTrackCnv_p1;
 
@@ -125,9 +130,9 @@ protected:
     virtual bool ROTsHaveCommonSurface(const bool withNonVanishingAssignProb=true) const = 0;
 
     //! returns the some information about the base class members (avoid code duplication)
-    virtual MsgStream&    dump( MsgStream& out ) const;  
+    virtual MsgStream&    dump( MsgStream& out ) const override;  
     //! returns the some information about the base class members (avoid code duplication)
-    virtual std::ostream& dump( std::ostream& out ) const;
+    virtual std::ostream& dump( std::ostream& out ) const override;
 
 };
 

@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+import six
+
 from copy import deepcopy
 from AthenaCommon.Logging import logging
 class CfgFlag(object):
@@ -58,10 +61,19 @@ class FlagAddress(object):
         return self._flags._set( merged, value )
 
     def __cmp__(self, other):
-        raise RuntimeError( "No such a flag: "+ self._name+". Likely the name is incomplete " )
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
+    __eq__ = __cmp__
+    __ne__ = __cmp__
+    __lt__ = __cmp__
+    __le__ = __cmp__
+    __gt__ = __cmp__
+    __ge__ = __cmp__
+
 
     def __nonzero__(self):
-        raise RuntimeError( "No such a flag: "+ self._name+". Likely the name is incomplete " )
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
+    def __bool__(self):
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
         
 
 
@@ -96,7 +108,7 @@ class AthConfigFlags(object):
     def needFlagsCategory(self, name):
         self._loadDynaFlags( name )
     
-    def _loadDynaFlags(self, name):
+    def _loadDynaFlags(self, name, quiet = False):
         flagBaseName = name.split('.')[0]
         if flagBaseName in self._dynaflags:
             self._msg.debug("dynamically loading the flag %s", flagBaseName)
@@ -105,11 +117,13 @@ class AthConfigFlags(object):
             self.join( self._dynaflags[flagBaseName]() )
             self._locked = isLocked
             del self._dynaflags[flagBaseName]
-            self.dump()
+            if not quiet:
+                self.dump()
 
-    def loadAllDynamicFlags(self):
-        for prefix in self._dynaflags.keys():
-            self._loadDynaFlags( prefix )
+    def loadAllDynamicFlags(self, quiet = False):
+        # Need to convert to a list since _loadDynaFlags may change the dict.
+        for prefix in list(self._dynaflags.keys()):
+            self._loadDynaFlags( prefix, quiet = quiet )
 
     def hasFlag(self, name):        
         if name in self._flagdict: 
@@ -211,7 +225,7 @@ class AthConfigFlags(object):
     def join(self,other):
         if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
-        for (name,flag) in other._flagdict.iteritems():
+        for (name,flag) in six.iteritems(other._flagdict):
             if name in self._flagdict:
                 raise KeyError("Duplicated flag name: %s" % name)
             self._flagdict[name]=flag
@@ -226,9 +240,9 @@ class AthConfigFlags(object):
             return
         print("Flag categories that can be loaded dynamically")
         print("%-15.15s : %30s : %s" % ("Category","Generator name", "Defined in" ))
-        for name,gen in sorted(self._dynaflags.iteritems()):
+        for name,gen in sorted(six.iteritems(self._dynaflags)):
             print("%-15.15s : %30s : %s" %
-                  (name, gen.func_name, '/'.join(gen.func_code.co_filename.split('/')[-2:])))
+                  (name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:])))
 
 
     def initAll(self): #Mostly a self-test method

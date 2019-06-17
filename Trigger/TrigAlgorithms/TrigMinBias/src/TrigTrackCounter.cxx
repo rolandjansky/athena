@@ -4,7 +4,7 @@
 
 // executes after event accept track reconstruction
 // retrieves z position of track and append it to TE
-#include "TrigMinBias/TrigTrackCounter.h"
+#include "TrigTrackCounter.h"
 //#include "TrkSpacePoint/SpacePointContainer.h "
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrkTrack/Track.h"

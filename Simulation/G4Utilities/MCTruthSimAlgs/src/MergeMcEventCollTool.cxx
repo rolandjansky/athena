@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeMcEventCollTool.h"
@@ -125,37 +125,8 @@ namespace {
 MergeMcEventCollTool::MergeMcEventCollTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface *parent) :
-  PileUpToolBase(type, name, parent),
-  m_pMergeSvc("PileUpMergeSvc", name),
-  m_pOvrlMcEvColl(0),
-  m_r2Range(400.0),
-  m_startingIndexForBackground(0),
-  m_newevent(true),
-  m_nInputMcEventColls(0),
-  m_nBkgEventsReadSoFar(0),
-  m_addBackgroundCollisionVertices(true),
-  m_signal_event_number(0)
+  PileUpToolBase(type, name, parent)
 {
-  declareProperty("TruthCollInputKey",   m_truthCollInputKey=std::string("TruthEvent"));
-  declareProperty("TruthCollOutputKey",   m_truthCollOutputKey=std::string("TruthEvent"));
-  declareProperty("KeepUnstable",   m_keepUnstable=false, "do not cut unstable particles");
-  declareProperty("AbsEtaMax",      m_absEtaMax=5.0);
-  declareProperty("OutOfTimeAbsEtaMax",      m_absEtaMax_outOfTime=3.0);
-  declareProperty("LowTimeToKeep",  m_lowTimeToKeep=-51.0, "leading edge in ns of the time window to keep if SaveOutOfTimePileUp is true");
-  declareProperty("HighTimeToKeep", m_highTimeToKeep=+51.0, "trailing edge in ns of the time window to keep if SaveOutOfTimePileUp is true");
-  declareProperty("rRange",  m_rRange = 20.0, "rRange of production vertex in mm");
-  declareProperty("zRange",  m_zRange = 200.0, "z range of production vertex in mm");
-  declareProperty("ptMin",   m_ptMin = 0.4*GeV, "in MeV");
-  declareProperty("EKinMin", m_minKinE = 1.0*MeV, "in MeV");
-  declareProperty("SaveCavernBackground", m_saveCavernBackground=true);
-  declareProperty("SaveInTimeMinBias", m_saveInTimePileup=true, "save min bias particles in the t0 xing");
-  declareProperty("SaveOutOfTimeMinBias", m_saveOutOfTimePileup=true, "save out of time min bias particles in the [LowTimeToKeep:HighTimeToKeep] range");
-  declareProperty("SaveRestOfMinBias",    m_saveRestOfPileup=false, "save the rest of out of time min bias particles as well" );
-  declareProperty("DoSlimming", m_doSlimming=true, "flag to do the slimming or save everything");
-  declareProperty("AddBackgroundCollisionVertices", m_addBackgroundCollisionVertices=true, "ensure that the collision GenVertex objects of minbias background events are saved.");
-  declareProperty("CompressOutputCollection", m_compressOutputCollection=false, "Remove all empty GenEvents from the output McEventCollection");
-  declareProperty("OnlySaveSignalTruth", m_onlySaveSignalTruth=false, "Just save the Signal GenEvent");
-
 }
 
 StatusCode MergeMcEventCollTool::initialize() {

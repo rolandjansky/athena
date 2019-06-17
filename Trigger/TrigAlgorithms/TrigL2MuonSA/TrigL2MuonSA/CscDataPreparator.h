@@ -26,8 +26,6 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "CscClusterization/ICscClusterBuilder.h"
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class CscIdHelper;
 class ICscClusterBuilder;
 
@@ -82,12 +80,6 @@ namespace TrigL2MuonSA {
 
   private:
 
-    // Reference to StoreGateSvc;
-    ServiceHandle<StoreGateSvc>    m_storeGateSvc;
-    
-    // Cache the ActiveStoreSvc ptr
-    ServiceHandle<ActiveStoreSvc> m_activeStore;
-
     // Geometry Services
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const CscIdHelper* m_cscIdHelper;
@@ -108,6 +100,9 @@ namespace TrigL2MuonSA {
 
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{
 	this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};
+
+    // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+    Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the CSCs" };
 
     // Flag to decide whether or not to run BS decoding
     Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };

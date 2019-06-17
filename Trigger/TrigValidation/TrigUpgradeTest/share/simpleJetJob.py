@@ -57,7 +57,7 @@ if TriggerFlags.doCalo:
          hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
          
      # get the reco sequence
-     from TrigUpgradeTest.jetDefs import jetRecoSequence
+     from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
      (recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
 
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT

@@ -55,6 +55,10 @@ class CFNaming(object):
         return "%s%d_for_%s"%(HypoName,ncopy,StepName)
 
     @staticmethod
+    def comboHypoOutputName(inputName):
+        return "combo_%s"%(inputName)
+
+    @staticmethod
     def stepRecoNodeName(HLTNodeName, StepCFName):
         return  (HLTNodeName + "_" + StepCFName)
 

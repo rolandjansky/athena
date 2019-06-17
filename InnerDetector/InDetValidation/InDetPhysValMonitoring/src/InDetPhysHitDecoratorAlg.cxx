@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -112,7 +112,7 @@ InDetPhysHitDecoratorAlg::finalize() {
 // to migrate to AthReentrantAlgorithm later
 StatusCode
 InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
-  SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
+  SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName, ctx);
   if ((not ptracks.isValid())) {
     return StatusCode::FAILURE;
   }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyPerfMon.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -20,7 +20,7 @@ import AthenaCommon.Logging as L
 
 _perfMonStates = ('ini','evt','fin')
 
-from PyMonUtils import *
+from PerfMonComps.PyMonUtils import *
 
 from PyUtils.Decorators import memoize, forking
 

@@ -333,6 +333,7 @@ int main() {
     return -1;
   }
   MsgStream log( Athena::getMessageSvc(), "GenericMonFilling_test" );
+  log.setLevel(0);
 
   ITHistSvc* histSvc;
   if( pSvcLoc->service( "THistSvc", histSvc, true ).isFailure()  ) {
@@ -344,8 +345,6 @@ int main() {
   ToolHandle<GenericMonitoringTool> emptyMon("");
   VALUE( emptyMon.isEnabled() ) EXPECTED( false ); // self test
   log << MSG::DEBUG << " mon tool validity " << emptyMon.isValid() << endmsg;
-
-    
   
   ToolHandle<GenericMonitoringTool> validMon( "GenericMonitoringTool/MonTool" );
   if ( validMon.retrieve().isFailure() ) {

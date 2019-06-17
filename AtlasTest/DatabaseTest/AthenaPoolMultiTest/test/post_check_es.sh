@@ -22,6 +22,7 @@ else
 	reflog=../share/${test}.ref
         grep -e 'Splitter' \
              -e 'Triggered' \
+             -e 'EventInfoTag' \
              -e 'Stream' \
              -e 'Coll' \
              -e 'Others' \

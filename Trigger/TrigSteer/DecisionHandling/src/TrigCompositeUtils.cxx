@@ -10,6 +10,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
+#include <unordered_map>
+
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
 
@@ -164,31 +166,79 @@ namespace TrigCompositeUtils {
     return composite->hasObjectCollectionLinks( m_name );
   }
 
-  bool recursiveGetObjectLinks( const Decision* start, ElementLinkVector<DecisionContainer>& linkVector ){
-    //recursively find in the seeds
+
+  void recursiveGetDecisionsInternal(const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id) {
+    // Does this Decision satisfy the chain requirement?
+    DecisionIDContainer idSet = {id};
+    if (id != 0 && !isAnyIDPassing(start, idSet)) {
+      return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
+    }
+
+    // This Decision object is part of this linear path through the Navigation
+    const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( start->container() );
+    ElementLink<DecisionContainer> startLink = ElementLink<DecisionContainer>(*container, start->index());
+    linkVector.at(location).push_back( startLink ); 
+    
+    // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(start) ) {
-      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
-        recursiveGetObjectLinks( *seedEL, linkVector );
+      const ElementLinkVector<DecisionContainer> seedsVector = getLinkToPrevious(start);
+
+      // If there is more than one seed then we need to fork.
+      // Each fork implies copying the (linear) vector of links up to this point.
+      // As this forking may have happened more than once before, we need to remember which seed 
+      // corresponds to which fork. Done here via a map.
+      std::unordered_map<size_t,size_t> mapSeedToLinkVector;
+      for (size_t seed = 0; seed < seedsVector.size(); ++seed) {
+        if (seed == 0) {
+          mapSeedToLinkVector.insert( std::make_pair(seed, location) );
+        } else {
+          linkVector.push_back( linkVector.at(location) );
+          mapSeedToLinkVector.insert( std::make_pair(seed, linkVector.size() - 1) );
+        }
+      }
+
+      // Do the recursion
+      for (size_t seed = 0; seed < seedsVector.size(); ++seed) {
+        const Decision* seedDecision = *(seedsVector.at(seed)); // Dereference ElementLink
+        size_t linkVectorLocation = mapSeedToLinkVector.find(seed)->second;
+        recursiveGetDecisionsInternal(seedDecision, linkVectorLocation, linkVector, id);
       }
     }
-
-    int isComposite=0;
-    start->getDetail( "IsComposite",isComposite );
-    if ( !isComposite ) {
-      std::cout <<"TrigCompositeTraversal ViewAlgs::getObjectLinks    WARNING  Proxy "<< start->name()<< " is not composite!"<<std::endl;
-      return false;
-    }
-
-    // ElementLink<xAOD::TrigComposite> test;
-    // test = start->objectLink( "childProxies" );
-    ElementLinkVector<DecisionContainer> links = start->objectCollectionLinks<DecisionContainer>( "childProxies" );
-
-    linkVector.reserve( linkVector.size() + links.size() );
-    std::move( links.begin(), links.end(), std::back_inserter( linkVector ) );
-
-    return true;
+    return;
   }
+
+  void recursiveGetDecisions(const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id) {
+    // Note: we do not require linkVector to be an empty vector. We can append to it.
+    linkVector.push_back( ElementLinkVector<DecisionContainer>() ); // Our starting point
+    const size_t startingElement = linkVector.size() - 1;
+    recursiveGetDecisionsInternal(start, startingElement, linkVector, id);
+    // Writing finished.
+    // Now - remove defunct branches. These are zero length entries or entries which did not propagate all the way up to the root nodes
+    // (this occurs when the decision ID was not valid along a prospective branch)
+    std::vector<ElementLinkVector<DecisionContainer>>::iterator vecIt = linkVector.begin();
+    std::advance(vecIt, startingElement);
+    // vecIt is an iterator which now corresponds to the first element added by this call to recursiveGetDecisions
+    for (; vecIt != linkVector.end();) {
+      bool shouldRemove = false;
+      if (vecIt->size() == 0) {
+        // No Decision ELs were added to the inner ElementLinkVector
+        shouldRemove = true;
+      } else {
+        ElementLink<DecisionContainer> finalDecision = vecIt->back();
+        if (hasLinkToPrevious(*finalDecision)) {
+          // If the back Decision still has back-link(s), then it is not from the top of the graph (i.e. it's not from a L1)
+          shouldRemove = true;
+        }
+      } 
+      if (shouldRemove) {
+        vecIt = linkVector.erase(vecIt);
+      } else {
+        ++vecIt;
+      }
+    }
+    return;
+  }
+
 
   std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 

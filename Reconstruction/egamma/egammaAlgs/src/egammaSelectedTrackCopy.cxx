@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019  CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -119,11 +119,11 @@ StatusCode egammaSelectedTrackCopy::execute()
     ++allClusters;   
     if (m_egammaCaloClusterSelector->passSelection(cluster)) {
       passingClusters.push_back(cluster);
-       ++selectedClusters;
+      ++selectedClusters;
     }
   }
 
- //Extrapolation Cache
+  //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
@@ -229,19 +229,27 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
    * The second if it matched from Perigee rescales
    */
 
-  if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
-      fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
-    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-                  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
-    return false;
-  }
-  //if it does not fail the eta cut, does it fail the phi?
-  if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) 
+  //Broad phi check
+  if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) 
+       && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) 
        && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
     ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack ,cluster phi): ( " 
                   << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
     return false;
   }
+  //if TRT we can stop here , we can not check much in eta really.
+  if(trkTRT){
+    return true;
+  }
+
+  //eta check
+  if (fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
+      fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
+    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
+                  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+    return false;
+  }
+
   //Extrapolate from last measurement, since this is before brem fit last measurement is better.
   std::vector<double>  eta(4, -999.0);
   std::vector<double>  phi(4, -999.0);
@@ -261,14 +269,16 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     return false;
   }  
 
-  // Selection in narrow eta/phi window
-  if(( trkTRT || fabs(deltaEta[2]) < m_narrowDeltaEta ) && 
+  // Selection in narrow eta/phi window from last measurement
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta && 
      deltaPhi[2] < m_narrowDeltaPhi && 
      deltaPhi[2] > -m_narrowDeltaPhiBrem) {
     ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2] );
     return true;
   }
-  else if(!trkTRT && fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
+  
+  //passes the eta but not the phi, try with rescale
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
     ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
                   << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
@@ -276,6 +286,7 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
+ 
     if (m_extrapolationTool->getMatchAtCalo (ctx,
                                              cluster, 
                                              track, 
@@ -285,7 +296,11 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
                                              phi1,
                                              deltaEta1, 
                                              deltaPhi1, 
-                                             IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) return false;
+                                             IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
+      return false;
+    }
+ 
+    //Redo the check with rescale
     if( fabs(deltaEta1[2]) < m_narrowDeltaEta 
         && deltaPhi1[2] < m_narrowRescale
         && deltaPhi1[2] > -m_narrowRescaleBrem) {
@@ -295,7 +310,6 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     else {
       ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " 
                     << deltaPhi1[2] <<" / "<< deltaEta1[2] );
-      return false;
     }
   }
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);

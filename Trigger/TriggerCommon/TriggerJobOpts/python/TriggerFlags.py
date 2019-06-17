@@ -12,6 +12,7 @@ from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuName
 
 _flags = []
 
+
 # Define Default Flags
 class doLVL1(JobProperty):
     """ run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file) """
@@ -135,6 +136,16 @@ class doHLT(JobProperty):
 
             
 _flags.append(doHLT)
+
+# Define Default Flags
+class doMT(JobProperty):
+    """ Run upgrade type of config """
+    statusOn=True
+    allowedType=['bool']
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
+        
+_flags.append(doMT)
 
 
 class doMergedHLTResult(JobProperty):
@@ -313,6 +324,16 @@ class useOfflineSpacePoints(JobProperty):
 
 _flags.append(useOfflineSpacePoints)
 
+class doTransientByteStream(JobProperty):
+    """ switch off usage of the transient bytestream 
+    and access RDO objects directly. Partial implementation. 
+    """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+    
+_flags.append(doTransientByteStream)
+
 class doNtuple(JobProperty):
     """ """
     statusOn=True
@@ -354,6 +375,14 @@ class ESDEDMSet(JobProperty):
     StoredValue='ESD'
 
 _flags.append(ESDEDMSet)
+
+class doNavigationSlimming(JobProperty):
+    """Enable the trigger navigation slimming"""
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doNavigationSlimming)
 
 class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """

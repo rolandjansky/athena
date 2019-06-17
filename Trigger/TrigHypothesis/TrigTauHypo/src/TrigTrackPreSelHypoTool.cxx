@@ -14,7 +14,7 @@
 //
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODTau/TauJetContainer.h"
 #include "xAODJet/Jet.h"
@@ -87,7 +87,6 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
 
   //get RoI descriptor
   auto roiDescriptor = input.roi;
-
   float roIEta = roiDescriptor->eta();
   float roIPhi = roiDescriptor->phi();
 
@@ -113,7 +112,7 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
          if(trk_pt < m_lowerTrackPtCut) continue;
 	      float trk_eta = tp->eta();
 	      float trk_phi = tp->parameters()[Trk::phi];
-	      double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + HLT::wrapPhi(roIPhi-trk_phi)*HLT::wrapPhi(roIPhi-trk_phi));
+	      double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + CxxUtils::wrapToPi(roIPhi-trk_phi)*CxxUtils::wrapToPi(roIPhi-trk_phi));
 	      if ((trk_pt > trk_pt_max) && dR_trk_tau < m_deltaRLeadTrkRoI) {
 	         Ltrack = track;
 	         trk_pt_max = trk_pt;
@@ -156,7 +155,7 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
 	     float trk_z0 = tp->parameters()[Trk::z0];
         float trk_pt = tp->pT();
         if(trk_pt < m_lowerTrackPtCut) continue;		
-	     float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + HLT::wrapPhi(ltrk_phi-trk_phi)*HLT::wrapPhi(ltrk_phi-trk_phi));
+	     float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + CxxUtils::wrapToPi(ltrk_phi-trk_phi)*CxxUtils::wrapToPi(ltrk_phi-trk_phi));
 	     float dZ0 = fabs(ltrk_z0 - trk_z0);
 	     if((dR_trki_ltrk < m_coreSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
 	       ++nTracksInCore;

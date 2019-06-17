@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/TrigCountSpacePoints.h"
+#include "TrigCountSpacePoints.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "eformat/DetectorMask.h"

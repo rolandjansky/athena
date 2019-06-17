@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////
 #include <vector>
 #include "GaudiKernel/StatusCode.h"
+
 class StorePIDinfo{
   public:
    StorePIDinfo();

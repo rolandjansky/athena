@@ -4,6 +4,33 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
+## Small class to hold the names for cache containers, should help to avoid copy / paste errors
+class MuonPrdCacheNames:
+    MdtCache  = "MdtPrdCache"
+    CscCache  = "CscPrdCache"
+    RpcCache  = "RpcPrdCache"
+    TgcCache  = "TgcPrdCache"
+    sTgcCache = "sTgcPrdCache"
+    MmCache   = "MmPrdCache"  
+
+## This configuration function creates the IdentifiableCaches for PRD
+#
+# The function returns a ComponentAccumulator which should be loaded first
+# If a configuration wants to use the cache, they need to use the same names as defined here
+def MuonPrdCacheCfg():
+    acc = ComponentAccumulator()
+
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MuonPRDCacheCreator
+    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
+                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
+                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    acc.addEventAlgo( cacheCreator, primary=True )
+    return acc
+
+
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
 # The forTrigger paramater is used to put the algorithm in RoI mode
@@ -35,8 +62,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         RpcRdoToRpcPrepData.RoIs = "MURoIs"
 
-    else:
-        acc.addEventAlgo(RpcRdoToRpcPrepData)
+
+    acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
 
 def TgcRDODecodeCfg(flags, forTrigger=False):
@@ -65,8 +92,8 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
         TgcRdoToTgcPrepData.RoIs = "MURoIs"
-    else:
-        acc.addEventAlgo(TgcRdoToTgcPrepData)
+
+    acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
 
 def MdtRDODecodeCfg(flags, forTrigger=False):
@@ -76,8 +103,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)  )
+    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    acc.merge (MdtCalibDbAlgCfg(flags))
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -98,8 +125,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
         MdtRdoToMdtPrepData.RoIs = "MURoIs"
-    else:
-        acc.addEventAlgo(MdtRdoToMdtPrepData)
+
+    acc.addEventAlgo(MdtRdoToMdtPrepData)
     return acc
 
 def CscRDODecodeCfg(flags, forTrigger=False):
@@ -131,8 +158,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
         CscRdoToCscPrepData.RoIs = "MURoIs"
-    else:
-        acc.addEventAlgo(CscRdoToCscPrepData)
+
+    acc.addEventAlgo(CscRdoToCscPrepData)
     return acc
 
 def CscClusterBuildCfg(flags, forTrigger=False):
@@ -149,6 +176,7 @@ def CscClusterBuildCfg(flags, forTrigger=False):
         CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                    cluster_builder = CscClusterBuilderTool ) 
         acc.addEventAlgo(CscClusterBuilder)
+
     return acc
 
 
@@ -180,7 +208,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
-    # Schedule Rpc bytestream data decoding 
+    # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:
         # cache creators loaded independently
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
@@ -188,28 +216,27 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-
-    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
-    # Put into a verbose logging mode to check the caching
+    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
     if forTrigger:
         rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
-
     cfg.merge( rpcdecodingAcc )
 
-    # Schedule Mdt data decoding 
+    # Schedule Mdt bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcdecodingAcc  = TgcBytestreamDecodeCfg( ConfigFlags ) 
+    tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
+    if forTrigger:
+        tgcdecodingAcc().ProviderTool.OutputLevel = DEBUG    
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags )
+    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags) 
+    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
@@ -249,6 +276,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
+    return cfg
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
@@ -300,11 +328,12 @@ def muonRdoDecodeTestMC():
     with open('MuonRdoDecode.pkl','w') as f:
         cfg.store(f)
         f.close()
+    return cfg
     
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRdoDecodeConfig.py
-    muonRdoDecodeTestData()
+    cfg = muonRdoDecodeTestData()
     #muonRdoDecodeTestMC()
 
 

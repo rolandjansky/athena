@@ -6,6 +6,7 @@
 #include "PrimaryDPDMaker/CollisionFilterAlg.h"
 #include "PrimaryDPDMaker/muonTrkTrackThinTool.h"
 #include "PrimaryDPDMaker/CaloCellThinningTool.h"
+#include "PrimaryDPDMaker/DRAW_ZMUMUSkimmingTool.h"
 
 using namespace DerivationFramework;
 
@@ -17,4 +18,4 @@ DECLARE_COMPONENT( MBTSTimeFilterTool )
 DECLARE_COMPONENT( CaloTimeFilterTool )
 DECLARE_COMPONENT( BCIDFilterTool )
 DECLARE_COMPONENT( CaloCellThinningTool )
-
+DECLARE_COMPONENT( DRAW_ZMUMUSkimmingTool )

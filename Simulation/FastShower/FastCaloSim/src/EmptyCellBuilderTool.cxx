@@ -55,6 +55,11 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
 {
   MsgStream log( msgSvc(), name() );
   
+  const CaloDetDescrManager* caloDDM = nullptr;
+  if (detStore()->retrieve (caloDDM, "CaloMgr").isFailure() ) {
+    std::abort();
+  }
+
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
   bool check_exist=false;
   if(theCellContainer->size()>0) {
@@ -75,7 +80,7 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
     log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endmsg;
   #endif  
 
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloDDM->element_begin();calo_iter<m_caloDDM->element_end();++calo_iter) {
+  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin();calo_iter<caloDDM->element_end();++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
 //      if(n%10000==0) {
@@ -123,7 +128,7 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
   log << MSG::DEBUG << ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo..." << endmsg;
 
   // check whether has max hash id size
-  const CaloCell_ID * theCaloCCIDM   = m_caloDDM->getCaloCell_ID() ;
+  const CaloCell_ID * theCaloCCIDM   = caloDDM->getCaloCell_ID() ;
   unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
   if (theCellContainer->size()<hashMax) {
     ATH_MSG_DEBUG("CaloCellContainer size " << theCellContainer->size() << " smaller than hashMax: " << hashMax);

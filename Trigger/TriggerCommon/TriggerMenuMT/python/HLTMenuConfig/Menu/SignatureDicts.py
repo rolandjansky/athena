@@ -48,7 +48,7 @@ ChainDictTemplate = {
     'chainName'    : '',
     'L1item'        : '',
     'topo'          : '',
-    'signatures'    : '',
+    'signatures'    : [],
     'stream'        : '',
     'groups'        : [],
     'EBstep'        : '',
@@ -107,10 +107,10 @@ JetChainParts = {
     'trigType'     : ['j'],
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
-    'recoAlg'      : ['a4',],
-    'dataType'     : ['tc',],
-    'calib'        : ['em'],
-    'jetCalib'     : ['subjes'],
+    'recoAlg'      : ['a4', 'a10', 'a10r'],
+    'dataType'     : ['tc'],
+    'calib'        : ['em', 'lcw'],
+    'jetCalib'     : ['subjes', 'subjesIS', 'nojcalib'],
     'scan'         : ['FS',],
     'addInfo'      : ['perf'],    
 
@@ -183,14 +183,14 @@ AllowedTopos_mu = []
 MuonChainParts = {
     'signature'      : ['Muon'],
     'L1item'         : '',
-    'chainPartName'  : '',
+    'chainPartName'  : [],
     'multiplicity'   : '',    
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550', ],
     'threshold'      : '',
     'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivar',],
+    'isoInfo'        : ['ivar','ivarmedium'],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'hypoInfo'       : [],
@@ -236,12 +236,12 @@ MuonChainParts_Default = {
 #==========================================================
 # Bphysics
 #==========================================================
-AllowedTopos_bphys = []
+AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu']
 
 # ---- Bphysics Dictinary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
 BphysicsChainParts['signature'] = ['Bphysics']
-BphysicsChainParts['topo'] = AllowedTopos_bphys
+BphysicsChainParts['topo'] = AllowedTopos_Bphysics
 
 # ---- Bphysics Dictinary of default Values ----
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
@@ -260,8 +260,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['tracktwo', 'ptonly', ],
-    'selection'    : ['medium1', 'perf', ],
+    'preselection' : ['tracktwo', 'tracktwoMVA', 'ptonly', ],
+    'selection'    : ['medium1', 'mediumRNN', 'perf', ],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : [],
@@ -304,7 +304,7 @@ METChainParts = {
     'extra'        : ['noL1'],
     'calib'        : ['lcw',],    
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell'],
+    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],
@@ -779,7 +779,7 @@ CombinedChainParts_Default['topo'] = []
 # ----- Allowed HLT Topo Keywords (also: generic topos like DR, DETA, DPHI...)
 #==========================================================
 #NOTE: removed jets from list, special case for VBF triggers
-AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_tau + AllowedTopos_comb
+AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_Bphysics + AllowedTopos_xe + AllowedTopos_tau + AllowedTopos_comb
 
 
 #==========================================================

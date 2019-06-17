@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBHitContCnv.h"
@@ -8,7 +8,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // Athena
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 
 // Constructor - call base constructor and initialize local attributes

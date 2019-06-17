@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,10 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+//Muon ReadoutGeometry includes
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 // Identifier
 #include "Identifier/Identifier.h"
@@ -33,6 +36,7 @@ class MdtHitIdHelper;
 class RpcHitIdHelper;
 class CscHitIdHelper;
 class TgcHitIdHelper;
+class MdtIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -86,6 +90,8 @@ namespace iFatras
       void createHits(const ISF::ISFParticle& isp, 
                       const std::vector<Trk::HitInfo>& hits) const;
 
+      void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+         
     private:
 
       /** Private HitCreate method - returns bool for a successful hit creation */       
@@ -107,8 +113,8 @@ namespace iFatras
       RPCSimHitCollection                  *m_rpcSimHitCollection;
       TGCSimHitCollection                  *m_tgcSimHitCollection;
       CSCSimHitCollection                  *m_cscSimHitCollection;
-      GenericMuonSimHitCollection          *m_mmSimHitCollection;
-      GenericMuonSimHitCollection          *m_stgcSimHitCollection;
+      MMSimHitCollection          	   *m_mmSimHitCollection;
+      sTGCSimHitCollection          	   *m_stgcSimHitCollection;
       std::string                          m_mdtCollectionName;
       std::string                          m_rpcCollectionName;
       std::string                          m_tgcCollectionName;
@@ -124,6 +130,7 @@ namespace iFatras
       RpcHitIdHelper*                      m_rpcHitIdHelper;
       CscHitIdHelper*                      m_cscHitIdHelper;
       TgcHitIdHelper*                      m_tgcHitIdHelper;
+      const MdtIdHelper* 		   m_mdtIdHelper;    //added to protect against dead sensors 
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
 
@@ -135,7 +142,10 @@ namespace iFatras
       
       mutable std::string                  m_stationName; 
 
+      int   				   m_BMGid; //added to protect against dead sensors
       bool                                 m_createAllMdtHits;      
+      bool   				   m_BMGpresent;//added to protect against dead sensors
+      std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     }; 
 
     

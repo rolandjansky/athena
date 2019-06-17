@@ -26,8 +26,6 @@
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
-// for some reason it's not enough to include interface
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
 #include "TH1F.h"
@@ -42,7 +40,9 @@ class SelectionCutAbsEta;
 class SelectionCutAbsCharge;
 class SelectionCutNTracks;
 class SelectionCutBDTJetScore;
+class SelectionCutBDTJetScoreSigTrans;
 class SelectionCutJetIDWP;
+class SelectionCutRNNJetScoreSigTrans;
 class SelectionCutBDTEleScore;
 class SelectionCutEleBDTWP;
 class SelectionCutEleOLR;
@@ -62,8 +62,10 @@ enum SelectionCuts
   CutEleBDTScore  = 1<<7,	// 000010000000
   CutEleBDTWP     = 1<<8,	// 000100000000
   CutMuonVeto     = 1<<9,	// 001000000000
-  CutEleOLR       = 1<<10,	// 010000000000
-  CutMuonOLR      = 1<<11	// 100000000000
+  CutEleOLR       = 1<<10,    // 010000000000
+  CutMuonOLR      = 1<<11,    // 100000000000
+  CutJetBDTScoreSigTrans = 1<<12, // 1000000000000
+  CutJetRNNScoreSigTrans = 1<<13  // 10000000000000
 };
   
 class TauSelectionTool : public virtual IAsgSelectionTool,
@@ -78,7 +80,10 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutAbsCharge;
   friend class SelectionCutNTracks;
   friend class SelectionCutBDTJetScore;
+  friend class SelectionCutBDTJetScoreSigTrans;
+  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
+  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutBDTEleScore;
   friend class SelectionCutEleBDTWP;
   friend class SelectionCutEleOLR;
@@ -102,9 +107,6 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize() override;
 
-  /// Function initialising the tool
-  virtual StatusCode initializeEvent() override __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
-
   /// Get an object describing the "selection steps" of the tool
   virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
@@ -122,8 +124,6 @@ public:
 
 private:
 
-  // Execute at each new input file
-  virtual StatusCode beginInputFile() override;
   // Execute at each event
   virtual StatusCode beginEvent() override;
 
@@ -150,6 +150,10 @@ private:
   std::vector<size_t> m_vNTracks;
   // vector of JetBDT cut regions
   std::vector<float> m_vJetBDTRegion;
+  // vector of JetBDTSigTrans cut regions
+  std::vector<float> m_vJetBDTSigTransRegion;
+  // vector of JetRNNSigTrans cut regions
+  std::vector<float> m_vJetRNNSigTransRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
@@ -176,6 +180,10 @@ private:
   float m_iNTrack;
   float m_dJetBDTMin;
   float m_dJetBDTMax;
+  float m_dJetBDTSigTransMin;
+  float m_dJetBDTSigTransMax;
+  float m_dJetRNNSigTransMin;
+  float m_dJetRNNSigTransMax;
   float m_dEleBDTMin;
   float m_dEleBDTMax;
 
@@ -188,8 +196,6 @@ private:
   std::string m_sEleOLRFilePath;
   std::string m_sElectronContainerName;
   std::string m_sMuonContainerName;
-
-  asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tTOELLHDecorator;
 
   std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
 

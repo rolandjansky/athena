@@ -5,6 +5,8 @@
 #include "LArHVPathologyDbCondAlg.h" 
 #include "LArRecConditions/LArHVPathologiesDb.h"
 #include "LArRecConditions/LArHVPathology.h"
+#include "LArHV/EMBPresamplerHVModule.h"
+#include "LArHV/EMECPresamplerHVModule.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -191,7 +193,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
            for (unsigned int i=0;i<nelec;i++) {
              const EMBHVElectrode& electrode = cell->getElectrode(i);
              for (unsigned int igap=0;igap<2;igap++) {
-               if ((unsigned)electrode.hvLineNo(igap)==HVline) {
+               if ((unsigned)electrode.hvLineNo(igap,hvCabling)==HVline) {
                   list.push_back(2*i+igap);
                }
              } 
@@ -212,7 +214,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
            for (unsigned int i=0;i<nelec;i++) {
              const EMECHVElectrode& electrode = cell->getElectrode(i);
              for (unsigned int igap=0;igap<2;igap++) {
-               if ((unsigned)electrode.hvLineNo(igap)==HVline) {
+               if ((unsigned)electrode.hvLineNo(igap,hvCabling)==HVline) {
                   list.push_back(2*i+igap);
                }       
              }       
@@ -226,12 +228,12 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
      if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
        if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id))) {
         const EMBCellConstLink cell = embElement->getEMBCell();
-        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+        const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
         for(auto hwid:hwlineId) {
           list.clear();
           HVline = m_hvlineHelper->hv_line(hwid);
           for (unsigned int igap=0;igap<2;igap++) {
-            if ((unsigned)hvmodule->hvLineNo(igap)==HVline) {
+            if ((unsigned)hvmodule.hvLineNo(igap,hvCabling)==HVline) {
               list.push_back(igap);
             }
           }
@@ -244,12 +246,12 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id))) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
        for(auto hwid:hwlineId) {
          list.clear();
          HVline = m_hvlineHelper->hv_line(hwid);
          for (unsigned int igap=0;igap<2;igap++) {
-           if ((unsigned)hvmodule->hvLineNo(igap)==HVline) {
+           if ((unsigned)hvmodule.hvLineNo(igap,hvCabling)==HVline) {
              list.push_back(igap);
            }
          }
@@ -270,8 +272,8 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
         list.clear();
         HVline = m_hvlineHelper->hv_line(hwid);
         for (unsigned int i=0;i<nsubgaps;i++) {
-          const HECHVSubgapConstLink subgap = cell->getSubgap(i);
-          if ((unsigned)subgap->hvLineNo()==HVline) {
+          const HECHVSubgap& subgap = cell->getSubgap(i);
+          if ((unsigned)subgap.hvLineNo(hvCabling)==HVline) {
             list.push_back(i);
           }
         }
@@ -291,9 +293,9 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
          list.clear();
          HVline = m_hvlineHelper->hv_line(hwid);
          for (unsigned int i=0;i<nlines;i++) {
-           const FCALHVLineConstLink line2 = tile->getHVLine(i);
+           const FCALHVLine* line2 = tile->getHVLine(i);
            if (line2) {
-             if ((unsigned)line2->hvLineNo()==HVline) {
+             if ((unsigned)line2->hvLineNo(hvCabling)==HVline) {
                list.push_back(i);
              }
            }

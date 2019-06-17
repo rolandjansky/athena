@@ -28,7 +28,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCondInterface/ITGCCablingDbTool.h"
 
-class MsgStream;
 class TgcIdHelper;
 
 class MuonTGC_CablingSvc : public ITGCcablingSvc
@@ -356,9 +355,6 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
   const TgcIdHelper * m_idHelper;
   mutable MuonTGC_Cabling::TGCCabling * m_cabling;
   
-  mutable MsgStream m_log;
-  bool              m_debuglevel;
-
   ToolHandle<ITGCCablingDbTool> m_condDataTool;
 };
 

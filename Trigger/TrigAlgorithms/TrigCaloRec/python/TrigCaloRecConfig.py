@@ -655,6 +655,8 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
     __slots__ = []
     def __init__ (self, name='TrigCaloClusterMaker_topo', doMoments=True, doLC=True ):
         super(TrigCaloClusterMaker_topo, self).__init__(name)
+        from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+        CaloNoiseCondAlg()
 
         try:
             from CaloUtils.CaloUtilsConf import CaloLCWeightTool, CaloLCClassificationTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool

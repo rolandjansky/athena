@@ -36,7 +36,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -64,7 +64,7 @@ namespace MuonCombined {
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
     m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
-    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
@@ -74,8 +74,7 @@ namespace MuonCombined {
     m_stauTofTool("MuGirlNS::StauBetaTofTool/StauBetaTofTool"),
     m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
     m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-    m_mdtCalibrationDbSvc("MdtCalibrationDbSvc", name)
-
+    m_calibrationDbTool("MdtCalibrationDbTool", this)
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
@@ -96,7 +95,7 @@ namespace MuonCombined {
     declareProperty("MuonTofTool",m_stauTofTool);
     declareProperty("Updator", m_updator );
     declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
-    declareProperty("MdtCalibrationDbSvc", m_mdtCalibrationDbSvc );
+    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
     declareProperty("DoSummary", m_doSummary = false );
     declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
     declareProperty("UseTruthMatching", m_useTruthMatching = false );
@@ -140,7 +139,7 @@ namespace MuonCombined {
     ATH_CHECK(m_stauTofTool.retrieve());
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
-    ATH_CHECK(m_mdtCalibrationDbSvc.retrieve());
+    ATH_CHECK(m_calibrationDbTool.retrieve());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -332,6 +331,8 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Refining candidates " << candidates.size());
     for( auto& candidate : candidates ){
       
+      ATH_MSG_DEBUG("   candidate: betaseed beta" << candidate->betaSeed.beta<<", error"<< candidate->betaSeed.error<< " layerDataVec size" << candidate->layerDataVec.size()<<" hits size" <<candidate->hits.size() );
+      
       // get beta from candidate and pass it to TOF tool
       float beta = candidate->betaFitResult.beta;
       m_stauTofTool->setBeta(beta);
@@ -398,7 +399,7 @@ namespace MuonCombined {
   }
   
   void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
-    
+    ATH_MSG_VERBOSE("extractTimeMeasurementsFromTrack for candidate: beta seed " << candidate.betaSeed.beta );
     Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
     
@@ -418,6 +419,8 @@ namespace MuonCombined {
       ATH_MSG_WARNING(" track without states, cannot extractTimeMeasurementsFromTrack " );
       return; 
     }
+    
+    ATH_MSG_VERBOSE("Track : "<<(*combinedTrack));
 
     // store RPC prds for clustering 
     typedef std::vector<const Muon::MuonClusterOnTrack*> RpcClVec;
@@ -483,7 +486,7 @@ namespace MuonCombined {
           float locR = pars->parameters()[Trk::locR];
           float errR = pars->covariance() ? Amg::error(*pars->covariance(),Trk::locR) : 0.3;
           auto detEl = mdt->detectorElement();
-          auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+          auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
           auto rtRelation = data.rtRelation;
           bool out_of_bound_flag = false;
           float drdt = rtRelation->rt()->driftvelocity(driftTime);
@@ -610,6 +613,8 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
+    ATH_MSG_VERBOSE("RPCs per chamber " + rpcPrdsPerChamber.size() );
+     
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
       const RpcClVec&             phiClusters = std::get<1>(chit->second);
@@ -764,7 +769,7 @@ namespace MuonCombined {
         float locR = rline;
         float errR = dc.errorTrack();
         auto detEl = mdt->detectorElement();
-        auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+        auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
         auto rtRelation = data.rtRelation;
         bool out_of_bound_flag = false;
         float drdt = rtRelation->rt()->driftvelocity(driftTime);
@@ -1302,10 +1307,12 @@ namespace MuonCombined {
       clusters.push_back( phiClusterOnTrack->clone() );
     }
 
+    ATH_MSG_DEBUG("About to loop over Hough::Hits");
+    
     std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
-      
+      ATH_MSG_DEBUG("hit x,y_min,y_max,w = "<<(*hit)->x<<","<<(*hit)->ymin<<","<<(*hit)->ymax<<","<<(*hit)->w);
       // treat the case that the hit is a composite TGC hit
       if( (*hit)->tgc ){
         for( const auto& prd : (*hit)->tgc->etaCluster.hitList ) handleCluster(*prd,clusters);
@@ -1315,6 +1322,18 @@ namespace MuonCombined {
         else                        handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),clusters);
       }
     }
+    
+    ATH_MSG_DEBUG("About to loop over calibrated hits");
+    
+    
+    ATH_MSG_DEBUG("Dumping MDTs");
+    for (auto it : mdts)
+      ATH_MSG_DEBUG(*it);
+    
+    ATH_MSG_DEBUG("Dumping clusters");
+    for (auto it : clusters)
+      ATH_MSG_DEBUG(*it);
+    
 
     // require at least 2 MDT hits
     if( mdts.size() > 2 ){
@@ -1326,12 +1345,12 @@ namespace MuonCombined {
 			  mdts, clusters,
 			  !clusters.empty(), segColl.get(), intersection.trackParameters->momentum().mag() );
       if( segColl ){
-	Trk::SegmentCollection::iterator sit = segColl->begin();
-	Trk::SegmentCollection::iterator sit_end = segColl->end();
-	for( ; sit!=sit_end;++sit){
-	  Trk::Segment* tseg=*sit;
-	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
-          ATH_MSG_DEBUG( " " << m_printer->print(*mseg) );
+      	Trk::SegmentCollection::iterator sit = segColl->begin();
+      	Trk::SegmentCollection::iterator sit_end = segColl->end();
+      	for( ; sit!=sit_end;++sit){
+      	  Trk::Segment* tseg=*sit;
+      	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
+          ATH_MSG_DEBUG( "Segment:  " << m_printer->print(*mseg) );
           segments.push_back( std::shared_ptr<const Muon::MuonSegment>(mseg) );
         }
       }

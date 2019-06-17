@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
+                          Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
                           Control/AthenaKernel
@@ -35,7 +36,7 @@ atlas_add_component( TrigT1CTP
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigConfL1Data TrigInterfacesLib AthenaKernel AthenaMonitoringLib AthenaPoolUtilities EventInfo PathResolver TrigConfStorage L1TopoConfig TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigConfData TrigConfL1Data TrigInterfacesLib AthenaKernel AthenaMonitoringLib AthenaPoolUtilities EventInfo PathResolver TrigConfStorage L1TopoConfig TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_headers( TrigT1CTP )

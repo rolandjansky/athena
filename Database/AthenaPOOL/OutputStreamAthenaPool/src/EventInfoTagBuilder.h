@@ -54,7 +54,10 @@ private:
   ToolHandle<EventInfoAttListTool> m_tool;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtKey;
+  SG::ReadHandleKey<AthenaAttributeList> m_inputAttList;
   SG::WriteHandleKey<AthenaAttributeList> m_attributeListName;
+  bool m_propInput;
+  std::string m_filter;
 
 };
 

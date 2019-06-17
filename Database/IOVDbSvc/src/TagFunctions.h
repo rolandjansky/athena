@@ -4,8 +4,8 @@
 //@file TagFunctions.h
 //@brief Helper functions for tag resolution
 //@author Shaun Roe
-#ifndef TagFunctions_H
-#define TagFunctions_H
+#ifndef IOVDbSvc_TagFunctions_h
+#define IOVDbSvc_TagFunctions_h
 
 #include "CoolKernel/IFolder.h"
 #include <string>

@@ -1,3 +1,6 @@
 test1
 should call dtor now
 MyObj dtor
+test2
+should call dtor now
+MyObj dtor

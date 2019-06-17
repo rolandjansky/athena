@@ -22,42 +22,14 @@
 
 ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator ) :
     ::AthAlgorithm( name, pSvcLocator ),
-    m_inputEvgenKey(),
-    m_outputTruthKey(),
-    m_inputConverter("", name),
-    m_qspatcher("", name),
-    m_simulationTools(), // FIXME make private
-    m_particleKillerTool(""), // FIXME make private
-    m_geoIDSvc("", name),
     m_simSelectors() //FIXME make private
 {
-    declareProperty("InputEvgenCollection",
-                    m_inputEvgenKey,
-                    "Input EVGEN collection.");
-    declareProperty("OutputTruthCollection",
-                    m_outputTruthKey,
-                    "Output Truth collection.");
-    declareProperty("InputConverter",
-                    m_inputConverter,
-                    "Input McEventCollection->ISFParticleContainer conversion service.");
-    // Quasi-stable particle sim
-    declareProperty("QuasiStablePatcher", m_qspatcher);
-
     // routing tools
     declareProperty("BeamPipeSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasForward] );
     declareProperty("IDSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasID] );
     declareProperty("CaloSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasCalo] );
     declareProperty("MSSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasMS] );
     declareProperty("CavernSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasCavern] );
-
-    declareProperty("SimulationTools", m_simulationTools );
-
-    declareProperty("ParticleKillerTool",
-                    m_particleKillerTool,
-                    "Simulation Tool to use when particle is not selected by any SimulationSelector in the routing chain.");
-    declareProperty("GeoIDSvc",
-                    m_geoIDSvc,
-                    "Since InputConverter doesn't set Geo ID yet, do it here");
 }
 
 

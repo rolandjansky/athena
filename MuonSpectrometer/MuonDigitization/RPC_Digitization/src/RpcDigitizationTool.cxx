@@ -13,7 +13,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "RPC_Digitization/RpcDigitizationTool.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 
 //Inputs
 #include "MuonSimEvent/RPCSimHit.h"
@@ -22,16 +21,15 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
 
-//run n. from geometry DB 
-#include "GeoModelInterfaces/IGeoModelSvc.h" 
-#include "GeometryDBSvc/IGeometryDBSvc.h" 
-#include "RDBAccessSvc/IRDBAccessSvc.h" 
-#include "RDBAccessSvc/IRDBRecordset.h" 
-#include "RDBAccessSvc/IRDBRecord.h" 
+//run n. from geometry DB
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeometryDBSvc/IGeometryDBSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBRecord.h"
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -59,82 +57,11 @@ using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
 static double time_correction(double, double, double);
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
-					 const std::string& name,
-					 const IInterface* pIID)
+                                         const std::string& name,
+                                         const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_GMmgr(0)
-  , m_idHelper(0)
-  , m_muonHelper(0)
-  , m_thpcRPC(0)
-  , m_rSummarySvc("RPCCondSummarySvc", name)
-  , m_cs3Para(0)
-  , m_validationSetup(false)
-  , m_vetoThisBarcode(crazyParticleBarcode) 
-  , m_SetPhiOn(false)
-  , m_SetEtaOn(false)
-  , m_mergeSvc(0)
-  , m_inputHitCollectionName("RPC_Hits")
-  , m_tagInfoMgr(0)
 {
-
-  declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
-  declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
-  declareProperty("WindowLowerOffset"    ,  m_timeWindowLowerOffset = -100.       , "digitization window lower limit");
-  declareProperty("WindowUpperOffset"    ,  m_timeWindowUpperOffset = +150.       , "digitization window lower limit");
-  declareProperty("DeadTime"             ,  m_deadTime              = 100.        , "dead time"                      );
-  declareProperty("UncorrJitter"         ,  m_UncorrJitter          = 1.5         , "jitter uncorrelated"            );
-  declareProperty("CorrJitter"           ,  m_CorrJitter            = 0.0         , "jitter correlated"              );
-  declareProperty("PatchForRpcTime"      ,  m_patch_for_rpc_time       = false );
-  declareProperty("PatchForRpcTimeShift" ,  m_rpc_time_shift           = 12.5   ); // shift rpc digit time to match hardware time calibration: Zmumu muons are at the center of BC0, i.e. at 12.5ns+BC0shift w.r.t. RPC readout (BC0shift=2x3.125)
-  declareProperty("RPC_TimeSchema"       ,  m_RPC_TimeSchema           = "RPC_TimeSchema"); // RPC time Info tag name
-  declareProperty("RPCSDOareRPCDigits"   ,  m_sdoAreOnlyDigits         = true  );
-  declareProperty("MuonOnlySDOs"         ,  m_muonOnlySDOs             = true  );
-  declareProperty("PanelId_OFF_fromlist" ,  m_PanelId_OFF_fromlist     = false );
-  declareProperty("FileName_DeadPanels"  ,  m_FileName_DeadPanels= "PermanentDeadPanels.txt"); //File with deadpanel list
-  declareProperty("PanelId_OK_fromlist"  ,  m_PanelId_OK_fromlist      = false );
-  declareProperty("FileName_GoodPanels"  ,  m_FileName_GoodPanels= "PermanentGoodPanels.txt"); //File with goodpanel list
-
-  declareProperty("PhiAndEtaEff_A"            ,  m_PhiAndEtaEff_A                   );
-  declareProperty("OnlyPhiEff_A"              ,  m_OnlyPhiEff_A                     );
-  declareProperty("OnlyEtaEff_A"              ,  m_OnlyEtaEff_A                     );
-  declareProperty("PhiAndEtaEff_C"            ,  m_PhiAndEtaEff_C                   );
-  declareProperty("OnlyPhiEff_C"              ,  m_OnlyPhiEff_C                     );
-  declareProperty("OnlyEtaEff_C"              ,  m_OnlyEtaEff_C                     );
-  declareProperty("FracClusterSize1_A"        ,  m_FracClusterSize1_A		    );
-  declareProperty("FracClusterSize2_A"        ,  m_FracClusterSize2_A		    );
-  declareProperty("FracClusterSizeTail_A"     ,  m_FracClusterSizeTail_A	    );
-  declareProperty("MeanClusterSizeTail_A"     ,  m_MeanClusterSizeTail_A	    );
-  declareProperty("FracClusterSize1_C"        ,  m_FracClusterSize1_C		    );
-  declareProperty("FracClusterSize2_C"        ,  m_FracClusterSize2_C		    );
-  declareProperty("FracClusterSizeTail_C"     ,  m_FracClusterSizeTail_C	    );
-  declareProperty("MeanClusterSizeTail_C"     ,  m_MeanClusterSizeTail_C	    );
-  declareProperty("turnON_efficiency"         ,  m_turnON_efficiency    = true      );
-  declareProperty("Minimum_efficiency"        ,  m_Minimum_efficiency   = 0.5       );
-  declareProperty("ApplyEfficiencyThreshold"  ,  m_applyEffThreshold    = false     );
-  declareProperty("Efficiency_fromCOOL"       ,  m_Efficiency_fromCOOL  = false     );
-  declareProperty("KillDeadStrips"            ,  m_kill_deadstrips      = false     );
-  declareProperty("EfficiencyPatchForBMShighEta", m_EfficiencyPatchForBMShighEta = false );
-  declareProperty("turnON_clustersize"        ,  m_turnON_clustersize   = true      );
-  declareProperty("ClusterSize_fromCOOL"      ,  m_ClusterSize_fromCOOL = false     );
-  declareProperty("testbeam_clustersize"      ,  m_testbeam_clustersize   = 1       );
-  declareProperty("ClusterSize1_2uncorr"      ,  m_ClusterSize1_2uncorr   = 0       );
-  declareProperty("FirstClusterSizeInTail"    ,  m_FirstClusterSizeInTail = 3       );
-  declareProperty("PrintCalibrationVector"    ,  m_PrintCalibrationVector = 0       );
-  declareProperty("Force_BOG_BOF_DoubletR2_OFF",  m_BOG_BOF_DoubletR2_OFF  = false  );
-  declareProperty("IgnoreRunDependentConfig"  ,  m_ignoreRunDepConfig     = false   );
-  declareProperty("RPCInfoFromDb"             ,  m_RPCInfoFromDb          = false   );
-  declareProperty("DumpFromDbFirst"           ,  m_DumpFromDbFirst        = false   );
-  declareProperty("CutMaxClusterSize"         ,  m_CutMaxClusterSize      = 5.0     );
-  declareProperty("CutProjectedTracks"        ,  m_CutProjectedTracks     = 100     );
-  declareProperty("RPCCondSummarySvc"         ,  m_rSummarySvc                      );
-  declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
-  declareProperty("IncludePileUpTruth"        ,  m_includePileUpTruth     = true    );
-  declareProperty("ParticleBarcodeVeto"       ,  m_vetoThisBarcode = crazyParticleBarcode);
 }
 
 // member function implementation
@@ -158,7 +85,7 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "RPCSDOareRPCDigits     " << m_sdoAreOnlyDigits          );
 
 
-  ATH_MSG_DEBUG ( "IgnoreRunDependentConfig "<< m_ignoreRunDepConfig       );  
+  ATH_MSG_DEBUG ( "IgnoreRunDependentConfig "<< m_ignoreRunDepConfig       );
   ATH_MSG_DEBUG ( "turnON_efficiency      " <<  m_turnON_efficiency        );
   ATH_MSG_DEBUG ( "Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
   ATH_MSG_DEBUG ( "turnON_clustersize     " <<  m_turnON_clustersize       );
@@ -181,20 +108,10 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "ParticleBarcodeVeto    " <<  m_vetoThisBarcode          );
 
 
-  if (detStore()->retrieve( m_GMmgr,"Muon" ).isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve( m_GMmgr,"Muon" ));
   ATH_MSG_DEBUG ( "Retrieved GeoModel from DetectorStore." );
 
-  if(!m_mergeSvc) {
-    //locate the PileUpMergeSvc and initialize our local ptr
-    const bool CREATEIF(true);
-    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-	0 == m_mergeSvc) {
-      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_mergeSvc.retrieve());
 
   m_idHelper = m_GMmgr->rpcIdHelper();
   if(!m_idHelper) {
@@ -202,12 +119,15 @@ StatusCode RpcDigitizationTool::initialize() {
   }
 
   // check the input object name
-  if (m_inputHitCollectionName=="") {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Input objects: '" << m_inputHitCollectionName << "'" );
   }
+  if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -215,148 +135,120 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Output digits: '" << m_outputDigitCollectionKey.key() << "'" );
 
   //set the configuration based on run1/run2
-  // Retrieve geometry config information from the database (RUN1, RUN2, etc...) 
-  IRDBAccessSvc* rdbAccess = 0; 
-  StatusCode result = service("RDBAccessSvc",rdbAccess); 
-
-  if(result.isFailure()) { 
-    ATH_MSG_ERROR("Unable to get RDBAccessSvc"); 
-    return result; 
-  } 
+  // Retrieve geometry config information from the database (RUN1, RUN2, etc...)
+  IRDBAccessSvc* rdbAccess(nullptr);
+  ATH_CHECK(service("RDBAccessSvc",rdbAccess));
 
   bool run1 = true;
   std::string configVal = "";
-  const IGeoModelSvc* geoModel = 0; 
-  result = service("GeoModelSvc", geoModel); 
-  if (result.isFailure()) { 
-    ATH_MSG_ERROR( "Could not locate GeoModelSvc"  ); 
-  } 
-  else { 
-    // check the DetDescr version 
-    std::string atlasVersion = geoModel->atlasVersion(); 
+  const IGeoModelSvc* geoModel(nullptr);
+  ATH_CHECK(service("GeoModelSvc", geoModel));
+  // check the DetDescr version
+  std::string atlasVersion = geoModel->atlasVersion();
 
-    IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS"); 
-    if(atlasCommonRec->size()==0) { 
-      run1 = true; 
-    } else { 
-      configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
-      ATH_MSG_INFO( "From DD Database, Configuration is "<< configVal );
-      std::string MSgeoVersion = m_GMmgr->geometryVersion().substr(0,4);
-      ATH_MSG_INFO( "From DD Database, MuonSpectrometer geometry version is "<< MSgeoVersion );
-      if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
-        run1 = true; 
-      } 
-      else if(configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") { 
-        run1 = false; 
-      } 
-      else { 
-        ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal); 
-        return StatusCode::FAILURE; 
-      } 
-    } 
-    // 
-    if (run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06"); 
-    else        ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07"); 
+  IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS");
+  if (atlasCommonRec->size()==0) {
+    run1 = true;
   }
-  if (m_ignoreRunDepConfig==false) 
-    {
+  else {
+    configVal = (*atlasCommonRec)[0]->getString("CONFIG");
+    ATH_MSG_INFO( "From DD Database, Configuration is "<< configVal );
+    std::string MSgeoVersion = m_GMmgr->geometryVersion().substr(0,4);
+    ATH_MSG_INFO( "From DD Database, MuonSpectrometer geometry version is "<< MSgeoVersion );
+    if(configVal=="RUN1" || MSgeoVersion=="R.06"){
+      run1 = true;
+    }
+    else if (configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") {
+      run1 = false;
+    }
+    else {
+      ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
+      return StatusCode::FAILURE;
+    }
+  }
+  //
+  if (run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06");
+  else      ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07");
+
+  if (m_ignoreRunDepConfig==false) {
+    m_BOG_BOF_DoubletR2_OFF = false;
+    m_Efficiency_fromCOOL   = false;
+    m_ClusterSize_fromCOOL  = false;
+    m_RPCInfoFromDb         = false;
+    m_kill_deadstrips       = false;
+    m_applyEffThreshold     = false;
+    if (run1) {
+      //m_BOG_BOF_DoubletR2_OFF = true
+      //m_Efficiency_fromCOOL   = true
+      //m_ClusterSize_fromCOOL  = true
+      m_BOG_BOF_DoubletR2_OFF = true;
+      if (configVal=="RUN1") {// MC12 setup
+        m_Efficiency_fromCOOL   = true;
+        m_ClusterSize_fromCOOL  = true;
+        m_RPCInfoFromDb         = true;
+        m_kill_deadstrips       = true;
+        m_applyEffThreshold     = false;
+        m_CutProjectedTracks    = 50;
+      }
+    }
+    else {
+      //m_BOG_BOF_DoubletR2_OFF = false # do not turn off at digitization the hits in the dbR=2 chambers in the feet
+      //m_Efficiency_fromCOOL   = false # use common average values in python conf.
+      //m_ClusterSize_fromCOOL  = false # use common average values in python conf.
       m_BOG_BOF_DoubletR2_OFF = false;
-      m_Efficiency_fromCOOL   = false;
-      m_ClusterSize_fromCOOL  = false;
-      m_RPCInfoFromDb         = false;
-      m_kill_deadstrips       = false;
-      m_applyEffThreshold     = false;
-      if (run1)
-	{
-	  //m_BOG_BOF_DoubletR2_OFF = true 
-	  //m_Efficiency_fromCOOL   = true 
-	  //m_ClusterSize_fromCOOL  = true
-	  m_BOG_BOF_DoubletR2_OFF = true;
-	  if (configVal=="RUN1") 
-	    {// MC12 setup 
-	      m_Efficiency_fromCOOL   = true;
-	      m_ClusterSize_fromCOOL  = true;
-	      m_RPCInfoFromDb         = true;
-	      m_kill_deadstrips       = true;
-	      m_applyEffThreshold     = false;
-	      m_CutProjectedTracks    = 50;
-	    }
-	}
-      else 
-	{
-	  //m_BOG_BOF_DoubletR2_OFF = false # do not turn off at digitization the hits in the dbR=2 chambers in the feet
-	  //m_Efficiency_fromCOOL   = false # use common average values in python conf. 
-	  //m_ClusterSize_fromCOOL  = false # use common average values in python conf. 
-	  m_BOG_BOF_DoubletR2_OFF = false;
-	   if (configVal=="RUN2") 
-	    {// MC15c setup 
-	      m_Efficiency_fromCOOL   = true;
-	      m_ClusterSize_fromCOOL  = true;
-	      m_RPCInfoFromDb         = true;
-	      m_kill_deadstrips       = false;
-	      m_applyEffThreshold     = false; //for MC16 [2015-2016]IoV will use measurements, [2017]IoV will use measurements with threshold at 50% already applied in the condition data ////// it was true (with threshold 50%) for MC15c;
-	      m_CutProjectedTracks    = 100;
-	    }
-	}
-      ATH_MSG_DEBUG ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
-      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
-      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
-      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
-      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
+      if (configVal=="RUN2") {// MC15c setup
+        m_Efficiency_fromCOOL   = true;
+        m_ClusterSize_fromCOOL  = true;
+        m_RPCInfoFromDb         = true;
+        m_kill_deadstrips       = false;
+        m_applyEffThreshold     = false; //for MC16 [2015-2016]IoV will use measurements, [2017]IoV will use measurements with threshold at 50% already applied in the condition data ////// it was true (with threshold 50%) for MC15c;
+        m_CutProjectedTracks    = 100;
+      }
     }
-  else
-    {
-      ATH_MSG_WARNING ( "Run1/Run2-dependent configuration is bypassed; be careful with option settings" );
-      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
-      ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
-      ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
-      ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       ); 
-    }
+    ATH_MSG_DEBUG ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
+    ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+    ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+    ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+    ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
+    ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
+    ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
+    ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       );
+  }
+  else {
+    ATH_MSG_WARNING ( "Run1/Run2-dependent configuration is bypassed; be careful with option settings" );
+    ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+    ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+    ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+    ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
+    ATH_MSG_DEBUG ( "......KillDeadStrips         " <<  m_kill_deadstrips          );
+    ATH_MSG_DEBUG ( "......ApplyEffThreshold      " <<  m_applyEffThreshold        );
+    ATH_MSG_DEBUG ( "......CutProjectedTracks     " <<  m_CutProjectedTracks       );
+  }
 
 
   ATH_MSG_DEBUG ( "Ready to read parameters for cluster simulation from file" );
 
-  if(StatusCode::SUCCESS != readParameters() ){
-    ATH_MSG_ERROR ("Cannot read parameters for cluster simulation. Exiting.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(readParameters());
 
   ATH_CHECK(m_rndmSvc.retrieve());
 
   // get TagInfoMgr
-  if ( service("TagInfoMgr", m_tagInfoMgr).isFailure() || m_tagInfoMgr==0) {
-    ATH_MSG_WARNING ( " Unable to locate TagInfoMgr service" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(service("TagInfoMgr", m_tagInfoMgr));
 
   // fill the taginfo information
-  if (StatusCode::SUCCESS != fillTagInfo()) {
-    ATH_MSG_WARNING ( "Could not fill the tagInfo for RPC Timing" );
-    return StatusCode::FAILURE;
-  }
-  if (m_RPCInfoFromDb){
-    if (StatusCode::SUCCESS != m_rSummarySvc.retrieve()) {
-      ATH_MSG_WARNING ( "Could not retrieve RPC Info from Db" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(fillTagInfo());
+
+  if (m_RPCInfoFromDb) {
+    ATH_CHECK(m_rSummarySvc.retrieve());
   }
 
-  if(m_PrintCalibrationVector!=0){
-    if  (StatusCode::SUCCESS != PrintCalibrationVector()) {
-      ATH_MSG_WARNING ( "Could not PrintCalibrationVector" );
-      return StatusCode::FAILURE;
-    }
+  if(m_PrintCalibrationVector) {
+    ATH_CHECK(PrintCalibrationVector());
   }
 
   m_DeadStripPanel.clear();
 
-  //////////////////// special test 
+  //////////////////// special test
   //  m_turnON_clustersize=false;
 
   return StatusCode::SUCCESS;
@@ -427,23 +319,27 @@ StatusCode RpcDigitizationTool::getNextEvent()
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::getNextEvent()" );
 
-  if(!m_mergeSvc) {
-    //locate the PileUpMergeSvc and initialize our local ptr
-    const bool CREATEIF(true);
-    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-	0 == m_mergeSvc) {
-      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
-   
-  }
-
-
   // initialize pointer
-  m_thpcRPC = 0;
+  m_thpcRPC = nullptr;
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<RPCSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get RPCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcRPC = new TimedHitCollection<RPCSimHit>{1};
+    m_thpcRPC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
 
   //this is a list<pair<time_t, DataLink<RPCSimHitCollection> > >
   TimedHitCollList hitCollList;
@@ -1688,7 +1584,7 @@ StatusCode RpcDigitizationTool::fillTagInfo() const {
 //--------------------------------------------
 StatusCode RpcDigitizationTool::readParameters(){
 
-  std::string fileName = m_paraFile.c_str();
+  std::string fileName = m_paraFile.value().c_str();
   std::string file = PathResolver::find_file (fileName, "DATAPATH");
   std::ifstream filein(file.c_str(), std::ios::in);
 
@@ -2348,60 +2244,60 @@ StatusCode RpcDigitizationTool::PrintCalibrationVector() {
 
   vec_size = m_PhiAndEtaEff_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector PhiAndEtaEff_A: " << m_PhiAndEtaEff_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector PhiAndEtaEff_A: " << m_PhiAndEtaEff_A.value().at(i) );
   }
   vec_size = m_OnlyPhiEff_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector OnlyPhi_A: " << m_OnlyPhiEff_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector OnlyPhi_A: " << m_OnlyPhiEff_A.value().at(i) );
   }
   vec_size = m_OnlyEtaEff_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_A: " << m_OnlyEtaEff_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_A: " << m_OnlyEtaEff_A.value().at(i) );
   }
 
   vec_size = m_PhiAndEtaEff_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector PhiAndEtaEff_C: " << m_PhiAndEtaEff_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector PhiAndEtaEff_C: " << m_PhiAndEtaEff_C.value().at(i) );
   }
   vec_size = m_OnlyPhiEff_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector OnlyPhi_C: " << m_OnlyPhiEff_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector OnlyPhi_C: " << m_OnlyPhiEff_C.value().at(i) );
   }
   vec_size = m_OnlyEtaEff_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_C: " << m_OnlyPhiEff_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector OnlyEta_C: " << m_OnlyPhiEff_C.value().at(i) );
   }
   vec_size = m_FracClusterSize1_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize1_A: " << m_FracClusterSize1_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize1_A: " << m_FracClusterSize1_A.value().at(i) );
   }
   vec_size = m_FracClusterSize2_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize2_A: " << m_FracClusterSize2_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize2_A: " << m_FracClusterSize2_A.value().at(i) );
   }
   vec_size = m_FracClusterSizeTail_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSizeTail_A: " << m_FracClusterSizeTail_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSizeTail_A: " << m_FracClusterSizeTail_A.value().at(i) );
   }
   vec_size = m_MeanClusterSizeTail_A.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector MeanClusterSizeTail_A: " << m_MeanClusterSizeTail_A.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector MeanClusterSizeTail_A: " << m_MeanClusterSizeTail_A.value().at(i) );
   }
   vec_size = m_FracClusterSize1_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize1_C: " << m_FracClusterSize1_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize1_C: " << m_FracClusterSize1_C.value().at(i) );
   }
   vec_size = m_FracClusterSize2_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize2_C: " << m_FracClusterSize2_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSize2_C: " << m_FracClusterSize2_C.value().at(i) );
   }
   vec_size = m_FracClusterSizeTail_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSizeTail_C: " << m_FracClusterSizeTail_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector FracClusterSizeTail_C: " << m_FracClusterSizeTail_C.value().at(i) );
   }
   vec_size = m_MeanClusterSizeTail_C.size() ;
   for(int i=0 ; i!= vec_size ; i++ ){
-    ATH_MSG_INFO ( "size of RPC calib vector MeanClusterSizeTail_C: " << m_MeanClusterSizeTail_C.at(i) );
+    ATH_MSG_INFO ( "size of RPC calib vector MeanClusterSizeTail_C: " << m_MeanClusterSizeTail_C.value().at(i) );
   }
 
   return sc;

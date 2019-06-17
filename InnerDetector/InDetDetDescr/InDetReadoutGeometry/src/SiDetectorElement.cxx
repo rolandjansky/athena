@@ -784,6 +784,13 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
 }
 
 
+Trk::Surface & 
+SiDetectorElement::surface()
+{
+  if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
+  return *m_surface;
+}
+  
 const Trk::Surface & 
 SiDetectorElement::surface() const
 {

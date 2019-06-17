@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -86,12 +86,10 @@ StatusCode Trk::TrackingGeometryTest::runTest()
     // only run if it didn't already run before
     if (!m_executed && m_trackingGeometry){
         // push the geometry through the different processors
-        ToolHandleArray<Trk::IGeometryProcessor>::const_iterator tgpIter  = m_trackingGeometryProcessors.begin();
-        ToolHandleArray<Trk::IGeometryProcessor>::const_iterator tgpIterE = m_trackingGeometryProcessors.end();
-        for ( ; tgpIter != tgpIterE; ++tgpIter ){
-            ATH_MSG_INFO("Parse geometry with processor " << (*tgpIter).name() );
-            if (((*tgpIter)->process(*m_trackingGeometry)).isFailure()){
-                ATH_MSG_FATAL("Could not process the TrackingGeometry with '" << (*tgpIter).name() <<"'. Aborting test.");
+        for (ToolHandle<Trk::IGeometryProcessor> proc : m_trackingGeometryProcessors) {
+            ATH_MSG_INFO("Parse geometry with processor " << proc->name() );
+            if ((proc->process(*m_trackingGeometry)).isFailure()){
+                ATH_MSG_FATAL("Could not process the TrackingGeometry with '" << proc->name() <<"'. Aborting test.");
                 return StatusCode::FAILURE;
             }
         }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
@@ -20,9 +20,14 @@
 
 //forward declarations
 class IIncidentSvc;
+class IAtRndmGenSvc;
 class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -84,10 +89,12 @@ namespace NSWL1 {
     void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fill_strip_validation_id();                        //!< fill the ntuple branch for the StripTdsOffline
-    bool readStrip(unsigned int bandID, StripData* strip,const std::vector<std::vector<float>>& pad_strip_info);
+    bool readStrip( StripData* ,const std::vector<std::unique_ptr<PadTrigger>>&);
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
+    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
@@ -99,6 +106,7 @@ namespace NSWL1 {
     BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink  
 
     // properties: container and service names
+    StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
     StringProperty   m_sTgcDigitContainer;                  //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
     StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
 
@@ -108,6 +116,7 @@ namespace NSWL1 {
 
     // analysis variable to be put into the ntuple
     int m_nStripHits;                                            //!< number of STRIP hit delivered
+    int m_padTrigIndex;
     std::vector<float > *m_stripCharge=0;                           //!< charge of hit STRIPs 
     std::vector<float > *m_stripCharge_6bit=0;                           //!< charge of hit STRIPs 6 bit format
     std::vector<float > *m_stripCharge_10bit=0;                           //!< charge of hit STRIPs 10 bit format

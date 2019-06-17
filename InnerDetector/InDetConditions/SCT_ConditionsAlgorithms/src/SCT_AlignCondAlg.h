@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -52,8 +54,8 @@ class SCT_AlignCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<AlignableTransformContainer> m_readKeyDynamicL3{this, "ReadKeyDynamicL3", "/Indet/AlignL3", "Key for the dynamic L3 alignment folder"};
   SG::WriteCondHandleKey<GeoAlignmentStore> m_writeKey;
 
-  ServiceHandle<ICondSvc> m_condSvc;
-  const InDetDD::SCT_DetectorManager* m_detManager;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+  const InDetDD::SCT_DetectorManager* m_detManager{nullptr};
 };
 
 #endif // SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H

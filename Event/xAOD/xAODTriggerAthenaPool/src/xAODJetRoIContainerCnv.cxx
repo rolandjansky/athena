@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -34,8 +34,8 @@ createPersistent( xAOD::JetRoIContainer* trans ) {
 
 xAOD::JetRoIContainer* xAODJetRoIContainerCnv::createTransient() {
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "ED39F230-5E9A-11E3-9563-02163E00A725" );
-   static pool::Guid v2_guid( "8F9A76C9-2083-4774-A0EE-FB585930B664" );   
+   static const pool::Guid v1_guid( "ED39F230-5E9A-11E3-9563-02163E00A725" );
+   static const pool::Guid v2_guid( "8F9A76C9-2083-4774-A0EE-FB585930B664" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v2_guid ) ) {

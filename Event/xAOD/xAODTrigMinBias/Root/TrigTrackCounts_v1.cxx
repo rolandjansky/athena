@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,7 +38,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrigTrackCounts_v1, float, phiMax, setPhiMax)
   
   double TrigTrackCounts_v1:: z0_ptSumEntries(float value_x, float value_y, int cutType) const {
-    static Accessor< std::vector<float> > acc_contents( "z0_pt" );
+    static const Accessor< std::vector<float> > acc_contents( "z0_pt" );
     return xAOD::sumEntries(acc_contents(*this),
 			    z0Bins(),z0Min(),z0Max(),
 			    ptBins(),ptMin(),ptMax(),
@@ -46,7 +46,7 @@ namespace xAOD {
   }
   
   double TrigTrackCounts_v1:: eta_phiSumEntries(float value_x, float value_y, int cutType) const {
-    static Accessor< std::vector<float> > acc_contents( "eta_phi" );
+    static const Accessor< std::vector<float> > acc_contents( "eta_phi" );
     return xAOD::sumEntries(acc_contents(*this),
 			    etaBins(),etaMin(),etaMax(),
 			    phiBins(),phiMin(),phiMax(),

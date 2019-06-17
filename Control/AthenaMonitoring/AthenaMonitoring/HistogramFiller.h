@@ -28,7 +28,8 @@ namespace Monitored {
     HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider) 
       : m_mutex(std::make_shared<std::mutex>()), 
         m_histDef(new HistogramDef(histDef)),
-        m_histogramProvider(histogramProvider) {}
+        m_histogramProvider(histogramProvider),
+        m_monWeight(nullptr) {}
     /**
      * @brief Copy constructor
      * 
@@ -37,7 +38,8 @@ namespace Monitored {
     HistogramFiller(const HistogramFiller& hf) 
       : m_mutex(hf.m_mutex), 
         m_histDef(hf.m_histDef),
-        m_histogramProvider(hf.m_histogramProvider) {}
+        m_histogramProvider(hf.m_histogramProvider),
+        m_monWeight(hf.m_monWeight) {}
     /**
      * @brief Move constructor
      */
@@ -61,9 +63,21 @@ namespace Monitored {
     void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
       m_monVariables = monitoredVariables;
     }
+
+    /** 
+     * @brief Stores histogram weight
+     * @param monitoredWeight weight to use
+     */
+    void setMonitoredWeight(Monitored::IMonitoredVariable* monitoredWeight) {
+      m_monWeight = monitoredWeight;
+    }
   
     std::vector<std::string> histogramVariablesNames() const {
       return m_histDef->name;
+    }
+
+    std::string histogramWeightName() {
+      return m_histDef->weight;
     }
     
   protected:
@@ -76,6 +90,7 @@ namespace Monitored {
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
+    Monitored::IMonitoredVariable* m_monWeight;
     
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;

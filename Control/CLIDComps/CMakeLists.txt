@@ -10,7 +10,6 @@ atlas_subdir( CLIDComps )
 atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaKernel
-   Control/SGTools
    AtlasTest/TestTools
    GaudiKernel )
 
@@ -22,7 +21,7 @@ atlas_add_component( CLIDComps
    src/*.h src/*.cxx src/components/*.cxx
    NOCLIDDB
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel SGTools GaudiKernel )
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel GaudiKernel )
 
 # Executable(s) in the package:
 atlas_add_executable( genCLIDDB
@@ -36,7 +35,7 @@ endif()
 # Test(s) in the package:
 atlas_add_test( ClassIDSvc_test
    SOURCES test/ClassIDSvc_test.cxx
-   LINK_LIBRARIES AthenaKernel SGTools GaudiKernel TestTools
+   LINK_LIBRARIES AthenaKernel GaudiKernel TestTools
    EXTRA_PATTERNS "WARNING Could not resolve clid DB|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

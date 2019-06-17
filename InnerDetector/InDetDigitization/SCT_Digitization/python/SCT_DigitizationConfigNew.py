@@ -14,6 +14,7 @@ from SCT_Digitization.SCT_DigitizationConf import (
     SCT_Digitization,
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
@@ -30,6 +31,10 @@ def SCT_FirstXing():
 
 def SCT_LastXing():
     return 25
+
+def SCT_ItemList():
+    """Return list of item names needed for SCT output"""
+    return ["InDet::SiClusterContainer#*", "SCT_RDO_Container#*"]
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return a ComponentAccumulator with common SCT digitization tool config"""
@@ -48,14 +53,10 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
         kwargs.setdefault("LastXing", SCT_LastXing() )
     tool = SCT_DigitizationTool(name, **kwargs)
     # attach ToolHandles
-    frontAcc = SCT_FrontEndCfg(flags)
-    tool.FrontEnd = frontAcc.popPrivateTools()
-    surfAcc = SCT_SurfaceChargesGeneratorCfg(flags)
-    tool.SurfaceChargesGenerator = surfAcc.popPrivateTools()
+    tool.FrontEnd = acc.popToolsAndMerge(SCT_FrontEndCfg(flags))
+    tool.SurfaceChargesGenerator = acc.popToolsAndMerge(SCT_SurfaceChargesGeneratorCfg(flags))
     tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
     acc.setPrivateTools(tool)
-    acc.merge(frontAcc) 
-    acc.merge(surfAcc)
     return acc
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
@@ -86,18 +87,12 @@ def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
 def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
-    if flags.Overlay.Legacy.MT:
-        kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
-        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
-    else:
-        acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-        kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+SCT_SDO_Map")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    tacc=SCT_DigitizationCommonCfg(flags, name, **kwargs)
-    acc.setPrivateTools(tacc.popPrivateTools())
-    acc.merge(tacc)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
     return acc
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
@@ -145,20 +140,15 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     # experimental SCT_DetailedSurfaceChargesGenerator config dropped here
     tool = SCT_SurfaceChargesGenerator(name, **kwargs)
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
-    DCSCondAcc = SCT_DCSConditionsCfg(flags)
-    DCSCondTool = DCSCondAcc.popPrivateTools()
+    DCSCondTool = acc.popToolsAndMerge(SCT_DCSConditionsCfg(flags))
     SiliCondTool = SCT_SiliconConditionsToolCfg(flags)
     SiliCondAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSCondTool)
     SiliPropsAcc = SCT_SiPropertiesCfg(flags, SiConditionsTool=SiliCondTool)
-    LorentzAcc = SCT_LorentzAngleCfg(flags)
-    tool.SiConditionsTool = SiliCondTool
-    tool.SiPropertiesTool = SiliPropsAcc.popPrivateTools()
-    tool.LorentzAngleTool = LorentzAcc.popPrivateTools()
-    acc.setPrivateTools(tool)
-    acc.merge(DCSCondAcc)
     acc.merge(SiliCondAcc)
-    acc.merge(SiliPropsAcc)
-    acc.merge(LorentzAcc)
+    tool.SiConditionsTool = SiliCondTool
+    tool.SiPropertiesTool = acc.popToolsAndMerge(SiliPropsAcc)
+    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+    acc.setPrivateTools(tool)
     return acc
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
@@ -237,15 +227,19 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     kwargs.setdefault("ItemList", ["SiHitCollection#SCT_Hits"] )
     return PileUpXingFolder(name, **kwargs)
 
-def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type SCT digitization"""
+def SCT_DigitizationBasicCfg(toolCfg, flags, name="SCT_DigitizationBasic", **kwargs):
+    """Return a ComponentAccumulator with BasictoolCfg type SCT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
-        toolAcc = toolCfg(flags)
-        kwargs["DigitizationTool"] = toolAcc.popPrivateTools()
-        acc.merge(toolAcc)
-    alg = SCT_Digitization(name, **kwargs)
-    acc.addEventAlgo(alg)
+        tool = acc.popToolsAndMerge(toolCfg(flags))
+        kwargs["DigitizationTool"] = tool
+    acc.addEventAlgo(SCT_Digitization(name, **kwargs))
+    return acc
+
+def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
+    """Return a ComponentAccumulator with toolCfg type SCT digitization and Output"""
+    acc = SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
     return acc
 
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
@@ -258,5 +252,5 @@ def SCT_DigitizationPUCfg(flags, name="SCT_DigitizationPU", **kwargs):
 
 def SCT_DigitizationOverlayCfg(flags, name="SCT_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with Overlay SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
+    return SCT_DigitizationBasicCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
 

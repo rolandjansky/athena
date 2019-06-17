@@ -20,7 +20,6 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/CaloID.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloUtils/CaloCellList.h"
 #include "MuidCaloEnergyTools/MuidCaloEnergyMeas.h"
 #include "MuidEvent/CaloMeas.h"
@@ -38,14 +37,12 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
 					const std::string&	name,
 					const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_caloNoiseTool		(""),
 	m_caloParamTool		(""),
 	m_tileID                (0),
 	m_emID                  (0),
 	m_hecID                 (0),
 	m_sigmasAboveNoise	(4.),
 	m_sigmasAboveNoiseCore	(1.5),
-	m_useCaloNoiseTool	(true),
 	m_totalCoreCellsEM	(0),
 	m_totalCoreCellsHEC	(0),
 	m_totalCoreCellsTile	(0),
@@ -54,11 +51,9 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
 	m_totalSelectedTile	(0)
 {
     declareInterface<IMuidCaloEnergyMeas>(this);
-    declareProperty ("CaloNoiseTool",		m_caloNoiseTool);
     declareProperty ("CaloParamTool",		m_caloParamTool);
     declareProperty ("NoiseThresInSigmas",	m_sigmasAboveNoise);
     declareProperty ("NoiseThresInSigmasCore",	m_sigmasAboveNoiseCore);
-    declareProperty ("UseCaloNoiseTool",	m_useCaloNoiseTool);
 
     m_measurementConeTile	= 0.15;
     m_measurementConeLArHEC	= 0.15;
@@ -104,35 +99,8 @@ MuidCaloEnergyMeas::initialize()
     }
     ATH_MSG_VERBOSE( "Accessed LArHEC helper" );
 
-    // get the Tools
-    if (m_caloNoiseTool.empty() || ! m_useCaloNoiseTool)
-    {
-	ATH_MSG_FATAL( " caloNoiseTool is now obligatory" );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	if (m_caloNoiseTool.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloNoiseTool );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved tool " << m_caloNoiseTool );
-	}
-    }
 
-    if (m_caloParamTool.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloParamTool );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_caloParamTool );
-    }
-
+    ATH_CHECK(m_noiseCDOKey.initialize());
     ATH_CHECK(m_cellContainerLocation.initialize());
 
     return StatusCode::SUCCESS;
@@ -222,24 +190,22 @@ MuidCaloEnergyMeas::cellCounting(const CaloCellContainer* cellContainer,
 				 double mu_phi) const
 {
     //int isubcalo = 2;
-    double lowest_threshold = 4 * 50.;
+    constexpr double lowest_threshold = 4 * 50.;
+    
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
 
     CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-    CaloCellList* myList = 0; 
-    myList = new CaloCellList(cellContainer,iCalo);  // Construct the list  
-    myList->select(mu_eta,mu_phi,0.2,0.2);
+    CaloCellList myList(cellContainer,iCalo);  // Construct the list  
+    myList.select(mu_eta,mu_phi,0.2,0.2);
 
-    CaloCellList::list_iterator ilistfirst = myList->begin();
-    CaloCellList::list_iterator ilistlast  = myList->end();
-  
-    int ncells		= myList->ncells();
     int count		= 0;
-    double noise_rms	= 0.;
-
+    CaloCellList::list_iterator ilistfirst = myList.begin();
+    CaloCellList::list_iterator ilistlast  = myList.end();
     for(;ilistfirst!=ilistlast;ilistfirst++)
     {
-	double cellEnergy= (*ilistfirst)->energy();
-	noise_rms = m_caloNoiseTool->totalNoiseRMS(*ilistfirst);
+	const double cellEnergy= (*ilistfirst)->energy();
+	const double noise_rms =noiseCDO->getNoise((*ilistfirst)->ID(),(*ilistfirst)->gain()); 
 
 	if( cellEnergy > lowest_threshold && cellEnergy > noise_rms * m_sigmasAboveNoise )
 	{
@@ -248,8 +214,7 @@ MuidCaloEnergyMeas::cellCounting(const CaloCellContainer* cellContainer,
     }
 
     ATH_MSG_DEBUG( " counted "<< count
-		   << " cells over threshold out of a total of " << ncells << " cells" );
-    delete myList;
+		   << " cells over threshold out of a total of " << myList.ncells() << " cells" );
 
     return count;
 }
@@ -284,7 +249,10 @@ MuidCaloEnergyMeas::energyInCalo (CaloMeas&			caloMeas,
        3 --> Sampling 3
        leadingEnergy is contribution from presampler and first compartment
        -------------------------------------------*/	    
- 		
+
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
+
     double totalEnergy		= 0.;
     double leadingEnergy	= 0.;
     CaloCellList* myList 	= 0;
@@ -376,7 +344,7 @@ MuidCaloEnergyMeas::energyInCalo (CaloMeas&			caloMeas,
 		    if (sampling != coreSampling) continue;
 		    			
 		    double cellEnergy	= (**cell2).energy();
-		    double noiseRms	= m_caloNoiseTool->totalNoiseRMS(*cell2);
+		    double noiseRms	= noiseCDO->getNoise((**cell2).ID(),(**cell2).gain());
 
 		    // looser selection for core cell where at least mip is expected
 		    bool cellSelected	= cellEnergy > m_sigmasAboveNoise * noiseRms;
@@ -556,6 +524,9 @@ MuidCaloEnergyMeas::isolationEnergy (CaloMeas&			caloMeas,
     double totalEnergy		= 0.;
     CaloCellList* myList 	= 0;
 
+     SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+     const CaloNoise* noiseCDO=*noiseHdl;
+
     if (isubcalo == 0)
     {
 	CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
@@ -638,8 +609,7 @@ MuidCaloEnergyMeas::isolationEnergy (CaloMeas&			caloMeas,
 		    if (sampling != coreSampling) continue;
 		    			
 		    double cellEnergy	= (**cell2).energy();
-		    double noiseRms	= m_caloNoiseTool->totalNoiseRMS(*cell2);
-
+		    double noiseRms	= noiseCDO->getNoise((**cell2).ID(),(**cell2).gain());
 		    // looser selection for core cell where at least mip is expected
 		    bool cellSelected	= cellEnergy > m_sigmasAboveNoise * noiseRms;
 		    if (*cell2 == coreCell
@@ -683,41 +653,37 @@ MuidCaloEnergyMeas::energyInTile(const CaloCellContainer* cellContainer,
     // 	     3 --> ITC
   
     //int i,j,k;
+
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
+
     double tileTotalEnergy=0.;
     double tileTestEnergy=0.;	
-	      
-    CaloCellList* myList = 0; 
-    CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
-    myList = new CaloCellList(cellContainer,iCalo);  // Construct the list  
 
+    CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;	      
+    CaloCellList myList(cellContainer,iCalo);  // Construct the list   
     if(cone == 1)
     {
-	myList->select(mu_eta,mu_phi,0.15,0.15);
+	myList.select(mu_eta,mu_phi,0.15,0.15);
     }
     else if(cone == 2)
     {
-	myList->select(mu_eta,mu_phi,0.3,0.3); 
+	myList.select(mu_eta,mu_phi,0.3,0.3); 
     }
     else
     {
-	myList->select(mu_eta,mu_phi,0.,0.);
+	myList.select(mu_eta,mu_phi,0.,0.);
     }
   
-    CaloCellList::list_iterator ilistfirst = myList->begin();
-    CaloCellList::list_iterator ilistlast  = myList->end();
+    CaloCellList::list_iterator ilistfirst = myList.begin();
+    CaloCellList::list_iterator ilistlast  = myList.end();
   
     int count=0;
-    double noise_rms=0.;
     double lowest_threshold=0.; 
     for(;ilistfirst!=ilistlast;ilistfirst++)
     {
 	double cellEnergy= (*ilistfirst)->energy();
-
-	//double noise_rms=0.;
-	if (m_useCaloNoiseTool)
-	{
-	    noise_rms	= m_caloNoiseTool->totalNoiseRMS(*ilistfirst);
-	}
+	double noise_rms=noiseCDO->getNoise((*ilistfirst)->ID(),(*ilistfirst)->gain()); 
 
 	if( cellEnergy > lowest_threshold && cellEnergy > noise_rms * m_sigmasAboveNoise
 	    && m_tileID->sample((*ilistfirst)->ID()) == sample)
@@ -740,7 +706,6 @@ MuidCaloEnergyMeas::energyInTile(const CaloCellContainer* cellContainer,
     }
     
     ATH_MSG_DEBUG( " counted " << count << " test energy " << tileTestEnergy );
-    delete myList ; // deleting the list
 
     return tileTotalEnergy;
 }
@@ -762,40 +727,37 @@ MuidCaloEnergyMeas::energyInLArHEC(const CaloCellContainer* cellContainer,
     */
 
     //int i,j,k;
+
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
     double larhecTotal=0.;
   
-    CaloCellList* myList = 0; 
     CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LARHEC;
-    myList = new CaloCellList(cellContainer,iCalo);  // Construct the list  
+    CaloCellList myList(cellContainer,iCalo);  // Construct the list  
     if(cone == 1)
     {
-	myList->select(mu_eta,mu_phi,0.15,0.15);
+	myList.select(mu_eta,mu_phi,0.15,0.15);
     }
     else if(cone == 2)
     {
-	myList->select(mu_eta,mu_phi,0.3,0.3); 
+	myList.select(mu_eta,mu_phi,0.3,0.3); 
     }
     else
     {
-	myList->select(mu_eta,mu_phi,0.,0.);
+	myList.select(mu_eta,mu_phi,0.,0.);
     }
   
-    CaloCellList::list_iterator ilistfirst = myList->begin();
-    CaloCellList::list_iterator ilistlast  = myList->end();
+    CaloCellList::list_iterator ilistfirst = myList.begin();
+    CaloCellList::list_iterator ilistlast  = myList.end();
 
     //std::vector<const CaloCell*> new_cell_list;
     int count=0;
-    double lowest_threshold = 4.*150.;
+    constexpr double lowest_threshold = 4.*150.;
 
     for(;ilistfirst!=ilistlast;ilistfirst++)
     {
 	double cellEnergy= (*ilistfirst)->energy();
-	double noise_rms=0.;
-	if (m_useCaloNoiseTool)
-	{
-	    noise_rms	= m_caloNoiseTool->totalNoiseRMS(*ilistfirst);
-	}
-
+	const double noise_rms =noiseCDO->getNoise((*ilistfirst)->ID(),(*ilistfirst)->gain()); 
 	if (cellEnergy > lowest_threshold
 	    && cellEnergy > noise_rms * m_sigmasAboveNoise
 	    && m_hecID->sampling((*ilistfirst)->ID()) == sample)
@@ -808,14 +770,13 @@ MuidCaloEnergyMeas::energyInLArHEC(const CaloCellContainer* cellContainer,
 			   << "  z  :"		<< (*ilistfirst)->caloDDE()->z()
 			   << "  Eta : "	<< (*ilistfirst)->eta()
 			   << "  Phi : "	<< (*ilistfirst)->phi()	
-			   << " Noise Level : "	<< m_caloNoiseTool->totalNoiseRMS(*ilistfirst));
+			   << " Noise Level : "	<< noise_rms);
 	    
 	    larhecTotal += (*ilistfirst)->energy();
 	}
     }
     
     ATH_MSG_DEBUG( "larhec  counted " << count );
-    delete myList ; // deleting the list
    
     return larhecTotal;
 }
@@ -838,27 +799,30 @@ MuidCaloEnergyMeas::energyInLArEM(const CaloCellContainer* cellContainer,
     */
 
     //int i,j,k;
+
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
+
     double emTotalEnergy=0.;
-      
-    CaloCellList* myList = 0; 
-    CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-    myList = new CaloCellList(cellContainer,iCalo);  // Construct the list  
+
+    CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;      
+    CaloCellList myList(cellContainer,iCalo);  // Construct the list  
     if(cone == 1)
     {
-	myList->select(mu_eta,mu_phi,0.075,0.075); // 0.1 0.1
+	myList.select(mu_eta,mu_phi,0.075,0.075); // 0.1 0.1
     }
     else if(cone == 2)
     {
-	myList->select(mu_eta,mu_phi,0.15,0.15); 
+	myList.select(mu_eta,mu_phi,0.15,0.15); 
     }
     else
     {
-	myList->select(mu_eta,mu_phi,0.,0.);
+	myList.select(mu_eta,mu_phi,0.,0.);
     }
-    CaloCellList::list_iterator ilistfirst = myList->begin();
-    CaloCellList::list_iterator ilistlast  = myList->end();
+    CaloCellList::list_iterator ilistfirst = myList.begin();
+    CaloCellList::list_iterator ilistlast  = myList.end();
   
-    std::vector<const CaloCell*> new_cell_list;
+    //std::vector<const CaloCell*> new_cell_list;
     int count=0;
 
     double lowest_threshold = 4.* 50.;
@@ -866,17 +830,13 @@ MuidCaloEnergyMeas::energyInLArEM(const CaloCellContainer* cellContainer,
     for(;ilistfirst!=ilistlast;ilistfirst++)
     {
 	double cellEnergy= (*ilistfirst)->energy();
-	double noise_rms=0.;
-	if (m_useCaloNoiseTool)
-	{
-	    noise_rms	= m_caloNoiseTool->totalNoiseRMS(*ilistfirst);
-	}
+	const double noise_rms =noiseCDO->getNoise((*ilistfirst)->ID(),(*ilistfirst)->gain()); 
 
 	if( cellEnergy > lowest_threshold && cellEnergy > noise_rms * m_sigmasAboveNoise
 	    && m_emID->sampling((*ilistfirst)->ID()) == sample)
 	{
 	    count+=1;
-	    new_cell_list.push_back(*ilistfirst);
+	    //new_cell_list.push_back(*ilistfirst);
 
 	    ATH_MSG_DEBUG( "Energy : "		<< (*ilistfirst)->energy() 
 			   << "  Sampling: "	<< m_emID->sampling((*ilistfirst)->ID())
@@ -884,14 +844,13 @@ MuidCaloEnergyMeas::energyInLArEM(const CaloCellContainer* cellContainer,
 			   << "  z :"		<< (*ilistfirst)->caloDDE()->z()
 			   << "  Eta : "	<< (*ilistfirst)->eta()
 			   << "  Phi : "	<< (*ilistfirst)->phi()
-			   << " Noise Level : "	<< m_caloNoiseTool->totalNoiseRMS(*ilistfirst));
+			   << " Noise Level : "	<< noise_rms);
 	  
 	    emTotalEnergy+=(*ilistfirst)->energy();
 	}
     }
 
     ATH_MSG_DEBUG( "larem counted " << count );
-    delete myList ; // deleting the list
   
     return emTotalEnergy;
 }

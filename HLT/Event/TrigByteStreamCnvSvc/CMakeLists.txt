@@ -13,7 +13,7 @@ atlas_depends_on_subdirs(
   PRIVATE
     Event/ByteStreamCnvSvcBase
     Event/ByteStreamCnvSvc
-    Event/EventInfo
+    Event/xAOD/xAODEventInfo
     HLT/Trigger/TrigControl/TrigKernel
 )
 
@@ -36,7 +36,7 @@ atlas_add_library(
     ${TDAQ-COMMON_LIBRARIES}
     ByteStreamCnvSvcBaseLib
     ByteStreamCnvSvcLib
-    EventInfo
+    xAODEventInfo
     TrigKernel
 )
 

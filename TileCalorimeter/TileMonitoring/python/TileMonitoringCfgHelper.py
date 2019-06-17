@@ -75,14 +75,17 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
             labels.append(label)
 
         fullName = 'module' + partition + ',channel' + partition
-        if 'Profile' in type: fullName += (',' + value + partition)
+        if 'Profile' in type:
+            fullName += (',' + value + partition)
         fullName += ';' + name + partition + trigger
 
         fullPath = path + '/' + partition if subDirectory else path
 
         fullTitle = 'Partition ' + partition + ': ' + title
-        if trigger: fullTitle = 'Trigger ' + trigger + ' ' + fullTitle
-        if run:     fullTitle = 'Run ' + run + ' ' + fullTitle
+        if trigger:
+            fullTitle = 'Trigger ' + trigger + ' ' + fullTitle
+        if run:
+            fullTitle = 'Run ' + run + ' ' + fullTitle
 
         group.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
                                xbins = 64, xmin = 0.5, xmax = 64.5, ybins = 48, ymin = -0.5, ymax = 47.5, 

@@ -18,11 +18,11 @@
 Analysis_ResolutionCosmics::Analysis_ResolutionCosmics(const std::string& name) : TrackAnalysis(name) {
 
   // Create resolution histograms
-  h_res_eta   = new TH1D(std::string(mname+"-Res-eta").c_str(), std::string(mname+" eta resolution").c_str(), 50, -0.05, 0.05);
-  h_res_phi   = new TH1D(std::string(mname+"-Res-phi").c_str(), std::string(mname+" phi resolution").c_str(), 50, -0.05, 0.05);
-  h_res_z0    = new TH1D(std::string(mname+"-Res-z0").c_str(),  std::string(mname+" z0 resolution").c_str(), 50, -3.0, 3.0);
-  h_res_d0    = new TH1D(std::string(mname+"-Res-d0").c_str(),  std::string(mname+" d0 resolution").c_str(), 50, -3.0, 3.0);
-  h_res_invpT = new TH1D(std::string(mname+"-Res-pT").c_str(),  std::string(mname+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
+  h_res_eta   = new TH1D(std::string(m_name+"-Res-eta").c_str(), std::string(m_name+" eta resolution").c_str(), 50, -0.05, 0.05);
+  h_res_phi   = new TH1D(std::string(m_name+"-Res-phi").c_str(), std::string(m_name+" phi resolution").c_str(), 50, -0.05, 0.05);
+  h_res_z0    = new TH1D(std::string(m_name+"-Res-z0").c_str(),  std::string(m_name+" z0 resolution").c_str(), 50, -3.0, 3.0);
+  h_res_d0    = new TH1D(std::string(m_name+"-Res-d0").c_str(),  std::string(m_name+" d0 resolution").c_str(), 50, -3.0, 3.0);
+  h_res_invpT = new TH1D(std::string(m_name+"-Res-pT").c_str(),  std::string(m_name+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
   addHistogram(h_res_eta);
   addHistogram(h_res_phi);
   addHistogram(h_res_z0);
@@ -30,11 +30,11 @@ Analysis_ResolutionCosmics::Analysis_ResolutionCosmics(const std::string& name) 
   addHistogram(h_res_invpT);
   
   // Create pull histograms
-  h_pull_eta   = new TH1D(std::string(mname+"-Pull-eta").c_str(), std::string(mname+" eta pull").c_str(), 50, -20.0, 20.0);
-  h_pull_phi   = new TH1D(std::string(mname+"-Pull-phi").c_str(), std::string(mname+" phi pull").c_str(), 50, -20.0, 20.0);
-  h_pull_z0    = new TH1D(std::string(mname+"-Pull-z0").c_str(),  std::string(mname+" z0 pull").c_str(), 50, -20.0, 20.0);
-  h_pull_d0    = new TH1D(std::string(mname+"-Pull-d0").c_str(),  std::string(mname+" d0 pull").c_str(), 50, -20.0, 20.0);
-  h_pull_invpT = new TH1D(std::string(mname+"-Pull-pT").c_str(),  std::string(mname+" inv-pT pull").c_str(), 50, -20.0, 20.0);
+  h_pull_eta   = new TH1D(std::string(m_name+"-Pull-eta").c_str(), std::string(m_name+" eta pull").c_str(), 50, -20.0, 20.0);
+  h_pull_phi   = new TH1D(std::string(m_name+"-Pull-phi").c_str(), std::string(m_name+" phi pull").c_str(), 50, -20.0, 20.0);
+  h_pull_z0    = new TH1D(std::string(m_name+"-Pull-z0").c_str(),  std::string(m_name+" z0 pull").c_str(), 50, -20.0, 20.0);
+  h_pull_d0    = new TH1D(std::string(m_name+"-Pull-d0").c_str(),  std::string(m_name+" d0 pull").c_str(), 50, -20.0, 20.0);
+  h_pull_invpT = new TH1D(std::string(m_name+"-Pull-pT").c_str(),  std::string(m_name+" inv-pT pull").c_str(), 50, -20.0, 20.0);
   addHistogram(h_pull_eta);
   addHistogram(h_pull_phi);
   addHistogram(h_pull_z0);

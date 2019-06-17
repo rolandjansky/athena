@@ -9,7 +9,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "CxxUtils/make_unique.h"
 #include "AthContainers/ConstDataVector.h"
 
 namespace AthViews {

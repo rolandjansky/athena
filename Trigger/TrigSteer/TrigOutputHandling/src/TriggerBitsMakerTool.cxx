@@ -43,7 +43,10 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     return StatusCode::FAILURE;
   }
 
-  for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( passRawChains ) ) {
+  TrigCompositeUtils::DecisionIDContainer passRawIDs;
+  TrigCompositeUtils::decisionIDs(passRawChains, passRawIDs);
+
+  for ( TrigCompositeUtils::DecisionID chain: passRawIDs ) {
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
     if( mappingIter == m_mapping.end() ) { 

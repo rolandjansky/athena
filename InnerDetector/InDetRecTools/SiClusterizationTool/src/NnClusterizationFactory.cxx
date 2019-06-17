@@ -69,24 +69,10 @@ namespace InDet {
 
   NnClusterizationFactory::NnClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p)
-    : AthAlgTool(name, n,p),
-      m_nParticleGroup {0U,1U,1U,1U}, // unsigned int
-      m_nnNames        {std::regex("^NumberParticles(|/|_.*)$"),
-                        std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
-                        std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
-                        std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
-                       },
-      m_assembleInput( &NnClusterizationFactory::assembleInputRunII ),
-      m_calculateOutput( &TTrainedNetwork::calculateNormalized )
+    : AthAlgTool(name, n, p)
   {
     declareInterface<NnClusterizationFactory>(this);
   }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
-
-  NnClusterizationFactory::~NnClusterizationFactory() {}
 
   StatusCode NnClusterizationFactory::initialize() {
 

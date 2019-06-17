@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingET_v1.cxx 624795 2014-10-29 09:23:42Z florianb $
 
 // Implement the MissingET trigger object.
 
@@ -40,27 +39,27 @@ namespace xAOD {
    //
    // Accessors used by multiple functions:
    //
-   static SG::AuxElement::Accessor< std::vector< std::string > >
+   static const SG::AuxElement::Accessor< std::vector< std::string > >
       nameAcc( "nameOfComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       exAcc( "exComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       eyAcc( "eyComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       ezAcc( "ezComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       sumEtAcc( "sumEtComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       sumEAcc( "sumEComponent" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       calib0Acc( "calib0Component" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       calib1Acc( "calib1Component" );
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       sumOfSignsAcc( "sumOfSignsComponent" );
-   static SG::AuxElement::Accessor< std::vector< short > >
+   static const SG::AuxElement::Accessor< std::vector< short > >
       statusAcc( "statusComponent" );
-   static SG::AuxElement::Accessor< std::vector< unsigned short > >
+   static const SG::AuxElement::Accessor< std::vector< unsigned short > >
       usedchannelsAcc( "usedChannelsComponent" );      
 
    // Define a component name

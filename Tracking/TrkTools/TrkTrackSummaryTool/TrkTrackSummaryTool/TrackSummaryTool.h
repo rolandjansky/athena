@@ -115,9 +115,6 @@ namespace Trk {
   /**tool to decipher muon RoTs*/
       ToolHandle< ITrackSummaryHelperTool > m_muonTool;
 
-  /** tool to search holes in the InDet */
-      ToolHandle< ITrackHoleSearchTool > m_idHoleSearch;
-
       /** Only compute TRT dE/dx if there are at least this number of TRT hits or outliers.
        */
       int m_minTRThitsForTRTdEdx;

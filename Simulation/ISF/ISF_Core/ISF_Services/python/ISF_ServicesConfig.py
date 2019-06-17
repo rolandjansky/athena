@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
-Tools configurations for ISF
+Service configurations for ISF
 KG Tan, 17/06/2012
 """
 
@@ -59,11 +59,6 @@ def getAFIIGeoIDSvc(name="ISF_AFIIGeoIDSvc", **kwargs):
     kwargs.setdefault("EnvelopeDefSvc", "ISF_AFIIEnvelopeDefSvc")
     return getGeoIDSvc(name, **kwargs)
 
-
-def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
-    kwargs.setdefault('Identifier',           "ParticleKiller")
-    kwargs.setdefault('SimulatorTool',        "ISF_ParticleKillerTool")
-    return CfgMgr.ISF__ParticleKillerSimSvc(name, **kwargs)
 
 def getGenParticleFilters():
     genParticleFilterList = []

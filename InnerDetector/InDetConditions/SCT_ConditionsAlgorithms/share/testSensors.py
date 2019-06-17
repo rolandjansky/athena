@@ -1,5 +1,10 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testSensors")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -32,7 +37,7 @@ globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set up conditions

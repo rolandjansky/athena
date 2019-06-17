@@ -73,7 +73,9 @@ viewSequence += view_make_2
 # View 2 algorithm - should find both pieces of data
 view_verify_2 = CfgMgr.AthViews__ViewDataVerifier("view_verify_2")
 view_verify_2.DataObjects = [ ('int','view_data_1'), ('int', 'view_data_2') ]
+view_test = CfgMgr.AthViews__ViewTestAlg("view_test")
 view_2 += view_verify_2
+view_2 += view_test
 
 # Add the view node to the job
 viewSequence += view_2

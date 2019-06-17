@@ -668,31 +668,62 @@ DbStatus DbDatabaseObj::params(Parameters& vals)   {
   return Error;
 }
 
-/// Retrieve association link from link container with also using section information
-DbStatus DbDatabaseObj::getLink(const Token::OID_t& lnkH, Token* pTok, const DbSection& section)  {
-  if ( 0 == m_info ) open();
-  if ( 0 != m_info && 0 != pTok )    {
-    int lnk = lnkH.first;
-    if ( lnk >= 0 )  {
-      lnk += section.offset;
-      if ( lnk < int(m_linkVec.size()) )   {
-	DbToken* link = m_linkVec[lnk];
-	bool local = link->isLocal();
-	pTok->oid().first  = lnk;
-	pTok->oid().second = local ? lnkH.second + section.start : lnkH.second;
-	if ( !(pTok->type() & DbToken::TOKEN_FULL_KEY) )  {
-	  if ( typeid(*pTok) == typeid(DbToken) )  {
+/// Calculate required OID modification (shift) for source OID (oid) for a given merge section
+DbStatus DbDatabaseObj::getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift)
+{
+   if( merge_section > 0 ) {
+      // find the offset in the links table
+      Sections::const_iterator j = m_sections.find("##Links");
+      if( j == m_sections.end() )
+         return Error;
+      const ContainerSections& sections = (*j).second;
+      if( merge_section < (int)sections.size() ) {
+         shift.first = sections[merge_section].start;
+      }
+      DbToken* link = m_linkVec[ oid.first + shift.first ];
+       if( link->isLocal() ) {
+         // MN: assuming only internal links need OID_2 adjustment
+         // find the start of the section for this container
+         j = m_sections.find( link->contID() );
+         if( j == m_sections.end() )
+            return Error;
+         const ContainerSections& sections = (*j).second;
+         if( merge_section < (int)sections.size() ) {
+            shift.second = sections[merge_section].start;
+         }
+      }
+   }
+   return Success;
+}
+
+/// Expand OID into a full Token, based on the Links table. For merged files provide links section#
+DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Token* pTok)
+{
+   if ( 0 == m_info ) open();
+   if ( 0 != m_info && 0 != pTok && oid.first >= 0 ) {
+      Token::OID_t shift(0,0);
+      if( merge_section > 0 ) {
+         if( getRedirection(oid, merge_section, shift) != Success )
+            return Error; 
+      }
+      int lnk = oid.first + shift.first;
+      if( lnk >= int(m_linkVec.size()) )
+         return Error;
+
+      pTok->oid().first  = lnk;
+      pTok->oid().second = oid.second + shift.second;
+      if( !(pTok->type() & DbToken::TOKEN_FULL_KEY) )  {
+         if( typeid(*pTok) == typeid(DbToken) )  {
 	    DbToken* pdbTok = (DbToken*)pTok;
 	    pdbTok->setKey(DbToken::TOKEN_FULL_KEY);
-	  }
-	}
-	link->set(pTok);
-	return Success;
+         }
       }
-    }
-  }
-  return Error;
+      m_linkVec[lnk]->set(pTok);
+      return Success;
+   }
+   return Error;
 }
+
 
 std::string DbDatabaseObj::cntName(const Token& token) {
   if ( 0 == m_info ) open();
@@ -721,37 +752,66 @@ std::string DbDatabaseObj::cntName(const Token& token) {
   return "";
 }
 
-/// Retrieve association link from token with redirection when file is merged.
-DbStatus DbDatabaseObj::getRedirection(const Token& token, Token::OID_t& obj_linkH)  {
-  if ( 0 == m_info ) open();
-  if ( 0 != m_info )    {
-    const Token::OID_t& lnkH = token.oid();
-    if ( token.dbID() != name() ) {
-      // We get here if the token is *part* of a merged file, but still hosted within this DB
-      // See if this is true. If so, return the redirected link handle.
-      int lnk = lnkH.first;
-      if ( lnk >= 0 )  {
-	Redirections::iterator i=m_redirects.find(token.dbID().toString());
-	Sections::const_iterator j=m_sections.find(cntName(token));
-	if ( i != m_redirects.end() && j != m_sections.end() ) {
-	  const ContainerSections& cs = (*j).second;
-          int csi = (*i).second.first;
-	  if ( csi < int(cs.size()) ) {
-	    const DbSection& s = cs[csi];
-	    obj_linkH.first  = csi;
-	    obj_linkH.second = lnkH.second + s.start;
-	    return Success;
-	  }
-	}
+
+DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object) 
+{
+   if( 0 == m_info ) open();
+   if( 0 != m_info ) {
+      Token::OID_t oid = token.oid();
+      std::string containerName = token.contID();
+      size_t    sectionN = 0;
+      if( token.dbID() == name() ) {
+         // Regular read operation, make sure we know the container name
+         if( containerName.empty() ) {
+             containerName = m_linkVec[ oid.first ]->contID();
+         }
+         Sections::const_iterator j = m_sections.find( containerName );
+         if( j != m_sections.end() ) {
+            const ContainerSections& sections = (*j).second;
+            for( sectionN=0; sectionN < sections.size(); sectionN++ ) {
+               if( sections[sectionN].start <= oid.second
+                   && oid.second < sections[sectionN].start + sections[sectionN].length )
+                  break;
+            }
+            // reset if not found in the sections list
+            if( sectionN >= sections.size() ) sectionN = 0;
+         }
       }
-    }
-    else {
-      obj_linkH = lnkH;
-      return Success;
-    }
-  }
-  return Error;
+      else {
+         // We get here if the token is *part* of a merged file, but still hosted within this DB
+         Redirections::iterator i = m_redirects.find( token.dbID().toString() );
+         // find out which section to read from
+         if( i!=m_redirects.end() ) sectionN = i->second.first;
+         if( sectionN > 0 ) {
+            Token::OID_t shift(0,0);
+            getRedirection(oid, sectionN, shift);
+            if( DbPrintLvl::outputLvl == DbPrintLvl::Verbose ) {
+               DbPrint log( name() );
+               log << DbPrintLvl::Verbose << "Reading object OID=(" << oid.first << ", " << oid.second
+                   << ")  from merged file section # " << sectionN
+                   << ", Adjusted OID=(" << oid.first + shift.first << ", " << oid.second + shift.second << ")"
+                   << DbPrint::endmsg;
+            }
+            oid.first += shift.first;
+            oid.second += shift.second;
+         }
+         containerName = m_linkVec[ oid.first ]->contID();
+      }
+
+      DbContainer cntH( type() );
+      const DbTypeInfo* typ_info = objectShape( token.classID() );
+      if( cntH.open( DbDatabase(this), containerName, typ_info, token.technology(), mode() ).isSuccess() )  {
+         if ( typ_info && typ_info == shape ) {
+            return DbObjectAccessor::read(object, shape, cntH, oid, sectionN );
+         }
+         DbPrint log( name() );
+         log << DbPrintLvl::Error << " The object shape " << token.classID().toString()
+             << " is unknown for this container!" << DbPrint::endmsg;
+      }
+   }
+   return Error;
 }
+
 
 /// Allow access to all known containers
 DbStatus DbDatabaseObj::containers(vector<const Token*>& conts,bool with_internals)  {

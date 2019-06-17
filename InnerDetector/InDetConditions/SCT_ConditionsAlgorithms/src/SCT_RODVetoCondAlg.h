@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -42,7 +44,7 @@ class SCT_RODVetoCondAlg : public AthReentrantAlgorithm {
 
  private:
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  const SCT_ID* m_pHelper;
+  const SCT_ID* m_pHelper{nullptr};
   SG::WriteHandleKey<IdentifierSet> m_badIds{this, "BadModuleIds", "BadSCTModuleIds_RODVeto", "Write key for bad module identifiers"};
   UnsignedIntegerArrayProperty m_badRODElementsInput{this, "BadRODIds", {}, "Input list of RODs to be vetoed"};
 }; //end of class

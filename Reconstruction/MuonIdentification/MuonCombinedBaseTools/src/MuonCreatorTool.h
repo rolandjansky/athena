@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
@@ -33,10 +33,11 @@
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrackToCalo/CaloCellCollector.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloConditions/CaloNoise.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
@@ -53,8 +54,6 @@ namespace Trk {
 namespace Rec {
   class IMuonPrintingTool;
   class IMuonMeanMDTdADCFiller;  
-  class IParticleCaloClusterAssociationTool;
-  class IParticleCaloCellAssociationTool;
   class IMuonTrackQuery;
 }
 namespace MuonCombined {
@@ -173,9 +172,6 @@ namespace MuonCombined {
     /// configure whether to use the updated extrapolated track for a combined fit or not
     bool m_useUpdatedExtrapolatedTrack;
 
-    /// Flag to apply noise cut to calo cells around muons
-    bool m_applyCaloNoiseCut;
-      
     /// Number of sigma for calo cell noise cut
     float m_sigmaCaloNoiseCut;
 
@@ -214,12 +210,12 @@ namespace MuonCombined {
     ToolHandle<CP::IMuonSelectionTool>            m_selectorTool; 
     ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
     ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;
-    ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool; 
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
     ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
     Rec::CaloCellCollector                        m_cellCollector;
     SG::ReadHandleKey<CaloCellContainer>          m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
+    SG::ReadCondHandleKey<CaloNoise>              m_caloNoiseKey{this,"CaloNoise","","CaloNoise object to use, or blank."};
   };
 
   inline void MuonCreatorTool::setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const {

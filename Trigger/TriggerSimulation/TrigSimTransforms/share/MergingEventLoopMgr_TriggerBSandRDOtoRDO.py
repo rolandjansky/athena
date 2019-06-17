@@ -103,7 +103,6 @@ svcMgr.ByteStreamAddressProviderSvc.StoreID = StoreID.UNKNOWN
 
 """
 # LVL1
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::TriggerTower>/TriggerTowers" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::JEPBSCollection/JEPBSCollection" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::JEPRoIBSCollection/JEPRoIBSCollection" ]
@@ -137,7 +136,7 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames   += \
 #         'LVL1::CPBSCollection/CPBSCollection',
 #         'LVL1::JEPBSCollection/JEPBSCollection',
 #         'LVL1::JEPRoIBSCollection/JEPRoIBSCollection',
-         'ROIB::RoIBResult/RoIBResult']
+        ]
 
 
 svcMgr += ProxyProviderSvc()

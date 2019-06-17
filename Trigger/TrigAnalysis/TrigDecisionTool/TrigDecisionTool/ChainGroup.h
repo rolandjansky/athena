@@ -31,7 +31,7 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigSteeringEvent/Enums.h"
-
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 namespace HLT {
   class Chain;
@@ -114,7 +114,20 @@ namespace Trig {
        * Note: This does not yet work for L1_FJ..., i.e. no features are returned for these items.
        **/
       const FeatureContainer features(unsigned int condition = TrigDefs::Physics) const;
-      
+    
+      /**
+       * @brief returns typed features related to given chain group of HLT chains or L1 items
+       * Note: This is a RUN 3 (and on) function.
+       * @param[in] eventStore Event store pointer. To migrate to readHandles with the rest of the TDT soon
+       * @param[in] condition Condition requirement. Only physics currently supported.
+       * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
+       * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
+       **/  
+      template<class CONTAINER>
+      const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
+                unsigned int condition = TrigDefs::Physics,
+                const bool oneFeaturePerLeg = true) const;
+
       // 
       const std::vector< std::string >& patterns() const {return m_patterns;}
    private:
@@ -193,5 +206,7 @@ namespace Trig {
 
    };
 } // End of namespace
+
+#include "ChainGroup.icc"
 
 #endif

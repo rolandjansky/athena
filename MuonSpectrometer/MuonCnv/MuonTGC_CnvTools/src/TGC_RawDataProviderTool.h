@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "TGC_Hid2RESrcID.h"
+#include "MuonRDO/TgcRdo_Cache.h"
 
 class TgcRdoContainer;
 class ActiveStoreSvc;
@@ -69,10 +70,12 @@ namespace Muon
        */
       //TgcRdoContainer*                    m_rdoContainer;
       /** RDO container key */
-      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{
-	this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
+      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{ this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
+      // TGC container cache key
+      SG::UpdateHandleKey<TgcRdo_Cache> m_rdoContainerCacheKey ;
       bool 		m_useContainer;	//MT
       unsigned int 	m_maxhashtoUse;	//MT
+
       /** Active Store Service */ 
       ActiveStoreSvc*                     m_activeStore;
       /** ID converter */

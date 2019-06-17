@@ -11,9 +11,10 @@
 namespace Muon {
 
   MuonIdHelperTool::MuonIdHelperTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa)
+    : AthAlgTool(ty,na,pa), m_useCSC(true)
   {
     declareInterface<MuonIdHelperTool>(this);
+    declareProperty("UseCSC", m_useCSC);
   }
 
 
@@ -27,10 +28,12 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if ( detStore()->retrieve( m_cscIdHelper ).isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve CscIdHelper ");
-      return StatusCode::FAILURE;
-    }
+    if (m_useCSC) {
+        if ( detStore()->retrieve( m_cscIdHelper ).isFailure() ) {
+            ATH_MSG_ERROR(" Cannot retrieve CscIdHelper ");
+            return StatusCode::FAILURE;
+        }
+    } else m_cscIdHelper = nullptr;
     if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {
       ATH_MSG_ERROR(" Cannot retrieve RpcIdHelper ");
       return StatusCode::FAILURE;
@@ -147,7 +150,7 @@ namespace Muon {
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       return m_tgcIdHelper->gasGap(id);
 
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       return m_cscIdHelper->wireLayer(id);
 
     }else if( m_stgcIdHelper->is_stgc(id) ){
@@ -174,6 +177,7 @@ namespace Muon {
   }
 
   bool MuonIdHelperTool::isCsc( const Identifier& id ) const {
+    if (!m_cscIdHelper) return false;
     return m_cscIdHelper->is_csc(id);
   }
 
@@ -195,7 +199,7 @@ namespace Muon {
       return m_rpcIdHelper->measuresPhi(id);
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       return m_tgcIdHelper->measuresPhi(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       return m_cscIdHelper->measuresPhi(id);
     }else if( m_stgcIdHelper->is_stgc(id) ){
       return m_stgcIdHelper->measuresPhi(id);
@@ -295,7 +299,7 @@ namespace Muon {
       sout << (m_rpcIdHelper->measuresPhi(id) ? " phi" : " eta") << " channel " << std::setw(2) << m_rpcIdHelper->channel(id);
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       sout << (m_tgcIdHelper->measuresPhi(id)     ? " phi" : " eta") << " channel " << std::setw(2) << m_tgcIdHelper->channel(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout << (m_cscIdHelper->measuresPhi(id) ? " phi" : " eta") << " channel " << std::setw(2) << m_cscIdHelper->channel(id);
     }else if( m_stgcIdHelper->is_stgc(id) ){
       int channelType = m_stgcIdHelper->channelType(id);
@@ -316,7 +320,7 @@ namespace Muon {
       sout  << m_rpcIdHelper->technologyString( m_rpcIdHelper->technology(id) );
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       sout  << m_tgcIdHelper->technologyString( m_tgcIdHelper->technology(id) );
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout  << m_cscIdHelper->technologyString( m_cscIdHelper->technology(id) );
     }else if( m_stgcIdHelper->is_stgc(id) ){
       sout  << m_stgcIdHelper->technologyString( m_stgcIdHelper->technology(id) );
@@ -346,7 +350,7 @@ namespace Muon {
 	    << " " << m_tgcIdHelper->stationNameString( m_tgcIdHelper->stationName(id) )
 	    << " eta " << std::setw(2) << m_tgcIdHelper->stationEta(id)
 	    << " phi " << std::setw(2) << m_tgcIdHelper->stationPhi(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout  << m_cscIdHelper->technologyString( m_cscIdHelper->technology(id) )
 	    << " " << m_cscIdHelper->stationNameString( m_cscIdHelper->stationName(id) )
 	    << " eta " << std::setw(2) << m_cscIdHelper->stationEta(id)
@@ -384,7 +388,7 @@ namespace Muon {
 	    << " " << m_tgcIdHelper->stationNameString( m_tgcIdHelper->stationName(id) )
 	    << " eta " << std::setw(2) << m_tgcIdHelper->stationEta(id)
 	    << " phi " << std::setw(2) << m_tgcIdHelper->stationPhi(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout  << m_cscIdHelper->technologyString( m_cscIdHelper->technology(id) )
 	    << " " << m_cscIdHelper->stationNameString( m_cscIdHelper->stationName(id) )
 	    << " eta " << std::setw(2) << m_cscIdHelper->stationEta(id)
@@ -417,7 +421,7 @@ namespace Muon {
 	    << " dbPhi " << m_rpcIdHelper->doubletPhi(id);
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       sout  << toStringChamber(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout  << toStringChamber(id)
 	    << " chlay " << m_cscIdHelper->chamberLayer(id);
     }else if( m_mmIdHelper->is_mm(id) ){
@@ -442,7 +446,7 @@ namespace Muon {
     }else if( m_tgcIdHelper->is_tgc(id) ) {
       sout  << toStringDetEl(id)
 	    << " gap " << m_tgcIdHelper->gasGap(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       sout  << toStringDetEl(id)
 	    << " lay " << m_cscIdHelper->wireLayer(id);
     }else if( m_stgcIdHelper->is_stgc(id) ){
@@ -477,7 +481,7 @@ namespace Muon {
 
       chId = m_stgcIdHelper->elementID(id);
 
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
 
       Identifier elId = m_cscIdHelper->elementID(id);
       chId = m_cscIdHelper->channelID(elId,2,1,1,1);
@@ -506,7 +510,7 @@ namespace Muon {
       int doubPhi = m_rpcIdHelper->doubletPhi(id);
       detElId = m_rpcIdHelper->channelID(elId,doubZ,doubPhi,1,0,1);
 
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       Identifier elId = m_cscIdHelper->elementID(id);
       detElId = m_cscIdHelper->channelID(elId,2,1,1,1);
 
@@ -544,7 +548,7 @@ namespace Muon {
       int measuresPhi = m_rpcIdHelper->measuresPhi(id);
       layerId = m_rpcIdHelper->channelID(elId,doubZ,doubPhi,gasGap,measuresPhi,1);
 
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       Identifier elId = m_cscIdHelper->elementID(id);
       int chLayer = m_cscIdHelper->chamberLayer(id);
       int wireLayer = m_cscIdHelper->wireLayer(id);
@@ -587,7 +591,7 @@ namespace Muon {
       int gasGap = m_rpcIdHelper->gasGap(id);
       gasGapId = m_rpcIdHelper->channelID(elId,doubZ,doubPhi,gasGap,0,1);
 
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       Identifier elId = m_cscIdHelper->elementID(id);
       int chLayer = m_cscIdHelper->chamberLayer(id);
       int wireLayer = m_cscIdHelper->wireLayer(id);
@@ -624,7 +628,7 @@ namespace Muon {
       return m_tgcIdHelper->stationPhi(id);
     }else if( m_mdtIdHelper->is_mdt(id) ){
       return m_mdtIdHelper->stationPhi(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       return m_cscIdHelper->stationPhi(id);
     }else if( m_stgcIdHelper->is_stgc(id) ){
       return m_stgcIdHelper->stationPhi(id);
@@ -645,7 +649,7 @@ namespace Muon {
       return m_tgcIdHelper->stationEta(id);
     }else if( m_mdtIdHelper->is_mdt(id) ){
       return m_mdtIdHelper->stationEta(id);
-    }else if( m_cscIdHelper->is_csc(id) ){
+    }else if( m_cscIdHelper && m_cscIdHelper->is_csc(id) ){
       return m_cscIdHelper->stationEta(id);
     }else if( m_stgcIdHelper->is_stgc(id) ){
       return m_stgcIdHelper->stationEta(id);

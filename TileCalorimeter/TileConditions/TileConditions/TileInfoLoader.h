@@ -52,37 +52,73 @@ class TileInfo;
 
 static const InterfaceID IID_TileInfoLoader("TileInfoLoader", 1, 0);
 
-class TileInfoLoader: public AthService, virtual public IIncidentListener {
+class TileInfoLoader: public AthService {
 
     friend class SvcFactory<TileInfoLoader> ;
 
   public:
 
     TileInfoLoader(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileInfoLoader();
+    virtual ~TileInfoLoader();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     static const InterfaceID& interfaceID() { return IID_TileInfoLoader; }
 
+private:
     //** Loading stuff from files */
-    StatusCode buildDigitsShapesHiLo();
-    StatusCode buildTTL1Shapes(std::string ShapeFile, int &NBins, int &Time0Bin, int &BinsPerX
+    StatusCode buildDigitsShapesHiLo (TileInfo& info);
+    StatusCode buildTTL1Shapes(TileInfo& info,
+                               const std::string& ShapeFile,
+                               int &NBins, int &Time0Bin, int &BinsPerX
                                , std::vector<double> &FullShape, std::vector<double> &Shape);
-    void buildCovMatrix();
+    void buildCovMatrix (TileInfo& info);
 
-    virtual void handle(const Incident&);   //!< Callback for Incident service
 
-  private:
 
     //=== services
     ServiceHandle<StoreGateSvc> m_detStore;
 
-    /** Pointer to instance in detector store */
-    TileInfo* m_info;
-
     /** Pointer to TilePulseShapes object*/
     TilePulseShapes* m_pulsevar;
+
+    /** Properties to forward to TileInfo. */
+    int    m_nSamples;
+    int    m_iTrigSample;
+    bool   m_tileNoise;
+    bool   m_tileCoherNoise;
+    bool   m_tileZeroSuppress;
+    int m_noiseScaleIndex;
+    double m_thresholdRawChannel;
+    double m_thresholdDigits;
+    double m_ttL1Calib;
+    double m_ttL1NoiseSigma;
+    double m_ttL1Thresh;
+    double m_ttL1Ped;
+    double m_ttL1Max;
+    double m_MuRcvCalib;
+    double m_MuRcvNoiseSigma;
+    double m_MuRcvThresh;
+    double m_MuRcvPed;
+    double m_MuRcvMax;
+    double m_muL1Calib;
+    double m_muL1NoiseSigma;
+    double m_muL1Thresh;
+    double m_muL1Ped;
+    double m_muL1Max;
+    double m_mbtsL1Calib;
+    double m_mbtsL1NoiseSigma;
+    double m_mbtsL1Thresh;
+    double m_mbtsL1Ped;
+    double m_mbtsL1Max;
+    double m_ttL1CosmicsGain;
+    double m_ttL1CosmicsThresh;
+    double m_emscaleA;     //!< 1/sampling fraction for all normal cells
+    double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
+    double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
+    int    m_nPhElec;
+    int    m_nPhElecVec[7];
+
 
     /** Pointer to Optimal Filtering weights*/
     TileOptFilterWeights* m_OFWeights;
@@ -97,7 +133,6 @@ class TileInfoLoader: public AthService, virtual public IIncidentListener {
 
     bool m_loadOptFilterWeights;
     bool m_loadOptFilterCorrelation;
-    bool m_eorCalled;
 
     // name of TileCalibContainer in detector store
     std::string m_calibCntName;

@@ -35,20 +35,19 @@ std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<st
     channels being hit, the cluster gets split up into smaller clusters.
     idGroups is then remade into newidGroups and the original destroyed
   */
-   std::vector<m_ID_Vector> newidGroups;
+   std::vector<ID_Vector> newidGroups;
 
   //Make a vector of iterators. These will point to any discontinuties
   //in the vectors of identifiers
-  typedef std::vector<Identifier>::iterator discont;
-  std::vector<discont> discontV;
+  std::vector<Discont> discontV;
 
   //The vectors of identifiers are copied to new vectors of identifiers
   //and the old ones destroyed
-  m_ID_Vector newvector;
+  ID_Vector newvector;
 
   //Need one loop over the group members of idGroups
-  std::vector<m_ID_Vector>::iterator firstGroup = idGroups.begin();
-  std::vector<m_ID_Vector>::iterator lastGroup = idGroups.end();
+  std::vector<ID_Vector>::iterator firstGroup = idGroups.begin();
+  std::vector<ID_Vector>::iterator lastGroup = idGroups.end();
   for (; firstGroup!= lastGroup; ++firstGroup){
 
     //Need a second loop over the identifiers within each idGroups member
@@ -88,7 +87,7 @@ std::vector<std::vector<Identifier> > SCT_ReClustering::recluster(std::vector<st
       member of each idGroups member and to any discontinuties within
     */
 
-    std::vector<m_discont>::iterator fst_d = discontV.begin();
+    std::vector<Discont>::iterator fst_d = discontV.begin();
     //NB: *fst_d refers to the element pointed to by fst_d, and that 
     //element is an iterator!
     

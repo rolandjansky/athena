@@ -201,6 +201,8 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
   double time = 0.;
   double chi2 = 0.;
   m_digits = digits->samples();
+  m_digits.erase(m_digits.begin(),m_digits.begin()+m_firstSample);
+  m_digits.resize(m_nSamples);
   const HWIdentifier adcId = digits->adc_HWID();
   int gain = m_tileHWID->adc(adcId);
   
@@ -575,7 +577,6 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   amplitude = 0.;
   time = 0.;
   float ofcPhase = (float) phase;
-
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   TileOfcWeightsStruct weights;
   if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights).isFailure())
@@ -609,7 +610,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
     ofc2int(digits_size, b, b_int, bscale);
     calib = ascale + slope_scale;
   }
-  
+
   ATH_MSG_VERBOSE( "OptFilterPha=" << phase );
 
   if (m_of2) {
@@ -711,7 +712,6 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
     }
     chi2 = 0.0;
   }
-
   return chi2;
 }
 

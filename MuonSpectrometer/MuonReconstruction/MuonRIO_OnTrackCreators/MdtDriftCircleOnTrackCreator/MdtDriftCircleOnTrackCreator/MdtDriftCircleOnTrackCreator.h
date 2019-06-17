@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 
 class Identifier;
 class MdtIdHelper;
-class MdtCalibrationSvc;
-class MdtCalibrationDbSvc;
+class MdtCalibrationTool;
+class MdtCalibrationDbTool;
 class MdtCalibrationSvcSettings;
 class MdtCalibrationSvcInput;
 class MsgStream;
@@ -196,8 +196,8 @@ namespace Muon {
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
-      ServiceHandle<MdtCalibrationSvc>     m_mdtCalibSvc;
-      ServiceHandle<MdtCalibrationDbSvc>   m_mdtCalibDbSvc;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
+      ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool;
       ToolHandle<IMuonTofTool>             m_tofTool; //!<Time of flight tool (handle tof if not coming from IP)
 
       // Configuration variables

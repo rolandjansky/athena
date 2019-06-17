@@ -144,8 +144,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
 
             taualgs.setPrefix("TrigTauPreselection_")
             
-            # Collection name
-            self.OutputCollection = "TrigTauRecPreselection"
             
             # Only include tools needed for pre-selection
             
@@ -210,7 +208,7 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMergedMT) :
             
             
             # Collection name
-            self.OutputCollection = "TrigTauRecPreselection"
+
             
             # Only include tools needed for pre-selection
             
@@ -272,8 +270,6 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
 
             taualgs.setPrefix("TrigTauCaloOnly_")
             
-            # Collection name - not stored
-            self.OutputCollection = "TrigTauRecCaloOnly"
             
             # Only include tools needed for calo pre-selection
             
@@ -310,15 +306,13 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
 
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
+            #self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
             taualgs.setPrefix("TrigTauCaloOnlyMVA_")
 
-            # Collection name - not stored
-            self.OutputCollection = "TrigTauRecCaloOnly"
 
             # Only include tools needed for calo pre-selection
 
@@ -366,8 +360,6 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
 
             taualgs.setPrefix("TrigTau_")
 
-            # Collection name
-            self.OutputCollection = "TrigTauRecMerged"
 
             # Include full set of tools
 
@@ -422,7 +414,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
+            #self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
@@ -431,15 +423,14 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             # e.g. TauTrackFinder in 2016 using dz0=2mm instead of 1mm in 2017
             taualgs.setPrefix("TrigTau_")
 
-            # Collection name
-            self.OutputCollection = "TrigTauRecMerged"
 
             # Include full set of tools
 
             # Set seedcalo energy scale (Full RoI)
             tools.append(taualgs.getJetSeedBuilder())
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            #Comment this tool for now
+            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
             

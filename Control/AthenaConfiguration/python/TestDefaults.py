@@ -1,5 +1,7 @@
 #Files for use in configuration unit tests
 
+from __future__ import print_function
+
 class defaultTestFiles(object):
     import os
     d = os.environ.get ("ATLAS_REFERENCE_DATA",

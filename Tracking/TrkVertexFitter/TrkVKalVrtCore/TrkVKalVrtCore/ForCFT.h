@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_ForCFT_H
@@ -47,7 +47,22 @@ namespace Trk {
     int IterationNumber;
     double IterationPrecision;
  
-    ForCFT(){
+    void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double  *vrt, double  *vrte) noexcept;
+
+    void vksetIterationNum(long int Iter) noexcept;
+    void vksetIterationPrec(double Prec) noexcept;
+    void vksetRobustScale(double Scale) noexcept;
+    void vksetRobustness(long int Rob) noexcept;
+    void vksetUseMassCnst() noexcept;
+    void vksetUsePhiCnst() noexcept;
+    void vksetUsePlaneCnst(double a, double b, double c, double d) noexcept;
+    void vksetUseThetaCnst() noexcept { useThetaCnst = 1;}
+    void vksetUseAprioriVrt() noexcept { useAprioriVrt = 1;}
+    void vksetUsePointingCnst(int iType = 1 ) noexcept { usePointingCnst = iType<2 ? 1 : 2 ;}
+    void vksetUsePassNear(int iType = 1 )  noexcept { usePassNear = iType<2 ? 1 : 2 ;}
+    void setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst) noexcept;
+
+    ForCFT() noexcept{
       nmcnst=0;
       useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
       useAprioriVrt=0; usePassNear=0;
@@ -62,7 +77,9 @@ namespace Trk {
       }
       localbmag=1.997;   // Safety: standard magnetic field in ID 
     };
-    ~ForCFT() {};
+
+    ~ForCFT() = default;
+
   };
 
 }

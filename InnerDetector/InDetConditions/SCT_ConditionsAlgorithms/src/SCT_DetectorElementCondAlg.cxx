@@ -14,8 +14,6 @@
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_readKey{"SCTAlignmentStore", "SCTAlignmentStore"}
-  , m_condSvc{"CondSvc", name}
-  , m_detManager{nullptr}
 {
   declareProperty("ReadKey", m_readKey);
 }

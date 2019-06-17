@@ -49,7 +49,7 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/MC/T0","TrtCalibMCT0-R2-MC-run2-sc
 #conddb.blockFolder("/TRT/Calib/MCslopes")
 #conddb.addFolder("","<dbConnection>sqlite://;schema=mycool.db;dbname=OFLP200</dbConnection> /TRT/Calib/MCslopes" + "<tag> TrtCalibMCSlopes-mc_25ns-2Dfit-00-00 </tag>" , force=True)
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",isGEANT4=True)
+TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0")
 #TRTMCCalibDBSvc=TRT_CalDbSvc(name="TRTMCCalibDBSvc",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",ErrorFolderName="/TRT/Calib/MCerrors2d") #,ErrorSlopeFolderName="/TRT/Calib/MCslopes"
 
 #This would add another trtdriftfuntiontool, using the new trtcaldb:

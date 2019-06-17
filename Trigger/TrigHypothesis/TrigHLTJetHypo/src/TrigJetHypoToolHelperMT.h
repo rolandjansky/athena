@@ -29,6 +29,7 @@
 #include "ITrigJetHypoToolConfig.h"
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class TrigJetHypoToolHelperMT:
 public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
@@ -39,9 +40,14 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                           const IInterface* parent);
 
   StatusCode initialize() override;
-  bool  pass(HypoJetVector&,
-             ITrigJetHypoInfoCollector*) const;
+  virtual bool
 
+    // pass - tests wethewr a jet collection passes cuts, and collects
+    // information about the decision.
+    pass(HypoJetVector&,
+	 xAODJetCollector&,
+	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
@@ -76,9 +82,8 @@ Gaudi::Property<bool>
 
 
  void collectData(const std::string& exetime,
-                  ITrigJetHypoInfoCollector* collector,
-                  std::unique_ptr<IConditionVisitor>&,
-                  bool pass) const;
+                  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+                  const std::optional<bool>& pass) const;
 
  std::string toString() const;
 };

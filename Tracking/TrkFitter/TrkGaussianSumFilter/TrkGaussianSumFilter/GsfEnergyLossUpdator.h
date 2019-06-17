@@ -171,7 +171,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
 
  private:
   int   m_outputlevel;       //!< to cache current output level
-  PublicToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator
+  ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator
      {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
   
 

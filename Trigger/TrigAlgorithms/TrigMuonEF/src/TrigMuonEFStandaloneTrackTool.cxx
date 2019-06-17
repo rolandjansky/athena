@@ -998,10 +998,10 @@ if (m_useMdtData>0) {
         ATH_MSG_DEBUG("ROB-based seeded decoding of TGC requested, which is neither available nor needed. Calling the PRD-based seeded decoding.");
       }
       if (m_decodeTgcBS) {// bytesream conversion
-	if (m_tgcRawDataProvider->convert( getTgcRobList(muonRoI) ).isSuccess()) {
-	  ATH_MSG_DEBUG("TGC BS conversion for ROB-based seeded PRD decoding done successfully");
+	if (m_tgcRawDataProvider->convert( tgc_hash_ids ).isSuccess()) {
+	  ATH_MSG_DEBUG("TGC BS conversion for hashID-based seeded PRD decoding done successfully");
 	} else {
-	  ATH_MSG_WARNING("TGC BS conversion for ROB-based seeded PRD decoding failed");
+	  ATH_MSG_WARNING("TGC BS conversion for hashID-based seeded PRD decoding failed");
 	}
       }
       

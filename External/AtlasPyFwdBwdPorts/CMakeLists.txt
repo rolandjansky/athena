@@ -79,12 +79,6 @@ function( _setup_python_package name file md5 )
 
 endfunction( _setup_python_package )
 
-# Install extensions:
-_setup_python_package( extensions
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/extensions-0.4.tar.gz
-   e498fe6da146aefb677c3e8a210fbb29
-   SINGLE_VERSION )
-
 # Install futures:
 _setup_python_package( futures
    ${CMAKE_CURRENT_SOURCE_DIR}/src/futures-2.1.2.tar.gz
@@ -101,13 +95,7 @@ _setup_python_package( pyflakes
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.6.0.tar.gz
    178485aed0799655d0cbf2e3bdcfaddc
-   DEPENDS pyflakes pycodestyle mccabe enum34
-   SINGLE_VERSION )
-
-# Install enum34:
-_setup_python_package( enum34
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/enum34-1.1.6.tar.gz
-   5f13a0841a61f7fc295c514490d120d0
+   DEPENDS pyflakes pycodestyle mccabe
    SINGLE_VERSION )
 
 # Install mccabe:

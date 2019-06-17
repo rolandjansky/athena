@@ -20,7 +20,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/EFTauInvHypo.h"
+#include "EFTauInvHypo.h"
 //
 #include "tauEvent/TauJetContainer.h"
 #include "tauEvent/TauJet.h"

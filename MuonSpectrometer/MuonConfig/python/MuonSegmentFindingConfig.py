@@ -56,9 +56,14 @@ def MuonTrackSummaryHelperToolCfg(flags, **kwargs):
     acc.addPublicTool(extrap)
     result.merge(acc)
     kwargs.setdefault("Extrapolator", extrap)
+
+    from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonHolesOnTrackTool
+    holetool = Muon__MuonHolesOnTrackTool (ExtrapolatorName = extrap,
+                                           TrackingGeometryName = 'MuonStandaloneTrackingGeometry')
     
     kwargs.setdefault("DoHolesOnTrack", False)
     kwargs.setdefault("CalculateCloseHits", True)
+    kwargs.setdefault("HoleOnTrackTool", holetool)
 
     from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonTrackSummaryHelperTool
     

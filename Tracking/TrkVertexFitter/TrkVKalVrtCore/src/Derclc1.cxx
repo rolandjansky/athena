@@ -18,7 +18,7 @@ namespace Trk {
 //      cnstV and cnstP values are used!!!
 //-----------------------------------------------
 
-extern std::array<double, 4> getCnstParticleMom( VKTrack *, VKVertex * );
+extern std::array<double, 4> getCnstParticleMom( const VKTrack *, const VKVertex * );
 
 void  calcMassConstraint( VKMassConstraint * cnst )
 {
@@ -26,14 +26,14 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     double ptot[4]={0.,0.,0.,0.};  
     double cth, invR, pp2, pt; 
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
-    std::vector<int> usedParticles=cnst->getUsedParticles();
+    const VKVertex * vk=cnst->getOriginVertex();
+    const std::vector<int> &usedParticles=cnst->getUsedParticles();
     int usedNTRK = usedParticles.size();
     VKTrack * trk;
     std::vector< std::array<double, 4> > pp(usedNTRK);
     for( itc=0; itc<usedNTRK; itc++){
       it = usedParticles[itc];
-      trk = vk->TrackList.at(it);
+      trk = vk->TrackList.at(it).get();
       pp[itc]=getCnstParticleMom( trk , vk);
       ptot[0] += pp[itc][0];    
       ptot[1] += pp[itc][1];    
@@ -65,7 +65,7 @@ void  calcMassConstraint( VKMassConstraint * cnst )
 //Derivatives               Here pp[][3] - particle energy, pp[][4] - squared particle mom
     for( itc=0; itc<usedNTRK; itc++){
       it = usedParticles[itc];
-      trk  = vk->TrackList.at(it);
+      trk  = vk->TrackList.at(it).get();
       invR = trk->cnstP[2];
       cth  = 1. / tan( trk->cnstP[0] );
       pt   = sqrt(pp[itc][0]*pp[itc][0] + pp[itc][1]*pp[itc][1]);

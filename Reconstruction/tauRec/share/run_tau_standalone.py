@@ -50,13 +50,7 @@ if nThreads >=1 :
             jps.AthenaMPFlags.ChunkSize= chunkSize
          
             msg.info('AthenaMP workers will process %s events each',chunkSize)
- 
-    ## force loading of data. make sure this alg is at the front of the
-    ## AlgSequence
-    #
-    from SGComps.SGCompsConf import SGInputLoader
-    topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
- 
+  
 # MT-specific code
 #---------------------------------------------------------------------------------#
 

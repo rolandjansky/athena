@@ -15,6 +15,10 @@
 #include <string>
 #include <typeinfo>
 
+namespace{
+const double NaN(std::numeric_limits<double>::quiet_NaN());
+alignas(16) const Amg::Vector3D INVALID_VECTOR3D(NaN, NaN, NaN);
+}
  
 // Constructor with parameters:
 Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
@@ -22,7 +26,7 @@ Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
                                    const PerigeeSurface& assocSurf) :
   Trk::MeasurementBase(locpars,locerr),
   m_associatedSurface(assocSurf.clone()),
-  m_globalPosition(0)
+  m_globalPosition(nullptr)
 {
 }
 
@@ -32,7 +36,7 @@ Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
                                    Trk::SurfaceUniquePtrT<const PerigeeSurface> assocSurf) :
   Trk::MeasurementBase(locpars,locerr),
   m_associatedSurface(assocSurf.release()),
-  m_globalPosition(0)
+  m_globalPosition(nullptr)
 {
 }
 
@@ -74,16 +78,20 @@ Trk::VertexOnTrack::~VertexOnTrack()
 // default constructor:
 Trk::VertexOnTrack::VertexOnTrack() :
   Trk::MeasurementBase(),
-  m_associatedSurface(0),
-  m_globalPosition(0)
+  m_associatedSurface(nullptr),
+  m_globalPosition(nullptr)
 {}
 
 // copy constructor:
 Trk::VertexOnTrack::VertexOnTrack( const Trk::VertexOnTrack& vot) :
   Trk::MeasurementBase(vot),
   m_associatedSurface( new Trk::PerigeeSurface(*vot.m_associatedSurface) ),
-  m_globalPosition(0)
-{}
+  m_globalPosition(nullptr)
+{
+  if(vot.m_globalPosition){
+    m_globalPosition = new Amg::Vector3D (*vot.m_globalPosition);
+  } 
+}
 
 // assignment operator:
 Trk::VertexOnTrack& Trk::VertexOnTrack::operator=(const VertexOnTrack& vot)
@@ -92,10 +100,20 @@ Trk::VertexOnTrack& Trk::VertexOnTrack::operator=(const VertexOnTrack& vot)
     delete m_associatedSurface;
     delete m_globalPosition;
     Trk::MeasurementBase::operator=(vot);
-    m_globalPosition = 0;
+    
+    m_globalPosition =nullptr ;
     m_associatedSurface  = new Trk::PerigeeSurface(*vot.m_associatedSurface);
+    if(vot.m_globalPosition){
+      m_globalPosition = new Amg::Vector3D (*vot.m_globalPosition);
+    }
   }
   return *this;
+}
+
+const Amg::Vector3D& Trk::VertexOnTrack::globalPosition() const
+{
+  if (m_globalPosition) {return *m_globalPosition;}
+  return INVALID_VECTOR3D;
 }
 
 

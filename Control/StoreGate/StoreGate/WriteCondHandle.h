@@ -135,17 +135,6 @@ namespace SG {
 #endif
       sc = StatusCode::SUCCESS;
     }
-    // If the object exists already, try to extend it
-    else if (CondContBase::Category::isDuplicate (sc) &&
-             m_cc->keyType() != CondContBase::KeyType::MIXED) {
-      sc = this->extendLastRange(r, m_ctx);
-      if (sc.isFailure()) {
-        msg << MSG::ERROR
-            << "WriteCondHandle::record() : cannot extend duplicate range"
-            << endmsg;
-        return StatusCode::FAILURE;
-      }
-    }
  
     return sc;
   }

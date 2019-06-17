@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -28,14 +28,14 @@
 #include "GaudiKernel/StatusCode.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "RegionSelector/IRegSelSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "CaloIdentifier/TileID.h"
+#include "CxxUtils/phihelper.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "TrigMuonEvent/TileMuFeature.h"
-#include "TrigTileMuId/TrigTileRODMuAlg.h"
+#include "TrigTileRODMuAlg.h"
 //#include "TH1.h"
 
 class ISvcLocator;
@@ -264,7 +264,7 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
                    << " PhiMax=" << now_phimax);
 
 	  TrigRoiDescriptor roi( 0.5*(now_etamin+now_etamax),          now_etamin, now_etamax, 
-				  HLT::phiMean(now_phimin, now_phimax), now_phimin, now_phimax );
+                             CxxUtils::phiBisect(now_phimin, now_phimax), now_phimin, now_phimax );
 
           m_pRegionSelector->DetROBIDListUint(TILE, roi, m_vrobid);
         //}
@@ -278,7 +278,7 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
       }
     }else{
       TrigRoiDescriptor roi( 0.5*(m_etaMin+m_etaMax),          m_etaMin, m_etaMax, 
-			      HLT::phiMean(m_phiMin, m_phiMax), m_phiMin, m_phiMax );
+                             CxxUtils::phiBisect(m_phiMin, m_phiMax), m_phiMin, m_phiMax );
      
       m_pRegionSelector->DetROBIDListUint(TILE, roi, m_vrobid);
     }

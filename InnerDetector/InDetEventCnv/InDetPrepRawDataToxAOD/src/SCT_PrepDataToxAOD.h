@@ -46,9 +46,9 @@ class SCT_PrepDataToxAOD : public AthReentrantAlgorithm {
   SCT_PrepDataToxAOD(const std::string& name, ISvcLocator* pSvcLocator);
 
   // Basic algorithm methods:
-  virtual StatusCode initialize();
-  virtual StatusCode execute(const EventContext& ctx) const;
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
   /** Make this algorithm clonable. */
   virtual bool isClonable() const override { return true; };
 

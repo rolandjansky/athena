@@ -154,57 +154,44 @@ int MuonIdHelper::get_module_hash(const Identifier& id,
 
   // by binary search - overwritten in the derived classes
   IdContext context = module_context();
-  int result = 1;
-  hash_id = 0;
+  hash_id = UINT_MAX;
   size_t begin = context.begin_index();
   size_t end   = context.end_index(); 
 
   if (0 == begin) {
     // No hashes yet for ids with prefixes
     if (m_MODULE_INDEX == end) {
-      id_vec_it it = std::lower_bound(m_module_vec.begin(), 
-				      m_module_vec.end(), 
-				      id);
-	    	   
-      if (it != m_module_vec.end()) {
-	hash_id = it - m_module_vec.begin();
-	result = 0;
-      } 
-      else 
-      	{
-	  create_mlog();
-	  (*m_Log)<<MSG::WARNING<< "MuonIdHelper::get_hash(cid,hash,con):hash not OK for collection" << endmsg; 
-	}
+      id_vec_it it = std::lower_bound(m_module_vec.begin(), m_module_vec.end(), id);
+	    if ((it != m_module_vec.end())&&(*it==id)) {
+        hash_id = it - m_module_vec.begin();
+        return 0;
+      }
     }
-  } 
-  return result;
+  }
+  create_mlog();
+  (*m_Log)<<MSG::WARNING<< "MuonIdHelper::get_module_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg; 
+  return 1;
 }
 
 int MuonIdHelper::get_detectorElement_hash(const Identifier& id,
 					   IdentifierHash& hash_id) const {
   // by binary search - overwritten in the derived classes
-  int result = 1;
-  hash_id = 0;
+  hash_id = UINT_MAX;
   IdContext context = detectorElement_context();
   size_t begin = context.begin_index();
   size_t end   = context.end_index();
   if ( 0 == begin ) {
     if (m_DETECTORELEMENT_INDEX == end) {
-      id_vec_it it = std::lower_bound(m_detectorElement_vec.begin(), 
-  				      m_detectorElement_vec.end(), 
-				      id);
-      if (it != m_detectorElement_vec.end()) {
-	hash_id = it - m_detectorElement_vec.begin();
-	result = 0;
-      } 
-      else 
-      	{
-	  create_mlog();
-	  (*m_Log) << MSG::WARNING << "MuonIdHelper::get_hash(cid,hash,con):hash not OK for detector element" << endmsg; 
-	}
+      id_vec_it it = std::lower_bound(m_detectorElement_vec.begin(), m_detectorElement_vec.end(), id);
+      if ((it != m_detectorElement_vec.end())&&(*it==id)) {
+        hash_id = it - m_detectorElement_vec.begin();
+        return 0;
+      }
     }
   }
-  return result;
+  create_mlog();
+  (*m_Log) << MSG::WARNING << "MuonIdHelper::get_detectorElement_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg;
+  return 1;
 }
 
 int MuonIdHelper::get_channel_hash(const Identifier& id,
@@ -324,36 +311,29 @@ MuonIdHelper::get_hash_calc (const Identifier& compact_id,
 			     const IdContext* context) const
 {
   // Get the hash code from vec (for wafers only).
-  int result = 1;
-  hash_id = 0;
+  hash_id = UINT_MAX;
   size_t begin = (context) ? context->begin_index(): 0;
   size_t end   = (context) ? context->end_index()  : 0; 
 
   if (0 == begin) {
     // No hashes yet for ids with prefixes
     if (m_MODULE_INDEX == end) {
-      result = get_module_hash(compact_id, hash_id);
+      return get_module_hash(compact_id, hash_id);
     }
     else if (m_DETECTORELEMENT_INDEX == end) {
-      result = get_detectorElement_hash(compact_id, hash_id);
+      return get_detectorElement_hash(compact_id, hash_id);
     }
     else if (m_CHANNEL_INDEX == end) {
-      id_vec_it it = std::lower_bound(m_channel_vec.begin(), 
-				      m_channel_vec.end(), 
-				      compact_id);
-	    	   
-      if (it != m_channel_vec.end()) {
-	hash_id = it - m_channel_vec.begin();
-	result = 0;
-      } 
-      else 
-	{
-	  create_mlog();
-	  (*m_Log) << MSG::WARNING << "MuonIdHelper::get_hash(cid,hash,con):hash not OK for channel" << endmsg;
-	}
+      id_vec_it it = std::lower_bound(m_channel_vec.begin(), m_channel_vec.end(), compact_id);
+      if ((it != m_channel_vec.end())&&(*it==compact_id)) {
+        hash_id = it - m_channel_vec.begin();
+        return 0;
+      }
     }
   }
-  return (result);
+  create_mlog();
+  (*m_Log) << MSG::WARNING << "MuonIdHelper::get_hash_calc(): Could not determine hash for identifier " << compact_id.get_compact() << endmsg;
+  return 1;
 }
 
 int MuonIdHelper::initLevelsFromDict() {

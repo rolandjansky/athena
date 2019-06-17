@@ -6,7 +6,7 @@
 atlas_subdir( TrigOnlineSpacePointTool )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigSiSpacePointTool
                           InnerDetector/InDetConditions/BeamSpotConditionsData
-                          PRIVATE
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Event/ByteStreamCnvSvcBase
@@ -47,9 +46,5 @@ atlas_add_component( TrigOnlineSpacePointTool
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
 
-
 # Install files from the package:
-atlas_install_headers( TrigOnlineSpacePointTool )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-

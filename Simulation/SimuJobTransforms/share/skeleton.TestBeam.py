@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 ## Get the logger
 from AthenaCommon.Logging import *
 atlasG4log = logging.getLogger('TestBeam')
@@ -225,7 +227,7 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
-print topSeq
+print(topSeq)
 
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):

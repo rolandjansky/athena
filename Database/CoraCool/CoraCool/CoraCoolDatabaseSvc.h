@@ -33,10 +33,9 @@ class CoraCoolDatabaseSvc {
 
   // open CoraCool database, given external COOL reference
   CoraCoolDatabasePtr openDatabase(const std::string& dbconn,
-		 cool::IDatabasePtr cooldb,bool readonly=false);
+		 cool::IDatabasePtr cooldb, bool readonly=false);
   // open CoraCool database, without external COOL reference
-  CoraCoolDatabasePtr openDatabase(const std::string& dbconn,
-		 bool readonly=false);
+  CoraCoolDatabasePtr openDatabase(const std::string& dbconn, bool readonly=false);
 
  private:
   coral::IConnectionService& m_coralsvc;

@@ -9,7 +9,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/EFHadCalibHypo.h"
+#include "EFHadCalibHypo.h"
 //
 #include "Particle/TrackParticle.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

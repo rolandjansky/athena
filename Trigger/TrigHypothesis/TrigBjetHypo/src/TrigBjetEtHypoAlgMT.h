@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGBJETHYPO_TRIGBJETETHYPOALGMT_H
 #define TRIGBJETHYPO_TRIGBJETETHYPOALGMT_H 1
@@ -31,12 +31,9 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
 
   TrigBjetEtHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigBjetEtHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
   TrigBjetEtHypoAlgMT();
 

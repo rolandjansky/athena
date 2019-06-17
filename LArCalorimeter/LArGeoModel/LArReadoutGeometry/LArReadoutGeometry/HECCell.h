@@ -1,34 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_HECCELL_H
 #define LARREADOUTGEOMETRY_HECCELL_H
+
 #include "LArReadoutGeometry/HECDetDescr.h"
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"
-#include "LArHV/HECHVModule.h"
 #include "LArHV/HECHVSubgap.h"
-/**
- * @brief A cell of the hadronic endcap calorimeter readout
- * geometry
- */
 
 /**
- *	This class represents a single HEC Cell.  A cell spans
- *	multiple blocks and has different boundaries at each
- *	block.  For access to the HEC  Cells, use the HECDetector
- *	Region class.
+ * @class HECCell
  *
- *	Use the HEC Cells through HEC Cell Links please!!!  This
- *	will free the memory used by the cell when the last link
- *	to the cell disappears.
+ * @brief A cell of the hadronic endcap calorimeter readout geometry
+ * 
+ * This class represents a single HEC Cell.  A cell spans
+ * multiple blocks and has different boundaries at each
+ * block.  For access to the HEC  Cells, use the HECDetector
+ * Region class.
+ *
+ * Use the HEC Cells through HEC Cell Links please!!!  This
+ * will free the memory used by the cell when the last link
+ *to the cell disappears.
  */
-
 
 class HECCell : public RCBase  
-{
-  
+{  
  public:
 
   typedef enum {FRONT,CENTER,BACK} CELLPOS;
@@ -167,7 +165,7 @@ class HECCell : public RCBase
   /**
    * @Get subgap
    */
-  const HECHVSubgapConstLink & getSubgap (unsigned int i) const;
+  const HECHVSubgap& getSubgap (unsigned int i) const;
       
 
 
@@ -194,7 +192,7 @@ class HECCell : public RCBase
   /**
    * @brief	Cache of subgaps.
    */
-  mutable std::vector<HECHVSubgapConstLink> m_subgap;
+  mutable std::vector<const HECHVSubgap*> m_subgap;
 
   /**
    * @brief Additional Implementation Declarations

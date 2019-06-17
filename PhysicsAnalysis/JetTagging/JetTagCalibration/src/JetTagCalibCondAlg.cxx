@@ -550,12 +550,25 @@ namespace Analysis {
                 writeCdo->addDL1NN(tagger, channel, nn_config);
               }
               else {
-                if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
-                  ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
-                  smoothAndNormalizeHistogram(hPointer, hname);
+                if ((tagger.find("MV2")!=std::string::npos ) or (tagger.find("SoftMu")!=std::string::npos ) or (tagger.find("MultiSV") !=std::string::npos)) {
+                  ATH_MSG_DEBUG("#BTAG# Build BDT for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+                  TTree *tree = dynamic_cast<TTree*>(hPointer);
+                  if (tree) {
+                    ATH_MSG_DEBUG("#BTAG# The TTree to build the BDT for " << tagger<< " is valid");
+                    MVAUtils::BDT* bdt = new MVAUtils::BDT(tree);
+                    writeCdo->addBdt(tagger,channel,bdt);
+                  }
+                  else {
+                    writeCdo->addHisto(i,fname,hPointer);
+                  }
                 }
-
-                writeCdo->addHisto(i,fname,hPointer);
+                else {
+                  if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
+                    ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
+                    smoothAndNormalizeHistogram(hPointer, hname);
+                  }
+                  writeCdo->addHisto(i,fname,hPointer);
+                }
               }
 
               const TString rootClassName=hPointer->ClassName();

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DoubleEventSelectorAthenaPool.cxx
  *  @brief This file contains the implementation for the DoubleEventSelectorAthenaPool class.
- *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: DoubleEventSelectorAthenaPool.cxx,v 1.226 2009-05-20 18:04:13 gemmeren Exp $
+ *  @author Peter van Gemmeren <gemmeren      -at- anl.gov>
+ *  @author John Detek Chapman <chapman       -at- hep.phy.cam.ac.uk>
+ *  @author Miha Muskinja      <miha.muskinja -at- cern.ch>
  **/
 
 #include "DoubleEventSelectorAthenaPool.h"
@@ -15,10 +16,13 @@
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "PoolSvc/IPoolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/ICollectionSize.h"
@@ -63,6 +67,7 @@ DoubleEventSelectorAthenaPool::DoubleEventSelectorAthenaPool(const std::string& 
   declareProperty("Connection",          m_connection);
   declareProperty("RefName",             m_refName);
   declareProperty("AttributeListKey",    m_attrListKey = "Input");
+  declareProperty("SecondaryAttrListSuffix",    m_secondaryAttrListSuffix = "secondary");
   declareProperty("PrimaryInputCollections",    m_primaryInputCollectionsProp);
   declareProperty("SecondaryaryInputCollections",    m_secondaryInputCollectionsProp);
   declareProperty("Query",               m_query = "");
@@ -71,8 +76,6 @@ DoubleEventSelectorAthenaPool::DoubleEventSelectorAthenaPool(const std::string& 
   declareProperty("SkipEventSequence",   m_skipEventSequenceProp);
   declareProperty("HelperTools",         m_helperTools);
   declareProperty("CounterTool",         m_counterTool);
-  declareProperty("PrimarySharedMemoryTool",    m_primaryEventStreamingTool);
-  declareProperty("SecondarySharedMemoryTool",    m_secondaryEventStreamingTool);
 
   // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
   // to override the run number coming in on the input stream
@@ -168,16 +171,6 @@ StatusCode DoubleEventSelectorAthenaPool::initialize() {
   // Get HelperTools
   if (!m_helperTools.retrieve().isSuccess()) {
     ATH_MSG_FATAL("Cannot get " << m_helperTools);
-    return(StatusCode::FAILURE);
-  }
-  // Get SharedMemoryTools (if configured)
-  if (!m_primaryEventStreamingTool.empty() && !m_primaryEventStreamingTool.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Cannot get " << m_primaryEventStreamingTool.typeAndName() << "");
-    return(StatusCode::FAILURE);
-  }
-
-  if (!m_secondaryEventStreamingTool.empty() && !m_secondaryEventStreamingTool.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Cannot get " << m_secondaryEventStreamingTool.typeAndName() << "");
     return(StatusCode::FAILURE);
   }
 
@@ -432,14 +425,10 @@ StatusCode DoubleEventSelectorAthenaPool::start() {
   }
   m_primaryInputCollectionsIterator = m_primaryInputCollectionsProp.value().begin();
   m_curPrimaryCollection = 0;
-  if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isClient()) {
-    return(StatusCode::SUCCESS);
-  }
+
   m_secondaryInputCollectionsIterator = m_secondaryInputCollectionsProp.value().begin();
   m_curSecondaryCollection = 0;
-  if (!m_secondaryEventStreamingTool.empty() && m_secondaryEventStreamingTool->isClient()) {
-    return(StatusCode::SUCCESS);
-  }
+
   m_primaryPoolCollectionConverter = getCollectionCnv(m_primaryInputCollectionsIterator,
                                                       m_primaryInputCollectionsProp.value(),
                                                       m_curPrimaryCollection,
@@ -476,11 +465,6 @@ StatusCode DoubleEventSelectorAthenaPool::start() {
 }
 //________________________________________________________________________________
 StatusCode DoubleEventSelectorAthenaPool::stop() {
-  if (!m_primaryEventStreamingTool.empty() && !m_secondaryEventStreamingTool.empty()) {
-    if (m_primaryEventStreamingTool->isClient() && m_secondaryEventStreamingTool->isClient()) {
-      return(StatusCode::SUCCESS);
-    }
-  }
   IEvtSelector::Context* ctxt(nullptr);
   if (!releaseContext(ctxt).isSuccess()) {
     ATH_MSG_WARNING("Cannot release context");
@@ -510,28 +494,6 @@ void DoubleEventSelectorAthenaPool::fireEndFileIncidents(bool processMetadata, c
 
 //________________________________________________________________________________
 StatusCode DoubleEventSelectorAthenaPool::finalize() {
-  if (m_primaryEventStreamingTool.empty() || !m_primaryEventStreamingTool->isClient()) {
-    if (!m_counterTool.empty() && !m_counterTool->preFinalize().isSuccess()) {
-      ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
-    }
-    for (auto& tool : m_helperTools) {
-      if (!tool->preFinalize().isSuccess()) {
-        ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
-      }
-    }
-  }
-  if (m_secondaryEventStreamingTool.empty() || !m_secondaryEventStreamingTool->isClient()) {
-    // FIXME Need to duplicate these???
-
-    // if (!m_counterTool.empty() && !m_counterTool->preFinalize().isSuccess()) {
-    //   ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
-    // }
-    // for (auto& tool : m_helperTools) {
-    //   if (!tool->preFinalize().isSuccess()) {
-    //     ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
-    //   }
-    // }
-  }
   delete m_beginIter; m_beginIter = nullptr;
   delete m_endIter;   m_endIter   = nullptr;
   m_primaryHeaderIterator = nullptr;
@@ -541,13 +503,6 @@ StatusCode DoubleEventSelectorAthenaPool::finalize() {
   m_secondaryHeaderIterator = nullptr;
   if (m_secondaryPoolCollectionConverter != nullptr) {
     delete m_secondaryPoolCollectionConverter; m_secondaryPoolCollectionConverter = nullptr;
-  }
-  // Release AthenaSharedMemoryTools
-  if (!m_primaryEventStreamingTool.empty() && !m_primaryEventStreamingTool.release().isSuccess()) {
-    ATH_MSG_WARNING("Cannot release AthenaSharedMemoryTool");
-  }
-  if (!m_secondaryEventStreamingTool.empty() && !m_secondaryEventStreamingTool.release().isSuccess()) {
-    ATH_MSG_WARNING("Cannot release AthenaSharedMemoryTool");
   }
   // Release CounterTool
   if (!m_counterTool.empty() && !m_counterTool.release().isSuccess()) {
@@ -595,52 +550,6 @@ StatusCode DoubleEventSelectorAthenaPool::createContext(IEvtSelector::Context*& 
 //________________________________________________________________________________
 StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
   std::lock_guard<CallMutex> lockGuard(m_callLock);
-  if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isClient()) {
-    void* tokenStr = nullptr;
-    void* tokenStr_secondary = nullptr;
-    unsigned int status = 0;
-    if (!m_primaryEventStreamingTool->getLockedEvent(&tokenStr, status).isSuccess()) {
-      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool for primaryEventStreamingTool");
-      delete (char*)tokenStr; tokenStr = nullptr;
-      return(StatusCode::FAILURE);
-    }
-    if (!m_secondaryEventStreamingTool->getLockedEvent(&tokenStr_secondary, status).isSuccess()) {
-      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool for secondaryEventStreamingTool");
-      delete (char*)tokenStr; tokenStr = nullptr;
-      return(StatusCode::FAILURE);
-    }
-    AthenaAttributeList* athAttrList = new AthenaAttributeList();
-    ATH_MSG_DEBUG("Try to record m_attrListKey to StoreGate.");
-    if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
-      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-      delete (char*)tokenStr; tokenStr = nullptr;
-      delete (char*)tokenStr_secondary; tokenStr_secondary = nullptr;
-      delete athAttrList; athAttrList = nullptr;
-      return(StatusCode::FAILURE);
-    }
-    athAttrList->extend("eventRef", "string");
-    athAttrList->extend("eventRef_secondary", "string");
-    (*athAttrList)["eventRef"].data<std::string>() = std::string((char*)tokenStr);
-    (*athAttrList)["eventRef_secondary"].data<std::string>() = std::string((char*)tokenStr_secondary);
-    Token token;
-    Token token_secondary;
-    token.fromString(std::string((char*)tokenStr));
-    token_secondary.fromString(std::string((char*)tokenStr_secondary));
-    delete (char*)tokenStr; tokenStr = nullptr;
-    delete (char*)tokenStr_secondary; tokenStr_secondary = nullptr;
-    Guid guid = token.dbID();
-    if (guid != m_primaryGuid && m_processPrimaryMetadata.value()) {
-      if (m_evtCount >= 0 && m_primaryGuid != Guid::null()) {
-        // Fire EndInputFile incident
-        FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_primaryGuid.toString());
-        m_incidentSvc->fireIncident(endInputFileIncident);
-      }
-      m_primaryGuid = guid;
-      FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_primaryGuid.toString());
-      m_incidentSvc->fireIncident(beginInputFileIncident);
-    }
-    return(StatusCode::SUCCESS);
-  }
 
   for (const auto& tool : m_helperTools) {
     if (!tool->preNext().isSuccess()) {
@@ -817,48 +726,16 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       ATH_MSG_WARNING("Failed to preNext() CounterTool.");
     }
     if (m_evtCount > m_skipEvents && (m_skipEventSequence.empty() || m_evtCount != m_skipEventSequence.front())) {
-      if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isServer()) {
-        std::string token = m_primaryHeaderIterator->eventRef().toString();
-        StatusCode sc = m_primaryEventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
-        while (sc.isRecoverable()) {
-          while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-            ATH_MSG_VERBOSE("Called last readData, while putting next event in next()");
-          }
-          // Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
-          sc = m_primaryEventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
-        }
-        if (!sc.isSuccess()) {
-          ATH_MSG_ERROR("Cannot put Event " << m_evtCount - 1 << " to PrimaryAthenaSharedMemoryTool");
-          return(StatusCode::FAILURE);
-        }
-      } else {
-        ATH_MSG_DEBUG("Try recording AttributeList");
-        if (!recordAttributeList(m_primaryHeaderIterator, m_attrListKey).isSuccess()) {
-          ATH_MSG_ERROR("Failed to record AttributeList.");
-          return(StatusCode::FAILURE);
-        }
+      if (!eventStore()->clearStore().isSuccess()) {
+          ATH_MSG_WARNING("Cannot clear Store");
       }
-      if (!m_secondaryEventStreamingTool.empty() && m_secondaryEventStreamingTool->isServer()) {
-        std::string token = m_secondaryHeaderIterator->eventRef().toString();
-        StatusCode sc = m_secondaryEventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
-        while (sc.isRecoverable()) {
-          while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-            ATH_MSG_VERBOSE("Called last readData, while putting next event in next()");
-          }
-          // Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
-          sc = m_secondaryEventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
-        }
-        if (!sc.isSuccess()) {
-          ATH_MSG_ERROR("Cannot put Event " << m_evtCount - 1 << " to SecondaryAthenaSharedMemoryTool");
-          return(StatusCode::FAILURE);
-        }
-      } else {
-        ATH_MSG_DEBUG("Try appending to AttributeList");
-        if (!recordAttributeList(m_secondaryHeaderIterator, m_attrListKey, "secondary").isSuccess()) {
-          ATH_MSG_ERROR("Failed to append to AttributeList.");
-          return(StatusCode::FAILURE);
-        }
+
+      ATH_MSG_DEBUG("Try recording AttributeLists");
+      if (!recordAllAttributeList().isSuccess()) {
+        ATH_MSG_ERROR("Failed to record AttributeLists.");
+        return(StatusCode::FAILURE);
       }
+
       StatusCode status = StatusCode::SUCCESS;
       for (const auto& tool : m_helperTools) {
         StatusCode toolStatus = tool->postNext();
@@ -881,13 +758,6 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
           ATH_MSG_WARNING("Failed to postNext() CounterTool.");
         }
         break;
-      }
-      const DataHandle<AthenaAttributeList> primaryOldAttrList;
-      if (eventStore()->retrieve(primaryOldAttrList, m_attrListKey.value()).isSuccess()) {
-        if (!eventStore()->removeDataAndProxy(primaryOldAttrList.cptr()).isSuccess()) {
-          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-          return(StatusCode::FAILURE);
-        }
       }
     } else {
       if (!m_skipEventSequence.empty() && m_evtCount == m_skipEventSequence.front()) {
@@ -944,25 +814,27 @@ StatusCode DoubleEventSelectorAthenaPool::rewind(IEvtSelector::Context& /*ctxt*/
 StatusCode DoubleEventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /*ctxt*/,
                                                               IOpaqueAddress*& iop) const {
   std::string tokenStr;
-  const DataHandle<AthenaAttributeList> attrList;
-  if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
+  SG::ReadHandle<AthenaAttributeList> attrList(m_attrListKey.value(), eventStore()->name());
+  if (attrList.isValid()) {
     try {
       if (m_refName.value().empty()) {
         tokenStr = (*attrList)["eventRef"].data<std::string>();
-        ATH_MSG_DEBUG("found PrimaryAthenaAttribute, name = eventRef = " << tokenStr);
+        ATH_MSG_DEBUG("found AthenaAttribute, name = eventRef = " << tokenStr);
       } else {
         tokenStr = (*attrList)[m_refName.value() + "_ref"].data<std::string>();
-        ATH_MSG_DEBUG("found PrimaryAthenaAttribute, name = " << m_refName.value() << "_ref = " << tokenStr);
+        ATH_MSG_DEBUG("found AthenaAttribute, name = " << m_refName.value() << "_ref = " << tokenStr);
       }
     } catch (std::exception &e) {
       ATH_MSG_ERROR(e.what());
       return(StatusCode::FAILURE);
     }
   } else {
-    ATH_MSG_WARNING("Cannot find PrimaryAthenaAttribute, key = " << m_attrListKey.value());
+    ATH_MSG_WARNING("Cannot find AthenaAttribute, key = " << m_attrListKey.value());
     tokenStr = m_primaryPoolCollectionConverter->retrieveToken(m_primaryHeaderIterator, m_refName.value());
   }
-  iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "EventSelector");
+  Token* token = new Token;
+  token->fromString(tokenStr);
+  iop = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", "EventSelector", IPoolSvc::kInputStream, token);
   return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
@@ -1126,106 +998,6 @@ int DoubleEventSelectorAthenaPool::findEvent(int evtNum, std::vector<int>& numEv
   return(-1);
 }
 
-//________________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::makeServer(int num) {
-  if (num < 0) {
-    if (m_athenaPoolCnvSvc->makeServer(num - 1).isFailure()) {
-      ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to output DataStreaming server");
-    }
-    return(StatusCode::SUCCESS);
-  }
-  if (m_athenaPoolCnvSvc->makeServer(num + 1).isFailure()) {
-    ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to input DataStreaming server");
-    return(StatusCode::FAILURE);
-  }
-  if (m_primaryEventStreamingTool.empty()) {
-    return(StatusCode::SUCCESS);
-  }
-  m_processPrimaryMetadata = false;
-  ATH_MSG_DEBUG("makeServer: " << m_primaryEventStreamingTool << " = " << num);
-  return(m_primaryEventStreamingTool->makeServer(1));
-}
-
-//________________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::makeClient(int num) {
-  if (m_athenaPoolCnvSvc->makeClient(num + 1).isFailure()) {
-    ATH_MSG_ERROR("Failed to switch AthenaPoolCnvSvc to DataStreaming client");
-    return(StatusCode::FAILURE);
-  }
-  if (m_primaryEventStreamingTool.empty()) {
-    return(StatusCode::SUCCESS);
-  }
-  ATH_MSG_DEBUG("makeClient: " << m_primaryEventStreamingTool << " = " << num);
-  return(m_primaryEventStreamingTool->makeClient(0));
-}
-
-//________________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::share(int evtnum) {
-  if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isClient()) {
-    StatusCode sc = m_primaryEventStreamingTool->lockEvent(evtnum);
-    while (sc.isRecoverable()) {
-      usleep(1000);
-      sc = m_primaryEventStreamingTool->lockEvent(evtnum);
-    }
-    // Send stop client and wait for restart
-    if (sc.isFailure()) {
-      if (m_athenaPoolCnvSvc->makeClient(0).isFailure()) {
-        return(StatusCode::FAILURE);
-      }
-      sc = m_primaryEventStreamingTool->lockEvent(evtnum);
-      while (sc.isRecoverable() || sc.isFailure()) {
-        usleep(1000);
-        sc = m_primaryEventStreamingTool->lockEvent(evtnum);
-      }
-      //FIXME
-      if (m_athenaPoolCnvSvc->makeClient(1).isFailure()) {
-        return(StatusCode::FAILURE);
-      }
-    }
-    return(sc);
-  }
-  return(StatusCode::FAILURE);
-}
-
-//________________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::readEvent(int maxevt) {
-  ATH_MSG_VERBOSE("Called read Event " << maxevt);
-  IEvtSelector::Context* ctxt = new EventContextAthenaPool(this);
-  for (int i = 0; i < maxevt || maxevt == -1; ++i) {
-    if (!next(*ctxt).isSuccess()) {
-      if (m_evtCount == -1) {
-        ATH_MSG_VERBOSE("Called read Event and read last event from input: " << i);
-        break;
-      }
-      ATH_MSG_ERROR("Cannot read Event " << m_evtCount - 1 << " into AthenaSharedMemoryTool");
-      delete ctxt; ctxt = nullptr;
-      return(StatusCode::FAILURE);
-    } else {
-      ATH_MSG_VERBOSE("Called next, read Event " << m_evtCount - 1);
-    }
-  }
-  delete ctxt; ctxt = nullptr;
-  // End of file, wait for last event to be taken
-  StatusCode sc = m_primaryEventStreamingTool->putEvent(0, 0, 0, 0);
-  while (sc.isRecoverable()) {
-    while (m_athenaPoolCnvSvc->readData().isSuccess()) {
-      ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
-    }
-    // Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
-    sc = m_primaryEventStreamingTool->putEvent(0, 0, 0, 0);
-  }
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
-  } else {
-    sc = m_athenaPoolCnvSvc->readData();
-    while (sc.isSuccess() || sc.isRecoverable()) {
-      sc = m_athenaPoolCnvSvc->readData();
-    }
-    ATH_MSG_DEBUG("Failed last readData -> Clients are stopped, after marking last event in readEvent()");
-  }
-  return(StatusCode::SUCCESS);
-}
-
 //__________________________________________________________________________
 int DoubleEventSelectorAthenaPool::size(Context& /*ctxt*/) const {
   // Fetch sizes of all collections.
@@ -1294,54 +1066,53 @@ PoolCollectionConverter* DoubleEventSelectorAthenaPool::getCollectionCnv(std::ve
   }
   return(nullptr);
 }
+
 //__________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::recordAttributeList(pool::ICollectionCursor* HeaderIterator,
-                                                              Gaudi::Property<std::string> attrListKey,
-                                                              std::string suffix) const {
-  AthenaAttributeList* athAttrList = nullptr;
-  // Retrive AttributeList and extend it with suffix
-  if (!suffix.empty()) {
-    suffix = "_" + suffix;
-    if (!eventStore()->retrieve(athAttrList, attrListKey.value()).isSuccess()) {
-      ATH_MSG_ERROR("Cannot retrieve AttributeList from StoreGate.");
-      return(StatusCode::FAILURE);
-    }
-  }
+StatusCode DoubleEventSelectorAthenaPool::recordAllAttributeList() const {
   // Get access to AttributeList
-  else {
-    ATH_MSG_DEBUG("Get AttributeList from the collection");
-    // MN: accessing only attribute list, ignoring token list
-    const coral::AttributeList& attrList = HeaderIterator->currentRow().attributeList();
-    ATH_MSG_DEBUG("AttributeList size " << attrList.size());
-    athAttrList = new AthenaAttributeList(attrList);
-    if (!eventStore()->record(athAttrList, attrListKey.value()).isSuccess()) {
-      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-      delete athAttrList; athAttrList = nullptr;
-      return(StatusCode::FAILURE);
-    }
-  }
-  const pool::TokenList& tokenList = HeaderIterator->currentRow().tokenList();
+  ATH_MSG_DEBUG("Get AttributeList from the collection");
+  // MN: accessing only attribute list, ignoring token list
+  const coral::AttributeList& attrList = m_primaryHeaderIterator->currentRow().attributeList();
+  ATH_MSG_DEBUG("AttributeList size " << attrList.size());
+  auto athAttrList = std::make_unique<AthenaAttributeList>(attrList);
+  const pool::TokenList& tokenList = m_primaryHeaderIterator->currentRow().tokenList();
   for (pool::TokenList::const_iterator iter = tokenList.begin(), last = tokenList.end(); iter != last; ++iter) {
+    athAttrList->extend(iter.tokenName(), "string");
+    (*athAttrList)[iter.tokenName()].data<std::string>() = iter->toString();
+    ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() << " = " << iter->toString() << ".");
+  }
+  athAttrList->extend("eventRef", "string");
+  (*athAttrList)["eventRef"].data<std::string>() = m_primaryHeaderIterator->eventRef().toString();
+
+  ATH_MSG_DEBUG("Append secondary attribute list properties to the primary one with a suffix: " << m_secondaryAttrListSuffix.value());
+  std::string suffix = "_" + m_secondaryAttrListSuffix.value();
+
+  const pool::TokenList& extraTokenList = m_secondaryHeaderIterator->currentRow().tokenList();
+  for (pool::TokenList::const_iterator iter = extraTokenList.begin(), last = extraTokenList.end(); iter != last; ++iter) {
     athAttrList->extend(iter.tokenName() + suffix, "string");
     (*athAttrList)[iter.tokenName() + suffix].data<std::string>() = iter->toString();
     ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() + suffix << " = " << iter->toString() << ".");
   }
   athAttrList->extend("eventRef" + suffix, "string");
-  (*athAttrList)["eventRef" + suffix].data<std::string>() = HeaderIterator->eventRef().toString();
-  ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef" + suffix + " = " << HeaderIterator->eventRef().toString() << ".");
-  
+  (*athAttrList)["eventRef" + suffix].data<std::string>() = m_secondaryHeaderIterator->eventRef().toString();
+  ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef" + suffix + " = " << m_secondaryHeaderIterator->eventRef().toString() << ".");
+
   // copy all atributes from extra attribute list
   // to the primary attribute list with a suffix 
-  if (!suffix.empty()) {
-    athAttrList->extend("hasSecondaryInput", "bool");
-    (*athAttrList)["hasSecondaryInput"].data<bool>() = true;
-    const coral::AttributeList& extraAttrList = HeaderIterator->currentRow().attributeList();
-    for (const auto &attr : extraAttrList) {
-      athAttrList->extend(attr.specification().name() + suffix, attr.specification().type());
-      (*athAttrList)[attr.specification().name() + suffix] = attr;
-    }
+  athAttrList->extend("hasSecondaryInput", "bool");
+  (*athAttrList)["hasSecondaryInput"].data<bool>() = true;
+  const coral::AttributeList& extraAttrList = m_secondaryHeaderIterator->currentRow().attributeList();
+  for (const auto &attr : extraAttrList) {
+    athAttrList->extend(attr.specification().name() + suffix, attr.specification().type());
+    (*athAttrList)[attr.specification().name() + suffix] = attr;
   }
-    
+
+  ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << m_primaryHeaderIterator->eventRef().toString() << ".");
+  SG::WriteHandle<AthenaAttributeList> wh(m_attrListKey.value(), eventStore()->name());
+  if (!wh.record(std::move(athAttrList)).isSuccess()) {
+    ATH_MSG_ERROR("Cannot record AttributeList to StoreGate " << StoreID::storeName(eventStore()->storeID()));
+    return(StatusCode::FAILURE);
+  }
   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -1365,9 +1136,6 @@ StatusCode DoubleEventSelectorAthenaPool::io_reinit() {
   if (!iomgr->io_hasitem(this)) {
     ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
     return(StatusCode::FAILURE);
-  }
-  if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isClient()) {
-    return(this->reinit());
   }
   std::vector<std::string> primaryInputCollections = m_primaryInputCollectionsProp.value();
   std::set<std::size_t> updatedIndexes;
@@ -1530,4 +1298,32 @@ bool DoubleEventSelectorAthenaPool::disconnectIfFinished( SG::SourceID fid ) con
       }
    }
    return false;
+}
+
+/*
+  These are needed to satisfy the requirements of the pure virtual functions
+  in the interface, but there are no implementations for the DoubleEventSelector.
+*/
+//________________________________________________________________________________
+StatusCode DoubleEventSelectorAthenaPool::makeServer(__attribute__((unused)) int num) {
+  ATH_MSG_FATAL("makeServer() not implemented in the DoubleEventSelector");
+  return(StatusCode::FAILURE);
+}
+
+//________________________________________________________________________________
+StatusCode DoubleEventSelectorAthenaPool::makeClient(__attribute__((unused)) int num) {
+  ATH_MSG_FATAL("makeClient() not implemented in the DoubleEventSelector");
+  return(StatusCode::FAILURE);
+}
+
+//________________________________________________________________________________
+StatusCode DoubleEventSelectorAthenaPool::share(__attribute__((unused)) int evtnum) {
+  ATH_MSG_FATAL("share() not implemented in the DoubleEventSelector");
+  return(StatusCode::FAILURE);
+}
+
+//________________________________________________________________________________
+StatusCode DoubleEventSelectorAthenaPool::readEvent(__attribute__((unused)) int maxevt) {
+  ATH_MSG_FATAL("readEvent() not implemented in the DoubleEventSelector");
+  return(StatusCode::FAILURE);
 }

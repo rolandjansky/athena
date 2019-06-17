@@ -55,6 +55,10 @@ namespace MuonGM {
     /** strip number corresponding to local position. 
 	Should be renamed to channelNumber : the only public access for all hit types */
     int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+
+    /** Channel pitch. Gives full pitch for strips, width of a full wire group
+    Gives the Height of a pad */
+    double channelPitch( const Identifier& id ) const;
      
     /** strip position - should be renamed to channel position
 	If the strip number is outside the range of valid strips, the function will return false */
@@ -233,6 +237,28 @@ namespace MuonGM {
     const MuonChannelDesign* design = getDesign(id);
     if( !design ) return -1;
     return design->channelNumber(pos);
+
+  }
+
+  inline double sTgcReadoutElement::channelPitch( const Identifier& id ) const {
+
+    if (manager()->stgcIdHelper()->channelType(id)==0){
+    const MuonPadDesign* design = getPadDesign(id);
+    if( !design ) {
+      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
+      return -1;
+    }
+      return design->channelWidth( Amg::Vector2D (0,0),0);
+    }
+
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+
+    if (manager()->stgcIdHelper()->channelType(id)==1) //sTGC strips
+      return design->inputPitch;
+    else if (manager()->stgcIdHelper()->channelType(id)==2) //sTGC wires
+      return design->inputPitch * design->groupWidth; // wire Pitch * number of wires in a group
+    else return -1;
 
   }
 

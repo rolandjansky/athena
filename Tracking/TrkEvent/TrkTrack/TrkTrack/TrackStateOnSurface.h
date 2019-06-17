@@ -17,6 +17,7 @@ email                : edward.moyse@cern.ch
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkParameters/TrackParameters.h"
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
 
@@ -268,13 +269,13 @@ namespace Trk
              * Use this method to set persistification hints.
              * @throw logic_error if the type is not a persistification flag.
              */
-            void setHint( const TrackStateOnSurfaceType& type ) const;
+            void setHint  ( const TrackStateOnSurfaceType& type ) ;
 
             /**
              * Use this method to clear persistification hint flag.
              * @throw logic_error if the type is not a persistification flag.
              */
-            void resetHint( const TrackStateOnSurfaceType& type ) const;
+            void resetHint ( const TrackStateOnSurfaceType& type ) ;
 
               
             /** returns a string with the expanded type of the object (i.e. if it has several type bits set, they all will be returned)*/
@@ -313,7 +314,7 @@ namespace Trk
             const MeasurementBase          *m_measurementOnTrack;
             const MaterialEffectsBase      *m_materialEffectsOnTrack;
             const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack;
-            mutable std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
+            std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
     };
 
     /**Overload of << operator for MsgStream for debug output*/ 

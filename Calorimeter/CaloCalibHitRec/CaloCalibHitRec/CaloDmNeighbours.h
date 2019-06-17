@@ -14,6 +14,7 @@
 #define CALOCALIBHITREC_CALODMNEIGHBOURS_H
 
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/CachedPointer.h"
 
 #include <string>
 
@@ -57,10 +58,12 @@ class CaloDmNeighbours {
     int generate_neighbour_file();
     int make_CaloSample2DmRegion_map();
 
+    const CaloDetDescrManager* getMgr() const;
+
     std::string m_DmNeighboursFileName;
 
     StoreGateSvc* m_detStore;
-    const CaloDetDescrManager* m_caloDetDescrManager; 
+    CxxUtils::CachedPointer<const CaloDetDescrManager> m_caloDetDescrManager; 
     const CaloDmDescrManager *m_caloDmDescrManager;
     const CaloDM_ID*    m_caloDM_ID;
     const CaloCell_ID*    m_caloCell_ID;

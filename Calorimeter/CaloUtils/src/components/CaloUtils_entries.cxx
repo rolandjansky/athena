@@ -1,4 +1,3 @@
-#include "CaloUtils/LocalNoiseSuppressionTool.h"
 #include "CaloUtils/CaloCellWeightCorrection.h"
 #include "CaloUtils/CaloLCClassificationTool.h"
 #include "CaloUtils/EstimEMClusterClassificationTool.h"
@@ -13,7 +12,6 @@
 
 
 DECLARE_COMPONENT( CaloCellWeightCorrection )
-DECLARE_COMPONENT( LocalNoiseSuppressionTool )
 DECLARE_COMPONENT( CaloLCClassificationTool )
 DECLARE_COMPONENT( EstimEMClusterClassificationTool )
 DECLARE_COMPONENT( CaloLCWeightTool )

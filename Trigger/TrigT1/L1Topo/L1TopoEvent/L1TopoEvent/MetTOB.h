@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  MetTOB.h
 //  TopoCore
@@ -65,9 +65,9 @@ namespace TCS {
       virtual void print(std::ostream &o) const;
 
    private:
-      static unsigned int g_nBitsEx;
-      static unsigned int g_nBitsEy;
-      static unsigned int g_nBitsEt;
+      static const unsigned int g_nBitsEx;
+      static const unsigned int g_nBitsEy;
+      static const unsigned int g_nBitsEt;
       
       int m_Ex = { 0 };
       int m_Ey = { 0 };

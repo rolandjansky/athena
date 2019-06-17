@@ -48,10 +48,6 @@ StatusCode ParticleCaloExtensionTool::finalize() {
 
 std::unique_ptr<Trk::CaloExtension> 
 ParticleCaloExtensionTool::caloExtension(const xAOD::IParticle& particle) const {
-
-  ATH_MSG_DEBUG(" caloExtension: index " << particle.index());
-  // work out the type of particle and get the extension
-
   if(particle.type()==xAOD::Type::TrackParticle){
     const xAOD::TrackParticle* trackParticle = static_cast< const xAOD::TrackParticle*>(&particle); 
     return caloExtension(*trackParticle);
@@ -85,7 +81,6 @@ const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::
   /*if not there , default ctor for unique_ptr (nullptr)*/
   std::unique_ptr<Trk::CaloExtension>& extension= cache[particle.index()];
   if (extension.get()==nullptr){   
-    ATH_MSG_DEBUG(" Adding  caloExtension to cache for index: " << particle.index());
     extension=caloExtension(particle);
   }
   return extension.get();

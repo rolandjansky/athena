@@ -9,7 +9,7 @@
 #include "TrkSegment/Segment.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
-unsigned int Trk::Segment::s_numberOfInstantiations=0;
+std::atomic<unsigned int> Trk::Segment::s_numberOfInstantiations{0};
 
 // default constructor
 Trk::Segment::Segment()

@@ -6,10 +6,10 @@ from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonCacheNames:
-    MdtCsmCache = "MdtCsmCache"
-    CscCache    = "CscCache"
-    RpcCache    = "RpcCache"
-    TgcCache    = "TgcCache"
+    MdtCsmCache = "MdtCsmRdoCache"
+    CscCache    = "CscRdoCache"
+    RpcCache    = "RpcRdoCache"
+    TgcCache    = "TgcRdoCache"
 
 ## This configuration function creates the IdentifiableCaches for RDO
 #
@@ -52,8 +52,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "RPC_RawDataProviderTool",
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
+    MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                Decoder = RPCRodDecoder )
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
@@ -72,8 +72,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
         RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
-    else:
-        acc.addEventAlgo(RpcRawDataProvider, primary=True)
+    acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc
 
 def TgcBytestreamDecodeCfg(flags, forTrigger=False):
@@ -100,14 +99,19 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "TGC_RawDataProviderTool",
                                                                Decoder = TGCRodDecoder )
+
+    if forTrigger:
+        MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
+        MuonTgcRawDataProviderTool.OutputLevel = DEBUG
+
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-        TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
+    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                   ProviderTool = MuonTgcRawDataProviderTool )
-        acc.addEventAlgo(TgcRawDataProvider,primary=True)
+    
+    acc.addEventAlgo(TgcRawDataProvider,primary=True)
 
     return acc
 
@@ -139,22 +143,17 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
 
-    if True: #forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc = MuonCacheCfg()
-        acc.merge( cacheAcc )
-        # tell the raw data provider tool to use the cache
+    if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
 
-    
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-        MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
+    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                   ProviderTool = MuonMdtRawDataProviderTool )
-        acc.addEventAlgo(MdtRawDataProvider,primary=True)
+
+    acc.addEventAlgo(MdtRawDataProvider,primary=True)
 
     return acc
 
@@ -182,21 +181,17 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
-    if True:#forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc = MuonCacheCfg()
-        acc.merge( cacheAcc )
-        # tell the raw data provider tool to use the cache
+    if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-        CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                   ProviderTool = MuonCscRawDataProviderTool )
-        acc.addEventAlgo(CscRawDataProvider,primary=True)
+
+    acc.addEventAlgo(CscRawDataProvider,primary=True)
 
     return acc
 
@@ -239,11 +234,11 @@ if __name__=="__main__":
 
     # Schedule Mdt data decoding
 
-    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags , True)
+    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags )
     cfg.merge( mdtdecodingAcc )
 
     # Schedule Csc data decoding
-    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags , True) 
+    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( cscdecodingAcc )
 
     # Need to add POOL converter  - may be a better way of doing this?

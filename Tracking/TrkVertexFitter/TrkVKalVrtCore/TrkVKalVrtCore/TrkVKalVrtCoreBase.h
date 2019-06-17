@@ -27,12 +27,12 @@ namespace Trk {
        void   setSCALE(double S) {m_SCALE=S;};
        double getAccuracyConstraint() const { return m_accuracyConstraint; };
        void   setAccuracyConstraint(double C) { m_accuracyConstraint=C; };
-       double *fullCovMatrix;
-       std::vector< VKVertex *> cascadeVertexList; 
+       std::unique_ptr<double[]> fullCovMatrix;
+       std::vector< std::unique_ptr<VKVertex> > cascadeVertexList; 
        std::vector<int> matrixPnt;
        CascadeEvent():cascadeNV(0), nearPrmVertex(0), fullCovMatrix(0), cascadeVertexList(0), 
                       matrixPnt(0), m_SCALE(1.), m_accuracyConstraint(1.e-4) {};
-      ~CascadeEvent(){if(fullCovMatrix)delete[] fullCovMatrix;};
+      ~CascadeEvent() = default;
 
      private:
        double m_SCALE;
@@ -129,10 +129,12 @@ namespace Trk {
    {   
     public:
       VKVertex(const VKalVrtControl &);
+      VKVertex(VKVertex &&) noexcept = default;
       VKVertex();
      ~VKVertex();
       VKVertex(const VKVertex & src);              //copy
       VKVertex& operator= (const VKVertex & src);  //assign
+      VKVertex& operator= (VKVertex &&) noexcept = default;  //move
 
      public:        // Relative coordinates with respect to refIterV[]
        double Chi2;         // vertex Chi2
@@ -163,9 +165,9 @@ namespace Trk {
        double wa[6];          // save WA matrix for futher use
        double dxyz0[3];       // unconstrained shift of vertex on current iteration. Needed for PostFit
       
-       std::vector<VKTrack* > TrackList;
-       std::vector<TWRK* >    tmpArr;
-       std::vector<VKConstraintBase *> ConstraintList;
+       std::vector<std::unique_ptr<VKTrack> > TrackList;
+       std::vector<std::unique_ptr<TWRK> >    tmpArr;
+       std::vector<std::unique_ptr<VKConstraintBase> > ConstraintList;
 
 
        void setRefV(double []);

@@ -17,8 +17,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-class IPileUpTool;
+#include "PileUpTools/IPileUpTool.h"
 
 class CscDigitBuilder : public AthAlgorithm {
 

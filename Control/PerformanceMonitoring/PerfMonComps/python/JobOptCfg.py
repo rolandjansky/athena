@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: JobOptCfg.py
 # @purpose: a customized Configurable class for the PerfMonSvc
 # @author: Sebastien Binet <binet@cern.ch>
 
 ## import the automatically generated Configurables
-from PerfMonCompsConf import PerfMonSvc as _PerfMonSvc
+from PerfMonComps.PerfMonCompsConf import PerfMonSvc as _PerfMonSvc
 
 class PerfMonSvc( _PerfMonSvc ):
 

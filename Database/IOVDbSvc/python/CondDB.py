@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # CondDB.py
 # Configuration for Athena conditions DB access
@@ -187,7 +187,8 @@ class CondDB:
                 self.iovdbsvc.CacheAlign=3
             # setup PoolSvc catalogues
             from PoolSvc.PoolSvcConf import PoolSvc
-            svcMgr+=PoolSvc()
+            if not hasattr (svcMgr, 'PoolSvc'):
+                svcMgr+=PoolSvc()
             # add the standard catalogues
             for i in self.poolcats:
                 svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_%s.xml" % i]
@@ -227,7 +228,9 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            condInputLoader.Load += [ (className, self.extractFolder(folder)) ]
+            key = (className, self.extractFolder(folder))
+            if not key in condInputLoader.Load:
+                condInputLoader.Load += [ key ]
 
     def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False,className=None):
         "Add access to the given folder/schema, using a specified tag"
@@ -291,7 +294,11 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     def setRequireLock(self,lock=True):
         "Set the flag indicating global tags will be required to be locked"
         self.iovdbsvc.CheckLock=lock
-        
+
+    def setWriteDataToFile(self, writeData=False):
+        "Set option to write data to file"
+        self.iovdbsvc.OutputToFile=writeData
+
 
     def extractFolder(self,folderstr):
         "Extract the folder name (non-XML text) from a IOVDbSvc.Folders entry"

@@ -202,10 +202,10 @@ void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
 //!=================================================================================
 StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& dde)
 {
-  return execute (rtrigEmCluster, roi, dde, &Gaudi::Hive::currentContext());
+  return execute (rtrigEmCluster, roi, dde, Gaudi::Hive::currentContext());
 }
 
-StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext*)
+StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext& context)
 {
   m_error = 0x0;
   bool accept=false;
@@ -254,7 +254,7 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   } else {
     if ( not m_ringsKey.key().empty() ) {
       ATH_MSG_DEBUG("Recording rings in store with a key: " << m_ringsKey.key() );
-      auto handle = SG::makeHandle( m_ringsKey );
+      auto handle = SG::makeHandle( m_ringsKey, context );
       CHECK( handle.record( std::move(rings) )  );    
     }
   }

@@ -43,7 +43,6 @@ constants (e.g. ionization pulse, optimal filtering coefficients).
   - LArDigitOscillationCorrTool
   - LArDumpShapes
   - LArFill
-  - LArHVCorrTool
   - LArMasterWaveBuilder
   - LArOFCAlg
   - LArOFCTool

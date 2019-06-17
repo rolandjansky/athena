@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file IOVDb.py
 ## @brief Core job python configurable to setup IOVDbSvc
@@ -31,7 +31,8 @@ def _loadBasicIOVDb():
 
     # Set IOVDbSvc as proxy provider
     from AthenaCommon.ConfigurableDb import getConfigurable
-    svcMgr += getConfigurable("ProxyProviderSvc")()
+    if not hasattr (svcMgr, 'ProxyProviderSvc'):
+        svcMgr += getConfigurable("ProxyProviderSvc")()
     svcMgr.ProxyProviderSvc.ProviderNames += [ "IOVDbSvc" ]
 
     # Load IOVSvc

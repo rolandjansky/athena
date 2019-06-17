@@ -78,7 +78,6 @@ private:
   const LArFCAL_ID*  m_LArFCAL_IDHelper;
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
-  const CaloDetDescrManager* m_CaloDetDescrMgr;
 
   LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;

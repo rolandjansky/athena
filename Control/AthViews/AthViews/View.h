@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_VIEW_H
@@ -27,15 +27,17 @@ public:
   View& operator= (const View&) = delete;
   
   void impl ( SimpleView* impl ) { m_implementation = impl; }
-  IProxyDict* impl (void ) { return m_implementation; }
-  const IProxyDict* impl ( void ) const { return m_implementation; }
+  SimpleView* impl (void ) { return m_implementation; }
+  const SimpleView* impl ( void ) const { return m_implementation; }
   size_t viewID() const{ return m_index; }
 
   /**
    * for printing the content of the view
    * @warning - expensive call
    **/
-  std::string dump( const std::string& delim = " " ) const;
+  std::string dump( const std::string& indent = "" ) const {
+    return m_implementation->dump( indent );
+  }
 
   /*virtual SG::DataProxy* proxy(const CLID& id) const { 
     return m_implementation->proxy(id); 
@@ -118,7 +120,7 @@ private:
 } // EOF SG namespace
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Do we need to do this?
 class ViewContainer {

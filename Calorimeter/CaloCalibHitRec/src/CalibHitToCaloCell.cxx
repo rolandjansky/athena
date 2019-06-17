@@ -57,7 +57,6 @@ CalibHitToCaloCell::CalibHitToCaloCell(std::string name, ISvcLocator* pSvcLocato
      //m_larEm_ID(0),
      //m_larHec_ID(0),
      //m_larFcal_ID(0),
-     m_caloDDMgr(0),
      m_nchan(0)
 
 //	The names suggestion if one needs to have them
@@ -94,7 +93,6 @@ StatusCode CalibHitToCaloCell::initialize()
 
   ATH_CHECK(  detStore()->retrieve(m_caloCell_ID) );
   ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
 
   if(m_caloCell_Tot   != "")    m_store_Tot   = true;   else m_store_Tot   = false;
   if(m_caloCell_Vis   != "")	m_store_Vis   = true;   else m_store_Vis   = false;
@@ -109,6 +107,9 @@ StatusCode CalibHitToCaloCell::initialize()
 /////////////////   EXECUTE   //////////////////////
 StatusCode CalibHitToCaloCell::execute()
 {
+    const CaloDetDescrManager* caloDDMgr = nullptr;
+    ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
+
     // OUTPUT CONTAINERS
     CaloCellContainer* cnt   = 0;
     CaloCellContainer* cnt_1 = 0; 
@@ -177,7 +178,7 @@ StatusCode CalibHitToCaloCell::execute()
 		//check if this ID is LAr one
 		if(m_caloCell_ID->is_lar(id)) 
 		{
-		    const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
+		    const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
 		
 		    if(m_store_Tot) {
 			    LArCell* calibCell = new LArCell(caloDDE, id, Etot, 0., 0, 0, CaloGain::UNKNOWNGAIN );
@@ -287,7 +288,7 @@ StatusCode CalibHitToCaloCell::execute()
 		
                	    if(m_caloCell_ID->is_lar(id))
             	    {
-			const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
+			const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
                     	
                    	if(m_store_Tot) {
                         	LArCell* calibCell = new LArCell(caloDDE, id, Etot, 0., 0, 0, CaloGain::UNKNOWNGAIN );
@@ -472,7 +473,7 @@ StatusCode CalibHitToCaloCell::execute()
 
 	        if(m_caloCell_ID->is_tile(id))
 		{
-	            const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
+	            const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
 
 		    if(m_store_Tot) {
         		TileCell* calibCell = new TileCell(caloDDE, id, Etot, 0., 0, 0, CaloGain::UNKNOWNGAIN, 0.0, 0.0 );
@@ -578,7 +579,7 @@ StatusCode CalibHitToCaloCell::execute()
 
 	        if(m_caloCell_ID->is_tile(id))
 		{
-	            const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
+	            const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
 
 		    if(m_store_Tot) {
         		TileCell* calibCell = new TileCell(caloDDE, id, Etot, 0., 0, 0, CaloGain::UNKNOWNGAIN, 0.0, 0.0 );

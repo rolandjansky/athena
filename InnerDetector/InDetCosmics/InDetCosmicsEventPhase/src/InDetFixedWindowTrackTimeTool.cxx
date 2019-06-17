@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,25 +10,22 @@
 
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-
+#include "StoreGate/ReadCondHandle.h"
 //================ Constructor =================================================
 
 InDet::InDetFixedWindowTrackTimeTool::InDetFixedWindowTrackTimeTool(std::string const& t
                                                                     , std::string const& n
                                                                     , IInterface const* p
                                                                     ) : AthAlgTool(t, n, p)
-  , m_averageT0(0.)
-  , m_trtconddbsvc("TRT_CalDbSvc", n) {
+  , m_caldbtool("TRT_CalDbTool", this) {
   declareInterface<IInDetCosmicsEventPhaseTool>(this);
-  declareProperty("TRTCalDbSvc", m_trtconddbsvc);
-  declareProperty("UseTRTCalibration", m_gett0 = true);
-  declareProperty("UseNewEP", m_useNewEP = true);
+  declareProperty("TRTCalDbTool", m_caldbtool);
   declareProperty("GlobalOffset", m_globalOffset = 10.);
+  declareProperty("UseNewEP", m_useNewEP = true);
   declareProperty("WindowCenter", m_windowCenter = -8.5);
   declareProperty("WindowSize", m_windowSize = 7.);
 }
@@ -42,7 +39,9 @@ InDet::InDetFixedWindowTrackTimeTool::~InDetFixedWindowTrackTimeTool()
 //================ Initialisation =================================================
 
 StatusCode InDet::InDetFixedWindowTrackTimeTool::initialize() {
-  ATH_CHECK(m_trtconddbsvc.retrieve());
+  ATH_CHECK(m_caldbtool.retrieve());
+  // Read key
+  ATH_CHECK( m_T0ReadKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -55,77 +54,14 @@ StatusCode InDet::InDetFixedWindowTrackTimeTool::finalize() {
 
 //============================================================================================
 
-void InDet::InDetFixedWindowTrackTimeTool::beginRun() {
-  m_averageT0 = 0.;
-
-  if (!m_useNewEP) {
-    ATH_MSG_INFO("InDetFixedWindowTrackTimeTool::beginRun, averageT0 = 0 (m_useNewEP=false) ");
-    return;
-  }
-
-  TRT_ID const* TRTHelper;
-
-  if (detStore()->retrieve(TRTHelper, "TRT_ID").isFailure()) {
-    ATH_MSG_FATAL("Could not get TRT ID helper");
-    return;
-  }
-
-  int countAverageT0 = 0; // should be equal to 32*2*1642  105088
-  double rtShift = 0.; // shift from 0 of the RT relation
-
-  for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end();
-       it++) {
-    int nStrawsInLayer = TRTHelper->straw_max(*it);
-    for (int i = 0; i <= nStrawsInLayer; i++) {
-      Identifier id = TRTHelper->straw_id(*it, i);
-      if (abs(TRTHelper->barrel_ec(id)) != 1)                                                    // average only for
-                                                                                                 // barrel straws
-        continue;
-      m_averageT0 += m_trtconddbsvc->getT0(id); // access straw T0 same as elsewhere, countAverageT0++;
-      countAverageT0++;
-      const TRTCond::RtRelation* rtRelation = m_trtconddbsvc->getRtRelation(id);
-      if (!rtRelation) {
-        ATH_MSG_DEBUG("rtRelation missing in InDetCosmicsEventPhase::initialize!");
-        continue;
-      }
-      rtShift += rtRelation->drifttime(0.);
-    }
-  }
-
-  if (countAverageT0) //CID 13692
-    m_averageT0 /= (double(countAverageT0));
-  double averageT0 = m_averageT0;
-  if (countAverageT0) //CID 13693
-    rtShift /= (double(countAverageT0));
-
-  m_averageT0 -= 20.; // shift so that the range is about the same as before
-  m_averageT0 += rtShift;
-
-  //print value for test
-  ATH_MSG_DEBUG("The number of straws seen is: " << countAverageT0
-                                                 << " and the values expected is:  " << 105088);
-  ATH_MSG_DEBUG("The average T0 is: " << averageT0
-                                      << ", average RT(r=0) is " << rtShift
-                                      << " and we are subtracting: " << m_averageT0);
-  ATH_MSG_INFO("InDetFixedWindowTrackTimoeol::beginRun Using updated EP calculation (December 2009), subtracting: " << m_averageT0
-                                                                                                                    << " ns (average T0: " << averageT0
-                                                                                                                    << " ns, average RT(r=0): " << rtShift << " ns), GlobalOffset: " << m_globalOffset <<
-  " ns.");
-
-  return;
-}
 
 double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) const {
   ATH_MSG_DEBUG("Finding phase...");
 
-  std::vector<float> data(4);
-  data.push_back(0.); //0 0.1 -0.00087 0
-  data.push_back(0.1);
-  data.push_back(-0.00087);
-  data.push_back(0.);
+  SG::ReadCondHandle<TRTCond::AverageT0> rhl{m_T0ReadKey};
+  const TRTCond::AverageT0* avgT0{*rhl};
 
-  TRTCond::RtRelation const* rtr = (m_gett0) ? 0
-                                   : new TRTCond::BasicRtRelation(data);
+  TRTCond::RtRelation const* rtr = 0;
 
   double timeresidualsum = 0;
   size_t ntrthits = 0;
@@ -150,18 +86,16 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
     Identifier const& ident = trtcirc->identify();
     double rawdrifttime = rawhit->rawDriftTime();
 
-    double t0 = (m_gett0) ? m_trtconddbsvc->getT0(ident)
-                : 0;
+    double t0 = m_caldbtool->getT0(ident);
     ATH_MSG_DEBUG("T0 : " << t0);
-
-    if (m_gett0) rtr = m_trtconddbsvc->getRtRelation(ident);
+    rtr = m_caldbtool->getRtRelation(ident);
 
     Trk::TrackParameters const* tparp = state->trackParameters();
     if (!tparp) continue;
 
     double trkdistance = tparp->parameters()[Trk::driftRadius];
     double trkdrifttime = rtr->drifttime(fabs(trkdistance));
-    double timeresidual = rawdrifttime - t0 + m_averageT0 - trkdrifttime;
+    double timeresidual = rawdrifttime - t0 + avgT0->get() - trkdrifttime;
 
     ATH_MSG_DEBUG("trkdistance=" << trkdistance
                                  << "  trkdrifttime=" << trkdrifttime
@@ -174,7 +108,6 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
       ++ntrthits;
     }
   }
-  if (!m_gett0) delete rtr;
 
   ATH_MSG_DEBUG("timeresidualsum = " << timeresidualsum);
   ATH_MSG_DEBUG("ntrtrhits = " << ntrthits);
@@ -185,13 +118,11 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
 }
 
 double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Segment const* segment) const {
-  std::vector<float> data{0., 0.1, -0.00087,0.};
-  
-  TRTCond::RtRelation const* rtr = (m_gett0) ? 0
-                                   : new TRTCond::BasicRtRelation(data);
 
   double sum_tr = 0.;
   double sum_goodhits = 0.;
+
+  TRTCond::RtRelation const* rtr = 0;
 
   int nhits = segment->numberOfMeasurementBases();
   for (int i = 0; i < nhits; ++i) {
@@ -205,8 +136,8 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Segment const* segme
 
     if (!rawhit->lastBinHigh() && !rawhit->isNoise()) {
       Identifier const& ident = trtcirc->identify();
-
-      if (m_gett0) rtr = m_trtconddbsvc->getRtRelation(ident);
+      rtr = m_caldbtool->getRtRelation(ident);
+  
       if (not rtr) {
         ATH_MSG_WARNING("Rt relation pointer is null!");
         return 0.;
@@ -225,8 +156,6 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Segment const* segme
     }
   }
 
-  if (!m_gett0) delete rtr;
-
 
   if (sum_goodhits > 1) return sum_tr / sum_goodhits + m_globalOffset;
 
@@ -235,6 +164,9 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Segment const* segme
 
 double InDet::InDetFixedWindowTrackTimeTool::findPhaseFromTE(Trk::Track const* track) const {
   ATH_MSG_DEBUG("Finding phase...");
+
+  SG::ReadCondHandle<TRTCond::AverageT0> rhl{m_T0ReadKey};
+  const TRTCond::AverageT0* avgT0{*rhl};
 
   double timeresidualsum = 0;
   size_t ntrthits = 0;
@@ -254,12 +186,11 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhaseFromTE(Trk::Track const* t
     Identifier const& ident = trtcirc->identify();
     double rawtrailingedge = rawhit->trailingEdge() * 3.125;
 
-    double t0 = (m_gett0) ? m_trtconddbsvc->getT0(ident)
-                : 0;
+    double t0 = m_caldbtool->getT0(ident);
 
     ATH_MSG_DEBUG("T0 : " << t0);
 
-    double timeresidual = rawtrailingedge - t0 + m_averageT0;
+    double timeresidual = rawtrailingedge - t0 + avgT0->get();
 
     ATH_MSG_DEBUG("timeresidual=" << timeresidual);
 

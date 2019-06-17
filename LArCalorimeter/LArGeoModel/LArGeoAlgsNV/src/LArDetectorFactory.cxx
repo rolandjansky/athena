@@ -337,7 +337,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   
   try
   {
-    fcalDetectorManager = new FCALDetectorManager();
+    fcalDetectorManager = new FCALDetectorManager(&(m_hvManager->getFCALHVManager()));
     std::string fcalModName[2][3]={{"FCAL1_NEG","FCAL2_NEG","FCAL3_NEG"},
 				   {"FCAL1_POS","FCAL2_POS","FCAL3_POS"}};
     for (int e=0;e<2;e++) {
@@ -360,7 +360,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
   try
   {
-    hecDetectorManager = new  HECDetectorManager();
+    hecDetectorManager = new  HECDetectorManager(&(m_hvManager->getHECHVManager()));
     for (unsigned int s=0;s<4;s++) {
       for (unsigned int r=0;r<2;r++) {
 	unsigned int nPhi    = r==0? 2:1;
@@ -400,7 +400,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
     
     
     emecDetectorManager  = new EMECDetectorManager(&(m_hvManager->getEMECHVManager(EMECHVModule::INNER))
-						   ,&(m_hvManager->getEMECHVManager(EMECHVModule::OUTER)));
+						   ,&(m_hvManager->getEMECHVManager(EMECHVModule::OUTER))
+						   ,&(m_hvManager->getEMECPresamplerHVManager()));
     
     // Here is a table of min and max eta for different sampling layers, radial part (i/o) and region.
     
@@ -539,7 +540,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
   try
   { 
-    embDetectorManager  = new EMBDetectorManager(m_hvManager->getEMBHVManager());
+    embDetectorManager  = new EMBDetectorManager(m_hvManager->getEMBHVManager(),m_hvManager->getEMBPresamplerHVManager());
     int firstEndcap=m_testbeam==0 ? 0:1, endEndcap=2;
     for (int e= firstEndcap ;e<endEndcap;e++) {
 

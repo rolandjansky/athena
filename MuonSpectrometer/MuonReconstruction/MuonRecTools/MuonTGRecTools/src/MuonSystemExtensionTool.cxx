@@ -25,8 +25,8 @@ namespace Muon {
   MuonSystemExtensionTool::MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this)
   {
     declareInterface<IMuonSystemExtensionTool>(this);
 

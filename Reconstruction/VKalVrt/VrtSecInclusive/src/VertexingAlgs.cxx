@@ -16,17 +16,12 @@
 #include "TLorentzVector.h"
 
 #include <iostream>
-
+#include "TrkVKalVrtCore/PGraph.h"
 //-------------------------------------------------
 
 using namespace std;
 
-namespace Trk {
-  extern 
-    int  pgraphm_(
-        long int *weit, long int *edges, long int *nodes,
-        long int *set, long int *nptr,  long int *nth);
-}
+
 
 namespace VKalVrtAthena {
 
@@ -231,7 +226,7 @@ namespace VKalVrtAthena {
     vector<const xAOD::NeutralParticle*>  dummyNeutrals(0);
 
     m_fitSvc->setDefault();
-
+    auto pgraph = std::make_unique<Trk::PGraph>();
     // Main iteration
     while(true) {
 
@@ -239,7 +234,7 @@ namespace VKalVrtAthena {
       WrkVrt newvrt;
 
       // Find a solution from the given set of incompatible tracks (==weit)
-      Trk::pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
+      pgraph->pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
 
       ATH_MSG_VERBOSE(" > reconstruct2TrackVertices(): Trk::pgraphm_() output: NPTR = " << NPTR );
 

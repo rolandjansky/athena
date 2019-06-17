@@ -1,122 +1,121 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSUMMARYHELPERTOOL_H
 #define INDETTRACKSUMMARYHELPERTOOL_H
 
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkTrackSummary/TrackSummary.h" // defines the Trk::numberOfDetectorTypes enum
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+
+#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "GaudiKernel/ToolHandle.h"
-#include <vector>
-#include <bitset>
+#include "TrkToolInterfaces/IPixelToTPIDTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkTrackSummary/TrackSummary.h" // defines the Trk::numberOfDetectorTypes enum
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
+#include <bitset>
+#include <vector>
 
 class ITRT_StrawSummaryTool;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
 
-namespace Trk
-{
-   class TrackStateOnSurface;
-   class Track;
-   class RIO_OnTrack;
-   class CompetingRIOsOnTrack;
-   class IPRD_AssociationTool;
-   class ITrackHoleSearchTool;
-   class IPixelToTPIDTool;
-}
-namespace InDet{
-   class IInDetTestBLayerTool;
+namespace Trk {
+  class CompetingRIOsOnTrack;
+  class RIO_OnTrack;
+  class Track;
+  class TrackStateOnSurface;
 }
 
 namespace InDet {
 
-  class InDetTrackSummaryHelperTool :  virtual public Trk::ITrackSummaryHelperTool, public AthAlgTool   {
+  class InDetTrackSummaryHelperTool : public extends<AthAlgTool, Trk::ITrackSummaryHelperTool> {
   public:
-    
+
     /** constructor */
-    InDetTrackSummaryHelperTool(const std::string&,const std::string&,const IInterface*);
-	
+    InDetTrackSummaryHelperTool(const std::string&, const std::string&, const IInterface*);
+
     /** destructor */
-    virtual ~InDetTrackSummaryHelperTool ();
-	
+    virtual ~InDetTrackSummaryHelperTool() = default;
+
     /** standard AlgTool methods: initialise retrieves Tools, finalize does nothing */
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-	
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** Input : rot, tsos
-	Output: Changes in information and hitPattern
-	Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
+        Output: Changes in information and hitPattern
+        Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
     virtual void analyse(const Trk::Track& track,
-			 const Trk::RIO_OnTrack* rot,
-			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const ;
+                         const Trk::RIO_OnTrack* rot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information, 
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
     virtual void analyse(const Trk::Track& track,
-			 const Trk::CompetingRIOsOnTrack* crot,
-			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
+                         const Trk::CompetingRIOsOnTrack* crot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information, 
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
     /** Input : track, partHyp
-	Output: Changes in information
-	This method first calls the method getListOfHits to isolate the relevant hits on the track before calling the method
-	performHoleSearchStepWise which then performs the actual hole search.
-	Additionally the Layers of the Pixel Detector which contribute measurements to the track are counted  
-	If problems occur, the information counters for Holes and PixelLayers are reset to -1 flagging them as not set.
+        Output: Changes in information
+        This method first calls the method getListOfHits to isolate the relevant hits on the track before calling the method
+        performHoleSearchStepWise which then performs the actual hole search.
+        Additionally the Layers of the Pixel Detector which contribute measurements to the track are counted  
+        If problems occur, the information counters for Holes and PixelLayers are reset to -1 flagging them as not set.
     */
-    void searchForHoles(const Trk::Track& track, 
-			std::vector<int>& information ,
-			const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
+    virtual void searchForHoles(const Trk::Track& track, 
+                        std::vector<int>& information ,
+                        const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
 
     /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const;
- /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
-    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const;
+    virtual void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const override;
+    /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
+    virtual void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
     /** This method updates the expect... hit info*/
-    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const;
+    virtual void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
 
     /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
 
-    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const;
- 
+    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const override;
+
 
   private:
     /**ID pixel helper*/
-    bool m_usePixel;
-    const PixelID* m_pixelId;
-    
+    const PixelID* m_pixelId{nullptr};
+
     /**ID SCT helper*/
-    bool m_useSCT;
-    const SCT_ID* m_sctId;
-    
+    const SCT_ID* m_sctId{nullptr};
+
     /**ID TRT helper*/
-    bool m_useTRT;
-    const TRT_ID* m_trtId;
+    const TRT_ID* m_trtId{nullptr};
 
     /**Association tool - used to work out which (if any) PRDs are shared between 
        tracks*/
-    ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
-    ToolHandle< Trk::IPixelToTPIDTool >      m_pixeldedxtool; // why in Trk namespace ?
-    ToolHandle< Trk::ITrackHoleSearchTool >  m_holeSearchTool;
-    ToolHandle< InDet::IInDetTestBLayerTool > m_testBLayerTool;
-    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; //!< The ConditionsSummaryTool
+    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssoTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
+    PublicToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{this, "PixelToTPIDTool", ""};
+    PublicToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{this, "HoleSearch", "InDet::InDetTrackHoleSearchTool"};
+    PublicToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{this, "TestBLayerTool", ""};
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{this, "TRTStrawSummarySvc", "TRT_StrawStatusSummaryTool", "The ConditionsSummaryTool"};
 
-
-    bool m_doSharedHits;
-    bool m_doSharedHitsTRT;
-    bool m_doSplitPixelHits;
-    bool m_overwriteidsummary;
-    bool m_runningTIDE_Ambi;
-};
+    BooleanProperty m_usePixel{this, "usePixel", true};
+    BooleanProperty m_useSCT{this, "useSCT", true};
+    BooleanProperty m_useTRT{this, "useTRT", true};
+    BooleanProperty m_doSharedHits{this, "DoSharedHits", false};
+    BooleanProperty m_doSharedHitsTRT{this, "DoSharedHitsTRT", false};
+    BooleanProperty m_doSplitPixelHits{this, "DoSplitHits", true};
+    BooleanProperty m_overwriteidsummary{this, "OverwriteIDSummary", false};
+    BooleanProperty m_runningTIDE_Ambi{this, "RunningTIDE_Ambi", false};
+  };
 
 }
-#endif 
-
+#endif

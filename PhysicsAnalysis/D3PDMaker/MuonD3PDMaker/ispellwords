@@ -282,7 +282,6 @@ IncidentService
 AlgTool
 originalTrack
 TileTimingFillerTool
-SGTools
 elif
 TrackExtrapolatorToCalo
 AuditEndRun

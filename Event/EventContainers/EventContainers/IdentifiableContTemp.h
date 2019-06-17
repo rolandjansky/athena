@@ -75,9 +75,9 @@ public:
         return m_usedhashes.size();
     }
     
-    virtual bool  tryFetch(IdentifierHash hashId) override{
+    virtual bool  tryAddFromCache(IdentifierHash hashId) override{
       if(m_extIDC){
-          return m_extIDC->tryFetch(hashId);
+          return m_extIDC->tryAddFromCache(hashId);
       }
       return false;
     }

@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPCOMPS_PILEUPTOOLSALG_H
@@ -32,7 +32,7 @@ public:
 private:
   StatusCode clearXing(SubEventIterator& fEvt,
                        const SubEventIterator& lEvt);
-  ToolHandleArray<IPileUpTool> m_puTools;
+  ToolHandleArray<IPileUpTool> m_puTools{this,"PileUpTools",{},"IPileUpTools to be run for each event"};
 };
 
 

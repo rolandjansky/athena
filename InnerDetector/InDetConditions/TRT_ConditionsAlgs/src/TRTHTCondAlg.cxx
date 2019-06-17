@@ -6,7 +6,7 @@
 
 TRTHTCondAlg::TRTHTCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
-  : ::AthReentrantAlgorithm(name,pSvcLocator),
+  : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name)
 {}
 TRTHTCondAlg::~TRTHTCondAlg(){}
@@ -31,13 +31,13 @@ StatusCode TRTHTCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TRTHTCondAlg::execute(const EventContext& ctx) const 
+StatusCode TRTHTCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
 
-  SG::WriteCondHandle<HTcalculator> writeHandle{m_WriteKey,ctx};
+  SG::WriteCondHandle<HTcalculator> writeHandle{m_WriteKey};
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
@@ -55,7 +55,7 @@ StatusCode TRTHTCondAlg::execute(const EventContext& ctx) const
   
 
   // ____________ Compute the array structures for the HTcalculator object  ____________
-  SG::ReadCondHandle<CondAttrListVec> readHandle{m_ReadKey,ctx};
+  SG::ReadCondHandle<CondAttrListVec> readHandle{m_ReadKey};
   const CondAttrListVec* channel_values{*readHandle};
   if(channel_values==nullptr) {
       ATH_MSG_ERROR(" Problem reading TRT/Calib/PID_vector cond object");

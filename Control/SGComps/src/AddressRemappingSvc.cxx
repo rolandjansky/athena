@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AddressRemappingSvc.cxx
@@ -31,6 +31,7 @@
 #include <algorithm>
 
 #include "boost/range.hpp"
+
 
 //________________________________________________________________________________
 AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -413,7 +414,17 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
     }
 
     else if (isDeleted (*tad)) {
-      pos = tads.erase (pos);
+      // Rename the existing TAD to end in _DELETED.
+      // Drop alias/symlinks in the process.
+      auto tad_new = std::make_unique<SG::TransientAddress>
+        (tad->clID(), tad->name() + "_DELETED",
+         tad->address(), tad->clearAddress());
+      tad_new->setProvider (tad->provider(), tad->storeID());
+      // Replace the old TAD in the list with the new one.
+      delete tad;
+      tad = tad_new.release();
+
+      ++pos;
     }
 
     else {

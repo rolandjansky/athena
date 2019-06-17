@@ -59,10 +59,10 @@ namespace Trk
     // establish element links
         if (trk!=0) 
 	{
-	  m_originalTrack.setElement(const_cast<Track*>(trk));
+	  m_originalTrack.setElement(trk);
 	  m_trackInfo = trk->info();
 	}
-        if (vxCandidate!=0) m_elVxCandidate.setElement(const_cast<VxCandidate*>(vxCandidate));
+        if (vxCandidate!=0) m_elVxCandidate.setElement(vxCandidate);
     }
     
     TrackParticleBase::TrackParticleBase( const ElementLink<TrackCollection>& trackLink,

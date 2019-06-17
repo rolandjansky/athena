@@ -1,0 +1,59 @@
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+
+template<class T> 
+const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
+  Trig::Feature<T> f;
+  std::vector<Trig::Feature<T> > data;
+  FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
+
+  BOOST_FOREACH( Feature<T>& f, data ) {
+    if ( f.owned() ) {
+      cgm()->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+    }
+  }
+
+  if (data.size() == 1)
+    f = data[0];  
+  return f;
+}
+
+
+template<class T>
+const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
+  std::vector<Trig::Feature<T> > data;
+  FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
+  BOOST_FOREACH( Feature<T>& f, data ) {
+    if ( f.owned() ) {
+      cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
+    }
+  }
+  return data;
+}
+#else
+template<class T> 
+const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
+  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
+  return Trig::Feature<T>();
+}
+template<class T>
+const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
+  ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
+  return  std::vector<Trig::Feature<T> >();
+}
+
+#endif // ASGTOOL_ATHENA
+
+template<class CONTAINER>
+const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,
+                                                                  const unsigned int condition,
+                                                                  const bool oneFeaturePerLeg) const {
+  return group->features<CONTAINER>(cgm()->store(), condition, oneFeaturePerLeg);
+}
+
+template<class CONTAINER>
+const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const std::string& chainName,
+                                                                  const unsigned int condition,
+                                                                  const bool oneFeaturePerLeg) const {
+  const Trig::ChainGroup *g = cgm()->createChainGroup(Trig::convertStringToVector(chainName));
+  return features<CONTAINER>(g,condition,oneFeaturePerLeg);
+}

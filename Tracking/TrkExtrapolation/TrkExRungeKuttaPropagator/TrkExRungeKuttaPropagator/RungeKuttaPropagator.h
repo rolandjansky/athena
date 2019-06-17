@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ parameters and jacobian of transformation according straight line model
 @author Igor.Gavrilenko@cern.ch     
   */
 
-  class RungeKuttaPropagator : public AthAlgTool, virtual public IPropagator,
+  class RungeKuttaPropagator final: public AthAlgTool, virtual public IPropagator,
   virtual public IPatternParametersPropagator
 {
   /////////////////////////////////////////////////////////////////////////////////
@@ -118,23 +118,23 @@ public:
   virtual ~RungeKuttaPropagator ();
 
   /** AlgTool initailize method.*/
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** AlgTool finalize method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override final;
 
   /** Main propagation mehtod NeutralParameters */
 
-  const NeutralParameters* propagate
+ virtual const NeutralParameters* propagate
     (const NeutralParameters        &,
      const Surface                  &,
      PropDirection                   ,
      BoundaryCheck                   ,
-     bool                            ) const;
+     bool                            ) const override final;
 
   /** Main propagation mehtod without transport jacobian production*/
 
-  const TrackParameters*           propagate
+  virtual const TrackParameters*           propagate
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -142,11 +142,11 @@ public:
      const MagneticFieldProperties  &, 
      ParticleHypothesis              ,
      bool                            ,
-     const TrackingVolume*           ) const;
+     const TrackingVolume*           ) const override final;
 
   /** Main propagation mehtod with transport jacobian production*/
 
-  const TrackParameters*           propagate
+  virtual const TrackParameters*           propagate
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -156,11 +156,11 @@ public:
      double                         &,
      ParticleHypothesis              ,
      bool                            ,
-     const TrackingVolume*            ) const;
+     const TrackingVolume*            ) const override final;
 
   /** The propagation method finds the closest surface */
 
-  const TrackParameters*           propagate
+  virtual const TrackParameters*           propagate
     (const TrackParameters         &,
      std::vector<DestSurf>         &,
      PropDirection                  ,
@@ -170,11 +170,11 @@ public:
      double                        &,
      bool                           ,
      bool                           ,
-     const TrackingVolume*          ) const;
+     const TrackingVolume*          ) const override final;
 
   /** Main propagation mehtod for parameters only without transport jacobian productio*/
 
-  const TrackParameters*           propagateParameters
+  virtual const TrackParameters*           propagateParameters
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -182,12 +182,12 @@ public:
      const MagneticFieldProperties  &, 
      ParticleHypothesis              ,
      bool                            ,
-     const TrackingVolume*          ) const;
+     const TrackingVolume*          ) const override final;
 
 
   /** Main propagation mehtod for parameters only with transport jacobian productio*/
 
-  const TrackParameters*           propagateParameters
+  virtual const TrackParameters*           propagateParameters
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -196,100 +196,93 @@ public:
      TransportJacobian             *&,
      ParticleHypothesis              ,
      bool                            ,
-     const TrackingVolume*           ) const;
+     const TrackingVolume*           ) const override final;
 
   /** Global position together with direction of the trajectory on the surface */
 
-  const IntersectionSolution*      intersect
+  virtual const IntersectionSolution*      intersect
     (const TrackParameters          &,
      const Surface                  &,
      const MagneticFieldProperties  &, 
      ParticleHypothesis particle=pion, 
-     const TrackingVolume*   tvol=0  ) const;
+     const TrackingVolume*   tvol=0  ) const override final;
 
   /** GlobalPositions list interface:*/
 
-  void globalPositions
+  virtual void globalPositions
     (std::list<Amg::Vector3D>       &,
      const TrackParameters          &,
      const MagneticFieldProperties  &,
      const CylinderBounds&           ,
      double                          ,
      ParticleHypothesis particle=pion,
-     const TrackingVolume* tvol=0    ) const;
+     const TrackingVolume* tvol=0    ) const override final;
 
-  /** Test quality Jacobian calculation */
-
-  void JacobianTest
-    (const TrackParameters        &,
-     const Surface                &,
-     const MagneticFieldProperties&) const;
-
-  /////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////
   // Public methods for Trk::PatternTrackParameters (from IPattern'Propagator)
   /////////////////////////////////////////////////////////////////////////////////
 
   /** Main propagation method */
 
   using IPropagator::propagate;
-  bool propagate
+  virtual bool propagate
     (PatternTrackParameters         &,
      const Surface                  &,
      PatternTrackParameters         &,
      PropDirection                   ,
      const MagneticFieldProperties  &, 
-     ParticleHypothesis particle=pion) const;
+     ParticleHypothesis particle=pion) const  override final;
 
   /** Main propagation mehtod with step to surface calculation*/
 
-  bool propagate
+  virtual bool propagate
     (PatternTrackParameters         &,
      const Surface                  &,
      PatternTrackParameters         &,
      PropDirection                   ,
      const MagneticFieldProperties  &,
      double                         &,
-     ParticleHypothesis particle=pion) const;
+     ParticleHypothesis particle=pion) const  override final;
 
   /** Main propagation mehtod for parameters only */
 
-  bool propagateParameters
+  virtual bool propagateParameters
     (PatternTrackParameters         &,
      const Surface                  &,
      PatternTrackParameters         &,
      PropDirection                   ,
      const MagneticFieldProperties  &,
-     ParticleHypothesis particle=pion) const;
+     ParticleHypothesis particle=pion) const  override final;
 
   /** Main propagation mehtod for parameters only with step to surface calculation*/
 
-  bool propagateParameters
+  virtual bool propagateParameters
     (PatternTrackParameters         &,
      const Surface                  &,
      PatternTrackParameters         &,
      PropDirection                   ,
      const MagneticFieldProperties  &,
      double                         &,
-     ParticleHypothesis particle=pion) const;
+     ParticleHypothesis particle=pion) const  override final;
 
   /** GlobalPositions list interface:*/
 
-  void globalPositions
+  virtual void globalPositions
     (std::list<Amg::Vector3D>       &,
      const PatternTrackParameters   &,
      const MagneticFieldProperties  &,
      const CylinderBounds           &,
      double                          ,
-     ParticleHypothesis particle=pion) const;
+     ParticleHypothesis particle=pion) const  override final;
 
   /** GlobalPostions and steps for set surfaces */
 
-  void globalPositions
+  virtual void globalPositions
     (const PatternTrackParameters                 &,
      std::list<const Surface*>                    &,
      std::list< std::pair<Amg::Vector3D,double> > &,
      const MagneticFieldProperties                &,
-     ParticleHypothesis particle=pion              ) const;
+     ParticleHypothesis particle=pion              ) const  override final;
 
   /** a very simple propagation along a given path length */
 
@@ -299,7 +292,7 @@ public:
                              double step,
                              Amg::Vector3D& outputPosition, 
                              Amg::Vector3D& outputMomentum,
-                             const MagneticFieldProperties& mprop);
+                             const MagneticFieldProperties& mprop) const override final;
 
 private:
 
@@ -319,6 +312,14 @@ private:
   // Private methods:
   /////////////////////////////////////////////////////////////////////////////////
 
+  /** Test quality Jacobian calculation */
+
+  void JacobianTest
+    (const TrackParameters        &,
+     const Surface                &,
+     const MagneticFieldProperties&) const;
+
+ 
   /** Internal RungeKutta propagation method for charge track parameters*/   
 
   const TrackParameters*      propagateRungeKutta
@@ -441,11 +442,13 @@ private:
   void getFieldGradient(Cache& cache, double*,double*,double*) const;
 
   //placeholder for compatibility with new interface
+  virtual
   const TrackSurfaceIntersection* intersectSurface(const Surface&,
                                                    const TrackSurfaceIntersection*,
                                                    const double,
                                                    const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const {return 0;}
+                                                   ParticleHypothesis) const override
+  {return 0;}
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private data members: 

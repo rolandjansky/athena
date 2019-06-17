@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -26,8 +26,6 @@
 #include "EventInfo/EventID.h"
 
 // Trigger Menu tools
-//#include "TrigDecision/TrigDecisionTool.h"
-#include "TrigSteeringEvent/TriggerDecision.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
 

@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
+                          Tracking/TrkExtrapolation/TrkExUtils
                           Tracking/TrkTools/TrkParticleCreator
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
@@ -37,5 +38,5 @@ atlas_add_library( TrigInDetAnalysisUtils
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetAnalysisUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent TrkParameters TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetAnalysis TrigInDetEvent TrigSteeringEvent TrigInDetTruthEvent StoreGateLib SGtests TrigDecisionToolLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent TrkParameters TrkTrack TrkTrackSummary TrkExUtils TrkToolInterfaces TrigInDetAnalysis TrigInDetEvent TrigSteeringEvent TrigInDetTruthEvent StoreGateLib SGtests TrigDecisionToolLib )
 

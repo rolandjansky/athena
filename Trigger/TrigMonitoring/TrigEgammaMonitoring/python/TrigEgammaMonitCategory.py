@@ -2,9 +2,9 @@
 
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
-primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e28_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
-primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e28_lhtight_nod0_ivarloose']
-monitoring_Zee = ['HLT_e28_lhtight_nod0_e15_etcut_L1EM7_Zee','HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee']
+primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
+primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+monitoring_Zee = ['HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g140_tight','HLT_g200_loose']
 
@@ -42,10 +42,7 @@ monitoring_tags = ['HLT_e5_lhloose',
                    'HLT_e26_lhtight_nod0_ivarloose',
                    'HLT_e28_lhtight_nod0_ivarloose',
                    'HLT_e60_lhmedium_nod0_L1EM24VHI',
-                   'HLT_e5_lhloose_gsf',
-                   'HLT_e17_lhvloose_nod0_gsf',
-                   'HLT_e28_lhtight_nod0_gsf_ivarloose',
-                   'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
+                   ]
 
 monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
@@ -73,19 +70,11 @@ monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
 # monitoring_electron += commission_electron
 
 # 2018 single electrons triggers to monitor from Zee TP, includes rerun
-commissionTP_electron = ['HLT_e28_lhtight_nod0_sc_ivarloose',
-                         'HLT_e28_lhtight_nod0_gsf_ivarloose',
-                         'HLT_e28_lhtight_nod0_sc_gsf_ivarloose',
-                         'HLT_e24_lhvloose_nod0_gsf',
-                         'HLT_e24_lhvloose_nod0_sc',
-                         'HLT_e24_lhvloose_nod0_sc_gsf',
+commissionTP_electron = [
                          'HLT_e5_lhloose',
                          'HLT_e28_lhtight_nod0_ivarloose',
                          'HLT_e60_lhmedium_nod0_L1EM24VHI',
-                         'HLT_e5_lhloose_gsf',
-                         'HLT_e17_lhvloose_nod0_gsf',
-                         'HLT_e28_lhtight_nod0_gsf_ivarloose',
-                         'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
+                         ]
 
 monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
@@ -100,7 +89,6 @@ monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g35_loose',
                      'HLT_g120_loose',
-                     'HLT_g25_medium_sc_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g200_loose']
 

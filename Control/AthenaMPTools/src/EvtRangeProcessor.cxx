@@ -135,9 +135,15 @@ int EvtRangeProcessor::makePool(int, int nprocs, const std::string& topdir)
   // Create the process group and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(m_nprocs);
   ATH_MSG_INFO("Created Pool of " << m_nprocs << " worker processes");
-  if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
+  if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP)) {
     return -1;
+  }
   ATH_MSG_INFO("Workers bootstraped"); 
+
+  // Populate the m_procStates map
+  for(const AthenaInterprocess::Process& process : m_processGroup->getChildren()) {
+    m_procStates[process.getProcessID()] = PROC_STATE_INIT;
+  }
 
   return m_nprocs;
 }
@@ -153,6 +159,11 @@ StatusCode EvtRangeProcessor::exec()
 
 StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 {
+  // This method performs two tasks:
+  // 1. Checks if any of the workers has changed its state, and if so performs appropriate actions
+  // 2. Tries to pull one result from the workers results queue, and if there is one, then decodes it
+
+  // First make sure we have a valid pointer to the Failed PID Queue
   if(m_sharedFailedPidQueue==0) {
     if(detStore()->retrieve(m_sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
       ATH_MSG_ERROR("Unable to retrieve the pointer to Shared Failed PID Queue");
@@ -160,84 +171,184 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
     }
   }
 
+  // ____________________ Step 1: check for state changes in the workers ______________________________
   StatusCode sc = AthenaMPToolBase::wait_once(pid);
-  AthenaInterprocess::ProcessResult* presult(0);
-  if(sc.isFailure()) {
-    // If we failed to wait on the group, then exit immediately
-    if(pid<0) {
-      ATH_MSG_ERROR("Failed to wait on the process group!");
-      return sc;
-    }
+  if(pid>0) {
+    // One of the workers finished. We need to figure out whether or not it finished abnormally
 
-    if(m_execSet.empty() && m_finQueue.empty()) {
-      // This can happen if
-      // 1. The processes are crashing at bootstrap
-      // 2. The last process crashed after finalization
-      // In both cases we should stop the whole thing
+    auto itProcState = m_procStates.find(pid);
+    if(itProcState==m_procStates.end()) {
+      // Untracked subprocess?? Something's wrong. Exit
+      // To Do: how to report this error to the pilot?
+      sc.ignore();
+      ATH_MSG_ERROR("Detected untracked process ID=" << pid);
       return StatusCode::FAILURE;
     }
-    
-    if(m_execSet.find(pid)==m_execSet.end()
-       && pid!=m_finQueue.front()) {
-      // The process is neither in exec nor in fin. This can happen if
-      // 1. The process dies after finalize
-      // In this case we don't attempt to start new process, but we keep the whole thing alive
-      return StatusCode::SUCCESS;
-      // We can also end up here if a process dies at initialize (restarting process for example) but there are others currently at work
-      // This scenario is currently not handled! It is assumed that the restarted processes don't die at initialization
-      // To Do: find a way of handling this!
-    }
 
-    // Send the pid to Range Scatterer
-    if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
-      ATH_MSG_ERROR("Failed to send the failed PID to Token Scatterer");
-      return sc;
-    }
+    // Deal with failed workers
+    if(sc.isFailure()) {
 
-    // If the process failed at finalization, then remove pid from the finQueue
-    if(pid==m_finQueue.front()) {
-      ATH_MSG_DEBUG("Removing failed PID=" << pid << " from the finalization queue");
-      m_finQueue.pop_front();
- 
-      // Schedule finalization of the next process in the queue (if not empty)
-      if(m_finQueue.size()) {
-        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
-           || m_processGroup->map_async(0,0,m_finQueue.front())) {
-          ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
-          return sc;
-        }
-        else  {
-          ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
-        }
+      switch(itProcState->second) {
+      case PROC_STATE_INIT:
+	// If the failed process was in INIT state, exit immediately
+	ATH_MSG_ERROR("Worker with process ID=" << pid << " failed at initialization!");
+	return StatusCode::FAILURE;
+      case PROC_STATE_EXEC:
+	// If the failed process was in EXEC state, report pid to EvtRangeScatterer and attempt to start new worker
+
+	// Report pid to Event Range Scatterer
+	if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
+	  // To Do: how to report this error to the pilot?
+	  ATH_MSG_ERROR("Failed to report the crashed pid to the Event Range Scatterer");
+	  return StatusCode::FAILURE;
+	}
+
+	// Start new worker
+	if(startProcess().isSuccess()) {
+	  ATH_MSG_INFO("Successfully started new process");
+	  pid=0;
+	}
+	else {
+	  // To Do: how to report this error to the pilot?
+	  ATH_MSG_ERROR("Failed to start new process");
+	  return StatusCode::FAILURE;
+	}
+	break;
+      case PROC_STATE_FIN:
+	// If the failed process was in FIN state, remove pid from the finQueue and schedule finalization of the next worker
+	m_finQueue.pop_front();
+
+	if(m_finQueue.size()) {
+	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
+	     || m_processGroup->map_async(0,0,m_finQueue.front())) {
+	    // To Do: how to report this error to the pilot?
+	    ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
+	    return StatusCode::FAILURE;
+	  }
+	  else  {
+	    ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
+	  }
+	}
+	break;
+      case PROC_STATE_STOP:
+	break;
+      default:
+	ATH_MSG_ERROR("Detected unexpected state " << itProcState->second << " of failed worker with PID=" << pid);
+	return StatusCode::FAILURE;
       }
-   }
-    else {
-      // Try to start a new process
-      if(startProcess().isSuccess()) {
-	ATH_MSG_INFO("Successfully started new process");
-	pid=0;
-      }
-      else
-	ATH_MSG_WARNING("Failed to start new process");
     }
 
-    if(m_processGroup->getChildren().size()) {
-      ATH_MSG_INFO("The process group continues with " << m_processGroup->getChildren().size() << " processes");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_ERROR("No more processes in the group!");
+    // Erase the pid from m_procStates map
+    m_procStates.erase(itProcState);
   }
   else {
-    // Pull one result and decode it if necessary
-    presult = m_processGroup->pullOneResult();
-    int res(0);
-    if(presult && (unsigned)(presult->output.size)>=sizeof(int))
-      res = decodeProcessResult(presult);
-    if(presult) free(presult->output.data);
+    sc.ignore();
+    if(pid<0) {
+      // Here we failed to wait on the group. Exit immediately
+      // To Do: how to report this error to the pilot?
+      ATH_MSG_ERROR("Failed to wait on the process group!");
+      return StatusCode::FAILURE;
+    }
+  }
+  // ____________________ ______________________________________________ ______________________________
+
+
+  // ____________________ Step 2: decode worker result (if any) ______________________________
+  AthenaInterprocess::ProcessResult* presult = m_processGroup->pullOneResult();
+  if(presult) {
+    int res{0};
+    if((unsigned)(presult->output.size)>=sizeof(int)) {
+      // Decode result
+      const AthenaInterprocess::ScheduledWork& output = presult->output;
+
+      // First extract pid from the ProcessResult and check its validity
+      pid_t childPid = presult->pid;
+      auto itChildState = m_procStates.find(childPid);
+      if(itChildState==m_procStates.end()) {
+	ATH_MSG_ERROR("Unable to find PID=" << childPid << " in the Proc States map!");
+	return StatusCode::FAILURE;
+      }
+
+      ATH_MSG_DEBUG("Decoding the output of PID=" << childPid << " with the size=" << output.size);
+
+      if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) {
+	// We are dealing with the bootstrap function.
+	// Schedule exec_func()
+	if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC,childPid)) {
+	  ATH_MSG_ERROR("Problem scheduling execution on PID=" << childPid);
+	  return StatusCode::FAILURE;
+	}
+
+	// Update process state in the m_procStates map
+	itChildState->second=PROC_STATE_EXEC;
+      }
+
+      AthenaMPToolBase::Func_Flag func;
+      memcpy(&func,(char*)output.data+sizeof(int),sizeof(func));
+
+      if(func==AthenaMPToolBase::FUNC_EXEC) {
+	// Store the number of processed events
+	int nevt(0);
+	memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
+	m_nProcessedEvents[childPid]=nevt;
+	ATH_MSG_DEBUG("PID=" << childPid << " processed " << nevt << " events");
+
+	// Add PID to the finalization queue
+	m_finQueue.push_back(childPid);
+	ATH_MSG_DEBUG("Added PID=" << childPid << " to the finalization queue");
+
+	// If this is the only element in the queue then start its finalization
+	// Otherwise it has to wait its turn until all previous processes have been finalized
+	if(m_finQueue.size()==1) {
+	  if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,childPid)
+	     || m_processGroup->map_async(0,0,childPid)) {
+	    ATH_MSG_ERROR("Problem scheduling finalization on PID=" << childPid);
+	    return StatusCode::FAILURE;
+	  }
+	  else {
+	    ATH_MSG_INFO("Scheduled finalization of PID=" << childPid);
+	  }
+	}
+
+	// Update process state in the m_procStates map
+	itChildState->second=PROC_STATE_FIN;
+      }
+      else if(func==AthenaMPToolBase::FUNC_FIN) {
+	ATH_MSG_DEBUG("Finished finalization of PID=" << childPid);
+	pid_t pidFront = m_finQueue.front();
+	if(pidFront==childPid) {
+	  // pid received as expected. Remove it from the queue
+	  m_finQueue.pop_front();
+	  ATH_MSG_DEBUG("PID=" << childPid << " removed from the queue");
+	  // Schedule finalization of the next process in the queue
+	  if(m_finQueue.size()) {
+	    if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
+	       || m_processGroup->map_async(0,0,m_finQueue.front())) {
+	      ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
+	      return StatusCode::FAILURE;
+	    }
+	    else  {
+	      ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
+	    }
+	  }
+	}
+	else {
+	  // Error: unexpected pid received from presult
+	  ATH_MSG_ERROR("Finalized PID=" << childPid << " while PID=" << pid << " was expected");
+	  return StatusCode::FAILURE;
+	}
+
+	// Update process state in the m_procStates map
+	itChildState->second=PROC_STATE_STOP;
+      }
+    }
+    free(presult->output.data);
     delete presult;
     if(res) return StatusCode::FAILURE;
   }
-  return sc;
+  // ____________________ ______________________________________________ ______________________________
+
+  return StatusCode::SUCCESS;
 }
 
 void EvtRangeProcessor::reportSubprocessStatuses()
@@ -508,6 +619,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
         ATH_MSG_INFO("Seek to " << i << " succeeded");
         m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
         sc = m_evtProcessor->nextEvent(nEvt++);
+
         m_chronoStatSvc->chronoStop("AthenaMP_nextEvent");
         if(sc.isFailure()){
           ATH_MSG_WARNING("Failed to process the event " << i << " in range:" << rangeID);
@@ -535,7 +647,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     std::string strOutpFile;
     // Get the full path of the event range output file
     for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
-      if(fdIt->path().string().find(rangeID)!=std::string::npos) {
+      if(fdIt->path().string().rfind(rangeID) == fdIt->path().string().size()-rangeID.size()) {
 	if(strOutpFile.empty()) {
 	  strOutpFile = fdIt->path().string();
 	}
@@ -631,83 +743,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   return outwork;
 }
 
-int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult)
-{
-  if(!presult) return 0;
-  const AthenaInterprocess::ScheduledWork& output = presult->output;
-  pid_t childPid = presult->pid;
-  ATH_MSG_DEBUG("Decoding the output of PID=" << childPid << " with the size=" << output.size);
-  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) {
-    // We are dealing with the bootstrap function. TODO: implement error handling here!!
-    if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC,childPid)) {
-      ATH_MSG_ERROR("Problem scheduling execution on PID=" << childPid);
-      return 1;
-    }
-    m_execSet.insert(childPid);
-  }
-  
-  AthenaMPToolBase::Func_Flag func;
-  memcpy(&func,(char*)output.data+sizeof(int),sizeof(func));
-
-  if(func==AthenaMPToolBase::FUNC_EXEC) {
-    // Remove pid from the exec container
-    auto it = m_execSet.find(childPid);
-    if(it==m_execSet.end()) {
-      ATH_MSG_ERROR("Unxpected error: Execution of " << childPid << " finished, but PID not found in the stored PID container");
-      return 1;
-    }
-    m_execSet.erase(it);
-    // Store the number of processed events
-    int nevt(0);
-    memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
-    m_nProcessedEvents[childPid]=nevt;
-    ATH_MSG_DEBUG("PID=" << childPid << " processed " << nevt << " events");
-
-    // Add PID to the finalization queue
-    m_finQueue.push_back(childPid);
-    ATH_MSG_DEBUG("Added PID=" << childPid << " to the finalization queue");
-    
-    // If this is the only element in the queue then start its finalization
-    // Otherwise it has to wait its turn until all previous processes have been finalized
-    if(m_finQueue.size()==1) {
-      if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,childPid)
-	 || m_processGroup->map_async(0,0,childPid)) {
-	ATH_MSG_ERROR("Problem scheduling finalization on PID=" << childPid);
-	return 1;
-      }
-      else {
-	ATH_MSG_INFO("Scheduled finalization of PID=" << childPid);
-      }
-    }
-  }
-  else if(func==AthenaMPToolBase::FUNC_FIN) {
-    ATH_MSG_DEBUG("Finished finalization of PID=" << childPid);
-    pid_t pid = m_finQueue.front();
-    if(pid==childPid) {
-      // pid received as expected. Remove it from the queue
-      m_finQueue.pop_front();
-      ATH_MSG_DEBUG("PID=" << childPid << " removed from the queue");
-      // Schedule finalization of the next processe in the queue
-      if(m_finQueue.size()) {
-        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
-           || m_processGroup->map_async(0,0,m_finQueue.front())) {
-          ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
-          return 1;
-        }
-        else  {
-          ATH_MSG_DEBUG("Scheduled finalization of PID=" << m_finQueue.front());
-        }
-      }
-    }
-    else {
-      // Error: unexpected pid received from presult
-      ATH_MSG_ERROR("Finalized PID=" << childPid << " while PID=" << pid << " was expected");
-      return 1;
-    }
-  }
-  return 0;
-}
-
 StatusCode EvtRangeProcessor::startProcess()
 {
   m_nprocs++;
@@ -729,7 +764,8 @@ StatusCode EvtRangeProcessor::startProcess()
     return StatusCode::FAILURE;
   }
 
- return StatusCode::SUCCESS;
+  m_procStates[pid] = PROC_STATE_INIT;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)

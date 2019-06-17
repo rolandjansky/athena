@@ -10,8 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////
 #include "PixelDigitizationTool.h"
 
-#include "PileUpTools/PileUpMergeSvc.h"
-
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
@@ -22,34 +20,11 @@
 
 #include <limits>
 #include <cstdint>
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
 
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
-  PileUpToolBase(type,name,pIID),
-  m_rdoContainerKey("PixelRDOs"),
-  m_simDataCollKey("PixelSDO_Map"),
-  m_HardScatterSplittingMode(0),
-  m_HardScatterSplittingSkipper(false),
-  m_onlyHitElements(false),
-  m_detID(nullptr),
-  m_vetoThisBarcode(crazyParticleBarcode),
-  m_timedHits(nullptr),
-  m_mergeSvc("PileUpMergeSvc",name),
-  m_detManager(nullptr),
-  m_inputObjectName(""),
-  m_createNoiseSDO(false)
-{
-  declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
-  declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
-  declareProperty("CreateNoiseSDO",   m_createNoiseSDO,  "Set create noise SDO flag");
-  declareProperty("RDOCollName",      m_rdoContainerKey, "RDO collection name");
-  declareProperty("SDOCollName",      m_simDataCollKey,  "SDO collection name");
-  declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
-  declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
+  PileUpToolBase(type,name,pIID) {
 }
 
 //=======================================
@@ -57,15 +32,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
 //=======================================
 StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("PixelDigitizationTool::Initialize()");
-
-  // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL("Property InputObjectName not set !");
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Input objects: '" << m_inputObjectName << "'");
-  }
 
   // Initialize services
   CHECK(m_mergeSvc.retrieve());
@@ -86,11 +52,16 @@ StatusCode PixelDigitizationTool::initialize() {
   
   CHECK(m_energyDepositionTool.retrieve());
 
-  // Initialize ReadHandleKey
-  if (!m_hitsContainerKey.key().empty()) {
-    ATH_MSG_INFO("Loading single input HITS");
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -118,7 +89,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
   // Get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // In case of single hits container just load the collection using read handles
-  if (!m_hitsContainerKey.key().empty()) {
+  if (!m_onlyUseContainerName) {
     SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get Pixel SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());

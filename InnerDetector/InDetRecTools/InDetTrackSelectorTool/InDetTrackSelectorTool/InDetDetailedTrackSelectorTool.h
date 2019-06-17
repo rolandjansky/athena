@@ -12,6 +12,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexFwd.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
  * @file InDetDetailedTrackSelectorTool.h
@@ -27,8 +28,6 @@
  * @author Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
  * @author Daniel Kollar <daniel.kollar@cern.ch>
  */
-
-class IBeamCondSvc;
 
 
 namespace MagField {
@@ -88,6 +87,7 @@ namespace InDet
       				const Trk::Perigee* track) const;
 
       bool preselectionBeforeExtrapolation(const Trk::Perigee & myPerigee) const;
+      Amg::Vector3D getPosOrBeamSpot(const xAOD::Vertex*) const;
 
       double m_pTMin;       //<! min. pT: |pT|>pTMin
       double m_pMin;        //<! min. p = pT/cos(theta): |p| > pMin
@@ -151,7 +151,7 @@ namespace InDet
 
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
       ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
-      ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
       ToolHandle<ITrtDriftCircleCutTool> m_trtDCTool; //!< Tool to get eta dependent cut on number of TRT hits
 

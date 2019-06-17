@@ -23,9 +23,6 @@ namespace InDet
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    /** if m_useNewEP = True, set averageT0 != 0 */
-    virtual void beginRun()=0; 
-
     /** finds event phase of a track from the leading edge */
     virtual double findPhase(const Trk::Track *track) const =0;
 

@@ -100,7 +100,8 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
     // search last valid TSOS first (as won't be found in later loop)
     for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
     {
-      if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack()))
+      if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 
+           && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack()))
       {
         if (m_detID->is_indet((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() ) ) {
           lastValidIDTSOS = (*rItTSoS);
@@ -130,7 +131,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
   for (   ; itTSoS!=oldTrackStates->end(); ++itTSoS)
   {
     if (m_setPersistificationHints) {
-      (**itTSoS).setHint(Trk::TrackStateOnSurface::PartialPersistification);
+      const_cast<TrackStateOnSurface&>((**itTSoS)).setHint(Trk::TrackStateOnSurface::PartialPersistification);
     }
     parameters=0; 
     rot=0;
@@ -145,7 +146,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
         if ((**itTSoS).type(TrackStateOnSurface::Scatterer))
         {
           if (m_setPersistificationHints) {
-            (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
+            const_cast<TrackStateOnSurface&> ((**itTSoS)).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
           }
           else {
             trackStates->push_back((**itTSoS).clone());
@@ -163,8 +164,8 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
       {
         if (m_setPersistificationHints) {
           // (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
-          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
-          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
         }
         else {
         trackStates->push_back(
@@ -184,7 +185,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
       if (itTSoS != oldTrackStates->end() && (**itTSoS).type(TrackStateOnSurface::Scatterer))
       {
         if (m_setPersistificationHints) {
-          (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
         }
         else {
           trackStates->push_back((**itTSoS).clone());
@@ -277,10 +278,10 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
     if (rot!=0 || parameters!=0) {
       if (m_setPersistificationHints) {
         if (rot) {
-          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyMeasurement);
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyMeasurement);
         }
         if (parameters) {
-          (**itTSoS).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
         }
       }
       else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMDATA_BYTESTREAMMETADATACONTAINER_H
@@ -25,7 +25,7 @@ CLASS_DEF(ByteStreamMetadataContainer, 1076128893, 1)
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/MetaCont.h"
 CLASS_DEF( MetaCont<ByteStreamMetadataContainer> , 1174128703 , 1 )
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 SG_BASE( MetaCont<ByteStreamMetadataContainer>, MetaContBase );
 #endif // not XAOD_STANDALONE
 

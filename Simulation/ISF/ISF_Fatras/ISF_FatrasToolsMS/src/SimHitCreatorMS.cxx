@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 // MuonSpectrometer includes
+#include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
@@ -29,6 +30,7 @@
 #include "MuonSimEvent/CscHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
@@ -66,11 +68,13 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_rpcHitIdHelper(nullptr),
     m_cscHitIdHelper(nullptr),
     m_tgcHitIdHelper(nullptr),
+    m_mdtIdHelper(nullptr),
     m_mmOffToSimId(nullptr),
     m_stgcOffToSimId(nullptr),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_muonMgr(nullptr),
     m_mdtSigmaDriftRadius(0.08),
+    m_BMGid(-1),
     m_createAllMdtHits(true)
 {
   //  template for property decalration
@@ -119,6 +123,13 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   // m_sTgcHitIdHelper = sTgcHitIdHelper::GetHelper(); 
   // m_mmHitIdHelper = MicromegasHitIdHelper::GetHelper(); 
 
+  if (detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
+    ATH_MSG_FATAL("Cannot get MdtIdHelper" );
+    return StatusCode::FAILURE;
+  }  
+  else {
+    ATH_MSG_DEBUG(" Found the MdtIdHelper. " );
+  }
 
   if (detStore()->retrieve(m_muonMgr).isFailure()) {
       ATH_MSG_FATAL( "[ --- ] Cannot retrieve MuonDetectorManager..." );
@@ -158,6 +169,26 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
   ATH_MSG_INFO( "[ mutrack ] initialize() successful." );
+
+     m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+      if(m_BMGpresent){
+        ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+        m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+        for(int phi=6; phi<8; phi++) { // phi sectors
+          for(int eta=1; eta<4; eta++) { // eta sectors
+            for(int side=-1; side<2; side+=2) { // side
+              if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+              for(int roe=1; roe<= ((m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements()); roe++) { // iterate on readout elemets
+                const MuonGM::MdtReadoutElement* mdtRE =
+                      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                if(mdtRE) initDeadChannels(mdtRE);
+              }
+            }
+          }
+        }
+      }
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -221,25 +252,25 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
              delete m_cscSimHitCollection; m_cscSimHitCollection=0;
         }
       }
-      if ( evtStore()->contains<GenericMuonSimHitCollection>(m_mmCollectionName) ){
+      if ( evtStore()->contains<MMSimHitCollection>(m_mmCollectionName) ){
 	if ( (evtStore()->retrieve(m_mmSimHitCollection , m_mmCollectionName)).isFailure() )
-	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve GenericMuonSimHitCollection " << m_mmCollectionName);
+	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve MMSimHitCollection " << m_mmCollectionName);
 	// (b)     if no ... try to create it      
       } else {
-	m_mmSimHitCollection = new GenericMuonSimHitCollection( m_mmCollectionName);
+	m_mmSimHitCollection = new MMSimHitCollection( m_mmCollectionName);
 	if ( (evtStore()->record(m_mmSimHitCollection, m_mmCollectionName, true)).isFailure() ) {
-             ATH_MSG_ERROR( "[ --- ] Unable to record GenericMuonSimHitCollection " << m_mmCollectionName);
+             ATH_MSG_ERROR( "[ --- ] Unable to record MMSimHitCollection " << m_mmCollectionName);
              delete m_mmSimHitCollection; m_mmSimHitCollection=0;
         }
       }
-      if ( evtStore()->contains<GenericMuonSimHitCollection>(m_stgcCollectionName) ){
+      if ( evtStore()->contains<sTGCSimHitCollection>(m_stgcCollectionName) ){
 	if ( (evtStore()->retrieve(m_stgcSimHitCollection , m_stgcCollectionName)).isFailure() )
-	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve GenericMuonSimHitCollection " << m_stgcCollectionName);
+	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve sTGCSimHitCollection " << m_stgcCollectionName);
 	// (b)     if no ... try to create it      
       } else {
-	m_stgcSimHitCollection = new GenericMuonSimHitCollection( m_stgcCollectionName);
+	m_stgcSimHitCollection = new sTGCSimHitCollection( m_stgcCollectionName);
 	if ( (evtStore()->record(m_stgcSimHitCollection, m_stgcCollectionName, true)).isFailure() ) {
-             ATH_MSG_ERROR( "[ --- ] Unable to record GenericMuonSimHitCollection " << m_stgcCollectionName);
+             ATH_MSG_ERROR( "[ --- ] Unable to record sTGCSimHitCollection " << m_stgcCollectionName);
              delete m_stgcSimHitCollection; m_stgcSimHitCollection=0;
         }
       }
@@ -274,24 +305,26 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       // hit ID
       int simID = offIdToSimId(id);
       // local position : at MTG layer ( corresponds to the middle of the gas gap ) 
-      const Amg::Vector3D locPos= currLay->surfaceRepresentation().transform().inverse()*parm->position();
       //Trk::GlobalPosition locPosRot = HepGeom::RotateY3D(M_PI)*HepGeom::RotateZ3D(+M_PI/2.)*currLay->surfaceRepresentation().transform().inverse()*parm->position();
-      //std::cout << "local,local rotated:" << locPos<<"," << locPosRot << std::endl;
+      //std::cout << "local rotated:" << locPosRot << std::endl;
       // generating particle info
       double mom  = parm->momentum().mag();
       double mass = isp.mass();
       double eKin = sqrt( mom*mom+mass*mass) - mass;
       // the rest of information needs adjustment once full sim hits available
       double energyDeposit = 1.;
-      double stepLength = 1.;
       const Amg::Vector3D pos=parm->position();
       const Amg::Vector3D unitMom=parm->momentum().normalized();
-      GenericMuonSimHit nswHit = GenericMuonSimHit(simID,timeInfo,timeInfo, pos, locPos, pos, locPos, 
-						   isp.pdgCode(),eKin,unitMom, 
-						   energyDeposit,stepLength, isp.barcode()) ;
+
+      MMSimHit nswMMHit = MMSimHit(simID,timeInfo, pos, 
+				 isp.pdgCode(),eKin,unitMom, 
+				 energyDeposit, isp.barcode()) ;
+      sTGCSimHit nswsTGCHit = sTGCSimHit(simID,timeInfo, pos, 
+				     isp.pdgCode(), unitMom, 
+				     energyDeposit, isp.barcode()) ;
       
-      if ( m_muonMgr->mmIdHelper()->is_mm(id) )  m_mmSimHitCollection->Insert(nswHit); 
-      else  m_stgcSimHitCollection->Insert(nswHit); 
+      if ( m_muonMgr->mmIdHelper()->is_mm(id) )  m_mmSimHitCollection->Insert(nswMMHit); 
+      else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
          
@@ -302,7 +335,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
         const MuonGM::MMReadoutElement* mm=m_muonMgr->getMMReadoutElement(id);
         if (mm) {
           Trk::GlobalPosition g2re = mm->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<"MM local position:MTG,MRG:"<< locPos <<","<<g2re<<std::endl;
 	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<mm->center(id)<< std::endl;
 	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
 	  int nCh = mm->stripNumber(lp,id);
@@ -314,7 +346,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
         const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(id);
 	if (stgc) {
 	  Trk::GlobalPosition g2re = stgc->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<"STGC local position:MTG,MRG:"<< locPos<<","<<g2re<<std::endl;
 	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
 	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<stgc->center(id)<<"," <<m_muonMgr->stgcIdHelper()->channelType(id)<<  std::endl;
 	  int nCh = stgc->stripNumber(lp,id);
@@ -346,7 +377,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       if (m_idHelperTool->mdtIdHelper().valid(hid)) {
 	// create first hit 
 	bool hitCreated = createHit(isp, currLay,parm,hid,timeInfo,pitch, true);
-      
 	if (m_createAllMdtHits) {
 	  // nearby hits - check range 
 	  const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(hid);  
@@ -402,7 +432,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
-
    // MDT SECTION 
    if (m_idHelperTool->mdtIdHelper().is_mdt(id)) {
             
@@ -412,13 +441,21 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 						 m_idHelperTool->mdtIdHelper().tube(id));
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
-
+     // local position from the mdt's i
+     const MuonGM::MdtReadoutElement* MdtRoEl = m_muonMgr->getMdtReadoutElement(id);
+     if(m_BMGpresent && m_mdtIdHelper->stationName(id) == m_BMGid ) {
+       auto myIt = m_DeadChannels.find(MdtRoEl->identify());
+       if( myIt != m_DeadChannels.end() ){
+         if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
+           ATH_MSG_DEBUG("Skipping tube with identifier " << m_mdtIdHelper->show_to_string(id) );
+           return false;
+         }
+       }
+     }
      // local position from the mdt's 
      const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
-
      // drift radius
      double residual = m_measTool->residual(lay,parm,id);     
-
      if (fabs(residual)<15.075) {
 
        double dlh = sqrt(15.075*15.075-residual*residual); 
@@ -559,5 +596,43 @@ int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
 
 
   return 0; 
+}
+void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
+  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
+  int nGrandchildren = cv->getNChildVols();
+  if(nGrandchildren <= 0) return;
+
+  Identifier detElId = mydetEl->identify();
+
+  int name = m_mdtIdHelper->stationName(detElId);
+  int eta = m_mdtIdHelper->stationEta(detElId);
+  int phi = m_mdtIdHelper->stationPhi(detElId);
+  int ml = m_mdtIdHelper->multilayer(detElId);
+  std::vector<Identifier> deadTubes;
+  
+    for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
+    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
+      bool tubefound = false;
+      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+        int tubegeo = cv->getIdOfChildVol(kk) % 100;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        if( tubegeo == tube && layergeo == layer ) {
+          tubefound=true;
+          break;
+        }
+        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      }
+      if(!tubefound) {
+        Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+        deadTubes.push_back( deadTubeId );
+        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      }
+    }
+  }
+  std::sort(deadTubes.begin(), deadTubes.end());
+  m_DeadChannels[detElId] = deadTubes;
+  return;
 }
 

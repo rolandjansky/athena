@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -35,8 +35,6 @@ PURPOSE: Tool
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 //#include "VxVertex/VxContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -46,9 +44,9 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
 	AthAlgTool(type, name, parent),
 	m_DetID(nullptr), m_TRTID(nullptr),
 	//	m_driftFunctionTool("TRT_DriftFunctionTool"),
-	m_trtcaldbSvc("ITRT_CalDbSvc", name),
+	m_trtcaldbTool("ITRT_CalDbTool", this),
 	m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
-	m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+	m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this),
 	m_updator(nullptr),
 	m_maxDistance(2.8),
 	m_maxTimeResidual(150),
@@ -62,14 +60,14 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
 {
 	declareInterface<IFillAlignTrkInfo>(this);
 	//	declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
-	declareProperty("TRTCalDbSvc",m_trtcaldbSvc);
+	declareProperty("TRTCalDbTool",m_trtcaldbTool);
 	declareProperty("NeighbourSvc",m_neighbourSvc);
 	declareProperty("maxDistance",m_maxDistance) ;
 	declareProperty("maxTimeResidual",m_maxTimeResidual) ;
 	declareProperty("minTimebinsOverThreshold",m_minTimebinsOverThreshold) ;
 	declareProperty("maxTrackChisquarePerDof",m_maxTrackChisquarePerDof) ;
 	declareProperty("DoMCCosmicTimeShift",m_DoMCCosmicTimeShift);
-	declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
+	declareProperty("TRTStrawSummaryTool",  m_TRTStrawSummaryTool);
 }
 
 StatusCode FillAlignTRTHits::initialize(){
@@ -82,8 +80,8 @@ StatusCode FillAlignTRTHits::initialize(){
 		msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
 		return StatusCode::FAILURE;
 	}
-	if(m_trtcaldbSvc.retrieve().isFailure()) {
-		msg(MSG::FATAL) << "Could not get TRTCalDbSvc !" << endmsg;
+	if(m_trtcaldbTool.retrieve().isFailure()) {
+		msg(MSG::FATAL) << "Could not get TRT_CalDbTool !" << endmsg;
 		return StatusCode::FAILURE;
 	}
 	if(StatusCode::SUCCESS!=m_neighbourSvc.retrieve() ) {
@@ -115,12 +113,12 @@ StatusCode FillAlignTRTHits::initialize(){
 	}
 
 	// The tool to get the argon status:
-	if (!m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
-		ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+	if (m_TRTStrawSummaryTool.retrieve().isFailure() ) {
+		ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
 		ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
 		return StatusCode::FAILURE;
 	} else {
-		if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
+		msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummaryTool << endmsg;
 	}
 
 	m_f = new TFile("basic.root","RECREATE");
@@ -264,12 +262,12 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 						// I'd also like to store the drift velocity
 						if (!isvalid) (*newhit)[TRT::Hit::driftTime] = -1.0;
 
-						(*newhit)[TRT::Hit::t0] = m_trtcaldbSvc->getT0(ident) ;
+						(*newhit)[TRT::Hit::t0] = m_trtcaldbTool->getT0(ident) ;
 						//(*newhit)[TRT::Hit::TimeoverThreshold]= dcp ? dcp->timeOverThreshold() : -1.0;
 						(*newhit)[TRT::Hit::TimeoverThreshold] = dcp->timeOverThreshold() ;
 						//CORRECT FOR TUBEHITS!!!:
 						//const TRTCond::RtRelation*
-						rtrelation = m_trtcaldbSvc->getRtRelation(ident) ;
+						rtrelation = m_trtcaldbTool->getRtRelation(ident) ;
 						// added High Level Threshold information
 						(*newhit)[TRT::Hit::HTLevel] = dcp->highLevel();
 						// Extract the correction in the db for the ToT:
@@ -309,8 +307,8 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 
 						// Prepare for Xe-Ar mixed conditions:
 						int isArgonStraw = 0;
-						if (!m_TRTStrawSummarySvc.empty()) {
-							if (m_TRTStrawSummarySvc->getStatusHT(ident) != TRTCond::StrawStatus::Good) {
+						if (!m_TRTStrawSummaryTool.empty()) {
+							if (m_TRTStrawSummaryTool->getStatusHT(ident) != TRTCond::StrawStatus::Good) {
 								isArgonStraw = 1;
 							}
 						}
@@ -410,7 +408,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 							drrtrackunbias,
 							(*newhit)[TRT::Hit::trackDriftTime],
 							ttrackunbias,
-							m_trtcaldbSvc->getT0(ident),
+							m_trtcaldbTool->getT0(ident),
 							(float)timecor,
 							(float)phi ,
 							(float)theta,

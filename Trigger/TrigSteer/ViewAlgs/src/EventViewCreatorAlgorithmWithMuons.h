@@ -36,6 +36,8 @@ class EventViewCreatorAlgorithmWithMuons : public EventViewCreatorAlgorithm {
     Gaudi::Property< std::string > m_muonsLink {this,"MuonsLink","Unspecified","Name of EL to Muon object linked to the decision"};
     double m_roiEtaWidth;
     double m_roiPhiWidth;
+    bool m_linkToParent;
+    bool m_doFSRoI;
 };
 
 #endif

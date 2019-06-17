@@ -14,7 +14,6 @@ from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 from OverlayCommonAlgs.EventInfoOverlayConfig import EventInfoCnvAlgCfg, EventInfoOverlayCfg
 
 # Set up logging and new style config
@@ -22,8 +21,6 @@ log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 
 # Configure
-# ConfigFlags.join(createDigitizationCfgFlags())
-ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
 ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"

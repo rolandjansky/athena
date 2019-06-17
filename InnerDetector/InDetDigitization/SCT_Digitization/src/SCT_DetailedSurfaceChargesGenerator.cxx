@@ -761,7 +761,7 @@ void SCT_DetailedSurfaceChargesGenerator::EField(double x, double y, double& Ex,
   //---------- case for flat diode model ------------------------------
   if (m_eFieldModel==flatDiodeModel) {
     if (m_biasVoltage > m_depletionVoltage) {
-      Ey = (m_biasVoltage+m_depletionVoltage)/m_depletion_depth - 2.*m_depletionVoltage*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
+      Ey = (static_cast<double>(m_biasVoltage)+m_depletionVoltage)/m_depletion_depth - 2.*m_depletionVoltage*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
     } else {
       double Emax{2.* m_depletion_depth * m_depletionVoltage / (m_bulk_depth*m_bulk_depth)};
       Ey = Emax*(1-(m_bulk_depth-y)/m_depletion_depth);

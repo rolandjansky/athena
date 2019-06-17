@@ -1,8 +1,10 @@
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
-from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, MuTest2HypoTool, ElTestHypoTool, GammTestHypoTool
+from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+import sys
 
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
@@ -14,6 +16,27 @@ def InputMakerForInitialRoIAlg(name):
 
 def InputMakerForFeatureAlg(name):
     return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName=UseThisLinkName)
+
+
+#generalize
+
+def makeSequence(ConfigFlags, name,step, signature):
+    IM= InputMakerForFeatureAlg(name=signature+"InputMaker"+name+"Step"+step)
+    IM.Output=name+signature+"IM"+step+"_out"
+    if "el" in signature:
+        Alg = CaloClustering(name="CaloClustering"+name+"Step"+step, FileName="emclusters.dat")
+    elif "mu" in signature:
+        Alg = muMSRecAlg(name="muMSRecAlg"+name+"Step"+step, FileName="msmu.dat")
+    else:
+        sys.exit("ERROR, in configuration of sequence "+name+step+signature)
+
+    Alg.Output = name+signature+"Alg"+step+"_out"
+    Alg.Input  = IM.Output
+    Sequence   = seqAND(name+signature+"SeqStep"+step, [IM, Alg])
+
+    return (Sequence, IM, Alg.Output)
+
+
 
 # here define the sequences from the signatures
 # signatures do this:
@@ -32,43 +55,8 @@ def muMSRecAlg(name, FileName="noreco.dat"):
 def MuHypo(name):
     return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
-    
-
-    
-def muStep1Sequence(ConfigFlags, name):
-    muIM= InputMakerForInitialRoIAlg(name=name+"Step1MuInputMaker")
-    muIM.Output=name+'muIM_out'
-
-    muAlg = muMSRecAlg(name=name+"muMSRecAlg", FileName="msmu.dat")
-    muAlg.Output=name+'muAlg_out'
-    muAlg.Input  = muIM.Output
-
-    mustep1_sequence = seqAND(name+"muSeqStep1", [muIM, muAlg])
-    return (mustep1_sequence, muIM, muAlg.Output)
-    
-def muStep1MenuSequence(name):
-    (mustep1_sequence, muIM, seqOut) = RecoFragmentsPool.retrieve(muStep1Sequence, ConfigFlags, name=name)
-    muHypo = MuHypo(name=name+"Step1MuHypo")
-    muHypo.Input = seqOut
-    return MenuSequence(Sequence=mustep1_sequence, Maker=muIM, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
-
-
-def muStep2Sequence(ConfigFlags, name):
-    muIM2= InputMakerForFeatureAlg(name=name+"Step2MuInputMaker")
-    muIM2.Output=name+'muIM2_out'
-
-    muAlg2 = muMSRecAlg(name=name+"muMSRecAlg2", FileName="msmu.dat")
-    muAlg2.Output=name+'muAlg2_out'
-
-    muAlg2.Input  = muIM2.Output
-    mustep2_sequence = seqAND(name+"muSeqStep2", [muIM2, muAlg2])
-    return (mustep2_sequence, muIM2, muAlg2.Output)
-    
-def muStep2MenuSequence(name):
-    (mustep2_sequence, muIM2, seqOut) = RecoFragmentsPool.retrieve(muStep2Sequence, ConfigFlags, name=name)
-    muHypo2 = MuHypo(name=name+"Step2MuHypo")
-    muHypo2.Input =seqOut
-    return MenuSequence( Sequence=mustep2_sequence, Maker=muIM2, Hypo=muHypo2, HypoToolGen=MuTest2HypoTool)
+def makeMuSequence(ConfigFlags, name,step):
+    return makeSequence(ConfigFlags, name,step, signature="mu")
 
 
 
@@ -81,47 +69,40 @@ def CaloClustering(name,  FileName="noreco.dat"):
 def ElGamHypo(name):
     return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
+def makeElSequence(ConfigFlags, name,step):
+    return makeSequence(ConfigFlags, name,step, signature="el")
 
 
-def elStep1Sequence(ConfigFlags, name):
-    elIM= InputMakerForInitialRoIAlg(name=name+"Step1ElInputMaker")
-    elIM.Output=name+'elIM_out'
 
-    elAlg = CaloClustering(name=name+"CaloClustering", FileName="emclusters.dat")
-    elAlg.Output=name+'elAlg_out'
-    elAlg.Input  = elIM.Output
-    elstep1_sequence = seqAND(name+"elSeqStep1", [elIM, elAlg])    
-    return (elstep1_sequence, elIM, elAlg.Output)
 
-def elStep1MenuSequence(name):
-    (elstep1_sequence, elIM, seqOut) = RecoFragmentsPool.retrieve(elStep1Sequence, ConfigFlags, name=name)
-    elHypo = ElGamHypo(name=name+"Step1ElHypo")
+# Menu sequences
+
+def elMenuSequence(step, reconame, hyponame):
+    (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
+    elHypo = ElGamHypo(hyponame+"Step"+step+"ElHypo")
     elHypo.Input = seqOut
-    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+   
 
-
-def gammStep1MenuSequence(name):
-    (elstep1_sequence, elIM, seqOut) = RecoFragmentsPool.retrieve(elStep1Sequence, ConfigFlags, name=name)
-    gammHypo = ElGamHypo(name=name+"Step1GamHypo")
-    gammHypo.Input = seqOut
-    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=gammHypo, HypoToolGen=GammTestHypoTool)
-
-
-#step2
-def elStep2Sequence(ConfigFlags, name):
-    elIM2= InputMakerForFeatureAlg(name=name+"Step2ElInputMaker")
-    elIM2.Output=name+'elIM2_out'
-
-    elAlg2 = CaloClustering(name=name+"CaloClustering2", FileName="emclusters.dat")
-    elAlg2.Output=name+'elAlg2_out'
-    elAlg2.Input  = elIM2.Output
-    elstep2_sequence = seqAND(name+"elSeqStep2", [elIM2, elAlg2])
-    return (elstep2_sequence, elIM2,elAlg2.Output)
+def gamMenuSequence(step, reconame, hyponame):
+    (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
+    elHypo = ElGamHypo(hyponame+"Step"+step+"GamHypo")
+    elHypo.Input = seqOut
+    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
     
-def elStep2MenuSequence(name, hyponame):
-    (elstep2_sequence, elIM2, seqOut) = RecoFragmentsPool.retrieve(elStep2Sequence,ConfigFlags,name=name)
-    elHypo2 = ElGamHypo(hyponame+"Step2ElHypo")
-    elHypo2.Input = seqOut    
-    return MenuSequence( Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, HypoToolGen=ElTestHypoTool)
 
 
+def muMenuSequence(step, reconame, hyponame):
+    (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeMuSequence,ConfigFlags,name=reconame, step=step)
+    muHypo = MuHypo(hyponame+"Step"+step+"MuHypo")
+    muHypo.Input = seqOut
+    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
+    
+        
+def genMenuSequence(step, reconame, hyponame):
+    (Sequence, IM, seqOut) = RecoFragmentsPool.retrieve(makeElSequence,ConfigFlags,name=reconame, step=step)
+    elHypo = ElGamHypo(hyponame+"Hypo")
+    elHypo.Input = seqOut
+    return MenuSequence( Maker=IM, Sequence=Sequence, Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+    
+ 

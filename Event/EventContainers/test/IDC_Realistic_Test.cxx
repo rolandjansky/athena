@@ -220,7 +220,7 @@ public:
 
         for(size_t i =RoIStart ; i < RoIEnd; i++) {
             c.fills++;
-            bool cacheh = container.tryFetch(i);
+            bool cacheh = container.tryAddFromCache(i);
             if(cacheh) {
                 c.cachehit++;
                 continue;
@@ -271,7 +271,7 @@ public:
                continue;
             }
             bool deleted = false;
-            StatusCode x = lock.addOrDelete(std::move(dcoll), deleted);
+            StatusCode x = lock.addOrDelete(std::move(dcoll));
             if(x.isFailure()) {
                 std::cout << "failure in addOrDelete" << std::endl;
                 std::abort();

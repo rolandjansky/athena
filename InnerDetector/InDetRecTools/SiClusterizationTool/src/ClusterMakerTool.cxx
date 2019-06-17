@@ -43,17 +43,10 @@ namespace InDet {
 ClusterMakerTool::ClusterMakerTool(const std::string& t,
                                    const std::string& n,
                                    const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_issueErrorA(true),
-  m_forceErrorStrategy1A(false),
-  m_issueErrorB(true),
-  m_forceErrorStrategy1B(false)
+  AthAlgTool(t,n,p)
 { 
   declareInterface<ClusterMakerTool>(this);
 }
-
-//=============== Destructor =================================================
-ClusterMakerTool::~ClusterMakerTool(){}
 
 //================ Initialisation =============================================
 
@@ -83,7 +76,7 @@ StatusCode  ClusterMakerTool::initialize(){
      m_sctLorentzAngleTool.disable();
    }
 
-   ATH_CHECK(m_clusterErrorKey.initialize());
+   ATH_CHECK(m_clusterErrorKey.initialize(SG::AllowEmpty));
 
    return StatusCode::SUCCESS;
 }
@@ -282,7 +275,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                          double splitProb2) const{
 	
  
-  if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endmsg;
+  ATH_MSG_VERBOSE("ClusterMakerTool called, number ");
   if ( errorStrategy==2 && m_issueErrorB ) {
     m_issueErrorB=false;
   }
@@ -358,7 +351,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if(qRowMin+qRowMax > 0) omegax = qRowMax/float(qRowMin+qRowMax);
   if(qColMin+qColMax > 0) omegay = qColMax/float(qColMin+qColMax);   
     
-  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endmsg;
+  ATH_MSG_VERBOSE("omega =  " << omegax << " " << omegay);
 
 // ask for Lorentz correction, get global position
   double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
@@ -576,8 +569,8 @@ double ClusterMakerTool::getPixelCTBPhiError(int layer, int phi,
  if(layer == 2 && phi == 1) return sigmaL2Phi1[phiClusterSize-1];
 
  // shouldn't really happen...
-  if(msgLvl(MSG::WARNING)) msg() << "Unexpected layer and phi numbers: layer = "
-	   << layer << " and phi = " << phi << endmsg;
+ ATH_MSG_WARNING("Unexpected layer and phi numbers: layer = "
+                 << layer << " and phi = " << phi);
  return 14.6*micrometer;
 
 }

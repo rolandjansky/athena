@@ -140,7 +140,6 @@ private:
   // Split configuration
   int m_HardScatterSplittingMode;                                         // Process all TRT_Hits or just those from signal or background events
   bool m_HardScatterSplittingSkipper;
-  IntegerProperty m_vetoThisBarcode;
 
   bool m_useEventInfo;  // get mu from EventInfo ? 
   std::string m_EventInfoKey;

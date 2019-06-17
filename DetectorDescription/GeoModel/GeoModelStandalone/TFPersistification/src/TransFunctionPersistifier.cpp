@@ -3,25 +3,25 @@
 #include "GeoModelKernel/GeoXF.h"
 
 const GenFunctionPersistifier * TransFunctionPersistifier::getGenFunctionPersistifier() const {
-  return &fPersistifier;
+  return &m_persistifier;
 }
 
 const std::string & TransFunctionPersistifier::getCodedString() const {
   
-  codedString=getStream().str();
-  delete stream;
-  stream=NULL;
-  return codedString;
+  m_codedString=getStream().str();
+  delete m_stream;
+  m_stream=NULL;
+  return m_codedString;
 }
 
 
 TransFunctionPersistifier::~TransFunctionPersistifier() {
-  delete stream;
-  for (auto i=recorderMap.begin(); i!=recorderMap.end();i++) {
+  delete m_stream;
+  for (auto i=m_recorderMap.begin(); i!=m_recorderMap.end();i++) {
     delete (*i).second;
   }
 }
-TransFunctionPersistifier::TransFunctionPersistifier():stream(NULL) {
+TransFunctionPersistifier::TransFunctionPersistifier():m_stream(NULL) {
   new PreMultRecorder(this);
   new PostMultRecorder(this);
   new PowRecorder(this);
@@ -29,18 +29,18 @@ TransFunctionPersistifier::TransFunctionPersistifier():stream(NULL) {
 }
 
 void TransFunctionPersistifier::add(const std::type_info & tInfo, const TransFunctionRecorder * recorder) {
-  recorderMap[tInfo.name()]=recorder;
+  m_recorderMap[tInfo.name()]=recorder;
 }
 
 std::ostringstream & TransFunctionPersistifier::getStream() const {
-  if (!stream) stream = new std::ostringstream();
-  return *stream;
+  if (!m_stream) m_stream = new std::ostringstream();
+  return *m_stream;
 }
 
 void TransFunctionPersistifier::persistify( const GeoXF::Function & f) const {
   
-  auto rIter = recorderMap.find(typeid(f).name());
-  if (rIter!=recorderMap.end()) {
+  auto rIter = m_recorderMap.find(typeid(f).name());
+  if (rIter!=m_recorderMap.end()) {
     const TransFunctionRecorder *recorder = (*rIter).second;
     recorder->execute(f);
   }

@@ -18,6 +18,39 @@ def createLArConfigFlags():
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
+    # Include MC shape folder
+    lcf.addFlag("LAr.UseMCShape", True)
+    # Include Mphys pulse calibration folder
+    lcf.addFlag("LAr.HasMphys", True)
+    # Include HVCorr folder in MC
+    lcf.addFlag("LAr.HasHVCorr", True)
+    # Name of sqlite file containing Electronic Calibration values
+    lcf.addFlag("LAr.ElecCalibSqlite", "")
+    # Load Electronic Calibration constants
+    lcf.addFlag("LAr.LoadElecCalib", True)
+    # Folder name for Optimal Filtering coefficients
+    lcf.addFlag("LAr.OFCShapeFolder", "")
+    # Load conditions with this `run-number' string
+    lcf.addFlag("LAr.ForceIOVRunNumber", "")
+    # Include Shape folder
+    lcf.addFlag("LAr.UseShape", True)
+    # DataBase server string
+    lcf.addFlag("LAr.DBConnection", "")
+
+    # Number of samples in LAr digitization + ROD emulation
+    lcf.addFlag("LAr.ROD.nSamples", 5)
+    # Index of first sample in LAr digitization + ROD emulation
+    lcf.addFlag("LAr.ROD.FirstSample", 0)
+    # Force using the highest gain autocorrelation function
+    # when doing OFC optimization
+    lcf.addFlag("LAr.ROD.UseHighestGainAutoCorr", False)
+    # Flag not to use pileup noise neither average constrain in EMB and EMEC-OW,
+    # and both pileup noise and average constrain everywhere else
+    lcf.addFlag("LAr.ROD.DoOFCMixedOptimization", False)
+    ### option to use average constraint in OFC computation
+    ### 0 = not use Delta, 1 = only EMECIW/HEC/FCAL, 2 = all , 3 = only EMECIW
+    lcf.addFlag("LAr.ROD.UseDelta", 0)
+     
     return lcf
 
 

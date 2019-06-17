@@ -1,17 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
 #include "TrigBjetEtHypoAlgMT.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "AthViews/ViewHelper.h"
 
 TrigBjetEtHypoAlgMT::TrigBjetEtHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigBjetEtHypoAlgMT::~TrigBjetEtHypoAlgMT() {}
 
 StatusCode TrigBjetEtHypoAlgMT::initialize()
 {
@@ -35,11 +33,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoAlgMT::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_INFO ( "Executing " << name() << "..." );
 
   // ========================================================================================================================== 

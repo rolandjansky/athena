@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_VIEWHELPER_HH
 #define ATHVIEWS_VIEWHELPER_HH
 
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IScheduler.h"
@@ -64,7 +63,7 @@ namespace ViewHelper
       }
 
       //Populate the view
-      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
+      sc = populateHandle.record( std::make_unique< T >( InputData[ viewIndex ] ) );
       if ( !sc.isSuccess() )
       {
         ViewVector->clear();

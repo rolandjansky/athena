@@ -3,6 +3,8 @@
 # A collection of methods to unify/merge list-properties
 # ToDo: Define the merging-method when defining the property
 
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 
 log=logging.getLogger('ComponentAccumulator')

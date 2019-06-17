@@ -3,8 +3,8 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/phihelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -190,7 +190,7 @@ HLT::ErrorCode TrigROBSelector::setupMonitoring()
     std::vector<uint32_t> range;
 
     double eta = 0.5*(m_etaMinMon+m_etaMaxMon);
-    double phi = HLT::phiMean(m_phiMinMon, m_phiMaxMon); 
+    double phi = CxxUtils::phiBisect(m_phiMinMon, m_phiMaxMon);
     TrigRoiDescriptor roi( eta, m_etaMinMon, m_etaMaxMon, phi, m_phiMinMon, m_phiMaxMon );
     m_regionSelector->DetROBIDListUint(*det, roi, range );
     ATH_MSG_DEBUG("Range for detId = " << *det << " = " << range.size());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,13 +15,15 @@
 #ifndef ISiCombinatorialTrackFinder_H
 #define ISiCombinatorialTrackFinder_H
 
-#include <list>
-#include <map>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
+#include <map>
 
 class MsgStream;
 
@@ -31,10 +33,8 @@ namespace InDetDD {
 
 namespace InDet {
 
+  class SiCombinatorialTrackFinderData_xk;
   class TrackQualityCuts;
-
-  static const InterfaceID IID_ISiCombinatorialTrackFinder
-    ("InDet::ISiCombinatorialTrackFinder",1,0);
 
   class ISiCombinatorialTrackFinder : virtual public IAlgTool 
     {
@@ -44,13 +44,8 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiCombinatorialTrackFinder, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
@@ -58,77 +53,44 @@ namespace InDet {
 
       
       virtual const std::list<Trk::Track*>& getTracks
-	(const Trk::TrackParameters&, 
+	(SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&)=0;
+	 const TrackQualityCuts&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracks
-	(const Trk::TrackParameters&, 
+	(SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
-	(const Trk::TrackParameters&, 
+	(SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&,
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 bool)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+	 bool) const =0;
 
-      virtual void newEvent()=0;
-      virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&)=0;
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data) const =0;
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data,
+                            Trk::TrackInfo, const TrackQualityCuts&) const =0;
 
-      virtual void endEvent()=0;
+      virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
      
-      virtual MsgStream&    dump(MsgStream&    out) const=0;
-      virtual std::ostream& dump(std::ostream& out) const=0;
+      virtual MsgStream& dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const=0;
      
     };
   
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator for MsgStream and  std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  MsgStream&    operator << (MsgStream&   ,const ISiCombinatorialTrackFinder&);
-  std::ostream& operator << (std::ostream&,const ISiCombinatorialTrackFinder&);
-  
-  ///////////////////////////////////////////////////////////////////
-  // Inline methods
-  ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiCombinatorialTrackFinder::interfaceID()
-    {
-      return IID_ISiCombinatorialTrackFinder;
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator MsgStream
-  ///////////////////////////////////////////////////////////////////
-   
-  inline MsgStream& operator    << 
-    (MsgStream& sl,const ISiCombinatorialTrackFinder& se)
-    { 
-      return se.dump(sl); 
-    }
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  inline std::ostream& operator << 
-    (std::ostream& sl,const ISiCombinatorialTrackFinder& se)
-    { 
-      return se.dump(sl); 
-    }   
-
-
   /////////////////////////////////////////////////////////////////////////////////
   //  Header file for class TrackQualityCuts
   /////////////////////////////////////////////////////////////////////////////////

@@ -58,22 +58,21 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     std::vector<SiHitCollection*> m_hitCollPtrs;
 
-    SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
-    SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey;
-    SG::WriteHandle<PixelRDO_Container>        m_rdoContainer;
-    SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollKey;
-    SG::WriteHandle<InDetSimDataCollection>    m_simDataColl;
+    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    SG::ReadHandleKey<SiHitCollection>         m_hitsContainerKey{this, "InputObjectName", "", "Input HITS collection name"};
+    std::string                                m_inputObjectName{""};
+    SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey{this, "RDOCollName", "PixelRDOs", "RDO collection name"};
+    SG::WriteHandle<PixelRDO_Container>        m_rdoContainer{};
+    SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollKey{this, "SDOCollName", "PixelSDO_Map",  "SDO collection name"};
+    SG::WriteHandle<InDetSimDataCollection>    m_simDataColl{};
+    Gaudi::Property<int>                       m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, "Control pileup & signal splitting"};
+    bool                                       m_HardScatterSplittingSkipper{false};
+    Gaudi::Property<bool>                      m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
 
-    int               m_HardScatterSplittingMode;
-    bool              m_HardScatterSplittingSkipper;
+    const PixelID            *m_detID{};
 
-    bool              m_onlyHitElements;
 
-    const PixelID            *m_detID;
-
-    IntegerProperty           m_vetoThisBarcode;
-
-    TimedHitCollection<SiHit> *m_timedHits;
+    TimedHitCollection<SiHit> *m_timedHits{};
 
     ToolHandleArray<SensorSimTool> m_chargeTool{this, "ChargeTools", {}, "List of charge tools"};
     ToolHandleArray<FrontEndSimTool> m_fesimTool{this, "FrontEndSimTools", {}, "List of Front-End simulation tools"};
@@ -82,12 +81,10 @@ class PixelDigitizationTool : public PileUpToolBase {
   protected:
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
-    ServiceHandle <PileUpMergeSvc> m_mergeSvc;
+    ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
-    const InDetDD::PixelDetectorManager *m_detManager;
-
-    std::string   m_inputObjectName;
-    bool          m_createNoiseSDO;
+    const InDetDD::PixelDetectorManager *m_detManager{};
+    Gaudi::Property<bool>          m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
 
 };
 

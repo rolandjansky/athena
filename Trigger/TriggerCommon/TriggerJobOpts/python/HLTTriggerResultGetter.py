@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
@@ -441,14 +441,13 @@ class HLTTriggerResultGetter(Configured):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaServices.Configurables import ThinningSvc, createThinningSvc
         
-        _doSlimming = True
-        if _doSlimming and rec.readRDO() and rec.doWriteAOD():
+        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
             if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
                 svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
             _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerESDList ) #Use ESD item list also for AOD!
             log.info("configured navigation slimming for AOD output")
             
-        if _doSlimming and rec.readRDO() and rec.doWriteESD(): #rec.doWriteESD() and not rec.readESD(): 
+        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
             if not  hasattr(svcMgr, 'ESDThinningSvc'):
                 svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                

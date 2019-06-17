@@ -105,8 +105,7 @@ private:
 
 
 	// input arguments
-	std::string _dbName;
-	GeoPhysVol* _root;
+	GeoPhysVol* m_root;
 	GMDBManager* m_dbManager;
 	unsigned long* m_progress;
 	bool m_deepDebug;
@@ -121,25 +120,25 @@ private:
 
 	// data containers
 
-	QHash<QString, QMap<unsigned int, QStringList>> _allchildren; // key = "parentId:parentTable", item = list of children parameters, inserted by child position
+	QHash<QString, QMap<unsigned int, QStringList>> m_allchildren; // key = "parentId:parentTable", item = list of children parameters, inserted by child position
 
-	QHash<unsigned int, QStringList> _physVols;
-	QHash<unsigned int, QStringList> _fullPhysVols;
-	QHash<unsigned int, QStringList> _logVols;
-	QHash<unsigned int, QStringList> _shapes;
-	QHash<unsigned int, QStringList> _materials;
-	QHash<unsigned int, QStringList> _transforms;
-	QHash<unsigned int, QStringList> _alignableTransforms;
-	QHash<unsigned int, QStringList> _serialDenominators;
-	QHash<unsigned int, QStringList> _serialTransformers;
-	QHash<unsigned int, QStringList> _functions;
-	QHash<unsigned int, QStringList> _nameTags;
+	QHash<unsigned int, QStringList> m_physVols;
+	QHash<unsigned int, QStringList> m_fullPhysVols;
+	QHash<unsigned int, QStringList> m_logVols;
+	QHash<unsigned int, QStringList> m_shapes;
+	QHash<unsigned int, QStringList> m_materials;
+	QHash<unsigned int, QStringList> m_transforms;
+	QHash<unsigned int, QStringList> m_alignableTransforms;
+	QHash<unsigned int, QStringList> m_serialDenominators;
+	QHash<unsigned int, QStringList> m_serialTransformers;
+	QHash<unsigned int, QStringList> m_functions;
+	QHash<unsigned int, QStringList> m_nameTags;
 
-	QHash<unsigned int, QString> _tableid_tableName;
+	QHash<unsigned int, QString> m_tableid_tableName;
 
-	QStringList _root_vol_data;
+	QStringList m_root_vol_data;
 
-	QHash<QString, GeoGraphNode*> _memMap;
+	QHash<QString, GeoGraphNode*> m_memMap;
 
 	std::set<std::string> m_unknown_shapes;
 

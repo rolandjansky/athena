@@ -88,8 +88,6 @@ namespace Analysis
       float m_mx12_DR   ;
       float m_mx12_Angle;
       //...
-      std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
-      std::list<std::string> m_undefinedReaders;
       std::string m_sv0_infosource;
       std::string m_sv1_infosource;
 

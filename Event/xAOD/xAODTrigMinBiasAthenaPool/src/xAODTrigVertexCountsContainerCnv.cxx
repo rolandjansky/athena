@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigVertexCountsContainerCnv.cxx
@@ -72,7 +72,7 @@ StatusCode xAODTrigVertexCountsContainerCnv::createObj(IOpaqueAddress* pAddr,
 xAOD::TrigVertexCountsContainer* xAODTrigVertexCountsContainerCnv::createTransient() {
   ATH_MSG_VERBOSE("try to run createTransient()");
   // The known ID(s) for this container:
-  static pool::Guid v1_guid( "07EE6B72-1207-11E4-8B69-02163E00A892" );
+  static const pool::Guid v1_guid( "07EE6B72-1207-11E4-8B69-02163E00A892" );
 
   // Check if we're reading the most up to date type:
   if( compareClassGuid( v1_guid ) ) {

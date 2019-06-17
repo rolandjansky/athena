@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ namespace InDet
     /** @class NnPixelClusterSplitter
         @author Andreas.Salzburger@cern.ch
     */
-    class NnPixelClusterSplitter : public AthAlgTool, virtual public IPixelClusterSplitter {
+    class NnPixelClusterSplitter : public extends<AthAlgTool, IPixelClusterSplitter> {
     public :
       /** Constructor*/
       NnPixelClusterSplitter(const std::string &type,
@@ -35,7 +35,7 @@ namespace InDet
                              const IInterface *parent);
       
       /** Destructor*/
-      ~NnPixelClusterSplitter();
+      ~NnPixelClusterSplitter() = default;
       
       /** AthAlgTool interface methods */
       StatusCode initialize();            
@@ -50,14 +50,12 @@ namespace InDet
       
     private:
 
-      ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory;
+      ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory { this, "NnClusterizationFactory", "InDet::NnClusterizationFactory/NnClusterizationFactory" };
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-      double m_thresholdSplittingIntoTwoClusters;
-      double m_thresholdSplittingIntoThreeClusters;
-      bool m_splitOnlyOnBLayer;
-      
-      bool m_useBeamSpotInfo;
+      DoubleProperty m_thresholdSplittingIntoTwoClusters { this, "ThresholdSplittingIntoTwoClusters", 0.95 };
+      DoubleProperty m_thresholdSplittingIntoThreeClusters { this, "ThresholdSplittingIntoThreeClusters", 0.90 };
+      BooleanProperty m_splitOnlyOnBLayer { this, "SplitOnlyOnBLayer", true };
+      BooleanProperty m_useBeamSpotInfo { this, "useBeamSpotInfo", true };
 
     };
 }

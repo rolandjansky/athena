@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.lib import DCSC_Subdetector_DefectsOnly, DCSC_Defect_Global_Variable, connect_adjacent_iovs_defect
 from DCSCalculator2.variable import DefectIOV
 from DQUtils import process_iovs
 from DQUtils.sugar import IOVSet, RunLumi
 from DQUtils.iov_truncator import truncate_to_atlas_runs
+from logging import getLogger
+
+log = getLogger("DCSC2.global_system")
 
 class TDAQ_Ready(DCSC_Defect_Global_Variable):
     """
@@ -45,15 +48,14 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
 
     def tdaq_busy_generator(self, iovs):
         events = process_iovs(iovs)
-	counter=0
+        counter=0
 
         for since, until, (state,) in events:
             if state.Run == 0 or state.Run is None: continue
-	    #print state
             if state is not None:
                 if state.LiveFraction is None:
                     deadfrac=1
-                    print 'WARNING: LiveFraction is "None" for', state.Run, state.LumiBlock 
+                    log.warning('WARNING: LiveFraction is "None" for %d %d', state.Run, state.LumiBlock)
                 else:
                     deadfrac = 1-state.LiveFraction
                 if deadfrac < self.deadfraction_threshold:
@@ -62,24 +64,21 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
                                 RunLumi(state.Run, state.LumiBlock+1), 
                                 'GLOBAL_BUSY', True,
                                 comment='Average live fraction %.1f%%' % ((1-deadfrac)*100))
-		counter +=1
-	
-	counter_max=counter
-	counter=0
-	#print counter_max
-	events = process_iovs(iovs)
+                counter +=1
+
+        counter_max=counter
+        counter=0
+        events = process_iovs(iovs)
         for since, until, (state,) in events:
-	    if state is not None and state.Run is not None:
+            if state is not None and state.Run is not None:
                 deadfrac = 1-state.LiveFraction
                 if deadfrac < self.deadfraction_threshold:
                     continue
-	        #print state.Run
-	        counter +=1
-	        if state.Run == 0 and counter <counter_max:
-		    print 'ERROR: Wrong run number in LumiAccounting; here is the IOV: '
-                    print state
-		    #print list(iovs)
-		    continue
+                counter +=1
+                if state.Run == 0 and counter <counter_max:
+                    log.error('ERROR: Wrong run number in LumiAccounting; here is the IOV: ')
+                    log.error(state)
+                    continue
 
     def quantize(self, lbtime, iovs):
         return iovs
@@ -97,10 +96,9 @@ class LUMI_EmittanceScan(DCSC_Defect_Global_Variable):
 
     def emittance_generator(self, iovs):
         events = process_iovs(iovs)
-	counter=0
 
         for since, until, (state,) in events:
-	    #print state, state.RunLB & 0xffffffff if state.RunLB else 0
+            #print state, state.RunLB & 0xffffffff if state.RunLB else 0
             if state is not None and state.RunLB is not None:
                 thisrun = state.RunLB >>32
                 # pseudo-LB and not to be trusted

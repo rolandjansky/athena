@@ -6,13 +6,11 @@
 #define V0TOOLS_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "EventKernel/PdtPdg.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "xAODTracking/TrackParticle.h"
+#include "EventKernel/PdtPdg.h"
 
 /**
  *  @class V0Tools
@@ -23,9 +21,12 @@
  *  e.bouhova@cern.ch
  */
 
+namespace CLHEP{
+    class HepLorentzVector;
+}
+ 
 namespace Trk
 {
- class TrackParticleBase;
  class IExtrapolator;
 
  static const InterfaceID IID_V0Tools("V0Tools", 1, 1);
@@ -205,6 +206,17 @@ namespace Trk
   double lxyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
 
 /**
+ * projection of distance in 3D of the vertex wrt an xAOD::Vertex vertex along the momentum direction
+ * (Px*dx+Py*dy+Pz*dz)/p
+ */
+  double lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+
+/**
+ * error on lxyz
+ */
+  double lxyzError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+
+/**
  * proper time wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass
  * tau = CONST*M*lxy/pT
  */
@@ -268,6 +280,28 @@ namespace Trk
   Amg::MatrixX tauMassCovariance(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
   double massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const;
   double massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time in 3D wrt an xAOD::Vertex vertex assuming track masses
+ */
+  double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time in 3D wrt an xAOD::Vertex vertex assuming massV0
+ * imposing a V0 mass without making an adjustment 
+ */
+  double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
+
+/**
+ * proper time error in 3D wrt an xAOD::Vertex vertex assuming track masses
+ */
+  double tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time error in 3D wrt an xAOD::Vertex vertex assuming massV0
+ * imposing a V0 mass without making an adjustment 
+ */
+  double tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
 
 /**
  * Polarization angles in helicity frame (using positive track):
@@ -346,14 +380,16 @@ namespace Trk
 /**
  * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one
  */
-  xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) const;
+  const xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) const;
 
 /**
  * pointers to Kshort, Lambda or Lambdabar mass constrained V0s, if they exist, from the unconstrained one
  */
-  xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) const;
+  const xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) const;
+  const xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) const;
+  const xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) const;
+ 
+  Amg::MatrixX makeV0Cov(const xAOD::Vertex * vxCandidate) const;
  
   private:
 

@@ -432,17 +432,18 @@ ISF_TrackSummaryHelperTool.OutputLevel = OutputLevel #VERBOSE
 ToolSvc += ISF_TrackSummaryHelperTool
 print ISF_TrackSummaryHelperTool
 
+# @TODO does th  ISF_TrackSummaryHelperTool do hole search and if so is that intedned ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                               doSharedHits            = True,
                                               InDetSummaryHelperTool  = ISF_TrackSummaryHelperTool,
                                               AddDetailedInDetSummary = False, 
+                                              doHolesInDet            = False,
                                               doHolesMuon             = False,
                                               MuonSummaryHelperTool   = "",
                                               AddDetailedMuonSummary  = False,
                                               TRT_ElectronPidTool     = "",
                                               PixelToTPIDTool         = "",
-                                              InDetHoleSearchTool     = "",
                                               PixelExists             = True)
 InDetTrackSummaryTool.OutputLevel = OutputLevel #VERBOSE
 ToolSvc += InDetTrackSummaryTool

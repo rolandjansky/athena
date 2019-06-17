@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -15,7 +15,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 //class TrackCollection;
-class ITRT_CalDbSvc ;
+class ITRT_CalDbTool ;
 
 namespace InDet 
 {
@@ -29,19 +29,17 @@ namespace InDet
     public:
       InDetCosmicsEventPhase (const std::string& name, ISvcLocator* pSvcLocator);
       StatusCode initialize();
-      StatusCode beginRun();
       StatusCode execute();
       StatusCode finalize();
       StatusCode storePhase();
       
     private:
-      int 	m_event;
       double	m_phase;
 
       SG::ReadHandleKeyArray<TrackCollection>	m_readKey_tracks 	{this, "InputTracksNames"	,{"Tracks"}, "Tracks to extract event phase" };
       SG::WriteHandleKey<ComTime> 		m_writeKey_TRTPhase	{this, "EventPhaseName"		,"TRT_Phase", "TRT Event Phase name to store" };
 
-      ServiceHandle<ITRT_CalDbSvc>       m_trtconddbsvc ;//!< TRT Calibration DB tool
+      ToolHandle<ITRT_CalDbTool>       m_caldbtool ;//!< TRT Calibration DB tool
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //<! Track summary tool
       ToolHandle<InDet::IInDetCosmicsEventPhaseTool> m_eventPhaseTool; //<! Cosmics Event Phase tool
     };

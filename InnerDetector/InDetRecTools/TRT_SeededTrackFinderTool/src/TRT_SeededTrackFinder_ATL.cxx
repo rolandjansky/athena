@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 //Propagator tool
 #include "TrkExInterfaces/IPropagator.h"
 
+// For SiCombinatorialTrackFinder_xk
+#include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
+
 //Tool for getting the SiDetElements from geometry
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h" 
 
@@ -81,7 +84,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
     m_roadmaker("InDet::SiDetElementsRoadMaker_xk"),
     m_proptool("Trk::RungeKuttaPropagator/InDetPropagator"),
     m_updatorTool("Trk::KalmanUpdator_xk/InDetPatternUpdator"),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk", this),
     m_trtId(nullptr)
 {
   m_fieldmode    = "MapSolenoid"    ;   //Field Mode
@@ -363,7 +366,7 @@ std::ostream& InDet::operator <<
 // Initiate track finding tool
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededTrackFinder_ATL::newEvent()
+void InDet::TRT_SeededTrackFinder_ATL::newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)
 {
 
   ///Get the seeds
@@ -371,7 +374,7 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
 
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent();
+  m_tracksfinder->newEvent(combinatorialData);
 
   // Erase cluster to track association
   //
@@ -408,8 +411,9 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
 }
 
 ///////////////////////////////////////////////////////////////////////
-void InDet::TRT_SeededTrackFinder_ATL::newRegion(const std::vector<IdentifierHash>& listOfPixIds,
-const std::vector<IdentifierHash>& listOfSCTIds)
+void InDet::TRT_SeededTrackFinder_ATL::newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+                                                 const std::vector<IdentifierHash>& listOfPixIds,
+                                                 const std::vector<IdentifierHash>& listOfSCTIds)
 {
 
   ///Get the seeds
@@ -417,7 +421,7 @@ const std::vector<IdentifierHash>& listOfSCTIds)
 
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent();
+  m_tracksfinder->newEvent(combinatorialData);
 
   // Erase cluster to track association
   //
@@ -435,12 +439,12 @@ const std::vector<IdentifierHash>& listOfSCTIds)
 // Finalize track finding tool for given event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededTrackFinder_ATL::endEvent()
+void InDet::TRT_SeededTrackFinder_ATL::endEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)
 {
   
   // End event for track finder tool
   //
-  m_tracksfinder->endEvent();
+  m_tracksfinder->endEvent(combinatorialData);
   m_clusterTrack.clear();
 
 }
@@ -450,7 +454,8 @@ void InDet::TRT_SeededTrackFinder_ATL::endEvent()
 // starting from an intial track segment
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::TrackSegment& tS)
+std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(SiCombinatorialTrackFinderData_xk& combinatorialData,
+                                                                  const Trk::TrackSegment& tS)
 {
   // return list, will be copied by value (fix!)
   std::list<Trk::Track*> aSiTrack;
@@ -498,7 +503,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
   }
 
 
-  aSiTrack = findTrack(newPerPar.get(),tS);
+  aSiTrack = findTrack(combinatorialData, newPerPar.get(), tS);
   if((aSiTrack.size()==0)&&(m_bremCorrect)){
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "==============================================================" << endmsg;
@@ -509,7 +514,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
       msg(MSG::VERBOSE) << "Modified TRT Track Parameters for brem. " << endmsg;
       msg(MSG::VERBOSE) << (*modTP) << endmsg;
     }
-    aSiTrack = findTrack(modTP,tS);
+    aSiTrack = findTrack(combinatorialData, modTP, tS);
     delete modTP;
     if(aSiTrack.size()==0){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endmsg;
@@ -528,7 +533,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
-                         (const Trk::TrackParameters* initTP,const Trk::TrackSegment& tS)
+(SiCombinatorialTrackFinderData_xk& combinatorialData,
+ const Trk::TrackParameters* initTP,const Trk::TrackSegment& tS)
 {
   //Return list copied by value (fix!!) 
   std::list<Trk::Track*> associatedSiTrack; // List of found tracks per TRT segment
@@ -758,7 +764,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     // --------------- Get the Si extensions using the combinatorial track finding tool
     //
     std::list<Amg::Vector3D> Gp;
-    aTracks = m_tracksfinder->getTracks(*mesTP,SpList,Gp,DE,m_trackquality);
+    aTracks = m_tracksfinder->getTracks(combinatorialData, *mesTP, SpList, Gp, DE, m_trackquality);
     if(int(aTracks.size())==0) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No tracks found by the combinatorial track finder!"<<endmsg;
     }

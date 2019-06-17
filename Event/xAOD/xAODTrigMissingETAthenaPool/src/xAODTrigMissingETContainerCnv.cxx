@@ -58,7 +58,7 @@ createPersistent( xAOD::TrigMissingETContainer* trans ) {
 xAOD::TrigMissingETContainer* xAODTrigMissingETContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "3EA0678D-5DCA-4BA8-BB29-775CB9A246AC" );
+   static const pool::Guid v1_guid( "3EA0678D-5DCA-4BA8-BB29-775CB9A246AC" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

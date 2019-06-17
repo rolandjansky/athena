@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,6 @@
 #include <memory>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -51,6 +50,7 @@
 
 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 
@@ -64,8 +64,9 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "src/TrigFastTrackFinder.h"
+#include "TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "CxxUtils/phihelper.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -722,13 +723,13 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     iSeed=0;
 
     long int trackIndex=0;
-
+    
     if(m_checkSeedRedundancy) m_siClusterMap.clear();
 
     bool PIX = true;
     bool SCT = true;
-
-    m_trackMaker->newTrigEvent(PIX,SCT);
+    InDet::SiTrackMakerEventData_xk trackEventData;    
+    m_trackMaker->newTrigEvent(trackEventData, PIX, SCT);
 
     for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -755,7 +756,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
       ++m_nSeeds;
 
-      const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(spList);
+      std::list<Trk::Track*> tracks = m_trackMaker->getTracks(trackEventData, spList);
 
       for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
         if((*t)) {
@@ -802,7 +803,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
       }
     }
 
-    m_trackMaker->endEvent();
+    m_trackMaker->endEvent(trackEventData);
     for(auto& seed : triplets) delete seed;
 
     //clone removal
@@ -1250,7 +1251,7 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDe
   m_roiEta = roi.eta();
   m_roiEtaWidth = roi.etaPlus() - roi.etaMinus();
   m_roiPhi = roi.phi();
-  m_roiPhiWidth = HLT::wrapPhi(roi.phiPlus() - roi.phiMinus());
+  m_roiPhiWidth = CxxUtils::wrapToPi(roi.phiPlus() - roi.phiMinus());
   m_roiZ = roi.zed();
   m_roiZ_Width = roi.zedPlus() - roi.zedMinus();
 
@@ -1272,7 +1273,7 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDe
     float phi0 = trackPars->parameters()[Trk::phi0]; 
     m_trk_phi0.push_back(phi0);
     m_trk_a0beam.push_back(a0+m_shift_x*sin(phi0)-m_shift_y*cos(phi0));
-    float dPhi0 = HLT::wrapPhi(phi0 - m_roiPhi);
+    float dPhi0 = CxxUtils::wrapToPi(phi0 - m_roiPhi);
     m_trk_dPhi0.push_back(dPhi0);
     float theta = trackPars->parameters()[Trk::theta]; 
     float eta = -log(tan(0.5*theta)); 

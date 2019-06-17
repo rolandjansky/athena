@@ -9,7 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexMergingTool.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 //xAOD include
 #include "xAODTracking/VertexFwd.h"
@@ -33,7 +33,6 @@
   *
   */
  
- class IBeamCondSvc;
  
  namespace Trk
  {
@@ -42,8 +41,7 @@
   class VertexMergingTool : public AthAlgTool, virtual public IVertexMergingTool
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode initialize() override;
     
     /**
      * constructor
@@ -58,12 +56,12 @@
     /**
      *Merging  
      */
-    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont);
+    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) override;
 
         
   private:
     
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
     bool m_useBeamConstraint;
 

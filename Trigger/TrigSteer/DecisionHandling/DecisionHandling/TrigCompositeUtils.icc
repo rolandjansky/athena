@@ -16,7 +16,9 @@ namespace TrigCompositeUtils {
   SG::WriteHandle<CONT> createAndStoreNoAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx ) {
     SG::WriteHandle<CONT> handle( key, ctx );
     auto data = std::make_unique<CONT>() ;
-    handle.record( std::move( data ) ).ignore();
+    if (handle.record( std::move( data ) ).isFailure()) {
+      throw std::runtime_error( "ERROR in TrigCompositeUtils::createAndStoreNoAux Unable to record " + key.key());
+    }
     return handle;
   }
 
@@ -32,7 +34,9 @@ namespace TrigCompositeUtils {
     auto data = std::make_unique<CONT>() ;
     auto aux = std::make_unique<AUX>() ;
     data->setStore( aux.get() );
-    handle.record( std::move( data ), std::move( aux )  ).ignore();
+    if (handle.record( std::move( data ), std::move( aux )  ).isFailure()) {
+      throw std::runtime_error( "ERROR in TrigCompositeUtils::createAndStoreWithAux Unable to record " + key.key());
+    }
     return handle;
   }
 
@@ -53,6 +57,34 @@ namespace TrigCompositeUtils {
     }
 
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
+  }
+
+  template<class CONTAINER>
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg) {
+    std::vector< LinkInfo<CONTAINER> > features;
+    // For each unique path through the navigation for a given chain
+    for (const ElementLinkVector<DecisionContainer>& decisionPath : linkVector) {
+      // For each step along this path, starting at the terminus and working back towards L1
+      for (const ElementLink<DecisionContainer>& decisionLink : decisionPath) {
+        const Decision* decision = (*decisionLink);
+        if (decision->hasObjectLink(featureString(), ClassID_traits< CONTAINER >::ID())) {
+
+          // This try block protects against ExcCLIDMismatch throws from 
+          // features which do not derive from IParticle, when an IParticle interface is requested.
+          try {
+            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureString() );
+            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+            if (oneFeaturePerLeg) {
+              break;
+            }
+          } catch (SG::ExcCLIDMismatch&) {
+            // Carry on
+          }
+
+        }
+      }
+    }
+    return features;
   }
 
 }

@@ -7,7 +7,6 @@ atlas_subdir( AnalysisTest )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/SGTools
                           Control/AthContainers
                           Control/StoreGate
                           Event/NavFourMom
@@ -42,7 +41,7 @@ atlas_add_component( AnalysisTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} SGTools AthContainers StoreGateLib SGtests NavFourMom GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent VxVertex TestTools AthenaBaseComps AthenaKernel EventKernel FourMom GeneratorObjects AnalysisAssociation AnalysisUtilsLib AnalysisTriggerEvent McParticleUtils JetEvent )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} AthContainers StoreGateLib SGtests NavFourMom GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent VxVertex TestTools AthenaBaseComps AthenaKernel EventKernel FourMom GeneratorObjects AnalysisAssociation AnalysisUtilsLib AnalysisTriggerEvent McParticleUtils JetEvent )
 
 # Install files from the package:
 atlas_install_headers( AnalysisTest )

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 
 from AthenaCommon.JobProperties import jobproperties
@@ -55,7 +56,7 @@ def HelloWorldCfg():
     pt.MyMessage="A public Message!"    
 
     result.addPublicTool(pt)
-    print pt
+    print (pt)
 
 
     HelloWorld.MyPublicHelloTool=pt

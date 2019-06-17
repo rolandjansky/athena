@@ -48,16 +48,16 @@ class TransFunctionPersistifier {
  private:
 
   // Store the actual recorders, map them into the type name
-  std::map<std::string, const TransFunctionRecorder *> recorderMap;
+  std::map<std::string, const TransFunctionRecorder *> m_recorderMap;
 
   // Here is the result:
-  mutable std::string codedString;
+  mutable std::string m_codedString;
 
   // An ostringstream is used to build the coded string:
-  mutable std::ostringstream *stream;
+  mutable std::ostringstream *m_stream;
 
   // The GenFunctionPersistifier:
-  GenFunctionPersistifier fPersistifier;
+  GenFunctionPersistifier m_persistifier;
   
   // Deleted methods:
   TransFunctionPersistifier(const TransFunctionPersistifier &)               = delete;

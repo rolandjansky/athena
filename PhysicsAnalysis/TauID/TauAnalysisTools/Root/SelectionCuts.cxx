@@ -295,6 +295,82 @@ bool SelectionCutBDTJetScore::accept(const xAOD::TauJet& xTau,
   return false;
 }
 
+//___________________________SelectionCutBDTJetScoreSigTrans____________________________
+//______________________________________________________________________________
+SelectionCutBDTJetScoreSigTrans::SelectionCutBDTJetScoreSigTrans(TauSelectionTool* tTST)
+  : SelectionCut("CutJetBDTScoreSigTrans", tTST)
+{
+  m_hHistCutPre = CreateControlPlot("hJetBDTSigTrans_pre","JetBDTSigTrans_pre;BDTJetSigTransScore; events",100,0,1);
+  m_hHistCut = CreateControlPlot("hJetBDTSigTrans_cut","JetBDTSigTrans_cut;BDTJetSigTransScore; events",100,0,1);
+}
+//______________________________________________________________________________
+void SelectionCutBDTJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+{
+  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
+}
+//______________________________________________________________________________
+void SelectionCutBDTJetScoreSigTrans::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "JetBDTScore",
+               "Selection of taus according to their JetBDTScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutBDTJetScoreSigTrans::accept(const xAOD::TauJet& xTau,
+                                             asg::AcceptData& acceptData)
+{
+  // check JetBDTscore, if tau has a JetBDT score in one of the regions requiered then return true; false otherwise
+  double dJetBDTScoreSigTrans = xTau.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
+  unsigned int iNumJetBDTSigTransRegion = m_tTST->m_vJetBDTSigTransRegion.size()/2;
+  for( unsigned int iJetBDTSigTransRegion = 0; iJetBDTSigTransRegion < iNumJetBDTSigTransRegion; iJetBDTSigTransRegion++ )
+  {
+    if ( dJetBDTScoreSigTrans >= m_tTST->m_vJetBDTSigTransRegion.at(iJetBDTSigTransRegion*2) and dJetBDTScoreSigTrans <= m_tTST->m_vJetBDTSigTransRegion.at(iJetBDTSigTransRegion*2+1))
+    {
+      acceptData.setCutResult( "JetBDTScoreSigTrans", true );
+      return true;
+    }
+  }
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTScore requirement, tau JetBDTScore: " << dJetBDTScoreSigTrans << endmsg;
+  return false;
+}
+
+//___________________________SelectionCutRNNJetScoreSigTrans____________________________
+//______________________________________________________________________________
+SelectionCutRNNJetScoreSigTrans::SelectionCutRNNJetScoreSigTrans(TauSelectionTool* tTST)
+  : SelectionCut("CutJetRNNScoreSigTrans", tTST)
+{
+  m_hHistCutPre = CreateControlPlot("hJetRNNSigTrans_pre","JetRNNSigTrans_pre;RNNJetSigTransScore; events",100,0,1);
+  m_hHistCut = CreateControlPlot("hJetRNNSigTrans_cut","JetRNNSigTrans_cut;RNNJetSigTransScore; events",100,0,1);
+}
+//______________________________________________________________________________
+void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+{
+  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans));
+}
+//______________________________________________________________________________
+void SelectionCutRNNJetScoreSigTrans::setAcceptInfo(asg::AcceptInfo& info) const
+{
+  info.addCut( "JetBDTScore",
+               "Selection of taus according to their JetBDTScore" );
+}
+//______________________________________________________________________________
+bool SelectionCutRNNJetScoreSigTrans::accept(const xAOD::TauJet& xTau,
+                                             asg::AcceptData& acceptData)
+{
+  // check JetRNNscore, if tau has a JetRNN score in one of the regions requiered then return true; false otherwise
+  double dJetRNNScoreSigTrans = xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+  unsigned int iNumJetRNNSigTransRegion = m_tTST->m_vJetRNNSigTransRegion.size()/2;
+  for( unsigned int iJetRNNSigTransRegion = 0; iJetRNNSigTransRegion < iNumJetRNNSigTransRegion; iJetRNNSigTransRegion++ )
+  {
+    if ( dJetRNNScoreSigTrans >= m_tTST->m_vJetRNNSigTransRegion.at(iJetRNNSigTransRegion*2) and dJetRNNScoreSigTrans <= m_tTST->m_vJetRNNSigTransRegion.at(iJetRNNSigTransRegion*2+1))
+    {
+      acceptData.setCutResult( "JetRNNScoreSigTrans", true );
+      return true;
+    }
+  }
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetRNNScore requirement, tau JetRNNScore: " << dJetRNNScoreSigTrans << endmsg;
+  return false;
+}
+
 //_____________________________SelectionCutJetIDWP______________________________
 //______________________________________________________________________________
 SelectionCutJetIDWP::SelectionCutJetIDWP(TauSelectionTool* tTST)
@@ -368,30 +444,40 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
   case JETIDBDTNOTLOOSE:
     if (!xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose)) bPass = true;
     break;
+  case JETIDBDTVERYLOOSE:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
+    break;
+  case JETBDTBKGLOOSE:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
+    break;
+  case JETBDTBKGMEDIUM:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
+    break;
+  case JETBDTBKGTIGHT:
+    if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
+    break;
+  case JETIDRNNVERYLOOSE:
+    if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose)) bPass = true;
+    break;
+  case JETIDRNNLOOSE:
+    if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigLoose)) bPass = true;
+    break;
+  case JETIDRNNMEDIUM:
+    if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigMedium)) bPass = true;
+    break;
+  case JETIDRNNTIGHT:
+    if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigTight)) bPass = true;
+    break;
   default:
     m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
     break;
-// #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-//   case JETIDBDTVERYLOOSE:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
-//     break;
-//   case JETBDTBKGLOOSE:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
-//     break;
-//   case JETBDTBKGMEDIUM:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
-//     break;
-//   case JETBDTBKGTIGHT:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
-//     break;
-// #endif
   }
   if (bPass)
   {
     acceptData.setCutResult( "JetIDWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau JetBDTScore: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScore) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetBDTWP requirement, tau transformed BDT score: " << xTau.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans) << endmsg;
   return false;
 }
 
@@ -402,12 +488,7 @@ SelectionCutBDTEleScore::SelectionCutBDTEleScore(TauSelectionTool* tTST)
 {
   m_hHistCutPre = CreateControlPlot("hEleBDT_pre","EleBDT_pre;BDTEleScore; events",100,0,1);
   m_hHistCut = CreateControlPlot("hEleBDT_cut","EleBDT_cut;BDTEleScore; events",100,0,1);
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
-#else
   m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
-#endif
-
 }
 
 //______________________________________________________________________________
@@ -431,6 +512,12 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
   unsigned int iNumEleBDTRegion = m_tTST->m_vEleBDTRegion.size()/2;
+  // apply EleBDTscore cut only to 1-prong taus
+  if (xTau.nTracks() != 1)
+  {
+      acceptData.setCutResult("EleBDTScore", true );
+      return true;
+  }
   for( unsigned int iEleBDTRegion = 0; iEleBDTRegion < iNumEleBDTRegion; iEleBDTRegion++ )
   {
     if ( fEleBDTScore >= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2) and fEleBDTScore <= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2+1))
@@ -448,11 +535,7 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau,
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST)
 {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
-#else
   m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
-#endif
   m_hHistCutPre = CreateControlPlot("hEleBDTWP_pre","EleBDTWP_pre;; events",6,-.5,5.5);
   m_hHistCut = CreateControlPlot("hEleBDTWP_cut","EleBDTWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined
@@ -493,7 +576,6 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau,
                                   asg::AcceptData& acceptData)
 {
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
-
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
 
@@ -516,6 +598,9 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau,
     m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iEleBDTWP<<" is not available" << endmsg;
     break;
   }
+  // apply EleBDTscore cut only to 1-prong taus
+  if (xTau.nTracks() != 1) bPass = true;
+    
   if (bPass)
   {
     acceptData.setCutResult( "EleBDTWP", true );
@@ -548,10 +633,8 @@ SelectionCutEleOLR::~SelectionCutEleOLR()
 //______________________________________________________________________________
 void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-  // run this to get ele_match_lhscore decoration
-  getEvetoPass(xTau);
-  SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
-  hHist.Fill(accEleMatchLhscore(xTau));
+  // run this to get EleMatchLikelihoodScore decoration
+  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::EleMatchLikelihoodScore));
 }
 
 //______________________________________________________________________________
@@ -564,7 +647,6 @@ void SelectionCutEleOLR::setAcceptInfo(asg::AcceptInfo& info) const
 bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau,
                                 asg::AcceptData& acceptData)
 {
-
   if (!m_tTST->m_bEleOLR)
   {
     acceptData.setCutResult( "EleOLR", true );
@@ -577,8 +659,7 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau,
     return true;
   }
 
-  SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement"<< endmsg;
   return false;
 }
 

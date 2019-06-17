@@ -38,6 +38,16 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         kwargs.setdefault("UseL2Info",False)
         kwargs.setdefault("DoCache", True)
 
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+
+        from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonSystemExtensionTool
+        pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
+        muonExtTool = Muon__MuonSystemExtensionTool(Extrapolator = AtlasExtrapolator(),
+                                                    ParticleCaloExtensionTool = pcExtensionTool)
+        kwargs.setdefault("MuonSystemExtensionTool", muonExtTool)
+
         doTrigMuonEF     = kwargs["doOutsideIn"]
         doTrigMuGirl     = kwargs["doInsideOut"]
         doStandaloneOnly = kwargs["StandaloneOnly"]

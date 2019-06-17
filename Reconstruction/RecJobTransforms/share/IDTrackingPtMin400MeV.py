@@ -1,3 +1,6 @@
+from __future__ import print_function
+from past.builtins import basestring
+
 #syntax :
 # preInclude_r2e=RecJobTransforms/IDTrackingPtMin400MeV.py
 # in addition one can change the effective cut
@@ -7,14 +10,14 @@
 b=['from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts','InDetNewTrackingCuts=ConfiguredNewTrackingCuts("Offline")','InDetNewTrackingCuts._ConfiguredNewTrackingCuts__minPT=400.0']
 #if rec.UserFlags is a non empty string, make it a vector
 a=rec.UserFlags()
-if a!="" and type(a)==type(""):
+if a!="" and isinstance(a, basestring):
     a=[a]
 
-if type(a)==type([]) and len(a)>0:    
+if isinstance(a, list) and len(a)>0:
     rec.UserFlags=b+a
 else:
     rec.UserFlags=b
 
 del a,b
-print "IDTrackingPtMin400MeV.py setting rec.UserFlags to ", rec.UserFlags()
+print("IDTrackingPtMin400MeV.py setting rec.UserFlags to ", rec.UserFlags())
 

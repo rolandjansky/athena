@@ -110,7 +110,7 @@ bool Trk::TargetSurfaces::initFrameVolume(Amg::Vector3D pos, Amg::Vector3D dir, 
   // static frame boundaries
   const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = fVol->boundarySurfaces();
   for (unsigned int ib=0; ib< bounds.size(); ib++ ){
-    const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+    const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
     Trk::TargetSurface bb(&surf,true,Trk::SurfNavigType::BoundaryFrame,ib,fVol,Trk::TVNavigType::Frame);
     evaluateInputDistance(bb,pos,dir,true);
     if (m_debugMode) std::cout<<"DEBUG:frame input:id:status:distance:"<<ib<<":"<<bb.status<<":"<<bb.distanceAlongPath<<std::endl;
@@ -130,7 +130,7 @@ bool Trk::TargetSurfaces::initFrameVolume(Amg::Vector3D pos, Amg::Vector3D dir, 
       if ( dist < m_tolerance && dist > dExit ) {
         Amg::Vector3D probe = pos+dir*dist;
         if ( (*is).surf->isOnSurface(probe,true,m_tolerance,m_tolerance) ) {
-	  const Trk::TrackingVolume* nextVolume = bounds[(*is).index].getPtr()->attachedVolume(probe,dir,Trk::alongMomentum); 
+	  const Trk::TrackingVolume* nextVolume = bounds[(*is).index].get()->attachedVolume(probe,dir,Trk::alongMomentum); 
           if (nextVolume!=fVol) {
 	    dExit = dist;
 	    m_nextSf = index; 

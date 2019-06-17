@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODJet
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           PhysicsAnalysis/MCTruthClassifier

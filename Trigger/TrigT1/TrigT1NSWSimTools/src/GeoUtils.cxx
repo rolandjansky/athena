@@ -73,7 +73,7 @@ Vertex getVertex(const Polygon& p,unsigned int i){
 }
 
 
-Polygon buildPolygon(const Vertices pts){
+Polygon buildPolygon(const Vertices& pts){//hm
     Polygon shape;
     Vertices vts=pts;
     //to complete the loop...
@@ -128,6 +128,23 @@ Polygon intersectionRegion(const std::vector<Polygon>& polygons){
         ovl=overlap;
     }
     return ovl;
+}
+
+
+
+Polygon globalToLocal(const Polygon& pol,float z,const Trk::PlaneSurface & surf ){
+    
+    Vertices local_vertices;
+    for(const auto& v : boost::geometry::exterior_ring(pol)){
+                float x=coordinate<0>(v);
+                float y=coordinate<1>(v);
+                Amg::Vector2D local_corner;
+                surf.globalToLocal(Amg::Vector3D(x,y,z),Amg::Vector3D(),local_corner); 
+                local_vertices.emplace_back(Vertex(local_corner.x(),local_corner.y()));
+    }
+    
+    return buildPolygon(local_vertices);
+    
 }
 
 

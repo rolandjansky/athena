@@ -151,6 +151,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe110_pufit_xe70_L1XE50',
         'HLT_xe110_pufit_xe65_L1XE55',
         'HLT_xe110_pufit_xe65_L1XE60',
+        'HLT_xe110_pufit_xe65_L1XE50',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
         'HLT_xe110_mht_L1XE50',
@@ -235,6 +236,8 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
         'HLT_e28_lhtight_ivarloose',
         'HLT_e28_lhtight_nod0_iloose',
         'HLT_e28_lhtight_nod0_ivarloose',
+        'HLT_e60_lhmedium_nod0',
+        'HLT_e140_lhloose_nod0'
         ]
     if apitriggers.doTriggerAPI:
         triggerNames += apitriggers.getKinkedTrackZeeTriggers() ## TriggerAPI

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBTOOLS__TRTCALIBRATOR_H
@@ -20,8 +20,8 @@ PURPOSE: Tool for calibrating the TRT
 
 #include "TRT_CalibTools/ITRTCalibrator.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -31,10 +31,8 @@ PURPOSE: Tool for calibrating the TRT
 #include <map>
 #include <set>
 
-class ITRT_StrawSummarySvc;
 class AtlasDetectorID;
 class TRT_ID;
-class ITRT_CalDbSvc ;
 class TFile;
 namespace InDetDD{
   class TRT_DetectorManager;
@@ -115,9 +113,9 @@ private:
   const AtlasDetectorID* m_DetID;
   const TRT_ID* m_TRTID; 
   const InDetDD::TRT_DetectorManager* m_trtmanager;
-  ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
+  ToolHandle<ITRT_CalDbTool> m_trtcaldbTool ;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; //!< The ConditionsSummaryTool
   float m_maxDistance ;
   float m_maxTimeResidual ;
   int m_minTimebinsOverThreshold ;

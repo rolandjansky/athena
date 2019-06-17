@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -60,25 +62,29 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
 
  private:
   // Properties
-  std::string m_detectorName;
-  bool m_isSCT;
+  StringProperty m_detectorName{this, "DetectorName", "SCT", "Detector name"};
+  bool m_isSCT{false};
 
-  double m_temperature;
-  double m_temperatureMin;
-  double m_temperatureMax;
-  double m_deplVoltage;
-  double m_biasVoltage;
+  // Temperature and voltages from job options only used if  SiConditionsServices is None or
+  // if value read from database is out of range.
+  DoubleProperty m_temperature{this, "Temperature", -2., "Default temperature in Celcius."};
+  DoubleProperty m_temperatureMin{this, "TemperatureMin", -80., "Minimum temperature allowed in Celcius."};
+  DoubleProperty m_temperatureMax{this, "TemperatureMax", 100., "Maximum temperature allowed in Celcius."};
+  DoubleProperty m_deplVoltage{this, "DepletionVoltage", -30., "Default depletion voltage in Volt."};
+  DoubleProperty m_biasVoltage{this, "BiasVoltage", 150., "Default  bias voltage in Volt."};
 
-  bool m_conditionsToolValid;
-  mutable std::atomic_bool m_conditionsToolWarning;
+  bool m_conditionsToolValid{false};
+  mutable std::atomic_bool m_conditionsToolWarning{false};
  
   // -- Radiation damage specific
-  bool m_calcHoles;
-  double m_fluence;
-  double m_betaElectrons;
-  double m_betaHoles;
+  BooleanProperty m_calcHoles{this, "CalcHoles", true, "Default is to consider holes in signal formation."};
 
-  double m_PotentialValue[81][115];
+  // -- Fluence: Need to make it layer-dependent
+  DoubleProperty m_fluence{this, "Fluence", 3.0E13, "Fluence received by the detector."};
+  DoubleProperty m_betaElectrons{this, "BetaElectrons", 3.1E-16, "Constant for the trapping model for electrons, in [cm^2/ns] -- average value from Table 2 in ATL-INDET-2003-014"};
+  DoubleProperty m_betaHoles{this, "BetaHoles", 5.1E-16, "Constant for the trapping model for holes in [cm^2/ns] -- average value from Table 2 in ATL-INDET-2003-014"};
+
+  double m_PotentialValue[81][115]{{0.}};
 
   // -- Tool Handle
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "SCT silicon conditions tool"};

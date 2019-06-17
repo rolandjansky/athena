@@ -43,7 +43,8 @@ namespace Muon {
     declareProperty("SegmentMaker",m_segmentMaker);
     declareProperty("Csc2DSegmentMaker",m_csc2dSegmentFinder);
     declareProperty("Csc4DSegmentMaker",m_csc4dSegmentFinder);
-    declareProperty("MuonClusterSegmentFinderTool",m_clusterSegmentFinder);
+    declareProperty("MuonClusterSegmentFinder",m_clusterSegmentFinder);
+    declareProperty("NSWMuonClusterSegmentFinderTool",m_clusterSegMakerNSW);
     declareProperty("MuonLayerHoughTool",m_layerHoughTool);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
   }

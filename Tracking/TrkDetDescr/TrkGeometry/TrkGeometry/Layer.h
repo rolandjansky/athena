@@ -410,7 +410,7 @@ namespace Trk {
       return cSurfaces.size();                                                                 
   }
 
-  inline const LayerMaterialProperties* Layer::layerMaterialProperties() const{ return m_layerMaterialProperties.getPtr(); }
+  inline const LayerMaterialProperties* Layer::layerMaterialProperties() const{ return m_layerMaterialProperties.get(); }
 
   inline const OverlapDescriptor* Layer::overlapDescriptor() const 
     {

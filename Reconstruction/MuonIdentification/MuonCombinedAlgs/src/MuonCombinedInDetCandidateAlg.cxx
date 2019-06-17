@@ -16,7 +16,7 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
   AthAlgorithm(name,pSvcLocator),
   m_doSiliconForwardMuons(false),
   m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool"),
-  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool")
+  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", this)
 {  
   declareProperty("TrackSelector", m_trackSelector);
   declareProperty("InDetForwardTrackSelector", m_forwardTrackSelector);

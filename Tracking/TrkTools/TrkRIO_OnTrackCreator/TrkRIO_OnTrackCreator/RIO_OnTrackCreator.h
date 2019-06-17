@@ -80,15 +80,15 @@ namespace Trk {
     //! Helper to detect type of sub-detector from PRD->identify().
     const AtlasDetectorID*           m_idHelper;
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::PixelCluster
-    ToolHandle<IRIO_OnTrackCreator>  m_PixClusCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_pixClusCor;
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::SCT_Cluster
-    ToolHandle<IRIO_OnTrackCreator>  m_SctClusCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_sctClusCor;
     //! Detector-specific helper tool, performing the actual calibration corrections for every InDet::TRT::DriftCircle
-    ToolHandle<IRIO_OnTrackCreator>  m_TRT_Cor;
+    ToolHandle<IRIO_OnTrackCreator>  m_trt_Cor;
     //! Detector-specific helper tool, performing the actual calibration corrections for every Muon::MdtPrepData 
-    ToolHandle<IRIO_OnTrackCreator>  m_MuonDriftCircleCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_muonDriftCircleCor;
     //! Detector-specific helper tool, performing the actual calibration corrections for the remaining muon detector technologies: RPC, TGC and CSC.
-    ToolHandle<IRIO_OnTrackCreator>  m_MuonClusterCor;
+    ToolHandle<IRIO_OnTrackCreator>  m_muonClusterCor;
     std::string                      m_mode;   //!< flag: can be 'all', 'indet' or 'muon'
     int*                  m_nwarning;          //!< counter to locally control # of warnings
     bool                             m_doPixel; //!< Load Pixel IRIO_OnTrackCreator

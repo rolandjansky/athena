@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,6 @@
 
 
 #include "AthenaKernel/sgkey_t.h"
-#include "CxxUtils/noreturn.h"
 #include "GaudiKernel/ClassID.h"
 #include <stdexcept>
 
@@ -97,9 +96,10 @@ public:
  * @param key String key of the link.
  * @param sgkey Hashed key of the link.
  */
-ATH_NORETURN(void throwExcInvalidLink (CLID clid,
-                                       const std::string& key,
-                                       SG::sgkey_t sgkey));
+[[noreturn]]
+void throwExcInvalidLink (CLID clid,
+                          const std::string& key,
+                          SG::sgkey_t sgkey);
 
 
 /**
@@ -127,7 +127,8 @@ public:
  * @param index Index in the link.
  * @param size Size of the referenced container.
  */
-ATH_NORETURN(void throwExcBadForwardLink (size_t index, size_t size));
+[[noreturn]]
+void throwExcBadForwardLink (size_t index, size_t size);
 
 
 /**
@@ -153,7 +154,8 @@ public:
  * @brief Throw a SG::ExcElementNotFound exception.
  * @param where The operation being attempted.
  */
-ATH_NORETURN(void throwExcElementNotFound (const char* where));
+[[noreturn]]
+void throwExcElementNotFound (const char* where);
 
 
 /// Backwards compatibility.
@@ -182,7 +184,8 @@ public:
  * @brief Throw a SG::ExcInvalidIndex exception.
  * @param where The operation being attempted.
  */
-ATH_NORETURN(void throwExcInvalidIndex (const char* where));
+[[noreturn]]
+void throwExcInvalidIndex (const char* where);
 
 
 /**
@@ -208,7 +211,8 @@ public:
  * @brief Throw a SG::ExcIndexNotFound exception.
  * @param where The operation being attempted.
  */
-ATH_NORETURN(void throwExcIndexNotFound (const char* where));
+[[noreturn]]
+void throwExcIndexNotFound (const char* where);
 
 
 /**
@@ -234,7 +238,8 @@ public:
 /**
  * @brief Throw a SG::IncomparableEL exception.
  */
-ATH_NORETURN(void throwExcIncomparableEL());
+[[noreturn]]
+void throwExcIncomparableEL();
 
 
 /**
@@ -256,7 +261,8 @@ public:
 /**
  * @brief Throw a SG::ExcBadToTransient exception.
  */
-ATH_NORETURN(void throwExcBadToTransient());
+[[noreturn]]
+void throwExcBadToTransient();
 
 
 } // namespace SG

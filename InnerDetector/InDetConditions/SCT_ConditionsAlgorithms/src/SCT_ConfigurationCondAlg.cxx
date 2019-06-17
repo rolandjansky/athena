@@ -29,8 +29,6 @@ const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Confi
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
-  , m_pHelper{nullptr}
 {
 }
 

@@ -27,7 +27,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "TrigTauHypo/HLTTauGenericHypo.h"
+#include "HLTTauGenericHypo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 

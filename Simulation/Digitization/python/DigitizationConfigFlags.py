@@ -48,5 +48,15 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PileUpPremixing", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
+    # Run Calorimeter noise simulation
+    flags.addFlag("Digitization.DoCaloNoise", True)
+    # Run pile-up premixing
+    flags.addFlag("Digitization.DoDigiTruth", True)
+    # Use high-gain Forward Calorimeters
+    flags.addFlag("Digitization.HighGainFCal", False)
+    # Use high-gain ElectroMagnetic EndCap Inner Wheel
+    flags.addFlag("Digitization.HighGainEMECIW", True)
+    # Do global pileup digitization
+    flags.addFlag("Digitization.Pileup", True)
     return flags
 

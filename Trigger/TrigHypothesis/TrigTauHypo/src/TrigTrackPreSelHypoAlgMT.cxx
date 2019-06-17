@@ -25,7 +25,6 @@ StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
 StatusCode TrigTrackPreSelHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
@@ -90,4 +89,3 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
 
   return StatusCode::SUCCESS;
 }
-

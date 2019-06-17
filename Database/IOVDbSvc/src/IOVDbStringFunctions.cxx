@@ -107,11 +107,8 @@ namespace IOVDbNamespace{
     result.reserve(bufsize);
     for(size_t pos = 0; pos != strSize; ++pos) {
       switch(pseudoXmlString[pos]) {
-        //case '&':  result.append("&amp;");       break;
         case '\"': result.append("\\\"");      break;
-        //case '\'': result.append("&apos;");      break;
-        //case '<':  result.append("&lt;");        break;
-        //case '>':  result.append("&gt;");        break;
+
         default:   result.append(&pseudoXmlString[pos], 1); break;
       }
     }

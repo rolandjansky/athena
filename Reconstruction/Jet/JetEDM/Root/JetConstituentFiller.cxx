@@ -163,20 +163,13 @@ PseudoJetVector JetConstituentFiller::constituentPseudoJets(const xAOD::Jet& jet
 
   PseudoJetVector constituents;
 
-  if( jet_pj ) { // Retrieve constituents from the PseudoJet
-    
-    if( ! ignoreGhosts) constituents = jet_pj->constituents(); // all constituents, including ghosts
-    else{  // remove ghosts
-      PseudoJetVector constituents_tmp = jet_pj->constituents();
-      constituents.reserve(constituents_tmp.size());
-      PseudoJetVector::iterator it = constituents_tmp.begin();
-      PseudoJetVector::iterator itE = constituents_tmp.end();
-      for( ; it !=itE; ++it) if(it->has_user_info<IConstituentUserInfo>() ) {
-          if( ! it->user_info<IConstituentUserInfo>().isGhost() ) constituents.push_back( *it );
-        }
-    }
-
-  } else { // no PseudoJet in jet. Build them from constituents.
+  if( jet_pj && !ignoreGhosts ) { // Retrieve constituents from the PseudoJet
+    constituents = jet_pj->constituents(); // all constituents, including ghosts
+    // Removed block for (existing jet_pt and ignoreGhosts), because
+    // in the PseudoJetContainer model, the constituent user info is
+    // not attached, and hence it's not possible to know if a pj is
+    // ghost or constituent.
+  } else { // no PseudoJet in jet or need to reject ghosts. Build them from constituents.
     xAOD::JetConstituentVector constituents_tmp = jet.getConstituents();
     constituents.reserve( jet.numConstituents() );
     xAOD::JetConstituentVector::iterator it = constituents_tmp.begin();

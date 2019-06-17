@@ -76,8 +76,8 @@ if digitizationFlags.doXingByXingPileUp():
     puAlg = job.StandardPileUpToolsAlg
     #puAlg = job.StandardInTimeOnlyTruthPileUpToolsAlg
     puAlg.OutputLevel=DEBUG
-    from AthenaCommon.CfgGetter import getPublicTool
-    puAlg.PileUpTools += [ getPublicTool("TestPileUpTool", tryDefaultConfigurable=True) ]
+    from AthenaCommon.CfgGetter import getPrivateTool
+    puAlg.PileUpTools += [ getPrivateTool("TestPileUpTool", tryDefaultConfigurable=True) ]
     puAlg.PileUpTools["TestPileUpTool"].OutputLevel=DEBUG
     #xing times in ns
     puAlg.PileUpTools["TestPileUpTool"].FirstXing=-300

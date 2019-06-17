@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -65,7 +65,7 @@ namespace D3PD {
         bool m_saveCellDetails; //switching on/off cell details storage
         bool m_savePosition; // switching on/off cell position storage
 
-        bool m_run2;
+        bool m_run2plus;
 
         // variables to be in ntuple.
         

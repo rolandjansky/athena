@@ -649,7 +649,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               }
             }
 	    /* TODO, bring it back when IDC friendly
-            if(rdoIdc->hasExternalCache() && rdoIdc->tryFetch(offlineIdHash)){
+            if(rdoIdc->hasExternalCache() && rdoIdc->tryAddFromCache(offlineIdHash)){
                 ATH_MSG_DEBUG("Hash already in collection - cache hit " << offlineIdHash);
                 continue;
             }

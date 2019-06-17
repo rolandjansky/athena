@@ -47,10 +47,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 
 //Pile-up
-#include "PileUpTools/PileUpMergeSvc.h"
 
 //Truth
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h" 
 
@@ -60,85 +58,21 @@
 //Calibration Service
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
+static constexpr double s_inv_c_light(1./Gaudi::Units::c_light);
 
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_idHelper(0)
-  , m_muonHelper(0)
-  , m_MuonGeoMgr(0)
-  , m_digiTool("MDT_Response_DigiTool", this)
-  , m_inv_c_light(1./(CLHEP::c_light))
-  , m_thpcMDT(0)
-  , m_vetoThisBarcode(crazyParticleBarcode) 
-  , m_BMGpresent(false)
-  , m_BMGid(-1)
-  , m_mergeSvc(0)
-  , m_inputObjectName("")
-  , m_calibDbSvc("MdtCalibrationDbSvc", name) 
-  , m_pSummarySvc("MDTCondSummarySvc", name)
 {
-  declareProperty("DigitizationTool",    m_digiTool,                          "Tool which handle the digitization process");
-  //Conditions Database
-  declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
-  declareProperty("MDTCondSummarySvc",   m_pSummarySvc);
-  declareProperty("UseDeadChamberSvc",   m_UseDeadChamberSvc   =  false );
-  declareProperty("GetT0FromBD",         m_t0_from_DB          =  false );
-  //TDC electronics
-  declareProperty("OffsetTDC",           m_offsetTDC           =  800.,       "TDC offset");
-  declareProperty("ns2TDCAMT",           m_ns2TDCAMT           =  0.78125,  "Conversion factor TDC/ns for AMT chips");
-  declareProperty("ns2TDCHPTDC",         m_ns2TDCHPTDC         =  0.1953125,"Conversion factor TDC/ns for HPTDC chips");
-  declareProperty("ResolutionTDC",       m_resTDC              =  0.5,      "TDC resolution");
-  declareProperty("SignalSpeed",         m_signalSpeed         =  299.792458, "Light speed" );
-  //Object names		          
-  declareProperty("InputObjectName",     m_inputObjectName     =  "MDT_Hits");
-  //Corrections		          
-  declareProperty("UseAttenuation",      m_useAttenuation      =  false);
-  declareProperty("UseTof",              m_useTof              =  true,       "Option for the tof calculation");
-  declareProperty("UseProp",             m_useProp             =  true);
-  declareProperty("UseWireSagGeom",      m_useWireSagGeom      =  false,      "Option for the wire sagitta correction");
-  declareProperty("UseWireSagRT",        m_useWireSagRT        =  false,      "Option for the wire sagitta correction");
-  declareProperty("UseDeformations",     m_useDeformations     =  false);
-  //Timing scheme		          
-  declareProperty("UseTimeWindow",       m_useTimeWindow       =  true);
-  declareProperty("BunchCountOffset",    m_bunchCountOffset    =  -200.,      "Bunch crossing offset");
-
-  declareProperty("MatchingWindow",      m_matchingWindow      =  1000.,      "Matching window");
-  declareProperty("MaskWindow",          m_maskWindow          =   250.,      "Masked window");  // was 700 for large time window
-  declareProperty("DeadTime",            m_deadTime            =   700.,      "MDT drift tube dead time");
-  declareProperty("DiscardEarlyHits",    m_DiscardEarlyHits    =  true);
-  //Configurations
-  declareProperty("CheckSimHits",        m_checkMDTSimHits     =  true,       "Control on the hit validity");
-  declareProperty("MaskedStations",      m_maskedStations,                    "Stations to be masked at digi level");
-  //Twin Tube  
-  declareProperty("UseTwin",             m_useTwin             =  false);
-  declareProperty("UseAllBOLTwin",       m_useAllBOLTwin       =  false);
-  declareProperty("ResolutionTwinTube",  m_resTwin             =  1.05,    "Twin Tube resolution");
-  //Multi-charge particle digitization
-  declareProperty("DoQballCharge",       m_DoQballCharge       =  false,      "dEdx for Qballs with account of electric charge"); 
-  //Cosmics
-  declareProperty("UseOffSet1",          m_useOffSet1          =  true);
-  declareProperty("UseOffSet2",          m_useOffSet2          =  true);
-  //Truth
-  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
-
-MdtDigitizationTool::~MdtDigitizationTool() {
-
-}
 
 StatusCode MdtDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "Configuration  MdtDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "DigitizationTool       " << m_digiTool            );
-  ATH_MSG_INFO ( "MdtCalibrationDbSvc    " << m_calibDbSvc          );
+  ATH_MSG_INFO ( "MdtCalibrationDbTool    " << m_calibrationDbTool  );
   ATH_MSG_INFO ( "MDTCondSummarySvc      " << m_pSummarySvc         );
   ATH_MSG_INFO ( "UseDeadChamberSvc      " << m_UseDeadChamberSvc   );
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
@@ -176,38 +110,28 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "ParticleBarcodeVet     " << m_vetoThisBarcode       );
 
 
-  // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager  
-  if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
-    if (detStore()->retrieve(m_MuonGeoMgr).isFailure()) {
-      ATH_MSG_FATAL ( "Could not retrieve MuonGeoModelDetectorManager!" );
-      return StatusCode::FAILURE;
-    } 
-    else {
-      ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-      //initialize the MdtIdHelper
-      m_idHelper  = m_MuonGeoMgr->mdtIdHelper();
-      if(!m_idHelper) return StatusCode::FAILURE;
-      ATH_MSG_DEBUG ( "Retrieved MdtIdHelper " << m_idHelper );
-    }
-  }  
-
-  if (!m_mergeSvc) {
-    const bool CREATEIF(true);
-    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-	0 == m_mergeSvc) {
-      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
+  // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
+  if (detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )) {
+    ATH_CHECK(detStore()->retrieve(m_MuonGeoMgr));
+    ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
+    //initialize the MdtIdHelper
+    m_idHelper  = m_MuonGeoMgr->mdtIdHelper();
+    if(!m_idHelper) return StatusCode::FAILURE;
+    ATH_MSG_DEBUG ( "Retrieved MdtIdHelper " << m_idHelper );
   }
+
+  ATH_CHECK(m_mergeSvc.retrieve());
 
   // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
   }
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputObjectKey.initialize());
@@ -216,31 +140,19 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputSDOKey );
   ATH_MSG_DEBUG ( "Output Digits: '" << m_outputObjectKey.key() << "'" );
 
-  //simulation identifier helper	
+  //simulation identifier helper
   m_muonHelper = MdtHitIdHelper::GetHelper();
-  
+
   //get the r->t conversion tool
-  if( m_digiTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Could not retrieve digitization tool! " << m_digiTool);
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Retrieved digitization tool!" << m_digiTool);
+  ATH_CHECK(m_digiTool.retrieve());
+  ATH_MSG_DEBUG("Retrieved digitization tool!" << m_digiTool);
+
+  ATH_CHECK(m_rndmSvc.retrieve());
+
+  if ( m_t0_from_DB ) {
+    ATH_CHECK(m_calibrationDbTool.retrieve());
   }
 
-  // initialize inverse lightSpeed (c_light in m/s)
-  m_inv_c_light = 1./(CLHEP::c_light);
-  
-  ATH_CHECK(m_rndmSvc.retrieve());
-  
-  // Get pointer to MdtCalibrationDbSvc and cache it :
-  if ( m_t0_from_DB ){
-    if ( !m_calibDbSvc.retrieve().isSuccess() ) {
-      ATH_MSG_FATAL("Unable to retrieve pointer to MdtCalibrationDbSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  
   //Gather masked stations
   for (unsigned int i=0;i<m_maskedStations.size();i++) {
     std::string mask=m_maskedStations[i];
@@ -250,9 +162,9 @@ StatusCode MdtDigitizationTool::initialize() {
     std::string maskedPhi=temps.substr(maskedEta.size()+1,std::string::npos);
     maskedStation ms(maskedName,maskedEta,maskedPhi);
     m_vMaskedStations.push_back(ms);
-    if (!m_UseDeadChamberSvc ) ATH_MSG_DEBUG ( "mask = " << mask << "  maskedName = " << maskedName <<  "  temps = " << temps << "  maskedEta = " <<maskedEta << "  maskedPhi = " << maskedPhi ); 
+    if (!m_UseDeadChamberSvc ) ATH_MSG_DEBUG ( "mask = " << mask << "  maskedName = " << maskedName <<  "  temps = " << temps << "  maskedEta = " <<maskedEta << "  maskedPhi = " << maskedPhi );
   }
-  
+
   //Retrieve the Conditions service
   if (m_UseDeadChamberSvc==true) {
     ATH_MSG_DEBUG("Using Database DCS MDT Conditions for masking dead/missing chambers");
@@ -265,11 +177,11 @@ StatusCode MdtDigitizationTool::initialize() {
   }
 
   m_BMGpresent = m_idHelper->stationNameIndex("BMG") != -1;
-  if(m_BMGpresent){
+  if (m_BMGpresent) {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_BMGid = m_idHelper->stationNameIndex("BMG");
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -331,22 +243,29 @@ StatusCode MdtDigitizationTool::getNextEvent()
 {
   
   ATH_MSG_DEBUG ( "MdtDigitizationTool::getNextEvent()" );
-  
-  if (!m_mergeSvc) {
-    const bool CREATEIF(true);
-    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() || 
-	0 == m_mergeSvc) {
-      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
-  }
-  
+
   // initialize pointer
   m_thpcMDT = 0;
   
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<MDTSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get MDTSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcMDT = new TimedHitCollection<MDTSimHit>{1};
+    m_thpcMDT->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("MDTSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<info<time_t, DataLink<MDTSimHitCollection> > >
   TimedHitCollList hitCollList;
   
@@ -947,10 +866,10 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       insideMask = false;
     }
     if( insideMatch || insideMask ) {
-      // get calibration constants from DbSvc
+      // get calibration constants from DbTool
       double t0 = m_offsetTDC;
       if ( m_t0_from_DB ) {
-	MuonCalib::MdtFullCalibData data = m_calibDbSvc->getCalibration( geo->collectionHash(), geo->detectorElementHash() ); 
+	MuonCalib::MdtFullCalibData data = m_calibrationDbTool->getCalibration( geo->collectionHash(), geo->detectorElementHash() );
 	if ( data.tubeCalib ) {
 	  int ml    = m_idHelper->multilayer(idDigit)-1;
 	  int layer = m_idHelper->tubeLayer(idDigit)-1;
@@ -1061,9 +980,9 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId) const {
     distanceToVertex = element->tubePos(DigitId).mag(); 
   }
   
-  ATH_MSG_DEBUG( "minimumTof calculated " << distanceToVertex*m_inv_c_light);
+  ATH_MSG_DEBUG( "minimumTof calculated " << distanceToVertex*s_inv_c_light);
   
-  return distanceToVertex*m_inv_c_light;
+  return distanceToVertex*s_inv_c_light;
 }
 
 
