@@ -127,8 +127,8 @@ namespace Analysis {
     m_allChCombs(false),
     m_muonCollectionKey("StacoMuonCollection"),
     m_TrkParticleCollection("TrackParticleCandidate"),
-    m_iVertexFitter("Trk::TrkVKalVrtFitter"),
-    m_iV0VertexFitter("Trk::V0VertexFitter"),
+    m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
+    m_iV0VertexFitter("Trk::V0VertexFitter", this),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_helpertool("InDet::ConversionFinderUtils"),//unused remove later
     m_vertexEstimator("InDet::VertexPointEstimator"),

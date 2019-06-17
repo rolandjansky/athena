@@ -31,12 +31,12 @@ namespace CP {
     m_SagittaCorrPhaseSpace(false),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
-    m_SagittaRelease("sagittaBiasDataAll_30_07_18"){
+    m_SagittaRelease("sagittaBiasDataAll_03_02_19"){
 
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2018_05_20" );
+    declareProperty("Release", m_release = "Recs2019_05_30" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -161,7 +161,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2018_05_20" );
+    declareProperty( "Release", m_release = "Recs2019_05_30" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 

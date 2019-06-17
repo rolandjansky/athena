@@ -115,7 +115,7 @@ namespace FlavorTagDiscriminants {
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
-      {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
+      {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
     // We have a number of special naming conventions to sort and
     // filter tracks. The track nodes should be named according to
