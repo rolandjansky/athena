@@ -63,6 +63,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto mht_Et = Monitored::Scalar<float>("mht_Et",0.0);
 
     // access L1 MET values
+    // The follosing code was commented till we can get a proper input AOD file
+    /*
     if ( l1_roi_cont.isValid() ) {
       if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) { 
 	L1_Ex = - (l1_roi_cont->energyX())/1000.;
@@ -70,6 +72,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 	L1_Et = sqrt(L1_Ex*L1_Ex + L1_Ey*L1_Ey);
       }
     }
+    */
 
     // access HLT cell MET values
     if (! hlt_cell_met_cont.isValid() ) {
