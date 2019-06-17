@@ -41,59 +41,62 @@ Rho_med(): Calculates rho as the median tower energy density in the barrel, agai
  *@brief Calculates rho as the average tower energy density in the barrel region of the calorimeter, to be scaled with are in more forward regions. An upper threshold of 10 GeV is applied to eliminate bias from hard scatter events
  *@return @c float
  */
-float Rho_bar(const xAOD::JGTowerContainer* towers, const bool useNegTowers){
+float Rho_bar(const xAOD::JGTowerContainer* towers, const bool useEtaBins, int fpga, const bool useNegTowers){
+  //fpga = 0 ->entire barrel
+  //fpga = 1 -> FPGA_A
+  //fpga = 2 -> FPGA_B
+  //fpga = 3 -> FPGA_C
 
   float rho = 0;
   float et_max = 10*Gaudi::Units::GeV; //an upper threshold such that the average rho is not biased by hard scatter events                                                                                                                     
   const unsigned int size = towers->size();
- int length = 0;
+  int length = 0;
+  float area_a = 0;
+  float area_b = 0;
+  float area_c = 0;
 
  for(unsigned int i = 0; i < size; i++){
    const xAOD::JGTower* tower = towers->at(i);
+
    float eta = TMath::Abs(tower->eta());
    float Et = tower->et();
 
    if(!useNegTowers && Et < 0) continue;
 
-   if(eta < 2.4){
+   if(eta < 0 && eta > -2.5){ //FPGA A bounds
+     if(eta > -2.4) area_a += 1;
+     else area_a += 0.5;
+   }
+   if(eta < 2.5 && eta > 0){
+     if(eta < 2.4) area_b += 1.;
+     else area_b += 0.5;
+   }
+   if(fabs(eta) > 2.5){
+     if(eta < 3.2) area_c += 1.;
+     else area_c += 4.;
+   }
+
+   if(useEtaBins){
      if(Et < et_max){
        rho += Et;
-       length++;
+       //length++;
+     }
+   }else{
+     if(eta < 2.4){
+       if(Et < et_max){
+	 rho += Et;
+	 length++;
+       }
      }
    }
  }
  float rho_bar = rho/length;
+ if(fpga == 1) rho_bar = rho/area_a;
+ if(fpga == 2) rho_bar = rho/area_b;
+ if(fpga ==3) rho_bar = rho/area_c;
 
  return rho_bar;
 }
-
-float Rho_bar(std::vector<const xAOD::JGTower*> towers, const bool useNegTowers){
-
-  float rho = 0;
-  float et_max = 10*Gaudi::Units::GeV; //an upper threshold such that the average rho is not biased by hard scatter events               
-
-  const unsigned int size = towers.size();
-  int length = 0;
-
-  for(unsigned int i = 0; i < size; i++){
-    const xAOD::JGTower* tower = towers[i];
-    float eta = TMath::Abs(tower->eta());
-    float Et = tower->et();
-
-    if(!useNegTowers && Et < 0) continue;
-
-    if(eta < 2.4){
-      if(Et < et_max){
-	rho += Et;
-	length++;
-      }
-    }
-  }
-  float rho_bar = length > 0 ? rho/length : 0;
-
-  return rho_bar;
-}
-
 
 /**
  *@brief Calculates rho as the median tower energy density in the barrel region of the calorimeter, to be scaled with area in more forward regions
@@ -121,62 +124,6 @@ float Rho_med(const xAOD::JGTowerContainer* towers, const bool useNegTowers){
   else rho = Et_in[Et_in.size()/2];
 
   return rho;
-}
-
-const std::vector<float> rhoSub(std::vector<const xAOD::JGTower*> towers, bool useNegTowers){
-  float EtMiss = 0;
-  float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
-  float threshold  = 0;
-  std::vector<float> met;
-
-  //can calculate rho as either the average or median gTower energy in the barrel                                                            
-  float rho = Rho_bar(towers, false);
-
-  unsigned int size = towers.size();
-
-  TH1F* h_Et = new TH1F("h_Et", "", 50, 0, 5000);
-
-  for(unsigned int t = 0; t < size; t++){
-    const xAOD::JGTower* tower = towers[t];
-    float Et = tower->et();
-    if(!useNegTowers && Et < 0) continue;
-    h_Et->Fill(Et);
-  }
-  threshold = 3*h_Et->GetRMS();
-  
-  for(unsigned int t = 0; t < size; t++){
-    const xAOD::JGTower* tower = towers[t];
-    float Et = tower->et();
-    float phi = tower->phi();
-    float eta = TMath::Abs(tower->eta());
-    
-    float Et_sub = 0;
-    if(eta < 2.4) Et_sub = TMath::Abs(Et) - rho;
-    else Et_sub = TMath::Abs(Et) - 4*rho;
-    
-    if(Et_sub < threshold) continue;
-    
-    //if tower originally had negative Et, keep Et_sub negative                                                                              
-    if(useNegTowers && Et < 0) Et_sub = -Et_sub;
-    
-    Ex_ = Et_sub*TMath::Cos(phi);
-    Ey_ = Et_sub*TMath::Sin(phi);
-    
-    Ex += Ex_;
-    Ey += Ey_;
-  }
-  
-  EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi_met = 0;
-  if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
-  if (Ey<0) phi_met = -phi_met;
-  
-  met.push_back(EtMiss);
-  met.push_back(phi_met);
-  
-  delete h_Et;
-
-  return met;
 }
 
 #endif

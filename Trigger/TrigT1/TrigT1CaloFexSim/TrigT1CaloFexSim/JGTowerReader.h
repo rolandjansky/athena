@@ -30,12 +30,14 @@
 #include "TH2.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
+
 #include "string.h"
 std::vector<std::string> splitString(std::string parentString, std::string sep, bool stripEmpty=false);
 class JGTowerReader: public ::AthAlgorithm { 
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerReader(); 
+  virtual StatusCode  MET_etaBins(const xAOD::JGTowerContainer* gTs, TString metName, bool usegFEX, bool useRhoSub, bool useJwoJ, bool usePUfit);
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
