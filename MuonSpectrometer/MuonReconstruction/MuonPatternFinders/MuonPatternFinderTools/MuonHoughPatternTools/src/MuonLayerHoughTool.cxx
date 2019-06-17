@@ -243,11 +243,13 @@ namespace Muon {
   }
 
 
-  MuonPatternCombinationCollection* MuonLayerHoughTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-							      const std::vector<const CscPrepDataCollection*>& ,  
-							      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-							      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-							      const MuonSegmentCombinationCollection* ) const {                                              
+  auto MuonLayerHoughTool::find( 
+      const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+      const std::vector<const CscPrepDataCollection*>& ,  
+      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+      const MuonSegmentCombinationCollection* ) const 
+      -> std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> {
     reset();
     State state;
     ATH_MSG_DEBUG("MuonLayerHoughTool::find");
@@ -309,7 +311,7 @@ namespace Muon {
       
     }
     
-    return analyse(state).first.release();
+    return analyse(state);
   }
 
   auto MuonLayerHoughTool::analyse(
@@ -2359,24 +2361,6 @@ namespace Muon {
       if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << std::endl;
     }
     if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
-  }
-
-  void MuonLayerHoughTool::HoughDataPerSector::cleanUp() {
-    for(RegionHitVec::iterator it=hitVec.begin();it!=hitVec.end();++it)
-      for( HitVec::iterator it2=it->begin();it2!=it->end();++it2 ) delete *it2;
-    hitVec.clear();
-
-    for(RegionPhiHitVec::iterator it=phiHitVec.begin();it!=phiHitVec.end();++it)
-      for( PhiHitVec::iterator it2=it->begin();it2!=it->end();++it2 ) delete *it2;
-    phiHitVec.clear();
-
-    for(RegionMaximumVec::iterator it=maxVec.begin();it!=maxVec.end();++it)
-      for( MaximumVec::iterator it2=it->begin();it2!=it->end();++it2 ) delete *it2;
-    maxVec.clear();
-
-    for(RegionPhiMaximumVec::iterator it=phiMaxVec.begin();it!=phiMaxVec.end();++it)
-      for( PhiMaximumVec::iterator it2=it->begin();it2!=it->end();++it2 ) delete *it2;
-    phiMaxVec.clear();
   }
 
   void MuonLayerHoughTool::printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const {

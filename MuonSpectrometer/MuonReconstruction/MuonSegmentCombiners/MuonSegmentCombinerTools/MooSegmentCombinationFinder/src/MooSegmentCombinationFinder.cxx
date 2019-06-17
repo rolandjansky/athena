@@ -224,7 +224,7 @@ void Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const Md
     if( m_doMdtSegments ){
       // search for global patterns 
       auditorBefore( m_houghPatternFinder );
-      output.patternCombinations = m_houghPatternFinder->find( mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get() );
+      output.patternCombinations = m_houghPatternFinder->find( mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get() ).first.release();
       auditorAfter( m_houghPatternFinder, output.patternCombinations );
       printSummary( "Pattern finding", output.patternCombinations );
 
