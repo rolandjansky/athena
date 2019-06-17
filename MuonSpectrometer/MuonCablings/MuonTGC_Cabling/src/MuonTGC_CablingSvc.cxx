@@ -181,15 +181,10 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
     return StatusCode::FAILURE;
   } 
 
-  const DataHandle<CondAttrListCollection> mapDataClob;
-  sc = detStore->regFcn(&MuonTGC_CablingSvc::updateCableASDToPP, 
-			this, 
-			mapDataClob, 
-			folderName, 
-			true);
+  sc = m_cabling->updateCableASDToPP();
   if(!sc.isSuccess()) {
-    ATH_MSG_FATAL("Could not register &updateCableASDToPP against folder " << folderName); 
-    return StatusCode::FAILURE; 
+    ATH_MSG_WARNING("updateCableASDToPP failed");
+    return StatusCode::SUCCESS;
   }
 
   return StatusCode::SUCCESS;
@@ -1831,22 +1826,4 @@ bool MuonTGC_CablingSvc::getLowPtCoincidenceIDfromOfflineID(const Identifier & o
 						   block,
 						   pos,
 						   middle);
-}
-
-StatusCode MuonTGC_CablingSvc::updateCableASDToPP(IOVSVC_CALLBACK_ARGS_P(I, keys)) { 
-  ATH_MSG_INFO("updateCableASDToPP called");
-
-  StatusCode sc = m_condDataTool->loadASD2PP_DIFF_12(I, keys);
-  if(!sc.isSuccess()) {
-    ATH_MSG_WARNING("loadASD2PP_DIFF_12 failed");
-    return StatusCode::SUCCESS;
-  }
-
-  sc = m_cabling->updateCableASDToPP();
-  if(!sc.isSuccess()) {
-    ATH_MSG_WARNING("updateCableASDToPP failed");
-    return StatusCode::SUCCESS;
-  }
-
-  return StatusCode::SUCCESS; 
 }

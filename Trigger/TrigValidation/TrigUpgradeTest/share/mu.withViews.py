@@ -159,6 +159,7 @@ if TriggerFlags.doMuon:
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
     l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
     l2muCombViewsMaker.Views = "MUTrkViewRoIs"
+    l2muCombViewsMaker.RequireParentView = True
 
     ### get muComb reco sequence ###
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muCombRecoSequence
@@ -195,6 +196,7 @@ if TriggerFlags.doMuon:
     ### set the EVCreator ###
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker")
     efMuViewsMaker.ViewFallThrough = True
+    efMuViewsMaker.RequireParentView = True
 
     if doL2CB and doL2SA:
       filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
@@ -257,6 +259,7 @@ if TriggerFlags.doMuon:
     efCBMuViewsMaker.RoIsLink = "roi" # -||-
     efCBMuViewsMaker.InViewRoIs = "MUCBRoIs" # contract with the consumer
     efCBMuViewsMaker.Views = "EFMUCBViewRoIs"
+    efCBMuViewsMaker.RequireParentView = True
 
     ### get EF reco sequence ###
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
@@ -300,6 +303,7 @@ if TriggerFlags.doMuon:
     l2muIsoViewsMaker.RoIsLink = "roi" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
+    l2muIsoViewsMaker.RequireParentView = True
 
     ### get EF reco sequence ###
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import l2muisoRecoSequence
