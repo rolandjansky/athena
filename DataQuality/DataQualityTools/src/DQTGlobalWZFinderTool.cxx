@@ -1344,9 +1344,7 @@ void DQTGlobalWZFinderTool::doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmu
         auto idtrkp4(mu2->p4());
         auto mstrkp4(trk->p4());
                                                                                                                                         
-        Float_t dPhi = idtrkp4.DeltaPhi(mstrkp4);
         Float_t dR = idtrkp4.DeltaR(mstrkp4);
-        Float_t dEta = mstrkp4.Eta() - idtrkp4.Eta();
         Float_t dPT = mstrkp4.Pt() - idtrkp4.Pt();
     
         if (fabs(dPT) < 10000 && dR < 0.05) 
