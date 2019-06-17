@@ -100,10 +100,16 @@ def generateCaloSensitiveDetectorList():
     if DetFlags.simulate.LAr_on():
         SensitiveDetectorList += [ 'LArEMBSensitiveDetector','LArEMECSensitiveDetector','LArFCALSensitiveDetector',\
                                    'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+        isHGTDGeo = False
+        isMBTSGeo = False
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
+            isHGTDGeo = True
         elif (hasattr(DetFlags.simulate, 'MBTS_on') and DetFlags.simulate.MBTS_on()):
             SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
+            isMBTSGeo = True
+        if (isHGTDGeo and isMBTSGeo):
+            raise RuntimeError( 'Both MBTS and HGTD set On - please check your configuration!' )
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
