@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -102,7 +102,7 @@ def generateCaloSensitiveDetectorList():
                                    'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        else:
+        elif (hasattr(DetFlags.simulate, 'MBTS_on') and DetFlags.simulate.MBTS_on()):
             SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
