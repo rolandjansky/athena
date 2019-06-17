@@ -40,7 +40,7 @@ EventType::operator<(const EventType& rhs) const
       return(this->m_bit_mask.size() < rhs.m_bit_mask.size());
    }
    for (BitMaskIterator i = this->bit_mask_begin(), j = rhs.bit_mask_begin();
-	   i != this->bit_mask_end(); i++, j++) {
+	   i != this->bit_mask_end(); ++i, ++j) {
       if (*i != *j) {
          return(*i < *j);
       }
