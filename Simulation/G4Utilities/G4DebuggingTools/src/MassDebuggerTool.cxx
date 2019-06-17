@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
+
 #include "MassDebuggerTool.h"
 namespace G4UA {
 MassDebuggerTool::MassDebuggerTool(const std::string &type, const std::string &name, const IInterface *parent) :
