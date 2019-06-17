@@ -24,11 +24,6 @@ ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
 # ALGS
 #
 
-# At runtime it claims it currently does not need this but it's wrong
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
-Stream1.ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux." ]
-
 # Add the trigger decision creation algorithm
 from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
 topSequence+=TrigDecisionMakerMT()
