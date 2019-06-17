@@ -120,7 +120,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
   m_confChains = confChains;
   if ( !ctp ) {
     ATH_MSG_WARNING( "No LVL1 config, something went wrong, TDT will "
-		     "not attempt accessing HLT too" );
+         "not attempt accessing HLT too" );
     m_confItems = 0;
     return;
   }
@@ -170,7 +170,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       }
     }
     ATH_MSG_DEBUG( "Updating configuration, done with basic HLT based on "
-		   << m_confChains->size() << " configuration chains" );
+       << m_confChains->size() << " configuration chains" );
 
 
     // code for the streams and pre-defined groups
@@ -200,8 +200,8 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
           m_groups[group].push_back(ch->chain_name());
         }
         if( msgLvl( MSG::DEBUG ) ) {
-	        msg() << endmsg;
-	      }
+          msg() << endmsg;
+        }
       }
     }
     //
@@ -215,7 +215,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
           << alias );
         // cg already exists (from previous config, we need to update it)
         preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second);	
+        updateChainGroup(preIt->second);  
       } else {
         createChainGroup(mstIt->second,alias);
       }
@@ -227,7 +227,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       ChGrIt preIt = m_chainGroupsRef.find(key_alias);
       if (preIt != m_chainGroupsRef.end()) {
         ATH_MSG_INFO( "Replacing predefined, config group based, chain "
-		      << "group: " << alias );
+          << "group: " << alias );
         preIt->second->m_patterns = mstIt->second;
         updateChainGroup(preIt->second);
       } else {
@@ -235,7 +235,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       }
     }
     ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
-		   "defined/updated" );
+       "defined/updated" );
   }
 
 
@@ -296,7 +296,7 @@ float Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
   // find items in cache
   if ( m_itemsCache.count(ctpid) == 0 ) {
     ATH_MSG_ERROR( "item of CTP: " << ctpid
-		   << " is not present in the configuration" );
+       << " is not present in the configuration" );
     return 0;
   }
   return m_itemsCache.find(ctpid)->second->prescaleFactor();
@@ -396,9 +396,9 @@ StatusCode Trig::CacheGlobalMemory::unpackDecision() {
   
   bool unpackHLT = ( m_confChains != 0 );
   ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
-					m_l2chainsByName, m_l2chainsCache,
-					m_efchainsByName, m_efchainsCache,
-					m_bgCode, unpackHLT ) );
+          m_l2chainsByName, m_l2chainsCache,
+          m_efchainsByName, m_efchainsCache,
+          m_bgCode, unpackHLT ) );
   return StatusCode::SUCCESS;
 }
 
