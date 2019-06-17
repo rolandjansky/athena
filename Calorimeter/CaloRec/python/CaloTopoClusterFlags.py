@@ -110,6 +110,14 @@ class doMomentsfromAbs(JobProperty):
     StoredValue=False       
   
 
+class doTimeCut(JobProperty):
+    """
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
 
