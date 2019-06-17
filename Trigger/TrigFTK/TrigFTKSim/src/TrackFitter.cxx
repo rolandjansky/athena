@@ -99,7 +99,7 @@ void TrackFitter::setNCoordsPlanes(int nc, int np)
   m_ncoords = nc;
   m_nplanes = np;
   m_HW_dev = new float[m_ncoords];
-  for (int i=0;i<m_ncoords;++i) {
+  for (unsigned int i=0;i<m_ncoords;++i) {
     m_HW_dev[i] = 0.;
   }
 }
@@ -127,7 +127,7 @@ void TrackFitter::loadHWConf(const char *fname)
 
   // start the real read of the file
   char flag;
-  int nvals;
+  unsigned int nvals;
   int pos;
   float fval;
 
@@ -138,7 +138,7 @@ void TrackFitter::loadHWConf(const char *fname)
     FTKSetup::PrintMessageFmt(ftk::sevr,"Error parsing HW configuration, wrong number of values %d -> %d",nvals,m_ncoords);
   }
 
-  for (int i=0;i<nvals;++i) {
+  for (unsigned int i=0;i<nvals;++i) {
     fin >> pos >> fval;
     m_HW_dev[pos] = fval;
   }
@@ -229,10 +229,10 @@ void TrackFitter::init()
   // counter that enumerates current hit in FTKHit array
   m_hitcnt = new int[m_nplanes];
 
-  m_complete_mask = ~(~0<<m_ncoords);
+  m_complete_mask = (1 << m_ncoords) - 1;
   // allocate once the array of recovered tracks
   m_combtrack = new FTKTrack[m_ncoords];
-  for (int ic=0;ic!=m_ncoords;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords;++ic) {
     m_combtrack[ic].setNCoords(m_ncoords);
     m_combtrack[ic].setNPlanes(m_nplanes);
   }

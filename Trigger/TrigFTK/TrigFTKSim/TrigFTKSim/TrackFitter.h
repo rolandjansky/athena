@@ -18,7 +18,7 @@
 
 class TrackFitter {
 protected:
-  int m_ncoords; // number of coordinates
+  unsigned int m_ncoords; // number of coordinates
   int m_nplanes; // number of used layers
 
   int m_npars; // number of parameters
