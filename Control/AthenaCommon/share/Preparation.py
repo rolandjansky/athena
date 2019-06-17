@@ -221,5 +221,6 @@ if not opts.minimal:
 
       import AthenaCommon.AtlasThreadedJob
 
-
-
+   if opts.chunk_size:
+      from AthenaMP.AthenaMPFlags import jobproperties as mpjps
+      mpjps.AthenaMPFlags.ChunkSize = opts.chunk_size
