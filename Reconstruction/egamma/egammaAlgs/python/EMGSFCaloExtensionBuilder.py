@@ -10,8 +10,8 @@ from egammaTrackTools.egammaTrackToolsFactories import EMLastCaloExtensionTool,E
 
 EMGSFCaloExtensionBuilder = AlgFactory( egammaAlgsConf.EMGSFCaloExtensionBuilder,
                                         name = 'EMGSFCaloExtensionBuilder',
-                                        LastCaloExtentionTool=EMLastCaloExtensionTool,
-                                        PerigeeCaloExtentionTool=EMParticleCaloExtensionTool,
+                                        LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                        PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
                                         GSFPerigeeCache='GSFPerigeeCaloExtension',
                                         GSFLastCache='GSFLastCaloExtension',
                                         GFFTrkPartContainerName=egammaKeys.outputTrackParticleKey()) 
