@@ -403,6 +403,12 @@ StatusCode TauSelectionTool::initialize()
   if (m_bCreateControlPlots)
     setupCutFlowHistogram();
 
+  for ( auto entry : m_cMap ) {
+     if ( m_iSelectionCuts &entry.first ) {
+	entry.second->setAcceptInfo(m_aAccept);
+     }
+  }
+  
   return StatusCode::SUCCESS;
 }
 
