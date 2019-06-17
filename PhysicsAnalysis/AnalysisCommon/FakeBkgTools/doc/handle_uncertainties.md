@@ -22,28 +22,6 @@ auto sysvars = tool->affectingSystematics();
 ```
 As stated in the example above, `addEvent()` must be called **only once per event**, otherwise there will be double-counting. Looping over systematic variations should only be done for calls to `getTotalYield()` and `getEventWeight()`.
 
-For the particular case of the `LhoodMM_tools`, it is not (yet) possible to cycle through variations as illustrated above. One should instead setup a difference instance of the tool for each variation, and call `applySystematicVariation()` (only once) before the first call to `addEvent()`. For example: 
-```c++
-/// mostly for LhoodMM_tools (better approach available for other tools)
-ATH_CHECK( nominalTool->initialize() );
-auto sysvars = nominalTool->affectingSystematics();
-std::vector<asg::AnaToolHandle<CP::IFakeBkgTool>> systTools;
-for(auto& sysvar : sysvars)
-{
-    auto& tool = *systTools.emplace(systTools.end(), "CP::LhoodMM_tools/LHMMTool_"+sysvar.name());
-    /// configure identically to nominalTool... then:
-    ATH_CHECK( tool.initialize() );
-    ATH_CHECK( tool->applySystematicVariation(sysvar) );
-}
-{ /// event loop
-    ATH_CHECK( nominalTool->addEvent(particles) );
-    for(auto& tool : systTools) ATH_CHECK( tool->addEvent(particles) ); 
-}
-/// then call getTotalYield() for each tool
-```
-Failure to do so will result in an error. 
-
-
 
 The number of variations depends on the configuration (number of efficiency bins, different sources of systematics, correlations...) therefore methods such as `affectingSystematics()` and related can only be called once the tool has been initialized. 
 

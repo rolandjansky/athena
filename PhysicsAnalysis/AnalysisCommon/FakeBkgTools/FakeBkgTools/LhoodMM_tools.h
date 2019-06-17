@@ -90,6 +90,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   float m_maxWeight;
 
+  bool m_alreadyMerged;
+
   static const int nLepMax = 6;
   static const int maxRank =  64; // i.e. 2^nLepMax
   std::vector<std::vector<double> > m_event_cat;
@@ -132,8 +134,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
   static double logPoisson(double obs, double pred);
 
   StatusCode addEventCustom(const std::vector<bool>& isTight_vals,
-       const std::vector<double>& realEff_vals,
-       const std::vector<double>& fakeEff_vals,
+       const std::vector<FakeBkgTools::Efficiency>& realEff_vals,
+       const std::vector<FakeBkgTools::Efficiency>& fakeEff_vals,
        const std::vector<int>& charges,
        float weight);
 

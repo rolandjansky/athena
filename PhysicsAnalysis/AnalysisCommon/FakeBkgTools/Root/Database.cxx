@@ -65,14 +65,15 @@ bool Database::fillEfficiencies(ParticleData& pd, const xAOD::IParticle& p, cons
 {
     std::map<unsigned, EfficiencyTable::BoundType> cachedParamVals;
     /// Loop over all the type of efficiencies (real, fake, fake factor) that were requested to be filled
-    for(int wantedType=0;wantedType<N_EFFICIENCY_TYPES;++wantedType)
+    for(int wt=0;wt<N_EFFICIENCY_TYPES;++wt)
     {
+		EfficiencyType wantedType = static_cast<EfficiencyType>(wt);
         if(!m_typesToFill[wantedType]) continue; 
         Efficiency* eff = selectEfficiency(pd, p, wantedType); /// pointer to the proper member of ParticleData that needs to be filled 
         if(!eff) continue;
         
         /// The efficiency tables to look for might be for a different type (if a Fake efficiency <--> Fake factor conversion is needed)
-        int type = getSourceType(wantedType);
+        EfficiencyType type = getSourceType(wantedType);
 
         bool found_central = false;
         eff->nominal = 1.f;
@@ -401,7 +402,7 @@ void Database::addSysts(const StringRef& tag, const StringRef& contents, const A
     }
 }
 
-unsigned short Database::addStat(int type, const StringRef& pos)
+unsigned short Database::addStat(EfficiencyType type, const StringRef& pos)
 {
     if(m_stats.size() >= maxIndex())
     {
@@ -414,7 +415,7 @@ unsigned short Database::addStat(int type, const StringRef& pos)
 
 void Database::addTables(const StringRef& particle, const AttributesMap& attributes, const StringRef& contents, TFile* source)
 {
-    int type;
+    EfficiencyType type;
     if(particle == "muon") type = getAttribute(particle, attributes, "type", 
         "real-efficiency", MUON_REAL_EFFICIENCY, "fake-efficiency", MUON_FAKE_EFFICIENCY, "fake-factor", MUON_FAKE_FACTOR);
     else if(particle == "electron") type = getAttribute(particle, attributes, "type", 
@@ -565,7 +566,7 @@ void Database::addDimension(EfficiencyTable& table, unsigned paramUID, const Str
     }
 }
 
-void Database::addValues(const StringRef& contents, EfficiencyTable& table, int type, StatMode statMode, unsigned short& globalStatUID)
+void Database::addValues(const StringRef& contents, EfficiencyTable& table, EfficiencyType type, StatMode statMode, unsigned short& globalStatUID)
 {
     const std::string fpv = "(?:[0-9]+\\.)?[0-9]+(?:[Ee][+-]?[0-9]+)?", fpu = fpv + "\\s*\\%?";
     const std::string pattern = "^\\s*" + fpv + "(?:\\s*(?:\\+(?:\\s*" + fpu + "\\s*)?-|-(?:\\s*" + fpu + "\\s*)?\\+)\\s*" + fpu + "\\s*\\([_[:alnum:]]+\\))*\\s*";
@@ -806,7 +807,7 @@ float Database::getWeightedAverage(const TH1* hist, const StringRef& xmlStream)
     return avg;
 }
 
-float Database::getNormalizationFactor(const TH1* hist, int type, const StringRef& norm, const StringRef& xmlStream)
+float Database::getNormalizationFactor(const TH1* hist, EfficiencyType type, const StringRef& norm, const StringRef& xmlStream)
 {
     /// Should be called only when processing XMLs
     if(!norm) return 1.f;
@@ -821,7 +822,7 @@ float Database::getNormalizationFactor(const TH1* hist, int type, const StringRe
     return 1.f;
 }
 
-void Database::importNominalTH1(const TH1* hist, int type, const StringRef& paramX, const StringRef& paramY, 
+void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, 
         float scale, StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream)
 {
     const bool useDefaults = !xmlStream;
@@ -899,7 +900,7 @@ void Database::importNominalTH1(const TH1* hist, int type, const StringRef& para
     }
 }
 
-void Database::importSystTH1(const TH1* hist, int type, const std::string& sysname)
+void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::string& sysname)
 {
     if(!m_tables[type].size()) throw(GenericError() << "there should be another histogram containing central values to accompany the histogram " << hist->GetName());
     auto& table = m_tables[type].back();
@@ -920,7 +921,7 @@ void Database::importSystTH1(const TH1* hist, int type, const std::string& sysna
     else
     {
         uid = systIndexToUID(m_systs.size());
-        m_systs.emplace_back(sysname, type);
+        m_systs.emplace_back(sysname, (1 << type));
     }
     
     auto eff = table.m_efficiencies.begin();
@@ -968,7 +969,7 @@ bool Database::retrieveParameterValue(const xAOD::IParticle& p, const xAOD::Even
     return true;
 }
 
-Efficiency* Database::selectEfficiency(ParticleData& pd, const xAOD::IParticle& p, int type)
+Efficiency* Database::selectEfficiency(ParticleData& pd, const xAOD::IParticle& p, EfficiencyType type)
 {
     switch(p.type())
     {
@@ -1007,7 +1008,7 @@ auto Database::selectTypesToFill(Client client) -> std::bitset<N_EFFICIENCY_TYPE
     return result;
 }
 
-int Database::getSourceType(int wantedType) const
+Database::EfficiencyType Database::getSourceType(EfficiencyType wantedType) const
 {
     auto tables = m_tables.find(wantedType);
     if((tables==m_tables.end() || !tables->second.size()) && m_convertWhenMissing)
@@ -1033,7 +1034,7 @@ unsigned Database::getXmlLineNumber(const char* pos) const
     return std::upper_bound(m_lineOffset.begin(), m_lineOffset.end(), offset) - m_lineOffset.begin();
 }
 
-std::string Database::getTypeAsString(int type)
+std::string Database::getTypeAsString(EfficiencyType type)
 {
     /// This function is only meant to be used to display meaningful error messages
     switch(type)
