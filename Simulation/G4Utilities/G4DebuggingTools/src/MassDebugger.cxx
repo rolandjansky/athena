@@ -30,15 +30,15 @@ MassDebugger::MassDebugger(const Config &config) :
     AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >("MessageSvc"), "MassDebugger"), m_config(config) {}
 
 void MassDebugger::BeginOfRunAction(const G4Run *) {
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "MassDebugger");
-    MsgStream log(&(*msgh), "MassDebugger");
+  //ServiceHandle<IMessageSvc> msgh("MessageSvc", "MassDebugger");
+  //MsgStream log(&(*msgh), "MassDebugger");
 //    map<string, G4LogicalVolume *> logvolMap;
 //    map<string, G4LogicalVolume *>::iterator mapElement;
 //    string name("");
 //
 //    ServiceHandle<IMessageSvc> msgh("MessageSvc", "MassDebugger");
 //    MsgStream log(&(*msgh), "MassDebugger");
-//    log << MSG::INFO << "===================  MassDebugger  ========================\n";
+//    ATH_MSG_INFO << "===================  MassDebugger  ========================\n";
 ////
 ////    Build up a map with one entry per logvol (G4 list has each many times). Maps automatically refuse to add duplicates.
 ////
@@ -88,8 +88,8 @@ void MassDebugger::BeginOfRunAction(const G4Run *) {
 
     bool Verbose = m_config.Verbose;
     std::string OutputFile = m_config.OutputFile;
-    log << MSG::INFO << "===================  MassDebugger  ========================\n";
-    log << "Begin looping over all volumes" << endmsg;
+    ATH_MSG_INFO ("===================  MassDebugger  ========================\n");
+    ATH_MSG_INFO ("Begin looping over all volumes" );
     std::map<std::string, std::vector<G4LogicalVolume*>> mLogiVols;
     std::map<std::string, std::vector<G4VPhysicalVolume*>> mPhysVols;
 
@@ -116,7 +116,7 @@ void MassDebugger::BeginOfRunAction(const G4Run *) {
         mPhysVols[name].push_back(mVolume);
     }
 
-    log << "Total Physical volumes:" << nPhysVols << endmsg;
+    ATH_MSG_INFO ( "Total Physical volumes:" << nPhysVols);
     long ipix = 0;
 out_phys << "name" << "\t" << "volume" << "\t" << "lv_name" << "\t" << "lv_mother_name" << "\t" 
                      << "tranx" << "\t" << "trany" << "\t" << "tranz" << "\t" 
@@ -124,12 +124,12 @@ out_phys << "name" << "\t" << "volume" << "\t" << "lv_name" << "\t" << "lv_mothe
                      << "par1" << "\t" << "par2" << "\t" << "par3" << "\t" << "index_lv" << "\t" << "index_lv_mother" << endl;
     for (const auto &physicalVolume : mPhysVols)
     {
-        if (ipix%2000 == 0) log << "Processing " << ipix << "/" << nPhysVols << endmsg;
+      if (ipix%2000 == 0) ATH_MSG_INFO( "Processing " << ipix << "/" << nPhysVols );
         std::string name = physicalVolume.first;
         const vector<G4VPhysicalVolume*> volumes = physicalVolume.second;
 
         int nVolumes = volumes.size();
-        if (Verbose) log << "Physical Volume: " << name << " : " << nVolumes << endmsg;
+        if (Verbose) ATH_MSG_INFO("Physical Volume: " << name << " : " << nVolumes );
 	
         for (int i = 0; i < nVolumes; ++i)
         {
@@ -201,8 +201,8 @@ out_phys << "name" << "\t" << "volume" << "\t" << "lv_name" << "\t" << "lv_mothe
 
     out_phys.close();
 
-    log << "Loop ends successfully" << endmsg;
-    log << "======================= End of MassDebugger output =======================\n\n" << endmsg;
+    ATH_MSG_INFO("Loop ends successfully");
+    ATH_MSG_INFO("======================= End of MassDebugger output =======================\n\n" );
 }
 
 }// namespace G4UA

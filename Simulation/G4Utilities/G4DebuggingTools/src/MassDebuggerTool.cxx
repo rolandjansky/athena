@@ -13,7 +13,7 @@ MassDebuggerTool::MassDebuggerTool(const std::string &type, const std::string &n
 
 std::unique_ptr<MassDebugger>  MassDebuggerTool::makeAction() {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<MassDebugger>(m_config);
+    auto action = std::make_unique<MassDebugger>(m_config);
     return std::move(action);
 }
 
