@@ -466,7 +466,6 @@ namespace InDetDD {
                                                      GeoVAlignmentStore* alignStore) const {
     bool alignmentChange = false;
 
-    ATH_MSG_VERBOSE("MT IBL DIST");
     ATH_MSG_INFO("Processing IBLDist alignment container with key " << key);
 
     int nstaves = 0;
