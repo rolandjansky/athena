@@ -22,7 +22,7 @@ def fastPhotonCaloSequenceCfg( flags ):
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence()
 
-def precisionCaloSequenceCfg( flags ):
+def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence()
 
 #----------------------------------------------------------------
@@ -79,7 +79,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
         log.debug("Configuring step " + stepName)
-        precisionCaloPhoton = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        precisionCaloPhoton = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None )
         return ChainStep(stepName, [precisionCaloPhoton])
 
             
