@@ -107,7 +107,7 @@ namespace TestMuonSF {
             if (std::fabs(muon.eta()) > 2.5) {
                 Syst_SF.second.data_eff = -1;
                 Syst_SF.second.mc_eff = -1;
-                return CP::CorrectionCode::Ok;
+                continue;
             }
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
             if (cc != CP::CorrectionCode::Ok) {
