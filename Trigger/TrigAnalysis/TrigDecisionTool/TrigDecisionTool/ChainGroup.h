@@ -119,13 +119,15 @@ namespace Trig {
        * @brief returns typed features related to given chain group of HLT chains or L1 items
        * Note: This is a RUN 3 (and on) function.
        * @param[in] eventStore Event store pointer. To migrate to readHandles with the rest of the TDT soon
-       * @param[in] condition Condition requirement. Only physics currently supported.
+       * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::alsoFailedDecisions are supported.
+       * @param[in] container Optional requirement to return only features within the specificed container name. Defaults to an empty string. 
        * @param[in] oneFeaturePerLeg If true, only collects the final feature from each object which passed the event for the Chain Group.
        * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
        **/  
       template<class CONTAINER>
-      const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
+      std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
                 unsigned int condition = TrigDefs::Physics,
+                const std::string container = "",
                 const bool oneFeaturePerLeg = true) const;
 
       // 

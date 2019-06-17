@@ -73,12 +73,16 @@ namespace TrigCompositeUtils {
           // features which do not derive from IParticle, when an IParticle interface is requested.
           try {
             const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureString() );
-            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+            if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
+              // Don't duplicate up returned features (may have entries from many chains in the linkVector)
+              features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+            }
             if (oneFeaturePerLeg) {
               break;
             }
           } catch (SG::ExcCLIDMismatch&) {
-            // Carry on
+            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
           }
 
         }

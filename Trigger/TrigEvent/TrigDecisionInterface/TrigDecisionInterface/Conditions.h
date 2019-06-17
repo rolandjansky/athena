@@ -37,7 +37,7 @@ namespace TrigDefs {
   //
   const static unsigned int ignoreIOV = 0x1 << 15;
   const static unsigned int alsoDeactivateTEs = 0x1 << 16;
-  const static unsigned int alsoDeactivateTCs = 0x1 << 16; //!< Run3 synonym of alsoDeactivateTEs.
+  const static unsigned int alsoFailedDecisions = 0x1 << 16; //!< Run3 synonym of alsoDeactivateTEs.
   const static unsigned int ignoreFDR = 0x1 << 17;
   //
   const static unsigned int Physics = requireDecision | enforceLogicalFlow;

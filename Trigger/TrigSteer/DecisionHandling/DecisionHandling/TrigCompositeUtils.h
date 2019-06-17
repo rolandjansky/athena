@@ -212,26 +212,37 @@ namespace TrigCompositeUtils {
   };
 
   /**
-   * @brief
-   * @param[in] eventStore 
-   * @param[out] output
-   * @param[in] id
+   * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
+   * @param[in] eventStore Pointer to event store within current event context
+   * @param[in] id ID of chain to located failed decision nodes for. Passing 0 returns all decision nodes which failed at least one chain.
+   * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  StatusCode getRejectedDecisionNodes(EventPtr_t eventStore, std::vector<const Decision*>& output, const DecisionID id = 0) {
+  std::vector<const Decision*> getRejectedDecisionNodes(StoreGateSvc* eventStore, const DecisionID id = 0);
   
   /**
    * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
    * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
    * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
    * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
+   * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
+   * enforceDecisionOnStartNode should be true if navigating for a trigger which passed (e.g. starting from HLTPassRaw)
+   * enforceDecisionOnStartNode should be false if navigating for a trigger which failed but whose failing start node(s) were recovered via getRejectedDecisionNodes
    **/
-  void recursiveGetDecisions( const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0 );
+  void recursiveGetDecisions(const Decision* start, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnStartNode = true);
 
 
   /**
    * @brief Used by recursiveGetDecisions
+   * @see recursiveGetDecisions
    **/
-  void recursiveGetDecisionsInternal( const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0);
+  void recursiveGetDecisionsInternal(const Decision* start, 
+    const size_t location, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnNode = true);
 
   /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
