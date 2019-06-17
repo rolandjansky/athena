@@ -28,9 +28,7 @@ topSequence += CreateFullScanRoI()
 
 from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
 (jetSequence, InputMakerAlg, jetsKey) = jetRecoSequenceFromString("a4_tc_em_subjes")
-     
-#from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
-#(jetSequence, jetsKey) = jetRecoSequence( RoIs="FullScanRoIs" )
+
 
 topSequence += jetSequence
 
