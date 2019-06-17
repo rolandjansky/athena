@@ -101,8 +101,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   MDTRodDecoder = MdtROD_Decoder(name	   = "MdtROD_Decoder" )
   ToolSvc += MDTRodDecoder
 
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
-  MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "MDT_RawDataProviderTool",
+  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderToolMT
+  MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name        = "MDT_RawDataProviderToolMT",
                                                              Decoder     = MDTRodDecoder )
   ToolSvc += MuonMdtRawDataProviderTool
 

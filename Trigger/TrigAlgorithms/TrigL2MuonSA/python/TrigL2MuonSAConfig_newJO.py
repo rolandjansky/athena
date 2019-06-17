@@ -81,7 +81,7 @@ def MdtDataPreparatorCfg( flags, roisKey ):
     # Set Mdt data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
     MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = acc.getPublicTool( "MdtRdoToMdtPrepDataTool" ),
-                                                         MDT_RawDataProvider   = acc.getPublicTool( "MDT_RawDataProviderTool" ),
+                                                         MDT_RawDataProvider   = acc.getPublicTool( "MDT_RawDataProviderToolMT" ),
                                                          #DecodeBS = DetFlags.readRDOBS.MDT_on() ) # This should be used flags
                                                          DecodeBS = True )
  
