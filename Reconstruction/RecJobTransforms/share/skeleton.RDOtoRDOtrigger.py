@@ -156,6 +156,8 @@ if TriggerFlags.doMT():
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 
+    
+
 if rec.doFileMetaData():
    from RecExConfig.ObjKeyStore import objKeyStore
    metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
@@ -267,3 +269,11 @@ if hasattr(runArgs,"postExec"):
 
 ServiceMgr.MessageSvc.debugLimit=10000000
 ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+#from AthenaCommon.Constants import DEBUG
+#findAlgorithm( topSequence, "TauL2CaloHypo").OutputLevel=DEBUG
+#findAlgorithm( topSequence, "TrigTauRecMerged_TauPrecisionMVA").OutputLevel=DEBUG
+import AthenaCommon.Configurable as Configurable
+Configurable.log.setLevel( INFO )
+
+print topSequence
+

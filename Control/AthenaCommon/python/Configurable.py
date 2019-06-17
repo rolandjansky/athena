@@ -182,9 +182,9 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
          cls.configurables[ name ] = conf
 
     # update generics super-cache
-         if cls.allConfigurables.has_key(name) and conf.getType() != cls.allConfigurables[ name ].getType():
+         if name in cls.allConfigurables  and conf.getType() != cls.allConfigurables[ name ].getType():
             raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
-                             (name,conf.__class__.__name__,cls.__name__) )
+                             (name,cls.allConfigurables[ name ].getType(), conf.getType()) )
          cls.allConfigurables[ name ] = conf
 
       return conf
