@@ -298,9 +298,8 @@ namespace TrigCompositeUtils {
       } else {
         ElementLink<DecisionContainer> finalDecision = vecIt->back();
         DecisionIDContainer idSet = {id};
-        if ((*finalDecision)->name() != "L1" || hasLinkToPrevious(*finalDecision)) {
-          // If the back Decision is not L1, then it's not from the top of the graph. And the path should be removed.
-          // TODO hasLinkToPrevious check should be redundant soon - remove in future
+        if (hasLinkToPrevious(*finalDecision)) {
+          // If the back Decision is not L1 (hence has links), then it's not from the top of the graph. And the path should be removed.
           shouldRemove = true;
         } else if (id != 0 && !isAnyIDPassing(*finalDecision, idSet)) {
           // The final hop to this L1 node was not valid for the chain in question

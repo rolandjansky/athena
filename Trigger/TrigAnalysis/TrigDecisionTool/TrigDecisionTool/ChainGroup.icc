@@ -1,15 +1,23 @@
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
-        unsigned int condition, const std::string /*container*/, const bool oneFeaturePerLeg) const {
+        unsigned int condition, const std::string /*container*/, 
+        const unsigned int featureCollectionMode, const std::string featureName) const {
 
   // TODO impliment checking of container name
 
   // Proper adherence to the condition bits in Run 3 is to follow.
   bool errState = false;
-  if ( condition != TrigDefs::Physics && condition != TrigDefs::alsoFailedDecisions ) {
+  if ( condition != TrigDefs::Physics && condition != TrigDefs::includeFailedDecisions ) {
     ATH_MSG_ERROR("features may only be called with: "
-      "TrigDefs::Physics() - features from the legs of the chain(s) which passed the trigger. "
-      "TrigDefs::alsoFailedDecisions - all features from the chain(s) irrespective of pass/fail of each Step.");
+      "TrigDefs::Physics - features from the legs of the chain(s) which passed the trigger. "
+      "TrigDefs::includeFailedDecisions - all features from the chain(s) irrespective of pass/fail of each Step.");
+    errState = true;
+  }
+
+  if ( featureCollectionMode != TrigDefs::oneFeaturePerLeg && featureCollectionMode != TrigDefs::allFeaturesPerLeg ) {
+    ATH_MSG_ERROR("featureCollectionMode may only be called with: "
+      "TrigDefs::oneFeaturePerLeg - stop exploring each route through the navigation once a feature matching all requirements is found. "
+      "TrigDefs::allFeaturesPerLeg - always fully explore each route throught the navigation graph and collect all matching features.");
     errState = true;
   }
 
@@ -56,7 +64,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
       ATH_MSG_DEBUG("Added all passed navigation paths for chain " << fchain->getChainName() 
         << ", total paths:" << allLinearNavigationPaths.size());
 
-      if (condition == TrigDefs::alsoFailedDecisions) {
+      if (condition == TrigDefs::includeFailedDecisions) {
         std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
           TrigCompositeUtils::getRejectedDecisionNodes(eventStore, fchain->getChainHashId());
 
@@ -81,5 +89,6 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
-  return TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg);
+  const bool oneFeaturePerLeg = (featureCollectionMode == TrigDefs::oneFeaturePerLeg);
+  return TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg, featureName);
 }

@@ -266,14 +266,30 @@ namespace TrigCompositeUtils {
     ElementLink<T> link;
   };
 
+
+  /// @name Constant string literals used within the HLT
+  /// @{
+  const std::string& initialRoIString();
+  const std::string& initialRecRoIString();
+  const std::string& roiString();
+  const std::string& viewString();
+  const std::string& featureString();
+  const std::string& seedString();
+  /// @}
+
+
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
    * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[oneFeaturePerLeg] oneFeaturePerLeg If True, stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[oneFeaturePerLeg] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
    * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
    **/
   template<class CONTAINER>
-  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg = true );
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
+    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const bool oneFeaturePerLeg = true,
+    const std::string& featureName = featureString());
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
@@ -291,15 +307,7 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
-  /// @name Constant string literals used within the HLT
-  /// @{
-  const std::string& initialRoIString();
-  const std::string& initialRecRoIString();
-  const std::string& roiString();
-  const std::string& viewString();
-  const std::string& featureString();
-  const std::string& seedString();
-  /// @}
+
 
 
 }
