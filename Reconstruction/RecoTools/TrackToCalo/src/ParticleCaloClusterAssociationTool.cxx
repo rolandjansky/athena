@@ -15,7 +15,6 @@
 
 #include "TrackCaloClusterRecTools/IParticleToCaloExtensionMap.h"
 #include "xAODTracking/VertexContainer.h"
-//#include <valgrind/callgrind.h>
 
 namespace Rec {
 
@@ -55,7 +54,6 @@ namespace Rec {
   bool ParticleCaloClusterAssociationTool::particleClusterAssociation( const xAOD::IParticle& particle,  std::vector< ElementLink< xAOD::CaloClusterContainer > >& association, float dr, 
                                                                        const xAOD::CaloClusterContainer* container) const {
 
-    //    CALLGRIND_START_INSTRUMENTATION;
     ATH_MSG_DEBUG(" particleClusterAssociation: ptr " << &particle << " dr " << dr );
     
     // get the extrapolation into the calo
@@ -67,7 +65,7 @@ namespace Rec {
     
     if( caloExtension->caloLayerIntersections().empty()){
       ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
-      //return false; PA
+      //return false; do not return false here because we may have no intersection if we extraloated only up to the calo entry.
     }
     
     //retrieve the cluster container if not provided, return false it retrieval failed
@@ -112,7 +110,6 @@ namespace Rec {
         ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
       }
     
-    //CALLGRIND_STOP_INSTRUMENTATION;
     
     return true;
   }
