@@ -427,9 +427,13 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   double ring_rmin         = layerTmp->outerRadius.at(iring);
   double ring_rmax         = layerTmp->innerRadius.at(iring);
   bool useDisc             = layerTmp->useDiscSurface;
+  std::string roRegion     = layerTmp->readoutRegion.at(iring);
+  int         roLayer      = layerTmp->readoutLayer.at(iring);             
+  int         roEta        = layerTmp->readoutEta.at(iring);             
 
   // set identifiers variables
   int brl_ec = 2*side; // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
+  int region = roRegion=="B"? side : 2*side; //
 
   int iphi   = side>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
  
@@ -444,7 +448,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   ATH_MSG_DEBUG("brl_ec= " << brl_ec << " disc = " << ilayer << " iphi= " << iphi << " ieta = " << ieta );
 
-  m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,brl_ec,ilayer,iphi,ieta,0);
+  m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,side);
 
   // create the transform parameters  
   double phistep = 2*TMath::Pi()/nsectors;
