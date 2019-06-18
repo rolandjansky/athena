@@ -407,8 +407,10 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
 
   ATH_MSG_DEBUG("phiRef = " << phiRef << ", phiSizePlus = " << phiSizePlus << ", phiSizeMinus = " << phiSizeMinus);
 
-  double phiPlus = phiRef + phiSizePlus + 0.001;
-  double phiMinus = phiRef - phiSizeMinus - 0.001;
+  const double extraSize = m_extraL0L1PhiSize * s_cellPhiSize;
+
+  double phiPlus = phiRef + phiSizePlus + extraSize + 0.001;
+  double phiMinus = phiRef - phiSizeMinus - extraSize - 0.001;
 
   ATH_MSG_DEBUG("phi range = " << phiMinus << " to " << phiPlus);
 

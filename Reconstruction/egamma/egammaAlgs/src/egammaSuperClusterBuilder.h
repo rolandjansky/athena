@@ -153,6 +153,11 @@ private:
       "AddCellsWindowPhiCellsEndcap", 999 /*5 for SW*/,
       "Number of cells in phi of window around topocluster center to add cells"};
 
+  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance? */
+  Gaudi::Property<float> m_extraL0L1PhiSize {this,
+      "ExtraL0L1PhiSize", 0.0,
+      "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance? Make large to remove limit"};
+
   /** @brief Whether to refine the eta1 calculation */
   Gaudi::Property<bool> m_refineEta1 {this, "RefineEta1", true, 
       "Whether to Refine Eta1 calculation"};
