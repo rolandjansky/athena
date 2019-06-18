@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOCANDIDATEMATCHINGTOOL_H
@@ -14,6 +14,7 @@
 
 #include "Identifier/Identifier.h"
 
+#include <atomic>
 #include <string>
 #include <set>
 
@@ -180,18 +181,18 @@ namespace Muon {
     bool                                  m_doTrackSegmentMatching; //!< apply track-segment matching or not
 
     /** matching counters */
-    mutable unsigned int m_goodSegmentMatches;
-    mutable unsigned int m_goodSegmentMatchesTight;
-    mutable unsigned int m_segmentMatches;
-    mutable unsigned int m_segmentMatchesTight;
-    mutable unsigned int m_goodSegmentTrackMatches;
-    mutable unsigned int m_goodSegmentTrackMatchesTight;
-    mutable unsigned int m_sameSideOfPerigee;
-    mutable unsigned int m_otherSideOfPerigee;
-    mutable unsigned int m_sameSideOfPerigeeTrk;
-    mutable unsigned int m_otherSideOfPerigeeTrk;
-    mutable unsigned int m_segmentTrackMatches;
-    mutable unsigned int m_segmentTrackMatchesTight;
+    mutable std::atomic_uint m_goodSegmentMatches;
+    mutable std::atomic_uint m_goodSegmentMatchesTight;
+    mutable std::atomic_uint m_segmentMatches;
+    mutable std::atomic_uint m_segmentMatchesTight;
+    mutable std::atomic_uint m_goodSegmentTrackMatches;
+    mutable std::atomic_uint m_goodSegmentTrackMatchesTight;
+    mutable std::atomic_uint m_sameSideOfPerigee;
+    mutable std::atomic_uint m_otherSideOfPerigee;
+    mutable std::atomic_uint m_sameSideOfPerigeeTrk;
+    mutable std::atomic_uint m_otherSideOfPerigeeTrk;
+    mutable std::atomic_uint m_segmentTrackMatches;
+    mutable std::atomic_uint m_segmentTrackMatchesTight;
     mutable std::vector<unsigned int> m_reasonsForMatchOk;
     mutable std::vector<unsigned int> m_reasonsForMatchNotOk;
 
