@@ -1,4 +1,9 @@
-def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC"):
+def associateAllTracks(trkClustAssocAlg):
+    """ Make sure the given TrackParticleClusterAssociationAlg trkClustAssocAlg is scheduled to associate all tracks by removing the vtx selection tool"""
+    trkClustAssocAlg.TrackVertexAssoTool = ""
+    trkClustAssocAlg.VertexContainerName = ""
+    
+def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
     """ Schedule a TrackParticleClusterAssociationAlg in the top sequence, taking as input clusters and tracks defined 
     by the keys caloClusterName and trackParticleName.
 
@@ -30,24 +35,31 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
                                                                              CaloClusterLocation          = caloClusterName,
                                                                              ClustersInConeTool           = caloClustersInCone,
                                                                              ConeSize                     = 0.1,
-                                                                             UseCovariance                = True )
+                                                                             UseCovariance                = True)
     ToolSvc+=particleCaloClusterAssociation
     print      particleCaloClusterAssociation
 
+
+    if not hasattr(ToolSvc, "LooseTrackVertexAssociationTool"):
+        from AthenaCommon import CfgMgr
+        loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2) 
+        ToolSvc+=loosetrackvertexassotool 
+    
     from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConf import TrackParticleClusterAssociationAlg
     trackParticleClusterAssociation = TrackParticleClusterAssociationAlg("TrackClusterAssociationAlg"+assocPostfix,
                                                                          ParticleCaloClusterAssociationTool = particleCaloClusterAssociation,
                                                                          TrackParticleContainerName = trackParticleName,
                                                                          PtCut = 400.,
                                                                          OutputCollectionPostFix = assocPostfix,
-                                                                         CaloClusterLocation = caloClusterName)
+                                                                         CaloClusterLocation = caloClusterName,
+                                                                         TrackVertexAssoTool=ToolSvc.LooseTrackVertexAssociationTool, # will associate trks from PV0 only
+                                                                         VertexContainerName ="PrimaryVertices",)
+    if not onlyPV0Tracks:
+        associateAllTracks( trackParticleClusterAssociation) # this removes the vtx selection tool.see above.
+
     sequence += trackParticleClusterAssociation
     print trackParticleClusterAssociation
 
-    if not hasattr(ToolSvc, "LooseTrackVertexAssociationTool"):
-        from AthenaCommon import CfgMgr
-        loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2) 
-        ToolSvc+=loosetrackvertexassotool 
 
     
 def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
@@ -65,8 +77,13 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TCCCombinedTool, TCCChargedTool, TCCNeutralTool
 
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
-        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix)
-    
+        # make sure we run the TrackClusterAssociationAlg
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
+    else:
+        # make sure the TrackClusterAssociationAlg is configured to use *ALL* tracks.
+        trkClustAssocAlg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
+        associateAllTracks(trkClustAssocAlg)
+        
     ###################################
     # Schedule the TrackCaloClusterInfoAlg to create the weights for clusters/tracks and store them in a TrackCaloClusterInfo object.
     from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterAlg, TrackCaloClusterInfoAlg
@@ -117,7 +134,7 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
     """
 
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
-        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix)
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
     
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import UFOTool
 
