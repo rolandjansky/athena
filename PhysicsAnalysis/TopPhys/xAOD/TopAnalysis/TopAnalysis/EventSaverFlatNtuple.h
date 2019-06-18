@@ -591,6 +591,25 @@ private:
     std::vector<float> m_jet_DL1rmu_pu;
     std::vector<float> m_jet_DL1rmu_pc;
     std::vector<float> m_jet_DL1rmu_pb;
+    
+    // fail-JVT jets
+    std::vector<float> m_failJvt_jet_pt;
+    std::vector<float> m_failJvt_jet_eta;
+    std::vector<float> m_failJvt_jet_phi;
+    std::vector<float> m_failJvt_jet_e;
+    std::vector<float> m_failJvt_jet_jvt;
+    std::vector<char> m_failJvt_jet_passfjvt;
+    std::vector<int>   m_failJvt_jet_truthflav;
+    std::vector<int>   m_failJvt_jet_truthPartonLabel;
+    std::vector<char>  m_failJvt_jet_isTrueHS;
+    std::vector<int>   m_failJvt_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_pt;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_eta;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_phi;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_qOverP;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -1214,6 +1233,18 @@ protected:
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
+  
+  // fail-JVT jets
+  const std::vector<float>& failJvt_jet_pt() const { return m_failJvt_jet_pt;}
+  const std::vector<float>& failJvt_jet_eta() const { return m_failJvt_jet_eta;}
+  const std::vector<float>& failJvt_jet_phi() const { return m_failJvt_jet_phi;}
+  const std::vector<float>& failJvt_jet_e() const { return m_failJvt_jet_e;}
+  const std::vector<float>& failJvt_jet_jvt() const { return m_failJvt_jet_jvt;}
+  const std::vector<char>& failJvt_jet_passfjvt() const { return m_failJvt_jet_passfjvt;}
+  const std::vector<int>& failJvt_jet_truthflav() const { return m_failJvt_jet_truthflav;}
+  const std::vector<int>& failJvt_jet_truthPartonLabel() const { return m_failJvt_jet_truthPartonLabel;}
+  const std::vector<char>& failJvt_jet_isTrueHS() const { return m_failJvt_jet_isTrueHS;}
+  const std::vector<int>& failJvt_jet_truthflavExtended() const { return m_failJvt_jet_HadronConeExclExtendedTruthLabelID;}
 
   //large-R jets
   const std::vector<float>& ljet_pt() const { return m_ljet_pt;}

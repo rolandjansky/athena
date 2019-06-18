@@ -58,6 +58,7 @@ public:
         m_electrons(SG::VIEW_ELEMENTS),
         m_muons(SG::VIEW_ELEMENTS),
         m_jets(SG::VIEW_ELEMENTS),
+        m_failJvt_jets(SG::VIEW_ELEMENTS),
 	m_photons(SG::VIEW_ELEMENTS),
         m_largeJets(SG::VIEW_ELEMENTS),
 	m_RCJets(SG::VIEW_ELEMENTS),
@@ -99,6 +100,9 @@ public:
 
     ///Container of jets (can be sorted)
     xAOD::JetContainer m_jets;
+
+    ///Container of fail-JVT jets (can be sorted)
+    xAOD::JetContainer m_failJvt_jets;
     
     ///Container of photons (can be sorted)                                                                                                                          
     xAOD::PhotonContainer m_photons;

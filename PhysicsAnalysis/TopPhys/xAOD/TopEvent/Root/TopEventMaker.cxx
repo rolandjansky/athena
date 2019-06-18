@@ -302,11 +302,17 @@ namespace top {
         top::check( jet->isAvailable<char>("passJVT") , " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
         if (jet->auxdataConst<char>( "passJVT" ))
           event.m_jets.push_back(calibratedJetsTDS->at(index));
+	if (m_config->saveFailJVTJets()) {
+          if (!jet->auxdataConst<char>( "passJVT" ))
+            event.m_failJvt_jets.push_back(calibratedJetsTDS->at(index));
+	}
       }
       
       //shallow copies aren't sorted!
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
+      if (m_config->saveFailJVTJets())
+        event.m_failJvt_jets.sort(top::descendingPtSorter);
       
     }
 
