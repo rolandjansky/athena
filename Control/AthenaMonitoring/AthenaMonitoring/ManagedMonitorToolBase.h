@@ -882,9 +882,12 @@ protected:
       StreamNameFcn*  m_streamNameFcn;
 
       ServiceHandle<ITHistSvc>         m_THistSvc;
-      ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool;
-      ToolHandle<ITriggerTranslatorTool> m_trigTranslator;
-      ToolHandleArray<IDQFilterTool> m_DQFilterTools;
+      // The TrigDecisionTool, clients normally should not have to set this
+      ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool {this, "TrigDecisionTool",""};
+      // The TriggerTranslator
+      ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""};
+      // The filter tools, to be specified in jobOptions
+      ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}};
 
       long         m_procNEventsProp;
       std::string  m_path;
