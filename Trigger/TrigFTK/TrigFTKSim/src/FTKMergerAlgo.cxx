@@ -208,7 +208,21 @@ StatusCode FTKMergerAlgo::initialize(){
   }
 
 
-  if (m_useStandalone && !m_doMerging) {
+  if (m_useStandalone) {
+    ATH_MSG_INFO("useStandalone: True - Using tracks produced from the standalone version");
+  } 
+  if (m_doMerging) {
+    ATH_MSG_INFO("doMerging: True - Merging enabled"); 
+  }
+
+  bool doTrackConversion=m_useStandalone && !m_doMerging;
+  if (!doTrackConversion) {
+    m_trackConverterTool.disable();
+    m_uncertiantyTool.disable();
+    m_trackSumTool.disable();
+  }
+  if (doTrackConversion) {
+    ATH_MSG_INFO("Performing conversion of tracks from standalone simulation, doMerging: False");
     // prepare the input from the FTK tracks, merged in an external simulation
     m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
     // add the file to the chain
@@ -278,32 +292,27 @@ StatusCode FTKMergerAlgo::initialize(){
       return StatusCode::FAILURE;
     }
 
-    // Get the Track Converter Tool
+
+    // Get the required tools and create the required collections only if track conversion is being performed
     if (m_trackConverterTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_trackConverterTool << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Get the Uncertianty Tool
     if (m_uncertiantyTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_uncertiantyTool << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Get the Track Sum Tool
     if (m_trackSumTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_trackSumTool << endmsg;
       return StatusCode::FAILURE;
     }
-
-
+    
     // ID helpers
     m_idHelper = new AtlasDetectorID;
-    const IdDictManager* idDictMgr( 0 );
-    if(m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
-      log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
-      return StatusCode::FAILURE;
-    }
     if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
       log << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
@@ -312,9 +321,9 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     /* Creating the SG entry points fro the FTK clusters */
-
+    
     // Creating collection for pixel clusters
     m_FTKPxlCluContainer = new InDet::PixelClusterContainer(m_pixel_id->wafer_hash_max());
     m_FTKPxlCluContainer->addRef();
@@ -330,7 +339,7 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Creating collection for the SCT clusters
     m_FTKSCTCluContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
     m_FTKSCTCluContainer->addRef();
@@ -346,6 +355,7 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endmsg;
       return StatusCode::FAILURE;
     }
+    
 
   } // preparation for standalone track conversion block done
   else if (m_useStandalone && m_doMerging) {
