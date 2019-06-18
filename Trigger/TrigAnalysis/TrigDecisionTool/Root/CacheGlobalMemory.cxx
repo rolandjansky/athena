@@ -83,7 +83,7 @@ Trig::CacheGlobalMemory::~CacheGlobalMemory() {
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias) {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);  
+  // no mutex - called by update()
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
