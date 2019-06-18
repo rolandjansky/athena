@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -96,7 +96,7 @@ TagInfo::operator<     (const TagInfo& rhs) const
       return(this->m_tags.size() < rhs.m_tags.size());
    }
    for (NameTagPairVec::const_iterator i = this->m_tags.begin(), j = rhs.m_tags.begin();
-	   i != this->m_tags.end(); i++, j++) {
+	   i != this->m_tags.end(); ++i, ++j) {
       if (i->first != j->first) {
          return(i->first < j->first);
       }
@@ -108,7 +108,7 @@ TagInfo::operator<     (const TagInfo& rhs) const
       return(this->m_inputTags.size() < rhs.m_inputTags.size());
    }
    for (NameTagPairVec::const_iterator i = this->m_inputTags.begin(), j = rhs.m_inputTags.begin();
-	   i != this->m_inputTags.end(); i++, j++) {
+	   i != this->m_inputTags.end(); ++i, ++j) {
       if (i->first != j->first) {
          return(i->first < j->first);
       }
