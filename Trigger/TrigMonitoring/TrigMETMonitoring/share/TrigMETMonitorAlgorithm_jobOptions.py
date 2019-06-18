@@ -11,8 +11,10 @@
 
 # The following class will make a sequence, configure algorithms, and link
 # them to GenericMonitoringTools
-from AthenaMonitoring import AthMonitorCfgHelperOld
-helper = AthMonitorCfgHelperOld(DQMonFlags, "TrigMETMonitor")
+#from AthenaMonitoring import AthMonitorCfgHelperOld
+#helper = AthMonitorCfgHelperOld(DQMonFlags, "TrigMETMonitor")
+from AthenaMonitoring import AthMonitorCfgHelper
+helper = AthMonitorCfgHelper(DQMonFlags, "TrigMETMonitor")
 
 ### STEP 2 ###
 # Adding an algorithm to the helper. Here, we will use the example 
@@ -21,22 +23,33 @@ helper = AthMonitorCfgHelperOld(DQMonFlags, "TrigMETMonitor")
 # base class configuration following the inputFlags. The returned object 
 # is the algorithm.
 from TrigMETMonitoring.TrigMETMonitoringConf import TrigMETMonitorAlgorithm
-trigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
+expertTrigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
+shifterTrigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'ShifterTrigMETMonAlg')
 
 # Examples of setting a trigger, or of running with debug messages on
-#trigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-#trigMETMonAlg.OutputLevel = DEBUG
+#expertTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
+#expertTrigMETMonAlg.OutputLevel = DEBUG
 
-myGroup = helper.addGroup( trigMETMonAlg,
-        "TrigMETMonitor",
-        "HLT/METMon/Expert"
-    )
+expertGroup = helper.addGroup(expertTrigMETMonAlg,'TrigMETMonitor','HLT/METMon/Expert/')
+shifterGroup = helper.addGroup(shifterTrigMETMonAlg,'TrigMETMonitor','HLT/METMon/Shifter/')
 
-myGroup.defineHistogram("lumiPerBCID;lumiPerBCID", title="Luminosity;L/BCID;Events",
-                        path='lumi',xbins=10,xmin=0.0,xmax=10.0)
-myGroup.defineHistogram("lb;lb", title="Luminosity Block;lb;Events",
-                        path='lbpath',xbins=1000,xmin=-0.5,xmax=999.5)
-myGroup.defineHistogram("random;random", title="LB;x;Events",
-                        path='randompath',xbins=30,xmin=0,xmax=1)
+shifterGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} (GeV);Events',
+                             path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+shifterGroup.defineHistogram('L1_Ey',title='L1 Missing E_{y};E_{y} (GeV);Events',
+                             path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+shifterGroup.defineHistogram('L1_Et',title='L1 Missing E_{T};E_{T} (GeV);Events',
+                             path='L1',xbins=205,xmin=-13.5,xmax=401.5)
+shifterGroup.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} (GeV);Events',
+                             path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+shifterGroup.defineHistogram('cell_Ey',title='cell Missing E_{y};E_{y} (GeV);Events',
+                             path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+shifterGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} (GeV);Events',
+                             path='cell',xbins=205,xmin=-13.5,xmax=401.5)
+expertGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} (GeV);Events',
+                            path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+expertGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} (GeV);Events',
+                            path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+expertGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} (GeV);Events',
+                            path='mht',xbins=205,xmin=-13.5,xmax=401.5)
 
 topSequence += helper.result()

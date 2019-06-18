@@ -35,7 +35,7 @@ def TrigMETMonConfig(inputFlags):
     #The added algorithm must exist as a .h file 
 
     from TrigMETMonitoring.TrigMETMonitoringConf import TrigMETMonitorAlgorithm
-    trigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
+    expertTrigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
@@ -50,10 +50,10 @@ def TrigMETMonConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of a algorithm
     # some generic property
-    # trigMETMonAlg.RandomHist = True
+    # expertTrigMETMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
-    #trigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-    trigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
+    #expertTrigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+    expertTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -65,20 +65,16 @@ def TrigMETMonConfig(inputFlags):
     # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
     # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
     # result.merge(caloNoiseAcc)
-    # trigMETMonAlg.CaloNoiseTool = caloNoiseTool
+    # expertTrigMETMonAlg.CaloNoiseTool = caloNoiseTool
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
-    # trigMETMonAlg.MyDomainTool = MyDomainTool()
+    # expertTrigMETMonAlg.MyDomainTool = MyDomainTool()
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
-    myGroup = helper.addGroup(
-        trigMETMonAlg,
-        'TrigMETMonitor',
-        'HLT/METMon/Expert/'
-    )
+    expertGroup = helper.addGroup(expertTrigMETMonAlg,'TrigMETMonitor','HLT/METMon/Expert/')
 
     # Add a GMT for the other example monitor algorithm
     shifterGroup = helper.addGroup(shifterTrigMETMonAlg,'TrigMETMonitor','HLT/METMon/Shifter/')
@@ -86,17 +82,24 @@ def TrigMETMonConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
-    myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
-    #myGroup.defineHistogram('random', title='LB;x;Events',
-    #                        path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
-    #myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-    #                        path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
-
-    shifterGroup.defineHistogram('run',title='Run Number;run;Events',
-                                  path='SomePath',xbins=1000000,xmin=-0.5,xmax=999999.5)
+    shifterGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} (GeV);Events',
+                            path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+    shifterGroup.defineHistogram('L1_Ey',title='L1 Missing E_{y};E_{y} (GeV);Events',
+                            path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+    shifterGroup.defineHistogram('L1_Et',title='L1 Missing E_{T};E_{T} (GeV);Events',
+                            path='L1',xbins=205,xmin=-13.5,xmax=401.5)
+    shifterGroup.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} (GeV);Events',
+                            path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+    shifterGroup.defineHistogram('cell_Ey',title='cell Missing E_{y};E_{y} (GeV);Events',
+                            path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+    shifterGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} (GeV);Events',
+                            path='cell',xbins=205,xmin=-13.5,xmax=401.5)
+    expertGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} (GeV);Events',
+                         path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+    expertGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} (GeV);Events',
+                         path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+    expertGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} (GeV);Events',
+                            path='mht',xbins=205,xmin=-13.5,xmax=401.5)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
