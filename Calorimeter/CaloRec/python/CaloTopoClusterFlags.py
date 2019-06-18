@@ -138,6 +138,7 @@ list_jobproperties = [
     ,doTwoGaussianNoise
     ,doTreatEnergyCutAsAbsolute
     ,doMomentsfromAbs
+    ,doTimeCut
     ]
 
 for i in list_jobproperties:
