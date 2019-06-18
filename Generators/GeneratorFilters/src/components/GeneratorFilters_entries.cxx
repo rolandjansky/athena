@@ -84,6 +84,7 @@
 #include "GeneratorFilters/HTFilter.h"
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
+#include "GeneratorFilters/MultiBjetFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -169,6 +170,7 @@ DECLARE_ALGORITHM_FACTORY(DecaysFinalStateFilter)
 DECLARE_ALGORITHM_FACTORY(HTFilter)
 DECLARE_ALGORITHM_FACTORY(MissingEtFilter)
 DECLARE_ALGORITHM_FACTORY(TrimuMassRangeFilter)
+DECLARE_ALGORITHM_FACTORY(MultiBJetFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -254,4 +256,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(HTFilter)
     DECLARE_ALGORITHM(MissingEtFilter)
     DECLARE_ALGORITHM(TrimuMassRangeFilter)
+    DECLARE_ALGORITHM(MultiBjetFilter)
 }
+
