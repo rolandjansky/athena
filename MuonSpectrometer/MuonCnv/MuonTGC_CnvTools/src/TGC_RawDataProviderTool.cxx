@@ -50,12 +50,6 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
 
   if(sc.isFailure()) return sc;
 
-  sc = service("ActiveStoreSvc", m_activeStore);
-  if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg;
-    return sc;
-  }
-
   if(detStore()->retrieve(m_muonMgr).isFailure()) {
     ATH_MSG_WARNING( "Cannot retrieve MuonDetectorManager" );
     return StatusCode::SUCCESS;
