@@ -434,15 +434,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    // it is set automatically.
    declareProperty( "ManagerName", m_managerNameProp );
 
-   // The TrigDecisionTool, clients normally should not have to set this
-   declareProperty( "TrigDecisionTool", m_trigDecTool );
-   
-   // The TriggerTranslator
-   declareProperty( "TriggerTranslatorTool", m_trigTranslator );
-
-   // The filter tools, to be specified in jobOptions
-   declareProperty( "FilterTools", m_DQFilterTools );
-
    // Enable luminosity tool?
    declareProperty( "EnableLumi", m_useLumi );
 

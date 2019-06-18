@@ -880,9 +880,12 @@ protected:
       StreamNameFcn*  m_streamNameFcn;
 
       ServiceHandle<ITHistSvc>         m_THistSvc;
-      ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool;
-      ToolHandle<ITriggerTranslatorTool> m_trigTranslator;
-      ToolHandleArray<IDQFilterTool> m_DQFilterTools;
+      // The TrigDecisionTool, clients normally should not have to set this
+      ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool {this, "TrigDecisionTool",""};
+      // The TriggerTranslator
+      ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""};
+      // The filter tools, to be specified in jobOptions
+      ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}};
 
       long         m_procNEventsProp;
       std::string  m_path;
@@ -919,8 +922,8 @@ protected:
       //bool findStream(const std::string& id, std::string& stream, std::string& rem) const;
       //std::string dirname(std::string& dir) const;
 
-      ToolHandle<ILuminosityTool> m_lumiTool;
-      ToolHandle<ITrigLivefractionTool> m_liveTool;
+      ToolHandle<ILuminosityTool> m_lumiTool {this,"lumiTool","LuminosityTool"};
+      ToolHandle<ITrigLivefractionTool> m_liveTool {this,"liveTool","TrigLivefractionTool"};
       bool m_hasRetrievedLumiTool;
       bool m_bookHistogramsInitial;
       bool m_useLumi;
