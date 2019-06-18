@@ -621,7 +621,7 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
     Trig::FeatureContainer fc_mu6 = getTDT()->features("HLT_mu6");
     std::vector<Trig::Combination> combs_mu6 = fc_mu6.getCombinations();
   } else {
-    features_mu6 =  getTDT()->features<xAOD::L2StandAloneMuonContainer>("HLT_mu6", TrigDefs::alsoFailedDecisions, "MuonL2SAInfo");
+    features_mu6 =  getTDT()->features<xAOD::L2StandAloneMuonContainer>("HLT_mu6", TrigDefs::includeFailedDecisions, "MuonL2SAInfo");
   }
 
 
