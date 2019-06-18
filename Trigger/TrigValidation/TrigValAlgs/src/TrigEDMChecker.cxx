@@ -4033,7 +4033,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
           ATH_MSG_INFO("      IParticle Feature pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
         }
       }
-      std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::alsoFailedDecisions);
+      std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
       ATH_MSG_INFO("    " << item << " Passed+Failed IParticle features size: " << allFeatures.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : allFeatures) {
         if (!li.isValid()) {
