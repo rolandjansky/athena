@@ -467,6 +467,10 @@ namespace InDetDD {
     bool alignmentChange = false;
 
     ATH_MSG_INFO("Processing IBLDist alignment container with key " << key);
+    if(numerology().numLayers()==4) {
+      // this doesn't appear to be Run 2, i.e. the IBL isn't there. Bailing
+      return alignmentChange;
+    }
 
     int nstaves = 0;
     if (numerology().numPhiModulesForLayer(0) < 14)
