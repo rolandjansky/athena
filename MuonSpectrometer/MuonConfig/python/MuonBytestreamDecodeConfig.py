@@ -96,8 +96,8 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
-    MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "TGC_RawDataProviderTool",
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderToolMT
+    MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
                                                                Decoder = TGCRodDecoder )
 
     if forTrigger:

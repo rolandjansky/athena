@@ -3,35 +3,35 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TGC_RawDataProviderTool.h, (c) ATLAS Detector software
+// TGC_RawDataProviderToolMT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
-#define MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
+#ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOLMT_H
+#define MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOLMT_H
 
 #include "TGC_RawDataProviderToolCore.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "TGC_Hid2RESrcID.h"
+#include "MuonRDO/TgcRdo_Cache.h"
 
 namespace Muon
 {
 
-  /** @class TGC_RawDataProviderTool
+  /** @class TGC_RawDataProviderToolMT
    *  A tool to decode TGC ROB fragments into TGC RDO.
-   *  This version is for legacy run-2 athena and is not thread safe.
+   *  This version is for athenaMT.
    *
    *  @author Zvi Tarem <zvi@caliper.co.il>
    *  @author Mark Owen <markowen@cern.ch>
    */
   
-  class TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
+  class TGC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
     {
     public:
       /** Default constructor */
-      TGC_RawDataProviderTool(const std::string& t, const std::string& n, const IInterface* p);
+      TGC_RawDataProviderToolMT(const std::string& t, const std::string& n, const IInterface* p);
       /** Default destructor */
-      virtual ~TGC_RawDataProviderTool();
+      virtual ~TGC_RawDataProviderToolMT();
       
       /** Standard AlgTool method */
       virtual StatusCode initialize();
@@ -49,6 +49,8 @@ namespace Muon
       virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect);
 
     private:
+      // TGC container cache key
+      SG::UpdateHandleKey<TgcRdo_Cache> m_rdoContainerCacheKey ;
 
       /** convert from vector of ROB IDs is not available */
       virtual StatusCode convert(const std::vector<uint32_t>&) {return StatusCode::FAILURE;}
@@ -56,4 +58,4 @@ namespace Muon
     };
 } // end of namespace
 
-#endif // MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
+#endif // MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOLMT_H
