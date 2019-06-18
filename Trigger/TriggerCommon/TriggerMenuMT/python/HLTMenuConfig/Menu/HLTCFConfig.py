@@ -26,7 +26,7 @@
 """
 
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, isSequence
+from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
@@ -110,72 +110,6 @@ def createCFTree(CFseq):
 #######################################
 ## CORE of Decision Handling
 #######################################
-
-def findViewAlgs( inputNodes, viewNodes ):
-    """ Make lists of algorithms that run in views, and those that don't """
-
-    allAlgs = []
-    viewAlgs = []
-
-    # Examine all nodes
-    for node in inputNodes:
-
-        # If node is a sequence, explore further
-        if isSequence( node ):
-
-            # Identify view CF nodes
-            if node.getName() in viewNodes.keys():
-
-                # Retrieve view algorithms
-                # (views don't nest, so will be returned in first list)
-                newViewAlgs, dummy = findViewAlgs( node.getChildren(), {} )
-                viewAlgs += newViewAlgs
-
-                # Record the fact that the view node is found
-                viewNodes[ node.getName() ] = True
-
-            # Explore the tree
-            else:
-                newAlgs, newViewAlgs = findViewAlgs( node.getChildren(), viewNodes )
-                allAlgs += newAlgs
-                viewAlgs += newViewAlgs
-        
-        # Node is an algorithm
-        else:
-            allAlgs += [ node.getName() ]
-
-    return allAlgs, viewAlgs
-
-
-def checkVDV( inputNodes, parentName, allEVCAs ):
-    """ Try to make sure each VDV has a correctly-configred EVCA upstream """
-
-    for node in inputNodes:
-
-        # Node is a VDV
-        if "AthViews__ViewDataVerifier" in type( node ).__name__:
-
-            # Check that VDV has a corresponding, correctly-configured EVCA
-            if parentName in allEVCAs.keys():
-                if not hasattr( allEVCAs[ parentName ], "RequireParentView" ) or not allEVCAs[ parentName ].RequireParentView:
-                    raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has upstream EventViewCreatorAlgorithm with RequireParentView = False" )
-            else:
-                raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has no corresponding upstream EventViewCreatorAlgorithm" )
-
-        # Node is an EVCA
-        if "EventViewCreatorAlgorithm" in type( node ).__name__:
-
-            # Store EVCA in a dictionary by the node it refers to
-            if node.ViewNodeName in allEVCAs.keys():
-                if node.name() != allEVCAs[ node.ViewNodeName ].name():
-                    raise RuntimeError( "Found duplicate view node name " + node.ViewNodeName + " configured for EVCAs " + node.name() + " and " + allEVCAs[ node.ViewNodeName ].name() )
-            allEVCAs[ node.ViewNodeName ] = node
-
-        # Explore nested CF
-        if isSequence( node ):
-
-            checkVDV( node.getChildren(), node.name(), allEVCAs )
-
 
 def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     """ creates the full HLT tree"""
@@ -270,31 +204,10 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
         
     topSequence += hltTop
 
-    # List all CF nodes to be used with EventViews (and whether they are found)
-    viewNodes = {}
-    for viewMaker in viewMakers:
-      viewNodes[ viewMaker.ViewNodeName ] = False
-    originalLength = len( viewNodes )
+    # Test the configuration
+    from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
+    testHLTTree( topSequence )
 
-    # Identify the algorithms that will run in EventViews
-    wholeEventAlgs, viewAlgs = findViewAlgs( topSequence.getChildren(), viewNodes )
-
-    # Check that all view nodes are found
-    if len( viewNodes ) != originalLength:
-        raise RuntimeError( "Something went wrong with view config inspection" )
-    for viewNode in viewNodes.keys():
-        if not viewNodes[ viewNode ]:
-            raise RuntimeError( "EventView CF node " + viewNode + " was not found attached to the topSequence" )
-
-    # Look for view algs in the whole event context
-    for viewAlgName in viewAlgs:
-        if viewAlgName in wholeEventAlgs:
-            from AthenaCommon.AlgSequence import dumpSequence
-            dumpSequence(topSequence)
-            raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
-
-    # Make sure that VDVs are configured correctly
-    checkVDV( topSequence.getChildren(), topSequence.name(), {} )
 
 def matrixDisplay( allSeq ):
     from collections import defaultdict
