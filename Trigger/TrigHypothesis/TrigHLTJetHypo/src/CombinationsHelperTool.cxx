@@ -76,6 +76,7 @@ struct HypoJetSelector{
  
 bool
 CombinationsHelperTool::pass(HypoJetVector& jets,
+			     xAODJetCollector& jetCollector,
 			     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   /* seek first jet group that passes all children  */
   
@@ -105,7 +106,7 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   exeTimer.start();
   
   for(auto& gjets : jetGroups){
-    if (testGroup(gjets, collector)){
+    if (testGroup(gjets, jetCollector, collector)){
       pass = true;
       exeTimer.stop();
       collectData(setupTimer.readAndReset(),
@@ -130,9 +131,10 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
 
 bool
 CombinationsHelperTool::testGroup(HypoJetVector& jets,
+				  xAODJetCollector& jetCollector,
 				  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   for(auto child : m_children){
-    auto childPass =  child->pass(jets, collector);
+    auto childPass =  child->pass(jets, jetCollector, collector);
     if (!childPass){
       return false;}
   }

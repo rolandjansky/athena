@@ -22,7 +22,6 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
 
 #include <vector>
 

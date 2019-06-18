@@ -353,7 +353,8 @@ def muonIDFastTrackingSequence( RoIs ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="_Muon")
+  (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
+
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF_Muon = TrigFastTrackFinder_Muon()
@@ -366,6 +367,7 @@ def muonIDFastTrackingSequence( RoIs ):
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
   viewAlgs.append(ViewVerify)
   global TrackParticlesName
+
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
@@ -373,8 +375,11 @@ def muonIDFastTrackingSequence( RoIs ):
           viewAlg.RoIs = RoIs
       if "roiCollectionName" in viewAlg.properties():
           viewAlg.roiCollectionName = RoIs
-      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+      if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
           TrackParticlesName = viewAlg.TrackParticlesName
+          TrackCollection = viewAlg.TrackName
+
+  theFTF_Muon.TracksName=TrackCollection
 
   return muonIDFastTrackingSequence, eventAlgs, TrackParticlesName, theFTF_Muon.getName()
 
@@ -398,6 +403,7 @@ def muCombRecoSequence( RoIs ):
 
 def l2muisoRecoSequence( RoIs ):
   global TrackParticlesName
+
   import AthenaCommon.CfgMgr as CfgMgr
   from AthenaCommon.CFElements import parOR
 
@@ -579,7 +585,7 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS")
+    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") 
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonFS
     theFTF_Muon = TrigFastTrackFinder_MuonFS()
@@ -593,11 +599,16 @@ def muEFCBRecoSequence( RoIs, name ):
         viewAlg.RoIs = RoIs
       if "roiCollectionName" in viewAlg.properties():
         viewAlg.roiCollectionName = RoIs
-      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+      if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
+        TrackCollection = viewAlg.TrackName
+
+    theFTF_Muon.TracksName=TrackCollection
   else:
+    TrackCollection="TrigFastTrackFinder_Tracks_Muon" # this is hacking, please FIX IT
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
 
@@ -617,14 +628,15 @@ def muEFCBRecoSequence( RoIs, name ):
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS" )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS", inputFTFtracks=TrackCollection)
+    PTSeq = seqAND("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk )
-
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection )
+    PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
-  PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   muEFCBRecoSequence += PTSeq
+
 
   #Default from FTF
   #trackParticles = "xAODTracks"
@@ -814,14 +826,19 @@ def efmuisoRecoSequence( RoIs, Muons ):
       viewAlg.RoIs = RoIs
     if "roiCollectionName" in viewAlg.properties():
       viewAlg.roiCollectionName = RoIs
+    if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+        TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
+        TrackCollection = viewAlg.TrackName
 
+  theFTF_Muon.TracksName=TrackCollection
+  
   #Precision Tracking
   PTAlgs = [] #List of precision tracking algs
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
   
   from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso")
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
 
   PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )
   efmuisoRecoSequence += PTSeq

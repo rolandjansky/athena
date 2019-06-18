@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( PythonLibs )
 find_package( requests )
+find_package( six )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:

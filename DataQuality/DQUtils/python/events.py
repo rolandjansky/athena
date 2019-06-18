@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from .sugar import IOVSet, RunLumi, RunLumiType
 from .utils import worst
 
 from heapq import heapreplace, heappush, heappop
 from collections import defaultdict
+
+import logging
+log = logging.getLogger("DQUtils.events")
 
 def build_states_emptyiovs(*iovsets):
     """
@@ -124,8 +127,6 @@ def iov_yielder(*iovs):
         else:
             heappush(eventqueue, (iov.since, True, iov, index, next))
     
-    events_triggered = []
-    
     while eventqueue:
         position, beginning, iov, index, next = eventqueue[0]
         
@@ -146,7 +147,7 @@ def iov_yielder(*iovs):
         heapreplace(eventqueue, next_key + (iov, index, next))
 
 def quantize_lb(since, until, states):
-    print "Evaluating:", since, until, states
+    log.info("Evaluating: %s %s %s", since, until, states)
     if len(states) == 1:
         return states.pop()._replace(since=since, until=until)
     
@@ -158,7 +159,7 @@ def quantize_iovs_intermediate(lbtime, iovs):
     # "n" => 'new' this past lumi block with respect to the end event
     #ncurrent_events, nended_events = defaultdict(set), defaultdict(set)
     current_events, ended_events = set(), set()
-    channel = iov_type = None
+    iov_type = None
     change_in_this_lb = False
     
     for position, index, beginning, iov in iov_yielder(lbtime, iovs):
@@ -166,7 +167,7 @@ def quantize_iovs_intermediate(lbtime, iovs):
         if index == 0:
             # LBTIME events
             lb_n = RunLumi(iov.Run, iov.LumiBlock)
-            print "LB:", ">" if beginning else "]", lb_n, iov.since, iov.until
+            log.info("LB: %s %s %s %s", ">" if beginning else "]", lb_n, iov.since, iov.until)
             
             if current_events:
                 if beginning:
@@ -182,9 +183,8 @@ def quantize_iovs_intermediate(lbtime, iovs):
         else:
             if iov_type is None:
                 iov_type = type(iov)
-                channel = iov.channel
             change_in_this_lb = True
-            print "Event:", iov
+            log.info("Event: %s", iov)
             (current_events if beginning else ended_events).add(iov)
             
 def default_quantizing_function(current_events):

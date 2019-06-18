@@ -20,8 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost )
 
 # Component(s) in the package:
-atlas_add_library( TrigConfIOLib src/*.cxx
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+atlas_add_library( TrigConfIOLib
+                   TrigConfIO/*.h src/*.cxx
                    PUBLIC_HEADERS TrigConfIO
                    LINK_LIBRARIES PathResolver TrigConfBase TrigConfData GaudiKernel )
 

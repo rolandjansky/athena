@@ -95,12 +95,14 @@ private:
    * @param range Validity range of the conditions data being filled.
    *              Updated if needed.
    * @param lumi Output luminosity data being filled.
+   * @param isValid Set to false if data are not valid.
    */
   StatusCode
   updateMuToLumi (const EventContext& ctx,
                   unsigned int calibChannel,
                   EventIDRange& range,
-                  LuminosityCondData& lumi) const;
+                  LuminosityCondData& lumi,
+                  bool& isValid) const;
 
 
   /**

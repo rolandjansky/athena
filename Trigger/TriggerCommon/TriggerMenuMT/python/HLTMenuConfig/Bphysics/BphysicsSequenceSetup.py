@@ -49,6 +49,7 @@ def dimuEFSequence(name = 'Dimu'):
     dimuefViewsMaker.InViewRoIs = "DimuEFRoIs" # contract with the consumer
     dimuefViewsMaker.Views = "DimuEFViewRoIs"
     dimuefViewsMaker.ViewNodeName = dimuefViewNode.name()
+    dimuefViewsMaker.RequireParentView = True
    
     dimuefRecoSequence = parOR("dimuefViewNode")
     

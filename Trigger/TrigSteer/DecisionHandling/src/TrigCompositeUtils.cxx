@@ -333,7 +333,7 @@ namespace TrigCompositeUtils {
     return Decision::s_initialRoIString;
   }
 
-  const std::string& intitalRecRoIString() {
+  const std::string& initialRecRoIString() {
     return Decision::s_initialRecRoIString;
   }
 

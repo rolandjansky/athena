@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
-import os, shutil, re
+import shutil, re
 
 from dqu_subprocess import apply as _local_apply
 
@@ -8,7 +9,7 @@ def _dolsrwrapper(fname):
     import ROOT
     rf = ROOT.TFile.Open(fname, 'READ')
     if not rf or not rf.IsOpen():
-        print '   %s is empty or not accessible' % f
+        print('   %s is empty or not accessible' % fname)
         return False
 
     cleancache = ROOT.gROOT.MustClean(); ROOT.gROOT.SetMustClean(False)
@@ -39,7 +40,7 @@ def _dolsr(dir):
 
             # is a check? is a summary? or recurse?
             if name[-1] == '_' and resultdir:
-                hist = dir.Get(name[:-1])
+                dir.Get(name[:-1])
                 subkeys = resultdir.GetListOfKeys()
                 for subkey in subkeys:
                     ressub = subkey.GetName()
@@ -77,9 +78,9 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
         _local_apply(_dolsrwrapper, (tmpfilename,))
         success = True
     except Exception, e:
-        print 'WARNING!!!: POSTPROCESSING FAILED FOR', func.__name__
-        print e
-        print 'Relevant results will not be in output'
+        print('WARNING!!!: POSTPROCESSING FAILED FOR', func.__name__)
+        print(e)
+        print('Relevant results will not be in output')
         if isProduction:
             import smtplib
             server = smtplib.SMTP('localhost')
@@ -100,10 +101,10 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
                    'Current directory (contains LSF job ID): %s' % currDir,
                    'Log file name (contains ATLAS T0 job ID): %s' % logFiles
                    ]
-            print 'Emailing', ', '.join(mail_to)
+            print('Emailing', ', '.join(mail_to))
             server.sendmail('atlasdqm@cern.ch', mail_to + mail_cc, '\r\n'.join(msg))
             server.quit()
-        print
+        print()
     finally:
         if success:
             shutil.move(tmpfilename, outFileName)
@@ -126,7 +127,7 @@ def DQPostProcess( outFileName, isIncremental=False ):
         createRPCConditionDB()
 
     def mdt_create(dummy, isIncremental):
-#        if False and not isIncremental:
+        #        if False and not isIncremental:
         if not isIncremental:            
             from DataQualityUtils.createMdtFolders import (createMDTConditionDBDead,
                                                            createMDTConditionDBNoisy)
@@ -199,6 +200,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
     success = _ProtectPostProcessing( (go_all, []), outFileName, isIncremental )
 
     if not success:
-    #if True:
+        #if True:
         for funcinfo in funclist:
             _ProtectPostProcessing( funcinfo, outFileName, isIncremental )

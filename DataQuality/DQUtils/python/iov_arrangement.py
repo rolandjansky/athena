@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
-from collections import namedtuple, defaultdict
 from .sugar import IOVSet, TimestampType, define_iov_type
+from collections import defaultdict
 
 @define_iov_type
 def LBTIME_VAL(Run, LumiBlock):

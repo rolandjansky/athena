@@ -96,5 +96,8 @@ atlas_add_alias( CreateMDTConfig_readme "CreateMDTConfig_readme.sh" )
 atlas_add_alias( DQHistogramMerge "DQHistogramMerge.py" )
 atlas_add_alias( DQWebDisplay "DQWebDisplay.py" )
 atlas_add_alias( CreateMDTConfig_chambers "CreateMDTConfig_chambers.sh" )
-atlas_add_alias( historyDisplay "historyDisplay.py" )
 
+# Code quality check
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,E11,E402,E71,E72,E9,W1,W6,F ${CMAKE_CURRENT_SOURCE_DIR}/python/
+   POST_EXEC_SCRIPT nopost.sh )

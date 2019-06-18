@@ -23,7 +23,6 @@
 #include <vector>
 #include "tauRecTools/ITauToolBase.h"
 
-#include "LumiBlockComps/ILuminosityTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

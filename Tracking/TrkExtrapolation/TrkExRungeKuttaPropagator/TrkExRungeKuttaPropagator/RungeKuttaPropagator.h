@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -442,11 +442,13 @@ private:
   void getFieldGradient(Cache& cache, double*,double*,double*) const;
 
   //placeholder for compatibility with new interface
+  virtual
   const TrackSurfaceIntersection* intersectSurface(const Surface&,
                                                    const TrackSurfaceIntersection*,
                                                    const double,
                                                    const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const {return 0;}
+                                                   ParticleHypothesis) const override
+  {return 0;}
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private data members: 

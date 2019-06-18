@@ -147,6 +147,36 @@ def findViewAlgs( inputNodes, viewNodes ):
     return allAlgs, viewAlgs
 
 
+def checkVDV( inputNodes, parentName, allEVCAs ):
+    """ Try to make sure each VDV has a correctly-configred EVCA upstream """
+
+    for node in inputNodes:
+
+        # Node is a VDV
+        if "AthViews__ViewDataVerifier" in type( node ).__name__:
+
+            # Check that VDV has a corresponding, correctly-configured EVCA
+            if parentName in allEVCAs.keys():
+                if not hasattr( allEVCAs[ parentName ], "RequireParentView" ) or not allEVCAs[ parentName ].RequireParentView:
+                    raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has upstream EventViewCreatorAlgorithm with RequireParentView = False" )
+            else:
+                raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has no corresponding upstream EventViewCreatorAlgorithm" )
+
+        # Node is an EVCA
+        if "EventViewCreatorAlgorithm" in type( node ).__name__:
+
+            # Store EVCA in a dictionary by the node it refers to
+            if node.ViewNodeName in allEVCAs.keys():
+                if node.name() != allEVCAs[ node.ViewNodeName ].name():
+                    raise RuntimeError( "Found duplicate view node name " + node.ViewNodeName + " configured for EVCAs " + node.name() + " and " + allEVCAs[ node.ViewNodeName ].name() )
+            allEVCAs[ node.ViewNodeName ] = node
+
+        # Explore nested CF
+        if isSequence( node ):
+
+            checkVDV( node.getChildren(), node.name(), allEVCAs )
+
+
 def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     """ creates the full HLT tree"""
 
@@ -259,8 +289,12 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     # Look for view algs in the whole event context
     for viewAlgName in viewAlgs:
         if viewAlgName in wholeEventAlgs:
+            from AthenaCommon.AlgSequence import dumpSequence
+            dumpSequence(topSequence)
             raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
 
+    # Make sure that VDVs are configured correctly
+    checkVDV( topSequence.getChildren(), topSequence.name(), {} )
 
 def matrixDisplay( allSeq ):
     from collections import defaultdict

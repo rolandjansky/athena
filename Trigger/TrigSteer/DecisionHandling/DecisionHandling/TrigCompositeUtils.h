@@ -294,7 +294,7 @@ namespace TrigCompositeUtils {
   /// @name Constant string literals used within the HLT
   /// @{
   const std::string& initialRoIString();
-  const std::string& intitalRecRoIString();
+  const std::string& initialRecRoIString();
   const std::string& roiString();
   const std::string& viewString();
   const std::string& featureString();

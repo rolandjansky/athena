@@ -34,6 +34,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 #include <iosfwd>
 #include <list>
 #include <mutex>
@@ -127,13 +128,13 @@ namespace InDet{
     // This is not multithread safe.
     mutable std::atomic_bool m_test{};
 
-    // Mutex to protect the contents
-    mutable std::mutex m_mutex;
     // Cache
     struct CacheEntry {
+      // Mutex to protect the contents
+      std::mutex m_mutex;
       EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-      SiDetElementsLayerVectors_xk m_layerVectors{SiDetElementsLayerVectors_xk(3)};
       // std::vector<SiDetElementsLayer_xk> for each layer. This is not const.
+      SiDetElementsLayerVectors_xk m_layerVectors{SiDetElementsLayerVectors_xk(3)};
     };
     mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
@@ -149,7 +150,7 @@ namespace InDet{
 
     MsgStream& dumpConditions(MsgStream& out) const;
 
-    void getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
+    std::unique_lock<std::mutex> getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
   };
 
   MsgStream&    operator << (MsgStream&   , const SiDetElementsRoadMaker_xk&);

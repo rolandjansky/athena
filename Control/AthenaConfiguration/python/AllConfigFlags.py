@@ -44,6 +44,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowControlFlow', True)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
+    acf.addFlag('Common.useOnlineLumi', False ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
 
     def _checkProject():
@@ -150,6 +151,11 @@ def _createCfgFlags():
         from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
         return createEgammaConfigFlags()
     _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
+
+    def __pflow():
+        from eflowRec.PFConfigFlags import createPFConfigFlags
+        return createPFConfigFlags()
+    _addFlagsCategory(acf,"PF",__pflow)
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
