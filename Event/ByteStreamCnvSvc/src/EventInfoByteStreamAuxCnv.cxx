@@ -203,6 +203,12 @@ StatusCode EventInfoByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr, DataObjec
   evtInfo.setDetectorMask(detMask0,detMask1);
   evtInfo.setDetectorMaskExt(detMask2,detMask3);
 
+  // The following values were implicitly set by the BS converter of the legacy EventInfo
+  // Setting them here too
+  evtInfo.setMCChannelNumber(0);
+  evtInfo.setMCEventNumber(0);
+  evtInfo.setMCEventWeights(std::vector<float>(1,1));
+
   // Set Event Type
   uint32_t eventTypeBitmask{0};
   if (m_isSimulation) {
