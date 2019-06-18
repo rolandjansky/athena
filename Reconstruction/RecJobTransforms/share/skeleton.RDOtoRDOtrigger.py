@@ -20,6 +20,10 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(True)
 rec.doRDOTrigger.set_Value_and_Lock(True)
 recAlgs.doTrigger.set_Value_and_Lock(True)
+rec.doMonitoring.set_Value_and_Lock(False)
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+DQMonFlags.doMonitoring.set_Value_and_Lock(False)
+DQMonFlags.doLArMon.set_Value_and_Lock(False)
 
 from AthenaCommon.CFElements import findAlgorithm, findOwningSequence, findSubSequence
 from AthenaCommon.Logging import logging
@@ -90,7 +94,8 @@ def preplist(input):
 
 if TriggerFlags.doMT():
     TriggerFlags.doHLT.set_Value_and_Lock(False)
-
+    from CaloRec.CaloRecFlags import jobproperties
+    jobproperties.CaloRecFlags.doLArNoisyRO.set_Value_and_Lock(False)
 
 #========================================================
 # Central topOptions (this is one is a string not a list)
@@ -100,6 +105,13 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg(name="xAODMaker__EventInfoCnvAlg", OutputLevel=DEBUG)
+
+    fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeEIDep")
+    findAlgorithm( topSequence, "xAODMaker__EventInfoCnvAlg" ).ExtraOutputs += [fakeTypeKey]
+    findAlgorithm( topSequence, "EventCounter" ).ExtraInputs += [fakeTypeKey]
+
     log.info("configuring MT Trigger")
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
@@ -114,7 +126,7 @@ if TriggerFlags.doMT():
 
     from TrigUpgradeTest.TestUtils import L1DecoderTest
     topSequence += L1DecoderTest()
-
+    
     include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
@@ -142,7 +154,7 @@ if TriggerFlags.doMT():
         TriggerFlags.MuonSlice.setAll()
         TriggerFlags.METSlice.setAll()
         TriggerFlags.JetSlice.setAll()
-        TriggerFlags.TauSlice.setAll()
+        #TriggerFlags.TauSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
@@ -272,8 +284,9 @@ ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 #from AthenaCommon.Constants import DEBUG
 #findAlgorithm( topSequence, "TauL2CaloHypo").OutputLevel=DEBUG
 #findAlgorithm( topSequence, "TrigTauRecMerged_TauPrecisionMVA").OutputLevel=DEBUG
+
+
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
-
 print topSequence
 
