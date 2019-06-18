@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <SampleHandler/DiskListEOS.h>
@@ -88,6 +88,7 @@
 #pragma link C++ function SH::readFileList (SampleHandler&, const std::string&, const std::string&);
 #pragma link C++ function SH::addGrid (SampleHandler&, const std::string&);
 #pragma link C++ function SH::addGridCombined (SampleHandler&, const std::string&, const std::vector<std:string>&);
+#pragma link C++ function SH::addGridCombinedFromFile (SampleHandler&, const std::string&, const std:string&);
 #pragma link C++ function SH::makeGridDirect (SampleHandler&, const std::string&, const std::string&, const std::string&, bool);
 #pragma link C++ function SH::printDuplicateEvents (const SH::Sample&);
 #pragma link C++ function SH::printDuplicateEventsSplit (const SH::SampleHandler&);
