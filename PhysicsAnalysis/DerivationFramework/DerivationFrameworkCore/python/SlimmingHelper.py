@@ -90,6 +90,8 @@ class SlimmingHelper:
                 self.AppendToDictionary = {}
                 self.NamesAndTypes = buildNamesAndTypes()
                 self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
+                self.IncludeTriggerNavigation = True
+                self.IncludeAdditionalTriggerContent = False
                 self.IncludeMuonTriggerContent = False
                 self.IncludeEGammaTriggerContent = False
                 self.IncludeJetTauEtMissTriggerContent = False
@@ -147,6 +149,10 @@ class SlimmingHelper:
 
                 # Trigger objects: add them by hand to the smart collection list (to keep the previous interface)
                 triggerContent = False
+
+                if (self.IncludeAdditionalTriggerContent == True):
+                        triggerContent = True
+
                 if (self.IncludeMuonTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__MuonContainer_MuonEFInfo")
@@ -261,27 +267,13 @@ class SlimmingHelper:
                         for item in JetTauEtMissTriggerContent:
                                 Stream.AddItem(item)
 
-                # JetTrigger: not slimmed for now because of CLID issue
-                #if (self.IncludeJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
-                #       for item in JetTriggerContent:
-                #               Stream.AddItem(item)
-
-                # Same issue for BJetTrigger
-                #if (self.IncludeBJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
-                #       for item in BJetTriggerContent:
-                #       Stream.AddItem(item)
-
                 # non xAOD collections for MinBias
                 if (self.IncludeMinBiasTriggerContent == True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
                                 Stream.AddItem(item)
 
-                if (triggerContent):
+                if (triggerContent and self.IncludeTriggerNavigation):
                         for item in CompulsoryTriggerNavigation:
                                 Stream.AddItem(item)
 
@@ -420,7 +412,7 @@ class SlimmingHelper:
                         items.extend(AntiKt7LCTopoJetsCPContent)
                 elif collectionName=="AntiKt8LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8LCTopoJetsCPContent import AntiKt8LCTopoJetsCPContent
-                        items.extend(AntiKt8LCTopoJetsCPContent)  
+                        items.extend(AntiKt8LCTopoJetsCPContent)
                 elif collectionName=="AntiKt8EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMTopoJetsCPContent import AntiKt8EMTopoJetsCPContent
                         items.extend(AntiKt8EMTopoJetsCPContent)
@@ -433,6 +425,15 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMTopoExCoM2SubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMTopoExCoM2SubJetsCPContent import AntiKt8EMTopoExCoM2SubJetsCPContent
                         items.extend(AntiKt8EMTopoExCoM2SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowJetsCPContent import AntiKt8EMPFlowJetsCPContent
+                        items.extend(AntiKt8EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt2SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt2SubJetsCPContent import AntiKt8EMPFlowExKt2SubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt2SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt3SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3SubJetsCPContent import AntiKt8EMPFlowExKt3SubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
@@ -476,6 +477,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt8EMTopoExCoM2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMTopoExCoM2SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt2Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt2SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt3Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3SubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))
@@ -503,6 +510,10 @@ class SlimmingHelper:
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif self.IncludeAdditionalTriggerContent == True:
+                        from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
+                        items.extend(AdditionalTriggerContent)
+
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)

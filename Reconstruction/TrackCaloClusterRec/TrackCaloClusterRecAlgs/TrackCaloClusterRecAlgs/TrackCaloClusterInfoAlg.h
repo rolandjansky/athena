@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERALGS_TRACKCALOCLUSTERINFOALG_H
@@ -29,8 +29,6 @@ public:
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
   
-  /// Definition of the 4-momentum type.
-  typedef xAOD::IParticle::FourMom_t FourMom_t;
   
 protected:
   virtual  StatusCode fillInfo(TrackCaloClusterInfo & tccInfo);

@@ -12,11 +12,11 @@ unset( _version )
 
 # Set the version of tdaq-common to use for the build:
 set( TDAQ-COMMON_VERSION "02-03-00" )
-set( TDAQ-COMMON_ROOT 
+set( TDAQ-COMMON_ATROOT
     "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
 set( DQM-COMMON_VERSION "01-03-00" )
-set( DQM-COMMON_ROOT
+set( DQM-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
 
 # we need this in order to avoid linking Gaudi in AtlasTest/TestTools

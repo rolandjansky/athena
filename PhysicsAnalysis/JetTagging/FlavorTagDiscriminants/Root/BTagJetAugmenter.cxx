@@ -303,7 +303,9 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     smt_isDefaults(btag) = 1;
   }
 
-  if (! rnnip_pbIsValid(btag)) {
+  // pbIsValid is only defined in the "old" schema, which does not use
+  // floats. This will short circuit if we do use floats.
+  if (!m_use_floats && !rnnip_pbIsValid(btag)) {
     rnnip_isDefaults(btag) = 1;
   }  else {
     rnnip_isDefaults(btag) = 0;

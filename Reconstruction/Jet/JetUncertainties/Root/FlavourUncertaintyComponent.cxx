@@ -27,6 +27,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name
     , m_defAnaFileName("")
     , m_absEta(false)
     , m_secondUncName("")
+    , m_fatjetTruthLabels()
     , m_secondUncHist(NULL)
     , m_respType(FlavourResp_UNKNOWN)
     , m_secondRespType(FlavourResp_UNKNOWN)
@@ -56,6 +57,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
     , m_calibArea(calibArea)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_secondUncName(component.uncNames.size()>1 ? component.uncNames.at(1) : "")
+    , m_fatjetTruthLabels(component.FatjetTruthLabels)
     , m_secondUncHist(NULL)
     , m_respType(FlavourResp_UNKNOWN)
     , m_secondRespType(FlavourResp_UNKNOWN)
@@ -82,6 +84,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_calibArea(toCopy.m_calibArea)
     , m_absEta(toCopy.m_absEta)
     , m_secondUncName(toCopy.m_secondUncName)
+    , m_fatjetTruthLabels(toCopy.m_fatjetTruthLabels)
     , m_secondUncHist(NULL)
     , m_respType(toCopy.m_respType)
     , m_secondRespType(toCopy.m_secondRespType)
@@ -353,6 +356,42 @@ bool FlavourUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xA
 
 double FlavourUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
+    // First, check if we even want to apply the uncertainty (large-R specific break-out)
+    // Check if we are supposed to only use given truth labels
+    static const SG::AuxElement::ConstAccessor<int> accFatjetTruthLabel("FatjetTruthLabel");
+    if (m_fatjetTruthLabels.size() != 0)
+    {
+        // If we are asking to check truth labels, then retrieve the truth jet label from the jet
+        if (!accFatjetTruthLabel.isAvailable(jet))
+        {
+            // Unable to retrieve truth label, but we were told to look for it, error
+            ATH_MSG_ERROR("Unable to retrieve FatjetTruthLabel from the jet.  Please call the BoostedJetTaggers tag() function before calling this function.");
+            return JESUNC_ERROR_CODE;
+        }
+        // Ok, the label exists, now check what it is
+        const FatjetTruthLabel::TypeEnum fatjetTruthLabel = FatjetTruthLabel::intToEnum(accFatjetTruthLabel(jet));
+        if (fatjetTruthLabel == FatjetTruthLabel::UNKNOWN)
+        {
+            // This is an error - the label exists but it is unrecognized
+            ATH_MSG_ERROR("UNKNOWN FatjetTruthLabel on the jet.  Please call the BoostedJetTaggers tag() function before calling this function or check the jet for irregularities.");
+            return JESUNC_ERROR_CODE;
+        }
+        // Not unknown, now check if it is one of the labels we want to apply this uncertainty for
+        bool relevantLabel = false;
+        for (const FatjetTruthLabel::TypeEnum aLabel : m_fatjetTruthLabels)
+        {
+            if (aLabel == fatjetTruthLabel)
+                relevantLabel = true;
+        }
+        
+        // If we don't want to apply an uncertainty to jets with this label, then return 0 here (no uncertainty)
+        if (!relevantLabel)
+            return 0;
+        // Otherwise, continue as usual
+    }
+    
+
+    // Now, we do want t o apply the uncertainty, so do it
     double unc = JESUNC_ERROR_CODE;
     if (m_flavourType == FlavourComp::Response)
         unc = getFlavourResponseUncertainty(jet,eInfo);

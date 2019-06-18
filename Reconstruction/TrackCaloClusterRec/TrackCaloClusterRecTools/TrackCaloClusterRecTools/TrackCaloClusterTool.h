@@ -35,7 +35,7 @@ public:
 
   virtual StatusCode initialize();
 
-  virtual StatusCode fillTCC(xAOD::TrackCaloClusterContainer* container, const TrackCaloClusterInfo & tccInfo ) const ;
+  virtual StatusCode fillTCC(xAOD::TrackCaloClusterContainer* container, const TrackCaloClusterInfo & tccInfo ) const =0;
     
 protected:    
 

@@ -66,7 +66,7 @@ namespace DerivationFramework{
           || (m_DSID>=412066 && m_DSID<=412074) //aMC@NLO+P8 HF-filtered
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
-          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
+          || (m_DSID>=411178 && m_DSID<=411180) || (m_DSID==411275) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
           || (m_DSID>=407342 && m_DSID<=407344) //Powheg+P8 ttbar HT-filtered
           || (m_DSID>=407348 && m_DSID<=407350) //aMC@NLO+P8 ttbar HT-filtered
            ){
@@ -74,7 +74,7 @@ namespace DerivationFramework{
       if ( m_DSID==410244 //aMC@NLO+P8, ttbb (old)
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
-          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
+          || (m_DSID>=411178 && m_DSID<=411180) || (m_DSID==411275) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
       ){
         m_ttbb=true;
       }

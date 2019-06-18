@@ -111,10 +111,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
                       "CombMass");
-    registerParameter("LargeRToptaggingConfigFile",
-                      "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
-                      "(alternative not optimized on large-R jet containing a truth top)",
-                      "default");
+    registerParameter("BoostedJetTagging",
+                      "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
+                      " By default, no tagger is used.",
+                      " ");
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
@@ -213,6 +213,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
     registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
+
+    registerParameter("FakesMMWeightsIFF","Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)", "False");
+    registerParameter("FakesMMConfigIFF",
+		      "Configurations for fake leptons estimate using FakeBkgTools from IFF: - default is $ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]. Use as \n <ROOT/XML FILE>:<DEFNINITION>:<PROCESS>;<ROOT/XML FILE 2>:<DEFNINITION 2>:<PROCESS 2>; ...", 
+		      "$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]");
+    registerParameter("FakesMMIFFDebug","Enables debug mode for matrix-method weight calculation using FakeBkgTools from IFF: True, False (default)", "False");
 
     registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");

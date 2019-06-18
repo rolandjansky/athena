@@ -272,6 +272,9 @@ private:
     //Store output PDF weights from LHAPDF
     std::unordered_map<std::string, std::vector<float> > m_PDF_eventWeights;
 
+    // Store boosted jet tagger names
+    std::vector<std::string> m_boostedJetTaggersNames;
+
     //some event weights
     float m_weight_mc;
     float m_weight_pileup;
@@ -417,12 +420,8 @@ private:
     float m_weight_photonSF_ID_UP = 0.;
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso = 0.;
-    float m_weight_photonSF_effLowPtIso_UP = 0.;
-    float m_weight_photonSF_effLowPtIso_DOWN = 0.;
-    float m_weight_photonSF_effTrkIso_UP = 0.;
-    float m_weight_photonSF_effTrkIso_DOWN = 0.;
-    float m_weight_photonSF_isoDDonoff_UP = 0.;
-    float m_weight_photonSF_isoDDonoff_DOWN = 0.;
+    float m_weight_photonSF_effIso_UP = 0.;
+    float m_weight_photonSF_effIso_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;
@@ -463,6 +462,10 @@ private:
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
     /// m_fakesMM_weights[selection][configuration]
     std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
+    int m_ASMsize;
+    std::vector<float> m_ASMweights;
+    std::vector<std::vector<float> > m_ASMweights_Syst;
+    std::vector<std::vector<std::string> > m_ASMweights_Systname;
 
     /// Weights for bootstrapping
     std::vector<int> m_weight_poisson;
@@ -607,6 +610,8 @@ private:
     std::vector<char> m_ljet_isWTagged_50;
     std::vector<char> m_ljet_isZTagged_80;
     std::vector<char> m_ljet_isZTagged_50;
+    
+    std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1078,12 +1083,8 @@ protected:
   const float& weight_photonSF_ID_UP () const { return m_weight_photonSF_ID_UP ;}
   const float& weight_photonSF_ID_DOWN () const { return m_weight_photonSF_ID_DOWN ;}
   const float& weight_photonSF_effIso () const { return m_weight_photonSF_effIso ;}
-  const float& weight_photonSF_effLowPtIso_UP () const { return m_weight_photonSF_effLowPtIso_UP ;}
-  const float& weight_photonSF_effLowPtIso_DOWN () const { return m_weight_photonSF_effLowPtIso_DOWN ;}
-  const float& weight_photonSF_effTrkIso_UP () const { return m_weight_photonSF_effTrkIso_UP ;}
-  const float& weight_photonSF_effTrkIso_DOWN () const { return m_weight_photonSF_effTrkIso_DOWN ;}
-  const float& weight_photonSF_isoDDonoff_UP () const { return m_weight_photonSF_isoDDonoff_UP ;}
-  const float& weight_photonSF_isoDDonoff_DOWN () const { return m_weight_photonSF_isoDDonoff_DOWN ;}
+  const float& weight_photonSF_effIso_UP () const { return m_weight_photonSF_effIso_UP ;}
+  const float& weight_photonSF_effIso_DOWN () const { return m_weight_photonSF_effIso_DOWN ;}
 
   // nominal b-tagging SF [WP]
   const std::unordered_map<std::string, float>& weight_bTagSF() const { return m_weight_bTagSF;}
@@ -1227,6 +1228,9 @@ protected:
   const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
   const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
   const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+  
+  const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() const { return m_ljet_isTagged;}
+  const std::vector<char>& ljet_isTagged(const std::string& taggerName) { return m_ljet_isTagged[taggerName];}
 
   //track jets
   const std::vector<float>& tjet_pt() const { return m_tjet_pt;}

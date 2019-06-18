@@ -133,6 +133,13 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=jetm1Seq,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=jetm1Seq,algname="QGTaggerToolPFAlg")
 
+# Add alternative rho definitions
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+addCHSPFlowObjects()
+from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
+jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
+
 OutputJets["JETM1"] = []
 
 #=======================================
@@ -199,6 +206,10 @@ JETM1SlimmingHelper.AppendToDictionary = {
     "AntiKt10TruthSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
     "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
     "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
+    "Kt4EMPFlowNeutEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowNeutEventShapeAux": "xAOD::AuxInfoBase"    ,
 
 }
 
@@ -228,7 +239,7 @@ if DerivationFrameworkIsMonteCarlo:
 JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
                                      "MuonSegments",
-                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",
                                      ]
 
 # Trigger content

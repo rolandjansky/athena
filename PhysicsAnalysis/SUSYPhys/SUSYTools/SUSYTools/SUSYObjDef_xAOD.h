@@ -51,6 +51,7 @@ class ICPJetUncertaintiesTool;
 class IJetSelector;
 class IJetUpdateJvt;
 class IJetModifier;
+class IJetSelectorTool;
 
 class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
@@ -170,14 +171,14 @@ namespace ST {
                            const xAOD::JetContainer* jet,
                            const xAOD::ElectronContainer* elec = 0,
                            const xAOD::MuonContainer* muon = 0
-			   // const xAOD::PhotonContainer* gamma = 0,
-			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
                          double& metSignificance,
                          bool doTST = true, bool doJVTCut = true
 		         ) override final;
+
+    bool IsPFlowCrackVetoCleaning(const xAOD::ElectronContainer* elec = 0, const xAOD::PhotonContainer* gamma = 0) const override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -479,6 +480,9 @@ namespace ST {
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
+    std::string m_WZTaggerCalibArea;
+    std::string m_ToptagConfig;
+    std::string m_TopTaggerCalibArea;
 
     bool m_tool_init;
     bool m_subtool_init;
@@ -704,8 +708,9 @@ namespace ST {
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
-    asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
-    asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
 
     //
     std::string m_jesConfig;
@@ -849,6 +854,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
+
   // const accessors for reading decorations that we set
   const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
@@ -858,6 +864,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");
+
   // more decorations that are set externally
   const static SG::AuxElement::ConstAccessor<unsigned int> acc_OQ("OQ");
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
@@ -865,6 +872,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<int> acc_bkgTruthOrigin("bkgTruthOrigin");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
+  const static SG::AuxElement::ConstAccessor<char> acc_passCrackVetoCleaning("DFCommonCrackVetoCleaning");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
   const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 

@@ -151,7 +151,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   }
 
   // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
+  if ( input.pt() < 4e3 || !input.caloCluster() ) return StatusCode::SUCCESS;
 
   if (!input.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return StatusCode::SUCCESS;
 
@@ -329,8 +329,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
-  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
-
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
   std::string diLepStr     = "diLepton";
@@ -439,7 +437,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
     //ECIS SF 
     if( m_runECIS ){
-      ATH_MSG_WARNING ("Be aware that ECIS SF is not provided in R21 yet. Use at your own risk!");
       result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
@@ -547,7 +544,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
   float sf(1.);
 
-  for (const auto& electron : electrons) {
+  for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
     else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }

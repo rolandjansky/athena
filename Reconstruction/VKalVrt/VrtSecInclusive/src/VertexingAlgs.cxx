@@ -113,15 +113,16 @@ namespace VKalVrtAthena {
         std::vector<double> impactParameters;
         std::vector<double> impactParErrors;
         
-        m_fitSvc->VKalGetImpact( *itrk, initVertex, static_cast<long int>( (*itrk)->charge() ), impactParameters, impactParErrors);
-        const auto roughD0_itrk = impactParameters.at(0);
-        const auto roughZ0_itrk = impactParameters.at(1);
-        if( fabs( impactParameters.at(0) ) > roughD0Cut || fabs( impactParameters.at(1) ) > roughZ0Cut ) {
+        if( !getSVImpactParameters( *itrk, initVertex, impactParameters, impactParErrors) ) continue;
+        const auto roughD0_itrk = impactParameters.at(TrkParameter::k_d0);
+        const auto roughZ0_itrk = impactParameters.at(TrkParameter::k_z0);
+        if( fabs( impactParameters.at(0)) > roughD0Cut || fabs( impactParameters.at(1) ) > roughZ0Cut ) {
           continue;
         }
-        m_fitSvc->VKalGetImpact( *jtrk, initVertex, static_cast<long int>( (*jtrk)->charge() ), impactParameters, impactParErrors);
-        const auto roughD0_jtrk = impactParameters.at(0);
-        const auto roughZ0_jtrk = impactParameters.at(1);
+
+        if( !getSVImpactParameters( *jtrk, initVertex, impactParameters, impactParErrors) ) continue;
+        const auto roughD0_jtrk = impactParameters.at(TrkParameter::k_d0);
+        const auto roughZ0_jtrk = impactParameters.at(TrkParameter::k_z0);
         if( fabs( impactParameters.at(0) ) > roughD0Cut || fabs( impactParameters.at(1) ) > roughZ0Cut ) {
           continue;
         }
@@ -963,15 +964,13 @@ namespace VKalVrtAthena {
           std::vector<double> impactParameters;
           std::vector<double> impactParErrors;
         
-          m_fitSvc->VKalGetImpact(trk, targetVertex.vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
-          
-          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
-          
-          const auto& distance = hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) );
+          if( !getSVImpactParameters(trk,targetVertex.vertex,impactParameters,impactParErrors) ) continue;
+
+          const auto& distance = hypot( impactParameters.at(0), impactParameters.at(1) );
           distances.emplace_back( distance );
           
-          if( fabs( impactParameters.at(k_d0) > m_jp.reassembleMaxImpactParameterD0 ) ) continue;
-          if( fabs( impactParameters.at(k_z0) > m_jp.reassembleMaxImpactParameterZ0 ) ) continue;
+          if( fabs( impactParameters.at(0) ) > m_jp.reassembleMaxImpactParameterD0 ) continue;
+          if( fabs( impactParameters.at(1) ) > m_jp.reassembleMaxImpactParameterZ0 ) continue;
           
           mergiableVertex[index] = ritr;
           mergiableVerticesSet.emplace( ritr );
@@ -1116,13 +1115,10 @@ namespace VKalVrtAthena {
         std::vector<double> impactParameters;
         std::vector<double> impactParErrors;
         
-        m_fitSvc->VKalGetImpact(trk, vertexPos, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
-        
-        enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
-        enum { k_d0d0, k_d0z0, k_z0z0 };
-        
-        if( fabs( impactParameters.at(k_d0) ) / sqrt( impactParErrors.at(k_d0d0) ) > m_jp.associateMaxD0Signif ) continue;
-        if( fabs( impactParameters.at(k_z0) ) / sqrt( impactParErrors.at(k_z0z0) ) > m_jp.associateMaxZ0Signif ) continue;
+        if( !getSVImpactParameters( trk, vertexPos, impactParameters, impactParErrors) ) continue;
+
+        if( fabs( impactParameters.at(0) ) / sqrt( impactParErrors.at(0) ) > m_jp.associateMaxD0Signif ) continue;
+        if( fabs( impactParameters.at(1) ) / sqrt( impactParErrors.at(1) ) > m_jp.associateMaxZ0Signif ) continue;
         
         ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": trk " << trk
                        << ": d0 to vtx = " << impactParameters.at(k_d0)
@@ -2006,5 +2002,35 @@ namespace VKalVrtAthena {
     return StatusCode::SUCCESS;
   }
   
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::getSVImpactParameters(const xAOD::TrackParticle* trk, Amg::Vector3D vertex,
+                                              std::vector<double>& impactParameters,
+                                              std::vector<double>& impactParErrors){
+
+    impactParameters.clear();
+    impactParErrors.clear();
+    
+    if( m_jp.trkExtrapolator==1 ){
+      m_fitSvc->VKalGetImpact(trk, vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
+    }
+    else if( m_jp.trkExtrapolator==2 ){
+      const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, vertex );
+      if( !sv_perigee ) return false;
+      impactParameters.push_back(sv_perigee->parameters() [Trk::d0]);
+      impactParameters.push_back(sv_perigee->parameters() [Trk::z0]);
+      impactParErrors.push_back((*sv_perigee->covariance())( Trk::d0, Trk::d0 ));
+      impactParErrors.push_back((*sv_perigee->covariance())( Trk::z0, Trk::z0 ));
+      delete sv_perigee;
+    }
+    else{
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": Unknown track extrapolator " << m_jp.trkExtrapolator   );
+      return false;
+    }
+
+    return true;
+
+  } // getSVImpactParameters
+
+
 
 } // end of namespace VKalVrtAthena

@@ -7,7 +7,7 @@ HIGG2D1ExtraContent=[
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
     "TauJets.IsTruthMatched.truthJetLink.truthParticleLink",
     "CaloCalTopoClusters.rawM.rawE.rawEta.rawPhi.calM.calE.calPhi.calEta.e_sampl.phi_sampl.eta_sampl",
-    "Electrons.topoetcone30ptCorrection.topoetcone40ptCorrection.ptvarcone30.ptvarcone30_TightTTVA_pt500.ptvarcone20_TightTTVA_pt500"
+    "Electrons.topoetcone30ptCorrection.topoetcone40ptCorrection.ptvarcone30.ptvarcone30_TightTTVA_pt500.ptvarcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt500"
     ]
 
 HIGG2D1ExtraContentTruth=[

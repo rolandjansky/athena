@@ -23,6 +23,9 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/ToolHandleArray.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
@@ -36,6 +39,7 @@
 // boosted-tagging includes
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 // b-tagging
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -259,13 +263,8 @@ private:
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
     
-    // do decorate the large-R jets with the boosted-tagging flags
-    ToolHandle<SmoothedTopTagger> m_topTag50;
-    ToolHandle<SmoothedTopTagger> m_topTag80;
-    ToolHandle<SmoothedWZTagger>  m_WTag50;
-    ToolHandle<SmoothedWZTagger>  m_WTag80;
-    ToolHandle<SmoothedWZTagger>  m_ZTag50;
-    ToolHandle<SmoothedWZTagger>  m_ZTag80;
+    // do decorate the large-R jets with the boosted-tagging flags 
+    std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
     
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;

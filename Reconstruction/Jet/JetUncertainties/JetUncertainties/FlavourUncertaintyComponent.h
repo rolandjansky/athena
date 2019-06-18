@@ -54,6 +54,9 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const TString m_calibArea;
         const bool m_absEta;
         const TString m_secondUncName;
+
+        // Large-R flags to only apply to specific jet types (as other jet types handled by topology uncertainties)
+        std::vector<FatjetTruthLabel::TypeEnum> m_fatjetTruthLabels;
         
         UncertaintyHistogram* m_secondUncHist;
         FlavourRespType m_respType;

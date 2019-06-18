@@ -193,6 +193,25 @@ class TopConfig final {
   inline void setFakesMMDebug()
   {m_doFakesMMDebug = true;}
 
+  // Do fakes MM weight calculation using FakeBkgTools from IFF
+  inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
+
+  // Configurations for MM fake estimate using FakeBkgTools from IFF
+  inline std::string FakesMMConfigIFF() const {return m_FakesMMConfigIFF;}
+
+  // Debug mode for MM fake estimate using FakeBkgTools from IFF
+  inline bool FakesMMIFFDebug() const {return m_doFakesMMIFFDebug;}
+
+  // enables calculation of MM weights using FakeBkgTools from IFF
+  // only possible for data loose
+  // doing it on MC loose is explicitly forbidden
+  inline void setFakesMMWeightsCalculationIFF()
+  {m_doFakesMMWeightsIFF = true;}
+  inline void setFakesMMConfigIFF(const std::string& configIFF)
+  {m_FakesMMConfigIFF = configIFF;}
+  inline void setFakesMMIFFDebug()
+  {m_doFakesMMIFFDebug = true;} 
+
   // By default the top group does overlap removal on the tight lepton definitions
   // If you use this you are going off piste and need to report
   // your findings to the top reconstruction meeting
@@ -510,12 +529,10 @@ class TopConfig final {
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
   inline virtual void largeRJESUncertaintyConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESUncertaintyConfig = largeR_config;}}
   inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESJMSConfig = largeR_config;}}
-  inline virtual void largeRtoptaggingConfigFile(const std::string& topTagging_config) {if(!m_configFixed){m_largeRtoptaggingConfigFile = topTagging_config;}}
   inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
   inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
   inline virtual const std::string& largeRJESUncertaintyConfig() const {return m_largeRJESUncertaintyConfig;}
   inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
-  inline virtual const std::string& largeRtoptaggingConfigFile() const {return m_largeRtoptaggingConfigFile;}
 
   inline virtual void trackJetPtcut(const float pt)    {if(!m_configFixed){m_trackJetPtcut = pt;}}
   inline virtual void trackJetEtacut(const float eta)  {if(!m_configFixed){m_trackJetEtacut = eta;}}
@@ -752,6 +769,8 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
+  
+  const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const { return m_chosen_boostedJetTaggers;}
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
   const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
@@ -1029,6 +1048,13 @@ class TopConfig final {
   // Debug mode?
   bool m_doFakesMMDebug;
 
+  // Do fakes MM weights calculation? - only for data loose
+  bool m_doFakesMMWeightsIFF;
+  // Configurations for MM fake estimate
+  std::string m_FakesMMConfigIFF;
+  // Debug mode?
+  bool m_doFakesMMIFFDebug;
+
   // By default the top group does overlap removal on
   // the tight lepton definitions.
   // If you turn this to true you are going off piste and need to report
@@ -1193,7 +1219,6 @@ class TopConfig final {
   std::string m_largeRJESUncertaintyConfig; // large R jet JES uncertainty configuration file
   // see: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015PrerecLargeR
   std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
-  std::string m_largeRtoptaggingConfigFile;
 
   // Track jet configuration
   float m_trackJetPtcut; // track jet object selection pT cut
@@ -1305,6 +1330,9 @@ class TopConfig final {
   // Options for upgrade studies
   bool m_HLLHC;
   bool m_HLLHCFakes;
+
+  // Boosted jet taggers requested by user
+  std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };

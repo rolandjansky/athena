@@ -46,6 +46,8 @@ namespace FlavorTagDiscriminants {
     // TODO: these are all deprecated now.
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
+      {"iprnn_p(b|c|u|tau)"_r, EDMType::FLOAT},
+      {"smt_(b|c|u)"_r, EDMType::FLOAT},
       {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
       {"secondaryVtx_[mEa].*|(min_|max_|avg_)trk_.*"_r, EDMType::DOUBLE},
       {"(JetFitter_|secondaryVtx_|SV1_)[Nn].*"_r, EDMType::INT},
@@ -80,6 +82,7 @@ namespace FlavorTagDiscriminants {
       {".*TrackRelativeEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"iprnn_.*"_r, ""},
+      {"smt_.*"_r, "softMuon_isDefaults"},
       {"softMuon_.*"_r, "softMuon_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
@@ -112,7 +115,7 @@ namespace FlavorTagDiscriminants {
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
-      {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
+      {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
     // We have a number of special naming conventions to sort and
     // filter tracks. The track nodes should be named according to

@@ -1,8 +1,11 @@
 /* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+
 #include "CaloRec/CaloTopoClusterFromTowerCalibrator.h"
 #include "CaloRec/CaloTopoClusterFromTowerHelpers.h"
 
 #include "CaloEvent/CaloCellClusterWeights.h"
+
+#include "CaloGeoHelpers/CaloSampling.h"
 
 #include <numeric>
 
@@ -16,24 +19,30 @@ namespace {                                                                     
   }
 }
 
-std::string CaloTopoClusterFromTowerCalibrator::m_defaultKey = "NONE";
-
 CaloTopoClusterFromTowerCalibrator::CaloTopoClusterFromTowerCalibrator(const std::string& type,const std::string& name,const IInterface* pParent)
   : AthAlgTool(type,name,pParent)
-  , m_cellClusterWeightsKey(m_defaultKey)
+  , m_cellClusterWeightKey("CaloTopoClusterCellWeights")
   , m_orderByPt(false)
 { 
   declareInterface<CaloClusterCollectionProcessor>(this);
-  declareProperty("CellClusterWeightKey",m_cellClusterWeightsKey,"SG Key for CellClusterWeights (input)");
-  declareProperty("OrderClusterByPt",           m_orderByPt,            "Order clusters by calibrated Pt (input)");
+  declareProperty("CellClusterWeightKey",m_cellClusterWeightKey,"SG Key for CellClusterWeights (input)");
+  declareProperty("OrderClusterByPt",    m_orderByPt,           "Order clusters by calibrated Pt (input)");
 }
 
+StatusCode CaloTopoClusterFromTowerCalibrator::initialize()
+{ 
+  ATH_CHECK(m_cellClusterWeightKey.initialize()); 
+  return StatusCode::SUCCESS;
+}
 
 StatusCode CaloTopoClusterFromTowerCalibrator::execute(xAOD::CaloClusterContainer* pClusCont)
 {
   // retrieve weights
-  const CaloCellClusterWeights* pCellWeights = 0;
-  CHECK(evtStore()->retrieve(pCellWeights,CaloCellClusterWeights::key(m_cellClusterWeightsKey) )); // PA change
+  SG::ReadHandle<CaloCellClusterWeights> pCellWeights(m_cellClusterWeightKey);
+  if ( !pCellWeights.isValid() ) { 
+    ATH_MSG_ERROR( "Cannot allocate CaloCellClusterWeights with key <" << m_cellClusterWeightKey.key() << ">" );
+    return StatusCode::FAILURE;
+  }
 
   /////////////////////////
   // Calibrated clusters //
@@ -46,7 +55,15 @@ StatusCode CaloTopoClusterFromTowerCalibrator::execute(xAOD::CaloClusterContaine
       const CaloCellClusterWeights::weight_t& wght(pCellWeights->at(*fCell));      // Retrieve list of weights associated with this cluster. //
       double weight(fCell.weight());                                               // Get cell-in-tower weight.                              //
       weight *= accumulateWeight(wght);                                            // Combine with calibration weights.                      //
-      pClus->reweightCell(fCell,weight);                                           // Set new weight.                                        //
+      if ( weight == 0. ) { 
+	ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("[NO_LCW_REWEIGHT] Tower (%6.3f,%6.3f) cell [%6zu] weight = %6.3f [# LCW weights %zu geo %6.3f LCW %6.3f] SamplingID %2u Name \042%s\042",
+						pClus->eta(),pClus->phi(),(size_t)fCell->caloDDE()->calo_hash(),weight,wght.size(),fCell.weight(),weight/std::max(fCell.weight(),1e-08),
+						(unsigned int)fCell->caloDDE()->getSampling(),CaloSampling::getSamplingName(fCell->caloDDE()->getSampling()).c_str()) );
+      } else {
+	ATH_MSG_DEBUG(   CaloRec::Helpers::fmtMsg("[DO_LCW_REWEIGHT] Tower (%6.3f,%6.3f) cell [%6zu] weight = %6.3f [# LCW weights %zu geo %6.3f LCW %6.3f]",
+						  pClus->eta(),pClus->phi(),(size_t)fCell->caloDDE()->calo_hash(),weight,wght.size(),fCell.weight(),weight/fCell.weight()) );
+	pClus->reweightCell(fCell,weight);                                         // Set new weight.                                        //
+      }
     }                                                                              ////////////////////////////////////////////////////////////
     // preserve raw (EM) kinematics
     double rawE(pClus->e());                       ////////////////////////////////////////////////////////////////////////////////////////////

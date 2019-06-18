@@ -9,7 +9,9 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
+from DerivationFrameworkHI.HIAugmentationTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIRecExample.HIRecExampleFlags import jobproperties
 from HIJetRec.HIJetRecUtils import HasCollection
 
 #====================================================================
@@ -38,16 +40,21 @@ TrackThinningThreshold=4000 #in MeV
 #Thinning threshods for jets is applied only in data
 largeRThreshold=150
 
+#Book DF jets only if they are in xAOD or they are made in AODFix
+BookDFJetCollection = (jobproperties.HIRecExampleFlags.doHIAODFix or HasCollection("DFAntiKt10HI"))
+MainJetCollection = ""
+if BookDFJetCollection : MainJetCollection = "DF"
+
 expression=''
 if not HIDerivationFlags.isSimulation():
     #Trigger selection
     TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
     for i, key in enumerate(TriggerDict):
 	    #Event selection based on DF jets for HI
-	    expression = expression + '(' + key + ' && count(DFAntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
-	    expression = expression + '|| (' + key + ' && count(DFAntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
-	    if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): expression + '|| (' + key + ' && count(AntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
-	    if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): expression + '|| (' + key + ' && count(AntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    expression = expression + '(' + key + ' && count(' + MainJetCollection + 'AntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if jobproperties.HIRecExampleFlags.doHIAODFix:  expression = expression + '|| (' + key + ' && count(' + MainJetCollection + 'AntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets") and BookDFJetCollection: expression + '|| (' + key + ' && count(AntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets") and BookDFJetCollection: expression + '|| (' + key + ' && count(AntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
 	    #Event selection based also on non-DF jets for pp
 	    if not i == len(TriggerDict) - 1:
 		    expression = expression + ' || ' 
@@ -94,9 +101,10 @@ ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
 #Jet thinning only for PbPb data
-largeRcollections =  ["DFAntiKt8HIJets", "DFAntiKt10HIJets"]
-if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): largeRcollections+=["AntiKt8HIJets"]
-if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): largeRcollections+=["AntiKt10HIJets"]
+largeRcollections =  [MainJetCollection +"AntiKt10HIJets"]
+if jobproperties.HIRecExampleFlags.doHIAODFix: largeRcollections+= [MainJetCollection +"AntiKt8HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets") and BookDFJetCollection: largeRcollections+=["AntiKt8HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets") and BookDFJetCollection: largeRcollections+=["AntiKt10HIJets"]
 
 
 for collection in largeRcollections :
@@ -125,7 +133,8 @@ AllVarContent=["AntiKt4HITrackJets"]
 AllVarContent+=largeRcollections
 AllVarContent+=HIGlobalVars
 
-extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets","AntiKt2HIJets_Seed1"]
+extra_jets=[]
+if jobproperties.HIRecExampleFlags.doHIAODFix: extra_jets+=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets","AntiKt2HIJets_Seed1"]
 if HIDerivationFlags.isSimulation() : extra_jets+=["AntiKt8TruthJets","AntiKt10TruthJets"]
 for item in extra_jets:
     if not SlimmingHelper.AppendToDictionary.has_key(item):
@@ -150,7 +159,7 @@ ExtraVars=[]
 if not HIDerivationFlags.isSimulation(): ExtraVars+=makeHITriggerJetBasicBranchList(HIDerivationFlags.isPP,DerivationName)
 
 #Only basic kinematics for small jets
-for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets","AntiKt2HIJets_Seed1"] :  
+for collection in [MainJetCollection + "AntiKt2HIJets",MainJetCollection + "AntiKt4HIJets","AntiKt2HIJets_Seed1"] :  
     if "Seed" not in collection:    
         for j in HIJetBasicBranches: 
             ExtraVars.append(collection+'.'+j)
@@ -164,7 +173,10 @@ SlimmingHelper.ExtraVariables=ExtraVars
 for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)
 
 
-augToolList=[]
+###############Augmentation#############
+HIGlobalAugmentationTool = addHIGlobalAugmentationTool(DerivationName,3,500)
+augToolList=[HIGlobalAugmentationTool]
+
 #########Kernel#########
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("%sKernel" % DerivationName,

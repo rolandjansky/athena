@@ -38,6 +38,7 @@ JetManager::JetManager(std::string name,ToolHandle<Trig::TrigDecisionTool>& trig
   m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer() );
   std::unique_ptr< xAOD::AuxContainerBase > primaryVertex_Containers_Aux( new xAOD::AuxContainerBase() );
   m_primaryVertex_Containers->setStore( primaryVertex_Containers_Aux.release() );
+
 }
 JetManager::~JetManager() {}
 
@@ -282,7 +283,8 @@ StatusCode JetManager::retagOffline() {
     }
 
     // Tag jet
-    sc = (*m_bTagTool)->tagJet(*output_jet, output_btag, primaryVertex);
+    std::string jetName = this->jetContainerName();
+    sc = (*m_bTagTool)->tagJet(*output_jet, output_btag, jetName, primaryVertex);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "#BTAG# Failed in taggers call" );
       return sc;

@@ -46,29 +46,27 @@ namespace CP {
 
     public:
 
-      JetQGTagger( const std::string& name);
+      JetQGTagger( const std::string& name); 
+      virtual ~JetQGTagger(); // destructor
 
-
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
+      virtual StatusCode initialize() override;
 
       // Implement IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const { return tag(jet, 0); }
-
-      // Implement IJetQGTagger interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const;
+      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;
+      virtual Root::TAccept tag(const xAOD::Jet& jet) const override { return tag(jet, nullptr); }
 
       // functions for systematic variations
-      bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
-      SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}
-      SystematicSet recommendedSystematics() const {return SystematicsTool::recommendedSystematics();}
-      SystematicCode applySystematicVariation(const SystematicSet& set) {return SystematicsTool::applySystematicVariation(set);}
-      SystematicCode sysApplySystematicVariation(const SystematicSet&);
+      virtual bool isAffectedBySystematic(const SystematicVariation& var) const override {return SystematicsTool::isAffectedBySystematic(var);}
+      virtual SystematicSet affectingSystematics() const override {return SystematicsTool::affectingSystematics();}
+      virtual SystematicSet recommendedSystematics() const override {return SystematicsTool::recommendedSystematics();}
+      virtual SystematicCode applySystematicVariation(const SystematicSet& set) override {return SystematicsTool::applySystematicVariation(set);}
+      virtual SystematicCode sysApplySystematicVariation(const SystematicSet&) override;
 
     private:
       JetQGTagger();
       StatusCode getNTrack(const xAOD::Jet * jet, const xAOD::Vertex * pv, int &ntracks) const ;
       StatusCode getNTrackWeight(const xAOD::Jet * jet, double &weight) const ;
+      StatusCode simplegetNTrackWeight(const xAOD::Jet * jet, double &weight) const ;
       // Check a status code and throw an error if it's a failure
       // JBurr: The best solution I could think of quickly to register a failure in a function returning something else
       void checkAndThrow(StatusCode sc, const std::string& message = "") const;
@@ -95,6 +93,11 @@ namespace CP {
       TH2D* m_pdf_hgluon_up;
       TH2D* m_pdf_hgluon_down;
 
+      TH2D* m_trackeff_hquark;
+      TH2D* m_trackeff_hgluon;
+      TH2D* m_fake_hquark;
+      TH2D* m_fake_hgluon;
+
       StatusCode loadHist(TH2D *&hist,std::string filename,std::string histname);
 
       std::string m_taggername;
@@ -103,6 +106,8 @@ namespace CP {
       std::string m_expfile;
       std::string m_mefile;
       std::string m_pdffile;
+      std::string m_trackefffile;
+      std::string m_fakefile;
       std::string m_weight_decoration_name;
       std::string m_tagger_decoration_name;
 
@@ -111,6 +116,7 @@ namespace CP {
       double m_slope;
       double m_intercept;
       std::string m_cuttype;
+      int m_mode;
 
       asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
       asg::AnaToolHandle<InDet::IInDetTrackTruthFilterTool> m_trkTruthFilterTool;

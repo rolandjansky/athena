@@ -10,8 +10,10 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
+from DerivationFrameworkHI.HIAugmentationTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 from HIJetRec.HIJetRecUtils import HasCollection
+from HIRecExample.HIRecExampleFlags import jobproperties
 
 #====================================================================
 #Read and set conditions
@@ -37,15 +39,20 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HION7Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=900 #in MeV
 
+#Book DF jets only if they are in xAOD or they are made in AODFix
+BookDFJetCollection = (jobproperties.HIRecExampleFlags.doHIAODFix or HasCollection("DFAntiKt4HI"))
+MainJetCollection = ""
+if BookDFJetCollection : MainJetCollection = "DF"
+
 #Trigger selection
 expression=''
 if not HIDerivationFlags.isSimulation():    
     TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
     for i, key in enumerate(TriggerDict):
 	    #Event selection based on DF jets for HI
-	    expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    expression = expression + '(' + key + ' && count(' + MainJetCollection + 'AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    #Event selection based also on non-DF jets for pp
-	    if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP and BookDFJetCollection: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    if not i == len(TriggerDict) - 1:
 		    expression = expression + ' || ' 
 	    
@@ -53,7 +60,7 @@ if not HIDerivationFlags.isSimulation():
     print expression
     print "=============================================="
 
-#Thinning threshods for jets is applied only in data
+#Thinning threshods dictionary for jets is applied only in data
 JetThinningThreshold = {'AntiKt2HIJets': 20, 'AntiKt4HIJets': 20,'DFAntiKt2HIJets': 20, 'DFAntiKt4HIJets': 20} #in GeV
 
 
@@ -100,10 +107,10 @@ ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
 #Jet collections to be stored
-CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
-if HIDerivationFlags.isPP() :CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1'] 
-BtaggedCollectionList=['BTagging_DFAntiKt4HI']
-if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): BtaggedCollectionList.append('BTagging_AntiKt4HI')
+CollectionList=[MainJetCollection+'AntiKt2HIJets',MainJetCollection+'AntiKt4HIJets']
+if HIDerivationFlags.isPP() and BookDFJetCollection :CollectionList.extend(['AntiKt2HIJets','AntiKt4HIJets']) 
+BtaggedCollectionList=['BTagging_'+ MainJetCollection +'AntiKt4HI']
+if HIDerivationFlags.isPP() and ( HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix): BtaggedCollectionList.append('BTagging_AntiKt4HI')
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
@@ -123,7 +130,8 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(truth_thinning_tool)
 
 #########Slimming#########
-extra_Bjets=['BTagging_DFAntiKt4HI']
+extra_Bjets=[]
+if jobproperties.HIRecExampleFlags.doHIAODFix: extra_Bjets=['BTagging_DFAntiKt4HI']
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SlimmingHelper = SlimmingHelper("%sSlimmingHelper" % DerivationName)
@@ -145,8 +153,8 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Photons",
                                     "PrimaryVertices"]
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets","BTagging_DFAntiKt4HI"]
-if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): AllVarContent+=["BTagging_AntiKt4HI"]
+AllVarContent=["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI"]
+if HIDerivationFlags.isPP() and (HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix) : AllVarContent+=["BTagging_AntiKt4HI"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
     AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles"]
@@ -169,8 +177,10 @@ ExtraVars.append("InDetTrackParticles.truthMatchProbability")
 SlimmingHelper.ExtraVariables=ExtraVars
 for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)
 
+###############Augmentation#############
+HIGlobalAugmentationTool = addHIGlobalAugmentationTool(DerivationName,3,500)
+augToolList=[HIGlobalAugmentationTool]
 
-augToolList=[]
 #########Kernel#########
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("%sKernel" % DerivationName,

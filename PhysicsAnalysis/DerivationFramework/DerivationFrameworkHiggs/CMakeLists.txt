@@ -34,7 +34,9 @@ atlas_depends_on_subdirs(
    Tools/PathResolver
    PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-   Reconstruction/egamma/egammaInterfaces)
+   PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools
+   Reconstruction/egamma/egammaInterfaces
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools)
 
 # External dependencies:
 find_package( CLHEP )
@@ -47,8 +49,8 @@ atlas_add_component( DerivationFrameworkHiggs
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
    xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth FourMomUtils TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
-   GaudiKernel VxVertex xAODTrigger PhotonVertexSelection AthContainers
-   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib )
+   GaudiKernel VxVertex xAODTrigger PhotonVertexSelection GammaORToolsLib AthContainers
+   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -76,7 +76,7 @@ for alg in pileupSequence:
 
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequenceMedium = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
+muonSequenceMedium = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, shallowViewOutput = False,
                                                workingPoint = 'Medium.Iso', postfix = 'medium' )
 muonSequenceMedium.configure( inputName = 'Muons',
                               outputName = 'AnalysisMuonsMedium_%SYS%' )
@@ -87,7 +87,7 @@ for alg in muonSequenceMedium:
     job.algsAdd( alg )
     pass
 
-muonSequenceTight = makeMuonAnalysisSequence( dataType, deepCopyOutput = True,
+muonSequenceTight = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, shallowViewOutput = False,
                                                workingPoint = 'Tight.Iso', postfix = 'tight' )
 muonSequenceTight.removeStage ("calibration")
 muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
@@ -100,16 +100,27 @@ for alg in muonSequenceTight:
     job.algsAdd( alg )
     pass
 
-# Add an ntuple dumper algorithm:
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
+# Add ntuple dumper algorithms:
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'muons'
+job.algsAdd( treeMaker )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerEventInfo' )
 ntupleMaker.TreeName = 'muons'
 ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
-                         'EventInfo.eventNumber   -> eventNumber',
-                         'AnalysisMuons_NOSYS.eta -> mu_eta',
+                         'EventInfo.eventNumber   -> eventNumber', ]
+ntupleMaker.systematicsRegex = '(^$)'
+job.algsAdd( ntupleMaker )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
+ntupleMaker.TreeName = 'muons'
+ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                          'AnalysisMuons_NOSYS.phi -> mu_phi',
                          'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
 ntupleMaker.systematicsRegex = '(^MUON_.*)'
 job.algsAdd( ntupleMaker )
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'muons'
+job.algsAdd( treeFiller )
 
 # Set up a mini-xAOD writer algorithm:
 xaodWriter = AnaAlgorithmConfig( 'CP::xAODWriterAlg/xAODWriter' )

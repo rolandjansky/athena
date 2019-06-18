@@ -110,6 +110,7 @@
 + ForwardDetectors/ALFA/ALFA_GeoModel
 + ForwardDetectors/ForwardRec
 + ForwardDetectors/ForwardSimulation/ForwardRegionGeoModel
++ ForwardDetectors/ForwardSimulation/ForwardRegionProperties
 + ForwardDetectors/LUCID/LUCID_GeoModel
 + ForwardDetectors/ZDC/ZDC_GeoM
 

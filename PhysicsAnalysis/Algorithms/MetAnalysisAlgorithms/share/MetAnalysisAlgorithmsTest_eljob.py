@@ -117,7 +117,10 @@ for alg in metSequence:
     pass
 
 # Write the freshly produced MET object(s) to an output file:
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
+treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+treeMaker.TreeName = 'met'
+job.algsAdd( treeMaker )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'met'
 ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                          'EventInfo.eventNumber   -> eventNumber',
@@ -128,6 +131,9 @@ ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
 ntupleMaker.systematicsRegex = '.*'
 job.algsAdd( ntupleMaker )
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
+treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+treeFiller.TreeName = 'met'
+job.algsAdd( treeFiller )
 
 # Find the right output directory:                                                                                      
 submitDir = options.submission_dir

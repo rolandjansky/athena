@@ -2,6 +2,6 @@
 # File specifying the location of HEPUtils to use.
 #
 
-set( HEPUTILS_VERSION 1.1.0 )
-set( HEPUTILS_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/heputils/${HEPUTILS_VERSION}/${LCG_PLATFORM} )
+set( HEPUTILS_LCGVERSION 1.1.0 )
+set( HEPUTILS_LCGROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/heputils/${HEPUTILS_LCGVERSION}/${LCG_PLATFORM} )

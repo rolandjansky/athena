@@ -46,6 +46,13 @@ namespace CP
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
+
+    Root::TAccept blankAccept = m_isolationTool->getObjTAccept();
+    // Just in case this isn't initially set up as a failure clear it this one
+    // time. This only calls reset on the bitset
+    blankAccept.clear();
+    m_setOnFail = selectionFromAccept(blankAccept);
+
     return StatusCode::SUCCESS;
   }
 
@@ -63,6 +70,8 @@ namespace CP
           {
             m_isolationAccessor->setBits
               (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+          } else {
+            m_isolationAccessor->setBits (*muon, m_setOnFail);
           }
         }
         return StatusCode::SUCCESS;

@@ -5,7 +5,7 @@
 
 # Set the version of tdaq-common to use:
 set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" )
-set( TDAQ-COMMON_ROOT "@TDAQ-COMMON_ROOT@" )
+set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" )
 
 # Make sure that an RPM dependency is set up for the correct version of
 # Gaudi:

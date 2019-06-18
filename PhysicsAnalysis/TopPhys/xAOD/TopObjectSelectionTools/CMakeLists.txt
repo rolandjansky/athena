@@ -30,7 +30,8 @@ atlas_depends_on_subdirs( PUBLIC
                           JetReclustering
                           BoostedJetTaggers	
 			  MuonAnalysisInterfaces
-			  FTagAnalysisInterfaces )
+			  FTagAnalysisInterfaces
+			  JetAnalysisInterfaces)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -73,6 +74,7 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   BoostedJetTaggersLib
 				  MuonAnalysisInterfacesLib
 				  FTagAnalysisInterfacesLib
+				  JetAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}		  
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

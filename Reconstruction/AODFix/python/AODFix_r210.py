@@ -77,6 +77,16 @@ class AODFix_r210(AODFix_base):
                 self.elPflowIso_postSystemRec(topSequence)
                 pass
 
+            # this should run whenever btagging requires some
+            # information before the main b-tagging sequence, since
+            # this generally means that additional tracking
+            # infromation is needed.
+            from BTagging.JetCollectionToTrainingMaps import (
+                preTagDL2JetToTrainingMap)
+            from BTagging.BTaggingFlags import BTaggingFlags
+            if preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
+                self.btagTracking_postSystemRec(topSequence)
+
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
@@ -203,6 +213,7 @@ class AODFix_r210(AODFix_base):
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = containers )
 
+
     def egammaClusLinks_postSystemRec(self, topSequence):
         """This fixes the links to constituent clusters in egammaClusters
         JIRA: https://its.cern.ch/jira/browse/ATLASG-1460
@@ -210,6 +221,22 @@ class AODFix_r210(AODFix_base):
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_egammaClusLinks", 
                                               Containers = ["egammaClustersAux."] )
+
+    def btagTracking_postSystemRec(self, topSequence):
+        """
+        add the track augmenters before we add the main b-tagging tool
+        """
+        from AthenaCommon.AppMgr import ToolSvc
+        from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
+            Trk__TrackToVertexIPEstimator as IPEstimator)
+        from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
+        ipetool = IPEstimator(name="AODFixBTagIPETool")
+        ToolSvc += ipetool
+        topSequence += Analysis__BTagTrackAugmenterAlg(
+            name='AODFixBTagTrackAugmenter',
+            prefix='btagIp_',
+            TrackToVertexIPEstimator = ipetool)
+
 
     def btagging_postSystemRec(self, topSequence):
         """

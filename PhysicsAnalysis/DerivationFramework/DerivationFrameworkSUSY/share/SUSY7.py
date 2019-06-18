@@ -104,7 +104,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 SUSY7VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY7VertexTPThinningTool",
 									 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
-									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 VertexKey		 = "SoftBVrtClusterTool_Tight_Vertices",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY7VertexTPThinningTool
 thinningTools.append(SUSY7VertexTPThinningTool)
@@ -236,7 +236,7 @@ electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) &
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
 
 #btagging selection 
-softb='SoftBVrtClusterTool_Vertices.x'
+softb='SoftBVrtClusterTool_Tight_Vertices.x'
 bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
 bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
 bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
@@ -357,7 +357,7 @@ from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
 SeqSUSY7 += CfgMgr.BTagVertexAugmenter()
 
-BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+BJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
 ToolSvc += BJetSVFinderTool
 BJetSVFinderTool.ConeForTag = 0.6
 
@@ -365,8 +365,10 @@ softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
                            OutputLevel=INFO, #DEBUG                                                                                          
                            )
 
+softTagAlg.SVFinderName = 'SoftBJetSVFinder'
 softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
 softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlg.OperatingPoint = 'Tight'
 
 SeqSUSY7 += softTagAlg
 
@@ -417,7 +419,7 @@ SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 				      "MuonClusterCollection.eta_sampl.phi_sampl",
               "AntiKt4EMPFlowJets.btagging.btaggingLink.TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTruthAssociationLink.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.GhostAntiKt2TrackJet.JvtJvfcorr.SumPtTrkPt1000.TrackWidthPt500.NegativeE",
 				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
-                                      "SoftBVrtClusterTool_Vertices",
+                                      "SoftBVrtClusterTool_Tight_Vertices",
 ]
 
 SUSY7SlimmingHelper.IncludeMuonTriggerContent = True
@@ -433,8 +435,8 @@ SUSY7SlimmingHelper.IncludeEtMissTriggerContent = True
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 StaticContent = []
-StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
-StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
 
 SUSY7SlimmingHelper.StaticContent = StaticContent
 

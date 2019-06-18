@@ -27,6 +27,7 @@
 #include <JetMomentTools/JetVertexTaggerTool.h>
 #include <JetJvtEfficiency/JetJvtEfficiency.h>
 #include <AthContainers/ConstDataVector.h>
+#include <JetMomentTools/JetForwardJvtTool.h>
 
 static const float GeV = 1000.;
 static const float TeV = 1e6;
@@ -73,7 +74,6 @@ namespace ana
       m_resolution_tool ("resolution", this),
       m_smearing_tool ("smearing", this),
       m_jvt_tool ("jvt", this),
-      m_jvtEffTool("jvt_eff", this),
       m_bsel_tool ("btag", this),
       m_bsel_OR_tool ("btag_OR", this),
       m_cleaning_tool ("cleaning", this)
@@ -207,16 +207,6 @@ namespace ana
       ATH_CHECK( m_bsel_tool.setProperty("FlvTagCutDefinitionsFileName", bTagCalibFile) );
       ATH_CHECK( m_bsel_tool.initialize() );
 
-      std::vector< int > OPs = {85, 77, 70, 60};
-      for( std::vector< int >::iterator op_it = OPs.begin(); op_it!=OPs.end(); ++op_it ) {
-        ATH_CHECK( ASG_MAKE_ANA_TOOL(m_bsel_tools[ *op_it ], BTaggingSelectionTool) );
-        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("TaggerName", m_btagger) );
-        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("OperatingPoint", "FixedCutBEff_"+std::to_string(*op_it)) );
-        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("JetAuthor", m_jetContainer) );
-        ATH_CHECK( m_bsel_tools[ *op_it ].setProperty("FlvTagCutDefinitionsFileName", bTagCalibFile) );
-        ATH_CHECK( m_bsel_tools[ *op_it ].initialize() );
-      }
-
       ATH_CHECK( ASG_MAKE_ANA_TOOL(m_bsel_OR_tool, BTaggingSelectionTool) );
       ATH_CHECK( m_bsel_OR_tool.setProperty("TaggerName", m_btagger) );
       ATH_CHECK( m_bsel_OR_tool.setProperty("OperatingPoint", m_btagWP_OR) );
@@ -273,12 +263,6 @@ namespace ana
       // B-Jet criteria
       bool isbjet = ( inBTagKinRange && jvt_pass && m_bsel_tool->accept(jet) );
       jet.auxdecor<char>("bjet") = isbjet;
-
-      for( auto pair = m_bsel_tools.rbegin(); pair != m_bsel_tools.rend(); ++pair ) {
-        if( pair->second->accept(jet) && inBTagKinRange) {
-          jet.auxdecor< int >( "LowestBTagOP" ) = pair->first;
-        }
-      }
 
       // Apply the dedicated bjet decoration for overlap removal as well.
       // Working point can be different from standard one.
@@ -352,7 +336,9 @@ namespace ana
   JetToolWeight (const std::string& name)
     : AsgTool (name), AnaToolWeight<xAOD::JetContainer> (name),
       m_btagging_eff_tool ("btagging_eff", this),
+      m_fjvt_tool ("fjvt", this),
       m_jvtEffTool("jvt_eff", this),
+      m_fjvtEffTool("fjvt_eff", this),
       m_anaSelect ("ana_select"),
       m_anaWeight ("ana_weight")
   {
@@ -408,6 +394,17 @@ namespace ana
     ATH_CHECK( m_jvtEffTool.initialize() );
     registerTool (&*m_jvtEffTool);
 
+    ATH_CHECK( ASG_MAKE_ANA_TOOL(m_fjvt_tool, JetForwardJvtTool) );
+    ATH_CHECK( m_fjvt_tool.initialize() );
+
+    // fJVT eff. SF
+    const std::string fjvtEffFile = "JetJvtEfficiency/Moriond2018/fJvtSFFile.root";
+    ATH_CHECK( ASG_MAKE_ANA_TOOL(m_fjvtEffTool, CP::JetJvtEfficiency) );
+    ATH_CHECK( m_fjvtEffTool.setProperty("SFFile", fjvtEffFile) );
+    //ATH_CHECK( m_fjvtEffTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
+    ATH_CHECK( m_fjvtEffTool.initialize() );
+    registerTool (&*m_fjvtEffTool);
+
     return StatusCode::SUCCESS;
   }
 
@@ -415,6 +412,8 @@ namespace ana
   StatusCode JetToolWeight ::
   execute (IEventObjects& objects)
   {
+
+    m_fjvt_tool->modify(*objects.jets());
 
     ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
     for (auto object : *objects.jets())
@@ -440,8 +439,9 @@ namespace ana
     }
 
     float totalSF=1.;
-
+    float fjvtSF = 1.;
     CP::CorrectionCode ret = m_jvtEffTool->applyAllEfficiencyScaleFactor( jvtjets.asDataVector() , totalSF );
+    CP::CorrectionCode ret_fjvt = m_fjvtEffTool->applyAllEfficiencyScaleFactor( jvtjets.asDataVector() , fjvtSF );
 
     switch (ret) {
     case CP::CorrectionCode::Error:
@@ -451,7 +451,18 @@ namespace ana
     default:
       ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
+
+    switch (ret_fjvt) {
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::fJVT_SF" );
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::fJVT_SF" );
+    default:
+      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::fJVT_SF with value " << totalSF );
+    }
+
     objects.eventinfo()->auxdata<float>("JVT_SF") = totalSF;
+    objects.eventinfo()->auxdata<float>("fJVT_SF") = fjvtSF;
 
 
     return StatusCode::SUCCESS;

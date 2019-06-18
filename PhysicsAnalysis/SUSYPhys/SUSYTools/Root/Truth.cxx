@@ -135,7 +135,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!truthP || truthP->empty()) {
     return false;
   }
-  for (const auto& tp : *truthP) {
+  for (const xAOD::TruthParticle* tp : *truthP) {
 
     //check ifSUSY particle
     if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
@@ -175,7 +175,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!firstsp && !secondsp) return true; // should find none or two
 
   if (firstsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
         firstsp = tp;
         break;
@@ -184,7 +184,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   }
 
   if (secondsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
         secondsp = tp;
         break;

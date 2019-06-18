@@ -12,6 +12,7 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -54,13 +55,15 @@ namespace CP
     SelectionReadHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
-    /// \brief the decoration for the scale factor
+    /// \brief the decoration for reading the scale factor
   private:
-    std::string m_scaleFactorDecoration;
+    SysDecorationHandle<float> m_scaleFactorInputDecoration {
+      this, "scaleFactorInputDecoration", "", "the decoration for the input efficiency scale factor"};
 
-    /// \brief the accessor for \ref m_scaleFactor
+    /// \brief the decoration for writing the scale factor
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
+    SysDecorationHandle<float> m_scaleFactorOutputDecoration {
+      this, "scaleFactorOutputDecoration", "", "the decoration for the output efficiency scale factor"};
   };
 }
 

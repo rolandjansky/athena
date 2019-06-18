@@ -117,6 +117,9 @@ DoLoose Data
 UseAodMetaData True
 #IsAFII False
 
+### Boosted jet taggers configuration
+BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
+
 ### B-tagging configuration
 BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60 MV2c10:Continuous DL1:Continuous
 # Example of how to remove systematics from b-tag EV

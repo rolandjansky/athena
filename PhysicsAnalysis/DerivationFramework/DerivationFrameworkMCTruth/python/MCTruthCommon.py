@@ -223,6 +223,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthMuonTool,DFCommonTruthElectronTool,
                               DFCommonTruthPhotonToolSim,
                               DFCommonTruthNeutrinoTool,
+                              DFCommonTruthBottomTool,
                               DFCommonTruthTopTool,
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
@@ -290,7 +291,7 @@ def addStandardTruthContents(kernel=None,
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
     # Add back the navigation contect for the collections we want
-    addTruthCollectionNavigationDecorations(kernel,["TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"])
+    addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
 
 def addParentAndDownstreamParticles(kernel=None,
                                     generations=1,
@@ -345,6 +346,13 @@ def addBosonsAndDownstreamParticles(kernel=None, generations=1,
                                            prefix='Boson',
                                            rejectHadronChildren=rejectHadronChildren) 
 
+
+def addBottomQuarkAndDownstreamParticles(kernel=None, generations=1, rejectHadronChildren=False):
+   return addParentAndDownstreamParticles(kernel=kernel,
+                                          generations=generations,
+                                          parents=[5],
+                                          prefix='BottomQuark',
+                                          rejectHadronChildren=rejectHadronChildren)
 
 def addTopQuarkAndDownstreamParticles(kernel=None, generations=1,
                                       rejectHadronChildren=False):

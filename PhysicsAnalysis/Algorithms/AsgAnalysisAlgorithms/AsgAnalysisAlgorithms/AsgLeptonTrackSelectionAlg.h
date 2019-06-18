@@ -52,6 +52,10 @@ namespace CP
   private:
     float m_maxD0Significance {0};
     float m_maxDeltaZ0SinTheta {0};
+    int m_nMinPixelHits{-1};
+    int m_nMaxPixelHits{-1};
+    int m_nMinSCTHits{-1};
+    int m_nMaxSCTHits{-1};
     std::string m_selectionDecoration {"trackSelection"};
     std::string m_eventInfo {"EventInfo"};
     std::string m_primaryVertices {"PrimaryVertices"};
