@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,8 +29,6 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
   AthAlgTool(t, n, p),
   m_muonMgr(0),
   m_decoder("Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout", this),
-  //m_rdoContainer(0),
-  m_activeStore(0),
   m_cabling(0),
   m_robDataProvider("ROBDataProviderSvc",n) 
 {
@@ -78,90 +76,7 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
     ATH_MSG_INFO( "Retrieved service " << m_robDataProvider );
   }
 
-  // Check if EventSelector has the ByteStreamCnvSvc
-  bool has_bytestream = false;
-  IJobOptionsSvc* jobOptionsSvc;
-  sc = service("JobOptionsSvc", jobOptionsSvc, false);
-  if(sc.isFailure()) {
-    ATH_MSG_DEBUG( "Could not find JobOptionsSvc" );
-    jobOptionsSvc = 0;
-  } else {
-    IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-    if(svc != 0) {
-      ATH_MSG_INFO( " Tool = " << name() 
-		    << " is connected to JobOptionsSvc Service = "
-		    << svc->name() );
-    } else {
-      return StatusCode::FAILURE;
-    }
-  }
-  
-  IJobOptionsSvc* TrigConfSvc;
-  sc = service("TrigConf::HLTJobOptionsSvc", TrigConfSvc, false);
-  if(sc.isFailure()) {
-    ATH_MSG_DEBUG( "Could not find TrigConf::HLTJobOptionsSvc" );
-    TrigConfSvc = 0;
-  } else {
-    IService* svc = dynamic_cast<IService*>(TrigConfSvc);
-    if(svc != 0) {
-      ATH_MSG_INFO( " Tool = " << name() 
-		    << " is connected to JobOptionsSvc Service = "
-		    << svc->name() );
-    } else {
-      return StatusCode::FAILURE;
-    }
-  }
-    
-  if(jobOptionsSvc==0 && TrigConfSvc==0) {
-    ATH_MSG_FATAL( "Bad job configuration" );
-    return StatusCode::FAILURE;  
-  }
-    
-  const std::vector<const Property*>* byteStreamNavProps
-    = (jobOptionsSvc)?  jobOptionsSvc->getProperties("ByteStreamNavigationProviderSvc") : 0;
- 
-  
-  const std::vector<const Property*>* dataFlowProps 
-    = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
-
-  const std::vector<const Property*>* eventSelProps 
-    = (jobOptionsSvc)? jobOptionsSvc->getProperties("EventSelector") :
-    TrigConfSvc->getProperties("EventSelector");	
-    
-    
-  if(dataFlowProps != 0) has_bytestream = true;
-
-  if(byteStreamNavProps != 0) {
-    has_bytestream = true;
-  } else if(eventSelProps != 0) {
-    std::vector<const Property*>::const_iterator cur   = eventSelProps->begin();
-    std::vector<const Property*>::const_iterator cur_e = eventSelProps->end();
-    for(; cur!=cur_e; cur++) {
-      if((*cur)->name()=="ByteStreamInputSvc") has_bytestream = true;
-    }
-  } else {
-    has_bytestream = true;
-  }
-    
-  // register the container only when the imput from ByteStream is set up     
-  m_activeStore->setStore( &*evtStore() );
-  m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "TGCRDO") && !m_rdoContainerKey.key().empty();
-
-  if (!m_useContainer) {
-    ATH_MSG_DEBUG( "TGC RDO container not registered." );
-    if (!has_bytestream){
-      ATH_MSG_DEBUG( "ByteStream conversion service not found." );
-    } 
-    if (m_rdoContainerKey.key().empty()){
-      ATH_MSG_DEBUG( "The RDO key is empty." );
-    } else {
-      if (m_rdoContainerKey.key() != "TGCRDO"){
-        ATH_MSG_DEBUG( "The RDO key isn't TGCRDO but " << m_rdoContainerKey.key() );
-      }
-    }
-  } else {
-    m_maxhashtoUse = m_muonMgr->tgcIdHelper()->module_hash_max();
-  }
+  m_maxhashtoUse = m_muonMgr->tgcIdHelper()->module_hash_max();  
 
   ATH_CHECK(m_rdoContainerKey.initialize());
 
@@ -182,29 +97,13 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
 
 StatusCode Muon::TGC_RawDataProviderTool::finalize()
 {
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================
 
 StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs) 
 {    
-  // retrieve the container through the MuonRdoContainerManager becasue
-  // if the MuonByteStream CNV has to be used, the container must have been
-  // registered there!
-  m_activeStore->setStore( &*evtStore() );
-      
-  if (m_useContainer==false) {
-    ATH_MSG_DEBUG( "Container " << m_rdoContainerKey 
-		   << " for bytestream conversion not available." );
-    ATH_MSG_DEBUG( "Try retrieving it from the Store" );
-    
-    return StatusCode::SUCCESS; // Maybe it should be false to stop the job
-    // because the convert method should not
-    // have been called .... but this depends
-    // on the user experience
-  }
 
   SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey); 
   if (rdoContainerHandle.isPresent()) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "MuonRDO/TgcRdo_Cache.h"
 
 class TgcRdoContainer;
-class ActiveStoreSvc;
 class IROBDataProviderSvc;
 class ITGCcablingSvc;
 
@@ -73,11 +72,8 @@ namespace Muon
       SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{ this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
       // TGC container cache key
       SG::UpdateHandleKey<TgcRdo_Cache> m_rdoContainerCacheKey ;
-      bool 		m_useContainer;	//MT
       unsigned int 	m_maxhashtoUse;	//MT
 
-      /** Active Store Service */ 
-      ActiveStoreSvc*                     m_activeStore;
       /** ID converter */
       TGC_Hid2RESrcID                     m_hid2re;
       /** TGC cabling Svc */
