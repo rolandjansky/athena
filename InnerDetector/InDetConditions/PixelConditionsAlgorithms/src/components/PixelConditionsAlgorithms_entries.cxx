@@ -8,6 +8,7 @@
 #include "../SpecialPixelMapCondAlg.h"
 #include "../PixelOfflineCalibCondAlg.h"
 #include "../PixelAlignCondAlg.h"
+#include "../PixelDetectorElementCondAlg.h"
 
 DECLARE_COMPONENT( PixelDCSCondHVAlg )
 DECLARE_COMPONENT( PixelDCSCondTempAlg )
@@ -19,3 +20,4 @@ DECLARE_COMPONENT( PixelSiliconConditionsTestAlg )
 DECLARE_COMPONENT( SpecialPixelMapCondAlg )
 DECLARE_COMPONENT( PixelOfflineCalibCondAlg )
 DECLARE_COMPONENT( PixelAlignCondAlg )
+DECLARE_COMPONENT( PixelDetectorElementCondAlg )
