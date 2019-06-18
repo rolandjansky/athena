@@ -56,6 +56,22 @@ namespace CP
     for (const std::string &chain : m_trigListAll)
     {
       m_prescaleAccessors.emplace_back(m_prescaleDecoration + "_" + chain);
+
+      // Generate helper functions
+      if (std::find(m_trigList.begin(), m_trigList.end(), chain) != m_trigList.end())
+      {
+        m_prescaleFunctions.emplace_back([this](const xAOD::EventInfo *evtInfo, const std::string &trigger)
+        {
+          return m_pileupReweightingTool->getDataWeight (*evtInfo, trigger, true);
+        });
+      }
+      else
+      {
+        m_prescaleFunctions.emplace_back([](const xAOD::EventInfo *, const std::string &)
+        {
+          return invalidTriggerPrescale();
+        });
+      }
     }
 
     ANA_CHECK (m_pileupReweightingTool.retrieve());
@@ -73,14 +89,7 @@ namespace CP
 
     for (size_t i = 0; i < m_trigListAll.size(); i++)
     {
-      if (std::find(m_trigList.begin(), m_trigList.end(), m_trigListAll[i]) != m_trigList.end())
-      {
-        (m_prescaleAccessors[i])(*evtInfo) = m_pileupReweightingTool->getDataWeight (*evtInfo, m_trigListAll[i], true);
-      }
-      else
-      {
-        (m_prescaleAccessors[i])(*evtInfo) = -1;
-      }
+      (m_prescaleAccessors[i]) (*evtInfo) = (m_prescaleFunctions[i]) (evtInfo, m_trigListAll[i]);
     }
 
     return StatusCode::SUCCESS;
