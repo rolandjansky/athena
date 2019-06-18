@@ -87,5 +87,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     ATH_CHECK( tool->decide( toolInput ) );
   }
 
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  
   return StatusCode::SUCCESS;
 }
