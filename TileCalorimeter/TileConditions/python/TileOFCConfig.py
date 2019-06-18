@@ -113,6 +113,9 @@ def TileCondToolOfcCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
+
     from TileConditions.TilePulseShapeConfig import TileCondToolPulseShapeCfg
     pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
 
