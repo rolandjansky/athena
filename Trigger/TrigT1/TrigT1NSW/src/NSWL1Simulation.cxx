@@ -16,8 +16,6 @@
 // Local includes
 #include "TrigT1NSW/NSWL1Simulation.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
-
-
 #include <vector>
 
 namespace NSWL1 {
@@ -45,7 +43,6 @@ namespace NSWL1 {
     declareProperty( "DoNtuple",     m_doNtuple     = false, "Create an ntuple for data analysis" );
     declareProperty( "DoMM",         m_doMM         = false, "Run data analysis for MM" );
     declareProperty( "DosTGC",       m_dosTGC       = true, "Run data analysis for sTGCs" );
-    declareProperty( "DoPadTrigger", m_doPadTrigger = true, "Run the pad trigger simulation" );
     
     // declare monitoring tools
     declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
@@ -57,7 +54,7 @@ namespace NSWL1 {
     declareProperty( "StripSegmentTool",m_strip_segment,  "Tool that simulates the Segment finding");
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
-
+    declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
 
     // declare monitoring variables
     declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
@@ -70,18 +67,11 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::initialize() {
     ATH_MSG_INFO( "initialize " << name() );
-    StatusCode sc;
-
-    
+    ATH_CHECK( m_trigRdoContainer.initialize() );    
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
-      sc = service("THistSvc", tHistSvc);
-      if(sc.isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        return sc;
-      }
-
+      ATH_CHECK(service("THistSvc", tHistSvc));
       char ntuple_name[40];
       memset(ntuple_name,'\0',40*sizeof(char));
       sprintf(ntuple_name,"%sTree",name().c_str());
@@ -91,79 +81,27 @@ namespace NSWL1 {
       m_tree->Branch("runNumber",   &m_current_run, "runNumber/i");
       m_tree->Branch("eventNumber", &m_current_evt, "eventNumber/i");
 
-
       char tdir_name[80];
       memset(tdir_name,'\0',80*sizeof(char));
       sprintf(tdir_name,"/%s/%s",name().c_str(),ntuple_name);
-
-      sc = tHistSvc->regTree(tdir_name,m_tree);
-      if (sc.isFailure()) {
-        ATH_MSG_FATAL("Unable to register the Tree " << m_tree->GetName() << " in the THistSvc");
-        return sc;
-      }
+      ATH_CHECK(tHistSvc->regTree(tdir_name,m_tree));
     }
 
     // retrieving the private tools implementing the simulation
     
     if(m_dosTGC){
-        if ( m_pad_tds.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_pad_tds.propertyName() << ": Failed to retrieve tool " << m_pad_tds.type());
-            return StatusCode::FAILURE;
-        } 
-        else {
-            ATH_MSG_INFO (m_pad_tds.propertyName() << ": Retrieved tool " << m_pad_tds.type());
-        }
-
-        if ( m_pad_trigger.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_pad_trigger.propertyName() << ": Failed to retrieve tool " << m_pad_trigger.type());
-            return StatusCode::FAILURE;
-        } 
-        else {
-            ATH_MSG_INFO (m_pad_trigger.propertyName() << ": Retrieved tool " << m_pad_trigger.type());
-        }
-
-        if ( m_strip_tds.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_strip_tds.propertyName() << ": Failed to retrieve tool " << m_strip_tds.type());
-        return StatusCode::FAILURE;
-        } 
-        else {
-            ATH_MSG_INFO (m_strip_tds.propertyName() << ": Retrieved tool " << m_strip_tds.type());
-        }
-
-        if ( m_strip_cluster.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_strip_cluster.propertyName() << ": Failed to retrieve tool " << m_strip_cluster.type());
-            return StatusCode::FAILURE;
-        } 
-        else {
-        ATH_MSG_INFO (m_strip_cluster.propertyName() << ": Retrieved tool " << m_strip_cluster.type());
-        }
-
-        if ( m_strip_segment.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_strip_segment.propertyName() << ": Failed to retrieve tool " << m_strip_segment.type());
-            return StatusCode::FAILURE;
-        } 
-        else {
-            ATH_MSG_INFO (m_strip_segment.propertyName() << ": Retrieved tool " << m_strip_segment.type());
-        }
+      ATH_CHECK(m_pad_tds.retrieve());
+      ATH_CHECK(m_pad_trigger.retrieve());
+      ATH_CHECK(m_strip_tds.retrieve());
+      ATH_CHECK(m_strip_cluster.retrieve());
+      ATH_CHECK(m_strip_segment.retrieve());
     }
     
     if(m_doMM ){
-        if ( m_mmtrigger.retrieve().isFailure() ) {
-            ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO (m_mmtrigger.propertyName() << ": Retrieved tool " << m_mmtrigger.type());
-        }
+      ATH_CHECK(m_mmtrigger.retrieve());
     }
     // Connect to Monitoring Service
-    sc = m_monitors.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Monitoring tools not initialized: " << m_monitors);
-      return sc;
-    } 
-    else {
-      ATH_MSG_DEBUG("Connected to " << m_monitors.typesAndNames());
-    }
+    ATH_CHECK(m_monitors.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -172,16 +110,8 @@ namespace NSWL1 {
     ATH_MSG_INFO("start " << name() );
 
     ToolHandleArray<IMonitorToolBase>::iterator it;
-    for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
-      if ( (*it)->bookHists().isFailure() ) {
-        ATH_MSG_WARNING("Monitoring tool: " <<  (*it)
-                          << " in Algo: " << name()
-                          << " can't book histograms successfully, remove it or fix booking problem");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_DEBUG("Monitoring tool: " <<  (*it)
-                        << " in Algo: " << name() << " bookHists successful");
-      }
+    for ( const auto& mon : m_monitors ) {
+      ATH_CHECK(mon->bookHists());
     }
 
     return StatusCode::SUCCESS;
@@ -196,7 +126,7 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::execute() {
-    ATH_MSG_INFO( "execute" << name() );
+    ATH_MSG_DEBUG( "execute" << name() );
     m_counters.clear();
 
     const EventInfo* pevt = 0;
@@ -210,37 +140,26 @@ namespace NSWL1 {
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
-    
+    auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+
     if(m_dosTGC){
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
-      
-      if(m_doPadTrigger){
-          ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
-      }
-      pads.clear();
-      // retrieve the STRIP hit data
+      ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      padTriggers.clear();
-      // Cluster STRIPs readout by TDS
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
-      strips.clear();
-      ATH_CHECK( m_strip_segment->find_segments(clusters) );
-      clusters.clear();
+      ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
       
-      
-    } // if(dosTGC)
-
+      auto rdohandle = SG::makeHandle( m_trigRdoContainer );
+      ATH_CHECK( rdohandle.record( std::move(trgContainer)));
+    }
 
     //retrive the MM Strip hit data
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger() );
     }
-
-    ToolHandleArray<IMonitorToolBase>::iterator it;
-    for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
-      (*it)->fillHists().ignore();
+    for ( const auto& mon : m_monitors) {
+      ATH_CHECK(mon->fillHists());
     }
-
     if (m_tree) m_tree->Fill();
 
     return StatusCode::SUCCESS;
@@ -249,9 +168,8 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::finalize() {
     ATH_MSG_INFO( "finalize" << name() );
-    ToolHandleArray<IMonitorToolBase>::iterator it;
-    for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
-      (*it)->finalHists().ignore();
+    for ( const auto& mon :  m_monitors ) {
+      ATH_CHECK(mon->finalHists());
     }
     return StatusCode::SUCCESS;
   }
