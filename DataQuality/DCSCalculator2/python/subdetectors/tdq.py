@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_Subdetector, DCSC_Variable
+from ..lib import DCSC_Subdetector, DCSC_Variable
 
 class TDQ(DCSC_Subdetector):
     

@@ -2,8 +2,8 @@
 
 from pkg_resources import resource_string
 
-from .lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, GoodIOV, OUT_OF_CONFIG,
-                  DCSC_Variable_With_Mapping)
+from ..lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, GoodIOV,
+                   OUT_OF_CONFIG, DCSC_Variable_With_Mapping)
 
 from DQUtils.sugar import IOVSet
 

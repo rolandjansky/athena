@@ -85,7 +85,10 @@ class DCSC_Variable(object):
             newdbstring = self.input_db.rsplit('/', 1)[0]
         else:
             newdbstring = self.input_db
-        self.fetch_args['database'] = ('%s/%s' % (newdbstring, config.opts.input_database))
+        if config.opts.input_database.startswith('sqlite'):
+            self.fetch_args['database'] = config.opts.input_database
+        else:
+            self.fetch_args['database'] = ('%s/%s' % (newdbstring, config.opts.input_database))
         if self.fetch_args:
             log.debug("Fetching with args: %r", self.fetch_args)
             
