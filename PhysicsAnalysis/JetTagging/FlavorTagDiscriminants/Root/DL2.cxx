@@ -293,11 +293,11 @@ namespace FlavorTagDiscriminants {
       }
       // factory function
       TrackSequenceFilter flipFilter(FlipTagConfig cfg, EDMSchema schema) {
-        using namespace std::placeholders;  // for _1, _2, _3
+        namespace ph = std::placeholders;  // for _1, _2, _3
         BTagTrackAugmenter aug(schema);
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
-          return std::bind(&negativeIpOnly, aug, _1, _2);
+          return std::bind(&negativeIpOnly, aug, ph::_1, ph::_2);
         case FlipTagConfig::STANDARD:
           return [](const Tracks& tr, const xAOD::Jet& ) { return tr; };
         default: {
