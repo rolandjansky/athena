@@ -97,11 +97,8 @@ def bJetStep1SequenceALLTE():
 
     # Construct jets
     from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-	#from TrigUpgradeTest.jetDefs import jetAthSequence
-
-
     (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
-    #(recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
