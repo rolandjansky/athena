@@ -36,6 +36,7 @@
     declareProperty("OutputDec",          m_outLabel         = "passFJVT"       );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"   );
     declareProperty("OutputDecTiming",    m_outLabelTiming   = "passOnlyTiming" );
+    declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices");
     declareProperty("EtaThresh",          m_etaThresh        = 2.5              );
     declareProperty("TimingCut",          m_timingCut        = 10.              );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3             );
@@ -113,7 +114,7 @@
       ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     }
     const xAOD::VertexContainer *vxCont = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
+    if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     }
     for(const auto& vx : *vxCont) {
@@ -192,7 +193,7 @@
   void JetForwardJvtTool::getPV() const {
     const xAOD::VertexContainer *vxCont = 0;
     m_pvind = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
+    if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     } else if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
