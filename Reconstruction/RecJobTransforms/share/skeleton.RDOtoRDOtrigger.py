@@ -105,13 +105,7 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg(name="xAODMaker__EventInfoCnvAlg", OutputLevel=DEBUG)
-
-    fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeEIDep")
-    findAlgorithm( topSequence, "xAODMaker__EventInfoCnvAlg" ).ExtraOutputs += [fakeTypeKey]
-    findAlgorithm( topSequence, "EventCounter" ).ExtraInputs += [fakeTypeKey]
-
+    
     log.info("configuring MT Trigger")
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
@@ -130,7 +124,7 @@ if TriggerFlags.doMT():
     include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
-    # add fake data dependency assuring StreaBS runs before L1 decoder of HLT
+    # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
     fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeBSOutKey")
     topSequence.StreamBS.ExtraOutputs += [fakeTypeKey]
     findAlgorithm( topSequence, "L1Decoder" ).ExtraInputs += [fakeTypeKey]
@@ -220,14 +214,26 @@ for i in outSequence.getAllChildren():
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
-
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
+
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
         for item in TriggerHLTList:
             if "ESD" in item[1] or "AOD" in item[1]:
                 StreamRDO.ItemList += [item[0]]
+
+        from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
+        print topSequence.HLTTop.Members
+        hypos = collectHypos( topSequence.HLTTop )
+        filters = collectFilters( topSequence.HLTTop )
+        decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
+        StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
+        StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
+        
+
+
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from TrigDecisionTool.TrigDecisionToolConf import *
