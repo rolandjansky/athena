@@ -12,6 +12,8 @@
 #include "TF1.h"
 #include "TSystem.h"
 
+#include <stdexcept>
+
 SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   JSSTaggerBase( name ),
   m_dec_mcutL("mcutL"),
@@ -252,7 +254,6 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   // counter for pt range warnings
   const static int maxNWarn = 10;
   static int nWarn = 0;
-  static int nWarn_ntrk = 0;
 
   // check basic kinematic selection
   if (std::fabs(jet.eta()) > m_jetEtaMax) {
@@ -375,24 +376,21 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 	      m_accept.setCutResult("PassNtrk",true);
 	  }
 	  else {
-	    if(nWarn_ntrk++ < maxNWarn){
-	      ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't have Ntrk of the ungroomed jet available. Please make sure they are in your derivation!!!");
-	      m_accept.setCutResult("ValidJetContent", false);
-	    }
+	    // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+            // This error message should only occur if analyses are not using smart slimming in their derivations
+            throw std::runtime_error("ERROR: Unable to retrieve Ntrk of the ungroomed parent jet. Please make sure this variable is in your derivations!!!");
 	  }
         }
         else{
-	  if(nWarn_ntrk++ < maxNWarn){
-	    ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't have the ungroomed jet available. Please make sure they are in your derivation!!!");
-	    m_accept.setCutResult("ValidJetContent", false);
-	  }
+	  // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+	  // This error message should only occur if analyses are not using smart slimming in their derivations
+	  throw std::runtime_error("ERROR: Unable to retrieve the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
         }
       }
       else{
-	if(nWarn_ntrk++ < maxNWarn){
-	  ATH_MSG_ERROR("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
-	  m_accept.setCutResult("ValidJetContent", false);
-	}
+	// Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+	// This error message should only occur if analyses are not using smart slimming in their derivations
+	throw std::runtime_error("ERROR: Unable to retrieve the link to the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
       }
     }
     else{
