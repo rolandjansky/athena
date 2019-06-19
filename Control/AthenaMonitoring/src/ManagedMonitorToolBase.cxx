@@ -395,9 +395,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_environment(AthenaMonManager::user)
    , m_streamNameFcn(0)
    , m_THistSvc("THistSvc",name)
-   , m_trigDecTool("")
-   , m_trigTranslator("")
-   , m_DQFilterTools(this)
    , m_procNEventsProp(0)
    , m_path("")
    , m_preScaleProp(0)
@@ -416,7 +413,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_bookHistogramsInitial(false)
    , m_useLumi(false)
    , m_defaultLBDuration(60.)
-    //, m_cycleNum(0)
    , m_d(new Imp(this))
 {
 //   ManagedMonitorToolBase_resetHistStatistics(this);

@@ -934,7 +934,6 @@ protected:
       bool m_bookHistogramsInitial;
       bool m_useLumi;
       float m_defaultLBDuration;
-      //int m_cycleNum;
       std::set<Interval_t> m_supportedIntervalsForRebooking;
 
       // Use private implementation idiom for more flexible development.
