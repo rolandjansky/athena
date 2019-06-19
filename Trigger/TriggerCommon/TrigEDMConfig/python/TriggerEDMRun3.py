@@ -40,18 +40,24 @@ def recordable( name ):
 TriggerHLTList = [
 
     #framework/steering
-    ('xAOD::TrigCompositeContainer#HLTSummary',           'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1DecoderSummary',     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTSummary',              'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTSummaryAux.',       'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1DecoderSummary',        'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1DecoderSummaryAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
 
-    ('TrigRoiDescriptorCollection#EMRoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#MURoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#METRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#JETRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
 
-    ('xAOD::TrigCompositeContainer#L1EM',                 'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MU',                 'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MET',                'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1J',                  'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1EM',                    'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1EMAux.',             'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MU',                    'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1MUAux.',             'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MET',                   'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1METAux.',            'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1J',                     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1JAux.',              'BS ESD AODFULL AODSLIM', 'Steer'),
 
     # Egamma
 
