@@ -311,8 +311,10 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     print (" <acZmumu> sorted list of runs to submit (%d)" %len(listOfRunsToSubmit))
     print listOfRunsToSubmit
 
+    runcount = 0
     for runNumber in listOfRunsToSubmit:
-        print (" <acZmumu> dealing with new run: %d" %(runNumber))
+        runcount += 1
+        print ("\n <acZmumu> dealing with new run: %d  [%d/%d]" %(runNumber, runcount,len(listOfRunsToSubmit)))
         readyForSubmission = True
         theRunProperties = infoFromAMI[runNumber]
         runEvents = int(theRunProperties["events"])
@@ -371,22 +373,25 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 def getAthenaBasics ():
     import os
 
+    print " -- SALVA -- in getAthenaBasics() -- " 
     testArea = ""
     try:
         testArea = os.getenv("TestArea","")
+        #print " -- DEBUG -- straight TestArea -- %s " %testArea
         # make sure this points to the athena folder
-        if ("athena" not in testArea.split()[-1]):
+        #print " -- DEBUG -- last bit of test area:  -- %s " %testArea.split("/")[-1]
+        if ("athena" not in testArea.split("/")[-1]):
             tempTestArea = testArea.split("/")
-            #print "tempTestArea = ", tempTestArea
-            #print "  old last = ", tempTestArea[-1]
+            #print " -- DEBUG -- tempTestArea = ", tempTestArea
+            #print " -- DEBUG -- old last = ", tempTestArea[-1]
             tempTestArea[-1] = "athena"
             # reform the string
-            #print "  new last = ", tempTestArea[-1]
+            #print " -- DEBUG -- new last = ", tempTestArea[-1]
             newTestArea = ""
             for tempword in tempTestArea:
                 if (len(tempword)>0):
                     newTestArea = "%s/%s" %(newTestArea, tempword)
-                    #print " newTestArea: %s" %newTestArea
+                    print " -- SALVA -- newTestArea: %s" %newTestArea
             testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
