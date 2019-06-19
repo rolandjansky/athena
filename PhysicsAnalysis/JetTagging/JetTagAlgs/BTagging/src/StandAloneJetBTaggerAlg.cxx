@@ -101,16 +101,17 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
           std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > pflow_shallowCopy = xAOD::shallowCopyContainer( *constjets );
           //Record in StoreGate the copy of AntiKt4EMPFlowJets with renaming
           CHECK( evtStore()->record( pflow_shallowCopy.first, m_JetCollectionName + suffix) );
-          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix) );
+          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix+"Aux.") );
           //tag it, the other one is already tagged
           int ret = m_JetBTaggerTool->modify(*pflow_shallowCopy.first);
+
           //shallow copy with Mar 2019 taggers
           suffix = "_BTagging201903";
           ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " and registration with new name " << m_JetCollectionName + suffix);
           pflow_shallowCopy = xAOD::shallowCopyContainer( *constjets );
           //Record in StoreGate the copy of AntiKt4EMPFlowJets with renaming
           CHECK( evtStore()->record( pflow_shallowCopy.first, m_JetCollectionName + suffix) );
-          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix) );
+          CHECK( evtStore()->record( pflow_shallowCopy.second, m_JetCollectionName + suffix+"Aux.") );
           //tag it, the other one is already tagged
           ret = m_JetBTaggerTool->modify(*pflow_shallowCopy.first);
           if (!ret) {

@@ -180,6 +180,7 @@ applySoftBtagging("softBtag", FTAG2Seq ) # SV tagger in VrtSecInclusive
 
 FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
 
+
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob
 #====================================================================
@@ -264,6 +265,11 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        ]
+if BTaggingFlags.Do2019Retraining:
+    FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMPFlowJets_BTagging201810",
+                                             "AntiKt4EMPFlowJets_BTagging201903"]
+    FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff

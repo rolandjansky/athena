@@ -71,7 +71,9 @@ JetExtendedAux = [
 ]
 
 def BTaggingExpertContent(jetcol):
+    
     btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
+
     # deal with name mismatch between PV0TrackJets and BTagging_Track
     btagging = btaggingtmp.replace("PV0Track", "Track")
 
@@ -88,7 +90,15 @@ def BTaggingExpertContent(jetcol):
 
 
 def BTaggingStandardContent(jetcol):
-    btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
+
+    #btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
+    btaggingtmp = "BTagging_" + jetcol.split('Jets')[0]
+    if 'BTagging' in jetcol:
+         stamp = jetcol.split('BTagging')[1]
+         print stamp
+         btaggingtmp += '_'+stamp
+
+    print btaggingtmp
 
     # deal with name mismatch between PV0TrackJets and BTagging_Track
     btagging = btaggingtmp.replace("PV0Track", "Track")
@@ -101,5 +111,6 @@ def BTaggingStandardContent(jetcol):
     btagcontent = \
         [ btagging ] \
         + [ ".".join( [ btagging + "Aux" ] + BTaggingStandardAux ) ]
-
+    print "MANU" 
+    print jetcontent + btagcontent
     return jetcontent + btagcontent
