@@ -373,7 +373,7 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 def getAthenaBasics ():
     import os
 
-    print " -- SALVA -- in getAthenaBasics() -- " 
+    #print " -- DEBUG -- in getAthenaBasics() -- " 
     testArea = ""
     try:
         testArea = os.getenv("TestArea","")
@@ -391,7 +391,7 @@ def getAthenaBasics ():
             for tempword in tempTestArea:
                 if (len(tempword)>0):
                     newTestArea = "%s/%s" %(newTestArea, tempword)
-                    print " -- SALVA -- newTestArea: %s" %newTestArea
+                    #print " -- DEBUG -- newTestArea: %s" %newTestArea
             testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
