@@ -437,8 +437,6 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   int iphi   = side>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
  
-  int ieta   = iring; 
-  int ilayer = layerTmp->ilayer;
   bool isOuterMost = false; // JL -- needs to be fixed 
   bool isBarrel = false;
   bool debug = false; 
@@ -446,9 +444,9 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   Identifier idwafer(0);
   IdentifierHash idhash(0);
 
-  ATH_MSG_DEBUG("brl_ec= " << brl_ec << " disc = " << ilayer << " iphi= " << iphi << " ieta = " << ieta );
+  ATH_MSG_DEBUG("brl_ec= " << brl_ec << " disc = " << roLayer << " iphi= " << iphi << " ieta = " << roEta );
 
-  m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,side);
+  m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,0);
 
   // create the transform parameters  
   double phistep = 2*TMath::Pi()/nsectors;
@@ -484,7 +482,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   // Add outer stereo layer  // each element points to the other face
   if(layerTmp->double_sided) {
  
-    m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,brl_ec,ilayer,iphi,ieta,1);
+    m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,1);
 
     // warning: add stereo module inside -- add stereo steparation
     z += zpos/fabs(zpos)*layerTmp->stereoSep;
