@@ -395,7 +395,7 @@ def parse(chk_tcmalloc=True):
 
         elif opt in ("--chunk-size",):
             if not arg:
-                arg = 0;
+                arg = 0
             try: arg = int(arg)
             except Exception as err:
                 print ("ERROR:",err)
