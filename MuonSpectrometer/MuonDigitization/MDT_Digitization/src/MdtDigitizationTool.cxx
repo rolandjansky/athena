@@ -988,7 +988,7 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId) const {
 
 bool MdtDigitizationTool::insideMatchingWindow(double time) const {
   if( m_useTimeWindow )
-    if(time < m_bunchCountOffset || time > m_bunchCountOffset+m_matchingWindow) {
+    if(time < m_bunchCountOffset || time > static_cast<double>(m_bunchCountOffset)+m_matchingWindow) {
       ATH_MSG_VERBOSE( "hit outside MatchingWindow " << time );
       return false;
     }
@@ -997,7 +997,7 @@ bool MdtDigitizationTool::insideMatchingWindow(double time) const {
 
 bool MdtDigitizationTool::insideMaskWindow(double time) const {
   if( m_useTimeWindow )
-    if(time < m_bunchCountOffset-m_maskWindow || time > m_bunchCountOffset){
+    if(time < static_cast<double>(m_bunchCountOffset)-m_maskWindow || time > m_bunchCountOffset){
       ATH_MSG_VERBOSE( "hit outside MaskWindow " << time );
       return false;
     }
