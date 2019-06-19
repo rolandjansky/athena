@@ -150,7 +150,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   }
   
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
-  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  ATH_CHECK( hypoBaseOutputProcessing(handle) );
   
   return StatusCode::SUCCESS;
 }
