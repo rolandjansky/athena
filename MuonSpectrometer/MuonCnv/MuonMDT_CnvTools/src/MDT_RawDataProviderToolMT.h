@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
-#define MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
+#ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLMT_H
+#define MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLMT_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -17,18 +17,17 @@
 namespace Muon 
 {
 
-/** @class MDT_RawDataProviderTool       
-    @author  Edward Moyse <Edward.Moyse@cern.ch>
+/** @class MDT_RawDataProviderToolMT       
     @author  Mark Owen <markowen@cern.ch>
 */  
 
-class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public MDT_RawDataProviderToolCore
+class MDT_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, public MDT_RawDataProviderToolCore
 {
   public:    
-  MDT_RawDataProviderTool(const std::string&,const std::string&,const IInterface*);
+  MDT_RawDataProviderToolMT(const std::string&,const std::string&,const IInterface*);
 
   /** default destructor */
-  virtual ~MDT_RawDataProviderTool ();
+    virtual ~MDT_RawDataProviderToolMT () { }
     
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize();
@@ -43,6 +42,11 @@ class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public 
   virtual StatusCode convert(); //!< for the entire event 
   virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec);
   virtual StatusCode convert(const std::vector<uint32_t>& robIds);//!< for a particular vector of ROBId's
+
+  private:
+    
+  /// This is the key for the cache for the CSM containers, can be empty
+  SG::UpdateHandleKey<MdtCsm_Cache> m_rdoContainerCacheKey ;
 
 
 };
