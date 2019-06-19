@@ -36,6 +36,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagMuonAugmenterTool.cxx
   Root/DL2.cxx
   Root/DL2HighLevel.cxx
+  Root/DL2HighLevelTools.cxx
   Root/DL2Tool.cxx
   Root/customGetter.cxx
   Root/EDMSchemaEnums.cxx
