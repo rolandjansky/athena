@@ -41,11 +41,17 @@ def tauCaloRecoSequence(InViewRoIs, SeqName):
     # lc sequence
     (lcTopoInViewSequence, lcCaloSequenceOut) = HLTLCTopoRecoSequence(InViewRoIs)
     tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
-    #How to call _algoTauCaloOnly or _algoTauCaloOnlyMVA ?
-    #tauCaloOnlyAlg       = _algoTauCaloOnly(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
-    tauCaloOnlyAlg       = _algoTauCaloOnlyMVA(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
+    tauCaloOnlyAlg       = _algoTauCaloOnly(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
     RecoSequence = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyAlg] )
     return (RecoSequence, tauCaloOnlyAlg.TrigTauRecOutputKey)
+
+def tauCaloMVARecoSequence(InViewRoIs, SeqName):
+    # lc sequence
+    (lcTopoInViewSequence, lcCaloSequenceOut) = HLTLCTopoRecoSequence(InViewRoIs)
+    tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
+    tauCaloOnlyMVAAlg	 = _algoTauCaloOnlyMVA(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
+    RecoSequence = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyMVAAlg] )
+    return (RecoSequence, tauCaloOnlyMVAAlg.TrigTauRecOutputKey)
 
 def tauCaloSequence(ConfigFlags):
     """ Creates L2 Fast Calo sequence for Taus"""
@@ -63,3 +69,20 @@ def tauCaloSequence(ConfigFlags):
 
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
+
+def tauCaloMVASequence(ConfigFlags):
+    """ Creates L2 Fast Calo sequence for Taus"""
+    # EV creator
+    InViewRoIs="TAUCaloRoIs"
+    RecoSequenceName="tauCaloMVAInViewSequence"
+
+    tauCaloMVAViewsMaker = EventViewCreatorAlgorithm( "tauCaloMVAViewsMaker")
+    tauCaloMVAViewsMaker.ViewFallThrough = True
+    tauCaloMVAViewsMaker.RoIsLink = "initialRoI"
+    tauCaloMVAViewsMaker.InViewRoIs = InViewRoIs
+    tauCaloMVAViewsMaker.Views = "TAUCaloMVAViews"
+    tauCaloMVAViewsMaker.ViewNodeName = RecoSequenceName
+    (tauCaloMVAInViewSequence, sequenceOut) = tauCaloMVARecoSequence(InViewRoIs, RecoSequenceName)
+
+    tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
+    return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
