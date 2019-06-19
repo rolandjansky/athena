@@ -38,7 +38,7 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
 #include "boost/lexical_cast.hpp"
@@ -498,7 +498,7 @@ namespace {
       // Save number of bins and perform a locked Fill
       int xbins = h->GetNbinsX();    
       int ybins = h->GetNbinsY();
-      lock_histogram_operation<TH2I> locked_hist(h);
+      oh_lock_histogram<TH2I> locked_hist(h);
 
       locked_hist->Fill(buf_lb, buf_psk, 1);
 
