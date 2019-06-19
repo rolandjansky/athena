@@ -16,6 +16,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Interfaces/BaseSimulationSvc.h"
+#include "ISF_Interfaces/IEntryLayerTool.h"
 
 // Amg classes
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -158,6 +159,36 @@ public:
 DECLARE_COMPONENT( MockSimulatorTool )
 
 
+// Athena Tool to mock a SimulatorTool
+// //
+const std::string mockEntryLayerToolName = "ISFTesting::MockEntryLayerTool/MyTestEntryLayerTool";
+
+class MockEntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool> {
+
+public:
+  MockEntryLayerTool(const std::string& type, const std::string& name, const IInterface* svclocator)
+    : base_class(type, name, svclocator)
+  {
+  };
+  virtual ~MockEntryLayerTool() { };
+
+  MOCK_METHOD0(finalize, StatusCode());
+
+  // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
+  virtual StatusCode initialize() override {
+    ATH_MSG_INFO ("initializing MockEntryLayerTool: " << name());
+    return StatusCode::SUCCESS;
+  };
+  virtual bool passesFilters( const ISF::ISFParticle& ) override { return true; };
+  virtual ISF::EntryLayer identifyEntryLayer( const ISF::ISFParticle& ) override { return ISF::fUnsetEntryLayer; };
+  virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle&, ISF::EntryLayer layer=ISF::fUnsetEntryLayer ) override { return layer; };
+  virtual StatusCode registerTrackRecordCollection(TrackRecordCollection*, ISF::EntryLayer) override { return StatusCode::SUCCESS; };
+
+}; // MockEntryLayerTool
+
+DECLARE_COMPONENT( MockEntryLayerTool )
+
+
 // Gaudi Test fixture that provides a clean Gaudi environment for
 // each individual test case
 class GaudiFixture {
@@ -223,14 +254,17 @@ protected:
     virtual void SetUp() override {
       // the tested AthAlgorithm
       m_alg = new ISF::SimKernelMT{"SimKernelMT", m_svcLoc};
+      m_alg->addRef();
       EXPECT_TRUE( m_alg->setProperty("ParticleKillerTool", particleKillerSimulatorToolName).isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("GeoIDSvc", mockGeoIDSvcName).isSuccess() );
+      EXPECT_TRUE( m_alg->setProperty("EntryLayerTool", mockEntryLayerToolName).isSuccess() );
 
       // retrieve mocked Athena components
       m_mockGeoIDSvc = retrieveService<MockGeoIDSvc>(mockGeoIDSvcName);
       m_mockInputConverter = retrieveService<MockInputConverter>(mockInputConverterName);
       m_mockSimulatorTool = retrieveTool<MockSimulatorTool>(mockSimulatorToolName);
       m_mockSimulationSelector = retrieveTool<MockSimulationSelector>(mockSimulationSelectorName);
+      m_mockEntryLayerTool = retrieveTool<MockEntryLayerTool>(mockEntryLayerToolName);
     }
 
     virtual void TearDown() override {
@@ -314,6 +348,7 @@ protected:
     ISFTesting::MockInputConverter* m_mockInputConverter = nullptr;
     ISFTesting::MockSimulatorTool* m_mockSimulatorTool = nullptr;
     ISFTesting::MockSimulationSelector* m_mockSimulationSelector = nullptr;
+    ISFTesting::MockEntryLayerTool* m_mockEntryLayerTool = nullptr;
 
   };  // SimKernelMT_test fixture
 
