@@ -605,7 +605,6 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	}      //end else regionId is OK
       }        //end if reso && rt
     }          //end try
-    //TODO: What kind of exceptions can you get here
     catch (int i) {
       ATH_MSG_FATAL( "Error in creating rt-relation!" );
       ATH_MSG_FATAL( "npoints="<<tr_points.size());
