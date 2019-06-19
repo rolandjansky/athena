@@ -637,7 +637,8 @@ class TopoAlgoDef:
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
 
 
-        alglist = [
+        if not usev8:
+            alglist = [
             {"minDPhi":  5, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
             {"minDPhi": 10, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
             {"minDPhi": 15, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
@@ -645,6 +646,7 @@ class TopoAlgoDef:
             #{"minDPhi": 10, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#new
             {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#same
             ]
+        else: alglist = []
 
         for x in alglist:
             
@@ -671,11 +673,13 @@ class TopoAlgoDef:
 
         # W T&P MT
 
-        alglistmt = [
+        if not usev8:
+            alglistmt = [
             {"minMT": 25, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             #{"minMT": 30, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             {"minMT": 35, "otype" : "EM", "ocut" : "15", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             ]
+        else: alglistmt = []
         for x in alglistmt:
             for k in x:
                 exec("%s = x[k]" % k)
@@ -1307,10 +1311,12 @@ class TopoAlgoDef:
 
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
 
-        alglist = [
+        if not usev8:
+            alglist = [
             {"minDPhi": 15, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             {"minDPhi": 15, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             ]
+        else: alglist = []
 
         for x in alglist:
             
@@ -1338,9 +1344,11 @@ class TopoAlgoDef:
             
         # W T&P MT
 
-        alglistmt = [
+        if not usev8:
+            alglistmt = [
             {"minMT": 35, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             ]
+        else: alglistmt = []
         for x in alglistmt:
             for k in x:
                 exec("%s = x[k]" % k)
@@ -1720,6 +1728,11 @@ class TopoAlgoDef:
                 {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
                 {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
                 {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                #Remove NFF
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+                {"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
                 ]
         else: 
             algolist = []
@@ -1766,7 +1779,6 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
-            alg.addgeneric('RequireOneBarrel', 1)
             alg.addvariable('MinMSqr', 0)
             alg.addvariable('MaxMSqr', 10*10)
             alg.addvariable('MinET1', 4)

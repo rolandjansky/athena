@@ -299,6 +299,16 @@ class ThresholdDef:
             .addThrValue(23, -15, -14, priority=2).addThrValue(23, 14, 15, priority=2)\
             .addThrValue(25, -17, -15, priority=2).addThrValue(25, 15, 17, priority=2)\
             .addThrValue(27, -25, -17, priority=2).addThrValue(27, 17, 25, priority=2)
+       
+        tc.registerThr( 'EM30VHI', type='EM').addThrValue(30, priority=1)\
+            .addThrValue(32, -7, 0, priority=2).addThrValue(32, 0, 7, priority=2)\
+            .addThrValue(31, -8, -7, priority=2).addThrValue(31, 7, 8, priority=2)\
+            .addThrValue(30, -11, -8, priority=2).addThrValue(30, 8, 11, priority=2)\
+            .addThrValue(29, -13, -11, priority=2).addThrValue(29, 11, 13, priority=2)\
+            .addThrValue(28, -14, -13, priority=2).addThrValue(28, 13, 14, priority=2)\
+            .addThrValue(27, -15, -14, priority=2).addThrValue(27, 14, 15, priority=2)\
+            .addThrValue(29, -17, -15, priority=2).addThrValue(29, 15, 17, priority=2)\
+            .addThrValue(31, -29, -17, priority=2).addThrValue(31, 17, 29, priority=2)
 
 
         tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\

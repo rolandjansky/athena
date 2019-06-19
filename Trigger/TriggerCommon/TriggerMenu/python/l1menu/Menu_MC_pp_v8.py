@@ -54,10 +54,9 @@ def defineMenu():
         
         # 16 x EM
         'EM3', 'EM7', 'EM8VH',
-        'EM10VHI',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
-        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM',
+        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 'EM30VHI', 
         # ATR-19437
         # 4 x new EM1
         'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 
@@ -245,21 +244,21 @@ def defineMenu():
         '1INVM5-EMs1-EMs6', '1INVM5-EM7s1-EMs6', '1INVM5-EM12s1-EMs6',        
 
         #W T&P
-        '05MINDPHI-AJj10s6-XE0',
-        '10MINDPHI-AJj10s6-XE0',
-        '15MINDPHI-AJj10s6-XE0',
-        '05MINDPHI-EM12s6-XE0',
-        '15MINDPHI-EM12s6-XE0',
-        '05MINDPHI-EM15s6-XE0',
-        '15MINDPHI-EM15s6-XE0',
+        #'05MINDPHI-AJj10s6-XE0',
+        #'10MINDPHI-AJj10s6-XE0',
+        #'15MINDPHI-AJj10s6-XE0',
+        #'05MINDPHI-EM12s6-XE0',
+        #'15MINDPHI-EM12s6-XE0',
+        #'05MINDPHI-EM15s6-XE0',
+        #'15MINDPHI-EM15s6-XE0',
         '05RATIO-XE0-HT0-AJj15all.ETA49',
         '90RATIO2-XE0-HT0-AJj15all.ETA49',
         '250RATIO2-XE0-HT0-AJj15all.ETA49',
         'HT20-AJj15all.ETA49',
         'NOT-02MATCH-EM10s1-AJj15all.ETA49',
-        '25MT-EM12s6-XE0',
-        '35MT-EM12s6-XE0',
-        '35MT-EM15s6-XE0',
+        #'25MT-EM12s6-XE0',
+        #'35MT-EM12s6-XE0',
+        #'35MT-EM15s6-XE0',
         #'10MINDPHI-AJj15s2-XE0',
         #'20MINDPHI-AJjs6-XE0',
         #'20MINDPHI-AJj15s2-XE0',
@@ -309,10 +308,6 @@ def defineMenu():
 #        '0DETA04-0DPHI03-EM15abi-MUab',
         '0DETA04-EM15abi-MUab',
         '0DPHI03-EM15abi-MUab',
-        '10MINDPHI-AJ20s2-XE50',
-        '10MINDPHI-J20s2-XE50',
-        '10MINDPHI-J20ab-XE50',
-        '10MINDPHI-CJ20ab-XE50',
         '900INVM9999-AJ30s6-AJ20s6',
         '800INVM9999-AJ30s6-AJ20s6',
         '700INVM9999-AJ30s6-AJ20s6',
@@ -386,6 +381,10 @@ def defineMenu():
         '400INVM9999-0DPHI22-J30s6-AJ20s6',
         '400INVM9999-0DPHI24-J30s6-AJ20s6',
         '400INVM9999-0DPHI26-J30s6-AJ20s6',
+        '400INVM9999-0DPHI20-AJ30s6-AJ20s6',
+        '400INVM9999-0DPHI22-AJ30s6-AJ20s6',
+        '400INVM9999-0DPHI24-AJ30s6-AJ20s6',
+        '400INVM9999-0DPHI26-AJ30s6-AJ20s6',
 
         'LATE-MU10s1',
         'SC111-CJ15ab.ETA26',
@@ -439,7 +438,7 @@ def defineMenu():
 #        'L1_EM8I',
         'L1_EM10VH', 'L1_EM15',
         #ATR-19302
-        'L1_2EM10VHI',
+        'L1_EM30VHI',
         'L1_EM15VHI',
         'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
@@ -855,6 +854,10 @@ def defineMenu():
         'L1_MJJ-400-NFF-0DPHI22',
         'L1_MJJ-400-NFF-0DPHI24',
         'L1_MJJ-400-NFF-0DPHI26',
+        'L1_MJJ-400-0DPHI20',
+        'L1_MJJ-400-0DPHI22',
+        'L1_MJJ-400-0DPHI24',
+        'L1_MJJ-400-0DPHI26',
    
         ### ATR-15062
         'L1_EM18VHI_MJJ-300',
@@ -1289,6 +1292,10 @@ def defineMenu():
         'L1_MJJ-400-NFF-0DPHI22' : 267,
         'L1_MJJ-400-NFF-0DPHI24' : 268,
         'L1_MJJ-400-NFF-0DPHI26' : 269,
+        'L1_MJJ-400-0DPHI20' : 270,
+        'L1_MJJ-400-0DPHI22' : 272,
+        'L1_MJJ-400-0DPHI24' : 274,
+        'L1_MJJ-400-0DPHI26' : 276,
 
 
 
@@ -1423,7 +1430,7 @@ def defineMenu():
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
         
         #ATR-19302
-        'L1_2EM10VHI' : 188,
+        'L1_EM30VHI' : 188,
         #ATR-19355
         'L1_BPH-0M10-3MU4' : 189,
 

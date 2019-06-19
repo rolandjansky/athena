@@ -805,11 +805,6 @@ def setupMenu():
         ['tau25_idperf_tracktwoEF',                      'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_perf_tracktwoEF',                        'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwoEF',                     'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
-        # MVA TES (ATR-17687)
-        ['tau25_idperf_tracktwoEFmvaTES',                'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwoEFmvaTES',                  'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1NoPt_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
         # expected 2018 config: MVA TES + BDT track counting + RNN TauID
         ['tau25_idperf_tracktwoMVA',                      'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_perf_tracktwoMVA',                        'L1_TAU12IM', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
