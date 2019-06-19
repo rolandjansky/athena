@@ -110,6 +110,9 @@ TriggerHLTList = [
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
+
+    ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),    
 ]
 
 EDMDetails = {}
