@@ -97,7 +97,7 @@ def go(iov, systems, db, indb, timewise=False):
 
     with timer("Read LBLB"):
         # fetch lumi block info
-        lblb = fetch_iovs("LBLB", since, until, with_channel=False, database='COOLONL_TRIGGER/%s' % indb)
+        lblb = fetch_iovs("LBLB", since, until, with_channel=False, database=(indb if indb.startswith('sqlite') else 'COOLONL_TRIGGER/%s' % indb))
         assert lblb, "No luminosity blocks for desired range. [%s, %s)" % (since, until)
         
         # lumi block time info

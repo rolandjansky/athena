@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_DefectTranslate_Subdetector, DCSC_Global_Variable
+from ..lib import DCSC_DefectTranslate_Subdetector, DCSC_Global_Variable
 
 GREY, RED, YELLOW = 0, 1, 2
 EMBA, EMBC, EMECA, EMECC, HECA, HECC, FCALA, FCALC = 202, 203, 204, 205, 214, 215, 224, 225
