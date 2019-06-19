@@ -98,6 +98,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
+    registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False" );
     registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).", "Default" );
 
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");

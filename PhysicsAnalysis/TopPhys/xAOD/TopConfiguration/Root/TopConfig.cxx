@@ -205,6 +205,7 @@ namespace top{
     m_jetCalibSequence("GSC"),
     m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
+    m_saveFailJVTJets(false),
     m_JVTWP("Default"),
 
     m_largeRJetPtcut(25000.),
@@ -809,6 +810,7 @@ namespace top{
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
+    this->saveFailJVTJets( (settings->value("SaveFailJVTJets") == "True" ? true : false) );
     this->setJVTWP( settings->value("JVTWP") );
     this->m_largeRSmallRCorrelations = settings->value("LargeRSmallRCorrelations") == "True" ? true : false;
 

@@ -594,6 +594,8 @@ class TopConfig final {
 
   inline virtual void doJVTinMET( const bool& doJVT ){if(!m_configFixed){m_doJVTInMETCalculation = doJVT;}}
   inline virtual bool doJVTinMET() const {return m_doJVTInMETCalculation;}
+  inline virtual void saveFailJVTJets( const bool& doJVT ){if(!m_configFixed){m_saveFailJVTJets = doJVT;}}
+  inline virtual bool saveFailJVTJets() const {return m_saveFailJVTJets;}
 
   inline const std::string& getJVTWP() const {return m_JVTWP;}
   inline void  setJVTWP(const std::string& value) {m_JVTWP = value;}
@@ -1211,6 +1213,7 @@ class TopConfig final {
   std::string m_jetCalibSequence; // GCC or JMS
   bool m_jetStoreTruthLabels; // True or False
   bool m_doJVTInMETCalculation;
+  bool m_saveFailJVTJets;
   std::string m_JVTWP;
 
   // Large R jet configuration
