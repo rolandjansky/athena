@@ -87,7 +87,8 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_buffer_length(0),
   m_decompression_buffer(nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
-  m_readKeyTube("/MDT/T0BLOB")
+  m_readKeyTube("/MDT/T0BLOB"),
+  m_regionIdThreshold(2500)
 {
 
   //Db Folders
@@ -446,10 +447,9 @@ StatusCode MdtCalibDbAlg::loadRt(){
     Identifier  athenaId; 
     char *pch = strtok(parameters," _,");
     regionId = atoi(pch);
-    //Long ago the hash was put in the RT file header, but now (2016) 
-    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.    
-    //TODO: put this magic number in constatnt
-    if(regionId>2500) {
+    //Long ago the hash was put in the RT file header, but now (2016)
+    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
+    if(regionId>m_regionIdThreshold) {
       MuonCalib::MuonFixedId id(regionId);
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
