@@ -4,9 +4,11 @@
 
 #include "TrigMonTHistSvc.h"
 
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+
+#include "CxxUtils/checker_macros.h"
+#include "AthenaMonitoring/OHLockedHist.h"
+
 #include "hltinterface/IInfoRegister.h"
 
 #include "TError.h"
@@ -40,7 +42,7 @@ StatusCode TrigMonTHistSvc::initialize ATLAS_NOT_THREAD_SAFE()
 
   // Retrieve and set OH mutex
   ATH_MSG_INFO("Enabling use of OH histogram mutex");
-  lock_histogram_mutex::set_histogram_mutex(
+  oh_lock_histogram_mutex::set_histogram_mutex(
       hltinterface::IInfoRegister::instance()->getPublicationMutex());
 
   return StatusCode::SUCCESS;
@@ -50,8 +52,8 @@ StatusCode TrigMonTHistSvc::finalize()
 {
   // Reset OH mutex
   ATH_MSG_DEBUG("Resetting OH histogram mutex");
-  lock_histogram_mutex::reset_histogram_mutex();
-
+  oh_lock_histogram_mutex::reset_histogram_mutex();
+        
   return StatusCode::SUCCESS;
 }
 
