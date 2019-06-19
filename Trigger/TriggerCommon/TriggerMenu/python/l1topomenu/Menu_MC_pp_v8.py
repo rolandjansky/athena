@@ -24,14 +24,14 @@ def defineMenu():
         TopoOutput( algoname='HT150-J20s5.ETA31',                           module=0, fpga=0, clock=0, firstbit=9 ),
         TopoOutput( algoname='HT190-J15s5.ETA21',                           module=0, fpga=0, clock=0, firstbit=10 ),
         TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
-        TopoOutput( algoname='05MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=0, firstbit=14 ),#v6     
+###### free
         TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=0, fpga=0, clock=0, firstbit=15 ),  #v6 new   
-#        TopoOutput( algoname='10MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=0, firstbit=15 ),#v6
+###### free
 
-        TopoOutput( algoname='05MINDPHI-EM15s6-XE0',                        module=0, fpga=0, clock=1, firstbit=0 ),
-        TopoOutput( algoname='25MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=1 ),#v6
+        TopoOutput( algoname='400INVM9999-0DPHI20-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=0 ), # v8 new
+        TopoOutput( algoname='400INVM9999-0DPHI22-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=1 ), # v8 new
         TopoOutput( algoname='ZEE-EM20shi2',                                module=0, fpga=0, clock=1, firstbit=2 ),
-        TopoOutput( algoname='35MT-EM15s6-XE0',                             module=0, fpga=0, clock=1, firstbit=3 ),
+###### free
         TopoOutput( algoname='0DR03-EM7ab-CJ15ab',                          module=0, fpga=0, clock=1, firstbit=4 ), #v6
         TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=0, fpga=0, clock=1, firstbit=5 ),  #v6 new
         TopoOutput( algoname='10MINDPHI-J20s2-XE50',                        module=0, fpga=0, clock=1, firstbit=6 ),
@@ -41,9 +41,9 @@ def defineMenu():
         TopoOutput( algoname='LAR-J100s1',                                  module=0, fpga=0, clock=1, firstbit=10 ),
         TopoOutput( algoname='NOT-02MATCH-EM10s1-AJj15all.ETA49',           module=0, fpga=0, clock=1, firstbit=11 ),
         TopoOutput( algoname='27DPHI32-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits
-        TopoOutput( algoname='35MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=13 ),#v6n
-        TopoOutput( algoname='15MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=1, firstbit=14 ),#v6n
-        TopoOutput( algoname='15MINDPHI-EM15s6-XE0',                        module=0, fpga=0, clock=1, firstbit=15 ),#v6n
+###### free
+        TopoOutput( algoname='400INVM9999-0DPHI24-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=14 ), # v8 new
+        TopoOutput( algoname='400INVM9999-0DPHI26-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=15 ), # v8 new
 #        TopoOutput( algoname='30MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=2 ),#v6
 #        TopoOutput( algoname='0DETA10-Js1-Js2',                             module=0, fpga=0, clock=1, firstbit=4 ),
 #        TopoOutput( algoname='10MINDPHI-Js2-XE50',                          module=0, fpga=0, clock=1, firstbit=5 ),
@@ -91,9 +91,9 @@ def defineMenu():
  
         # module: 1, FPGA: 0        
 
-        TopoOutput( algoname='05MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),#v6
-        TopoOutput( algoname='10MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=1 ),#v6
-        TopoOutput( algoname='15MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=2 ),#v6
+###### free
+###### free
+###### free
         TopoOutput( algoname='0DR04-MU4ab-CJ15ab',                          module=1, fpga=0, clock=0, firstbit=3 ), 
         TopoOutput( algoname='0DR04-MU4ab-CJ20ab',                          module=1, fpga=0, clock=0, firstbit=4 ),
         TopoOutput( algoname='0DR04-MU4ab-CJ30ab',                          module=1, fpga=0, clock=0, firstbit=5 ),
