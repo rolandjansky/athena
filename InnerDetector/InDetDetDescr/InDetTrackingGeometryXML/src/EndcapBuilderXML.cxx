@@ -438,7 +438,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   int iphi   = side>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
  
   bool isOuterMost = false; // JL -- needs to be fixed 
-  bool isBarrel = false;
+  bool isBarrel = roRegion=="B"? true : false;
   bool debug = false; 
 
   Identifier idwafer(0);
