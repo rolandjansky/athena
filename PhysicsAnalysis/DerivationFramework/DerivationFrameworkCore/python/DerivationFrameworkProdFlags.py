@@ -1522,45 +1522,6 @@ class WriteDAOD_EXOT23Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT23Stream)
 listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 
-class WriteDAOD_EXOT24Stream(JobProperty):
-    """EXOT24: 0L for monoHbb analysis"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT24'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT24.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT24Stream)
-listAODtoDPD.append(WriteDAOD_EXOT24Stream.StreamName)
-
-class WriteDAOD_EXOT25Stream(JobProperty):
-    """EXOT25: 1L for monoHbb analysis"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT25'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT25.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT25Stream)
-listAODtoDPD.append(WriteDAOD_EXOT25Stream.StreamName)
-
-class WriteDAOD_EXOT26Stream(JobProperty):
-    """EXOT26: 2L for monoHbb analysis"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT26'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT26.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT26Stream)
-listAODtoDPD.append(WriteDAOD_EXOT26Stream.StreamName)
-
 class WriteDAOD_EXOT27Stream(JobProperty):
     """EXOT27: Derivation for Mono-Hbb and Mono-sWW analyses"""
     statusOn = True
