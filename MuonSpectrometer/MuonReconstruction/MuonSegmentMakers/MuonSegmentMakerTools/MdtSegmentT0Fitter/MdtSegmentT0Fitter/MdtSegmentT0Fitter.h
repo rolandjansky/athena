@@ -15,6 +15,7 @@
 
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
 
+#include <atomic>
 #include <vector>
 
 class IIdToFixedIdTool;
@@ -57,12 +58,12 @@ namespace TrkDriftCircleMath {
       TMinuit* m_minuit;
 
       // counters
-      mutable unsigned int m_ntotalCalls;
-      mutable unsigned int m_npassedNHits;
-      mutable unsigned int m_npassedSelectionConsistency;
-      mutable unsigned int m_npassedNSelectedHits;
-      mutable unsigned int m_npassedMinHits;
-      mutable unsigned int m_npassedMinuitFit;
+      mutable std::atomic_uint m_ntotalCalls;
+      mutable std::atomic_uint m_npassedNHits;
+      mutable std::atomic_uint m_npassedSelectionConsistency;
+      mutable std::atomic_uint m_npassedNSelectedHits;
+      mutable std::atomic_uint m_npassedMinHits;
+      mutable std::atomic_uint m_npassedMinuitFit;
     };
     
   inline bool MdtSegmentT0Fitter::fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
