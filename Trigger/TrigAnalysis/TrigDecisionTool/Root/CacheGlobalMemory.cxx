@@ -60,8 +60,6 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
 {}
 
 Trig::CacheGlobalMemory::~CacheGlobalMemory() {
-   std::lock_guard<std::mutex> lock(m_cgmMutex);
-
    delete m_unpacker;
 
    for( auto cgIt = m_chainGroups.begin(); cgIt != m_chainGroups.end();
@@ -292,7 +290,7 @@ const TrigConf::TriggerItem* Trig::CacheGlobalMemory::config_item(const std::str
 }
 
 float Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
+  // Cannot be locked (CacheGlobalMemory::update > createChainGroup > ChainGroup::update > calculatePrescale > L1Prescale > CacheGlobalMemory::item_prescale)
   // find items in cache
   if ( m_itemsCache.count(ctpid) == 0 ) {
     ATH_MSG_ERROR( "item of CTP: " << ctpid
@@ -317,7 +315,6 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
 }
 
 const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContainer() const {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
   if(!m_expressStreamContainer){
     StatusCode sc = store()->retrieve(m_expressStreamContainer, "HLT_Express_stream_HLT");
     if(sc.isFailure()){
