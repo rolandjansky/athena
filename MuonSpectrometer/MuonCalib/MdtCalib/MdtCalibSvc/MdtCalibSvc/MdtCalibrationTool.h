@@ -28,9 +28,7 @@ namespace MuonCalib {
    @author Martin Woudstra, Niels van Eldik
 */
 
-//TODO: Use public extends<AthAlgTool, IInterface> here. Then you can construct the base class using base_class.
-
-class MdtCalibrationTool : virtual public IInterface, public AthAlgTool {
+class MdtCalibrationTool : public extends<AthAlgTool, IInterface> {
 public:
   /** constructor */
   MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent);
