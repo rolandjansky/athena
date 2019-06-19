@@ -306,6 +306,13 @@ addDefaultTrimmedJets(STDM4Sequence, "STDM4")
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM4Sequence)
 
+#q/g tagging
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM4Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM4Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -345,6 +352,11 @@ STDM4SlimmingHelper.ExtraVariables += ["Electrons.maxEcell_time.maxEcell_energy.
 
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
+
+#QGTagger
+STDM4SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+STDM4SlimmingHelper.ExtraVariables += ["AntiKt4EMPFlowJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+
 
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
