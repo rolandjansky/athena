@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_H
@@ -21,10 +21,12 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LumiBlockComps/ILuminosityTool.h"
-#include "LumiBlockComps/ITrigLivefractionTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "LumiBlockData/LBDurationCondData.h"
+#include "LumiBlockData/TrigLiveFractionCondData.h"
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -655,49 +657,49 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
        * Average mu, i.e. \<mu\>
        *
        */
-       virtual float lbAverageInteractionsPerCrossing();
+       virtual float lbAverageInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Instantaneous number of interactions, i.e. mu
        *
        */
-       virtual float lbInteractionsPerCrossing();
+       virtual float lbInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
        *
        */
-       virtual float lbAverageLuminosity();
+       virtual float lbAverageLuminosity (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Instantaneous luminosity
        *
        */
-       virtual float lbLuminosityPerBCID();
+       virtual float lbLuminosityPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        *  Luminosity block time (in seconds)
        *
        */
-       virtual double lbDuration();
+       virtual double lbDuration (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average luminosity livefraction
        *
        */
-       virtual float lbAverageLivefraction();
+       virtual float lbAverageLivefraction (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Livefraction per bunch crossing ID
        *
        */
-       virtual float livefractionPerBCID();
+       virtual float livefractionPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average Integrated Luminosity Live Fraction
        *
        */
-       virtual double lbLumiWeight();
+       virtual double lbLumiWeight (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
 
    protected:
@@ -919,9 +921,13 @@ protected:
       //bool findStream(const std::string& id, std::string& stream, std::string& rem) const;
       //std::string dirname(std::string& dir) const;
 
-      ToolHandle<ILuminosityTool> m_lumiTool;
-      ToolHandle<ITrigLivefractionTool> m_liveTool;
-      bool m_hasRetrievedLumiTool;
+      SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+      {this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
+      SG::ReadCondHandleKey<LBDurationCondData> m_lbDurationDataKey
+      {this,"LBDurationCondDataKey","LBDurationCondData","SG Key of LBDurationCondData object"};
+      SG::ReadCondHandleKey<TrigLiveFractionCondData> m_trigLiveFractionDataKey
+      {this,"TrigLiveFractionCondDataKey","TrigLiveFractionCondData","SG Key of TrigLiveFractionCondData object"};
+
       bool m_bookHistogramsInitial;
       bool m_useLumi;
       float m_defaultLBDuration;
