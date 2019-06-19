@@ -151,8 +151,6 @@ namespace Muon {
     /** use tdc cut (false) */
     bool       m_mdt_tdc_cut;
 
-    /** number of events counter, not in use */
-    mutable int        m_count;
     /** use rpc preprawdata (true) */
     bool       m_use_rpc;
     /** use tgc preprawdata (true) */
