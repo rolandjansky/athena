@@ -35,7 +35,6 @@ void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::
     
     std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
     float seed_Et = seed->et();
-    float eta = fabs(seed->eta());
 
     if(!useNegTowers) seed_Et = TMath::Abs(seed_Et);
     double block_area(0.0);
@@ -46,7 +45,6 @@ void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::
       const xAOD::JGTower* neighbor = towers.at(neighborIndex);
       block_area += neighbor->deta()*neighbor->dphi();
       neighbor_pt = neighbor->et();
-      float n_eta = fabs(neighbor->eta());
 
       if(!useNegTowers) neighbor_pt = TMath::Abs(neighbor_pt);
       block_pt += neighbor_pt;

@@ -60,7 +60,6 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
   float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
   float threshold  = 0;
   
-  float default_area = 0.04;
   int fpga = 0;
   //can calculate rho as either the average or median gTower energy in the barrel
   if(metName.Contains("RhoSubA")) fpga = 1;
@@ -83,7 +82,6 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
       //float eta = tower->eta();
 
       float Et = tower->et();
-      float eta = fabs(tower->eta());
 
       if(!useNegTowers && Et < 0) continue;
       h_Et->Fill(Et);
@@ -405,7 +403,6 @@ float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, int fpga, b
     const xAOD::JGTower* tower = towers->at(i);
     
     float eta = tower->eta();
-    float phi =  tower->phi();
     float Et = tower->et();
 
     if(!useNegTowers && Et < 0) continue;
