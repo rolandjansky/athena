@@ -71,6 +71,7 @@ def setupMenu():
 
         # PhotonChains------------
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        ChainProp(name='HLT_2g5_etcut_L1EM3', groups=SinglePhotonGroup),  
     ]
 
     TriggerFlags.METSlice.signatures = [
