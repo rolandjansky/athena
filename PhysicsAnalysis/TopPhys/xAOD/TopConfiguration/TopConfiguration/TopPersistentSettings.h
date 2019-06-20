@@ -45,6 +45,7 @@ namespace top{
       std::string m_sgKeyPrimaryVertices;
       std::string m_sgKeyPhotons;
       std::string m_sgKeyElectrons;
+      std::string m_sgKeyFwdElectrons;
       std::string m_sgKeyMuons;
       std::string m_sgKeyTaus;
       std::string m_sgKeyJets;
@@ -58,6 +59,8 @@ namespace top{
       std::string m_electronIsolation;
       std::string m_electronIsolationLoose;
       bool m_useElectronChargeIDSelection;
+      
+      std::string m_fwdElectronID;
 
       std::string m_muon_trigger_SF;
       std::string m_muonQuality;
@@ -69,6 +72,7 @@ namespace top{
 
       std::map<std::size_t,std::string> m_systSgKeyMapPhotons;
       std::map<std::size_t,std::string> m_systSgKeyMapElectrons;
+      std::map<std::size_t,std::string> m_systSgKeyMapFwdElectrons;
       std::map<std::size_t,std::string> m_systSgKeyMapMuons;
       std::map<std::size_t,std::string> m_systSgKeyMapTaus;
       std::map<std::size_t,std::string> m_systSgKeyMapJets;

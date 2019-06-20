@@ -29,6 +29,7 @@
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
+#include "TopObjectSelectionTools/FwdElectronSelectionBase.h"
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
@@ -97,6 +98,18 @@ public:
      * TopObjectSelectionTools).
      */
     void electronSelection(ElectronSelectionBase* ptr);
+    
+    
+    /**
+     * @brief Set the code used to select forward electrons.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * electrons will be accepted).
+     *
+     * @param ptr The code used to perform the  forward electron selection (see
+     * TopObjectSelectionTools).
+     */
+    void fwdElectronSelection(FwdElectronSelectionBase* ptr);
 
     /**
      * @brief Set the code used to select muons.
@@ -192,6 +205,7 @@ private:
     void applySelectionPreOverlapRemoval();
     void applySelectionPreOverlapRemovalPhotons();
     void applySelectionPreOverlapRemovalElectrons();
+    void applySelectionPreOverlapRemovalFwdElectrons();
     void applySelectionPreOverlapRemovalMuons();
     void applySelectionPreOverlapRemovalTaus();
     void applySelectionPreOverlapRemovalJets();
@@ -223,6 +237,9 @@ private:
 
     ///Electron selection code - can load user defined classes
     std::unique_ptr<top::ElectronSelectionBase> m_electronSelection;
+    
+    ///Fwd Electron selection code - can load user defined classes
+    std::unique_ptr<top::FwdElectronSelectionBase> m_fwdElectronSelection;
 
     ///Muon selection code - can load user defined classes
     std::unique_ptr<top::MuonSelectionBase> m_muonSelection;

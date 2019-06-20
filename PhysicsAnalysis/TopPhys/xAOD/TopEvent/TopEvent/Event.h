@@ -9,6 +9,7 @@
 #include "xAODTracking/VertexContainer.h"
 
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronContainerFwd.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
@@ -56,6 +57,7 @@ public:
         m_info(nullptr),
         m_primaryVertices(nullptr),
         m_electrons(SG::VIEW_ELEMENTS),
+        m_fwdElectrons(SG::VIEW_ELEMENTS),
         m_muons(SG::VIEW_ELEMENTS),
         m_jets(SG::VIEW_ELEMENTS),
         m_failJvt_jets(SG::VIEW_ELEMENTS),
@@ -94,6 +96,9 @@ public:
 
     ///Container of electrons (can be sorted)
     xAOD::ElectronContainer m_electrons;
+    
+    ///Container of forward electrons (can be sorted)
+    xAOD::ElectronContainer m_fwdElectrons;
 
     ///Container of muons (can be sorted)
     xAOD::MuonContainer m_muons;

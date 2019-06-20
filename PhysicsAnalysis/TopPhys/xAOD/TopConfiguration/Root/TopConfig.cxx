@@ -1,4 +1,4 @@
-/*
+ /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -25,6 +25,7 @@ namespace top{
     // Use which objects
     m_usePhotons(false),
     m_useElectrons(false),
+    m_useFwdElectrons(false),
     m_useMuons(false),
     m_useAntiMuons(false),
     m_useTaus(false),
@@ -138,6 +139,7 @@ namespace top{
     m_sgKeyPrimaryVertices("PrimaryVertices"),
     m_sgKeyPhotons("SetMe"),
     m_sgKeyElectrons("SetMe"),
+    m_sgKeyFwdElectrons("SetMe"),
     m_sgKeyMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
@@ -180,6 +182,15 @@ namespace top{
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
+    
+    // Fwd electron configuration
+    m_fwdElectronPtcut(25000.),
+    m_fwdElectronMinEtacut(2.5),
+    m_fwdElectronMaxEtacut(4.9),
+    m_fwdElectronID("SetMe"),
+    m_fwdElectronIDLoose("SetMe"),
+    m_fwdElectronBCIDCleaningMinRun(266904),
+    m_fwdElectronBCIDCleaningMaxRun(311481),
 
     // Muon configuration
     m_muonPtcut(25000.),
@@ -280,6 +291,7 @@ namespace top{
 
     m_systHashPhotons(nullptr),
     m_systHashElectrons(nullptr),
+    m_systHashFwdElectrons(nullptr),
     m_systHashMuons(nullptr),
     m_systHashTaus(nullptr),
     m_systHashJets(nullptr),
@@ -295,6 +307,7 @@ namespace top{
 
     m_systMapPhotons(nullptr),
     m_systMapElectrons(nullptr),
+    m_systMapFwdElectrons(nullptr),
     m_systMapMuons(nullptr),
     m_systMapTaus(nullptr),
     m_systMapJets(nullptr),
@@ -304,6 +317,7 @@ namespace top{
 
     m_systSgKeyMapPhotons(nullptr),
     m_systSgKeyMapElectrons(nullptr),
+    m_systSgKeyMapFwdElectrons(nullptr),
     m_systSgKeyMapMuons(nullptr),
     m_systSgKeyMapTaus(nullptr),
     m_systSgKeyMapJets(nullptr),
@@ -315,6 +329,7 @@ namespace top{
 
     m_systAllSgKeyMapPhotons(nullptr),
     m_systAllSgKeyMapElectrons(nullptr),
+    m_systAllSgKeyMapFwdElectrons(nullptr),
     m_systAllSgKeyMapMuons(nullptr),
     m_systAllSgKeyMapTaus(nullptr),
     m_systAllSgKeyMapJets(nullptr),
@@ -328,6 +343,8 @@ namespace top{
     m_systAllSgKeyMapPhotonsTDSAux(nullptr),
     m_systAllSgKeyMapElectronsTDS(nullptr),
     m_systAllSgKeyMapElectronsTDSAux(nullptr),
+    m_systAllSgKeyMapFwdElectronsTDS(nullptr),
+    m_systAllSgKeyMapFwdElectronsTDSAux(nullptr),
     m_systAllSgKeyMapMuonsTDS(nullptr),
     m_systAllSgKeyMapMuonsTDSAux(nullptr),
     m_systAllSgKeyMapTausTDS(nullptr),
@@ -373,6 +390,7 @@ namespace top{
 
     m_systHashPhotons    = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashElectrons  = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
+    m_systHashFwdElectrons  = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashMuons      = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashTaus       = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashJets       = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
@@ -387,6 +405,7 @@ namespace top{
 
     m_systMapPhotons    = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
+    m_systMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapJets       = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
@@ -396,6 +415,7 @@ namespace top{
 
     m_systSgKeyMapPhotons    = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systSgKeyMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapJets       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -407,6 +427,7 @@ namespace top{
 
     m_systAllSgKeyMapPhotons    = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapJets       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -424,6 +445,8 @@ namespace top{
     m_systAllSgKeyMapPhotonsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapElectronsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapElectronsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapFwdElectronsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapFwdElectronsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuonsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuonsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapTausTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -483,6 +506,7 @@ namespace top{
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
+    this->sgKeyFwdElectrons( settings->value("FwdElectronCollectionName") );
     this->sgKeyMuons( settings->value("MuonCollectionName") );
     this->sgKeyTaus( settings->value("TauCollectionName") );
     this->sgKeyJets( settings->value("JetCollectionName") );
@@ -752,6 +776,53 @@ namespace top{
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
+    
+    //Fwd electron configuration
+    this->fwdElectronID( settings->value("FwdElectronID") );
+    this->fwdElectronIDLoose( settings->value("FwdElectronIDLoose") );
+    double fwdElPtCut=99999999.;
+    try{
+      fwdElPtCut=std::stof(settings->value("FwdElectronPt"));
+    }
+    catch(...){
+      throw std::invalid_argument{"TopConfig: cannot convert Option FwdElectronPt into float"};
+    }
+    this->fwdElectronPtcut( fwdElPtCut );
+    double fwdElMinEtaCut=2.5;
+    try{
+      fwdElMinEtaCut=std::stof(settings->value("FwdElectronMinEta"));
+    }
+    catch(...){
+      throw std::invalid_argument{"TopConfig: cannot convert Option FwdElectronMinEta into float"};
+    }
+    this->fwdElectronMinEtacut( fwdElMinEtaCut );
+    double fwdElMaxEtaCut=2.5;
+    try{
+      fwdElMaxEtaCut=std::stof(settings->value("FwdElectronMaxEta"));
+    }
+    catch(...){
+      throw std::invalid_argument{"TopConfig: cannot convert Option FwdElectronMaxEta into float"};
+    }
+    this->fwdElectronMaxEtacut( fwdElMaxEtaCut );
+    
+    int fwdElectronBCIDCleaningMinRun=0;
+    int fwdElectronBCIDCleaningMaxRun=0;
+	std::vector<std::string> fwd_bcid_tokens;
+    tokenize(settings->value("FwdElectronBCIDCleaningRunRange"), fwd_bcid_tokens, ":");
+    if(fwd_bcid_tokens.size()!=2)
+    {
+		throw std::invalid_argument("TopConfig: Option FwdElectronBCIDCleaningRunRange requires values in the form of \'XXX:YYY\'. The number of values needs to be exactly 2.");
+	}
+	try{
+		fwdElectronBCIDCleaningMinRun=std::stoi(fwd_bcid_tokens[0]);
+		fwdElectronBCIDCleaningMaxRun=std::stoi(fwd_bcid_tokens[1]);
+	}
+	catch (...){
+		throw std::invalid_argument("TopConfig: Cannot convert the strings into integers for the run numbers in Option FwdElectronBCIDCleaningRunRange");
+	}
+        
+    this->fwdElectronBCIDCleaningMinRun(fwdElectronBCIDCleaningMinRun);
+    this->fwdElectronBCIDCleaningMaxRun(fwdElectronBCIDCleaningMaxRun);
 
     // Photon configuration
     this->photonPtcut( std::stof(settings->value("PhotonPt")) );
@@ -1325,6 +1396,17 @@ namespace top{
           m_sgKeyElectrons = s;
       }
   }
+  
+  void TopConfig::sgKeyFwdElectrons(const std::string& s)
+  {
+      if (!m_configFixed){
+          m_useFwdElectrons = false;
+          if (s != "None")
+              m_useFwdElectrons = true;
+
+          m_sgKeyFwdElectrons = s;
+      }
+  }
 
 
   void TopConfig::sgKeyMuons(const std::string& s)
@@ -1613,6 +1695,20 @@ namespace top{
       m_list_systHash_electronInJetSubtraction->unique();
     }
   }
+  
+  void TopConfig::systematicsFwdElectrons( const std::list<CP::SystematicSet>& syst)
+  {
+    if( !m_configFixed ){
+      for(const auto& s : syst ){
+        m_systHashFwdElectrons->insert( s.hash() );
+        m_list_systHashAll->push_back( s.hash() );
+        m_systMapFwdElectrons->insert( std::make_pair( s.hash() , s ) );
+        m_systSgKeyMapFwdElectrons->insert( std::make_pair( s.hash() , m_sgKeyFwdElectrons + "_" + s.name() ) );
+      }
+      m_list_systHashAll->sort();
+      m_list_systHashAll->unique();
+    }
+  }
 
   void TopConfig::systematicsMuons( const std::list<CP::SystematicSet>& syst)
   {
@@ -1756,6 +1852,7 @@ namespace top{
     // Let's do ALL string manipulation here, never do it per event
     std::string nominalPhotons("SetMe");
     std::string nominalElectrons("SetMe");
+    std::string nominalFwdElectrons("SetMe");
     std::string nominalMuons("SetMe");
     std::string nominalTaus("SetMe");
     std::string nominalJets("SetMe");
@@ -1774,6 +1871,11 @@ namespace top{
     std::unordered_map<std::size_t,std::string>::const_iterator el = m_systSgKeyMapElectrons->find( m_nominalHashValue );
     if (el != m_systSgKeyMapElectrons->end()) {
       nominalElectrons = (*el).second;
+    }
+    
+    std::unordered_map<std::size_t,std::string>::const_iterator fwdel = m_systSgKeyMapFwdElectrons->find( m_nominalHashValue );
+    if (fwdel != m_systSgKeyMapFwdElectrons->end()) {
+      nominalFwdElectrons = (*fwdel).second;
     }
 
     std::unordered_map<std::size_t,std::string>::const_iterator mu = m_systSgKeyMapMuons->find( m_nominalHashValue );
@@ -1817,6 +1919,14 @@ namespace top{
       }
       if (el == m_systSgKeyMapElectrons->end()) {
         m_systAllSgKeyMapElectrons->insert( std::make_pair( (*i) , nominalElectrons ) );
+      }
+      
+      std::unordered_map<std::size_t,std::string>::const_iterator fwdel = m_systSgKeyMapFwdElectrons->find( *i );
+      if (fwdel != m_systSgKeyMapFwdElectrons->end()) {
+        m_systAllSgKeyMapFwdElectrons->insert( std::make_pair( (*i) , (*fwdel).second ) );
+      }
+      if (fwdel == m_systSgKeyMapFwdElectrons->end()) {
+        m_systAllSgKeyMapFwdElectrons->insert( std::make_pair( (*i) , nominalFwdElectrons ) );
       }
 
       std::unordered_map<std::size_t,std::string>::const_iterator mu = m_systSgKeyMapMuons->find( *i );
@@ -1910,6 +2020,12 @@ namespace top{
       m_systAllSgKeyMapElectronsTDS->insert( std::make_pair( (*i).first , (*i).second + tds ) );
       m_systAllSgKeyMapElectronsTDSAux->insert( std::make_pair( (*i).first , (*i).second + tdsAux ) );
     }
+    
+    for(const auto& i : *(m_systAllSgKeyMapFwdElectrons))
+      {
+	m_systAllSgKeyMapFwdElectronsTDS->insert(std::make_pair(i.first,i.second + tds));
+	m_systAllSgKeyMapFwdElectronsTDSAux->insert(std::make_pair(i.first,i.second + tdsAux));
+      }
 
     for (Itr2 i=m_systAllSgKeyMapMuons->begin();i!=m_systAllSgKeyMapMuons->end();++i) {
       m_systAllSgKeyMapMuonsTDS->insert( std::make_pair( (*i).first , (*i).second + tds ) );
@@ -1963,6 +2079,11 @@ namespace top{
     }
     if (m_useElectrons) {
       for (Itr i=m_systMapElectrons->begin();i!=m_systMapElectrons->end();++i) {
+        m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
+      }
+    }
+    if (m_useFwdElectrons) {
+      for (Itr i=m_systMapFwdElectrons->begin();i!=m_systMapFwdElectrons->end();++i) {
         m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
       }
     }
@@ -2148,7 +2269,47 @@ namespace top{
     }
     return m_sgKeyDummy;
   }
+  
+  const std::string& TopConfig::sgKeyFwdElectrons( const std::size_t hash ) const
+  {
+   
+      std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapFwdElectrons->find( hash );
+      if (key != m_systAllSgKeyMapFwdElectrons->end()) {
+        return (*key).second;
+      }
 
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyFwdElectronsTDS( const std::size_t hash ) const
+  {
+ 
+      std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapFwdElectronsTDS->find( hash );
+      if (key != m_systAllSgKeyMapFwdElectronsTDS->end()) {
+        return (*key).second;
+      }
+
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyFwdElectronsTDSAux( const std::size_t hash ) const
+  {
+ 
+      std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapFwdElectronsTDSAux->find( hash );
+      if (key != m_systAllSgKeyMapFwdElectronsTDSAux->end()) {
+        return (*key).second;
+      }
+    
+    return m_sgKeyDummy;
+  }
+  const std::string& TopConfig::sgKeyFwdElectronsStandAlone( const std::size_t hash ) const
+  {
+    std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapFwdElectrons->find( hash );
+    if (key != m_systAllSgKeyMapFwdElectrons->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
 
   const std::string& TopConfig::sgKeyMuons( const std::size_t hash ) const
   {
@@ -2558,6 +2719,7 @@ namespace top{
     out->m_sgKeyPrimaryVertices = m_sgKeyPrimaryVertices;
     out->m_sgKeyPhotons = m_sgKeyPhotons;
     out->m_sgKeyElectrons = m_sgKeyElectrons;
+    out->m_sgKeyFwdElectrons = m_sgKeyFwdElectrons;
     out->m_sgKeyMuons = m_sgKeyMuons;
     out->m_sgKeyTaus = m_sgKeyTaus;
     out->m_sgKeyJets = m_sgKeyJets;
@@ -2571,6 +2733,8 @@ namespace top{
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
     out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
+    
+    out->m_fwdElectronID = m_fwdElectronID;
 
     out->m_muon_trigger_SF = m_muon_trigger_SF;
     out->m_muonQuality = m_muonQuality;
@@ -2588,6 +2752,9 @@ namespace top{
 
     for (Itr i=m_systSgKeyMapElectrons->begin();i!=m_systSgKeyMapElectrons->end();++i)
         out->m_systSgKeyMapElectrons.insert( std::make_pair( (*i).first , (*i).second ) );
+        
+    for(const auto& i : *(m_systSgKeyMapFwdElectrons))
+        out->m_systSgKeyMapFwdElectrons.insert(std::make_pair(i.first,i.second));
 
     for (Itr i=m_systSgKeyMapMuons->begin();i!=m_systSgKeyMapMuons->end();++i)
         out->m_systSgKeyMapMuons.insert( std::make_pair( (*i).first , (*i).second ) );
@@ -2688,6 +2855,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_sgKeyPrimaryVertices = settings->m_sgKeyPrimaryVertices;
     sgKeyPhotons( settings->m_sgKeyPhotons );
     sgKeyElectrons( settings->m_sgKeyElectrons );
+    sgKeyFwdElectrons( settings->m_sgKeyFwdElectrons );
     sgKeyMuons( settings->m_sgKeyMuons );
     sgKeyTaus( settings->m_sgKeyTaus );
     sgKeyJets( settings->m_sgKeyJets );
@@ -2701,6 +2869,8 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
     m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
+    
+    m_fwdElectronID = settings->m_fwdElectronID;
 
     m_muon_trigger_SF = settings->m_muon_trigger_SF;
     m_muonQuality = settings->m_muonQuality;
@@ -2718,6 +2888,9 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
 
     for (Itr i=settings->m_systSgKeyMapElectrons.begin();i!=settings->m_systSgKeyMapElectrons.end();++i)
         m_systSgKeyMapElectrons->insert( std::make_pair( (*i).first , (*i).second ) );
+        
+    for (Itr i=settings->m_systSgKeyMapFwdElectrons.begin();i!=settings->m_systSgKeyMapFwdElectrons.end();++i)
+        m_systSgKeyMapFwdElectrons->insert( std::make_pair( (*i).first , (*i).second ) );
 
     for (Itr i=settings->m_systSgKeyMapMuons.begin();i!=settings->m_systSgKeyMapMuons.end();++i)
         m_systSgKeyMapMuons->insert( std::make_pair( (*i).first , (*i).second ) );
@@ -2926,6 +3099,13 @@ std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
     map_t syst = config.systMapElectrons();
     for(Itr i=syst->begin();i!=syst->end();++i){
       os << " Electron systematic\t :: " << (*i).second.name() <<" \n";
+    }
+  }
+  
+  if( config.useFwdElectrons() ){
+    map_t syst = config.systMapFwdElectrons();
+    for(Itr i=syst->begin();i!=syst->end();++i){
+      os << " Fwd Electron systematic\t :: " << (*i).second.name() <<" \n";
     }
   }
 

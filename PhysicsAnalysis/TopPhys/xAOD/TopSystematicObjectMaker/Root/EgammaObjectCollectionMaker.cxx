@@ -28,8 +28,10 @@ namespace top{
     
     m_specifiedSystematicsPhotons(),
     m_specifiedSystematicsElectrons(),
+    m_specifiedSystematicsFwdElectrons(),
     m_recommendedSystematicsPhotons(),
     m_recommendedSystematicsElectrons(),
+    m_recommendedSystematicsFwdElectrons(),
 
     m_calibrationTool("CP::EgammaCalibrationAndSmearingTool"),
     m_photonFudgeTool("PhotonFudgeTool"),
@@ -72,9 +74,10 @@ namespace top{
     ATH_MSG_INFO(" top::EgammaObjectCollectionMaker initialize" );
     
     top::check( m_calibrationTool.retrieve() , "Failed to retrieve egamma calibration tool" );
-   
+    
     // These flags were for early R21 when we were asked not to calibrate egamma objects
     calibrateElectrons = true;
+    calibrateFwdElectrons = true;
     calibratePhotons   = true;
    
     if (m_config->usePhotons()) {
@@ -99,6 +102,7 @@ namespace top{
 
     std::set<std::string> systPhoton;
     std::set<std::string> systElectron;    
+    std::set<std::string> systFwdElectron;  
 
     const std:: string& syststr = m_config->systematics();
     std::set<std::string> syst;  
@@ -115,16 +119,23 @@ namespace top{
       if(!m_config->contains(syst, "AllPhotons")){
 	systPhoton=syst;
       }
+      if(!m_config->contains(syst, "AllFwdElectrons")){
+	systFwdElectron=syst;
+      }
     }
 
     specifiedSystematicsPhotons( systPhoton );
     specifiedSystematicsElectrons( systElectron );
+    specifiedSystematicsFwdElectrons( systFwdElectron );
     
     if (m_config->usePhotons()) {
       m_config->systematicsPhotons( specifiedSystematicsPhotons() );
     }
     if (m_config->useElectrons()) {
       m_config->systematicsElectrons( specifiedSystematicsElectrons() );
+    }
+    if (m_config->useFwdElectrons()) {
+      m_config->systematicsFwdElectrons( specifiedSystematicsFwdElectrons() );
     }
 
     // bool to decide whether to use certain Egamma tools
@@ -330,6 +341,66 @@ namespace top{
     return StatusCode::SUCCESS;
   }
   
+  StatusCode EgammaObjectCollectionMaker::executeFwdElectrons(bool executeNominal)
+  {
+
+    const xAOD::EventInfo* eventInfo(nullptr);
+    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
+    
+    ///-- Get base electrons from xAOD --///
+    const xAOD::ElectronContainer* xaod(nullptr);
+    top::check( evtStore()->retrieve( xaod , m_config->sgKeyFwdElectrons() ) , "Failed to retrieve Fwd Electrons" );
+    
+    ///-- Loop over all systematics --///
+    for( auto systematic : m_specifiedSystematicsFwdElectrons ){
+      
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                 
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
+      ///-- Tell tool which systematic to use -///
+      top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
+      
+      ///-- Shallow copy of the xAOD --///
+      std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
+      
+      ///-- Loop over the xAOD Container --///
+      for( auto electron : *(shallow_xaod_copy.first) ){
+        
+        // Apply correction to object 
+        // should not affect derivations if there is no CC or track thinning
+        if (electron->caloCluster() != nullptr ) { // derivations might remove CC for low pt electrons
+
+	  if(calibrateFwdElectrons){
+
+	    top::check( m_calibrationTool->applyCorrection( *electron ) , "Failed to applyCorrection to fwd electrons" );
+
+	   }
+    
+	  }
+      }//end of loop on electrons
+       
+      ///-- set links to original objects- needed for MET calculation --///
+      bool setLinks = xAOD::setOriginalObjectLink( *xaod, *shallow_xaod_copy.first );
+      if (!setLinks)
+		ATH_MSG_ERROR(" Cannot set original object links for fwd electrons" );
+      
+      // Save corrected xAOD Container to StoreGate / TStore
+      std::string outputSGKey = m_config->sgKeyFwdElectronsStandAlone( systematic.hash() );
+      std::string outputSGKeyAux = outputSGKey + "Aux.";
+
+      xAOD::TReturnCode save = evtStore()->tds()->record( shallow_xaod_copy.first , outputSGKey );
+      xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_xaod_copy.second , outputSGKeyAux );
+      
+      if( !save || !saveAux ){
+	return StatusCode::FAILURE;
+      }
+
+    }  // Loop over all systematics     
+    
+    return StatusCode::SUCCESS;
+  }
+  
   StatusCode EgammaObjectCollectionMaker::printoutPhotons()
   {
     // Loop over all systematics 
@@ -361,6 +432,22 @@ namespace top{
         float ptcone30(0.);
         x->isolationValue( ptcone30 , xAOD::Iso::ptcone30 );
         ATH_MSG_INFO("   El pT , eta , ptcone30 = "<<x->pt()<<" , "<<x->eta()<<" , "<<ptcone30 );
+      }
+    }
+    
+    return StatusCode::SUCCESS;    
+  }
+  
+  StatusCode EgammaObjectCollectionMaker::printoutFwdElectrons()
+  {
+    // Loop over all systematics 
+    for( auto s : m_specifiedSystematicsFwdElectrons ){
+      const xAOD::ElectronContainer* xaod(nullptr);
+      top::check( evtStore()->retrieve( xaod , m_config->sgKeyFwdElectronsStandAlone( s.hash() ) ), "Failed to retrieve Fwd Electrons" );   
+      
+      ATH_MSG_INFO(" Fwd Electrons with sgKey = "<<m_config->sgKeyFwdElectronsStandAlone( s.hash() ) );
+      for( auto x : *xaod ){
+        ATH_MSG_INFO("   El pT , eta = "<<x->pt()<<" , "<<x->eta() );
       }
     }
     
@@ -433,6 +520,40 @@ namespace top{
     m_recommendedSystematicsElectrons.unique();
     m_specifiedSystematicsElectrons.sort();
     m_specifiedSystematicsElectrons.unique();
+  }
+  
+void EgammaObjectCollectionMaker::specifiedSystematicsFwdElectrons( const std::set<std::string>& specifiedSystematics )
+  {
+    ///-- Get the recommended systematics from the tool, in std::vector format --///
+    const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( m_calibrationTool->recommendedSystematics() );
+    
+    for (auto s : systList) {
+      m_recommendedSystematicsFwdElectrons.push_back(s);
+      if (s.name() == "") {
+        m_specifiedSystematicsFwdElectrons.push_back(s);
+      }
+      
+      ///-- MC only --///
+      if (m_config->isMC()) {
+        ///-- Are we only doing Nominal? Did the user specify specific systematics to use? --///
+        if (!m_config->isSystNominal( m_config->systematics() )) {
+          if (specifiedSystematics.size() == 0) {
+            m_specifiedSystematicsFwdElectrons.push_back(s);
+          }
+          if (specifiedSystematics.size()  > 0) {
+            for (auto i : specifiedSystematics) {
+              if ( i == s.name() ) {
+                m_specifiedSystematicsFwdElectrons.push_back(s);              
+              }
+            }
+          }
+        }
+      }
+    } 
+    m_recommendedSystematicsFwdElectrons.sort();    
+    m_recommendedSystematicsFwdElectrons.unique();
+    m_specifiedSystematicsFwdElectrons.sort();
+    m_specifiedSystematicsFwdElectrons.unique();
   }
   
 }
