@@ -281,6 +281,11 @@ private:
     ///-- Pileup SF systematics --///
     float m_weight_pileup_UP;
     float m_weight_pileup_DOWN;
+    ///---Fwd electrons --///
+    float m_weight_fwdElSF;
+    float m_weight_fwdElSF_FWDEL_SF_ID_UP;
+    float m_weight_fwdElSF_FWDEL_SF_ID_DOWN;
+    
     ///-- Lepton SF --///
     float m_weight_leptonSF;
     ///-- Lepton SF - electron SF systematics --///
@@ -510,6 +515,16 @@ private:
     std::vector<char>  m_el_true_isChargeFl;
     std::vector<char>  m_el_ECIDS;
     std::vector<double>  m_el_ECIDSResult;
+    
+    //forward electrons
+    std::vector<float> m_fwdel_pt;
+    std::vector<float> m_fwdel_eta;
+    std::vector<float> m_fwdel_phi;
+    std::vector<float> m_fwdel_e;
+    std::vector<float> m_fwdel_etcone20;
+    std::vector<float> m_fwdel_etcone30;
+    std::vector<float> m_fwdel_etcone40; 
+    std::vector<char>  m_fwdel_isTight;   
 
     //muons
     std::vector<float> m_mu_pt;
@@ -1181,6 +1196,15 @@ protected:
   const std::vector<int>& el_true_firstEgMotherPdgId() const { return m_el_true_firstEgMotherPdgId;}
   const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
   const std::vector<char>& el_true_isChargeFl() const { return m_el_true_isChargeFl;}
+  
+  //forward electrons
+  const std::vector<float>& fwdel_pt() const { return m_fwdel_pt;}
+  const std::vector<float>& fwdel_eta() const { return m_fwdel_eta;}
+  const std::vector<float>& fwdel_phi() const { return m_fwdel_phi;}
+  const std::vector<float>& fwdel_e() const { return m_fwdel_e;}
+  const std::vector<float>& fwdel_etcone20() const { return m_fwdel_etcone20;}
+  const std::vector<float>& fwdel_etcone30() const { return m_fwdel_etcone30;}
+  const std::vector<float>& fwdel_etcone40() const { return m_fwdel_etcone40;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}

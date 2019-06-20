@@ -19,6 +19,7 @@ namespace top{
     m_sgKeyPrimaryVertices("SetMe"),
     m_sgKeyPhotons("SetMe"),
     m_sgKeyElectrons("SetMe"),
+    m_sgKeyFwdElectrons("SetMe"),
     m_sgKeyMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
@@ -32,6 +33,8 @@ namespace top{
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
+    
+    m_fwdElectronID("SetMe"),
 
     m_muon_trigger_SF("SetMe"),
     m_muonQuality("SetMe"),
@@ -43,6 +46,7 @@ namespace top{
 
     m_systSgKeyMapPhotons(),
     m_systSgKeyMapElectrons(),
+    m_systSgKeyMapFwdElectrons(),
     m_systSgKeyMapMuons(),
     m_systSgKeyMapTaus(),
     m_systSgKeyMapJets(),

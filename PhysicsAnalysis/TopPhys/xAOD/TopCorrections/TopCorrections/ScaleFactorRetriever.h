@@ -86,6 +86,8 @@ enum topSFSyst{nominal = 0,
                BTAG_SF_NAMED_UP, BTAG_SF_NAMED_DOWN,
                // JVT SFs
                JVT_UP, JVT_DOWN,
+               // FWD Electron ID SFs
+               FWDEL_SF_ID_UP, FWDEL_SF_ID_DOWN,
 
                lastsys
 };
@@ -127,7 +129,12 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF(const top::Event& event,
                    const top::topSFSyst SFSyst,
                    const top::topSFComp SFComp) const;
-
+  
+  // Obtain the fwd electron SF
+  float fwdElectronSF(const top::Event& event,
+                   const top::topSFSyst SFSyst,
+                   const top::topSFComp SFComp=top::topSFComp::ALL) const;
+  
   // Obtain the muon SF
   float muonSF(const top::Event& event,
                const top::topSFSyst SFSyst,
@@ -206,6 +213,10 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF_ChargeMisID(const xAOD::Electron& x,
 			       const top::topSFSyst SFSyst,
 			       bool isLoose) const;
+			       
+  float fwdElectronSF_ID(const xAOD::Electron& x,
+                      const top::topSFSyst SFSyst,
+                      bool isLoose) const;
 
   float muonSF_Trigger(const xAOD::Muon& x,
                        const top::topSFSyst SFSyst,
@@ -274,7 +285,11 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF_ChargeMisID(const xAOD::Electron& x,
 			       const std::string& id, const std::string& iso,
 			       const top::topSFSyst SFSyst) const;
-
+  
+  float fwdElectronSF_ID(const xAOD::Electron& x,
+                      const std::string& id,
+                      const top::topSFSyst SFSyst) const;
+  
   float photonSF_Isol(const xAOD::Photon& x,
 		      const std::string& iso,
 		      const top::topSFSyst SFSyst) const;

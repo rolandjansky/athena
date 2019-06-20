@@ -21,6 +21,8 @@
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
+#include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
 namespace top {
 
@@ -51,6 +53,9 @@ class EgammaCPTools final : public asg::AsgTool {
   std::string m_electronEffSFChargeIDLooseFile;
   std::string m_electronEffSFChargeMisIDFile;
   std::string m_electronEffSFChargeMisIDLooseFile;
+  
+  std::string m_fwdElectronEffSFIDFile;
+  std::string m_fwdElectronEffSFIDLooseFile;
 
   ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibrationAndSmearingTool;
 
@@ -73,9 +78,15 @@ class EgammaCPTools final : public asg::AsgTool {
   ToolHandle<IAsgPhotonIsEMSelector> m_photonTightIsEMSelector;
   ToolHandle<IAsgPhotonIsEMSelector> m_photonMediumIsEMSelector;
   ToolHandle<IAsgPhotonIsEMSelector> m_photonLooseIsEMSelector;
-
-
-
+  
+  ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelector;
+  ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelectorLoose;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFID;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFIDLoose;
+  
+  ToolHandle<Trig::WebBunchCrossingTool> m_webBunchCrossingTool;
+  
+  StatusCode setupSelectors();
   StatusCode setupCalibration();
   StatusCode setupScaleFactors();
 

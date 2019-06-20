@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopSystematicObjectMaker
                           AssociationUtils
+                          TrigBunchCrossingTool
                           TrigConfInterfaces
                           TrigDecisionTool
                           TriggerMatchingTool
@@ -61,6 +62,7 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   TopSystematicObjectMaker
                                   AssociationUtilsLib
+                                  TrigBunchCrossingTool
                                   TrigConfInterfaces
                                   TrigDecisionToolLib
                                   TriggerMatchingToolLib

@@ -39,7 +39,9 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
     m_electronEffSFChargeIDFile("SetMe"),
     m_electronEffSFChargeIDLooseFile("SetMe"),
     m_electronEffSFChargeMisIDFile("SetMe"),
-    m_electronEffSFChargeMisIDLooseFile("SetMe") {
+    m_electronEffSFChargeMisIDLooseFile("SetMe"),
+    m_fwdElectronEffSFIDFile("SetMe"),
+    m_fwdElectronEffSFIDLooseFile("SetMe") {
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -59,6 +61,11 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
   declareProperty( "PhotonIsEMSelectorLoose" ,  m_photonLooseIsEMSelector);
   declareProperty( "PhotonIsEMSelectorMedium" , m_photonMediumIsEMSelector);
   declareProperty( "PhotonIsEMSelectorTight" ,  m_photonTightIsEMSelector);
+  
+  declareProperty( "FwdElectronSelector", m_fwdElectronSelector);
+  declareProperty( "FwdElectronSelectorLoose", m_fwdElectronSelectorLoose);
+  declareProperty( "FwdElectronEffIDLoose" , m_fwdElectronEffSFIDLoose );
+  declareProperty( "WebBunchCrossingTool", m_webBunchCrossingTool);
 }
 
 StatusCode EgammaCPTools::initialize() {
@@ -69,16 +76,20 @@ StatusCode EgammaCPTools::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (m_config->usePhotons() || m_config->useElectrons()) {
+  if (m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()) {
     if (m_config->makeAllCPTools()) {// skiping calibrations on mini-xAODs
       top::check(setupCalibration(), "Failed to setup Egamma calibration tools");
+    }
+    if(m_config->useFwdElectrons() && m_config->makeAllCPTools()) 
+    {
+		top::check(setupSelectors(),"Failed to setup Fwd electrons selectors tools");
     }
     if (m_config->isMC()) {// scale-factors are only for MC
       top::check(setupScaleFactors(), "Failed to setup Egamma scale-factor tools");
     }
   }
   else {
-    ATH_MSG_INFO("top::EgammaCPTools: no need to initialise anything since using neither electrons nor photons");
+    ATH_MSG_INFO("top::EgammaCPTools: no need to initialise anything since using neither electrons nor fwd electrons nor photons");
   }
 
   // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
@@ -86,6 +97,30 @@ StatusCode EgammaCPTools::initialize() {
     ATH_MSG_INFO("top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
   }
   return StatusCode::SUCCESS;
+}
+
+StatusCode EgammaCPTools::setupSelectors() {
+	
+	ATH_MSG_INFO("top::EgammaCPTools setupSelectors..");
+	if(m_config->useFwdElectrons())
+	{
+		m_fwdElectronSelector = new AsgForwardElectronLikelihoodTool("CP::FwdElectronSelector"); 
+		top::check( m_fwdElectronSelector->setProperty("ConfigFile", "ElectronPhotonSelectorTools/offline/mc16_20180716/FwdLH"+m_config->fwdElectronID()+"Conf.conf") , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
+		top::check( m_fwdElectronSelector->initialize(), "Couldn't initialise Forward Electron LH ID Tool" );
+		
+		m_fwdElectronSelectorLoose = new AsgForwardElectronLikelihoodTool("CP::FwdElectronSelectorLoose"); 
+		top::check( m_fwdElectronSelectorLoose->setProperty("ConfigFile", "ElectronPhotonSelectorTools/offline/mc16_20180716/FwdLH"+m_config->fwdElectronIDLoose()+"Conf.conf") , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
+		top::check( m_fwdElectronSelectorLoose->initialize(), "Couldn't initialise Forward Electron LH ID Loose Tool" );
+		
+		if(!m_config->isMC())
+		{
+			ATH_MSG_INFO("top::EgammaCPTools setting up web bunch crossing tool");
+			m_webBunchCrossingTool= new Trig::WebBunchCrossingTool("CP::WebBunchCrossingTool");
+			top::check(m_webBunchCrossingTool->setProperty("OutputLevel", MSG::INFO), "failed to set propert for WebBunchCrossingTool"); 
+			top::check(m_webBunchCrossingTool->setProperty("ServerAddress", "atlas-trigconf.cern.ch"), "failed to set propert for WebBunchCrossingTool");
+		}
+	}
+	return StatusCode::SUCCESS;
 }
 
 
@@ -199,8 +234,14 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Don't need for data, return SUCCESS straight away
   if (!m_config->isMC()) return StatusCode::SUCCESS;
   ///-- Scale factors --///
-
   std::string electron_data_dir = "ElectronEfficiencyCorrection/";
+  
+  // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
+  int dataType(0);
+  if (m_config->isMC()) {
+     dataType = (m_config->isAFII()) ? 3 : 1;
+  }
+ 
   ///-- Reco SFs doesn't depend on WP --///
   std::string electronID = m_config->electronID();
   if (electronID.find("LH") != std::string::npos)
@@ -231,11 +272,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
                                      "2016_2018_e26_lhtight_nod0_ivarloose_"
                                      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
-  // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
-  int dataType(0);
-  if (m_config->isMC()) {
-     dataType = (m_config->isAFII()) ? 3 : 1;
-  }
+  
 
   // Define the tool prefix name
   const std::string elSFPrefix = "AsgElectronEfficiencyCorrectionTool_";
@@ -255,6 +292,20 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Isolation SFs
   m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
+  
+  if(m_config->useFwdElectrons())
+  {
+	  ATH_MSG_INFO("Setting up forward Electrons SF tool");
+
+	  m_fwdElectronEffSFIDFile           = electronSFMapFilePath("FWDID");
+	  m_fwdElectronEffSFIDLooseFile           = electronSFMapFilePath("FWDID");
+	  m_fwdElectronEffSFID= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_ID", m_fwdElectronEffSFIDFile, "", "Fwd"+m_config->fwdElectronID(), "", "", dataType);
+	  m_fwdElectronEffSFIDLoose= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_IDLoose", m_fwdElectronEffSFIDLooseFile, "", "Fwd"+m_config->fwdElectronIDLoose(), "", "", dataType);
+	  
+	  ATH_MSG_INFO("Finished setting up forward Electrons SF tool");
+	
+  }
+  
 
   // Charge ID cannot use maps at the moment so we default to the old method
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
@@ -307,7 +358,7 @@ EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<st
 
 IAsgElectronEfficiencyCorrectionTool*
 EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type) {
-  std::string infoStr = "Configuring : " + name + " " + map_path;
+  std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" + ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" + std::to_string(data_type);
   ATH_MSG_INFO(infoStr);
   IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
   if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
@@ -402,6 +453,9 @@ std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     else if(type == "ID"){
       file_path = "map3.txt";
     }
+    else if(type == "FWDID"){
+      file_path = "map3.txt";
+    }
     else if(type == "isolation"){
       file_path = "map3.txt";
     }
@@ -436,6 +490,7 @@ std::string EgammaCPTools::mapWorkingPoints(const std::string& type) {
   if(type == "TightLLH" || type == "Tight"){
     working_point = "Tight";
   }
+  if(type == "FwdLoose" || type == "FwdMedium" || type == "FwdTight") working_point=type;
 
   return working_point;
 }

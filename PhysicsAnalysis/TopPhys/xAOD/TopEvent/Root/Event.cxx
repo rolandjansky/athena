@@ -7,6 +7,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronContainerFwd.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
@@ -33,33 +34,46 @@ std::ostream& operator<<(std::ostream& os, const top::Event& event) {
 
     os << "Electrons: " << event.m_electrons.size() << "\n";
     for (const auto* const elPtr : event.m_electrons)
+    {
         os << "    " << *elPtr << "\n";
-
+    }    
+	os << "FwdElectrons: " << event.m_fwdElectrons.size() << "\n";
+    for (const auto* const elPtr : event.m_fwdElectrons)
+    {
+	    os << "    " << *elPtr << "\n";
+    }
     os << "Muons: " << event.m_muons.size() << "\n";
     for (const auto* const muPtr : event.m_muons)
-        os << "    " << *muPtr << "\n";
-
+    {
+	    os << "    " << *muPtr << "\n";
+    }
     os << "Jets: " << event.m_jets.size() << "\n";
     for (const auto* const jetPtr : event.m_jets)
-        os << "    " << *jetPtr << "\n";
-
+    {
+		os << "    " << *jetPtr << "\n";
+    }
     os << "Fail-JVT jets: " << event.m_failJvt_jets.size() << "\n";
     for (const auto* const jetPtr : event.m_failJvt_jets)
+    {
         os << "    " << *jetPtr << "\n";
-
+	}
     os << "Large jets: " << event.m_largeJets.size() << "\n";
     for (const auto* const jetPtr : event.m_largeJets)
-        os << "    " << *jetPtr << "\n";
-    
+    {
+		os << "    " << *jetPtr << "\n";
+    }
     os << "Track jets: " << event.m_trackJets.size() << "\n";
     for (const auto* const jetPtr : event.m_trackJets)
-        os << "    " << *jetPtr << "\n";    
-
+    {
+		os << "    " << *jetPtr << "\n";    
+    }
     os << "Taus: " << event.m_tauJets.size() << "\n";
     for (const auto* const tauPtr : event.m_tauJets)
-        os << "    " << *tauPtr << "\n";
-
-    os << *event.m_met;
+    {
+		os << "    " << *tauPtr << "\n";
+    }
+    os << "MET: "<< *event.m_met << "\n";
+    
     return os;
 }
 
