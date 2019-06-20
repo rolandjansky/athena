@@ -63,7 +63,9 @@ def setup(TOPQname, stream):
   # trimmed jets
   if TOPQname == 'TOPQ1':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
+
   # see TOPQDERIV70
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
 

@@ -76,6 +76,10 @@ TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKern
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ4Sequence,'TOPQ4')
 
+# add VR jets
+from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
+addVRJetsForTop(TOPQ4Sequence)
+
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
