@@ -3,6 +3,7 @@
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
+#include "FlavorTagDiscriminants/DL2HighLevelTools.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
 #include "PathResolver/PathResolver.h"
@@ -22,12 +23,13 @@ namespace {
   std::regex operator "" _r(const char* c, size_t /* length */) {
     return std::regex(c);
   }
+
 }
 
 namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
-                             EDMSchema schema):
+                             EDMSchema schema, FlipTagConfig flip_config):
     m_dl2(nullptr)
   {
     // get the graph
@@ -43,7 +45,8 @@ namespace FlavorTagDiscriminants {
     //
 
     // type and default value-finding regexes are hardcoded for now
-    // TODO: these are all deprecated now.
+    // TODO: this first block is deprecated now, see
+    // https://its.cern.ch/jira/browse/AFT-438
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
       {"iprnn_p(b|c|u|tau)"_r, EDMType::FLOAT},
@@ -61,8 +64,11 @@ namespace FlavorTagDiscriminants {
     if (schema == EDMSchema::FEB_2019) {
       type_regexes = {
         {".*_isDefaults"_r, EDMType::UCHAR},
+        // TODO: in the future we should migrate RNN and IPxD
+        // variables to floats. This is outside the scope of the
+        // current flavor tagging developments and AFT-438.
         {"(IP[23]D_|SV[12]_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
-        {"(rnnip|iprnn)_p(b|c|u|tau)"_r, EDMType::DOUBLE}, // TODO: to float
+        {"(rnnip|iprnn)_p(b|c|u|tau)"_r, EDMType::DOUBLE},
         {"(minimum|maximum|average)TrackRelativeEta"_r, EDMType::FLOAT},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_[Nn].*"_r, EDMType::INT},
         {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
@@ -99,6 +105,32 @@ namespace FlavorTagDiscriminants {
       throw std::logic_error("DL2 doesn't support multiple inputs");
     }
 
+    // __________________________________________________________________
+    // we rewrite the inputs if we're using flip taggers
+    //
+
+    ReplaceRegexes flip_converters {
+      {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
+      {"rnnip_(.*)"_r, "rnnipflip_$1"},
+      {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
+      {"rnnip"_r, "rnnipflip"},
+      {"pt|abs_eta|(minimum|maximum|average)TrackRelativeEta"_r, "$&"}
+    };
+
+    // TODO: this next line should be deprecated with the new schema
+    if (schema == EDMSchema::WINTER_2018) {
+      ReplaceRegexes old_regexes {
+        {"secondaryVtx_(.*)"_r, "$1Flip_$2"},
+        {"iprnn_(.*)"_r, "iprnnflip_$1"},
+        {"iprnn|smt"_r, "$&flip"},
+        {"(max|min|avg)_trk_flightDirRelEta|smt_.*|softMuon_.*"_r, "$&"},
+      };
+      flip_converters.insert(flip_converters.end(),
+                             old_regexes.begin(), old_regexes.end());
+    }
+    if (flip_config == FlipTagConfig::NEGATIVE_IP_ONLY) {
+      rewriteFlipConfig(config, flip_converters);
+    }
 
     // ___________________________________________________________________
     // build the track inputs
@@ -134,7 +166,8 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
-    m_dl2.reset(new DL2(config, input_config, trk_config, schema));
+    m_dl2.reset(
+      new DL2(config, input_config, trk_config, flip_config, schema));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
