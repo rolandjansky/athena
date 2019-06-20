@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_Trk2DDistanceFinder_H
@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h" // For TwoPoints
 #include "AthenaBaseComps/AthAlgTool.h"
 
 namespace Trk
@@ -14,7 +15,6 @@ namespace Trk
 
   class MeasuredPerigee;
   class Trk2dDistanceSeeder;
-  class NewtonTrkDistanceFinder;
 
   /**
    @class Trk2DDistanceFinder
@@ -68,6 +68,7 @@ namespace Trk
 
     ToolHandle<Trk2dDistanceSeeder> m_2ddistanceseeder;
     int m_numberOfMinimizationFailures;
+    Trk::TwoPoints m_points;
 
   };
 }

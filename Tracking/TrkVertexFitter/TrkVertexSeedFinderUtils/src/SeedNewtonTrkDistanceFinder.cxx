@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -110,14 +110,14 @@ namespace Trk
     //try first to get the minimum directly with the Newton method
     try {
 //      m_minpoints=m_distancefinder->GetClosestPoints(a,b); 
-      minpoints=m_distancefinder->GetClosestPoints(a,b); 
+      m_points = m_distancefinder->GetClosestPoints(a,b); 
     } catch (Error::NewtonProblem e) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder: " << e.p << endmsg;
       try {
 //	m_minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b));
 //	m_minpoints=m_distancefinder->GetClosestPoints(m_minpoints);
         minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b));
-        minpoints=m_distancefinder->GetClosestPoints(minpoints);
+        m_points = m_distancefinder->GetClosestPoints(minpoints);
  
       } catch (Error::NewtonProblem e) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder, even after 2d seeder: no minimum between tracks found" << e.p << endmsg;
@@ -130,18 +130,14 @@ namespace Trk
     }
     
 #ifdef SEEDNEWTONTRKDISTANCEFINDER_DEBUG
-//    m_log(MSG::DEBUG) << "Returned a_phi " << m_minpoints.first.getPhiPoint() << endmsg;
-//    m_log(MSG::DEBUG) << "Returned b_phi " << m_minpoints.second.getPhiPoint() << endmsg;
-
- if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned a_phi " << minpoints.first.getPhiPoint() << endmsg;
- if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned b_phi " << minpoints.second.getPhiPoint() << endmsg;
+    ATH_MSG_DEBUG( "Returned a_phi " << minpoints.first.getPhiPoint() );
+    ATH_MSG_DEBUG( "Returned b_phi " << minpoints.second.getPhiPoint() );
 #endif
 
     return true;
-    
-
   }
-    
+
+
   /** method to do the calculation starting from two tracks */
   bool  SeedNewtonTrkDistanceFinder::CalculateMinimumDistance(const  Trk::Track & a, const Trk::Track & b) {
 
@@ -179,12 +175,12 @@ namespace Trk
   
   /**method to obtain the distance (call CalculateMinimumDistance before) **/
   double  SeedNewtonTrkDistanceFinder::GetDistance() const {
-    return dist(m_distancefinder->GetClosestPoints());//GetSeedPoint has to be implemented
+    return dist(m_points);//GetSeedPoint has to be implemented
   }
     
   /** method to obtain the points on the two tracks at minimum distance **/
   const std::pair<Amg::Vector3D,Amg::Vector3D>  SeedNewtonTrkDistanceFinder::GetPoints() const {
-    return m_distancefinder->GetClosestPoints();
+    return m_points;
   }
 
   
