@@ -70,8 +70,8 @@ def _IncTool(name, threshold, sel):
 
 
 def _MultTool(name):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolMult
-    return TrigL2CaloHypoToolMult( name )
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoToolMult
+    return TrigEgammaPrecisionCaloHypoToolMult( name )
 
 
 
