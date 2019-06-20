@@ -545,41 +545,7 @@ StatusCode HLTXAODBphysMonTool::fillTriggers(){
                 ATH_MSG_DEBUG(  "\t\t\t:" << (*mu)->pt() << " " << (*mu)->eta() << " " << (*mu)->phi() << " " << (*mu)->charge() );
             }
 
-            /* combinations are TODO
-            const std::vector<Trig::Combination>& combinations = fc.getCombinations();
-            ATH_MSG_DEBUG(  "Trigger(): number of combinations: " << combinations.size() );
-
-            std::vector<Trig::Combination>::const_iterator cit;
-            
-            for (cit = combinations.begin(); cit != combinations.end(); ++cit) { // Loop over combinations
-                const Trig::Combination& combination = *cit;
-                if (not cit->active()) {
-                    ATH_MSG_DEBUG( "Trigger(): combination " << *cit << " is not active" );
-                } //if not active
-                
-                std::vector<Trig::Feature<xAOD::TrigBphys> > triggerFeatures = combination.get<xAOD::TrigBphys>();
-                std::vector<Trig::Feature<xAOD::TrigBphys> >::const_iterator tfIt;
-                ATH_MSG_DEBUG( "Trigger features: " << triggerFeatures.size()  );
-
-                for (tfIt = triggerFeatures.begin(); tfIt != triggerFeatures.end(); ++tfIt) { // Loop over trigger features
-                    //retrieves EF info
-                    const xAOD::TrigBphys* trigObj = tfIt->cptr();
-                    ATH_MSG_DEBUG( "  features: " << trigObj->mass() << " " << trigObj->eta() << " " << trigObj->phi()  );
-                } // loop over trigger (bphys) features
-                
-                std::vector<Trig::Feature<xAOD::Muon> > triggerFeaturesMuon = combination.get<xAOD::Muon>();
-                std::vector<Trig::Feature<xAOD::Muon> >::const_iterator tfItmu;
-                ATH_MSG_DEBUG( "Trigger features Muons: " << triggerFeaturesMuon.size()  );
-                
-                for (tfItmu = triggerFeaturesMuon.begin(); tfItmu != triggerFeaturesMuon.end(); ++tfItmu) { // Loop over trigger features
-                                                                                              //retrieves EF info
-                    const xAOD::Muon* trigObj = tfItmu->cptr();
-                    ATH_MSG_DEBUG( "  features: " << trigObj->pt() << " " << trigObj->eta() << " " << trigObj->phi()  );
-                } // loop over trigger (muons) features
-
-                
-            } // loop over combinations
-            */
+            // TODO explicit loop over combinations
 
         } // navigation if/else
 
