@@ -72,40 +72,34 @@ TOPQ3Sequence = CfgMgr.AthSequencer("TOPQ3Sequence")
 # First skim on leptons
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-# Then build fat/trimmed jets
+# add fat/trimmed jets
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ3Sequence,'TOPQ3')
 
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ3Sequence)
+# apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
+applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ3Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+
 TaggerList = BTaggingFlags.StandardTaggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ3Sequence)
-
-# Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
-# if not hasattr(TOPQ3Sequence,"ELReset"):
-#   TOPQ3Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
-
-
-# THIS IS NO LONGER NEEDED IN REL 21, REMOVE IN FUTURE (May-17)
-# # Then apply the TruthWZ fix
-# if DFisMC:
-#   replaceBuggyAntiKt4TruthWZJets(TOPQ3Sequence,'TOPQ3')
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
   from DerivationFrameworkTop.TOPQCommonTruthTools import *
   TOPQ3Sequence += TOPQCommonTruthKernel
 
-DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ3Sequence, ToolSvc)
+# add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
+addMSVVariables("AntiKt4EMTopoJets", TOPQ3Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3Kernel", ThinningTools = thinningTools)

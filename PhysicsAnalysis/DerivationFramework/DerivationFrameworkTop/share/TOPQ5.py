@@ -170,40 +170,34 @@ TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5SkimmingKern
                                                               SkimmingTools = skimmingTools_lep,
                                                               AugmentationTools = [TOPQ5_Reco_mumu,TOPQ5_Select_Jpsi2mumu])
 
-# Then build fat/trimmed jets
+# add fat/trimmed jets
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ5Sequence,'TOPQ5')
 
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ5Sequence)
+# apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
+applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ5Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+
 TaggerList = BTaggingFlags.StandardTaggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ5Sequence)
-
-# Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
-# if not hasattr(TOPQ5Sequence,"ELReset"):
-#   TOPQ5Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
-
-
-# THIS IS NO LONGER NEEDED IN REL 21, REMOVE IN FUTURE (May-17)
-# # Then apply the TruthWZ fix
-# if DFisMC:
-#   replaceBuggyAntiKt4TruthWZJets(TOPQ5Sequence,'TOPQ5')
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
   from DerivationFrameworkTop.TOPQCommonTruthTools import *
   TOPQ5Sequence += TOPQCommonTruthKernel
 
-DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ5Sequence, ToolSvc)
+# add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
+addMSVVariables("AntiKt4EMTopoJets", TOPQ5Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5Kernel", ThinningTools = thinningTools)
