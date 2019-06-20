@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReplicaSorter.cxx
@@ -167,8 +167,8 @@ bool ReplicaSorter::readConfig() {
   return true;
 }
 
-FILE* ReplicaSorter::findFile(const std::string filename,
-			const std::string pathvar) {
+FILE* ReplicaSorter::findFile(const std::string& filename,
+                              const std::string& pathvar) {
   // behave like pathresolver
   std::string::size_type iofs1,iofs2,len;
   FILE* fptr=0;
