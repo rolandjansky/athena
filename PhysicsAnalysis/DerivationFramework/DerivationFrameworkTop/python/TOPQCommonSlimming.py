@@ -60,9 +60,6 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-  # trimmed jets
-  if TOPQname == 'TOPQ1':
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
 
   # see TOPQDERIV70
   if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
@@ -122,8 +119,6 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
-    if TOPQname == 'TOPQ1':
-      TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth
 
   # add these trigger variables to all MC and data (TOPQ4 only)
   if DFisMC or TOPQname == 'TOPQ4':
@@ -200,7 +195,6 @@ def setup(TOPQname, stream):
                 ["AntiKt4EMTopoJets", # smart list
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
@@ -208,6 +202,7 @@ def setup(TOPQname, stream):
                  "AntiKt4LCTopoJets",
                  "AntiKt10LCTopoJets",
                  "AntiKt10LCTopoCSSKJets",
+                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )
