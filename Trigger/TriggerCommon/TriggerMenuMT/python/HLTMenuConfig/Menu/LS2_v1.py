@@ -60,8 +60,8 @@ def setupMenu():
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
         # currently disabled, seems to be a problem with the precision calo step
-        ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e3_etcut_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        #ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        #ChainProp(name='HLT_e3_etcut_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         # enabling only one step
         #ChainProp(name='HLT_2e3_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         #ChainProp(name='HLT_e3_etcut1step_e7_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -71,7 +71,6 @@ def setupMenu():
 
         # PhotonChains------------
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
-        ChainProp(name='HLT_2g5_etcut_L1EM3', groups=SinglePhotonGroup),  
     ]
 
     TriggerFlags.METSlice.signatures = [
