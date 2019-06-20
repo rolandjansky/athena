@@ -94,6 +94,12 @@ def checkOnFolder (folderName):
 def getYear ():
     theYear = m_year
     
+    if ('data16' in m_dataProject):
+        theYear = 2016
+
+    if ('data17' in m_dataProject):
+        theYear = 2017
+
     if ('data18' in m_dataProject):
         theYear = 2018
 
@@ -260,6 +266,10 @@ def crossCheckInfo(infoFromAMI, infoFromRecordsFile):
                 #listOfPendingRuns.append(runInAMI)
 
     print (" <acZmumu> List of new runs has: %d items " %len(listOfNewRuns)) 
+    
+    # sort run lists
+    listOfNewRuns.sort()
+    listOfPendingRuns.sort()
 
     return (listOfNewRuns, listOfPendingRuns)
 
@@ -285,7 +295,14 @@ def submitGridJobsUserDataSet ():
     if (m_submitExec): 
         print (" <acZmumu> m_submitExec = True --> job to be submmited");
         # move to the submission folder
-        submissionPath = "%s/run" %(m_testArea) 
+        submissionPath = "%s/run" %(m_testArea)
+        #print " -- DEBUG -- submissionPath = %s" %submissionPath  
+        if (not os.path.exists(submissionPath)):
+            print (" <acZmumu> \"run\" folder (submission path: %s) does not exist " %submissionPath)
+            print ("          making the path available for you ;) ")
+            theMkdirCommand = "mkdir %s" %submissionPath
+            os.system(theMkdirCommand)
+            
         os.chdir(submissionPath)
         print (" <acZmumu> path: %s" %(submissionPath))
         os.system(theCommand)
@@ -300,6 +317,9 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
+
+    #print " -- DEBUG -- submitGridJobsListOfRuns -- List of new runs: ",len(listOfNewRuns), listOfNewRuns
+    #print " -- DEBUG -- submitGridJobsListOfRuns -- List of pending runs: ",len(listOfPendingRuns), listOfPendingRuns
 
     for runNumber in listOfNewRuns:
         listOfRunsToSubmit.append(runNumber)
@@ -320,6 +340,7 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
         runEvents = int(theRunProperties["events"])
         runEvents = int(infoFromAMI[runNumber]["events"])
         # check stats
+        print " Run number: %d, events: %d, min req: %d " %(runNumber, runEvents, m_minEvents)
         if (runEvents < m_minEvents):
             readyForSubmission = False
             infoFromAMI[runNumber]["status"] = "LOW_STATS"
