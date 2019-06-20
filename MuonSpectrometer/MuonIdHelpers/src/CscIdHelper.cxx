@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -340,6 +340,7 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
+  m_init = true;
   return (status);
 }
 
