@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -19,6 +19,8 @@ from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence
 def getTauSequence( step ):
     if step == "calo":
         return tauCaloMenuSequence("Tau")
+    if step == "calo_mva":
+        return tauCaloMVAMenuSequence("Tau")
     if step == "track_core":
         return tauCoreTrackSequence()
     if step == "precision":
@@ -42,6 +44,25 @@ def tauCaloMenuSequence(name):
     return  MenuSequence( Sequence    = sequence,
                           Maker       = tauCaloViewsMaker,
                           Hypo        = theTauCaloHypo,
+                          HypoToolGen = TrigL2TauHypoToolFromDict )
+
+# ===============================================================================================
+#      Calo MVA step
+# ===============================================================================================
+
+def tauCaloMVAMenuSequence(name):
+    (sequence, tauCaloMVAViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauCaloMVASequence,ConfigFlags)
+
+    # hypo
+    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlgMT
+    theTauCaloMVAHypo = TrigTauCaloHypoAlgMT(name+"L2CaloMVAHypo")
+    theTauCaloMVAHypo.taujets     = sequenceOut
+
+    from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = tauCaloMVAViewsMaker,
+                          Hypo        = theTauCaloMVAHypo,
                           HypoToolGen = TrigL2TauHypoToolFromDict )
 
 # ===============================================================================================

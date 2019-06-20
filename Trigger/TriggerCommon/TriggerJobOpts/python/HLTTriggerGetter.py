@@ -133,11 +133,15 @@ class HLTSimulationGetter(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
 
-        #scheduling eventinfo
-        from RecExConfig.ObjKeyStore import objKeyStore
-        if ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
-            from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-            topSequence += xAODMaker__EventInfoCnvAlg()
+        # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+        from AthenaCommon.GlobalFlags  import globalflags
+        if globalflags.InputFormat.is_pool():
+            from RecExConfig.ObjKeyStore import objKeyStore
+            from PyUtils.MetaReaderPeeker import convert_itemList
+            objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+                from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+                xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
         # Schedule RoIBResult conversion from ByteStream
         if jobproperties.Global.InputFormat() == 'bytestream':
@@ -167,7 +171,6 @@ class HLTSimulationGetter(Configured):
             from TrigSteering.TrigSteeringConfig import TrigSteer_HLT, ReruningTrigSteer_HLT
             if TriggerFlags.doFEX():
                 from RecExConfig.RecFlags  import rec
-                from AthenaCommon.GlobalFlags  import globalflags
 
                 # schedule the conversion of the L1Calo ROIB data to topo simulation input
 

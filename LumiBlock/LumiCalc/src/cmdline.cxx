@@ -8,6 +8,9 @@
   we make no copyright claims on it.
 */
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 /* If we use autoconf.  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"

@@ -31,7 +31,6 @@ AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree
 ##################################################################
 if (doElectron):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TrigUpgradeTest.InDetSetup import inDetSetup
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
     
     fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) 

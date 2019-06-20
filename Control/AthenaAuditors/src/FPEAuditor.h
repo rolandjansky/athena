@@ -105,8 +105,6 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   /////////////////////////////////////////////////////////////////// 
  private: 
 
-  std::string m_evtInfoKey;
-
   /** report fpes which happened during step 'step' on behalf of 'caller'
    */
   void report_fpe(const std::string& step, const std::string& caller);

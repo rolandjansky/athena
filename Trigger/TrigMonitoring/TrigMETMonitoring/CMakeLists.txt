@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigMonitoring/TrigHLTMonitoring
                           PRIVATE
+                          Control/AthenaMonitoring
                           Control/StoreGate
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfL1Data )
@@ -29,11 +30,16 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( TrigMETMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel TrigConfL1Data 
-                     xAODEgamma xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger MissingETEvent 
-                     TrigMissingEtEvent TrigSteeringEvent TrigHLTMonitoringLib StoreGateLib SGtests )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel 
+		     AthenaMonitoringLib
+		     TrigConfL1Data 
+                     xAODEgamma xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger 
+		     MissingETEvent 
+                     TrigMissingEtEvent TrigSteeringEvent TrigHLTMonitoringLib 
+		     StoreGateLib SGtests )
 
 # Install files from the package:
+atlas_install_headers( TrigMETMonitoring )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

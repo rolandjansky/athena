@@ -560,7 +560,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    }
    if (fileName.find("BSF:") == 0) {
       ATH_MSG_DEBUG("MetaDataSvc called for non ROOT file.");
-   } else if (fileName == "SHM") {
+   } else if (fileName.substr(0, 3) == "SHM") {
       ATH_MSG_DEBUG("MetaDataSvc called for shared memory.");
    } else {
       const std::string par[2] = { fileName,  m_metaDataCont.value() + "(DataHeader)" };

@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DCSCalculator2.tile")
-from .lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, 
-                  DCSC_Variable_With_Mapping, OUT_OF_CONFIG, GoodIOV)
+from ..lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, 
+                   DCSC_Variable_With_Mapping, OUT_OF_CONFIG, GoodIOV)
 
 from itertools import product
 

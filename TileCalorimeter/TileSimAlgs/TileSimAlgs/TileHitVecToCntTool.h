@@ -101,8 +101,11 @@ private:
   void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
   void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
 
-  Gaudi::Property< std::vector<std::string> > m_hitVectorNames{this, "TileHitVectors", {"TileHitVec"},
+
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKeyArray<TileHitVector> m_hitVectorKeys{this, "TileHitVectors", {"TileHitVec"},
       "Name of input hit vectors (default=TileHitVec)" };  //!< vector with the names of TileHitVectors to use
+  std::vector<std::string> m_hitVectorNames{};
 
   SG::WriteHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
       "Output Tile hit container key"};

@@ -44,6 +44,17 @@ def TileCondToolsTestCfg(flags):
     ofcCoolTool = acc.popToolsAndMerge( TileCondToolOfcCoolCfg(flags) )
     msg.info(ofcCoolTool)
 
+    from TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+    if flags.Common.isOnline:
+        accSampleNoise = TileCondToolNoiseSampleCfg(flags)
+    else:
+        accSampleNoise = TileCondToolNoiseSampleCfg(flags, 
+                                                    TileSampleNoise = 'TileSampleNoise',
+                                                    TileOnlineSampleNoise = 'TileOnlineSampleNoise')
+
+    sampleNoiseTool = acc.popToolsAndMerge( accSampleNoise )
+    msg.info(sampleNoiseTool)
+
     if flags.IOVDb.DatabaseInstance  == 'CONDBR2':
         from TileTMDBConfig import TileCondToolTMDBCfg
         tmdbTool = acc.popToolsAndMerge( TileCondToolTMDBCfg(flags) )

@@ -41,20 +41,19 @@ def dimuEFSequence(name = 'Dimu'):
 
     muNames = muonNames().getNames('RoI')
 
-    dimuefViewNode = parOR("dimuefViewNode")
+    dimuefRecoSequence = parOR("dimuefViewNode")
     
     dimuefViewsMaker = EventViewCreatorAlgorithm("dimuefViewsMaker")
     dimuefViewsMaker.ViewFallThrough = True
     dimuefViewsMaker.RoIsLink = "roi" # -||-
     dimuefViewsMaker.InViewRoIs = "DimuEFRoIs" # contract with the consumer
     dimuefViewsMaker.Views = "DimuEFViewRoIs"
-    dimuefViewsMaker.ViewNodeName = dimuefViewNode.name()
+    dimuefViewsMaker.ViewNodeName = dimuefRecoSequence.name()
     dimuefViewsMaker.RequireParentView = True
    
-    dimuefRecoSequence = parOR("dimuefViewNode")
     
     ViewVerifyEFCB = CfgMgr.AthViews__ViewDataVerifier("dimuefViewDataVerifier")
-    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+MuonsCB' )]
+    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+'+muNames.EFCBName )]
     dimuefRecoSequence += ViewVerifyEFCB
     dimuefSequence = seqAND( "dimuefSequence", [dimuefViewsMaker, dimuefRecoSequence] )
 

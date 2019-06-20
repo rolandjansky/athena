@@ -164,8 +164,6 @@ private :
 	  LArTT_Selector<LArCellCont>::const_iterator l;
 	  TileCellCollection::const_iterator t;
 	  CaloCellContainer * cont=NULL;
-	  l=l;
-	  t=t;
 	  storeCells(context, l,l,cont);
 	  storeCells(context, t,t,cont);
 	}
