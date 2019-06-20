@@ -66,7 +66,7 @@ StatusCode TrackCaloClusterInfoAlg::execute() {
   const xAOD::VertexContainer *vxCont=nullptr;
   ATH_CHECK( evtStore()->retrieve(vxCont, m_vertexContname) ); 
   if(!vxCont->empty()) {
-    tccInfo->pv0=(*vxCont)[0]; 
+    tccInfo->pv0=(*vxCont)[0]; // Hard code HS vertex as PV0 : WARNING we expect it is the same as was used for m_inputTrackCaloAssocName !!
   } else {    
     ATH_MSG_ERROR ("Vertex container " << m_vertexContname << " is empty! Can't perform TVA!");
     return StatusCode::FAILURE;
