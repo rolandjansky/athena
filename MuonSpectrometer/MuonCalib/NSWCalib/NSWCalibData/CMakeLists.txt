@@ -8,8 +8,6 @@
 # Declare the package's dependencies:
  atlas_depends_on_subdirs( PUBLIC
                            Control/CLIDSvc
-                           Control/DataModel
-                           Control/SGTools
                            DetectorDescription/Identifier
                            MuonSpectrometer/MuonIdHelpers )
  
@@ -22,5 +20,11 @@
                     PUBLIC_HEADERS NSWCalibData
                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                     DEFINITIONS ${CLHEP_DEFINITIONS}
-                    LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib )
+                    LINK_LIBRARIES ${CLHEP_LIBRARIES}  Identifier MuonIdHelpersLib )
 
+ #atlas_depends_on_subdirs( PUBLIC
+ #                          Control/CLIDSvc
+ #                          Control/DataModel
+ #                          Control/SGTools
+ #                          DetectorDescription/Identifier
+ #                          MuonSpectrometer/MuonIdHelpers )
