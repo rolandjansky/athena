@@ -40,12 +40,13 @@ FourMuonEvent::FourMuonEvent()
   m_etaCut      = 1.05;
   m_LeadingMuonPtCut = 20.;   
   m_SecondMuonPtCut = 15.;
-  m_MassWindowLow = 50.0;
+  m_MassWindowLow = 10.0;
   m_MassWindowHigh = 125.0;
   m_OpeningAngleCut = 0.2; // in radians
   m_Z0GapCut = 5.0; // in mm
   m_SelectMuonByIso = true;
   m_SelectMuonByIP = true;
+  m_eventCount = 0;
 }
 
 //==================================================================================
@@ -70,6 +71,7 @@ bool FourMuonEvent::Reco()
   if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * starting " << std::endl; }
   // Clear out the previous events record.
   this->Clear();
+  m_eventCount++;
   //  const Analysis::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<Analysis::MuonContainer>( m_container );
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
   if (!pxMuonContainer){
@@ -77,7 +79,7 @@ bool FourMuonEvent::Reco()
     return false;
   }
   else{
-    if(m_doDebug) {std::cout << " * FourMuonEvent::Reco * track list has "<< pxMuonContainer->size() << " combined muon "<<std::endl; }
+    if (m_doDebug || true) {std::cout << " * FourMuonEvent::Reco * event " << m_eventCount << " track list has "<< pxMuonContainer->size() << " combined muon "<<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
     int theCount = 0;

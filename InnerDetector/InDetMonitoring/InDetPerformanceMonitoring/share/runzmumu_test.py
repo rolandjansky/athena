@@ -91,8 +91,8 @@ if (grid_bool):
     PoolInput = ["/eos/user/m/martis/data/data18_13TeV/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
 if (MC_bool): 
     #PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
-    PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/ZZ4l/mc16_13TeV/AOD.13049187._000001.pool.root.1"]
-
+    #PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/ZZ4l/mc16_13TeV/AOD.13049187._000001.pool.root.1"]
+    PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc16_13TeV/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
 #EvtMax= -1
 EvtMax= 12000
 SkipEvents = 0
@@ -374,7 +374,7 @@ if zmumuval == True:
                                     PtSecondMuon = 2.,#10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     Z0Gap = 5.0, # in mm
-                                    OutputLevel = INFO)
+                                    OutputLevel = DEBUG)
     job += iDPerfMonZmumu
     print iDPerfMonZmumu
     

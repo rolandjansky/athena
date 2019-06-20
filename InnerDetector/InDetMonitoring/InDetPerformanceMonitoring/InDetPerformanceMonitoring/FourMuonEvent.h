@@ -161,6 +161,9 @@ class FourMuonEvent : public EventAnalysis
   bool m_SelectMuonByIso;
   bool m_SelectMuonByIP;
 
+  // event count
+  int m_eventCount;
+
   // selected muon identifiers
   // to be removed
   int m_muon1;
