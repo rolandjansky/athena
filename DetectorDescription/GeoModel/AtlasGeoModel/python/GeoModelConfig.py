@@ -26,6 +26,9 @@ def GeoModelCfg(configFlags):
 
     # Specify primary Identifier dictionary to be used
     detDescrCnvSvc=DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml",IdDictFromRDB = True)
+    # this flag is set as it was in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Reconstruction/RecExample/RecExCond/share/AllDet_detDescr.py#0050
+    if configFlags.Detector.Geometry:
+        detDescrCnvSvc.DecodeIdDict = True
     result.addService(detDescrCnvSvc)
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
 
