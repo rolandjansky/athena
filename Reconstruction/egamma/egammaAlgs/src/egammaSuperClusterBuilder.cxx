@@ -150,7 +150,7 @@ StatusCode egammaSuperClusterBuilder::initialize() {
       m_addCellsWindowPhiCellsEndcap % 2 == 0 ||
       m_addCellsWindowEtaCellsBarrel % 2 == 0 ||
       m_addCellsWindowEtaCellsEndcap % 2 == 0) {
-    ATH_MSG_ERROR("For adding cells relative to the hottest cell to be symmetric, the AddCells window size needs to be odd");
+    ATH_MSG_FATAL("For adding cells relative to the hottest cell to be symmetric, the AddCells window size needs to be odd");
     return StatusCode::FAILURE;
   }
 
