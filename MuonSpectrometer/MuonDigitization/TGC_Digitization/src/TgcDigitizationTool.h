@@ -88,7 +88,10 @@ private:
   TimedHitCollection<TGCSimHit>*     m_thpcTGC{};
   std::list<TGCSimHitCollection*>    m_TGCHitCollList;
 
-  Gaudi::Property<std::string> m_inputHitCollectionName{this, "InputObjectName", "TGC_Hits", "name of the input object"}; // name of the input objects
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<TGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "TGC_Hits",
+      "name of the input object"};
+  std::string m_inputHitCollectionName{""};
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 

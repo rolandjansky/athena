@@ -231,9 +231,15 @@ def getTopoCalibMoments(configFlags):
                                                        ,"TileCalibHitDeadMaterial"]
     return TopoCalibMoments
 
-def CaloTopoClusterCfg(configFlags):
+# Steering options for trigger
+# Maybe offline reco options should be extracted from flags elsewhere
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
     result=ComponentAccumulator()
-    
+    from AthenaCommon.AlgSequence import AthSequencer
+    result.addSequence(AthSequencer(sequenceName))
+
+    if not clustersname: clustersname = "CaloTopoClusters"
+
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
@@ -259,12 +265,12 @@ def CaloTopoClusterCfg(configFlags):
     from TileConditions.TileConditionsConfig import tileCondCfg
     result.merge(tileCondCfg(configFlags))
 
-    theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoClusters",SetCrossLinks=True)
+    theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
 
     # maker tools
     TopoMaker = CaloTopoClusterMaker("TopoMaker")
         
-    TopoMaker.CellsName = "AllCalo"
+    TopoMaker.CellsName = cellsname
     TopoMaker.CalorimeterNames=["LAREM",
                                 "LARHEC",
                                 "LARFCAL",
@@ -325,8 +331,8 @@ def CaloTopoClusterCfg(configFlags):
     # EnergyCut                     = 500*MeV,
         
 
-    CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")
-    CaloTopoCluster.ClustersOutputName="CaloTopoCluster"
+    CaloTopoCluster=CaloClusterMaker(clustersname)
+    CaloTopoCluster.ClustersOutputName=clustersname
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
     
@@ -336,16 +342,18 @@ def CaloTopoClusterCfg(configFlags):
 
     CaloTopoCluster.ClusterCorrectionTools += [getTopoMoments(configFlags)]
 
-    CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
-
-    if configFlags.Calo.TopoCluster.doTopoClusterLocalCalib:
-        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
+    if doLCCalib==None:
+        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+    if doLCCalib:
+        CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
+        if not clustersname:
+            CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
         # Needed?
         from CaloRec import CaloClusterTopoCoolFolder
 
-    result.addEventAlgo(CaloTopoCluster,primary=True)
+    result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
 
     return result
 

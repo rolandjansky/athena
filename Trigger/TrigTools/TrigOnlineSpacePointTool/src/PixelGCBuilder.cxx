@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/PixelGCBuilder.h"
+#include "PixelGCBuilder.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"

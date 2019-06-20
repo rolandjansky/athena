@@ -20,6 +20,8 @@
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
@@ -39,8 +41,6 @@
 class MsgStream;
 
 namespace InDet {
-
-  //class SiClusterContainer;
 
  /**
   @class SiCombinatorialTrackFinder_xk 
@@ -134,9 +134,9 @@ namespace InDet {
       PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssosiationTool",
           "InDet::InDetPRD_AssociationToolGangedPixels"};
 
-      SG::ReadHandleKey<InDet::SiClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
+      SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
           "PixelClusters"};
-      SG::ReadHandleKey<InDet::SiClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
+      SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
           "SCT_Clusters"};
       SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
           "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};

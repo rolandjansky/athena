@@ -11,12 +11,12 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections=athenaCommonFlags.FilesInput()
 
 if not 'stream' in dir():
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
     try:
-        stream=inputFileSummary['stream_names'][0]
+        stream = metadata['processingTags'][0]
     except:
-        print "WARNING Unable to determine input stream name. Will Print all streams."
-        stream='any'
+        print("WARNING Unable to determine input stream name. Will Print all streams.")
+        stream = 'any'
 
 ## if not 'cycle' in dir():
 ##     from RecExConfig.InputFilePeeker import inputFileSummary

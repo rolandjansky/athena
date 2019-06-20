@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include "LWHistBitUtils.h"
 #ifndef NDEBUG
 #include <iostream>
@@ -65,7 +66,7 @@ inline unsigned LWBinUtils::valueToBin( const double& x, float*varBinnings,
     return nbinsplus1;
 #endif
 #ifndef NDEBUG
-  if (x!=x) {
+  if (std::isnan(x)) {
     std::cout<<"LWHisto ERROR: Saw NaN in input axis position"<<std::endl;
     return USHRT_MAX;
   }

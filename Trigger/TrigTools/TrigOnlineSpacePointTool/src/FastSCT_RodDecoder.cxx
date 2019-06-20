@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
+#include "FastSCT_RodDecoder.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "ByteStreamData/ROBData.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadCondHandle.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "FastSCT_Clusterization.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "GaudiKernel/ListItem.h"

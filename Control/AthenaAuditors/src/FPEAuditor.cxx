@@ -14,11 +14,10 @@
 
 // FrameWork includes
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "FPEAuditor.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "xAODEventInfo/EventInfo.h"
 
 // C includes
 #include <fenv.h>
@@ -69,7 +68,6 @@ FPEAuditor::FPEAuditor( const std::string& name,
                   "After collecting the stacktrace, the code has to modify the mcontext_t "
                   "struct to ignore FPEs for the rest of the processing of the algorithm/service "
                   "This part is highly non-portable!" );
-  declareProperty("EventInfoKey",m_evtInfoKey="EventInfo","SG Key of xAOD::EventInfo obj");
 }
 
 // Destructor
@@ -274,16 +272,9 @@ FPEAuditor::report_fpe(const std::string& step,
   int raised = fetestexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO);
   if (raised) {
     std::stringstream evStr;
-    //try to get the event number:
-    StoreGateSvc* evtStore=nullptr; 
-    if (service("StoreGateSvc",evtStore).isSuccess()) {
-      const xAOD::EventInfo* ei=evtStore->tryConstRetrieve<xAOD::EventInfo>(m_evtInfoKey);
-      if (ei) {
-	evStr << " on event " << ei->eventNumber();
-      }
-      else {
-	std::cout << "Failed to get EventInfo with key ["<<m_evtInfoKey<<"] while reporting FPE" << std::endl;
-      }
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    if (ctx.valid()) {
+      evStr << " on event " << ctx.eventID().event_number();
     }
 
     if (raised & FE_OVERFLOW) {

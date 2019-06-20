@@ -8,7 +8,6 @@
  *  this case, the elements of T are written/read and their POOL
  *  tokens are stored in CondAttrListCollection.
  *  @author RD Schaffer <R.D.Schaffer@cern.ch>
- *  $Id: T_AthenaPoolCoolMultChanCnv.icc,v 1.16 2008-12-11 17:25:19 gemmeren Exp $
  **/
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
@@ -142,6 +141,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
     typename COLL_T::iov_const_iterator  itIOV  = obj->iov_begin();
     Token* token = 0;
     std::string token_str;
+    std::lock_guard<AthenaPoolConverter::CallMutex> lock(this->m_conv_mut);
     for (unsigned int chan = 0; chan < obj->size(); ++chan, ++itChan) {
 	ELEM_T* elem = (*obj)[chan];
         // Allow for T/P separation, convert to persistent object
@@ -276,11 +276,13 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::attrListCollToObject(CondAt
 	    ATH_MSG_ERROR("PoolRef not found in attribute list");
 	    return(StatusCode::FAILURE);
 	}
-
         // Allow T/P separation - set token and use createTransient
-        this->setToken( token );
-        ELEM_T* elem = this->createTransient();
-
+        ELEM_T* elem {nullptr};
+        {
+           std::lock_guard<AthenaPoolConverter::CallMutex> lock(this->m_conv_mut);
+           this->setToken( token );
+           elem = this->createTransient();
+        }
 	// Add elem, channel number and IOV
 	obj->push_back(elem);
 	obj->add((*it).first);
@@ -311,6 +313,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::condMultChanCollImplToObjec
     ELEM_T* elem = 0;
 
     // Read in the CondMultChanCollImpl
+    std::lock_guard<AthenaPoolConverter::CallMutex> lock(this->m_conv_mut);
     CondMultChanCollImpl* impl = 0;
     this->setToken(collImplToken);
     StatusCode sc = this->poolToObject(this->m_i_poolToken, impl);

@@ -150,7 +150,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
     const SG::ReadHandleKeyArray< ViewContainer >& views;
   };
 
-  StatusCode fixLinks( const ConstHandlesGroup< xAOD::TrigCompositeContainer >& handles ) const;
+  StatusCode fixLinks() const;
 
   template<typename T, typename G, typename M >
     StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, 

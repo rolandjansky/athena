@@ -12,9 +12,9 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFInsideOutSequence
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
+
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -46,6 +46,9 @@ def FSmuEFCBSequenceCfg(flags):
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
 
+def muEFInsideOutSequenceCfg(flags):
+    return muEFInsideOutSequence()
+
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -55,7 +58,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -63,31 +65,41 @@ class MuonChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
 
-        # Calling inDetSetup here 
-        inDetSetup()
-
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "":(self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB()),
-            "fast":[self.getmuFast()],
-            "Comb":[self.getmuFast(), self.getmuComb()],
-            "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
-            "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
-            "msonly":[self.getmuFast(), self.getmuMSEmpty(), self.getmuEFMS()],
-            "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
-        }
+        stepDictionary = self.getStepDictionary()
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
-        steps=stepDictionary[key]
-        for step in steps:
-            chainSteps+=[step]
 
+        steps=stepDictionary[key]
+
+        for step_level in steps:
+            for step in step_level:
+                chainSteps+=[step]
     
         myChain = self.buildChain(chainSteps)
         return myChain
 
+    def getStepDictionary(self):
+
+
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration
+        # each value is a list [ L2, EF ] where L2 = [list of L2 steps] and EF = [ EF steps]
+        # this way, Bphys (or others) can insert steps at the end of L2 and end of EF after
+        # the muon steps are defined
+        # note that bphys chains are by default noL2Comb, even though this is not in the name
+        # --------------------
+
+        stepDictionary = {
+            "":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB()]],
+            "fast":[[self.getmuFast()]],
+            "Comb":[[self.getmuFast(), self.getmuComb()]],
+            "noL2Comb" : [[self.getmuFast()], [self.getmuEFSA(), self.getmuEFCB()]],
+            "ivar":[[self.getmuFast(), self.getmuComb(), self.getmuIso()]],
+            "noL1":[[],[self.getFSmuEFSA(), self.getFSmuEFCB()]],
+            "msonly":[[self.getmuFast(), self.getmuMSEmpty()], [self.getmuEFMS()]],
+            "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
+        }
+        return stepDictionary
 
     # --------------------
     def getmuFast(self):
@@ -158,5 +170,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring empty step")
         return ChainStep(stepName)
 
-
+    #-------------------
+    def getmuEFInsideOut(self):
+        stepName = 'Step1_muInsideOut'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve(muEFInsideOutSequenceCfg, None)
+        return ChainStep(stepName, [muSeq], self.mult)
 

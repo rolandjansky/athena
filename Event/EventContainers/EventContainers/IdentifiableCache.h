@@ -71,8 +71,6 @@ public:
     return reinterpret_cast<const T*> (IdentifiableCacheBase::get (hash));
   }
 
-  // ids
-
   bool add (IdentifierHash hash, const T* p)
   {
     return IdentifiableCacheBase::add (hash, p);

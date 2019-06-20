@@ -25,33 +25,39 @@ def recordable( name ):
         pass
     else: #negative filtering
         if not name.startswith( "HLT_" ):
-            __log.warning( "The collection name {0} does not start with HLT_".format( name ) )
+            __log.error( "The collection name {0} does not start with HLT_".format( name ) )
         if "Aux" in name and not name[-1] != ".":
-            __log.warning( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
+            __log.error( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
 
     for entry in TriggerHLTList:
         if entry[0].split( "#" )[1] == name:
             return name
-    msg = "The collection name {0} is not declared to be stored by HLT".format( name )
-    __log.warning( msg )
-    #raise RuntimeError( msg )
+    msg = "The collection name {0} is not declared to be stored by HLT. Add it to TriggerEDMRun3.py".format( name )
+    __log.error("ERROR in recordable() - see following stack trace.")
+    raise RuntimeError( msg )
     return name
 
 TriggerHLTList = [
 
     #framework/steering
-    ('xAOD::TrigCompositeContainer#HLTSummary',           'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1DecoderSummary',     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTSummary',              'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTSummaryAux.',       'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1DecoderSummary',        'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1DecoderSummaryAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
 
-    ('TrigRoiDescriptorCollection#EMRoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#MURoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#METRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#JETRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
 
-    ('xAOD::TrigCompositeContainer#L1EM',                 'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MU',                 'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MET',                'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1J',                  'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1EM',                    'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1EMAux.',             'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MU',                    'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1MUAux.',             'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MET',                   'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1METAux.',            'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1J',                     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#L1JAux.',              'BS ESD AODFULL AODSLIM', 'Steer'),
 
     # Egamma
 
@@ -63,9 +69,14 @@ TriggerHLTList = [
     ('xAOD::TrigElectronContainer#HLT_L2Electrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Electron',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.',          'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Electron',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.', 'BS ESD AODFULL', 'Egamma'),
 
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
+    ('xAOD::CaloClusterAuxContainer#HLT_CaloEMClustersAux.',        'BS ESD AODFULL', 'Egamma'),
+
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI',          'BS ESD AODFULL', 'Egamma' 'inViews:precisionCaloViews'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersRoIAux.',   'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 
@@ -75,17 +86,48 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonFS',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonFSAux.',          'BS ESD AODFULL', 'Muon'),
 
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonIso',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonIsoAux.',          'BS ESD AODFULL', 'Muon'),
+
+    # Tau
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauCore',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauCoreAux.',          'BS ESD AODFULL', 'Tau'),
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauIso',                 'BS ESD AODFULL', 'Tau', 'inViews:TIsoViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauIsoAux.',          'BS ESD AODFULL', 'Tau'),
+
 
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_METAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
     ('xAOD::TrigMissingETContainer#HLT_MET_mht',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
+    ('xAOD::TrigMissingETContainer#HLT_MET_tcPufit',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcPufitAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_tc',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersFSAux.',           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
+
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+
+    # tau calo clusters
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCLCAux.',         'BS ESD AODFULL', 'Tau'),
+
+    # tau tracks
+    ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
+    ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
 
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),

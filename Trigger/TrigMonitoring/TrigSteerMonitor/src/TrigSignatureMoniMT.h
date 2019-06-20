@@ -6,10 +6,12 @@
 
 #include <string>
 #include <mutex>
+#include <memory>
 #include <TH2.h>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/LockedHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "DecisionCollectorTool.h"
@@ -46,17 +48,17 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "/EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
 
-  TH2* m_passHistogram;
-  TH2* m_countHistogram;
-  TH2* m_rateHistogram;
+  LockedHandle<TH2> m_passHistogram;
+  LockedHandle<TH2> m_countHistogram;
+  LockedHandle<TH2> m_rateHistogram;
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX() const;
   int nBinsY() const;
-  StatusCode initHist(TH2*);
+  StatusCode initHist(LockedHandle<TH2>&);
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
-  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, TH2* histogram);
+  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram);
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
 }; 
 

@@ -47,10 +47,7 @@
 #include <vector>
 #include <utility>//for std::pair
 
-
-class IBeamCondSvc;
-
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 
 namespace Trk {
@@ -118,7 +115,7 @@ namespace InDet {
       {this,"TrkVKalVrtFitter","Trk::TrkVKalVrtFitter",""};
    PublicToolHandle< Trk::ITrackSummaryTool > m_sumSvc
       {this,"TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool",""}; //!< Pointer to the track summary tool
-   ServiceHandle< IBeamCondSvc >  m_iBeamCondSvc; //!< pointer to the beam condition service
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
    PublicToolHandle<Trk::ITrackSelectorTool>  m_trkSelector
       {this,"DefaultTrackSelection","DefaultTrackSelection",""};
 
@@ -126,7 +123,6 @@ namespace InDet {
    std::vector<double> m_BeamCnstWid;
 //
    int m_SummaryToolExist;
-   int m_BeamCondSvcExist;
    int m_trkSelectorExist;
 //
 // To simplify life....

@@ -14,10 +14,6 @@ topSequence = AlgSequence()
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.setDataLoaderAlg ('SGInputLoader')
 
-# EventInfoCnvAlg produces xAOD::EventInfo from the plain non-xAOD EventInfo
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg()
-
 ################################################################################
 # L1 result decoding
 ################################################################################

@@ -2,9 +2,9 @@
 
 from pkg_resources import resource_string
 
-from .lib import (DCSC_DefectTranslate_Subdetector,
-                  DCSC_Variable_With_Mapping,
-                  make_multi_mapping)
+from ..lib import (DCSC_DefectTranslate_Subdetector,
+                   DCSC_Variable_With_Mapping,
+                   make_multi_mapping)
 
 MDTBA, MDTBC, MDTEA, MDTEC = 302, 303, 304, 305
 

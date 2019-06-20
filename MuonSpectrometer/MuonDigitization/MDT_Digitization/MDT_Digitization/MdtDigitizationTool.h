@@ -243,7 +243,9 @@ class MdtDigitizationTool : public PileUpToolBase {
 
 protected:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
-  Gaudi::Property<std::string> m_inputObjectName{this, "InputObjectName", "MDT_Hits", ""}; // name of the input objects
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<MDTSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MDT_Hits", ""}; // name of the input objects
+  std::string m_inputObjectName{""};
   SG::WriteHandleKey<MdtDigitContainer> m_outputObjectKey{this,"OutputObjectName","MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDOKey{this,"OutputSDOName","MDT_SDO","WriteHandleKey for Output MuonSimDataCollection"};
 

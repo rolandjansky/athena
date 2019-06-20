@@ -169,10 +169,9 @@ def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationToolSpl
 def PixelDigitizationOverlayToolCfg(flags, name="PixelDigitizationOverlayTool", **kwargs):
     """Return a ComponentAccumulator with PixelDigitizationTool configured for overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    kwargs.setdefault("RDOCollName", flags.Overlay.Legacy.EventStore + "+PixelRDOs")
-    kwargs.setdefault("SDOCollName", flags.Overlay.Legacy.EventStore + "+PixelSDO_Map")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("RDOCollName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "PixelRDOs")
+    kwargs.setdefault("SDOCollName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 

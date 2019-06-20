@@ -52,24 +52,11 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "  CscSimDataCollection key  " << m_cscSimDataCollectionWriteHandleKey.key());
   ATH_MSG_DEBUG ( "  CscDigitContainer key     " << m_cscDigitContainerKey.key());
 
-  ATH_MSG_DEBUG ( "Retrieved Active Store Service." );
-
-  ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
-
   // initialize transient detector store and MuonDetDescrManager
   ATH_CHECK(detStore()->retrieve(m_geoMgr));
   ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
   ATH_CHECK(m_mergeSvc.retrieve());
-
-  // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
-  }
 
   //random number initialization
   ATH_CHECK(m_rndmSvc.retrieve());
@@ -95,7 +82,20 @@ StatusCode CscDigitizationTool::initialize() {
 
   m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
 
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
+  }
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+
+  // +++ Initialize WriteHandleKey
   ATH_CHECK(m_cscDigitContainerKey.initialize());
+  ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
 
   ATH_MSG_DEBUG("WP Current MSG Level FATAL ? " << msgLvl(MSG::FATAL) );
   ATH_MSG_DEBUG("WP Current MSG Level ERROR ? " << msgLvl(MSG::ERROR) );
@@ -517,13 +517,25 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
 // Get next event and extract collection of hit collections:
 StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-PileUp Event...
 {
-  // Get the messaging service, print where you are
-
-  // initialize pointer
-  m_thpcCSC = 0;
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<CSCSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<CSCSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get CSCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcCSC = new TimedHitCollection<CSCSimHit>{1};
+    m_thpcCSC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("CSCSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
 
   //this is a list<pair<time_t, DataLink<CSCSimHitCollection> > >
   TimedHitCollList hitCollList;

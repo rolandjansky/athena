@@ -72,7 +72,6 @@ class LArRoI_Map;
 class IROBDataProviderSvc;
 class StoreGateSvc;
 class T2CaloConfig;
-class ICaloLumiBCIDTool;
 
 /** Class that provides access to data for
     Calorimeter LVL2 Algorithms */

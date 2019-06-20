@@ -232,18 +232,17 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
-    jetlog.info("Inspecting first input file")
+    jetlog.info("Inspecting input file contents")
     # Get the list of SG keys for the first input file
     # I consider it silly to run on a set of mixed file types
     firstinput = configFlags.Input.Files[0]
     import os, pickle
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     # PeekFiles returns a dict for each input file
-    filecontents = GetFileMD([firstinput])["SGKeys"].split(' ')
+    filecontents = configFlags.Input.Collections
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
-    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle]:
+    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
         # Protection against reproduction of existing containers
         if constit.inputname in filecontents:
             jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))

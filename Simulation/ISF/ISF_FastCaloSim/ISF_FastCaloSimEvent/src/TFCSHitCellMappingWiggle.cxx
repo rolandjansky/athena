@@ -47,7 +47,7 @@ void TFCSHitCellMappingWiggle::initialize(TFCS1DFunction* func)
 void TFCSHitCellMappingWiggle::initialize(const std::vector< const TFCS1DFunction* >& functions, const std::vector< float >& bin_low_edges)
 {
   if(functions.size()+1!=bin_low_edges.size()) {
-    ATH_MSG_ERROR("Using "<<functions.size()<<" functions needs "<<functions.size()+1<<" bins, but got "<<bin_low_edges.size()<<"bins");
+    ATH_MSG_ERROR("Using "<<functions.size()<<" functions needs "<<functions.size()+1<<" bin low edges, but got "<<bin_low_edges.size()<<"bins");
     return;
   }
   for(auto function : m_functions) if(function) delete function;
@@ -125,9 +125,9 @@ void TFCSHitCellMappingWiggle::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   
   if(longprint) {
-    ATH_MSG(INFO) << optprint <<"  "<<get_number_of_bins()<<" functions in [";
-    for (unsigned int i=0;i<get_number_of_bins();++i) msg()<<get_bin_low_edge(i)<<", ";
-    msg()<<get_bin_up_edge(get_number_of_bins()-1)<<"]"<< endmsg;
+    ATH_MSG(INFO) << optprint <<"  "<<get_number_of_bins()<<" functions : ";
+    for (unsigned int i=0;i<get_number_of_bins();++i) msg()<<get_bin_low_edge(i)<<" < ("<<get_function(i)<<") < ";
+    msg()<<get_bin_up_edge(get_number_of_bins()-1)<< endmsg;
   }  
 }
 

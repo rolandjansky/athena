@@ -77,14 +77,14 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
   // loop over previous decisions
   for ( const auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     auto roiEL = roiInfo.link;
     //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<ViewContainer>( "view" );
+    auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get muons
@@ -108,10 +108,11 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
       // pussh_back to toolInput
       toolInput.emplace_back( newd, roi, muon, previousDecision );
 
-      newd -> setObjectLink( "feature", muonEL );
-      newd -> setObjectLink( "roi",     roiEL  );
-      newd -> setObjectLink( "view",    viewEL );
-      TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+      newd -> setObjectLink( featureString(), muonEL );
+      // This attaches the same ROI with a different name ("InitialRoI" -> "RoI").
+      // If the ROI will never change, please re-configure your InputMaker to use the "InitialRoI" link
+      newd->setObjectLink( roiString(),     roiEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
@@ -134,19 +135,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
     }
   } // End of tool algorithms */	
 
-  { // make output handle and debug, in the base class
-    ATH_MSG_DEBUG ( "Exit with " << outputHandle->size() << " decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-      
-    } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
-  }
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
   return StatusCode::SUCCESS;

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
@@ -17,10 +17,8 @@ from os.path import dirname
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 from .channel_mapping import make_channelselection, get_channel_ids_names
-from .general import timer, date_to_nanounix
 from .selection import make_browse_objects_selection
 from .sugar import IOVSet, RunLumi, RunLumiType, TimestampType, make_iov_type
-from .ext.silence import silence
 
 DEFAULT_DBNAME = "CONDBR2"
 
@@ -97,7 +95,6 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
                       is UTF-8
     """
     from .quick_retrieve import quick_retrieve, browse_coracool, get_coracool_payload_spec
-    import PyCool
     
     if channels == []: return IOVSet()
             
@@ -110,12 +107,12 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
         try:
             folder = folder_name
             folder_name = folder.fullPath()
-        except:
+        except Exception:
             log.error("Exception when interpreting folder: {0}".format(folder_name))
             raise
 
-    log.info("Querying %s" % folder_name)
-    log.debug("Query range: [%s, %s]" % (since, until))
+    log.info("Querying %s", folder_name)
+    log.debug("Query range: [%s, %s]", since, until)
     
     short_folder = folder.fullPath().split("/")[-1]
     
@@ -212,9 +209,7 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
     return result
 
 def write_iovs(folder_name, iovs, record, multiversion=True, tag="",
-               create=False, storage_buffer=False):
-    from PyCool import cool
-    
+               create=False, storage_buffer=False):    
     args = folder_name, multiversion, record, create
     db, folder, payload = Databases.fetch_for_writing(*args)
     
@@ -337,16 +332,16 @@ class Databases(object):
         try:
             cool_folder = db.getFolder(folder)
         except Exception as error:
-            log.debug('HELP! %s' % error.args)
+            log.debug('HELP! %s', error.args)
             args = str(error.args[0] if not isinstance(error.args, basestring) else error.args)
-            log.debug('THIS IS %s' % type(args))
-            log.debug('Value of boolean: %s' % ("not found" in args))
+            log.debug('THIS IS %s', type(args))
+            log.debug('Value of boolean: %s', ("not found" in args))
             if not ("cannot be established" in args or
                      "not found" in args
                     ):
                 log.exception("Unknown error encountered whilst opening "
-                              "database connection to '%s'" 
-                              % database)
+                              "database connection to '%s'",
+                              database)
                 raise
                 
             if not create_function:
@@ -400,13 +395,13 @@ class Databases(object):
         res_db_string, read_only = cls.resolve_db_string(db_string, read_only)
             
         try:
-                prev_stdout = sys.stdout
-                sys.stdout = StringIO()
-                try:
-                    connection = indirectOpen(res_db_string, readOnly=read_only,
-                                              oracle=True)
-                finally:
-                    sys.stdout = prev_stdout
+            prev_stdout = sys.stdout
+            sys.stdout = StringIO()
+            try:
+                connection = indirectOpen(res_db_string, readOnly=read_only,
+                                          oracle=True)
+            finally:
+                sys.stdout = prev_stdout
         except Exception as e:
             if "The database does not exist" in e.args[0] and not create:
                 log.info("Failed trying to connect to '%s'", res_db_string)
@@ -414,8 +409,8 @@ class Databases(object):
             from PyCool import cool
             dbService = cool.DatabaseSvcFactory.databaseService()
             connection = dbService.createDatabase(res_db_string)
-        except:
-            print sys.exc_info()[0]
+        except Exception:
+            log.error(sys.exc_info()[0])
             raise
         return connection
 
@@ -431,7 +426,7 @@ class Databases(object):
         
         folderset_path = dirname(folder_name)
         try:
-            folder_set = db.getFolderSet(folderset_path)
+            db.getFolderSet(folderset_path)
         except Exception, error:
             caught_error = "Folder set %s not found" % folderset_path
             if caught_error not in error.args[0]:

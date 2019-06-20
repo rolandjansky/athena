@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 #import glob, os, re
 import traceback
 
@@ -93,7 +95,7 @@ EventSelector.InputCollections = In
 try:
   EventSelector.CollectionType = CollType
 except:
-  print "Reading from file"
+  print("Reading from file")
 
 SkipEvents=0
 if hasattr(runArgs,"skipEvents"):
@@ -120,15 +122,15 @@ StreamHITS.ForceRead=TRUE;  #force read of output data objs
 try:
   StreamHITS.AcceptAlgs = AcceptList
 except:
-  print "No accept algs indicated in AcceptList"
+  print("No accept algs indicated in AcceptList")
 try:
   StreamHITS.RequireAlgs = RequireList
 except:
-  print "No accept algs indicated in RequireList"
+  print("No accept algs indicated in RequireList")
 try:
   StreamHITS.VetoAlgs = VetoList
 except:
-  print "No accept algs indicated in VetoList"
+  print("No accept algs indicated in VetoList")
 
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
@@ -168,4 +170,4 @@ if hasattr(runArgs,"postExec"):
         merHitLog.info(cmd)
         exec(cmd)
 #--------------------------------------------------------------
-print topSequence
+print(topSequence)

@@ -881,7 +881,7 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
     return false;
   }
   //  ATH_MSG_INFO("in eta dependent hit cut");
-  static int cutVecSize = m_etaCutoffs.size();
+  const int cutVecSize = m_etaCutoffs.size();
   //  ATH_MSG_INFO("cut vec size "<<cutVecSize);
 
   float trketa = std::fabs(m_etaAccessor->getValue());
@@ -959,7 +959,7 @@ bool InDet::EtaDependentPtCut::result() const
   }
   float trkpt = std::fabs(m_ptAccessor->getValue());
   float trketa = std::fabs(m_etaAccessor->getValue());
-  static int cutVecSize = m_etaCutoffs.size();
+  const int cutVecSize = m_etaCutoffs.size();
 
   for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
 
@@ -1036,7 +1036,7 @@ bool InDet::PtDependentSctHitsCut::result() const
     ATH_MSG_WARNING( "pt accessor not valid. Track will not pass." );
     return false;
   }
-  static int cutVecSize = m_ptCutoffs.size();
+  const int cutVecSize = m_ptCutoffs.size();
   for (int i_ptbin = cutVecSize-1; i_ptbin >= 0; --i_ptbin) {
     if (m_ptAccessor->getValue() >= m_ptCutoffs.at(i_ptbin)
 	&& (m_sctAccessor->getValue() + m_sctDeadAccessor->getValue()

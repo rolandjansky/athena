@@ -3,7 +3,7 @@
 ### JobOptions to run MuGirlTag in xAOD
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPublicTool,getService
+from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getService
 from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
@@ -105,6 +105,7 @@ def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
    kwargs.setdefault("DoSummary", muonCombinedRecFlags.printSummary() )
    kwargs.setdefault("MuonSegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
    kwargs.setdefault("MuonInsideOutRecoTool", getPublicTool("MuonStauInsideOutRecoTool") )
+   kwargs.setdefault("TrackAmbiguityProcessor", getPublicTool("MuonAmbiProcessor") )
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
 
 

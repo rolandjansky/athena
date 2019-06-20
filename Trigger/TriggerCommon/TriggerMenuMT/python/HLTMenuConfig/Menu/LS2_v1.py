@@ -26,10 +26,11 @@ def setupMenu():
     #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+    #SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
     #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
-    #SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
+    SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
+    BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 
     TriggerFlags.Slices_all_setOff()
 
@@ -48,6 +49,7 @@ def setupMenu():
 
         ChainProp(name='HLT_2mu6Comb_L12MU6', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_L12MU6', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu4_L12MU4', groups=MultiMuonGroup),
 
      ]
 
@@ -86,7 +88,7 @@ def setupMenu():
         ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),        
 
-        ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
+        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),        
@@ -99,16 +101,23 @@ def setupMenu():
 
     ]
     TriggerFlags.BjetSlice.signatures = [
-        ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
+        #ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
+        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
     TriggerFlags.TauSlice.signatures = [
-        #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
-        #ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup)
     ]
-    TriggerFlags.BphysicsSlice.signatures = [ ]
+    TriggerFlags.BphysicsSlice.signatures = [
+        ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bBmumu_L12MU4',    groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup)
+    ]
     TriggerFlags.CombinedSlice.signatures = [ 
         ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['L1_EM8I', 'L1_MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
         #ChainProp(name='HLT_mu8_e8_etcut_L1MU6_EM7', l1SeedThresholds=['L1_MU6', 'L1_EM7'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    

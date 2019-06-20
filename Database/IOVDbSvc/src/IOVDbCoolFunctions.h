@@ -4,8 +4,8 @@
 //@file IOVDbCoolFunctions.h
 //@brief Numeric and COOL/Coral dependent helper functions
 //@author Shaun Roe
-#ifndef IOVDbCoolFunctions_h
-#define IOVDbCoolFunctions_h
+#ifndef IOVDbSvc_IOVDbCoolFunctions_h
+#define IOVDbSvc_IOVDbCoolFunctions_h
 #include "CoolKernel/ChannelId.h"
 #include "CoolKernel/ValidityKey.h"
 

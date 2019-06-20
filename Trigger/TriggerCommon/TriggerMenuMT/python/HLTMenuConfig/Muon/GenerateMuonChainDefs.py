@@ -10,7 +10,7 @@ logging.getLogger().info("Importing %s",__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
-
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 def generateChainConfigs(chainDict):
@@ -27,8 +27,7 @@ def generateChainConfigs(chainDict):
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+
 include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, "jobNumber"):
@@ -7,7 +10,7 @@ if hasattr(runArgs, "jobNumber"):
 from AthenaCommon.GlobalFlags import globalflags
 if hasattr(runArgs,"geometryVersion"):
     # strip _VALIDATION
-    print "stripping _VALIDATION"
+    print("stripping _VALIDATION")
     if runArgs.geometryVersion.endswith("_VALIDATION"):
         pos=runArgs.geometryVersion.find("_VALIDATION")
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )

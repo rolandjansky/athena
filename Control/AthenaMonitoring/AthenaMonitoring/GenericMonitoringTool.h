@@ -58,6 +58,9 @@
  * - ROOT histogram settings group:
  *    - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
  *    - `Sumw2` activate the storage of the sum of squares of errors
+ * - ROOT histogram extensions group:
+ *    - `kAddBinsDynamically` enable adding new bins on the fly, when new data doesn't fit into current \n
+ *      range of the histogram's values 
  * - Lumiblock awareness group:
  *    - `kLBNHistoryDepth=value` makes the histogram lumiblock aware and groups incoming data based on lumiblock number,\n
  *      'value' should be defined as positive integer

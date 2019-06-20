@@ -27,7 +27,7 @@ def get_trigger_channel(trigger, iovrange):
     
     iovs = fetch_iovs(LVL1_MENU, channels=[channel], what=["ItemName"], *iovrange)
     
-    return iovs.select(ItemName == trigger)
+    return iovs.select(ItemName = trigger)
 
 def compute_lumi(lbs, lumis, iovs, exclude_iovsets=[], good_runs=None):
     """
@@ -42,8 +42,8 @@ def compute_lumi(lbs, lumis, iovs, exclude_iovsets=[], good_runs=None):
     # This is the old simple approach, which doesn't have a lot of features
     #inputs = process_iovs(lbs, lumis, iovs)
     #return sum((lb.EndTime - lb.StartTime)/1e9 * lumi.LBAvInstLumi 
-               #for since, until, (lb, lumi, good) in inputs
-               #if lb and lumi and good)
+    #           #for since, until, (lb, lumi, good) in inputs
+    #           #if lb and lumi and good)
     
     inputs = process_iovs(lbs, lumis, iovs, *exclude_iovsets)
     total_lumi = 0
@@ -83,13 +83,13 @@ def compute_lumi_many_channels(lbs, lumis, iovs, exclude_iovsets=[], good_runs=N
     # Old method, keeping it here for now
     #inputs = process_iovs(lbs, lumis, *iovsets)
     #for since, until, states in inputs:
-        #(lb, lumi), defects = states[:2], states[2:]
-        #if not (lb and lumi and lumi.LBAvInstLumi):
-            #continue
-        #lumi = (lb.EndTime - lb.StartTime)/1e9 * lumi.LBAvInstLumi 
-        #for name, defect_iov in zip(chans, defects):
-            #if defect_iov:
-                #result[name] = result.get(name, 0) + lumi
+    #    #(lb, lumi), defects = states[:2], states[2:]
+    #    #if not (lb and lumi and lumi.LBAvInstLumi):
+    #        #continue
+    #    #lumi = (lb.EndTime - lb.StartTime)/1e9 * lumi.LBAvInstLumi 
+    #    #for name, defect_iov in zip(chans, defects):
+    #        #if defect_iov:
+    #            #result[name] = result.get(name, 0) + lumi
 
     # New approach, adding new functionality
     num_exclude = len(exclude_iovsets)
@@ -99,7 +99,7 @@ def compute_lumi_many_channels(lbs, lumis, iovs, exclude_iovsets=[], good_runs=N
     for since, until, states in inputs:
         # I find the below version conceptually cleaner
         #(lb, lumi), excludes, defects = (states[:2], states[2:2+num_exclude], 
-                                         #states[2+num_exclude:])
+        #                                 #states[2+num_exclude:])
         (lb, lumi), defectstates = states[:2], states[2:]
         excludes, defects = defectstates[:num_exclude], defectstates[num_exclude:]
 

@@ -51,29 +51,16 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
   ATH_MSG_DEBUG( "Running with "<< h_prevDecisions->size() <<" implicit ReadHandles for previous decisions");
   auto prevDecisions = h_prevDecisions.get();
 
-  // Make a new Decisions container which will contain the previous
-  // decisions, and the one for this hypo.
+  // Make a new Decisions container which will contain the new Decision object created by this hypo.
+  // (Creating a single output as executing on a single MET value)
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
-  auto newDecisions = outputHandle.ptr();
-
+  DecisionContainer* newDecisions = outputHandle.ptr();
 
   // Make trigger decisions and save to "newDecisions"
-  ATH_CHECK(decide(metContainer, newDecisions, prevDecisions));
+  ATH_CHECK(decide(metContainer, newDecisions, prevDecisions, context));
 
-  ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
-
-
-  // debug....
-  if ( msgLvl(MSG::DEBUG)) {
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    for ( auto decisionObject: *outputHandle )  {
-      TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-    }
-    
-    for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-      ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-    }
-  }
+  // Common debug printing
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }
@@ -81,20 +68,17 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
 
 
 StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* metContainer,
-                         TrigCompositeUtils::DecisionContainer*  nDecisions,
-                         const DecisionContainer* oDecisions) const{
+                         TrigCompositeUtils::DecisionContainer*  newDecisions,
+                         const DecisionContainer* oldDecisions,
+                         const EventContext& context) const{
 
   ATH_MSG_DEBUG("Executing decide() of " << name() );
-  auto previousDecision = (*oDecisions)[0];
-  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions);
-
+  if (oldDecisions->size() != 1) {
+    ATH_MSG_ERROR("TrigMissingETHypoAlgMT requires there to be exactly one previous Decision object, but found " << oldDecisions->size());
+    return StatusCode::FAILURE;
+  }
+  const Decision* previousDecision = oldDecisions->at(0);
   
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
-    TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
-    TrigCompositeUtils::decisionIDs(previousDecision).end()
-  };
-
-
   if (metContainer->size()==0){
     ATH_MSG_ERROR("There are no TrigEFMissingET objects in the MET container" );
     return StatusCode::FAILURE;
@@ -103,19 +87,30 @@ StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* me
     return StatusCode::FAILURE;
   }
 
+  // Create output Decision object, link it to prevDecision & its "feature"
+  auto newDecision = TrigCompositeUtils::newDecisionIn(newDecisions, previousDecision, "", context);
+  ElementLink<xAOD::TrigMissingETContainer> metElementLink = ElementLink<xAOD::TrigMissingETContainer>(*metContainer, /*index*/ 0);
+  newDecision->setObjectLink<xAOD::TrigMissingETContainer>(featureString(), metElementLink);
+  
+  // Get set of active chains
+  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
+    TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
+    TrigCompositeUtils::decisionIDs(previousDecision).end()
+  };
+
   //bool allPassed = true;
   for (const auto& tool: m_hypoTools) {
     auto decisionId = tool->getId();
     ATH_MSG_DEBUG( "About to decide for " << tool->name() );
     if (TrigCompositeUtils::passed(decisionId.numeric(), previousDecisionIDs)){
-      ATH_MSG_DEBUG("Passed previous trigger");
+      ATH_MSG_DEBUG("Passed previous trigger step");
       bool pass;
       ATH_CHECK(tool->decide(metContainer, pass));
       if (pass) {
         ATH_MSG_DEBUG("Passed " << tool->name() );
-    		TrigCompositeUtils::addDecisionID(decisionId, newdecision);
+    		TrigCompositeUtils::addDecisionID(decisionId, newDecision);
       } else ATH_MSG_DEBUG("Didn't pass " << tool->name() );
-    } else ATH_MSG_DEBUG("Didn't pass previous trigger");
+    } else ATH_MSG_DEBUG("Didn't pass previous trigger step");
   }
   
   return StatusCode::SUCCESS;

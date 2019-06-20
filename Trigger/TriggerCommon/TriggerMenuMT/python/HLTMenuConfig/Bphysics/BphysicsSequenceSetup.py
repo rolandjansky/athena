@@ -37,21 +37,23 @@ def dimuEFSequence(name = 'Dimu'):
     from AthenaCommon import CfgMgr
     from AthenaCommon.CFElements import parOR, seqAND
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
 
+    muNames = muonNames().getNames('RoI')
 
-    dimuefViewNode = parOR("dimuefViewNode")
+    dimuefRecoSequence = parOR("dimuefViewNode")
     
     dimuefViewsMaker = EventViewCreatorAlgorithm("dimuefViewsMaker")
     dimuefViewsMaker.ViewFallThrough = True
     dimuefViewsMaker.RoIsLink = "roi" # -||-
     dimuefViewsMaker.InViewRoIs = "DimuEFRoIs" # contract with the consumer
     dimuefViewsMaker.Views = "DimuEFViewRoIs"
-    dimuefViewsMaker.ViewNodeName = dimuefViewNode.name()
+    dimuefViewsMaker.ViewNodeName = dimuefRecoSequence.name()
+    dimuefViewsMaker.RequireParentView = True
    
-    dimuefRecoSequence = parOR("dimuefViewNode")
     
     ViewVerifyEFCB = CfgMgr.AthViews__ViewDataVerifier("dimuefViewDataVerifier")
-    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+MuonsCB' )]
+    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+'+muNames.EFCBName )]
     dimuefRecoSequence += ViewVerifyEFCB
     dimuefSequence = seqAND( "dimuefSequence", [dimuefViewsMaker, dimuefRecoSequence] )
 
@@ -60,7 +62,7 @@ def dimuEFSequence(name = 'Dimu'):
     from TrigBphysHypo.TrigMultiTrkHypoMTMonitoringConfig import TrigMultiTrkHypoAlgMTMonitoring
     
     jpsiHypo = TrigMultiTrkHypoMT(name+"HypoAlgEF")
-    jpsiHypo.MuonCollectionKey = "MuonsCB"
+    jpsiHypo.MuonCollectionKey = muNames.EFCBName
     jpsiHypo.particleType = 1
     jpsiHypo.bphysCollectionKey = "TrigBphysEF"+name
     jpsiHypo.nTrackMassMin = [100]

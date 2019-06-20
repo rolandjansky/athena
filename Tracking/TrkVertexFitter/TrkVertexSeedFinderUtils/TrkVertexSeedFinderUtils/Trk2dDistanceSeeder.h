@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_TRK2DDISTANCESEEDER_H
@@ -23,8 +23,8 @@ namespace Trk
 
    AlgoTool calculates the points of minimum distance between two 
    tracks on the transverse plane, 
-   which is analitically well defined (intersection of two circles). In case of double intersection different possibilities 
-   were considered, at the end I found reasonably good to choose the intersection point where the tracks are nearest 
+   which is analytically well defined (intersection of two circles). In case of double intersection different possibilities 
+   were considered; at the end I found reasonably good to choose the intersection point where the tracks are nearest 
    in the z coordinate...
 
    changes: 11-11-2007 Intersection case completely rewritten after having done analytical calculation (sign come out of calculation!)

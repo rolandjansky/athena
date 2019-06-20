@@ -271,7 +271,7 @@ public:
                continue;
             }
             bool deleted = false;
-            StatusCode x = lock.addOrDelete(std::move(dcoll), deleted);
+            StatusCode x = lock.addOrDelete(std::move(dcoll));
             if(x.isFailure()) {
                 std::cout << "failure in addOrDelete" << std::endl;
                 std::abort();

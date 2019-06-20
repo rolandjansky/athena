@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolCnvSvc.cxx
@@ -445,29 +445,33 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             RootType classDesc = RootType::ByName(className);
             void* obj = nullptr;
             std::string::size_type len = m_metadataContainerProp.value().size();
-            // For Metadata fire incident to read object into store
             if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()
 		            && contName.substr(len, 1) == "(") {
                ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
-               std::ostringstream oss;
-               oss << std::dec << num;
-               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss.str() + "]");
+               // For Metadata, before moving to next client, fire file incidents
+               if (m_metadataClient != num) {
+                  if (m_metadataClient != 0) {
+                     std::ostringstream oss1;
+                     oss1 << std::dec << m_metadataClient;
+                     std::string memName = "SHM[NUM=" + oss1.str() + "]";
+                     FileIncident beginInputIncident(name(), "BeginInputFile", memName);
+                     incSvc->fireIncident(beginInputIncident);
+                     FileIncident endInputIncident(name(), "EndInputFile", memName);
+                     incSvc->fireIncident(endInputIncident);
+                  }
+                  m_metadataClient = num;
+               }
+               std::ostringstream oss2;
+               oss2 << std::dec << num;
+               // For Metadata fire incident to read object into store
+               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss2.str() + "]");
                incSvc->fireIncident(proxyIncident); // Object will be pulled out of shared memory by setObjPtr()
             } else {
                Token readToken;
                readToken.setOid(Token::OID_t(num, 0));
                readToken.setAuxString("[PNAME=" + className + "]");
                this->setObjPtr(obj, &readToken); // Pull/read Obbject out of shared memory
-               if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()) {
-                  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
-                  if (contName.substr(len, 7) == "HdrForm") {
-                     FileIncident beginInputIncident(name(), "BeginInputFile", "SHM");
-                     incSvc->fireIncident(beginInputIncident);
-                  } else if (contName.substr(len, 3) == "Hdr") {
-                     FileIncident endInputIncident(name(), "EndInputFile", "SHM");
-                     incSvc->fireIncident(endInputIncident);
-                  }
-               } else {
+               if (len == 0 || contName.substr(0, len) != m_metadataContainerProp.value()) {
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
@@ -525,6 +529,14 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       } else if (sc.isRecoverable() || num == -1) {
          return(StatusCode::RECOVERABLE);
       } else {
+         ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+         std::ostringstream oss1;
+         oss1 << std::dec << m_metadataClient;
+         std::string memName = "SHM[NUM=" + oss1.str() + "]";
+         FileIncident beginInputIncident(name(), "BeginInputFile", memName);
+         incSvc->fireIncident(beginInputIncident);
+         FileIncident endInputIncident(name(), "EndInputFile", memName);
+         incSvc->fireIncident(endInputIncident);
          ATH_MSG_INFO("Failed to get Data for client: " << num);
          return(StatusCode::FAILURE);
       }
@@ -899,7 +911,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       return(StatusCode::FAILURE);
    }
    Token* token = nullptr;
-   if (par[0] == "SHM") {
+   if (par[0].substr(0, 3) == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
       token->setAuxString("[PNAME=" + par[2] + "]");
@@ -1132,6 +1144,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_inputStreamingTool("", this),
 	m_outputStreamingTool(this),
 	m_streamServer(0),
+	m_metadataClient(0),
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),

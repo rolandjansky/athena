@@ -1,3 +1,4 @@
+from builtins import object
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfArgs
@@ -16,7 +17,7 @@ from PyJobTransforms.trfLogger import stdLogLevels
 ## Add standard transform arguments to an argparse ArgumentParser
 def addStandardTrfArgs(parser):
     parser.add_argument('--verbose', '--debug', action='store_true', help='Set transform loglevel to DEBUG')
-    parser.add_argument('--loglevel', choices=stdLogLevels.keys(), help='Set transform logging level')
+    parser.add_argument('--loglevel', choices=list(stdLogLevels), help='Set transform logging level')
     parser.add_argument('--argJSON', '--argjson', metavar='FILE', help='File containing JSON serialised argument dictionary')
     parser.add_argument('--dumpargs', action='store_true', help='Dump transform arguments and exit')
     parser.add_argument('--showGraph', action='store_true', help='Show multi-step transform graph, then exit')
@@ -205,7 +206,7 @@ def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=Fal
         for substep, dpdList in matchedOutputList:
             for dpdName in [ dpd.replace('Stream', '') for dpd in dpdList ]:
                 msg.debug('Handling {0}'.format(dpdName))
-                if pick == None or dpdName in pick:
+                if pick is None or dpdName in pick:
                     # Need to decide which file type we actually have here
                     dpdType = dpdName.split('_')[0]
                     if 'RAW' in dpdType:
@@ -248,7 +249,7 @@ def addTopPhysDAODArguments(parser, pick = None):
         from TopPhysD2PDMaker.TopPhysD2PDFlags import TopPhysAllDAODs
         for dpdWriter in TopPhysAllDAODs:
             dpdName = dpdWriter.StreamName.replace('Stream', '')
-            if pick == None or dpdName in pick: 
+            if pick is None or dpdName in pick: 
                 parser.add_argument('--output' + dpdName + 'File', 
                                       type=argFactory(trfArgClasses.argFile, substep=['a2d']), group='Top DAODs',
                                       metavar=dpdName.upper(), help='Top ADOD output %s file (substep [a2d])' % (dpdName,))
@@ -273,7 +274,7 @@ def addD3PDArguments(parser, pick = None, transform = None, multipleOK=False, ad
         for dpdWriter in listAllKnownD3PD:
             dpdName = dpdWriter.StreamName.replace('Stream', '')
            
-            if pick == None or dpdName in pick: 
+            if pick is None or dpdName in pick: 
                 if addD3PDMRGtypes:
                     parser.add_argument('--input' + dpdName + 'File', 
                                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=dpdWriter.TreeNames, io='input'),
@@ -457,7 +458,7 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
     
     if NTUPMergerArgs:
         for dpd in extraDPDs:
-            if pick == None or dpd.name in pick:
+            if pick is None or dpd.name in pick:
                 if dpd.name.startswith('NTUP'):
                     parser.add_argument('--input' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=True, io='input', type=dpd.type, treeNames=dpd.treeNames), 
@@ -471,7 +472,7 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
         pass
     else:
         for dpd in extraDPDs:
-            if pick == None or dpd.name in pick:
+            if pick is None or dpd.name in pick:
                 msg.debug('Adding DPD {0} ({1}, {2}, {3}, {4})'.format(dpd.name, dpd.type, dpd.substeps, dpd.treeNames, dpd.argclass))
                 # NTUPs are a bit special as they can take a treeName to count events
                 if issubclass(dpd.argclass, trfArgClasses.argNTUPFile):

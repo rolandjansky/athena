@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.BjetDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
@@ -56,17 +56,17 @@ class BjetChainConfiguration(ChainConfigurationBase):
     # --------------------
     # Configuration of steps
     # --------------------
-    def getBjetSequence_j(self, name):
+    def getBjetSequence_j(self):
         stepName = "Step1_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq1 = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [bjetSeq1])
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
+        return ChainStep(stepName, [bjetSeq])
 
-    def getBjetSequence_gsc(self, name):
+    def getBjetSequence_gsc(self):
         stepName = "Step2_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq1 = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [bjetSeq1])
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
+        return ChainStep(stepName, [bjetSeq])
         
             
             

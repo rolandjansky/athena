@@ -84,10 +84,16 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
 
 def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+MDT_DIGITS")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "MDT_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "MDT_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+MDT_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+MDT_SDO")
     kwargs.setdefault("GetT0FromBD", overlayFlags.isDataOverlay())
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+MDT_SDO")
     return MdtDigitizationTool(name,**kwargs)
 
 def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):

@@ -76,7 +76,7 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   			m_allMETChains.begin(), m_allMETChains.end(),
 			std::inserter(activeMETchains, activeMETchains.end() ) );
 			
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
   for ( auto c: activeMETchains ) addDecisionID( c, decision );
 
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");

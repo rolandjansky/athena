@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventStreamInfo.cxx
@@ -64,27 +64,23 @@ void EventStreamInfo::insertEventType(const EventType& event) {
 void EventStreamInfo::print(MsgStream& log) const {
    log << MSG::DEBUG << "EventStreamInfo number of events: " << m_numberOfEvents << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Run Numbers: ";
-   for (std::set<unsigned int>::const_iterator iter = m_runNumbers.begin(),
-		   last = m_runNumbers.end(); iter != last; iter++) {
-      log << MSG::DEBUG << *iter << ", ";
+   for (unsigned int rn : m_runNumbers) {
+      log << MSG::DEBUG << rn << ", ";
    }
    log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo LumiBlock Numbers: ";
-   for (std::set<unsigned int>::const_iterator iter = m_lumiBlockNumbers.begin(),
-		   last = m_lumiBlockNumbers.end(); iter != last; iter++) {
-      log << MSG::DEBUG << *iter << ", ";
+   for (unsigned int lbn : m_lumiBlockNumbers) {
+      log << MSG::DEBUG << lbn << ", ";
    }
    log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Processing Tags: ";
-   for (std::set<std::string>::const_iterator iter = m_processingTags.begin(),
-		   last = m_processingTags.end(); iter != last; iter++) {
-      log << MSG::DEBUG << *iter << ", ";
+   for (const std::string tag : m_processingTags) {
+      log << MSG::DEBUG << tag << ", ";
    }
    log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Event Types: ";
-   for (std::set<EventType>::const_iterator iter = m_eventTypes.begin(),
-		   last = m_eventTypes.end(); iter != last; iter++) {
-      log << MSG::DEBUG << iter->typeToString() << ", ";
+   for (const EventType& typ : m_eventTypes) {
+      log << MSG::DEBUG << typ.typeToString() << ", ";
    }
    log << MSG::DEBUG << endmsg;
    return;

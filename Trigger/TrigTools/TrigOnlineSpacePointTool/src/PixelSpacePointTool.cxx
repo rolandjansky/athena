@@ -3,7 +3,7 @@
 */
 
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
-#include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
+#include "PixelSpacePointTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 

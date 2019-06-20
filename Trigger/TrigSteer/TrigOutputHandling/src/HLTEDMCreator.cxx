@@ -66,6 +66,17 @@ StatusCode HLTEDMCreator::initialize()
 #undef INIT_XAOD
 
   if ( m_fixLinks.size() > 0 ) {
+    // Confirm that m_fixLinks is a sub-set of m_TrigCompositeContainer
+    for (const std::string& entry : m_fixLinks) {
+      const bool found = std::any_of(m_TrigCompositeContainer.begin(),
+                                     m_TrigCompositeContainer.end(), [&](const auto& writeHandleKey) { return writeHandleKey.key() == entry; } );
+      if (!found) {
+        ATH_MSG_ERROR("FixLinks contains the entry " << entry << ", however this is not one of this EDMCreator tool's managed TrigCompositeContainers.");
+        ATH_MSG_ERROR("Configure FixLinks to be a sub-set of TrigCompositeContainer");
+        return StatusCode::FAILURE;
+      }
+    }
+    // Set up the write decorate handles to hold the remapped data
     for ( const auto& writeHandleKey: m_TrigCompositeContainer ) {
       const bool doFixLinks = std::any_of(m_fixLinks.begin(), m_fixLinks.end(), [&](const std::string& s) { return s == writeHandleKey.key(); } );
       if (doFixLinks) {
@@ -130,17 +141,20 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
 }
 
  
-StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigCompositeContainer >& handles ) const {
+StatusCode HLTEDMCreator::fixLinks() const {
+  if ( m_fixLinks.size() == 0 ) {
+    ATH_MSG_DEBUG("fixLinks: No collections defined for this tool");
+    return StatusCode::SUCCESS;
+  }
 
   static const SG::AuxElement::ConstAccessor< std::vector< uint32_t > > keyAccessor( "linkColKeys" );
   static const SG::AuxElement::ConstAccessor< std::vector< uint16_t > > indexAccessor( "linkColIndices" );
 
-  ATH_MSG_DEBUG("Fixing links called for " << handles.out.size() << " object(s)");
+  ATH_MSG_DEBUG("fixLinks called for " << m_fixLinks.size() << " of " << m_TrigCompositeContainer.size() << " collections");
 
   // Do the remapping
   int writeHandleArrayIndex = -1;
-  for ( auto writeHandleKey : handles.out ) {
-    ++writeHandleArrayIndex;
+  for ( const auto& writeHandleKey: m_TrigCompositeContainer ) {
     // Check if we are re-mapping this handle
     const bool doFixLinks = std::any_of(m_fixLinks.begin(), m_fixLinks.end(), [&](const std::string& s) { return s == writeHandleKey.key(); } );
     if ( not doFixLinks ) {
@@ -148,13 +162,17 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
       continue;
     }
 
-    ATH_MSG_DEBUG("Fixing links: see if collection is there: " << writeHandleKey.key() << ", write hand array index: " << writeHandleArrayIndex);
+    // Only increment this index for the sub-set of the TrigComposite collections that we are fixing. Mirror the initialize() logic.
+    ++writeHandleArrayIndex;
+
+    ATH_MSG_DEBUG("Fixing links: confirm collection is there: " << writeHandleKey.key() << ", write hand array index: " << writeHandleArrayIndex);
     SG::ReadHandle<xAOD::TrigCompositeContainer> readHandle( writeHandleKey.key() );
-    if ( not readHandle.isValid() ) { // object missing, ok, may be early rejection
-      continue;
+    if ( not readHandle.isValid() ) { // object missing, this is now an error as we should have literally just created it
+      ATH_MSG_ERROR("  Collection is not present. " << writeHandleKey.key() << " should have been created by createIfMissing.");
+      return StatusCode::FAILURE;
     }
 
-    ATH_MSG_DEBUG("Fixing links: collection exists: " << writeHandleKey.key() << " with size " << readHandle->size() << " Decision objects" );
+    ATH_MSG_DEBUG("Collection exists with size " << readHandle->size() << " Decision objects" );
     ATH_MSG_DEBUG("Adding decorations: " << m_remapLinkColKeys.at( writeHandleArrayIndex ).key() << " and " << m_remapLinkColIndices.at( writeHandleArrayIndex ).key() );
     
     SG::WriteDecorHandle<xAOD::TrigCompositeContainer, std::vector<uint32_t> > keyDecor( m_remapLinkColKeys.at( writeHandleArrayIndex ) );
@@ -171,7 +189,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
 
       // Search the linked collections for remapping
       size_t const collectionTotal = inputDecision->linkColNames().size();
-      ATH_MSG_DEBUG("Decision object #" << decisionObjectIndex << " has " << collectionTotal << " links");
+      ATH_MSG_DEBUG("  Decision object #" << decisionObjectIndex << " has " << collectionTotal << " links");
       for ( size_t elementLinkIndex = 0; elementLinkIndex < collectionTotal; ++elementLinkIndex ) {
 
         // Load ElementLink identifiers (except for CLID)
@@ -186,13 +204,13 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
         bool isRemapped = evtStore()->tryELRemap( collectionKey, collectionIndex, newKey, newIndex);
         if ( isRemapped ) {
 
-          ATH_MSG_DEBUG( "Remap link [" << collectionName <<"] from " << keyString << " to " << *( evtStore()->keyToString( newKey ) ) << ", from index " << collectionIndex << " to index " << newIndex );
+          ATH_MSG_DEBUG( "    Remap link [" << collectionName <<"] from " << keyString << " to " << *( evtStore()->keyToString( newKey ) ) << ", from index " << collectionIndex << " to index " << newIndex );
           remappedKeys[ elementLinkIndex ] = newKey;
           remappedIndexes[ elementLinkIndex ] = newIndex;
 
         } else {
 
-          ATH_MSG_DEBUG( "StoreGate did not remap link [" << collectionName << "] from  " << keyString << " index " << collectionIndex );
+          ATH_MSG_DEBUG( "    StoreGate did not remap link [" << collectionName << "] from  " << keyString << " index " << collectionIndex );
 
         }
 
@@ -291,9 +309,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 
   CREATE_XAOD( CaloClusterContainer, CaloClusterAuxContainer );
   // After view collections are merged, need to update collection links
-  if ( m_fixLinks.size() > 0 ) {
-    ATH_CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );
-  }
+  ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE

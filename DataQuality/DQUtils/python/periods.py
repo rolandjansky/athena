@@ -2,14 +2,17 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import with_statement
-
-DATA_PERIODS_PATH = "/afs/cern.ch/atlas/www/GROUPS/DATAPREPARATION/DataPeriods/"
+from __future__ import with_statement, print_function
 
 from os import listdir, makedirs
 from os.path import basename, exists, join as pjoin
 
-from .sugar import define_iov_type, IOVSet, RunLumi, RANGEIOV_VAL
+from .sugar import define_iov_type, IOVSet
+
+import logging
+log = logging.getLogger("DQUtils.periods")
+
+DATA_PERIODS_PATH = "/afs/cern.ch/atlas/www/GROUPS/DATAPREPARATION/DataPeriods/"
 
 @define_iov_type
 def PERIODIOV_VAL(project_tag, period):
@@ -65,13 +68,12 @@ def fetch_project_period_runs():
     retrieved from the coma database.
     """
 
-    from sqlalchemy import (select, create_engine, MetaData, Table, Column, 
-        String, Integer, ForeignKey, DateTime, Float, distinct)
+    from sqlalchemy import (select, Table, Column, 
+        String, Integer, ForeignKey)
         
-    from sqlalchemy.sql import func
     from re import compile
 
-    LETTER_PART = compile("^(\D+)")
+    LETTER_PART = compile(r"^(\D+)")
 
     from DQUtils.oracle import make_oracle_connection
 
@@ -84,7 +86,6 @@ def fetch_project_period_runs():
         Column("run_number", Integer),
         schema=schema
     )
-    run_number = coma_runs.c.run_number
 
     coma_period_definitions = Table("coma_period_defs", metadata,
         Column("p_index",   Integer),
@@ -144,11 +145,11 @@ def split_grl(project_tag, periods, grl_file, out_directory):
         makedirs(out_directory)
     
     for period in periods:
-        iovs = grl_period_iovs = grl & IOVSet.from_runs(ptag_periods[period])
+        iovs = grl & IOVSet.from_runs(ptag_periods[period])
         
         output_name = "{0}_period{1}.{2}".format(name_left, period, extension)
-        print "{0:4s} : {1:3} runs, {2:5} lumiblocks" .format(
-            period, len(iovs.runs), iovs.lb_counts)
+        log.info("{0:4s} : {1:3} runs, {2:5} lumiblocks".format(
+            period, len(iovs.runs), iovs.lb_counts))
     
         output_path = pjoin(out_directory, output_name)
         iovs.to_grl(output_path)

@@ -52,7 +52,7 @@ else:
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []
 for gen in evgenConfig.generators:
-    if genseeds.has_key(gen):
+    if gen in genseeds:
         for seedtemplate in genseeds[gen]:
             seed = runArgs.randomSeed
             if runArgs.trfSubstepName == 'afterburn':

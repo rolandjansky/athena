@@ -8,8 +8,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",
@@ -43,7 +41,6 @@ def createFastCaloSequence(rerun=False):
 
 
    clusterMaker.ClustersName=clustersKey
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    
    #from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -129,6 +126,7 @@ l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
 l2ElectronViewsMaker.ViewFallThrough = True
+l2ElectronViewsMaker.RequireParentView = True
 l2ElectronViewsMaker.InputMakerOutputDecisions = ["L2ElectronLinks"]
 
 for viewAlg in viewAlgs:
@@ -140,7 +138,7 @@ theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
 
 electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
 
-l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
+l2ElectronViewsMaker.ViewNodeName = electronInViewAlgs.name()
 
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT

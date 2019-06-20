@@ -1,3 +1,5 @@
+from future.utils import iteritems
+
 ###############################################################
 #
 # Skeleton top job options for Physics Validation
@@ -108,7 +110,7 @@ monMan.FileKey = "PhysVal"
 
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile
-for validationType, enabled in validationDict.iteritems():
+for validationType, enabled in iteritems(validationDict):
     if enabled:
         JOFile = 'PhysValMonitoring/PhysVal{0}_jobOptions.py'.format(validationType)
         if findFile(os.environ['JOBOPTSEARCHPATH'], JOFile):

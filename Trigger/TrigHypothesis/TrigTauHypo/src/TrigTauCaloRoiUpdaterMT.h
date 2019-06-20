@@ -36,8 +36,8 @@ class TrigTauCaloRoiUpdaterMT : public AthAlgorithm {
 
   //SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","Undefined",""};
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "calocluster_update", "caloclusters", "caloclusters in view" };
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","EMViewRoIs","Output RoI Collection Key"};
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClustersKey", "Undefined", "caloclusters in view" };
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","TauViewRoIs","Output RoI Collection Key"};
 };
  
 

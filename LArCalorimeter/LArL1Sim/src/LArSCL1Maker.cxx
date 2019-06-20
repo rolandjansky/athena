@@ -36,6 +36,7 @@
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 //
@@ -80,7 +81,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_scHelper(0)
   , m_OnlSCHelper(0)
   , m_incSvc("IncidentSvc",name)
-  , m_hitmap(0)
   , m_shapes(0), m_fracS(0), m_PedestalSC(0), m_NoiseSC(0)
   , m_autoCorrNoiseTool("LArAutoCorrNoiseTool")
   , m_adc2mevTool("LArADC2MeVTool")
@@ -228,12 +228,10 @@ StatusCode LArSCL1Maker::initialize()
   //
 
   const CaloIdManager* caloMgr;
-  const LArIdManager*	 larMgr;
 
-   CHECK( detStore()->retrieve(caloMgr) );
-   CHECK( detStore()->retrieve(larMgr) );
-   CHECK( detStore()->retrieve(m_OnlSCHelper) );
-   
+  CHECK( detStore()->retrieve(caloMgr) );
+  CHECK( detStore()->retrieve(m_OnlSCHelper) );
+  CHECK( detStore()->retrieve(m_OflHelper,"CaloCell_ID") );
 
   //
   //..... need of course the LVL1 helper
@@ -295,26 +293,7 @@ StatusCode LArSCL1Maker::execute()
   //
   // ....... fill the LArHitEMap
   //
-  if(m_chronoTest) {
-    m_chronSvc->chronoStart( "fill LArHitEMap " );
-  }
-
-  int totHit=0;
-  CHECK( detStore()->retrieve(m_hitmap,"LArHitEMap") );
-  totHit = m_hitmap->GetNbCells();
-  ATH_MSG_DEBUG("total number of hits with |E|> 1.e-06 found = " << totHit );
-
-
-  if(m_chronoTest) {
-    m_chronSvc->chronoStop ( "fill LArHitEMap " );
-    m_chronSvc->chronoPrint( "fill LArHitEMap " );
-  }
-
-  if ( totHit==0) {
-    ATH_MSG_WARNING( " No LAr hit in the event ");
-    ATH_MSG_WARNING( "cannot process this event");
-    return StatusCode::SUCCESS;
-  }
+  SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey);
 
   //
   // .....get the trigger time if requested
@@ -370,7 +349,7 @@ StatusCode LArSCL1Maker::execute()
   std::vector< std::vector < float> > scFloatContainerTmp;
 
   int it = 0;
-  int it_end = m_hitmap->GetNbCells();
+  int it_end = hitmap->GetNbCells();
   scContainer->reserve( nbSC ); //container ordered by hash
   scFloatContainerTmp.assign( nbSC, std::vector<float>(0) ); //container ordered by hash
   std::vector<bool> alreadyThere;
@@ -395,51 +374,43 @@ StatusCode LArSCL1Maker::execute()
   CaloGain::CaloGain scGain = CaloGain::LARHIGHGAIN;
 
   for( ; it!=it_end;++it) {
-    LArHitList * hitlist = m_hitmap->GetCell(it);
-    if ( hitlist != (LArHitList*) NULL ) {
+    const LArHitList& hitlist = hitmap->GetCell(it);
+    const std::vector<std::pair<float,float> >& timeE = hitlist.getData();
+    if (timeE.size() > 0 ) {
+      Identifier cellId = m_OflHelper->cell_id(IdentifierHash(it));
+      Identifier scId = m_scidtool->offlineToSuperCellID(cellId);
+      IdentifierHash scHash = m_scHelper->calo_cell_hash(scId) ;
+      if ( scHash.value() == 999999 ) continue;
+      HWIdentifier hwSC = cabling->createSignalChannelID(scId);
+      IdentifierHash scHWHash = m_OnlSCHelper->channel_Hash(hwSC);
 
-      const std::vector<std::pair<float,float> >* timeE = hitlist->getData();
-      if (timeE->size() > 0 ) {
-        Identifier  cellId = hitlist->getIdentifier();
-
-         
-
-          Identifier scId = m_scidtool->offlineToSuperCellID(cellId);
-          IdentifierHash scHash = m_scHelper->calo_cell_hash(scId) ;
-	  if ( scHash.value() == 999999 ) continue;
-	  HWIdentifier hwSC = cabling->createSignalChannelID(scId);
-	  IdentifierHash scHWHash = m_OnlSCHelper->channel_Hash(hwSC);
-
-         if(m_saveHitsContainer.size()>0) {
-            for(auto itr = timeE->begin(); itr!= timeE->end(); ++itr) {
-               if(fabs(itr->second) > 12.5) continue; //out of time energy deposit
-               truthE[scHWHash] += itr->first/m_fracS->FSAMPL(hwSC);
-            }
-         }
-
-          hwid[scHWHash] = hwSC;
-
-	  float factor = 1.0;
-          if ( m_first ) {
-		printConditions(hwSC);
-	  }
-	  factor = (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] ;
-	  factor = 1.0/m_fracS->FSAMPL(hwSC)/factor;
-
-          ConvertHits2Samples(hwSC, scGain, timeE, samples);
-	  std::vector< float >& vec = scFloatContainerTmp.at(scHWHash);
-	  if ( !alreadyThere[scHWHash] ){
-		alreadyThere[scHWHash]=true;
-	  	for(unsigned int i=0; i< samples.size(); i++)
-		   vec.push_back( factor * samples[i] );
-	  } else {
-	  	for(unsigned int i=0; i< samples.size(); i++)
-		   vec[i]+= ( factor * samples[i] );
-	  }
+      if(m_saveHitsContainer.size()>0) {
+	for(auto itr = timeE.begin(); itr!= timeE.end(); ++itr) {
+	  if(fabs(itr->second) > 12.5) continue; //out of time energy deposit
+	  truthE[scHWHash] += itr->first/m_fracS->FSAMPL(hwSC);
 	}
+      }
 
+      hwid[scHWHash] = hwSC;
 
-    } // if hit list is not empty
+      float factor = 1.0;
+      if ( m_first ) {
+	printConditions(hwSC);
+      }
+      factor = (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] ;
+      factor = 1.0/m_fracS->FSAMPL(hwSC)/factor;
+
+      ConvertHits2Samples(hwSC, scGain, timeE, samples);
+      std::vector< float >& vec = scFloatContainerTmp.at(scHWHash);
+      if ( !alreadyThere[scHWHash] ){
+	alreadyThere[scHWHash]=true;
+	for(unsigned int i=0; i< samples.size(); i++)
+	  vec.push_back( factor * samples[i] );
+      } else {
+	for(unsigned int i=0; i< samples.size(); i++)
+	  vec[i]+= ( factor * samples[i] );
+      }
+    }
   } // it end
 
   it=0;
@@ -575,7 +546,7 @@ void LArSCL1Maker::printConditions(const HWIdentifier& hwSC){
 }
 
 void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::CaloGain igain,
-                   const std::vector<std::pair<float,float> >  *TimeE, std::vector<float>& samples)
+                   const std::vector<std::pair<float,float> >& TimeE, std::vector<float>& samples)
 {
 // Converts  hits of a particular LAr cell into energy samples
 // declarations
@@ -600,8 +571,8 @@ void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::Calo
     return;
   }
 
-  std::vector<std::pair<float,float> >::const_iterator first = TimeE->begin();
-  std::vector<std::pair<float,float> >::const_iterator last  = TimeE->end();
+  std::vector<std::pair<float,float> >::const_iterator first = TimeE.begin();
+  std::vector<std::pair<float,float> >::const_iterator last  = TimeE.end();
   samples.clear();
   samples.assign(m_nSamples,0);
   //m_firstSample=0;

@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import object
+from builtins import range
 #! /usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -65,7 +68,7 @@ class haddJob(object):
         logging.info('Will now execute merge: %s' % ' '.join(mergeCmd))
         output = []
         job = Popen(mergeCmd, stdout=PIPE, stderr=STDOUT, bufsize=1, close_fds=True)
-        while job.poll() == None:
+        while job.poll() is None:
             output.append(job.stdout.readline().strip())
         self._exitCode = job.returncode
         if self._exitCode != 0:
@@ -93,7 +96,7 @@ class haddStep(object):
     
     def _defineMergeJobs(self):
         # How many merges to do in this step?
-        nMerges = (len(self._inputFiles)-1) / self._bunchNumber + 1
+        nMerges = (len(self._inputFiles)-1) // self._bunchNumber + 1
         logging.debug('Need %d merges for level %d' % (nMerges, self._level))
         if nMerges == 1:
             logging.debug('Final merge job: %s -> %s' % (self._inputFiles, self._inputFiles))

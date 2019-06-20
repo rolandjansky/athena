@@ -453,7 +453,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
           int errorfindCharge = m_cscCalibTool->findCharge(samplingTime, samplingPhase, charges, charge, time);
           // WPARK: Potential problem! error code includes time out of range and aa>0
           // If this is the case, only very nice samples are converted to Digit. Sep 11, 2009
-	  if ( !adctocharge || errorfindCharge ) { 
+	  if ( !adctocharge || !errorfindCharge ) { 
 	    ATH_MSG_WARNING( " CSC conversion ADC to Charge failed " 
                              << "CSC Digit not build ... " 
                              << " or charge finding failed " << " ... skipping "  );

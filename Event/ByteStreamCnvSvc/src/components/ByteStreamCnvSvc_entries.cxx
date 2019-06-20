@@ -1,7 +1,8 @@
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "../EventSelectorByteStream.h"
 #include "../ByteStreamMergeOutputSvc.h"
-#include "../EventInfoByteStreamCnv.h"
+#include "../EventInfoByteStreamxAODCnv.h"
+#include "../EventInfoByteStreamAuxCnv.h"
 #include "../ByteStreamRDP_OutputSvc.h"
 #include "../ByteStreamEventStorageInputSvc.h"
 #include "../ByteStreamEventStorageOutputSvc.h"
@@ -11,9 +12,10 @@
 #include "../ByteStreamMetadataTool.h"
 #include "../ByteStreamAttListMetadataSvc.h"
 
-DECLARE_CONVERTER( EventInfoByteStreamCnv )
 DECLARE_COMPONENT( ByteStreamCnvSvc )
 DECLARE_COMPONENT( EventSelectorByteStream )
+DECLARE_CONVERTER( EventInfoByteStreamxAODCnv )
+DECLARE_CONVERTER( EventInfoByteStreamAuxCnv )
 DECLARE_COMPONENT( ByteStreamMergeOutputSvc )
 DECLARE_COMPONENT( ByteStreamRDP_OutputSvc )
 DECLARE_COMPONENT( ByteStreamEventStorageInputSvc )

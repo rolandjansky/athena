@@ -33,7 +33,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pT_passed = Monitored::Scalar<float>("pT_passed",false);
 
     // Set the values of the monitored variables for the event
-    lumiPerBCID = lbAverageInteractionsPerCrossing();
+    lumiPerBCID = lbAverageInteractionsPerCrossing (ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
     testweight = 2.0;

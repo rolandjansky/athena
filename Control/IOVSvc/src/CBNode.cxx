@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -8,18 +8,14 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: CBNode.cxx,v 1.3 2007-08-15 21:04:32 leggett Exp $
  *
  *  Tree node structure for callback function trigger tree
  *
  *****************************************************************************/
 
-#ifndef IOVSVC_CBNODE_H
-#include "IOVSvc/CBNode.h"
-#endif
-#ifndef SGTOOLS_DATAPROXY_H
+#include "CBNode.h"
+
 #include "SGTools/DataProxy.h"
-#endif
 
 unsigned int CBNode::s_serial = 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigVxSecondary/TrigVxSecondary.h"
@@ -16,6 +16,8 @@
 #include <TLorentzVector.h>
 #include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 /* @brief Comparison operator for sorting objects of type VxContainer.
  * Enables vertices to be sorted in order of increasing chi2/NDoF

@@ -38,21 +38,16 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_outputHistogram = m_histSvc.getHist( fullName );
     */
 
-    m_passHistogram = new TH2I( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
-				  x, 1, x + 1,
-				  y, 1, y + 1 ); // Fill and GetBinContent use the same indexing then
+    std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
+    std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
+    std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCount", "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
 
-    m_countHistogram = (TH2*)m_passHistogram->Clone("DecisionCount");
-    m_countHistogram->SetTitle("Positive decisions count per step;chain;step"); 
-	
-    m_rateHistogram = (TH2*) m_passHistogram->Clone("RateCount");
-    m_rateHistogram->SetTitle("Rate of positive decisions");
-
-    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_passHistogram->GetName(), m_passHistogram ) );
-    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_countHistogram->GetName(), m_countHistogram ) );
-    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_rateHistogram->GetName(), m_rateHistogram ) ); 
-
+    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
+    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
+    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCount", std::move(h3), m_rateHistogram));
+  
   }
+  
   ATH_CHECK( initHist( m_passHistogram ) );
   ATH_CHECK( initHist( m_countHistogram ) );
   ATH_CHECK( initHist( m_rateHistogram ) );
@@ -61,8 +56,13 @@ StatusCode TrigSignatureMoniMT::initialize() {
 }
 
 StatusCode TrigSignatureMoniMT::finalize() {
+
+  if (m_chainIDToBinMap.empty()) {
+    ATH_MSG_INFO( "No chains configured, no counts to print" );
+    return StatusCode::SUCCESS;
+  }
   
-  auto collToString = [&]( int xbin, const TH2* hist, int startOfset=0, int endOffset=0){ 
+  auto collToString = [&]( int xbin, const LockedHandle<TH2>& hist, int startOfset=0, int endOffset=0){ 
     std::string v;
     for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
       if ( ybin > startOfset ) {
@@ -98,11 +98,11 @@ StatusCode TrigSignatureMoniMT::finalize() {
     for combined chains we find x2 the number of decisions, because we count both the HypoAlg and the combo Alg decisions
   */
   
-  for ( int bin = 1; bin <= m_passHistogram->GetXaxis()->GetNbins(); ++bin ) {
+  for ( int bin = 1; bin <= (*m_passHistogram)->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(bin);
-    ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram ) );
+    ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
     if ( chainName.find("HLT") == 0 ) { // print only for chains
-      ATH_MSG_INFO( fixedWidth(chainName +" decisions", 30) << collToString( bin, m_countHistogram, 2, 1 ) );
+      ATH_MSG_INFO( fixedWidth(chainName +" decisions", 30) << collToString( bin, m_countHistogram , 2, 1 ) );
     }
   }		 
 
@@ -110,7 +110,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, TH2 * histogram) {
+StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
@@ -160,14 +160,18 @@ StatusCode TrigSignatureMoniMT::execute()  {
     TrigCompositeUtils::DecisionIDContainer ids;    
     TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
     ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
-    ATH_CHECK( fillPassEvents( ids, index + 1, m_passHistogram ) );
-    if ( not ids.empty() )
+    ATH_CHECK( fillPassEvents( ids, index + 1, m_passHistogram ));
+    ATH_CHECK( fillRate( ids, index + 1) );
+    if ( not ids.empty() ){
       m_passHistogram->Fill( 1, double(index + 1) );
+      m_rateHistogram->Fill( 1, double(index + 1) );
+    }
     return StatusCode::SUCCESS;
   };
 
   ATH_CHECK( fillL1(0) );
   ATH_CHECK( fillL1(1) );
+
   int step = 0;
   for ( auto& ctool: m_collectorTools ) {
     std::vector<TrigCompositeUtils::DecisionID> stepSum;
@@ -180,7 +184,7 @@ StatusCode TrigSignatureMoniMT::execute()  {
 
     ++step;
   }
-   
+
   const int row = m_passHistogram->GetYaxis()->GetNbins();
   auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey );
   ATH_CHECK( finalDecisionsHandle.isValid() );
@@ -192,11 +196,13 @@ StatusCode TrigSignatureMoniMT::execute()  {
     }
   }
   ATH_CHECK( fillPassEvents( finalIDs, row, m_passHistogram ) );
-  
+  ATH_CHECK( fillRate( finalIDs, row ) );
+
   if ( not finalIDs.empty() ) {
     m_passHistogram->Fill( 1, double( row ) );
+    m_rateHistogram->Fill( 1, double( row ) );
   }
-    
+  
   return StatusCode::SUCCESS;
 }
 
@@ -207,7 +213,7 @@ int TrigSignatureMoniMT::nBinsY() const {
   return m_collectorTools.size()+3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(TH2* hist) {
+StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist) {
 
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
@@ -221,7 +227,6 @@ StatusCode TrigSignatureMoniMT::initHist(TH2* hist) {
     m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
     bin++;
   }
-
 
   TAxis* y = hist->GetYaxis();
   y->SetBinLabel( 1, "L1" );

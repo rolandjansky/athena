@@ -147,6 +147,93 @@ double get_unaligned_double (const uint8_t* ATH_RESTRICT &  p)
 }
 
 
+/// Define templated versions of the above functions.
+
+
+template <class T>
+T get_unaligned (const uint8_t* ATH_RESTRICT &  p);
+
+
+template <>
+inline
+uint8_t get_unaligned<uint8_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return *p++;
+}
+
+
+template <>
+inline
+uint16_t get_unaligned<uint16_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned16 (p);
+}
+
+
+template <>
+inline
+uint32_t get_unaligned<uint32_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned32 (p);
+}
+
+
+template <>
+inline
+uint64_t get_unaligned<uint64_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned64 (p);
+}
+
+
+template <>
+inline
+float get_unaligned<float> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned_float (p);
+}
+
+
+template <>
+inline
+double get_unaligned<double> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned_double (p);
+}
+
+
+template <>
+inline
+int8_t get_unaligned<int8_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned<uint8_t> (p);
+}
+
+
+template <>
+inline
+int16_t get_unaligned<int16_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned<uint16_t> (p);
+}
+
+
+template <>
+inline
+int32_t get_unaligned<int32_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned<uint32_t> (p);
+}
+
+
+template <>
+inline
+int64_t get_unaligned<int64_t> (const uint8_t* ATH_RESTRICT &  p)
+{
+  return get_unaligned<uint64_t> (p);
+}
+
+
 } // namespace CxxUtils
 
 

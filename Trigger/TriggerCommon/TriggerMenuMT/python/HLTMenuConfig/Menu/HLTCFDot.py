@@ -28,17 +28,23 @@ def stepCF_ControlFlow_to_dot(stepCF):
         return o
 
     def _parOR (seq):
-        if seq.ModeOR is True:
-            if seq.Sequential is False:
-                if seq.StopOverride is True:
-                    return True
+        try:
+            if seq.ModeOR is True:
+                if seq.Sequential is False:
+                    if seq.StopOverride is True:
+                        return True
+        except AttributeError:
+            return False # Offline sequence may not have these set
         return False
 
     def _seqAND(seq):
-        if seq.ModeOR is False:
-            if seq.Sequential is True:
-                if seq.StopOverride is False:
-                    return True
+        try:
+            if seq.ModeOR is False:
+                if seq.Sequential is True:
+                    if seq.StopOverride is False:
+                        return True
+        except AttributeError:
+            return False # Offline sequence may not have these set
         return False
 
     def _seqColor(seq):
@@ -248,10 +254,10 @@ def getValuesProperties(node):
         for k, cval in alg.getValuedProperties().items():
             if type(cval) is list:  
                 for val in cval:
-                    if val is '': # CAT type(val) is None ??
+                    if val == '': # CAT type(val) is None ??
                         if val not in Excluded:
                             values.append(val)            
-            elif cval is '': # CAT type(val) is None ??
+            elif cval == '': # CAT type(val) is None ??
                 if cval not in Excluded:
                     values.append(cval)
             else:

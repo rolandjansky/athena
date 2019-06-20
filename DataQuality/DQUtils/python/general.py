@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Utility module for things not specific to DQ
@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from logging import getLogger; log = getLogger("DQUtils.general")
 
 from time import time, mktime, strptime, strftime, gmtime
-from commands import getoutput
+from six.moves import getoutput
 
 def get_package_version(package_name, default_prefix="DataQuality"):
     """
@@ -42,21 +42,29 @@ def kgrind_profile(filename="profile.kgrind"):
             KCacheGrind(p).output(fd)
 
 def daemonize(function, delay, error_args=None, **kwargs):
+    """
+    Run a daemon which executes `function` every `delay` seconds.
+    """
+    from time import sleep
     try:
         while True:
-            log.info("Sleeping for %i seconds.." % delay)
+            log.info("Sleeping for %i seconds..", delay)
             sleep(delay)
             
-            log.info("Current time: %s" % strftime("%d/%m/%Y %H:%M:%S"))
+            log.info("Current time: %s", strftime("%d/%m/%Y %H:%M:%S"))
         
             function(**kwargs)
-    except:
+    except Exception:
         if error_args is not None:
             import sys
             send_error_email(sys.exc_info(), **error_args)
         raise
 
 def send_error_email(exception_info, from_, subject, body):
+    """
+    Send an error email containing `exception_info`
+    TODO: Doesn't contain complete information
+    """
     import smtplib
     import traceback
     
@@ -67,8 +75,6 @@ def send_error_email(exception_info, from_, subject, body):
     exceptionType, exceptionValue, exceptionTraceback = exception_info
 
     user, host = getuser(), gethostname()
-
-    code = exceptionTraceback.tb_frame.f_code.co_filename
 
     extra_info = ["Was running as user '%s' on machine '%s'" % (user, host),
                   #"Code located at: %s" % code
@@ -81,12 +87,12 @@ def send_error_email(exception_info, from_, subject, body):
     msg['From'] = from_
     
     to = [
-        "Peter Waller <peter.waller@cern.ch>",
-        #"Peter Onyisi <peter.onyisi@cern.ch>"
+        #"Peter Waller <peter.waller@cern.ch>",
+        "Peter Onyisi <peter.onyisi@cern.ch>"
     ]
     
-    operations = ("Data Quality Operations "
-                  "<hn-atlas-data-quality-operations@cern.ch>")
+    #operations = ("Data Quality Operations "
+    #              "<hn-atlas-data-quality-operations@cern.ch>")
     
     msg['To'] = ", ".join(to)
     #msg['Cc'] = operations; to.append(operations)
@@ -96,7 +102,7 @@ def send_error_email(exception_info, from_, subject, body):
     s.sendmail(from_, to, msg.as_string())
     s.quit()
 
-    print "Error email sent."
+    log.error("Error email sent.")
     
 def all_equal(*inputs):
     """
@@ -159,7 +165,7 @@ def timer(name):
         yield
     finally:
         end = time()
-        log.debug("Took %.2f to %s" % (end - start, name))                
+        log.debug("Took %.2f to %s", (end - start, name))                
 
 def interleave(*args):
     return [item for items in zip(*args) for item in items]
@@ -182,66 +188,3 @@ def nanounix_to_date(nanounix):
     except ValueError:
         return "[BadTime: %s]" % int(nanounix)
 
-def daemonize(function, delay, error_args=None, **kwargs):
-    """
-    Run a daemon which executes `function` every `delay` seconds.
-    """
-    try:
-        while True:
-            log.info("Sleeping for %i seconds.." % delay)
-            sleep(delay)
-            
-            log.info("Current time: %s" % strftime("%d/%m/%Y %H:%M:%S"))
-        
-            function(**kwargs)
-    except:
-        if error_args is not None:
-            import sys
-            send_error_email(sys.exc_info(), **error_args)
-        raise
-
-def send_error_email(exception_info, from_, subject, body):
-    """
-    Send an error email containing `exception_info`
-    TODO: Doesn't contain complete information
-    """
-    import smtplib
-    import traceback
-    
-    from email.mime.text import MIMEText
-    from getpass import getuser
-    from socket import gethostname
-
-    exceptionType, exceptionValue, exceptionTraceback = exception_info
-
-    user, host = getuser(), gethostname()
-
-    code = exceptionTraceback.tb_frame.f_code.co_filename
-
-    extra_info = ["Was running as user '%s' on machine '%s'" % (user, host),
-                  #"Code located at: %s" % code
-    ]
-
-    msg = MIMEText("\n\n".join(body + extra_info +
-                               traceback.format_tb(exceptionTraceback)))
-
-    msg['Subject'] = subject
-    msg['From'] = from_
-    
-    to = [
-        "Peter Waller <peter.waller@cern.ch>",
-        #"Peter Onyisi <peter.onyisi@cern.ch>"
-    ]
-    
-    operations = ("Data Quality Operations "
-                  "<hn-atlas-data-quality-operations@cern.ch>")
-    
-    msg['To'] = ", ".join(to)
-    #msg['Cc'] = operations; to.append(operations)
-
-    s = smtplib.SMTP()
-    s.connect()
-    s.sendmail(from_, to, msg.as_string())
-    s.quit()
-
-    print "Error email sent."

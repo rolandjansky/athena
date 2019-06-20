@@ -12,9 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 # We should retrieve all the steps here
 from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
-from TrigUpgradeTest.InDetSetup import inDetSetup
 
-inDetSetup()
 step1 = ChainStep("Step1ALLTE_bjet", [getBJetSequence('jALLTE')])
 step2 = ChainStep("Step2ALLTE_bjet", [getBJetSequence('gscALLTE')])
 

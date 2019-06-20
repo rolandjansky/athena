@@ -250,6 +250,24 @@ def setupMenu():
         #ATR-19062
         ['tau25_medium1_tracktwo',                 'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_mediumRNN_tracktwoMVA',                 'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+
+        # ATR-19803
+        ['tau0_perf_ptonly_L1TAU12',               'L1_TAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_perf_tracktwo_L1TAU100',       'L1_TAU100', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_tracktwo_L1TAU100',       'L1_TAU100', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_perf_tracktwo',                    'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_perf_tracktwoEF',                    'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_perf_tracktwoMVA',                    'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_medium1_tracktwoEF',                 'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_looseRNN_tracktwoMVA',                    'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_medium1NoPt_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_medium1_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream, 'express'], [ 'RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
+        ['tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12', 'L1_TAU60',['L1_TAU60','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau80_medium1_tracktwo_L1TAU60","tau50_medium1_tracktwo_L1TAU12"]]],
+        ['tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40',   'L1_TAU60_2TAU40',['L1_TAU60','L1_TAU40'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau80_medium1_tracktwo_L1TAU60","tau60_medium1_tracktwo_L1TAU40"]]],
+        ['tau160_medium1_tracktwoEF_L1TAU100',       'L1_TAU100', [], [PhysicsStream], ['Legacy:Primary','RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_mediumRNN_tracktwoMVA_L1TAU100',       'L1_TAU100', [], [PhysicsStream], ['Legacy:Primary','RATE:SingleTau', 'BW:Tau'], -1],
+
 			 ]
 
     if TriggerFlags.doFTK():

@@ -723,7 +723,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     iSeed=0;
 
     long int trackIndex=0;
-
+    
     if(m_checkSeedRedundancy) m_siClusterMap.clear();
 
     bool PIX = true;

@@ -76,11 +76,11 @@ def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with MdtDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+MDT_DIGITS")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_DIGITS")
     kwargs.setdefault("GetT0FromBD", flags.Detector.Overlay)
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+MDT_SDO")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_SDO")
     return acc
 
 def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):

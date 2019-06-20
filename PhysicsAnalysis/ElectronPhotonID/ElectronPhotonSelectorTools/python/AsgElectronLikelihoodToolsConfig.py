@@ -2,7 +2,7 @@
 
 __doc__ = "    Configure the AsgElectronLikelihoodTool with the quality cuts and allow for (re-)setting of all provided cuts."
 
-import logging
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
@@ -14,7 +14,8 @@ def AsgElectronLikelihoodToolCfg(flag, name, quality, menu=electronLHmenu.offlin
 
     acc = ComponentAccumulator()
 
-    mlog = logging.getLogger('AsgElectronLikelihoodToolCfg')
+    mlog = logging.getLogger('AsgElectronLikelihoodTool')
+    mlog.debug('Start configuration')
 
     try:
         ntuple = ElectronLikelihoodMap(quality, menu)

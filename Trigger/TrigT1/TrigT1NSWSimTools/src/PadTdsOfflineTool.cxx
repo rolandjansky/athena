@@ -180,7 +180,7 @@ namespace NSWL1 {
     void PadTdsOfflineTool::handle(const Incident& inc) {
         if( inc.type()==IncidentType::BeginEvent ) {
             this->clear_cache();
-            m_validation_tree.reset_ntuple_variables();
+            if(m_doNtuple) m_validation_tree.reset_ntuple_variables();
             m_pad_cache_status = CLEARED;
         }
     }
@@ -350,7 +350,7 @@ namespace NSWL1 {
 
         store_pads(pad_hits);
         print_pad_cache();
-        this->fill_pad_validation_id();
+        if(m_doNtuple) this->fill_pad_validation_id();
         ATH_MSG_DEBUG( "fill_pad_cache: end of processing" );
         return OK;
     }

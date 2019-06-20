@@ -54,14 +54,13 @@ namespace Muon {
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
     m_muonHoughPatternTool("MuonHoughPatternTool"), 
-    m_muonCombinePatternTool("MuonCombinePatternTool"), 
+    m_muonCombinePatternTool("MuonCombinePatternTool", this), 
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_hit_reweights(true),
     m_mdt_adc_cut(true), 
     m_mdt_adc_min(50), 
     m_mdt_tdc_cut(true), 
-    m_count(0), 
     m_use_rpc(true),
     m_use_tgc(true),
     m_use_csc(true),
@@ -191,7 +190,6 @@ namespace Muon {
 
     // clean up tool for next call
     cleanUp();
-    m_count++;
   
     ATH_MSG_VERBOSE ("execute(end) ");
 

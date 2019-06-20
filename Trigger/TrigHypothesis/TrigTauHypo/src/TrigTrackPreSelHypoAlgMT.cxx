@@ -25,7 +25,6 @@ StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
 StatusCode TrigTrackPreSelHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
@@ -38,7 +37,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     return StatusCode::SUCCESS;      
   }
   
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // new decisions
 
@@ -50,8 +49,10 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
   std::vector<ITrigTrackPreSelHypoTool::TrackingInfo> toolInput;
 
   // loop over previous decisions
-  size_t counter=0;
+  int counter=-1;
   for ( auto previousDecision: *previousDecisionsHandle ) {
+    counter++;
+    
     //get RoI
     auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI");
     ATH_CHECK( roiELInfo.isValid() );
@@ -64,22 +65,23 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     ATH_CHECK( tracksHandle.isValid() );
     ATH_MSG_DEBUG ( "tracks handle size: " << tracksHandle->size() << "..." );
 
+    if( tracksHandle->size() == 0 ) {
+      ATH_MSG_DEBUG("No tracks were found, skipping this view");
+      continue;
+    }
+
     // create new decision
     auto d = newDecisionIn( decisions, name() );
+    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 
+    auto el = ViewHelper::makeLink( *(viewELInfo.link), tracksHandle, 0 );
+    ATH_CHECK( el.isValid() );
+    d->setObjectLink( "feature",  el );
+    
+    d->setObjectLink( "roi", roiELInfo.link );
     toolInput.emplace_back( d, roi, tracksHandle.cptr(), previousDecision );
 
-     {
-       auto el = ViewHelper::makeLink( *(viewELInfo.link), tracksHandle, 0 );
-      ATH_CHECK( el.isValid() );
-      d->setObjectLink( "feature",  el );
-    }
-     d->setObjectLink( "roi", roiELInfo.link );
-
-     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-     ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
-     counter++;
-
+    ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
@@ -90,4 +92,3 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
 
   return StatusCode::SUCCESS;
 }
-

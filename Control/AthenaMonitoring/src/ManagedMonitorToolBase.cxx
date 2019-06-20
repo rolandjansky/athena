@@ -21,6 +21,7 @@
 #include "LWHists/LWHistControls.h"
 #include "LWHistAthMonWrapper.h"
 #include "AthMonBench.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -412,9 +413,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_nEventsIgnoreTrigger(1)
    , m_nLumiBlocks(1)
    , m_haveClearedLastEventBlock(true)
-   , m_lumiTool("LuminosityTool")
-   , m_liveTool("TrigLivefractionTool")
-   , m_hasRetrievedLumiTool(false)
    , m_bookHistogramsInitial(false)
    , m_useLumi(false)
    , m_defaultLBDuration(60.)
@@ -775,26 +773,9 @@ initialize()
    m_dataType = AthenaMonManager::dataTypeStringToEnum( m_dataTypeStr );
    m_environment = AthenaMonManager::envStringToEnum( m_environmentStr );
 
-   if (m_useLumi) {
-     if (m_dataType == AthenaMonManager::monteCarlo) {
-       ATH_MSG_WARNING("Lumi use in monitoring enabled but tool configured for MC; disabling lumi tool use");
-     } else {
-       // Get the luminosity tool
-       //CHECK(m_lumiTool.retrieve());
-       StatusCode sc_lumiTool = m_lumiTool.retrieve();
-       
-       // Get the livefration tool
-       //CHECK(m_liveTool.retrieve());
-       StatusCode sc_liveTool = m_liveTool.retrieve();
-
-       // Set m_hasRetrievedLumiTool to true when both tools are retrieved successfully
-       if ( sc_lumiTool.isSuccess() && sc_liveTool.isSuccess() )
-           m_hasRetrievedLumiTool = true;
-     }
-   } else {
-       ATH_MSG_DEBUG("!! Luminosity tool is disabled !!");
-   }
-
+   ATH_CHECK( m_lumiDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
+   ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
+   ATH_CHECK( m_trigLiveFractionDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
 
    delete m_streamNameFcn;
    m_streamNameFcn = getNewStreamNameFcn();
@@ -1844,10 +1825,11 @@ preSelector()
 // Average mu, i.e. <mu>
 float
 ManagedMonitorToolBase::
-lbAverageInteractionsPerCrossing()
+lbAverageInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageInteractionsPerCrossing();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageInteractionsPerCrossing();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1859,15 +1841,15 @@ lbAverageInteractionsPerCrossing()
 // Instantaneous number of interactions, i.e. mu
 float
 ManagedMonitorToolBase::
-lbInteractionsPerCrossing()
+lbInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        float instmu = 0.;
-
-        if (m_lumiTool->muToLumi() > 0.)
-            instmu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi();
-
-        return instmu;
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        float muToLumi = lumi->muToLumi();
+        if (muToLumi > 0) {
+          return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id()) / muToLumi;
+        }
+        return 0;
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1879,10 +1861,11 @@ lbInteractionsPerCrossing()
 // Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
 float
 ManagedMonitorToolBase::
-lbAverageLuminosity()
+lbAverageLuminosity (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageLuminosity();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageLuminosity();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1894,10 +1877,11 @@ lbAverageLuminosity()
 // Instantaneous luminosity
 float
 ManagedMonitorToolBase::
-lbLuminosityPerBCID()
+lbLuminosityPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbLuminosityPerBCID();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id());
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1910,16 +1894,17 @@ lbLuminosityPerBCID()
 // Average luminosity livefraction
 float
 ManagedMonitorToolBase::
-lbAverageLivefraction()
+lbAverageLivefraction (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if (m_environment == AthenaMonManager::online)
         return 1.0;
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->lbAverageLivefraction();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->lbAverageLiveFraction();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
-        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity not availble (i.e. EnableLumi = False)");
         return -1.0;
     }
     // not reached
@@ -1928,16 +1913,17 @@ lbAverageLivefraction()
 // Live Fraction per Bunch Crossing ID
 float
 ManagedMonitorToolBase::
-livefractionPerBCID()
+livefractionPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if (m_environment == AthenaMonManager::online)
         return 1.0;
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->livefractionPerBCID();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->l1LiveFractionVector().at (ctx.eventID().bunch_crossing_id());
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
-        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity retrieved available (i.e. EnableLumi = False)");
         return -1.0;
     }
     // not reached
@@ -1946,10 +1932,10 @@ livefractionPerBCID()
 // Average Integrated Luminosity Live Fraction
 double
 ManagedMonitorToolBase::
-lbLumiWeight()
+lbLumiWeight (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
+    if (!m_lumiDataKey.empty()) {
+        return (lbAverageLuminosity(ctx)*lbDuration(ctx))*lbAverageLivefraction(ctx);
     } else{
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1962,13 +1948,14 @@ lbLumiWeight()
 // Luminosity block time (in seconds)
 double
 ManagedMonitorToolBase::
-lbDuration()
+lbDuration (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if ( m_environment == AthenaMonManager::online ) {
         return m_defaultLBDuration;
     }
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbDuration();
+    if (!m_lbDurationDataKey.empty()) {
+        SG::ReadCondHandle<LBDurationCondData> dur (m_lbDurationDataKey, ctx);
+        return dur->lbDuration();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
