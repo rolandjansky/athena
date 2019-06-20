@@ -15,6 +15,7 @@
 #include "TrigFTKSim/FTKRoad.h"
 #include "TrigFTKSim/FTKRoadInput.h"
 #include "TrigFTKSim/FTKTrack.h"
+#include "TrigFTKSim/FTKClusteringEngine.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
@@ -50,7 +51,6 @@ protected:
   StoreGateSvc*  m_storeGate;
   StoreGateSvc*  m_detStore;
   StoreGateSvc*  m_evtStore;
-  
   std::vector<FTKRawHit> m_original_hits; // global list of raw hits
   std::vector<FTKRawHit> **m_original_reghits; // local list of hits, RMAP applied
   std::vector<FTKTruthTrack> m_truth_track; // list of raw hits
@@ -88,6 +88,9 @@ protected:
   FTKTrackInput **m_trackinput;
   // These roads are stored in FTKRoadStream in root output of road_merger
   FTKRoadInput **m_roadinput;
+
+  //Class handling the clustering process
+  FTKClusteringEngine* m_clusteringEngine;
 
   // Additional information for Naoki's studies
   int m_nao_nhits_tot;             // total number of hits per event

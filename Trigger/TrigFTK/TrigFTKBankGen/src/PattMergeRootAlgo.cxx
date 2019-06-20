@@ -158,11 +158,12 @@ StatusCode PattMergeRootAlgo::RunMerging() {
 
 
 void PattMergeRootAlgo::PostMessage(void) {
-   if(FTKLogger::m_type==0)  ATH_MSG_FATAL(m_buffer->str());
-   else if(FTKLogger::m_type==1)  ATH_MSG_ERROR(m_buffer->str());
-   else if(FTKLogger::m_type==2)  ATH_MSG_WARNING(m_buffer->str());
-   else if(FTKLogger::m_type==3)  ATH_MSG_INFO(m_buffer->str());
-   else if(FTKLogger::m_type==4)  ATH_MSG_DEBUG(m_buffer->str());
+   int fType=getLoggerMsgType();
+   if     (fType==0)  ATH_MSG_FATAL(getLoggerMsg());
+   else if(fType==1)  ATH_MSG_ERROR(getLoggerMsg());
+   else if(fType==2)  ATH_MSG_WARNING(getLoggerMsg());
+   else if(fType==3)  ATH_MSG_INFO(getLoggerMsg());
+   else if(fType==4)  ATH_MSG_DEBUG(getLoggerMsg());
 }
 
 

@@ -12,7 +12,6 @@
 
 #define MAXTOWER 64
 #define MAXL 8
-
 ///#define HIST_MAXBINS 35
 
 #define HIST_MAXBINS 100
@@ -20,9 +19,10 @@
 
 #define TTREE_NAME "ftkdata"
 
+using namespace std;
 
-std::ofstream myfile;
-std::ofstream myfileTeX;
+ofstream myfile;
+ofstream myfileTeX;
 
 // [tower]
 float nRoad[MAXTOWER], nFit[MAXTOWER], nFitI[MAXTOWER], nTrack[MAXTOWER], nTrackI[MAXTOWER], nTrackBeforeHW[MAXTOWER], nFitRecovery[MAXTOWER], nFitRecoveryI[MAXTOWER];
@@ -32,7 +32,7 @@ float nConn[MAXTOWER], nExtrapAUX[MAXTOWER];
 FTKRoadStream *stream[MAXTOWER];
 FTKTrackStream *trackstream[MAXTOWER];
 
-std::vector<float> nRoad_tow_evt[MAXTOWER], nFitI_tow_evt[MAXTOWER];
+vector<float> nRoad_tow_evt[MAXTOWER], nFitI_tow_evt[MAXTOWER];
 
 
 // events to run over
@@ -66,9 +66,12 @@ std::vector<std::string> files;
 TChain *ch;
 std::vector<std::pair<size_t,std::vector<bool> > > towersPerFile;
 
+// The switch to turn on/off stat uncertainties
+bool uncertainty;
+
 
 void Init();
 void Process(unsigned int ientry);
 void Terminate();
-void printinfo(float towers[MAXTOWER], TString text);
+void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, float HW_limit);
 void AddBreak(int n = 1);

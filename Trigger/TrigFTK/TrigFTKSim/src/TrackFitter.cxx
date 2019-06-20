@@ -18,19 +18,19 @@ using namespace std;
 //#define DEBUG_HITEXTRAPOLATION
 TrackFitter::TrackFitter() :
   m_ncoords(0), m_nplanes(0), m_npars(5),
-  m_Chi2Cut(0), m_Chi2Cut_maj(0), m_Chi2Cut_vetomaj(-1), m_Chi2DofCut(-1),
-  m_HitWarrior(2), m_HitWarrior_first(1), m_HW_ndiff(3), m_HW_dev(0),
+  m_Chi2Cut(0), m_Chi2Cut_maj(0), m_Chi2Cut_vetomaj(-1), m_Chi2DofCutAux(-1), m_Chi2DofCutSSB(-1),
+  m_HitWarrior(2), m_HW_ndiff(3), m_HW_dev(0),
+  m_AuxDoctor(false),
   m_keep_rejected(0), m_fit_removed(0),
   m_max_ncomb(10000), m_max_nhitsperplane(-1), m_max_trkout(2000000), m_norecovery_nhits(-1),
   m_one_per_road(false), m_require_first(true), m_do_majority(1),
-  // m_one_per_road(true), m_require_first(false), m_do_majority(1),
   m_roadinput(0), m_trackoutput(0), m_trackoutput_pre_hw(0),
-  //m_fwoutput(0), m_maxsectors_fwo(0), m_nsectors_fwo(0), // output for firmware tests
   m_nregions(0), m_nsubregions(0),
   m_constant(0),
   m_goodRegion(0),
   m_noconstants_errlevel(ftk::sevr), m_pmap(0),
   m_ntracks(0),
+  m_ntracks_pre_hw(0),
   m_ncombs(0),
   m_nfits(0),
   m_nfits_maj(0),
@@ -50,7 +50,7 @@ TrackFitter::TrackFitter() :
   m_endlist(0),
   m_hitcnt(0),
   m_identify_badhit(false),
-  m_saveIncompleteTracks(false)
+  m_saveStepByStepTracks(false)
 {
   // nothing to do
 #ifdef DEBUG_HITEXTRAPOLATION
@@ -99,7 +99,7 @@ void TrackFitter::setNCoordsPlanes(int nc, int np)
   m_ncoords = nc;
   m_nplanes = np;
   m_HW_dev = new float[m_ncoords];
-  for (int i=0;i<m_ncoords;++i) {
+  for (unsigned int i=0;i<m_ncoords;++i) {
     m_HW_dev[i] = 0.;
   }
 }
@@ -127,7 +127,7 @@ void TrackFitter::loadHWConf(const char *fname)
 
   // start the real read of the file
   char flag;
-  int nvals;
+  unsigned int nvals;
   int pos;
   float fval;
 
@@ -138,7 +138,7 @@ void TrackFitter::loadHWConf(const char *fname)
     FTKSetup::PrintMessageFmt(ftk::sevr,"Error parsing HW configuration, wrong number of values %d -> %d",nvals,m_ncoords);
   }
 
-  for (int i=0;i<nvals;++i) {
+  for (unsigned int i=0;i<nvals;++i) {
     fin >> pos >> fval;
     m_HW_dev[pos] = fval;
   }
@@ -229,10 +229,10 @@ void TrackFitter::init()
   // counter that enumerates current hit in FTKHit array
   m_hitcnt = new int[m_nplanes];
 
-  m_complete_mask = ~(~0u<<m_ncoords);
+  m_complete_mask = (1 << m_ncoords) - 1;
   // allocate once the array of recovered tracks
   m_combtrack = new FTKTrack[m_ncoords];
-  for (int ic=0;ic!=m_ncoords;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords;++ic) {
     m_combtrack[ic].setNCoords(m_ncoords);
     m_combtrack[ic].setNPlanes(m_nplanes);
   }
@@ -284,70 +284,14 @@ int TrackFitter::nextEvent()
     // m_trackoutput_pre_hw->setEventNumber( ibank , m_roadinput->eventNumber(ibank) );
 
     const FTKRoad *cur_road = m_roadinput->nextRoad(ibank);
-
-    if (m_HitWarrior_first != 2) {
-
-      while (cur_road) {
-        processor(*cur_road);
-        #if 0 // debug just a limited fraction
-              if (m_nfits>=10000000)
-        	break;
-        #endif
-        cur_road = m_roadinput->nextRoad(ibank);
-      }
+    while (cur_road) {
+      processor(*cur_road);
+#if 0 // debug just a limited fraction
+      if (m_nfits>=10000000)
+	break;
+#endif
+      cur_road = m_roadinput->nextRoad(ibank);
     }
-    else {
-
-      vector<int> vSectorID;
-
-      while (cur_road) {
-        if (std::find(vSectorID.begin(), vSectorID.end(), cur_road->getSectorID()) == vSectorID.end()) vSectorID.push_back(cur_road->getSectorID());
-        cur_road = m_roadinput->nextRoad(ibank);
-      }
-
-      for (unsigned int i = 0; i < vSectorID.size(); i++) {
-        cur_road = m_roadinput->firstRoad(ibank);
-
-        while (cur_road) {
-          if (cur_road->getSectorID() == vSectorID[i]) {
-            m_processor_stage = 1;
-            processor(*cur_road);
-          }
-          cur_road = m_roadinput->nextRoad(ibank);
-        }
-
-        cur_road = m_roadinput->firstRoad(ibank);
-
-        while (cur_road) {
-          if (cur_road->getSectorID() == vSectorID[i]) {
-            m_processor_stage = 2;
-            processor(*cur_road);
-          }
-          cur_road = m_roadinput->nextRoad(ibank);
-        }
-
-        m_tracks_first.splice(m_tracks_first.end(), m_sector_tracks);
-
-      }
-
-      vSectorID.clear();
-      m_sector_tracks.clear();
-
-    }
-
-    if (m_saveIncompleteTracks) {
-      for (list<FTKTrack>::iterator it = m_tracks_first.begin(); it != m_tracks_first.end(); it++) {
-        int region = it->getRegion();
-        m_trackoutput->addTrackI(region,*it);
-      }
-      // itrack = road_tracks_pre_hw.begin();
-      // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
-      //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
-      // }
-    }
-
-    m_tracks_first.clear();
-    
     // now that all roads in the bank are processed, associate geant
     // truth data with the resulting tracks.
 
@@ -373,6 +317,9 @@ void TrackFitter::processor_init(int /*ibank*/)
     m_ntracks = 0;
     m_comb_id = 0;
     m_tracks.clear();
+    m_tracks_pre_hw.clear();
+    m_tracks_hits.clear();
+    m_tracks_pattern.clear();
 
     // reset counters
     m_ncombs = 0;
@@ -398,6 +345,24 @@ void TrackFitter::processor_end(int ibank)
   for (;itrack2!=m_tracks.end();itrack2 = m_tracks.erase(itrack2)) {
     m_trackoutput->addTrack(ibank,*itrack2);
   }
+
+  if (m_saveStepByStepTracks) {
+    itrack2 = m_tracks_pre_hw.begin();
+    for (;itrack2!=m_tracks_pre_hw.end();itrack2 = m_tracks_pre_hw.erase(itrack2)) {
+      m_trackoutput->addTrack_pre_hw(ibank,*itrack2);
+    }
+
+    // itrack2 = m_tracks_hits.begin();
+    // for (;itrack2!=m_tracks_hits.end();itrack2 = m_tracks_hits.erase(itrack2)) {
+    //   m_trackoutput->addTrack_hits(ibank,*itrack2);
+    // }
+
+    // itrack2 = m_tracks_pattern.begin();
+    // for (;itrack2!=m_tracks_pattern.end();itrack2 = m_tracks_pattern.erase(itrack2)) {
+    //   m_trackoutput->addTrack_pattern(ibank,*itrack2);
+    // }
+  }
+
   // itrack2 = m_tracks_pre_hw.begin();
   // for (;itrack2!=m_tracks_pre_hw.end();itrack2 = m_tracks.erase(itrack2)) {
   //   m_trackoutput_pre_hw->addTrack(ibank,*itrack2);
@@ -462,23 +427,23 @@ void TrackFitter::processor(const FTKRoad &road) {
   FTKConstantBank *current_bank = m_constant[region][subreg];
   if (!current_bank) { // no valid constants
     FTKSetup::PrintMessageFmt(m_noconstants_errlevel,
-			      "*** Constants for region %d - %d don't exists",
-			      region,subreg);
+            "*** Constants for region %d - %d don't exists",
+            region,subreg);
     return;
   }
   // check if the number of sector is compatible with this bank
   else if (sector>=current_bank->getNSectors()) {
     FTKSetup::PrintMessageFmt(m_noconstants_errlevel,
-			      "*** Constants for Sector %d in region %d - %d don't exists\n",
-			      sector,region,subreg);
+            "*** Constants for Sector %d in region %d - %d don't exists\n",
+            sector,region,subreg);
 
     return;
   }
   // check if the sector has a valid constants set
   else if (!current_bank->getIsGood(sector)) {
     FTKSetup::PrintMessageFmt(m_noconstants_errlevel,
-			      "*** Constants for Sector %d in region %d - %d is not valid\n",
-			      sector,region,subreg);
+            "*** Constants for Sector %d in region %d - %d is not valid\n",
+            sector,region,subreg);
 
     return;
   }
@@ -527,17 +492,17 @@ void TrackFitter::processor(const FTKRoad &road) {
        // decide if a 1D or 2D hit
        int ndim = iy==-1 ?  1 : 2;
        if (ndim==1) {
-	 bitmask |= 1 << ix;
-	 nmissing -= 1;
+   bitmask |= 1 << ix;
+   nmissing -= 1;
        }
        else {
-	 bitmask |= ( (1<<ix) | (1<<iy));
-	 nmissing -= 2;
+   bitmask |= ( (1<<ix) | (1<<iy));
+   nmissing -= 2;
        }
        // set the mask to avoid recovery in crowded planes
        // if m_norecovery
        if (m_norecovery_nhits!=-1 && nhits>m_norecovery_nhits)
-	 norecovery_mask |= (1<<p);
+   norecovery_mask |= (1<<p);
      }
    }
 
@@ -577,16 +542,16 @@ void TrackFitter::processor(const FTKRoad &road) {
    for (int comb=0;comb<(ncomb>m_max_ncomb ? m_max_ncomb : ncomb);++comb) {
 
      /* FlagAK:
-	Decide if this hit combination survived hit filter (optional)
-	If hit filter had not been run, this doesn't do anything
+  Decide if this hit combination survived hit filter (optional)
+  If hit filter had not been run, this doesn't do anything
       */
      int hf_nmatches(0);
      for (int ip=0;ip<nplanes;++ip) {
        if(hitcnt[ip]==-1) { // this plane doesn't have any hits
-	 hf_nmatches++;
+   hf_nmatches++;
        }
        else { // this plane has some hits. Test if current hit passed hit filter
-	 if(!road.hit_failed_HF(ip,hitcnt[ip])) hf_nmatches++;
+   if(!road.hit_failed_HF(ip,hitcnt[ip])) hf_nmatches++;
        }
      }
      int hf_rejected = (hf_nmatches != nplanes);
@@ -599,23 +564,23 @@ void TrackFitter::processor(const FTKRoad &road) {
        // this block uses the "m_newtrk" variable that is a field of the object
 
        for (int ip=0;ip<nplanes;++ip) {
-	 // retrieve the coordinate in the final array
-	 int ix = m_pmap->getDim(ip,0);
-	 int iy = m_pmap->getDim(ip,1);
-	 // decide if a 1D or 2D hit
-	 int ndim = iy==-1 ?  1 : 2;
-	 if (position[ip]!=endlist[ip]) {
-	   // set the FTK cluster associated to this layer
-	   m_newtrk.setFTKHit(ip,(*position[ip]));
+   // retrieve the coordinate in the final array
+   int ix = m_pmap->getDim(ip,0);
+   int iy = m_pmap->getDim(ip,1);
+   // decide if a 1D or 2D hit
+   int ndim = iy==-1 ?  1 : 2;
+   if (position[ip]!=endlist[ip]) {
+     // set the FTK cluster associated to this layer
+     m_newtrk.setFTKHit(ip,(*position[ip]));
 
-	   if (ndim==1) {
-	     m_newtrk.setCoord(ix,(*position[ip])[0]);
-	   }
-	   else {
-	     m_newtrk.setCoord(ix,(*position[ip])[0]);
-	     m_newtrk.setCoord(iy,(*position[ip])[1]);
-	   }
-	 }
+     if (ndim==1) {
+       m_newtrk.setCoord(ix,(*position[ip])[0]);
+     }
+     else {
+       m_newtrk.setCoord(ix,(*position[ip])[0]);
+       m_newtrk.setCoord(iy,(*position[ip])[1]);
+     }
+   }
        }
        m_newtrk.setTrackID(m_comb_id);
        m_newtrk.setCombinationID(comb);
@@ -627,61 +592,61 @@ void TrackFitter::processor(const FTKRoad &road) {
        // only keep this combination if there are enough hits,
        // otherwise go to next combination.
        if( blayer_condition &&
-	   (!m_one_per_road || (m_one_per_road && nmissing <= min_nmissing) ) ) {
+     (!m_one_per_road || (m_one_per_road && nmissing <= min_nmissing) ) ) {
 
-	 if( m_one_per_road && nmissing < min_nmissing ) {
-	   // Don't consider any combinations with more missing hits
-	   min_nmissing = nmissing;
-	   for( std::vector<FTKTrack>::iterator citer = theCombos.begin();
-		citer != theCombos.end(); citer++ ) {
-	     if( (*citer).getNMissing() > min_nmissing ) {
-	       // Presumably this would be handled before this stage
-	       // in the real FTK hardware.
-	       citer = theCombos.erase(citer);
-	       citer--;
-	       m_nfits_maj--;
-	       m_nfits--;
-	       if (missSCT) m_nfits_maj_SCT--;
-	       if (missPix) m_nfits_maj_pix--;
-	     }
-	   }
-	 }
+   if( m_one_per_road && nmissing < min_nmissing ) {
+     // Don't consider any combinations with more missing hits
+     min_nmissing = nmissing;
+     for( std::vector<FTKTrack>::iterator citer = theCombos.begin();
+    citer != theCombos.end(); citer++ ) {
+       if( (*citer).getNMissing() > min_nmissing ) {
+         // Presumably this would be handled before this stage
+         // in the real FTK hardware.
+         citer = theCombos.erase(citer);
+         citer--;
+         m_nfits_maj--;
+         m_nfits--;
+         if (missSCT) m_nfits_maj_SCT--;
+         if (missPix) m_nfits_maj_pix--;
+       }
+     }
+   }
 
-	 // add one fit in the counters
-	 m_nfits++;
-	 if (nmissing>0) {
-	   m_nfits_maj++;
-	   if (missPix) m_nfits_maj_pix++;
-	   if (missSCT) m_nfits_maj_SCT++;
-	 }
+   // add one fit in the counters
+   m_nfits++;
+   if (nmissing>0) {
+     m_nfits_maj++;
+     if (missPix) m_nfits_maj_pix++;
+     if (missSCT) m_nfits_maj_SCT++;
+   }
 
 
-	 /* Do the actual fit - see code in FTKConstantBank::linfit  */
-	 current_bank->linfit(sector,m_newtrk);
-	 m_newtrk.setOrigChi2(m_newtrk.getChi2());
+   /* Do the actual fit - see code in FTKConstantBank::linfit  */
+   current_bank->linfit(sector,m_newtrk);
+   m_newtrk.setOrigChi2(m_newtrk.getChi2());
 
-	 // output for firware tests
-	 //if( dump_fwo ) m_fwoutput->addTrack( m_newtrk );
+   // output for firware tests
+   //if( dump_fwo ) m_fwoutput->addTrack( m_newtrk );
 
-	 if( m_newtrk.getChi2() != 0 )
-	   theCombos.push_back(m_newtrk);
+   if( m_newtrk.getChi2() != 0 )
+     theCombos.push_back(m_newtrk);
        } // end if nmissing <= min_nmissing
      } // end if !hf_rejected
      /* compose the next combination */
      for (int curpl=0;curpl<nplanes;++curpl) {
        if (startlist[curpl]==endlist[curpl]) // empty hit
-	 continue;
+   continue;
 
        // move to the next
        position[curpl]++;  hitcnt[curpl]++;
        if (position[curpl]!=endlist[curpl] && hitcnt[curpl]!=m_max_nhitsperplane) {
-	 // possible combination
-	 break;
+   // possible combination
+   break;
        }
        else {
-	 // restart on this plane, move the next plane
-	 position[curpl] = startlist[curpl];
-	 hitcnt[curpl] = 0;
+   // restart on this plane, move the next plane
+   position[curpl] = startlist[curpl];
+   hitcnt[curpl] = 0;
        }
      }
 
@@ -701,10 +666,10 @@ void TrackFitter::processor(const FTKRoad &road) {
        int idbestfull(0);
 
        for( unsigned int idx = 1; idx < theCombos.size(); idx++) {
-	 if( theCombos[idx].getChi2() < bestfullchi2 ) {
-	   bestfullchi2 =  theCombos[idx].getChi2();
-	   idbestfull = idx;
-	 }
+   if( theCombos[idx].getChi2() < bestfullchi2 ) {
+     bestfullchi2 =  theCombos[idx].getChi2();
+     idbestfull = idx;
+   }
        }
        m_newtrk = theCombos[idbestfull];
        theCombos.clear();
@@ -728,15 +693,15 @@ void TrackFitter::processor(const FTKRoad &road) {
        float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-       if( m_newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
-	 fullpassed = true;
-	 break;
+       if( m_newtrk.getChi2() < ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut ) ) {
+   fullpassed = true;
+   break;
        }
      }
    }
 
    for( std::vector<FTKTrack>::iterator citer = theCombos.begin();
-	citer != theCombos.end(); citer = theCombos.erase(citer) ) {
+  citer != theCombos.end(); citer = theCombos.erase(citer) ) {
      m_newtrk = *citer;
 
      float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
@@ -757,14 +722,14 @@ void TrackFitter::processor(const FTKRoad &road) {
 #endif
      // Try to recover majority if chi2 no good
      if (m_newtrk.getNMissing()==0 &&
-	 (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
-	 // Do recovery if chi2 or chi2/dof is above threshold
-	 (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
-	 // Or veto majority if chi2 is too high
-	 (m_newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) ) { // recover majority
+   (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
+   // Do recovery if chi2 or chi2/dof is above threshold
+   (m_newtrk.getChi2() > ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut )) &&
+   // Or veto majority if chi2 is too high
+   (m_newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) ) { // recover majority
        /* if the N/N track have a bad chi2 we try to evaluate
-	  the track using the "best" track within the N combination
-	  of N-1/N tracks */
+    the track using the "best" track within the N combination
+    of N-1/N tracks */
 
        // in this block the used array of track m_combtrack[] is created
        // in the init block to save some time
@@ -774,43 +739,43 @@ void TrackFitter::processor(const FTKRoad &road) {
        m_nfits_rec += 1;
        for (int ip=(m_require_first?1:0);ip<nplanes;++ip) { // loop over the combinations
 
-	 // skip planes with multiple hits
-	 if (norecovery_mask&(1<<ip)) continue;
+   // skip planes with multiple hits
+   if (norecovery_mask&(1<<ip)) continue;
 
-	 // start for the complete track
-	 m_combtrack[ip] = m_newtrk;
+   // start for the complete track
+   m_combtrack[ip] = m_newtrk;
 
-	 // zero the cluster for the missing layer
-	 m_combtrack[ip].setFTKHit(ip,FTKHit());
+   // zero the cluster for the missing layer
+   m_combtrack[ip].setFTKHit(ip,FTKHit());
 
-	 // remove the hits related with this plane
-	 int ix = m_pmap->getDim(ip,0);
-	 int iy = m_pmap->getDim(ip,1);
-	 int ndim = iy==-1? 1 : 2;
+   // remove the hits related with this plane
+   int ix = m_pmap->getDim(ip,0);
+   int iy = m_pmap->getDim(ip,1);
+   int ndim = iy==-1? 1 : 2;
 
-	 // set the number of missing points and the related bitmask
-	 m_combtrack[ip].setNMissing(m_newtrk.getNMissing()+ndim);
-	 unsigned int newbitmask = (1<<ix);
-	 if (iy!=-1) newbitmask |= (1<<iy);
-	 newbitmask = m_newtrk.getBitmask() & ~newbitmask;
+   // set the number of missing points and the related bitmask
+   m_combtrack[ip].setNMissing(m_newtrk.getNMissing()+ndim);
+   unsigned int newbitmask = (1<<ix);
+   if (iy!=-1) newbitmask |= (1<<iy);
+   newbitmask = m_newtrk.getBitmask() & ~newbitmask;
 
-	 m_combtrack[ip].setBitmask(newbitmask);
+   m_combtrack[ip].setBitmask(newbitmask);
 
-	 // increment the counter of additional fits due to the recovery
-	 m_nfits_addrec += 1;
-	 // attempt the fit
-	 current_bank->linfit(sector,m_combtrack[ip]);
+   // increment the counter of additional fits due to the recovery
+   m_nfits_addrec += 1;
+   // attempt the fit
+   current_bank->linfit(sector,m_combtrack[ip]);
 
-	 // check if the chi2 is better
-	 if (m_combtrack[ip].getChi2()<bestchi2) {
-	   bestchi2 = m_combtrack[ip].getChi2();
-	   idbest = ip;
-	 }
+   // check if the chi2 is better
+   if (m_combtrack[ip].getChi2()<bestchi2) {
+     bestchi2 = m_combtrack[ip].getChi2();
+     idbest = ip;
+   }
        } // end loop over the combinations
 
        if (idbest>=0) {
-	 // a majority track was found
-	 m_newtrk = m_combtrack[idbest];
+   // a majority track was found
+   m_newtrk = m_combtrack[idbest];
 #ifdef DEBUG_HITEXTRAPOLATION
        // Print the best recovery track
        cout << "DBGHIT RC";
@@ -825,9 +790,9 @@ void TrackFitter::processor(const FTKRoad &road) {
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // check if the track pass the quality requirements
-     if (m_newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
-			     (m_newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
-	 m_newtrk.getChi2() != 0 ) {
+     if (m_newtrk.getChi2()< ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux :
+           (m_newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+   m_newtrk.getChi2() != 0 ) {
 
        // to append the found track go trought the HW filter
        // add this track to track list only if
@@ -841,47 +806,48 @@ void TrackFitter::processor(const FTKRoad &road) {
 
        // Disable hitwarrior, auto-accept every track
        if (m_HitWarrior!=0)
-	 accepted = doHitWarriorFilter(m_newtrk,m_tracks);
+   accepted = doHitWarriorFilter(m_newtrk,m_tracks);
 
        if (accepted>=0) { // track accepted, no hits shared with already fitted tracks
-	 // match the track to a geant particle using the channel-level
-	 // geant info in the superstrip data.
-	 compute_truth(region,road,m_newtrk);
-	 // copy m_newtrk after truth assignment.
-	 m_tracks.push_back(m_newtrk);
-	 if (accepted==1) {
-	   // this track removed an old one
-	   m_nfits_rej += 1;
-	   if (nmissing>0) m_nfits_rejmaj++;
-	 }
-	 else {
-	   ++m_ntracks;
-	 }
+   // match the track to a geant particle using the channel-level
+   // geant info in the superstrip data.
+   compute_truth(region,road,m_newtrk);
+   // copy m_newtrk after truth assignment.
+   m_tracks.push_back(m_newtrk);
+   if (accepted==1) {
+     // this track removed an old one
+     m_nfits_rej += 1;
+     if (nmissing>0) m_nfits_rejmaj++;
+   }
+   else {
+     ++m_ntracks;
+   }
        }
        else if (accepted==-1) {
-	 // the track is candidate as ghost and is not the best
-	 // clean the list of the hits
+   // the track is candidate as ghost and is not the best
+   // clean the list of the hits
 
-	 if (m_keep_rejected) {
-	   // match the track to a geant particle using the channel-level
-	   // geant info in the superstrip data.
-	   compute_truth(region,road,m_newtrk);
-	   // copy m_newtrk after truth assignment.
-	   m_tracks.push_back(m_newtrk);
-	 }
-	 m_nfits_rej += 1;
-	 if (nmissing>0) m_nfits_rejmaj++;
+   if (m_keep_rejected) {
+     // match the track to a geant particle using the channel-level
+     // geant info in the superstrip data.
+     compute_truth(region,road,m_newtrk);
+     // copy m_newtrk after truth assignment.
+     m_tracks.push_back(m_newtrk);
+   }
+
+   m_nfits_rej += 1;
+   if (nmissing>0) m_nfits_rejmaj++;
        }
      }
      else { // if the track fail the cut on chi-square clean the hit list
        if (m_keep_rejected>1) {
-	 m_newtrk.setHWRejected( m_newtrk.getHWRejected()+100 );
+   m_newtrk.setHWRejected( m_newtrk.getHWRejected()+100 );
 
-	 // match the track to a geant particle using the channel-level
-	 // geant info in the superstrip data.
-	 compute_truth(region,road,m_newtrk);
-	 // copy m_newtrk after truth assignment.
-	 m_tracks.push_back(m_newtrk);
+   // match the track to a geant particle using the channel-level
+   // geant info in the superstrip data.
+   compute_truth(region,road,m_newtrk);
+   // copy m_newtrk after truth assignment.
+   m_tracks.push_back(m_newtrk);
        }
        m_nfits_bad += 1;
        if (nmissing>0) m_nfits_badmaj++;
@@ -986,7 +952,7 @@ TrackFitter::compute_truth(const unsigned int& /*ibank*/,const FTKRoad& road,FTK
 
 /** this method attempets to add a track into a list of tracks,
     before to do that applies the usual HW filter */
-int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks_list)
+int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks_list, bool isfirst)
 {
   // remains 0 if the track has to be added
   // -1 means is worse than an old track (duplicated)
@@ -994,30 +960,34 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
   int accepted(0);
 
   list<FTKTrack>::iterator itrack = tracks_list.begin();
-
   for (;itrack!=tracks_list.end();++itrack) { // loop over tracks of this bank
 
     // reference to an old track
     FTKTrack &track_old = *itrack;
-    if (track_old.getHWRejected()%10 !=0 || track_old.getHWRejected()/100!=0)
-      // skip HW rejected tracks and tracks with bad chi2,
-      // tracks in removed roads are used, but if a match is found
-      // will be always rejected or marked as removed, if compared
-      // to a combination in a good road
+    if (track_old.getHWRejected()/100 !=0 || ( (!isfirst) && track_old.getHWRejected()%10 !=0) ) //We still want to compare to duplicate tracks
       continue;
 
-    int HWres = track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior);
+    //Slightly different logic on first stage (AUX) vs. 2nd stage (SSB)
+    int HWres = isfirst ? track_toadd.HWChoiceFirstStage(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior) : track_toadd.HWChoice(track_old,m_HW_dev,m_HW_ndiff,m_HitWarrior);
 
     if (HWres==-1) {
       accepted = -1;
       // passing the end of the list means remove current
-      removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      if (isfirst) { //for first stage processing, don't remove tracks from list yet as they're needed for duplicate removal comparisons
+        removeTrackStage1(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      } else {
+        removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+      }
     }
     else if (HWres==1) {
       accepted = 1;
       // return the new current position, it changes if the
       // rejected track is removed from the list
-      itrack = removeTrack(tracks_list,itrack,track_old,track_toadd);
+      if (isfirst) {
+        itrack = removeTrackStage1(tracks_list,itrack,track_old,track_toadd);
+      } else {
+        itrack = removeTrack(tracks_list,itrack,track_old,track_toadd);
+      }
     }
 
   } // end loop over tracks of this bank
@@ -1025,6 +995,37 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
   return accepted;
 }
 
+/** This is the newly added overlap removal method Aux Doctor. It checks the SSIDs,
+    which are extrapolated Aux track coordinates, and performs the overlap removal. **/
+int TrackFitter::doAuxDoctor(FTKTrack &track_toadd,list<FTKTrack> &tracks_list)
+{
+  // remains 0 if the track has to be added
+  // -1 means it's a duplicate
+  int accepted_AuxDoctor(0);
+
+  list<FTKTrack>::iterator itrack = tracks_list.begin();
+
+  for (;itrack!=tracks_list.end();++itrack) { // loop over tracks of this bank
+    // reference to an old track
+    FTKTrack &track_old = *itrack;
+
+    bool toadd = false;
+    for (int i=0; i<track_toadd.getNPlanesIgnored(); i++) {
+      if (track_toadd.getSSID(i) != track_old.getSSID(i)) {
+        toadd = true;
+        break;
+      }
+    }
+
+    if (!toadd) {
+      accepted_AuxDoctor = -1;
+      // passing the end of the list means remove current
+      removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+    }
+  } // end loop over tracks of this bank
+
+  return accepted_AuxDoctor;
+}
 
 /** rejected, or mark as rejected, the track in the list
     against  the second track */
@@ -1046,6 +1047,37 @@ list<FTKTrack>::iterator TrackFitter::removeTrack(list<FTKTrack> &tracks_list, l
       itrack = before;
     }
     else if  (rejtrk.getHWRejected()%10==0) { // mark only if not yet marked
+      // mark the old track as rejected
+      rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
+      // assign the ID of the track rejected this
+      rejtrk.setHWTrackID(killer.getTrackID());
+      //m_nfits_rej += 1;
+    }
+
+  }
+  else {  // is rejecting the new track, not yet in the list
+    if (rejtrk.getHWRejected()%10==0) { // mark only the first time
+      // the new track is rejected
+      // mark the old track as rejected
+      rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
+      // assign the ID of the track rejected this
+      rejtrk.setHWTrackID(killer.getTrackID());
+
+      //m_nfits_rej += 1;
+    }
+  }
+
+  return itrack;
+}
+
+//Track remover for first stage does not delete tracks, as they are still needed for HW duplciate comparison
+
+list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &, list<FTKTrack>::iterator itrack,
+                          FTKTrack &rejtrk, const FTKTrack &killer, bool rejnew)
+{
+
+  if (!rejnew) { // is rejecting a track in the list
+    if  (rejtrk.getHWRejected()%10==0) { // mark only if not yet marked
       // mark the old track as rejected
       rejtrk.setHWRejected( rejtrk.getHWRejected()+1 );
       // assign the ID of the track rejected this
