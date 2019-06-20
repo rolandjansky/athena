@@ -23,6 +23,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Standard Gaudi Service constructor
     PerfMonMTSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
+    // Destructor
+    ~PerfMonMTSvc();
+
     /// Function declaring the interface(s) implemented by the service
     virtual StatusCode queryInterface( const InterfaceID& riid,
                                        void** ppvInterface ) override;
@@ -41,6 +44,12 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     virtual void stopAud ( const std::string& stepName,
                            const std::string& compName ) override;
 
+    // Report the results
+    void report();
+
+    // Get the IncidentSvc
+    //virtual void handle ( const Incident& incident  ) override;
+    
   private:
 
     /// Measurement to capture the CPU time

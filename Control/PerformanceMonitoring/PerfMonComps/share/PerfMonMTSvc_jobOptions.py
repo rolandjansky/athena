@@ -5,6 +5,16 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("PerfMonMTSvc_jobOptions.py")
 log.info("Setting up PerfMonMT...")
 
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+if not hasattr(svcMgr, 'PerfMonMTSvc'):
+    from PerfMonComps.MTJobOptCfg import PerfMonMTSvc
+    svcMgr += PerfMonMTSvc( "PerfMonMTSvc"  )
+    pass
+
+
+'''
+
 ###############################
 # Configure AuditorSvc if needed
 ###############################
@@ -37,5 +47,7 @@ if not hasattr(topSequence, "PerfMonMTSvcAlg"):
 ###############################
 from AthenaCommon.AppMgr import theApp
 theApp.AuditAlgorithms = True
-theApp.AuditTools      = False
-theApp.AuditServices   = False
+theApp.AuditTools      = True
+theApp.AuditServices   = True
+
+'''

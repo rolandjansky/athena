@@ -10,6 +10,7 @@
 
 // PerfMonComps includes
 #include "PerfMonComps/PerfMonMTAuditor.h"
+#include "GaudiKernel/MsgStream.h"
 
 /*
  * Constructor
@@ -39,6 +40,8 @@ StatusCode PerfMonMTAuditor::initialize()
  * Implementation of base class methods
  */
 void PerfMonMTAuditor::before( StandardEventType etype, INamedInterface* component ) {
+  MsgStream msg( msgSvc(), name() );
+  //msg << MSG::INFO << "before Standard: " << etype << " - " << component->name() << endmsg;
   return m_perfMonMTSvc->startAud( toStr(etype) , component->name() );
 }
 
@@ -51,12 +54,17 @@ void PerfMonMTAuditor::before( CustomEventTypeRef, INamedInterface* ) {
   return;
 }
 
-void PerfMonMTAuditor::before( CustomEventTypeRef, const std::string& ) {
+void PerfMonMTAuditor::before( CustomEventTypeRef etype, const std::string& component ) {
+  MsgStream msg( msgSvc(), name() );
+  //msg << MSG::INFO << "before Custom: " << etype << " - " << component << endmsg;
+  return m_perfMonMTSvc->startAud( etype , component );
   // don't poll for custom event type for now...
-  return;
+  //return;
 }
 
 void PerfMonMTAuditor::after( StandardEventType etype, INamedInterface* component, const StatusCode& ) {
+  MsgStream msg( msgSvc(), name() );
+  //msg << MSG::INFO << "after Standard : " << etype << " - " << component->name() << endmsg;
   return m_perfMonMTSvc->stopAud( toStr(etype), component->name() );
 }
 
@@ -69,7 +77,11 @@ void PerfMonMTAuditor::after( CustomEventTypeRef, INamedInterface*, const Status
   return;
 }
 
-void PerfMonMTAuditor::after( CustomEventTypeRef, const std::string&, const StatusCode& ) {
+void PerfMonMTAuditor::after( CustomEventTypeRef etype, const std::string& component , const StatusCode& sc ) {
+  MsgStream msg( msgSvc(), name() );
+  //msg << MSG::INFO << "after Custom: " << etype << " - " << component << endmsg;
+
+  return m_perfMonMTSvc->stopAud( etype, component );
   // don't poll for custom event type for now...
-  return;
+  //return;
 }

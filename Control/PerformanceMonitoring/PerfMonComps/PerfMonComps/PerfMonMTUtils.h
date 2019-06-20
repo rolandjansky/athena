@@ -10,6 +10,10 @@
 #include <ctime>
 #include <chrono>
 
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
+
+#include "AthenaBaseComps/AthMessaging.h"
 /*
  * Necessary tools
  */
@@ -19,6 +23,9 @@ namespace PMonMT {
   double get_process_cpu_time();
   double get_wall_time();
 
+  //IMessageSvc *msgSvc;
+  //MsgStream msg( msgSvc, "PerfMonMTUtils" );
+
   // Basic Measurement
   struct Measurement {
     double cpu_time;
@@ -26,6 +33,12 @@ namespace PMonMT {
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
+
+      IMessageSvc *msgSvc;
+      MsgStream msg( msgSvc, "PerfMonMTUtils" );
+      
+      msg << MSG::INFO << "Capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
+      //ATH_MSG_INFO("Capture: CPU: " << cpu_time << ", Wall: " << wall_time);
     }
     Measurement() : cpu_time{0.}, wall_time{0.} { }
   };
@@ -34,13 +47,24 @@ namespace PMonMT {
   struct MeasurementData {
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
+
     void addPointStart(const Measurement& meas) {
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
+     
+      IMessageSvc *msgSvc;
+      MsgStream msg( msgSvc, "PerfMonMTUtils" );
+      
+      msg << MSG::INFO << "addPointStart: CPU: " << m_tmp_cpu << ", Wall: " << m_tmp_wall  << endmsg;
     }
     void addPointStop(const Measurement& meas)  {
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
+
+      IMessageSvc *msgSvc;
+      MsgStream msg( msgSvc, "PerfMonMTUtils" );
+      msg << MSG::INFO << "addPointStop: delta_CPU: " << meas.cpu_time << " - " << m_tmp_cpu << " = " << m_delta_cpu  << endmsg;
+      msg << MSG::INFO << "addPointStop: delta_Wall: " << meas.wall_time << " - " << m_tmp_wall << " = " << m_delta_wall  << endmsg;
     }
     MeasurementData() : m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.} { }
   };
