@@ -6,13 +6,19 @@
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODTrigCalo/TrigEMCluster.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODCaloEvent/CaloCluster.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionCaloHypoTool.h"
+
+//// Forward declarations
+//namespace xAOD {
+//        class CaloCluster;
+//}
+//class TrigRoiDescriptor;
 
 
 
