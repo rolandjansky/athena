@@ -65,7 +65,7 @@ def TrigBjetMonConfig(inputFlags):
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
     bjet_triglist = hltmonList.monitoring_bjet
 
-    print bjet_triglist
+    print " ==> bjet_triglist: ", bjet_triglist
     expert = []
     shifter = []
     for chain in bjet_triglist :
@@ -73,8 +73,8 @@ def TrigBjetMonConfig(inputFlags):
             expert.append(chain[2:])
         if chain[0:1] == "S" :
             shifter.append(chain[2:])
-    print expert
-    print shifter
+    print " ==> expert folder: ", expert
+    print " ==> shifter folder: ", shifter
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
