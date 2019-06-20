@@ -13,6 +13,7 @@ from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
 ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
 
 # Note that for now we don't properly configure the trigger configuration service yet. So we give the "run3_dummy" property here first 
 # which will load some hard-coded items from HLTConfigSvc.cxx for testing.

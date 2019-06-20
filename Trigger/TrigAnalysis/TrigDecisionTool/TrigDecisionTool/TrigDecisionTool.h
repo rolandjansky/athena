@@ -133,7 +133,7 @@ namespace Trig {
 
     /// @name Run 3 properties
     /// @{
-    Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TrigComposite", "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
+    Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TriggerElement", "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
 
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};
     /// @}
