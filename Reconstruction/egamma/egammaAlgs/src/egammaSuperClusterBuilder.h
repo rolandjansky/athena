@@ -157,12 +157,12 @@ private:
 
   /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance (barrel)? */
   Gaudi::Property<int> m_extraL0L1PhiSizeCellsBarrel {this,
-      "ExtraL0L1PhiSizeBarrel", 0,
+      "ExtraL0L1PhiSizeBarrel", 1,
       "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance (barrel)? Make large to remove limit"};
 
   /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance (endcap)?*/
   Gaudi::Property<int> m_extraL0L1PhiSizeCellsEndcap {this,
-      "ExtraL0L1PhiSizeEndcap", 0,
+      "ExtraL0L1PhiSizeEndcap", 1,
       "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance (endcap)? Make large to remove limit"};
 
   /** @brief Whether to refine the eta1 calculation */

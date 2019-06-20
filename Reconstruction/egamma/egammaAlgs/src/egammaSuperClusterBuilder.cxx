@@ -125,8 +125,8 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
   
   // the +1 is to account for the offset in the centers of the clusters
-  m_extraL0L1PhiSizeBarrel = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
-  m_extraL0L1PhiSizeEndcap = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
+  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
 
 }
 
@@ -143,8 +143,8 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
 
   // the +1 is to account for the offset in the centers of the clusters
-  m_extraL0L1PhiSizeBarrel = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
-  m_extraL0L1PhiSizeEndcap = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
+  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
 
   if (m_addCellsWindowPhiCellsBarrel % 2 == 0 ||
       m_addCellsWindowPhiCellsEndcap % 2 == 0 ||
