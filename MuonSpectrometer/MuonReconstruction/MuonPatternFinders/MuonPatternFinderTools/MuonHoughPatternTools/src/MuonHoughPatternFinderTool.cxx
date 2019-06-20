@@ -156,18 +156,19 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-								      const std::vector<const CscPrepDataCollection*>& cscCols,  
-								      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-								      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								      const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+  std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<std::vector<HoughDataPerSec>>>
+  MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+                                    const std::vector<const CscPrepDataCollection*>& cscCols,  
+                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+                                    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
     // read event_data:
     const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
 
     // analyse data
-    MuonPatternCombinationCollection* patCombiCol = 0;
+    std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol = analyse( *hitcontainer );
+      patCombiCol.reset(analyse( *hitcontainer ));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -178,7 +179,7 @@ namespace Muon {
     // ensure we always output a collection
     if( !patCombiCol ){
       ATH_MSG_DEBUG (" NO pattern combinations found, creating empty collection ");
-      patCombiCol = new MuonPatternCombinationCollection();
+      patCombiCol.reset(new MuonPatternCombinationCollection());
     }
 
     // summary
@@ -194,7 +195,7 @@ namespace Muon {
     ATH_MSG_VERBOSE ("execute(end) ");
 
     // return result
-    return patCombiCol;
+    return {std::move(patCombiCol), nullptr};
   } 
 
   void MuonHoughPatternFinderTool::cleanUp() const {

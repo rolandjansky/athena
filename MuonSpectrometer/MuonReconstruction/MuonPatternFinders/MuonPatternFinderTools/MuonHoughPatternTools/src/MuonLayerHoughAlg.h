@@ -36,6 +36,8 @@ class MuonLayerHoughAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::MMPrepDataContainer>    m_keyMM;
 
   SG::WriteHandleKey<MuonPatternCombinationCollection> m_combis;
+  SG::WriteHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
+    "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;     
   ToolHandle<Muon::MuonLayerHoughTool> m_layerTool;     
   bool m_printSummary;
