@@ -32,7 +32,7 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
 
-#This is old style code - to be rewritten in a later Multi-threading
+#This is old style code - to be rewritten in a later MR
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
     kwargs.setdefault('SecondarySavingLevel', 2)
     subDetLevel=1
