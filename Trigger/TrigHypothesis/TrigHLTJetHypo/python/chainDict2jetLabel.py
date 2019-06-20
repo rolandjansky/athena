@@ -17,28 +17,23 @@ reject_substr = ( # noqa: W605
 reject_substr_res = re.compile(r'%s' % '|'.join(reject_substr))
 
 
-def select_simple_chains(cd):
-    """Select chains for which to make an simple chain label.
-
-    Chains selected by requiring that the signature os 'Jet'. Chains are
-    vetoed if specific substrings occur in any of the chainPartNames"""
-
-    chain_parts = [c for c in cd['chainParts'] if c['signature'] == 'Jet']
+def _select_simple_chainparts(chain_parts):
+    """ Reject unsuported chain parts """
 
     for cp in chain_parts:
         if  reject_substr_res.search(cp['chainPartName']):
-            return []
+            return False
 
-    return chain_parts
+    return True
 
 
-def make_simple_label(chain_dict):
+def _make_simple_label(chain_parts):
     """Marshal information deom the selected chainParts to create a
-    'simple' label.
+    'simple' label. NOTE: THIS IS A SPECIAL CASE - IT DOES NOT DEPEND
+    SOLELY ON THE HYP SCENARIO.
     """
     
-    cps = select_simple_chains(chain_dict)
-    if not cps:
+    if not _select_simple_chainparts(chain_parts):
         msg = 'Jet Configuration error: '\
               'chain fails substring selection: not "simple" '
         msg +=  chain_dict['chainName']
@@ -46,7 +41,7 @@ def make_simple_label(chain_dict):
         raise NotImplementedError(msg)
     
     label = 'simple(['
-    for cp in cps:
+    for cp in chain_parts:
         smcstr =  str(cp['smc'])
         if smcstr == 'nosmc':
             smcstr = ''
@@ -65,7 +60,7 @@ def make_simple_label(chain_dict):
     return label
 
 
-def select_vbenf_chains(scenario):
+def _select_vbenf_chains(scenario):
 
     """Select chains for which to make a vbenf chain label.
     Chains selected by reuiring that the signature os 'Jet'. Chains are
@@ -78,7 +73,7 @@ def select_vbenf_chains(scenario):
     return ''
 
 
-def args_from_scenario(scenario):
+def _args_from_scenario(scenario):
     separator = 'SEP'
     
     args = scenario.split(separator)
@@ -87,7 +82,7 @@ def args_from_scenario(scenario):
     return ''
 
 
-def make_vbenf_label(scenario):
+def _make_vbenf_label(chain_parts):
     """Marshal information from the selected chainParts to create a
     vbenf label. Use a Reducer for elimination of unusable jets
     """
@@ -97,8 +92,10 @@ def make_vbenf_label(scenario):
     # of jets choosean by simple,  the dijet
     # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
+    assert len(chain_parts) == 1
+    scenario = chain_parts[0]['hypoScenario']
     assert scenario.startswith('vbenf')
-    args = args_from_scenario(scenario)
+    args = _args_from_scenario(scenario)
     if not args:
         return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900mass, 26dphi)])))'        
     arg_res = [
@@ -160,25 +157,40 @@ def make_vbenf_label(scenario):
     )""" % argvals
 
 
-def make_multijetInvmLegacy_label(scenario):
-    assert scenario.startswith('multijetInvmLegacy')
+def _make_dijet_label(chain_parts):
+    """dijet label. supports dijet cuts, and cuts on particpating jets
+    Currently supported cuts:
+    - dijet mass
+    - jet1 et, eta
+    - jet2 et, eta
+
+    - default values are used for unspecified cuts.
+    The cut set can be extended according to the pattern
+    """
+
+    assert len(chain_parts) == 1
+    scenario = chain_parts[0]['hypoScenario']
+    
+    assert scenario.startswith('dijet')
 
     arg_res = [
-        re.compile(r'^(?P<key>mult)(?P<val>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>eta)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>djmass)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>j1et)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>j1eta)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>j2et)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>j2eta)(?P<hi>\d*)$'),
     ]
 
     defaults = {
-        'et': ('100', 'inf'),
-        'mass': ('1000', 'inf'),
-        'eta': ('0', '320'),
-        'mult': '4',
+        'j1et': ('100', 'inf'),
+        'j2et': ('100', 'inf'),
+        'j1eta': ('0', '320'),
+        'j2eta': ('0', '320'),
+        'djmass': ('1000', 'inf'),
     }
 
 
-    args = args_from_scenario(scenario)
+    args = _args_from_scenario(scenario)
     argvals = {}
     while args:
         assert len(args) == len(arg_res)
@@ -190,13 +202,6 @@ def make_multijetInvmLegacy_label(scenario):
                 gd = m.groupdict()
                 key = gd['key']
 
-                if key == 'mult':
-                    try:
-                        val = int(gd['val'])
-                    except ValueError:
-                        val = int(defaults[key])
-                    break
-                
                 try:
                     lo = float(gd['lo'])
                 except ValueError:
@@ -211,64 +216,97 @@ def make_multijetInvmLegacy_label(scenario):
     assert len(args) == len(arg_res)
     assert len(args) == 0
 
-
-    simple_args = 4*'(%(etlo).0fet,%(etalo).0feta%(etahi).0f)' % argvals
-    argvals['simple_args'] = simple_args
-
     return """
-    and
-    (
-      []
-      simple
-      (
-        [%(simple_args)s]
-      )
-      combgen
-      (
-        [(2)(%(etlo).0fet)]
-        dijet
-        (
-          [(%(masslo).0fmass)]
-        ) 
-      )
-    )""" % argvals
+    combgen(
+            [(2)(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
+                (%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
+               ]
+    
+            dijet(
+                  [(%(djmasslo).0fmass)])
+            simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
+                    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
+            )""" % argvals
 
 
-def _test0():
-    """Read chainDicts from files, cread simple label if possible"""
-    from chainDictSource import chainDictSource
+def chainDict2jetLabel(chain_dict):
+    """Examine chain_parts in chain_dict. jet chain parts are used to 
+    calculate chain_labels according to the hypo scenario. There may be
+    more than one chain part used for a single label (only if 
+    hypoScanario is 'simple') and there mabe more than one label per chain
+    = ;'j80..._j0_dijet... will give rise to  'simple' and 'dijet' labels.
+    """
 
-    for cd in chainDictSource():
-        f = cd['chainName']
-        print '\n---------'
-        print f
-        try:
-            label = make_simple_label(cd)
-        except Exception, e:
-            print e
-            continue
-        
-        print 'chain label', label
-        print '-----------\n'
+    # suported scenarios 
+    router = {
+        'simple': _make_simple_label,
+        'vbenf': _make_vbenf_label,
+        'dijet': _make_dijet_label,
+    }
+
+    # chain_part - scenario association
+    cp_sorter = {}
+    for k in router: cp_sorter[k] = []
 
 
+    for cp in chain_dict['chainParts']:
+        if cp['signature'] != 'Jet': continue
+        for k in cp_sorter:
+            if cp['hypoScenario'].startswith(k):
+                cp_sorter[k].append(cp)
+                break
+
+    # obtain labels by scenario.
+    labels = []
+    for k, chain_parts in cp_sorter.items():
+        if chain_parts: labels.append(router[k](chain_parts))
+
+    assert labels
+    nlabels = len(labels)
+    if nlabels == 1: return labels[0]
+    if nlabels == 2:
+        alabel = """\
+and([]
+    %s
+    %s)""" % (tuple(labels))
+        return alabel
+
+    # more than 2 labels is not expected
+    assert False
+
+def tests():
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+    from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
+
+    chain_names = (
+        'j80_0eta240_2j60_320eta490',
+        'j0_vbenfSEP30etSEP34mass35SEP50fbet',
+        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    )
+    
+    decodeChainName = DictFromChainName.DictFromChainName()
+    for cn in chain_names:
+        chain_dict = decodeChainName.getChainDict(cn)
+        label = chainDict2jetLabel(chain_dict)
+        print '\n'
+        print cn
+        print '  ', label
+        print '\n'
+ 
 def _test1():
     scenario = 'vbenfSEP81etSEP34mass35SEP503fbet'
     print 'scenario: ', scenario
-    print 'label: ', make_vbenf_label(scenario)
+    print 'label: ', _make_vbenf_label(scenario)
     print
     scenario = 'vbenf'
     print 'scenario: ',scenario, ' - note: no arguments'
-    print  'label: ', make_vbenf_label(scenario)
+    print  'label: ', _make_vbenf_label(scenario)
 
 def _test2():
-    scenario = 'multijetInvmLegacySEPmult4SEP35etSEP0eta490SEP1000mass'
+    scenario = 'j80_0eta240_2j60_320eta490_j0_dijetSEP80etSEP0eta240SEP80etSEP0eta240SEP700massdj'
     print 'scenario: ', scenario
 
-    print 'label: ',  make_multijetInvmLegacy_label(scenario)
+    print 'label: ',  _make_multijetInvmLegacy_label(scenario)
 
 if __name__ == '__main__':
-    print '_test1'
-    _test1()
-    print '\n_test2'
-    _test2()
+    tests()

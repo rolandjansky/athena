@@ -5,10 +5,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 
-from  TrigHLTJetHypo.chainDict2jetLabel import (make_simple_label,
-                                                make_vbenf_label,
-                                                make_multijetInvmLegacy_label,
-)
+from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 
@@ -18,17 +15,20 @@ log = logging.getLogger( 'TrigJetHypoToolConfig' )
 def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    chain_label = ''
+    # chain_label = ''
 
-    hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
-    if 'vbenf' in hypo_scenario_0:
-        assert len(chain_dict['chainParts']) == 1
-        chain_label = make_vbenf_label(hypo_scenario_0)
-    if hypo_scenario_0.startswith('multijetInvmLegacy'):
-        assert len(chain_dict['chainParts']) == 1
-        chain_label = make_multijetInvmLegacy_label(hypo_scenario_0)
-    else:
-        chain_label = make_simple_label(chain_dict)
+    # hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
+    # if 'vbenf' in hypo_scenario_0:
+    #     assert len(chain_dict['chainParts']) == 1
+    #     chain_label = make_vbenf_label(hypo_scenario_0)
+    # if hypo_scenario_0.startswith('multijetInvmLegacy'):
+    #     assert len(chain_dict['chainParts']) == 1
+    #     chain_label = make_multijetInvmLegacy_label(hypo_scenario_0)
+    # else:
+    #     chain_label = make_simple_label(chain_dict)
+
+    chain_label = chainDict2jetLabel(chain_dict)
+
     parser = ChainLabelParser(chain_label)
     tree = parser.parse()
     
@@ -75,7 +75,7 @@ class TestStringMethods(unittest.TestCase):
 
         chainNameDecoder = DictFromChainName.DictFromChainName()
         # chain_names = ('HLT_j85', 'HLT_j35_0eta320')
-        chain_names = ('HLT_j0hs_vbenf',)
+        chain_names = ('HLT_j0_vbenf',)
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
             chain_dict = chainNameDecoder.getChainDict(chain_name)
@@ -95,21 +95,27 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         self.assertIsNotNone(tool) 
         self.assertFalse(tool.visit_debug) 
 
+        
+def _tests():
+    print 'hello'
 
-def _test0():
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
     chainNameDecoder = DictFromChainName.DictFromChainName()
-    chain_name = 'HLT_j0'
-    chain_dict = chainNameDecoder.getChainDict(chain_name)
-    chain_dict['chainParts'][0]['hypoScenario'] = 'multijetInvmLegacySEPmult4SEP35etSEP0eta490SEP1000mass'
-    for d in chain_dict['chainParts']:
-        print d
+        
+    chain_names = (
+        'j80_0eta240_2j60_320eta490',
+        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    )
+    for cn in chain_names:
+        chain_dict = chainNameDecoder.getChainDict(cn)
+        print chain_dict
+        tool = trigJetHypoToolFromDict(chain_dict)
+        print 'tool:\n', tool
+        
 
-    tool = trigJetHypoToolFromDict(chain_dict)
-    print 'tool:\n', tool
-    self.assertIsNotNone(tool) 
-    self.assertFalse(tool.visit_debug) 
 if __name__ == '__main__':
-    # unittest.main()
-    _test0()
+    unittest.main()
+    
+    # run _tests outide untit tests so as to see stdout
+    # _tests()

@@ -21,6 +21,11 @@ def _check_parens(s, pars):
         if c == pr: np -= 1
         if np < 0:
             raise RuntimeError('Paren mismatch for parens %s, %s' % (pars, s))
+    nl = s.count(pl)
+    nr = s.count(pr)
+    if nl != nr:
+        raise RuntimeError(
+            'Paren mismatch for parens %s, %s, %d %d ' % (pars, s, nl, nr))
 
 def check_parens(s):
     _check_parens(s, '()')
@@ -48,6 +53,7 @@ def preprocess(s):
         if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))
     print 'end of preprocess: ', s
+    check_parens(s)
     return s
 
 
@@ -56,7 +62,7 @@ class ChainLabelParser(object):
         self.label = label
         self.state = 'start'
         pp = preprocess(label)
-        print 'preprocessd string', pp, 'length', len(pp)
+        print 'preprocessed string', pp, 'length', len(pp)
         self.gc = get_char(pp)
         self.state_history = []
         self.states = {
@@ -329,7 +335,7 @@ class ChainLabelParser(object):
         # for now (02/01/2019), no reco. First tree is only tree is hypo
         return self.tree[0].children[0]
 
-def _test(s):
+def _tests():
     from ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s, debug=True)
     tree = parser.parse()

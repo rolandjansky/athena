@@ -153,6 +153,7 @@ if opt.doJetSlice == True:
         Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
         Chain(name='HLT_j225_gsc420_boffperf_split', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
         Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
         Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_tc_lcw_subjes]  ),
         Chain(name='HLT_j460_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
         Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
