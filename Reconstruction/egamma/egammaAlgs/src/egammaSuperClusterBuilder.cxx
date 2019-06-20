@@ -146,11 +146,12 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   m_extraL0L1PhiSizeBarrel = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
   m_extraL0L1PhiSizeEndcap = (m_extraL0L1PhiSizeCellsBarrel + 1) * s_cellPhiSize;
 
-  if (m_addCellsWindowPhiCellsBarrel % 2 ||
-      m_addCellsWindowPhiCellsEndcap % 2 ||
-      m_addCellsWindowEtaCellsBarrel % 2 ||
-      m_addCellsWindowEtaCellsEndcap % 2) {
-    ATH_MSG_WARNING("Since adding cells is relative to the hottest cell, it is better if the AddCells window size is odd");
+  if (m_addCellsWindowPhiCellsBarrel % 2 == 0 ||
+      m_addCellsWindowPhiCellsEndcap % 2 == 0 ||
+      m_addCellsWindowEtaCellsBarrel % 2 == 0 ||
+      m_addCellsWindowEtaCellsEndcap % 2 == 0) {
+    ATH_MSG_ERROR("For adding cells relative to the hottest cell to be symmetric, the AddCells window size needs to be odd");
+    return StatusCode::FAILURE;
   }
 
   if (m_correctClusters) {
