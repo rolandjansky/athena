@@ -72,9 +72,9 @@ def check_consistency(jofile):
                     print "Error: Not recognised generator abbreviation " + genpart[i:i+step]
                     sys.exit(1)
                 
-        print "Generator used: " + generator_list
+        print "Generator used: ", generator_list
 
-    
+    #further check 
 
 #        del _norm
 #        ## Check if the tune/PDF part is needed, and if so whether it's present

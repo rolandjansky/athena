@@ -23,7 +23,7 @@ ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup',
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
 
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
+    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
         athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
     def preExecute(self, input=set(), output=set()):
@@ -60,7 +60,7 @@ class EvgenExecutor(athenaExecutor):
 
         if len(dsidparam)==6 and dsidparam.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
             dsid_part=dsidparam
-            Jodir = dsidparam[:3]+'xxx'
+            Jodir = dsidparam[:3]+'xxx/'+dsidparam
             JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
             os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath+":"+os.environ["JOBOPTSEARCHPATH"]
             msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
@@ -68,18 +68,18 @@ class EvgenExecutor(athenaExecutor):
             print "!! Jodir ",Jodir
             print '!! JoCvmfsPath ',JoCvmfsPath
             
-        else:  #Suppose full path of dsid folder is provided(/afs/.../123xxx/123456), add cvmfs floder and local path(/afs/.../123xxx) to JOBOPTSEARCHPATH
+        else:  #Suppose full path of dsid folder is provided(/afs/.../123xxx/123456), add cvmfs folder and local path(/afs/.../123xxx) to JOBOPTSEARCHPATH
             dsid_part=os.path.basename(dsidparam)
             if dsid_part.isdigit():
                 Jodir = dsidparam[:3]+'xxx'
                 JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
-                JoLocPath = ps.path.dirname()
+                JoLocPath = dsidparam
                 os.environ["JOBOPTSEARCHPATH"] = JoLocPath+":"+os.environ["JOBOPTSEARCHPATH"]
                 msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
-                os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath+":"+os.environ["JOBOPTSEARCHPATH"]
-                msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
-                os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
-                msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+                #os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath+":"+os.environ["JOBOPTSEARCHPATH"]
+                #msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+                #os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
+                #msg.info("Using JOBOPTSEARCHPATH!! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 
             else: #wrong JOoption format
                 msg.info("Incorrect JO, Please check")

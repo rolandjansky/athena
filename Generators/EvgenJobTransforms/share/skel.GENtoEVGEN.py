@@ -9,6 +9,7 @@
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
 import ast
+from check_jo_consistency import check_consistency
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
@@ -197,10 +198,10 @@ if len(runArgs.jobConfig) != 1:
 
 print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"])
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-#print "The first search dir = ", FIRST_DIR
+print "The first search dir = ", FIRST_DIR
 
 dsid_param = runArgs.jobConfig[0]
-#evgenLog.info("dsid_param " + dsid_param)
+evgenLog.info("dsid_param " + dsid_param)
 dsid = os.path.basename(dsid_param)
 #evgenLog.info("dsid " + dsid)
 #BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
@@ -218,6 +219,7 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
+check_consistency(jofile)
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
 #jofile = os.path.basename(jo)
