@@ -328,6 +328,11 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets() {
     for (auto jetPtr : *jets) {
       ATH_MSG_DEBUG("   Jet pt = "<<(jetPtr)->pt());
       bool passed = m_jetSelection->passSelection(*jetPtr);
+      if(m_config->applyElectronInJetSubtraction()){
+          if(jetPtr->isAvailable<char>("passesFancyOR")){
+              if(!jetPtr->auxdecor<char>("passesFancyOR")) passed = false;
+          }
+      }
       jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
       jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
       if (m_doLooseCuts) {
