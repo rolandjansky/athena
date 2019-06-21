@@ -68,30 +68,56 @@ namespace FlavorTagDiscriminants {
 
 
   // functions to rewrite input names
-  std::string sub_first(const ReplaceRegexes& res,
-                        const std::string var_name) {
+  std::string sub_first(const StringRegexes& res,
+                        const std::string var_name,
+                        std::streambuf* fb) {
     for (const auto& pair: res) {
       const std::regex& re = pair.first;
       const std::string& fmt = pair.second;
       std::string new_name = std::regex_replace(
         var_name, re, fmt, std::regex_constants::format_no_copy);
-      if (new_name.size() > 0) return new_name;
+      if (new_name.size() > 0) {
+        if (fb) {
+          std::ostream os(fb);
+          os << "using flip variable " << new_name << " to replace "
+             << var_name << std::endl;
+        }
+        return new_name;
+      }
     }
     throw std::logic_error(
       "no regex match found for variable '" + var_name + "' while building "
       "negative tag b-btagger");
   }
-  void rewriteFlipConfig(lwt::GraphConfig& config, const ReplaceRegexes& res){
+  void rewriteFlipConfig(lwt::GraphConfig& config,
+                         const StringRegexes& res,
+                         std::streambuf* fb){
     for (auto& node: config.inputs) {
       for (auto& var: node.variables) {
-        var.name = sub_first(res, var.name);
+        var.name = sub_first(res, var.name, fb);
       }
     }
     std::map<std::string, lwt::OutputNodeConfig> new_outputs;
     for (auto& pair: config.outputs) {
-      new_outputs[sub_first(res, pair.first)] = pair.second;
+      new_outputs[sub_first(res, pair.first, fb)] = pair.second;
     }
     config.outputs = new_outputs;
+  }
+
+  void flipSequenceSigns(lwt::GraphConfig& config,
+                         const std::regex& re, std::streambuf* fb) {
+    for (auto& node: config.input_sequences) {
+      for (auto& var: node.variables) {
+        if (std::regex_match(var.name, re)) {
+          if (fb) {
+            std::ostream os(fb);
+            os << "flipping " << var.name << std::endl;
+          }
+          var.offset *= -1.0;
+          var.scale *= -1.0;
+        }
+      }
+    }
   }
 
 }

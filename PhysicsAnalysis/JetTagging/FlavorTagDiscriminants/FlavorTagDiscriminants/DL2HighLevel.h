@@ -23,7 +23,8 @@ namespace FlavorTagDiscriminants {
   public:
     DL2HighLevel(const std::string& nn_file_name,
                  EDMSchema = EDMSchema::WINTER_2018,
-                 FlipTagConfig = FlipTagConfig::STANDARD);
+                 FlipTagConfig = FlipTagConfig::STANDARD,
+                 std::streambuf* debug_stream = nullptr);
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;

@@ -29,7 +29,9 @@ namespace {
 namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
-                             EDMSchema schema, FlipTagConfig flip_config):
+                             EDMSchema schema,
+                             FlipTagConfig flip_config,
+                             std::streambuf* debug_stream):
     m_dl2(nullptr)
   {
     // get the graph
@@ -109,7 +111,7 @@ namespace FlavorTagDiscriminants {
     // we rewrite the inputs if we're using flip taggers
     //
 
-    ReplaceRegexes flip_converters {
+    StringRegexes flip_converters {
       {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
       {"rnnip_(.*)"_r, "rnnipflip_$1"},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
@@ -119,7 +121,7 @@ namespace FlavorTagDiscriminants {
 
     // TODO: this next line should be deprecated with the new schema
     if (schema == EDMSchema::WINTER_2018) {
-      ReplaceRegexes old_regexes {
+      StringRegexes old_regexes {
         {"secondaryVtx_(.*)"_r, "$1Flip_$2"},
         {"iprnn_(.*)"_r, "iprnnflip_$1"},
         {"iprnn|smt"_r, "$&flip"},
@@ -128,8 +130,14 @@ namespace FlavorTagDiscriminants {
       flip_converters.insert(flip_converters.end(),
                              old_regexes.begin(), old_regexes.end());
     }
+
+    // some sequences also need to be sign-flipped. We apply this by
+    // changing the input scaling and normalizations
+    std::regex flip_sequences(".*signed_[dz]0.*");
+
     if (flip_config == FlipTagConfig::NEGATIVE_IP_ONLY) {
-      rewriteFlipConfig(config, flip_converters);
+      rewriteFlipConfig(config, flip_converters, debug_stream);
+      flipSequenceSigns(config, flip_sequences, debug_stream);
     }
 
     // ___________________________________________________________________
