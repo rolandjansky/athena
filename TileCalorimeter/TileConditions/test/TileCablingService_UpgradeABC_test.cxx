@@ -18,9 +18,9 @@ void test1() {
 
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser,
-                                  "IdDictTileCalorimeter-upgradeABC.xml", 
-                                  TileCablingService::UpgradeABC);
+  TileCablingSvcMock::init_idhelpers (parser,
+                                      "IdDictTileCalorimeter-upgradeABC.xml",
+                                      TileCablingService::UpgradeABC);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 

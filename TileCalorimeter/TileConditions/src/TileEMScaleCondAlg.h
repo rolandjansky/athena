@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECALIBEMSCALECONDALG_H
@@ -9,6 +9,7 @@
 
 #include "TileConditions/TileEMScale.h"
 #include "TileConditions/ITileCondProxy.h"
+#include "TileConditions/TileCablingSvc.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -26,7 +27,7 @@ class TileEMScaleCondAlg: public AthAlgorithm {
   public:
 
     TileEMScaleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileEMScaleCondAlg();
+    ~TileEMScaleCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
@@ -115,7 +116,18 @@ class TileEMScaleCondAlg: public AthAlgorithm {
     SG::WriteCondHandleKey<TileEMScale> m_calibEmsKey{this,
         "TileEMScale", "TileEMScale", "Output Tile EMS calibration constants"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+   /**
+    * @brief Name of conditions service
+    */
+    ServiceHandle<ICondSvc> m_condSvc{this,
+        "CondSvc", "CondSvc", "The conditions service"};
+
+   /**
+    * @brief Name of Tile cabling service
+    */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
+
 
     bool m_useOflLasFib;
     unsigned int m_maxChannels;

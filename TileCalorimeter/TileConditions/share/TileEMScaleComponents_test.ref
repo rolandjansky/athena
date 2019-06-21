@@ -1,18 +1,18 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts jobOptions_TileCalibEmsTest.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/jobOptions_TileCalibEmsTest.txt
+JobOptionsSvc        INFO # =======> /home/harkusha/bad_chan/build/TileCalorimeter/TileConditions/CMakeFiles/unitTestRun/jobOptions_TileCalibEmsTest.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (2,1): GeoModelSvc.SupportedGeometry = 21
 JobOptionsSvc        INFO # (3,1): GeoModelSvc.AtlasVersion = "ATLAS-R2-2016-01-00-01"
 JobOptionsSvc        INFO Job options successfully read in from jobOptions_TileCalibEmsTest.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon Oct  1 13:20:26 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r0)
+                                          running on pcatltiltb08.cern.ch on Fri Jun 21 02:21:24 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 5400 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4904 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -56,7 +56,6 @@ OFL EMS: 1.0001
 
 Test TileCalibEmsCondAlg
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
-TileCalibEmsCon...   INFO ProxyOflLasFib is not set up and cannot be used
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -110,6 +109,7 @@ DetectorStore     WARNING retrieve(default): No valid proxy for default object
  of type TileDetDescrManager(CLID 2941)
 TileCablingSvc    WARNING Unable to retrieve TileDetDescrManager from DetectorStore
 TileCablingSvc    WARNING Will not set Tile online hash ID in CaloDetDescrElements
-ClassIDSvc           INFO  getRegistryEntries: read 2528 CLIDRegistry entries for module ALL
+TileCalibEmsCon...   INFO ProxyOflLasFib is not set up and cannot be used
+ClassIDSvc           INFO  getRegistryEntries: read 2980 CLIDRegistry entries for module ALL
 
 Test TileCondToolEmscale

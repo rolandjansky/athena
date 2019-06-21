@@ -10,6 +10,7 @@
 // Tile includes
 #include "TileConditions/TileDCSState.h"
 #include "TileConditions/TileEMScale.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -35,7 +36,7 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
   public:
 
     TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileDCSCondAlg();
+    ~TileDCSCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -190,7 +191,17 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
         "File name with mapping Tile DCS STATES DB COOL channels to ROS and drawer"};
 
 
-    ServiceHandle<ICondSvc> m_condSvc;
+   /**
+    * @brief Name of conditions service
+    */
+    ServiceHandle<ICondSvc> m_condSvc{this,
+        "CondSvc", "CondSvc", "The conditions service"};
+
+   /**
+    * @brief Name of Tile cabling service
+    */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
 
     const TileCablingService* m_cabling;
 
