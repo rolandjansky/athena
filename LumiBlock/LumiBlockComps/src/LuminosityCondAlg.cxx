@@ -11,6 +11,8 @@
 
 #include "LuminosityCondAlg.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/WriteCondHandle.h"
 #include "CoolKernel/IObject.h"
 #include "CxxUtils/get_unaligned.h"
 #include <sstream>
