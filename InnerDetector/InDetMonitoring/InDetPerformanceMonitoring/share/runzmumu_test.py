@@ -94,7 +94,7 @@ if (MC_bool):
     #PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/ZZ4l/mc16_13TeV/AOD.13049187._000001.pool.root.1"]
     PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc16_13TeV/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
 #EvtMax= -1
-EvtMax= 12000
+EvtMax= 100
 SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -374,7 +374,7 @@ if zmumuval == True:
                                     PtSecondMuon = 2.,#10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     Z0Gap = 5.0, # in mm
-                                    OutputLevel = DEBUG)
+                                    OutputLevel = INFO)
     job += iDPerfMonZmumu
     print iDPerfMonZmumu
     
