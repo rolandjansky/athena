@@ -823,7 +823,7 @@ StatusCode IDPerfMonZmumu::execute()
       ATH_MSG_INFO("Sucessfull 4-muon reconstruction. Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
 
       if ( m_4mu.EventPassed() ) {
-	ATH_MSG_WARNING("Accepted 4-muon event. Going to fill ntuple");
+	ATH_MSG_INFO("Accepted 4-muon event. Going to fill ntuple");
 
 	const xAOD::TrackParticle* muon1_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(1));
 	const xAOD::TrackParticle* muon2_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(2));
@@ -951,7 +951,7 @@ StatusCode IDPerfMonZmumu::execute()
     } // succesful 4mu reco
     else {
       //failed reconstruction
-      ATH_MSG_DEBUG("Failed 4-muon reconstruction. m_4mu.Reco() returned FALSE --> event failed selection");
+      ATH_MSG_DEBUG(" -- WARNING -- Failed 4-muon reconstruction. m_4mu.Reco() returned FALSE --> event failed selection");
     }
 
   } // end of fourMuon Analysis

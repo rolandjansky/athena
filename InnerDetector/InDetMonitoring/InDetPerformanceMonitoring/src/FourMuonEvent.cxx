@@ -102,20 +102,21 @@ bool FourMuonEvent::Reco()
   this->OrderMuonList();
   if (m_numberOfFullPassMuons == 4) m_passedSelectionCuts = true;
   if (m_passedSelectionCuts) {
-    if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * This events has 4 muons :) " << std::endl;
+    if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * This events has 4 good muons :) " << std::endl;
     this->ReconstructKinematics();   // Reconstruct the invariant mass ( based on mu-sys pt ).
     m_passedSelectionCuts = EventSelection(ID);
     m_FourMuonInvMass = m_fInvariantMass[ID];
+    if (!m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
   }
-  else {
-    if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * This events has no 4 muons :(   This event has " << m_numberOfFullPassMuons << std::endl;
+  else{
+    std::cout << " * FourMuonEvent::Reco * This events has no 4 muons :(   This event has " << m_numberOfFullPassMuons << std::endl;
   }
-  
+
   if(m_doDebug) {
     if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Selected event :) " << std::endl;
     if (!m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Rejected event :( " << std::endl;
   }
-  if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount << " * COMPLETED * " << std::endl; }
+  if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount << " * COMPLETED * return " << m_passedSelectionCuts << std::endl; }
 
   return m_passedSelectionCuts;
 }
@@ -236,11 +237,15 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
   
   // Invariant mass window
   if ( m_fInvariantMass[eType]  < m_MassWindowLow  ) {
-    if(m_doDebug || true) {std::cout <<" * FourMuonEvent::EventSelection * Failing mass window low cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowLow << std::endl;}
+    if(m_doDebug || true) {
+      std::cout <<" * FourMuonEvent::EventSelection * Failing mass window low cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowLow << std::endl;
+    }
     return false;
   }
   if ( m_fInvariantMass[eType]  > m_MassWindowHigh ) {
-    if(m_doDebug || true) {std::cout <<" * FourMuonEvent * Failing mass window high cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowHigh << std::endl;}
+    if(m_doDebug || true) {
+      std::cout <<" * FourMuonEvent * Failing mass window high cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowHigh << std::endl;
+    }
     return false;
   }
 
