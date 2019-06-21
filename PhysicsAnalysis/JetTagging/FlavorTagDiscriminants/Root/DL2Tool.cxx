@@ -26,7 +26,11 @@ namespace FlavorTagDiscriminants {
       flipConfig = flipTagConfigFromString(m_props.flipTagConfig);
     }
     std::streambuf* dbg = nullptr;
+#ifdef ASGTOOL_ATHENA
+    if (msgLvl(MSG::DEBUG)) dbg = msg().stream().rdbuf();
+#else
     if (msgLvl(MSG::DEBUG)) dbg = msg().rdbuf();
+#endif
     m_dl2.reset(new DL2HighLevel(m_props.nnFile, schema, flipConfig, dbg));
     return StatusCode::SUCCESS;
   }
