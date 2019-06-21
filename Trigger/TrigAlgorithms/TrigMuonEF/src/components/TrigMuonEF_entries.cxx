@@ -7,6 +7,8 @@
 #include "../TrigMuonEFCaloIsolation.h"
 #include "../TrigMuonEFIDTrackRoiMaker.h"
 #include "../TrigMuonEFTrackIsolationAlgMT.h"
+#include "../MuonFilterAlg.h"
+#include "../MergeEFMuonsAlg.h"
 
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationTool )
 DECLARE_COMPONENT( TrigMuonEFStandaloneTrackTool )
@@ -17,3 +19,6 @@ DECLARE_COMPONENT( TrigMuonEFCaloIsolation )
 DECLARE_COMPONENT( TrigMuonEFFSRoiMaker )
 DECLARE_COMPONENT( TrigMuonEFIDTrackRoiMaker )
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationAlgMT )
+DECLARE_COMPONENT( MuonFilterAlg )
+DECLARE_COMPONENT( MergeEFMuonsAlg )
+

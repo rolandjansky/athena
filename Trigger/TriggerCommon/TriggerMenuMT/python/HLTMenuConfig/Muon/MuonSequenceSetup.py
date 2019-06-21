@@ -3,8 +3,9 @@
 # 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
@@ -22,7 +23,9 @@ muonCombinedRecFlags.printSummary = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-
+#muon container names (for RoI based sequences)
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
+muNames = muonNames().getNames('RoI')
 #-----------------------------------------------------#
 ### ************* Step1  ************* ###
 #-----------------------------------------------------#
@@ -185,25 +188,48 @@ def muEFMSSequence():
 ###  EFCB seq ###
 ######################
 def muEFCBAlgSequence(ConfigFlags):
-    efcbViewNode = parOR("efcbViewNode")
+
+    #By default the EFCB sequence will run both outside-in and 
+    #(if zero muons are found) inside-out reconstruction
+    from TrigMuonEF.TrigMuonEFConfig import MuonFilterAlg, MergeEFMuonsAlg
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
-    efcbViewsMaker = EventViewCreatorAlgorithm("efcbViewsMaker")
+    efcbViewsMaker = EventViewCreatorAlgorithm("efcbtotalViewsMaker")
     efcbViewsMaker.ViewFallThrough = True
     efcbViewsMaker.RoIsLink = "roi" # -||-
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs" # contract with the consumer
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
-    efcbViewsMaker.ViewNodeName = efcbViewNode.name()
     efcbViewsMaker.RequireParentView = True
-   
 
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
-    muEFCBRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
+    #outside-in reco sequence
+    muEFCBRecoSequence, eventAlgs, sequenceOutCB = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
+
+    #Algorithm to filter events with no muons
+    muonFilter = MuonFilterAlg("FilterZeroMuons")
+    muonFilter.MuonContainerLocation = sequenceOutCB
  
-    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()    
-    muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, muEFCBRecoSequence] )
+    #inside-out reco sequence - runs only if filter is passed
+    muonEFInsideOutRecoSequence, sequenceOutInsideOut = muEFInsideOutRecoSequence( efcbViewsMaker.InViewRoIs, "RoI")
+    muonInsideOutSequence = seqAND("muonEFInsideOutSequence", [muonFilter,muonEFInsideOutRecoSequence])
 
-    return (muonEFCBSequence, efcbViewsMaker, sequenceOut)
+    #combine outside-in and inside-out sequences
+    muonRecoSequence = parOR("muonEFCBandInsideOutRecoSequence", [muEFCBRecoSequence, muonInsideOutSequence])
+
+    #Merge muon containers from outside-in and inside-out reco
+    muonMerger = MergeEFMuonsAlg("MergeEFMuons")
+    muonMerger.MuonCBContainerLocation = sequenceOutCB
+    muonMerger.MuonInsideOutContainerLocation = sequenceOutInsideOut
+    muonMerger.MuonOutputLocation = muNames.EFCBName
+    sequenceOut = muonMerger.MuonOutputLocation
+
+    #Add merging alg in sequence with reco sequences
+    mergeSequence = seqOR("muonCBInsideOutMergingSequence", [muonRecoSequence, muonMerger])
+
+    #Final sequence running in view
+    efcbViewsMaker.ViewNodeName = mergeSequence.name()    
+    muonSequence = seqAND("muonEFCBandInsideOutSequence", [efcbViewsMaker, mergeSequence])
+
+    return (muonSequence, efcbViewsMaker, sequenceOut)
 
 def muEFCBSequence():
 
@@ -221,44 +247,7 @@ def muEFCBSequence():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
-######################
-###  EFCB InsideOut seq ###
-######################
-def muEFInsideOutAlgSequence(ConfigFlags):
-    efViewNode = parOR("efInsideOutViewNode")
-    
-    efViewsMaker = EventViewCreatorAlgorithm("efInsideOutViewsMaker")
-    efViewsMaker.ViewFallThrough = True
-    efViewsMaker.RoIsLink = "roi" # -||-
-    efViewsMaker.InViewRoIs = "MUEFInsideOutRoIs" # contract with the consumer
-    efViewsMaker.Views = "MUEFInsideOutViewRoIs"
-    efViewsMaker.ViewNodeName = efViewNode.name()
-   
 
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence
-    muEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( efViewsMaker.InViewRoIs)
- 
-    efViewsMaker.ViewNodeName = muEFInsideOutRecoSequence.name()    
-    muonEFInsideOutSequence = seqAND( "muonEFInsideOutSequence", [efViewsMaker, muEFInsideOutRecoSequence] )
-
-    return (muonEFInsideOutSequence, efViewsMaker, sequenceOut)
-
-def muEFInsideOutSequence():
-
-    (muonEFInsideOutSequence, efViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFInsideOutAlgSequence, ConfigFlags)
-
-    # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
-    trigMuonEFHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFInsideOutHypoAlg" )
-    trigMuonEFHypo.MuonDecisions = sequenceOut
-    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
-
-    return MenuSequence( Sequence    = muonEFInsideOutSequence,
-                         Maker       = efViewsMaker,
-                         Hypo        = trigMuonEFHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 ######################
 ### EF SA full scan ###
