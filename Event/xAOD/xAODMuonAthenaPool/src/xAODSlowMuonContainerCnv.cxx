@@ -89,6 +89,5 @@ xAOD::SlowMuonContainer* xAODSlowMuonContainerCnv::createTransient() {
 void xAODSlowMuonContainerCnv::
 toPersistent( xAOD::SlowMuon* /*slowMuon*/ ) const {
   using namespace xAOD;
-  // const_cast<ElementLink< MuonContainer >&>(slowMuon->muonLink()).toPersistent();
   return;
 }
