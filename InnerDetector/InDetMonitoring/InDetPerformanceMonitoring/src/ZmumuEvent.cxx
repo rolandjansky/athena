@@ -88,14 +88,9 @@ bool ZmumuEvent::Reco()
   if(m_doDebug){ std::cout << " * ZmumuEvent * ZmumuEvent::Reco() starting " << std::endl; }
   // Clear out the previous events record.
   this->Clear();
-  //  const Analysis::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<Analysis::MuonContainer>( m_container );
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
-  if (!pxMuonContainer){
-    std::cout << " * ZmumuEvent * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
-    return false;
-  }
-  else{
-    if(m_doDebug) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " combined muon "<<std::endl; }
+  if (pxMuonContainer != NULL) {
+    if(m_doDebug || true ) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " muon in xAOD::MuonContainer " << m_container <<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
     while ( xMuonItr != xMuonItrE ){ // start loop on muons
@@ -107,6 +102,10 @@ bool ZmumuEvent::Reco()
       }
       xMuonItr++;
     } // end loop on muons
+  } // muon container exist
+  else {
+    std::cout << " * ZmumuEvent * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
+    return false;
   }
   
   // ordering of muons
