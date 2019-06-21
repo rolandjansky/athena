@@ -14,6 +14,10 @@ if globalflags.DataSource()=='geant4':
 
 print isSimulation
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 
 #====================================================================
 # AUGMENTATION TOOLS 

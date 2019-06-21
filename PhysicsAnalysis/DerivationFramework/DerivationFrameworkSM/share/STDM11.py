@@ -11,6 +11,10 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkCore.LHE3WeightMetadata import addLHE3Weights
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
