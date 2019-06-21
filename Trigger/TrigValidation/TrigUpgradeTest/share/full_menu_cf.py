@@ -60,11 +60,11 @@ if opt.doElectronSlice == True:
 ##################################################################
 if opt.doPhotonSlice == True:
 
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionCaloSequenceCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
 
     fastCaloSeq = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
     fastPhotonSeq = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-    precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None)
+    precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
 
     FastCaloStep = ChainStep("PhotonFastCaloStep", [fastCaloSeq])
     fastPhotonStep = ChainStep("PhotonStep2", [fastPhotonSeq])
