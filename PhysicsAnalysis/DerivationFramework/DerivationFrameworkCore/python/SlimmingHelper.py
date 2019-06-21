@@ -395,6 +395,14 @@ class SlimmingHelper:
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt4EMPFlowJets_BTagging201810":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMPFlowJets_BTagging201810"):
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt4EMPFlowJets_BTagging201903":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMPFlowJets_BTagging201903"):
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903Aux"]='xAOD::ShallowAuxContainer'
                 elif collectionName=="AntiKt2LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
                         items.extend(AntiKt2LCTopoJetsCPContent)
@@ -443,6 +451,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4EMPFlow":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
+                elif collectionName=="BTagging_AntiKt4EMPFlow_201810":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKt4EMPFlow_201903":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKt2Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt2PV0TrackJets"))

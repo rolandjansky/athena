@@ -205,14 +205,13 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (m_augment)
       ATH_MSG_WARNING("#BTAG# augmentation requested for non-existent BTaggingContainer");
     //No BTaggingContainer not in SG and not re-tagging - record it in SG
-    ATH_MSG_WARNING("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
+    ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
     bTaggingContainer = new xAOD::BTaggingContainer();
     xAOD::BTaggingAuxContainer* bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
     CHECK( evtStore()->record(bTaggingAuxContainer, bTaggingContName+"Aux.") );
     bTaggingContainer->setStore(bTaggingAuxContainer);
     CHECK( evtStore()->record(bTaggingContainer, bTaggingContName) );
-    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
-    ATH_MSG_WARNING("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
+    ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
   }
 
   // The SV need to be remade in case of re-tagging, or simply used if b-tagging information is merely to be extended.
