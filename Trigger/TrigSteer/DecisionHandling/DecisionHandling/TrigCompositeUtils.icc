@@ -60,30 +60,65 @@ namespace TrigCompositeUtils {
   }
 
   template<class CONTAINER>
-  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg) {
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(
+    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector,
+    const bool oneFeaturePerLeg,
+    const std::string& featureName) {
+
     std::vector< LinkInfo<CONTAINER> > features;
     // For each unique path through the navigation for a given chain
     for (const ElementLinkVector<DecisionContainer>& decisionPath : linkVector) {
       // For each step along this path, starting at the terminus and working back towards L1
       for (const ElementLink<DecisionContainer>& decisionLink : decisionPath) {
         const Decision* decision = (*decisionLink);
-        if (decision->hasObjectLink(featureString(), ClassID_traits< CONTAINER >::ID())) {
+
+        // Framework specified "feature" is always a single link
+        if (decision->hasObjectLink(featureName, ClassID_traits< CONTAINER >::ID())) {
 
           // This try block protects against ExcCLIDMismatch throws from 
           // features which do not derive from IParticle, when an IParticle interface is requested.
           try {
-            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureString() );
-            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureName );
+            if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
+              // Don't duplicate up returned features (may have entries from many chains in the linkVector)
+              features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+            }
             if (oneFeaturePerLeg) {
               break;
             }
           } catch (SG::ExcCLIDMismatch&) {
-            // Carry on
+            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
           }
 
-        }
-      }
-    }
+        } // End if decision->hasObjectLink
+
+        // Slices may have added link collections
+        if (decision->hasObjectCollectionLinks(featureName, ClassID_traits< CONTAINER >::ID())) {
+
+          // This try block protects against ExcCLIDMismatch throws from 
+          // features which do not derive from IParticle, when an IParticle interface is requested.
+          try {
+            const ElementLinkVector<CONTAINER> featureLinks = decision->objectCollectionLinks<CONTAINER>( featureName );
+
+            for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
+              if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
+                // Don't duplicate up returned features (may have entries from many chains in the linkVector)
+                features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+              }
+            }
+            if (oneFeaturePerLeg) {
+              break;
+            }
+          } catch (SG::ExcCLIDMismatch&) {
+            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+          }
+
+        } // End if decision->hasObjectCollectionLinks
+
+      } // for (decisionLink : decisionPath)
+    } // for (decisionPath : linkVector)
     return features;
   }
 
