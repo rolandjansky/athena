@@ -1084,7 +1084,6 @@ Amg::Vector3D SCT_FastDigitizationTool::stepToStripBorder(
   double stepExitX = 0.;
   double stepExitY = 0.;
   double stepExitZ = 0.;
-  const double coef(1.);
 
   // probably needs to be changed to rect/trapezoid
   if (sidetel.isBarrel())
