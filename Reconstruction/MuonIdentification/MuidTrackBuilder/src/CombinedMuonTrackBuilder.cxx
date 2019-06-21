@@ -206,6 +206,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
     declareProperty("AddElossID",                       m_addElossID);
     declareProperty("AddIDMSerrors",                    m_addIDMSerrors);          
     declareProperty("UseRefitTrackError",               m_useRefitTrackError);
+    declareProperty("TrackQuery",                       m_trackQuery);
 
 }
 

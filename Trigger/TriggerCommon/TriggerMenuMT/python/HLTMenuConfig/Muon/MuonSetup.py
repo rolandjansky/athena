@@ -8,6 +8,7 @@ log = logging.getLogger('MuonSetup')
 
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from AthenaCommon.DetFlags import DetFlags
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 
@@ -534,7 +535,8 @@ def muEFSARecoSequence( RoIs, name ):
 
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
-  thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator)
+  theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFitSA", "MuonTrackQuery", Fitter="")
+  thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator,TrackQuery=theTrackQueryNoFit)
 
   msMuonName = muNames.EFSAName
   if 'FS' in name:
@@ -670,8 +672,16 @@ def muEFCBRecoSequence( RoIs, name ):
 
   theTrackCleaner = getPublicToolClone("TrigMuonTrackCleaner_"+name, "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
 
+  from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+  trkSummaryTool =  Trk__TrackSummaryTool( 'TrigMuonTrackSummary',MuonSummaryHelperTool=getPublicTool('MuonTrackSummaryHelper'), doSharedHits=False)
+  if DetFlags.detdescr.ID_on():
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
+    trkSummaryTool.InDetSummaryHelperTool=InDetTrigTrackSummaryHelperTool
+    trkSummaryTool.doHolesInDet=True
+  ToolSvc += Trk__TrackSummaryTool('TrigMuonTrackSummary')
 
-  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder_"+name,"CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=getPublicTool("CombinedMuonTrackSummary"), Cleaner=theTrackCleaner)
+  theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFit_"+name, "MuonTrackQuery", Fitter="")
+  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder_"+name,"CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=trkSummaryTool, Cleaner=theTrackCleaner,TrackQuery=theTrackQueryNoFit)
   theTrackQuery = getPublicToolClone("TrigMuonTrackQuery_"+name, "MuonTrackQuery", Fitter=theTrackBuilderTool)
 
   theCandidateToolCB = getPublicToolClone("TrigMuonCandidateTool_CB_"+name, "MuonCandidateTool", TrackBuilder=theTrackBuilderTool)
@@ -689,7 +699,8 @@ def muEFCBRecoSequence( RoIs, name ):
   theMuonCandidateAlgCB=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlgCB_"+name,MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="MuonCandidates", MSOnlyExtrapolatedTrackLocation="MSOnlyMuonTracksForCB")
 
   #Create xAOD Muons
-  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB_"+name, "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False)
+  muonparticlecreator = getPublicToolClone("MuonParticleCreatorCB_"+name, "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
+  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB_"+name, "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False,TrackQuery=theTrackQueryNoFit,TrackParticleCreator=muonparticlecreator)
 
   cbMuonName = muNames.EFCBName
   if 'FS' in name:
@@ -768,7 +779,14 @@ def muEFInsideOutRecoSequence(RoIs):
   theTrackCleaner = getPublicToolClone("TrigMuonTrackCleaner", "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
 
 
-  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=getPublicTool("CombinedMuonTrackSummary"), Cleaner=theTrackCleaner)
+  from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+  trkSummaryTool =  Trk__TrackSummaryTool( 'TrigMuonTrackSummary',MuonSummaryHelperTool=getPublicTool('MuonTrackSummaryHelper'), doSharedHits=False)
+  if DetFlags.detdescr.ID_on():
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
+    trkSummaryTool.InDetSummaryHelperTool=InDetTrigTrackSummaryHelperTool
+    trkSummaryTool.doHolesInDet=True
+  ToolSvc += Trk__TrackSummaryTool('TrigMuonTrackSummary')
+  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=trkSummaryTool, Cleaner=theTrackCleaner)
 
 
   #Inside-out reconstruction
@@ -780,7 +798,9 @@ def muEFInsideOutRecoSequence(RoIs):
 
   #Create the xAOD muons
   cbMuonName = muNames.EFCBInOutName
-  thecreatortool= getPublicToolClone("MuonCreatorTool_triggerInsideOut", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False)
+  muonparticlecreator = getPublicToolClone("MuonParticleCreatorInsideOut", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
+  theTrackQueryNoFit = getPublicToolClone("TrigMuonInsideOutTrackQueryNoFit", "MuonTrackQuery", Fitter="")
+  thecreatortool= getPublicToolClone("MuonCreatorTool_triggerInsideOut", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False,TrackQuery=theTrackQueryNoFit,TrackParticleCreator=muonparticlecreator)
   insideoutcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgInsideOut",BuildSlowMuon=True, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_RoI")
   insideoutcreatoralg.MuonCreatorTool=thecreatortool
   insideoutcreatoralg.MakeClusters=False
