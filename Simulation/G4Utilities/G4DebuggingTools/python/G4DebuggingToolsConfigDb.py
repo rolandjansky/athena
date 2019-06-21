@@ -3,6 +3,7 @@
 from AthenaCommon.CfgGetter import addTool
 
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getVolumeDebuggerTool", "G4UA::VolumeDebuggerTool")
+addTool("G4DebuggingTools.G4DebuggingToolsConfig.getMassDebuggerTool", "G4UA::MassDebuggerTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getG4AtlantisDumperTool", "G4UA::G4AtlantisDumperTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getVerboseSelectorTool", "G4UA::VerboseSelectorTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getStepNtupleTool", "G4UA::StepNtupleTool")

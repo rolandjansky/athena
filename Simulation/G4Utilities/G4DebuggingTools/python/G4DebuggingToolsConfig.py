@@ -78,6 +78,16 @@ def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__VolumeDebuggerTool(name, **kwargs)
 
+def getMassDebuggerTool(name="G4UA::MassDebuggerTool", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__MassDebuggerTool(name, **kwargs)
+
 
 def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
     # Set reference based on geometry
