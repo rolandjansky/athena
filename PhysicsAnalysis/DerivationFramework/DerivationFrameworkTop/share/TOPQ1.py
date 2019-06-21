@@ -99,9 +99,6 @@ TOPQ1Sequence = CfgMgr.AthSequencer("TOPQ1Sequence")
 # First skim on leptons
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-#============
-# add Jets
-#============
 #====================================================================
 # Special jets
 #====================================================================
@@ -112,25 +109,28 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(TOPQ1Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
-from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
-from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
-from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 # add fat/trimmed jets
+from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
+
 # add SoftDrop jets
+from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
 addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
+
 # add TTC jets
+from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
 addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
+
 # add VR jets
+from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
 addVRJetsForTop(TOPQ1Sequence)
+
 # add Xbb tagger information
+from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
 addXbbTaggerInformation(TOPQ1Sequence, ToolSvc)
+
 # apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
 
@@ -140,7 +140,6 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-# for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 TaggerList = BTaggingFlags.StandardTaggers
@@ -153,11 +152,14 @@ if DFisMC:
   TOPQ1Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
+
 # add ExKtDoubleTagVariables (TOPQDERIV-62)
+from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
-# Then apply thinning 
+# Then apply thinning
 #AugmentationTool for TOPQDERIV-69
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ1_Reco_V0Finder])
 
