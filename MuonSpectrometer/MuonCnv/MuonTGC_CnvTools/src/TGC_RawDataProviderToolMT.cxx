@@ -3,10 +3,10 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TGC_RawDataProviderTool.cxx, (c) ATLAS Detector software
+// TGC_RawDataProviderToolMT.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "TGC_RawDataProviderTool.h"
+#include "TGC_RawDataProviderToolMT.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -14,26 +14,30 @@
 
 //================ Constructor =================================================
 
-Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
+Muon::TGC_RawDataProviderToolMT::TGC_RawDataProviderToolMT(
 						       const std::string& t,
 						       const std::string& n,
 						       const IInterface*  p) :
   TGC_RawDataProviderToolCore(t, n, p)
 {
   declareInterface<IMuonRawDataProviderTool>(this);
+  declareProperty("TgcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the TGC container");
 }
 
 //================ Destructor =================================================
 
-Muon::TGC_RawDataProviderTool::~TGC_RawDataProviderTool()
+Muon::TGC_RawDataProviderToolMT::~TGC_RawDataProviderToolMT()
 {}
 
 //================ Initialisation =================================================
 
-StatusCode Muon::TGC_RawDataProviderTool::initialize()
+StatusCode Muon::TGC_RawDataProviderToolMT::initialize()
 {
   // call base class initialise
   ATH_CHECK( TGC_RawDataProviderToolCore::initialize() );
+
+  // Initialise the container cache if available
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
   
   ATH_MSG_INFO( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
@@ -41,30 +45,32 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
 
 //================ Finalisation =================================================
 
-StatusCode Muon::TGC_RawDataProviderTool::finalize()
+StatusCode Muon::TGC_RawDataProviderToolMT::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
 //============================================================================================
 
-StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs) 
+StatusCode Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs) 
 {    
 
   SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey); 
 
-  TgcRdoContainer* rdoContainer = 0;
-
-  // if the container is already in store gate, then we have to retrieve from SG
-  if (rdoContainerHandle.isPresent()) {
-    const TgcRdoContainer* rdoContainer_c = 0;
-    ATH_CHECK( evtStore()->retrieve( rdoContainer_c, m_rdoContainerKey.key() ) );
-    rdoContainer = const_cast<TgcRdoContainer*>(rdoContainer_c);
-  } else {
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
     ATH_CHECK( rdoContainerHandle.record( std::make_unique<TgcRdoContainer> (m_maxhashtoUse) ) );
     ATH_MSG_DEBUG( "Created TGC container" );
-    rdoContainer = rdoContainerHandle.ptr();
   }
+  else{
+    SG::UpdateHandle<TgcRdo_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<TgcRdoContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+
+  TgcRdoContainer* rdoContainer = rdoContainerHandle.ptr();
 
   // this should never happen, but since we dereference the pointer, we should check
   if(!rdoContainer) {
@@ -75,13 +81,13 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   return convertIntoContainer(vecRobs, *rdoContainer);
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
 						   const std::vector<IdentifierHash>&) 
 {
   return convert(vecRobs);
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert()
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert()
 {
   if(!m_cabling) {
     StatusCode sc = getCabling();
@@ -96,7 +102,7 @@ StatusCode  Muon::TGC_RawDataProviderTool::convert()
   return convert(vecOfRobf); 
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect)
+StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect)
 {
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf = getROBData(rdoIdhVect);
 
