@@ -18,7 +18,9 @@ private:
   unsigned long m_event_number; // event number
 
   int m_ntracks; // number of stored tracks
+  int m_ntracks_pre_hw; // number of stored tracks before Hit Warrior
   TClonesArray *m_tracks; //-> list of stored tracks
+  TClonesArray *m_tracks_pre_hw; //-> list of stored tracks before Hit Warrior
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fitted combinations
@@ -35,9 +37,10 @@ private:
      to m_nfits-m_nfits_bad-m_nfits_rej */
   
   int m_ntracksI; // number of stored tracks in the intermediate step
+  int m_ntracksI_pre_hw; // number of stored tracks in the intermediate step before Hit Warrior
 
   TClonesArray *m_tracksI; //-> list of stored tracks in the intermedieate step
-
+  TClonesArray *m_tracksI_pre_hw; //-> list of stored tracks in the intermedieate step before Hit Warrior
 
   // duplicate the counters for the 2nd stage
   int m_ncombsI;
@@ -53,6 +56,10 @@ private:
   int m_nfits_rejmajI;
   int m_nconn;
   int m_nextrapolatedTracks;
+  int m_ntracks_pattern; // number of stored tracks with patterns
+  int m_ntracks_hits; // number of stored tracks that pass hit requirements
+  TClonesArray *m_tracks_pattern; //-> list of stored tracks with patterns
+  TClonesArray *m_tracks_hits; //-> list of stored tracks that pass hit requirements
 
   std::map< std::pair<int,int>, int > m_trackIdMap; //! Not saved on disk.  
   // Used to optimize the findTrack function. 
@@ -72,9 +79,25 @@ public:
   int getNTracks() const { return m_ntracks; }
   void buildTrackMap(); 
 
+  void addTrack_pre_hw(const FTKTrack&);
+  FTKTrack* getTrack_pre_hw(int) const;
+  int getNTracks_pre_hw() const { return m_ntracks_pre_hw; }
+
   void addTrackI(const FTKTrack&);
   FTKTrack* getTrackI(int) const;
   int getNTracksI() const { return m_ntracksI; }
+
+  void addTrackI_pre_hw(const FTKTrack&);
+  FTKTrack* getTrackI_pre_hw(int) const;
+  int getNTracksI_pre_hw() const { return m_ntracksI_pre_hw; }
+
+  void addTrack_pattern(const FTKTrack&);
+  FTKTrack* getTrack_pattern(int) const;
+  int getNTracks_pattern() const { return m_ntracks_pattern; }
+
+  void addTrack_hits(const FTKTrack&);
+  FTKTrack* getTrack_hits(int) const;
+  int getNTracks_hits() const { return m_ntracks_hits; }
 
   int getNConn() const {return m_nconn;}
   int getNExtrapolatedTracks() const {return m_nextrapolatedTracks;}
@@ -134,7 +157,7 @@ public:
 
   int Print(int level=0,std::ostream &out=std::cout);
 
-  ClassDef(FTKTrackStream,12)
+  ClassDef(FTKTrackStream,13)
 };
 
 

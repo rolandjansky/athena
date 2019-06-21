@@ -189,6 +189,7 @@ if opt.doBjetSlice == True:
 if opt.doTauSlice == True:
   from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
   step1=ChainStep("Step1_tau", [getTauSequence('calo')])
+  step1MVA=ChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
   #This runs the tau-preselection(TP) step
   step2TP=ChainStep("Step2TP_tau", [getTauSequence('track_core')])
   #This runs the EFTauMV hypo on top of fast tracks 
@@ -198,7 +199,7 @@ if opt.doTauSlice == True:
   tauChains  = [
       Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1, step2] ),
       Chain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM', Seed="L1_TAU12IM",  ChainSteps=[step1, step2TP] ),
-      Chain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', Seed="L1_TAU20IM",  ChainSteps=[step1, step2PT]),
+      Chain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', Seed="L1_TAU20IM",  ChainSteps=[step1MVA, step2PT]),
       ]
   testChains += tauChains
 

@@ -135,7 +135,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
     }
   } // End of tool algorithms */	
 
-  ATH_CHECK(printDebugInformation(outputHandle));
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
   return StatusCode::SUCCESS;

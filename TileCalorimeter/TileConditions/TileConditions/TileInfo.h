@@ -46,7 +46,7 @@ class IdContext;
 class TileCalibDrawerFlt;
 
 
-class TileInfo {
+class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   friend class TileInfoLoader;
 
  public:

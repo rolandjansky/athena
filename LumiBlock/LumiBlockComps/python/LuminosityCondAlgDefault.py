@@ -83,7 +83,8 @@ def configureLuminosityCondAlgRun2 (name):
     from RecExConfig.RecFlags import rec
 
     # Check if this is express stream or bulk
-    if rec.doExpressProcessing():
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if rec.doExpressProcessing() or athenaCommonFlags.isOnline:
         lumiFolder  = "/TRIGGER/LUMI/OnlPrefLumi"
         conddb.addFolder('TRIGGER_ONL', lumiFolder,
                          className = 'CondAttrListCollection')

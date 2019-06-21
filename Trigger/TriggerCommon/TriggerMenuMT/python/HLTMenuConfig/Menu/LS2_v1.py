@@ -49,6 +49,7 @@ def setupMenu():
 
         ChainProp(name='HLT_2mu6Comb_L12MU6', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_L12MU6', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu4_L12MU4', groups=MultiMuonGroup),
 
      ]
 

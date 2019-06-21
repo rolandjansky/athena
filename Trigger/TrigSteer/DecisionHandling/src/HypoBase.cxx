@@ -5,6 +5,8 @@
 #include "DecisionHandling/HypoBase.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
+using namespace TrigCompositeUtils;
+
 HypoBase::HypoBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
@@ -31,15 +33,213 @@ StatusCode HypoBase::sysInitialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HypoBase::printDebugInformation(SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle,
-                                           MSG::Level lvl) const {
+StatusCode HypoBase::hypoBaseOutputProcessing(SG::WriteHandle<DecisionContainer>& outputHandle, MSG::Level lvl) const {
+
+  // TODO: Tomasz, Francesca - if we wanted to do same-hypo-alg Combo logic we could hook it in here.
+  // (This would be the idea to take the output from all the legs HypoTools, check the multiplicity 
+  // and *remove* DecisionIDs of the combined chains if they fail. The Decision is still mutable here)
+  // for ( auto& tool: m_hypoComboTools ) {
+  //   ATH_CHECK( tool->decide( *outputHandle ) );
+  // }
+
+  ATH_CHECK( printDebugInformation(outputHandle, lvl) );
+
+  if (m_runtimeValidation) {
+    ATH_CHECK( runtimeValidation(outputHandle) );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::runtimeValidation(SG::WriteHandle<DecisionContainer>& outputHandle) const {
+  // Detailed checks on the output container of this HypoAlg
+  for (const Decision* d : *outputHandle) {
+    // Check that all Decisions produced here have a feature (HypoAlg specific)
+    ATH_CHECK( validateHasFeature(d) );
+    // Check that all Hypo Decisions produced here satisfy the more-strict all-parent logical flow 
+    ATH_CHECK( validateLogicalFlow(d, kRequireAll) );
+    // Check that we can reach L1 along all navigation paths up from each Decision
+    // and validate these Decisions on the way up too.
+    ATH_CHECK( recursiveValidateGraph(d) ); 
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::recursiveValidateGraph(const Decision* d) const {
+  // Check logical flow at this place in the graph 
+  // (looser requirement of one-valid-parent-with-decision than we had when we knew that d corresponded to a HypoAlg output)
+  ATH_CHECK( validateLogicalFlow(d, kRequireOne) );
+  // Check my IDs
+  ATH_CHECK( validateDecisionIDs(d) );
+  ATH_CHECK( validateDuplicatedDecisionID(d) );
+  // Check my linking
+  ATH_CHECK( validateParentLinking(d) );
+  // Continue upstream
+  const ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+  for (const ElementLink<DecisionContainer>& seed : seeds) {
+    ATH_CHECK( seed.isValid() );
+    ATH_CHECK( recursiveValidateGraph(*seed) );
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::validateParentLinking(const Decision* d) const {
+  const ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+  // All Decision object must have at least one parent, unless they are the initial set of objects created by the L1 decoder
+  if (seeds.size() == 0 && d->name() != "L1") {
+    printErrorHeader(d);
+    ATH_MSG_ERROR("! Decision has zero parents. This is only allowed for the initial Decisions created by the L1Decoder.");
+    ATH_MSG_ERROR("! SOLUTION: Attach parent Decision(s) with TrigCompositeUtils::linkToPrevious");
+    printBangs();
+      return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::validateDecisionIDs(const Decision* d) const {
+  // All numeric IDs must correspond to a know, configured, HLT chain
+  DecisionIDContainer decisionIDSet;
+  decisionIDs(d, decisionIDSet);
+  for (const DecisionID id : decisionIDSet) {
+    if (HLT::Identifier( id ).name() == "UNKNOWN HASH ID") {
+      printErrorHeader(d);
+      ATH_MSG_ERROR("! Decision contains an ID which does not correspond to a configured chain: " << HLT::Identifier( id ));
+      ATH_MSG_ERROR("! SOLUTION: Locate the producer of the collection, investigate how this bad ID could have been added.");
+      printBangs();
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::validateDuplicatedDecisionID(const Decision* d) const {
+  // Persistent vector storage does not guarantee against duplicate entries
+  DecisionIDContainer decisionIDSet;
+  decisionIDs(d, decisionIDSet);
+  if (decisionIDSet.size() != d->decisions().size()) {
+    printErrorHeader(d);
+    ATH_MSG_ERROR("! Decision contains duplicate DecisionIDs.");
+    ATH_MSG_ERROR("! SOLUTION: If combining DecisionIDs from multiple parents,"
+      "de-duplicate the internal std::vector<DecisionID> of 'Decision* d' with:");
+    ATH_MSG_ERROR("!   TrigCompositeUtils::insertDecisionIDs(DecisionIDContainer(), d);");
+    printBangs();
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::validateLogicalFlow(const Decision* d, const LogicalFlowCheckMode mode) const {
+  // Do not need to validate for L1 Decisions as these have no parents
+  if (d->name() == "L1") {
+    return StatusCode::SUCCESS;
+  }
+  // Get all my passed DecisionIDs
+  DecisionIDContainer decisionIDSet;
+  decisionIDs(d, decisionIDSet);
+  const ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+  for (const DecisionID id : decisionIDSet) {
+    // For each chain that I'm passing, check how many of my parents were also passing the chain
+    size_t parentsWithDecision = 0;
+    for (const ElementLink<DecisionContainer>& seed : seeds) {
+      ATH_CHECK( seed.isValid() );
+      DecisionIDContainer seedIDSet;
+      decisionIDs(*seed, seedIDSet);
+      if (passed(id, seedIDSet)) {
+        ++parentsWithDecision;
+      }
+    }
+    if (mode == kRequireOne && parentsWithDecision == 0) {
+      // InputMakers may merge multiple of their input collections in order to run reconstruction on a common set of ROI (for example)
+      // So the DecisionIDs may have come from any one or more of the inputs. But zero is not allowed.
+      printErrorHeader(d);
+      ATH_MSG_ERROR("! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ));
+      ATH_MSG_ERROR("! This chain's DecisionID can not be found in any parents of this Decision object:");
+      for (const ElementLink<DecisionContainer>& seed : seeds) {
+        ATH_MSG_ERROR("! " << **seed);
+      }
+      ATH_MSG_ERROR("! SOLUTION: Ensure that the producer of this Decision object only adds DecisionIDs"
+        " which were present in at least one of its parents.");
+      printBangs();
+      return StatusCode::FAILURE;
+    } else if (mode == kRequireAll && parentsWithDecision != seeds.size()) {
+      // HypoAlgs may form a new physics object from multiple objects in the previous step
+      // (think a BPhysics object whose parents are two Decisions which each correspond to a different L1 MU RoI, 
+      // both ROI need to be in active state for the chain, if the chain's HypoTool considers the BPhysics object)
+      // This case requires *all* of the physics objects which are being combined together to be active for the chain
+      // in order to preserve logical flow
+      printErrorHeader(d);
+      ATH_MSG_ERROR("! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ));
+      ATH_MSG_ERROR("! As this Decision object represents the output of a HypoAlg, it must respect logical flow on all " 
+        << seeds.size() << " of its parent(s):");
+      for (const ElementLink<DecisionContainer>& seed : seeds) {
+        ATH_MSG_ERROR("! " << **seed);
+      }
+      ATH_MSG_ERROR("! SOLUTION: Ensure that the HypoTool responsible for " << HLT::Identifier( id ) 
+        << " in this HypoAlg only runs if this ID is present in all parent decisions.");
+      printBangs();
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode HypoBase::validateHasFeature(const Decision* d) const {
+  // Check that I have a "feature"
+  if (d->hasObjectLink( featureString() )) {
+    return StatusCode::SUCCESS;
+  }
+  // I might be a multi-slice Combo Hypo, if so, my immediate parents must all have features
+  const ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+  // The case of no-seeds is a separate validation check
+  for (const ElementLink<DecisionContainer>& seed : seeds) {
+    ATH_CHECK( seed.isValid() );
+    if ((*seed)->hasObjectLink( featureString() )) {
+      continue; // Good
+    }
+    printErrorHeader(d);
+    ATH_MSG_ERROR("! Decision has no '" << featureString() << "' ElementLink. Nor does its immediate parents (Combo case).");
+    ATH_MSG_ERROR("! Every Decision created by a HypoAlg must correspond to some physics object, and be linked to the object.");
+    ATH_MSG_ERROR("! (For steering controlled multi-slice ComboHypo algs, it is the earlier slice-controlled HypoAlgs which attach the features)");
+    ATH_MSG_ERROR("! SOLUTION: If this is a ComboHypo, ensure all parent Decision objects are from HypoAlg, and hence have a '" << featureString() << "' ElementLink.");
+    ATH_MSG_ERROR("! SOLUTION: If this is not a ComboHypo, ensure that all produced Decision objects are assigned their feature:");
+    ATH_MSG_ERROR("! SOLUTION:    decision->setObjectLink<MY_FEATURE_CONTANER_TYPE>(featureString(), MY_FEATURE_ELEMENT_LINK);");
+    printBangs();
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+void HypoBase::printBangs() const {
+  ATH_MSG_ERROR("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+}
+
+
+void HypoBase::printErrorHeader(const Decision* d) const  {
+  printBangs();
+  ATH_MSG_ERROR("! RUNTIME TRIGGER NAVIGATION VALIDATION ERROR");
+  ATH_MSG_ERROR("! Caused by Decision with index:" << d->index());
+    // " in collection " << *( d->container() ) );
+  ATH_MSG_ERROR("! " << *d);
+
+}
+
+
+StatusCode HypoBase::printDebugInformation(SG::WriteHandle<DecisionContainer>& outputHandle, MSG::Level lvl) const {
   if (msgLvl(lvl)) {
     msg() << lvl;
     msg() << "Exiting with " << outputHandle->size() <<" Decision objects" << endmsg;
     size_t count = 0;
-    for (const TrigCompositeUtils::Decision* d : *outputHandle){
-      TrigCompositeUtils::DecisionIDContainer objDecisions;      
-      TrigCompositeUtils::decisionIDs( d, objDecisions );
+    for (const Decision* d : *outputHandle){
+      DecisionIDContainer objDecisions;      
+      decisionIDs( d, objDecisions );
       msg() << "Number of positive decisions for Decision object #" << count++ << ": " << objDecisions.size() << endmsg;
       for (const TrigCompositeUtils::DecisionID id : objDecisions ) {
         msg() << " --- Passes chain: " << HLT::Identifier( id ) << endmsg;
@@ -48,4 +248,3 @@ StatusCode HypoBase::printDebugInformation(SG::WriteHandle<TrigCompositeUtils::D
   }
   return StatusCode::SUCCESS;
 }
-

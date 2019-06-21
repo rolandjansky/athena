@@ -129,8 +129,7 @@ protected:
 
   /* void processor_ResolutionMode(const FTKRoad &); */
   /* void processor_ResolutionMode(const FTKRoad &, std::list<FTKTrack> &); */
-   void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &);
-//  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
+  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
   void processor_Extrapolate(const FTKRoad &, std::list<FTKTrack> &);
   void processor_SuperExtrapolate(const FTKRoad &, std::list<FTKTrack> &);
 

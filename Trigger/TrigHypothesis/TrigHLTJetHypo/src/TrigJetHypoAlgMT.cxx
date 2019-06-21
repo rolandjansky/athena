@@ -78,8 +78,8 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
 
   CHECK(decide(jets, previousDecision, outputDecisions)); 
 
-  // Common debug printing
-  printDebugInformation(outputHandle);
+  // Common debug printing and output checking
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

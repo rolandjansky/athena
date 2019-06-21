@@ -65,6 +65,14 @@ class AthMonitorCfgHelper(object):
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
             algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
+        if getattr (algObj, 'EnableLumi', False):
+            from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+            self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
+            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+
         self.monSeq += algObj
         return algObj
 

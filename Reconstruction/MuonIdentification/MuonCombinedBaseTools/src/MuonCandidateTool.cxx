@@ -117,6 +117,7 @@ namespace MuonCombined {
     
 
     // Loop over resolved tracks and build MuonCondidate collection
+    int nfailed=0;
     for( auto track : *resolvedTracks ) {
       auto tLink = trackLinks.find(track);
       if(tLink == trackLinks.end()) {
@@ -132,12 +133,17 @@ namespace MuonCombined {
 	// remove track from set so it is not deleted
 	tracksToBeDeleted.erase(tpair.second);
       }
-      else outputCollection.push_back( new MuonCandidate(tpair.first, ElementLink<TrackCollection>()));
+      else{
+	//in this case the extrapolation failed
+	outputCollection.push_back( new MuonCandidate(tpair.first, ElementLink<TrackCollection>()));
+	nfailed++;
+      }
     }
     
-    if( extrapTracks->size() != resolvedTracks->size() + tracksToBeDeleted.size() )
+    //note that we made a copy of the failed track above, this copy will always be deleted
+    if( extrapTracks->size() != resolvedTracks->size() + tracksToBeDeleted.size() - nfailed )
       ATH_MSG_WARNING(" inconsistent number of tracks: in " << extrapTracks->size() << " resolved " << resolvedTracks->size()
-                      << " remaining " << tracksToBeDeleted.size() );
+                      << " remaining " << tracksToBeDeleted.size() << "failed tracks to be deleted" << nfailed );
 
     // delete all remaining tracks in the set
     for( auto it = tracksToBeDeleted.begin();it!=tracksToBeDeleted.end();++it ) delete *it;

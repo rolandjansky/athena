@@ -60,7 +60,7 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
   ATH_CHECK(decide(metContainer, newDecisions, prevDecisions, context));
 
   // Common debug printing
-  printDebugInformation(outputHandle);
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

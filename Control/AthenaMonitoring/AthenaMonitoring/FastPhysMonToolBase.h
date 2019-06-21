@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -7,6 +7,7 @@
 #define FASTPHYSMONTOOLBASE_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 class TTree;
@@ -25,8 +26,9 @@ class TTree;
  * we could implement them here too. 
  */
 
-class FastPhysMonToolBase: public ManagedMonitorToolBase, 
-			   public IIncidentListener {
+// Legacy ManagedMonitorToolBase is not thread-safe.
+class ATLAS_NOT_THREAD_SAFE FastPhysMonToolBase: public ManagedMonitorToolBase, 
+                                                 public IIncidentListener {
 
  public:
   /**
