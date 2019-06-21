@@ -114,8 +114,17 @@ namespace InDetDD {
       bool processGlobalAlignment(const std::string &, int level, FrameType frame,
                                   const CondAttrListCollection* obj,
                                   GeoVAlignmentStore* alignStore) const;
-    
-    private:  
+
+      // comply with InDetDetectorManager interface
+      bool processSpecialAlignment(const std::string & key,
+                                   InDetDD::AlignFolderType alignfolder) const override;
+
+      bool processSpecialAlignment(const std::string& key,
+                                   const CondAttrListCollection* obj=nullptr,
+                                   GeoVAlignmentStore* alignStore=nullptr) const override;
+
+
+    private:
       /** implements the main alignment update for delta transforms in different frames,
           it translates into the LocalDelta or GlobalDelta function of SiDetectorManager
       */

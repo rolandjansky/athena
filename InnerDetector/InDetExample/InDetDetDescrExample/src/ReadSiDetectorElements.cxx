@@ -121,17 +121,19 @@ StatusCode ReadSiDetectorElements::execute() {
 }
 
 void ReadSiDetectorElements::printAllElements(const bool accessDuringInitialization) {
-  const bool useConditionStore = (m_managerName == "SCT" and (not accessDuringInitialization));
+  const bool useConditionStore = not accessDuringInitialization;
   const SiDetectorElementCollection* elements = nullptr;
   if (useConditionStore) {
     // Get SiDetectorElementCollection from ConditionStore
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
     elements = detEle.retrieve();
+    ATH_MSG_INFO("Going to read from Conditions Store using handle: " << m_detEleCollKey.key());
     if (elements==nullptr) {
       ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
       return;
     }
   } else {
+    ATH_MSG_INFO("Going to read from detector manager: " << m_managerName);
     elements = m_manager->getDetectorElementCollection();
   }
 
