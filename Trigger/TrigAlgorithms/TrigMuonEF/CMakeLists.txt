@@ -62,17 +62,7 @@ include_directories(src)
 
 # Component(s) in the package:
 atlas_add_component( TrigMuonEF
-                     src/SegmentCache.cxx
-                     src/TrigMuonEFStandaloneTrackTool.cxx
-                     src/TrigMuonEFTrackIsolation.cxx
-                     src/TrigMuonEFTrackIsolationTool.cxx
-                     src/TrigMuonEFRoiAggregator.cxx
-                     src/InDetTrkRoiMaker.cxx
-                     src/TrigMuonEFFSRoiMaker.cxx
-                     src/TrigMuonEFRoiUtils.cxx
-                     src/TrigMuonEFCaloIsolation.cxx
-                     src/TrigMuonEFIDTrackRoiMaker.cxx
-                     src/TrigMuonEFTrackIsolationAlgMT.cxx
+                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib TrigInterfacesLib TrigTimeAlgsLib )
