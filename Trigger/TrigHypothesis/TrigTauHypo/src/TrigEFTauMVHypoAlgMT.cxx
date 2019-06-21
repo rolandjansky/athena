@@ -73,10 +73,6 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
       continue;
     }
 
-    ATH_MSG_DEBUG( name() << " running with store " << context.getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
-
-    ATH_MSG_DEBUG("Event store dump: " << evtStore()->dump() );
-
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );

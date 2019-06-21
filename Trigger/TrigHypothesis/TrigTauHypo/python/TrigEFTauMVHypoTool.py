@@ -5,7 +5,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     from TrigTauHypo.TrigTauHypoConf import TrigEFTauMVHypoTool
     currentHypo = TrigEFTauMVHypoTool(name)
-    currentHypo.level = 2
+    currentHypo.level = 1
+    currentHypo.method = 3
     currentHypo.MonTool = ""
 
     return currentHypo
