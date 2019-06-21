@@ -526,10 +526,11 @@ StatusCode IDPerfMonZmumu::initialize()
     ATH_MSG_INFO("initialize() ** defining m_FourMuTree ");
     m_FourMuTree = new TTree((m_FourMuTreeName).c_str(), "Four Muon monitoring");
 
-    m_FourMuTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
-    m_FourMuTree->Branch("eventNumber"      ,  &m_evtNumber,  "eventNumber/I");
-    m_FourMuTree->Branch("lumi_block"      ,  &m_lumi_block,  "lumi_block/I");
-    m_FourMuTree->Branch("preScale"       ,  &m_triggerPrescale, "preScale/I");
+    m_FourMuTree->Branch("runNumber"  ,  &m_runNumber,  "runNumber/I");
+    m_FourMuTree->Branch("eventNumber",  &m_evtNumber,  "eventNumber/I");
+    m_FourMuTree->Branch("lumi_block" ,  &m_lumi_block,  "lumi_block/I");
+    m_FourMuTree->Branch("mu"         ,  &m_event_mu,  "mu/I");
+    m_FourMuTree->Branch("preScale"   ,  &m_triggerPrescale, "preScale/I");
 
     m_FourMuTree->Branch("Negative_1_Px",  &m_negative_px,  "Negative_Px/D");
     m_FourMuTree->Branch("Negative_1_Py",  &m_negative_py,  "Negative_Py/D");
@@ -818,11 +819,7 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.SetOpeningAngleCut(m_OpeningAngleCut);
     m_4mu.SetZ0GapCut(m_Z0GapCut);
 
-    if(!m_4mu.Reco()){
-      //failed reconstruction
-      ATH_MSG_DEBUG("Failed 4-muon reconstruction. m_4mu.Reco() returned FALSE --> event failed selection");
-    }
-    else {
+    if(m_4mu.Reco()){
       ATH_MSG_INFO("Sucessfull 4-muon reconstruction. Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
 
       if ( m_4mu.EventPassed() ) {
@@ -868,11 +865,11 @@ StatusCode IDPerfMonZmumu::execute()
 	m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
 	m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
 	
-	if (m_doDebug || true) {
-	  std::cout << " --salva-- muonpos_1 d0= " << m_positive_d0   << "   z0= " << m_positive_z0   << std::endl;
-	  std::cout << "           muonpos_2 d0= " << m_positive_2_d0 << "   z0= " << m_positive_2_z0 << std::endl;
-	  std::cout << "           muonneg_1 d0= " << m_negative_d0   << "   z0= " << m_negative_z0   << std::endl;
-	  std::cout << "           muonneg_2 d0= " << m_negative_2_d0 << "   z0= " << m_negative_2_z0 << std::endl;
+	if (m_doDebug) {
+	  std::cout << " --fourmu-- muonpos_1 d0= " << m_positive_d0   << "   z0= " << m_positive_z0   << std::endl;
+	  std::cout << "            muonpos_2 d0= " << m_positive_2_d0 << "   z0= " << m_positive_2_z0 << std::endl;
+	  std::cout << "            muonneg_1 d0= " << m_negative_d0   << "   z0= " << m_negative_z0   << std::endl;
+	  std::cout << "            muonneg_2 d0= " << m_negative_2_d0 << "   z0= " << m_negative_2_z0 << std::endl;
 	}
 	
 	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
@@ -880,8 +877,8 @@ StatusCode IDPerfMonZmumu::execute()
 	  m_pv_x = muon1_pos->vertex()->x();
 	  m_pv_y = muon1_pos->vertex()->y();
 	  m_pv_z = muon1_pos->vertex()->z();
-	  if (m_doDebug || true) {
-	    std::cout << " --salva-- going to fill FourMu ntuple with PV as follows -- " << std::endl 
+	  if (m_doDebug) {
+	    std::cout << " --fourmu-- going to fill FourMu ntuple with PV as follows -- " << std::endl 
 		      << "                                            muon1_pos (x, y, z)= (" << m_pv_x
 		      << ", " << m_pv_y
 		      << ", " << m_pv_z
@@ -889,7 +886,7 @@ StatusCode IDPerfMonZmumu::execute()
 	  }
 	}
 	if (muon2_pos->vertex() != NULL) {
-	  if (m_doDebug || true) {
+	  if (m_doDebug) {
 	    std::cout << "                                            muon2_pos (x, y, z)= (" << muon2_pos->vertex()->x()
 		      << ", " << muon2_pos->vertex()->y()
 		      << ", " << muon2_pos->vertex()->z()
@@ -897,7 +894,7 @@ StatusCode IDPerfMonZmumu::execute()
 	  }
 	}
 	if (muon1_neg->vertex() != NULL) {
-	  if (m_doDebug || true) {
+	  if (m_doDebug) {
 	    std::cout << "                                            muon1_neg (x, y, z)= (" << muon1_neg->vertex()->x()
 		      << ", " << muon1_neg->vertex()->y()
 		      << ", " << muon1_neg->vertex()->z()
@@ -905,7 +902,7 @@ StatusCode IDPerfMonZmumu::execute()
 	  }
 	}
 	if (muon2_neg->vertex() != NULL) {
-	  if (m_doDebug || true) {
+	  if (m_doDebug) {
 	    std::cout << "                                            muon1_neg (x, y, z)= (" << muon2_neg->vertex()->x()
 		      << ", " << muon2_neg->vertex()->y()
 		      << ", " << muon2_neg->vertex()->z()
@@ -914,7 +911,7 @@ StatusCode IDPerfMonZmumu::execute()
 	}
 	
 	m_4mu_minv = m_4mu.GetInvMass();
-	if (m_doDebug || true) std::cout << " -- IDPerfMonZmumu::execute -- m_4mu.GetInvMass= " << m_4mu_minv << std::endl;
+	if (m_doDebug) std::cout << " -- IDPerfMonZmumu::execute -- m_4mu.GetInvMass= " << m_4mu_minv << std::endl;
 	
 	// MET test
 	// declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
@@ -943,13 +940,20 @@ StatusCode IDPerfMonZmumu::execute()
 	  m_metphi = -1;
 	}
 	msg(MSG::INFO) << " Zmumu event with MET = " << met->met() << endreq;   
-	std::cout << " -- salva -- zmumu -- met()  = " << met->met() << std::endl;   
-	std::cout << " -- salva -- zmumu -- phi    = " << met->phi() << std::endl;   
+	if (m_doDebug) {
+	  std::cout << " -- fourmu -- zmumu -- met = " << met->met() << std::endl;   
+	  std::cout << "                    -- phi = " << met->phi() << std::endl;   
+	}
 	
 	m_FourMuTree->Fill();
 	ATH_MSG_WARNING("Accepted 4-muon event. Ntuple filled :)");
       }
+    } // succesful 4mu reco
+    else {
+      //failed reconstruction
+      ATH_MSG_DEBUG("Failed 4-muon reconstruction. m_4mu.Reco() returned FALSE --> event failed selection");
     }
+
   } // end of fourMuon Analysis
   //fill truth first in case no truth match found
   if (m_isMC) {

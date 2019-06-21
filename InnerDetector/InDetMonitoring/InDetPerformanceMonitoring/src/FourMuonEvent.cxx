@@ -67,19 +67,17 @@ void FourMuonEvent::Init()
 //==================================================================================
 bool FourMuonEvent::Reco()
 {
-
-  if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * starting " << std::endl; }
+  m_eventCount++;
+  if(m_doDebug || true){ std::cout << " * FourMuonEvent::Reco * starting ** event count " << m_eventCount << std::endl; }
   // Clear out the previous events record.
   this->Clear();
-  m_eventCount++;
-  //  const Analysis::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<Analysis::MuonContainer>( m_container );
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
-  if (!pxMuonContainer){
-    std::cout << " * FourMuonEvent::Reco * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
-    return false;
-  }
-  else{
-    if (m_doDebug || true) {std::cout << " * FourMuonEvent::Reco * event " << m_eventCount << " track list has "<< pxMuonContainer->size() << " combined muon "<<std::endl; }
+
+  if (pxMuonContainer != NULL) {
+    if (m_doDebug || true) {std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
+				      << " track list has "<< pxMuonContainer->size() 
+				      << " combined muons in container " << m_container 
+				      << std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
     int theCount = 0;
@@ -94,6 +92,10 @@ bool FourMuonEvent::Reco()
       }
       xMuonItr++;
     } // end loop on muons
+  }
+  if (!pxMuonContainer){
+    std::cout << " * FourMuonEvent::Reco * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
+    return false;
   }
   
   // ordering of muons
@@ -113,7 +115,7 @@ bool FourMuonEvent::Reco()
     if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Selected event :) " << std::endl;
     if (!m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Rejected event :( " << std::endl;
   }
-  if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * completed " << std::endl; }
+  if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount << " * COMPLETED * " << std::endl; }
 
   return m_passedSelectionCuts;
 }
