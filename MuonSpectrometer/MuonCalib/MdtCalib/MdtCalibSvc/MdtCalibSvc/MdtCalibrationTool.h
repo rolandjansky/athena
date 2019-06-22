@@ -110,7 +110,7 @@ private:
   /// please don't add any data members here!!
   /// they should be added to Imp to keep the class free from data exposed to clients
   class Imp;
-  Imp *m_imp;
+  std::unique_ptr<Imp> m_imp;
 
   ToolHandle<MdtCalibrationDbTool> m_dbTool;
 

@@ -121,8 +121,7 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   : base_class(type, name, parent),
     m_dbTool("MdtCalibrationDbTool",this)
 {
-  //TODO: Use smart pointer
-  m_imp = new MdtCalibrationTool::Imp(name);
+  m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
   declareProperty("TimeWindowUpperBound",m_imp->settings.windowUpperBound );
@@ -144,7 +143,7 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
 }
 
 MdtCalibrationTool::~MdtCalibrationTool() {
-  delete m_imp;
+  m_imp.reset();
 }
 
 StatusCode MdtCalibrationTool::initialize() {
