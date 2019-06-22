@@ -2,6 +2,13 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Include import include
+include.block("InDetTrigRecExample/EFInDetConfig.py")
+include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
+
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("InDetSetup")
+
 # this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
 # once the cunction below is moved to the destination pkg, will eliminate this duplication
 class InDetCacheNames(object):
