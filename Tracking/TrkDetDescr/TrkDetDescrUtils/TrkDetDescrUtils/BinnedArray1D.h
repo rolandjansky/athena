@@ -163,7 +163,7 @@ private:
   void prepareCacheArray(){
     if (!m_arrayObjects){
       m_arrayObjects = new std::vector<const T*>;
-      m_arrayObjects->reserve(arrayObjectsNumber());
+      m_arrayObjects->reserve(m_array->size());
       for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
         m_arrayObjects->push_back(((*m_array)[ill]).get());
     } 
