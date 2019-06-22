@@ -23,8 +23,9 @@ class TransformMap {
 template<typename T, typename X> 
 bool TransformMap<T,X>::setTransform(const T* obj, const X& xf)
 {
-  auto result = m_container.emplace(obj, xf);
-  return result.second;
+  bool result = m_container.find(obj) == m_container.end();
+  m_container[obj] = xf;
+  return result;
 }
 
 template<typename T, typename X> 

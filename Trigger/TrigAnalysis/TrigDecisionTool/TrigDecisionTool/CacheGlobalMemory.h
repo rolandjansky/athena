@@ -23,6 +23,7 @@
 #include<map>
 #include<unordered_map>
 #include<string>
+#include<mutex>
 #include "boost/foreach.hpp"
 
 #include "TrigConfHLTData/HLTChain.h"
@@ -246,6 +247,8 @@ namespace Trig {
     };  // end of deleter
     
     mutable AnyTypeDeleter m_deleteAtEndOfEvent;
+
+    mutable std::mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
 
 
 

@@ -138,11 +138,11 @@ private:
     { this, "CalibBackupChannel", 112, "Backup channel in case calibChannel doesn't exist in online calibration folder" };
 
   Gaudi::Property<bool> m_skipInvalid
-    { this, "SkipInvalid", true, "Flag to control whether invalid data is skipped:  True (default), returning a zero luminosity; false, retruning available luminosity values anyway" };
+    { this, "SkipInvalid", true, "Flag to control whether invalid data is skipped:  True (default), returning a zero luminosity; false, returning available luminosity values anyway." };
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_luminosityFolderInputKey
   { this, "LuminosityFolderInputKey", "/TRIGGER/OFLLUMI/LBLESTOFL",
-    "Input luminosityCOOL folder." };
+    "Input luminosity COOL folder." };
 
   SG::ReadCondHandleKey<OnlineLumiCalibrationCondData> m_onlineLumiCalibrationInputKey
   { this, "OnlineLumiCalibrationInputKey", "OnlineLumiCalibrationCondData",

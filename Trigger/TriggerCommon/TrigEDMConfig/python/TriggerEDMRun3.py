@@ -75,6 +75,10 @@ TriggerHLTList = [
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
     ('xAOD::CaloClusterAuxContainer#HLT_CaloEMClustersAux.',        'BS ESD AODFULL', 'Egamma'),
 
+    # This varient needed by TrigUpgradeTest/egammaRinger.py
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClusters',             'BS ESD AODFULL', 'Egamma' 'inViews:EMCaloViews'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersAux.',      'BS ESD AODFULL', 'Egamma'),
+
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI',          'BS ESD AODFULL', 'Egamma' 'inViews:precisionCaloViews'),
     ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersRoIAux.',   'BS ESD AODFULL', 'Egamma'),
 
@@ -97,6 +101,8 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauIso',                 'BS ESD AODFULL', 'Tau', 'inViews:TIsoViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauIsoAux.',          'BS ESD AODFULL', 'Tau'),
 
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_FastTrack',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FastTrackAux.',          'BS ESD AODFULL', 'Tau'),
 
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -122,6 +128,9 @@ TriggerHLTList = [
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # tau calo clusters
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
+    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCAux.',         'BS ESD AODFULL', 'Tau'),
+
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
     ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCLCAux.',         'BS ESD AODFULL', 'Tau'),
 
@@ -129,9 +138,27 @@ TriggerHLTList = [
     ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
 
+    #bjet
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_FS',                     'BS ESD AODFULL', 'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FSAux.',              'BS ESD AODFULL', 'Bjet'),
+
+    # MinBias
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracksMinBias',                 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksMinBiasAux.',          'BS ESD AODFULL', 'MinBias'),
+
+    # ID
+
+    # Requested by TrigUpgradeTest/IDCalo.py
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks',                        'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
+
+    ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),    
 ]
 
 EDMDetails = {}

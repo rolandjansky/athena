@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.cxx 
@@ -9,8 +9,9 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// STL includes
 #include <stdexcept>
+#include <mutex>
+#include <atomic>
 
 // FrameWork includes
 #include "GaudiKernel/INamedInterface.h"
@@ -19,23 +20,37 @@
 
 #include "FPEAuditor.h"
 
+#include "CxxUtils/checker_macros.h"
+
 // C includes
 #include <fenv.h>
 
-extern "C" {
-  namespace FPEAudit
-  {
-    extern void fpe_sig_action(int, siginfo_t *, void *);
-    extern struct sigaction oldactHandler; 
-    extern void mask_fpe(void);
-    extern void unmask_fpe(void);
-    extern int n_fp_exceptions;
-    extern void *s_array_O[];
-    extern void *s_array_I[];
-    extern void *s_array_D[];
-    extern void resolve(void *, MsgStream& , bool print=false);
-  }
+
+namespace FPEAudit {
+  const int MAXARRAY=100;
+  struct FPEAuditTLSData {
+    void *s_array_O[MAXARRAY];
+    void *s_array_I[MAXARRAY];
+    void *s_array_D[MAXARRAY];
+  };
+
+  thread_local FPEAuditTLSData s_tlsdata;
+
+  std::atomic<bool> s_handlerInstalled = false;
+  std::atomic<bool> s_handlerDisabled = false;
+  struct sigaction s_oldactHandler ATLAS_THREAD_SAFE;
+
+  std::mutex s_mutex;
+  typedef std::lock_guard<std::mutex> lock_t;
 }
+
+
+#ifdef __linux__
+# include "FPEAudit_linux.icc"
+#else
+# include "FPEAudit_dummy.icc"
+#endif
+
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -51,9 +66,9 @@ FPEAuditor::FPEAuditor( const std::string& name,
   AthMessaging(msgSvc(), name),
   m_CountFPEs(),
   m_NstacktracesOnFPE(0),
-  m_SigHandInstalled(false),
   //m_flagp(),
-  m_env()
+  m_env(),
+  m_nexceptions(0)
 {
   //
   // Property declaration
@@ -97,20 +112,15 @@ StatusCode FPEAuditor::finalize()
   ATH_MSG_INFO(" FPE OVERFLOWs  : " << m_CountFPEs[FPEAUDITOR_OVERFLOW] );
   ATH_MSG_INFO(" FPE INVALIDs   : " << m_CountFPEs[FPEAUDITOR_INVALID]);
   ATH_MSG_INFO(" FPE DIVBYZEROs : " << m_CountFPEs[FPEAUDITOR_DIVBYZERO]);
-  
-  if ( m_SigHandInstalled )
-    UninstallHandler();
+
+  {
+    FPEAudit::lock_t lock (FPEAudit::s_mutex);
+    if ( FPEAudit::s_handlerInstalled && !FPEAudit::s_handlerDisabled )
+      UninstallHandler();
+  }
   
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 void FPEAuditor::InstallHandler()
 {
@@ -122,7 +132,7 @@ void FPEAuditor::InstallHandler()
   memset(&act, 0, sizeof act);
   act.sa_sigaction = FPEAudit::fpe_sig_action;
   act.sa_flags = SA_SIGINFO;
-  if ( sigaction(SIGFPE, &act, &FPEAudit::oldactHandler) != 0 )
+  if ( sigaction(SIGFPE, &act, &FPEAudit::s_oldactHandler) != 0 )
     {
       ATH_MSG_WARNING ("Printing stacktraces on FPE requested, but unable to install signal handler ! Switched off !");
       m_NstacktracesOnFPE=0;
@@ -131,17 +141,18 @@ void FPEAuditor::InstallHandler()
     {
       ATH_MSG_INFO ("Installed Signalhandler !");
       FPEAudit::unmask_fpe();
-      m_SigHandInstalled=true;
     }
-  FPEAudit::s_array_O[0]=NULL;
-  FPEAudit::s_array_I[0]=NULL;
-  FPEAudit::s_array_D[0]=NULL;
+  FPEAudit::s_tlsdata.s_array_O[0]=NULL;
+  FPEAudit::s_tlsdata.s_array_I[0]=NULL;
+  FPEAudit::s_tlsdata.s_array_D[0]=NULL;
+
+  FPEAudit::s_handlerInstalled = true;
 }
 
 void FPEAuditor::UninstallHandler()
 {
   ATH_MSG_INFO("uninstalling SignalHandler");
-  m_SigHandInstalled = false;
+  FPEAudit::s_handlerDisabled = true;
   
   feclearexcept(FE_ALL_EXCEPT);
   fesetenv (&m_env);
@@ -149,8 +160,6 @@ void FPEAuditor::UninstallHandler()
   
   // feenableexcept (0);
   // fedisableexcept (FE_ALL_EXCEPT);
-  
-  FPEAudit::n_fp_exceptions = -1;
 }
 
 void FPEAuditor::beforeInitialize(INamedInterface* /*comp*/)
@@ -198,10 +207,11 @@ void FPEAuditor::beforeBeginRun(INamedInterface* /*comp*/)
   add_fpe_node();
   // install new signal handler here, before it will conflict with
   // CoreDumpSvc, which installs its own signal handler for FPE by default
-  if ( m_NstacktracesOnFPE && ! m_SigHandInstalled )
+  FPEAudit::lock_t lock (FPEAudit::s_mutex);
+  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled )
     {
       InstallHandler();
-      FPEAudit::n_fp_exceptions = m_NstacktracesOnFPE;
+      m_nexceptions = m_NstacktracesOnFPE;
     }
 }
 
@@ -250,18 +260,6 @@ void FPEAuditor::after(CustomEventTypeRef evt,
   pop_fpe_node();
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 /** report fpes which happened during step 'step' on behalf of 'caller'
  */
 void
@@ -280,14 +278,14 @@ FPEAuditor::report_fpe(const std::string& step,
     if (raised & FE_OVERFLOW) {
       ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_OVERFLOW];
-      if ( m_NstacktracesOnFPE && FPEAudit::s_array_O[0] != NULL )
+      if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_O[0] != NULL )
 	{
 	  for (unsigned int j = 0; j < 100; j++)
 	    {
-	      if (FPEAudit::s_array_O[j]==NULL) break;
+	      if (FPEAudit::s_tlsdata.s_array_O[j]==NULL) break;
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
-	      FPEAudit::resolve(FPEAudit::s_array_O[j],this->msg());
-	      FPEAudit::s_array_O[j]=NULL;
+	      FPEAudit::resolve(FPEAudit::s_tlsdata.s_array_O[j],this->msg());
+	      FPEAudit::s_tlsdata.s_array_O[j]=NULL;
 	      this->msg(MSG::INFO) << endmsg;
 	    }
 	}
@@ -296,35 +294,43 @@ FPEAuditor::report_fpe(const std::string& step,
       ATH_MSG_WARNING("FPE INVALID in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_INVALID];
     }
-    if ( m_NstacktracesOnFPE && FPEAudit::s_array_I[0] != NULL )
+    if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_I[0] != NULL )
       {
 	for (unsigned int j = 0; j < 100; j++)
 	  {
-	    if (FPEAudit::s_array_I[j]==NULL) break;
+	    if (FPEAudit::s_tlsdata.s_array_I[j]==NULL) break;
 	    this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
-	    FPEAudit::resolve(FPEAudit::s_array_I[j],this->msg());
-	    FPEAudit::s_array_I[j]=NULL;
+	    FPEAudit::resolve(FPEAudit::s_tlsdata.s_array_I[j],this->msg());
+	    FPEAudit::s_tlsdata.s_array_I[j]=NULL;
 	    this->msg(MSG::INFO) << endmsg;
 	  }
       }
     if (raised & FE_DIVBYZERO) {
       ATH_MSG_WARNING("FPE DIVBYZERO in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_DIVBYZERO];
-      if ( m_NstacktracesOnFPE && FPEAudit::s_array_D[0] != NULL )
+      if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_D[0] != NULL )
 	{
 	  for (unsigned int j = 0; j < 100; j++)
 	    {
-	      if (FPEAudit::s_array_D[j]==NULL) break;
+	      if (FPEAudit::s_tlsdata.s_array_D[j]==NULL) break;
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
-	      FPEAudit::resolve(FPEAudit::s_array_D[j],this->msg());
-	      FPEAudit::s_array_D[j]=NULL;
+	      FPEAudit::resolve(FPEAudit::s_tlsdata.s_array_D[j],this->msg());
+	      FPEAudit::s_tlsdata.s_array_D[j]=NULL;
 	      this->msg(MSG::INFO) << endmsg;
 	    }
 	}
     }
+
+    
+    FPEAudit::lock_t lock (FPEAudit::s_mutex);
+    if ( --m_nexceptions == 0
+         && FPEAudit::s_handlerInstalled &&
+         !FPEAudit::s_handlerDisabled )
+    {
+      fprintf(stderr, "too many SIGFPE detected, will be uninstalling signal handler\n");
+      UninstallHandler();
+    }
   }
-  if ( FPEAudit::n_fp_exceptions == 0 && m_SigHandInstalled )
-    UninstallHandler();
 }
 
 void
@@ -354,6 +360,6 @@ FPEAuditor::pop_fpe_node()
   if (!s_fpe_stack.empty()) {
     s_fpe_stack.back().second |= raised;
   }
-  if ( m_SigHandInstalled )
+  if ( FPEAudit::s_handlerInstalled && !FPEAudit::s_handlerDisabled)
     FPEAudit::unmask_fpe();
 }

@@ -10,11 +10,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
                           Control/SGTools
+                          Control/AthenaKernel
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/AthenaKernel
                           Control/CxxUtils
                           Control/RootUtils
                           Control/StoreGate )

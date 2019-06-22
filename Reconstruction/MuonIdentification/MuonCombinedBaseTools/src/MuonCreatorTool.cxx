@@ -116,7 +116,8 @@ namespace MuonCombined {
     declareProperty("MomentumBalanceTool",m_momentumBalanceTool);
     declareProperty("ScatteringAngleTool",m_scatteringAngleTool);
     declareProperty("MuonSelectionTool", m_selectorTool);
-    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);	
+    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);
+    declareProperty("TrackSegmentAssociationTool",m_trackSegmentAssociationTool);
     declareProperty("BuildStauContainer",m_buildStauContainer=false);
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
     declareProperty("FillAlignmentEffectsOnTrack",m_fillAlignmentEffectsOnTrack=true);

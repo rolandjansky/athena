@@ -51,8 +51,7 @@ void test1 (Trk::NewtonTrkDistanceFinder& tool)
   Trk::Perigee p1a (pos1a, mom1a,  1, pos1a);
   Trk::Perigee p1b (pos1b, mom1b, -1, pos1b);
 
-  Trk::TwoPointOnTrack pot = tool.GetClosestPoints (p1a, p1b);
-  Trk::TwoPoints pp = tool.GetClosestPoints();
+  Trk::TwoPoints pp = tool.GetClosestPoints (p1a, p1b);
 
   assertVec3D (pp.first,  { -2.6655,  1.99717, 0.3325  } );
   assertVec3D (pp.second, { -1.99717, 2.6655, -0.3325  } );
@@ -74,8 +73,7 @@ void test1 (Trk::NewtonTrkDistanceFinder& tool)
 
   Trk::Perigee p3a (pos3a, mom3a,  1, pos3a);
   Trk::Perigee p3b (pos3b, mom3b, -1, pos3b);
-  pot = tool.GetClosestPoints (p3a, p3b);
-  pp = tool.GetClosestPoints();
+  pp = tool.GetClosestPoints (p3a, p3b);
   assertVec3D (pp.first,  { -9.47935, 0.437956, -0.603394 });
   assertVec3D (pp.second, { -4.46622, 4.67974,  -2.14596  });
 }

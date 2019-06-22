@@ -30,10 +30,9 @@ AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import fastCaloSequenceCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
     
-    fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) 
+    fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, None ) 
     electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
     precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 

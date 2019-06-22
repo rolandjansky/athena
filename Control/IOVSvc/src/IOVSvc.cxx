@@ -8,7 +8,6 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: IOVSvc.cxx,v 1.66 2008-06-04 23:35:03 leggett Exp $
  *
  *  Provides automatic updating and callbacks for time dependent data
  *
@@ -568,15 +567,19 @@ StatusCode
 IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) {
 
   std::string store(storeName);
+  std::string toolName("IOVSvcTool");
   if (storeName == "default") store = defaultStore;
 
-  ATH_MSG_DEBUG( "Creating IOVSvcTool associated with store \"" << store
+  // Append the store name if not default
+  if (store != defaultStore) toolName += ("_" + store);
+
+  ATH_MSG_DEBUG( "Creating " << toolName << " associated with store \"" << store
                  << "\""  );
 
   toolMap::iterator itr = m_toolMap.find( store );
   if ( itr == m_toolMap.end() ) {
     ist = nullptr;
-    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + store, ist, this ).isFailure()) {
+    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + toolName, ist, this ).isFailure()) {
       ATH_MSG_ERROR( "Unable to create IOVSvcTool associated with store \"" 
                      << store << "\""  );
       return StatusCode::FAILURE;

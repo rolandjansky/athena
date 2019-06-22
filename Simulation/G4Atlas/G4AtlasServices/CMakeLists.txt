@@ -33,6 +33,11 @@ atlas_add_test( G4AtlasFieldServices_test
                 SCRIPT test/G4AtlasFieldServices_test.py
                 PROPERTIES TIMEOUT 300 )
 
+#test G4AtlasServicesConfig
+atlas_add_test( G4AtlasServicesConfig_test
+                SCRIPT test/G4AtlasServicesConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 
 # Install files from the package:
 atlas_install_headers( G4AtlasServices )

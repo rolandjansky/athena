@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiBlockRangeContainerConverter.h"
@@ -181,16 +181,12 @@ LumiBlockRangeContainerConverter::GetGRLObject( const xAOD::LumiBlockRangeContai
     Root::TGoodRun goodrun;
     int prev_runnbr(-1), cur_runnbr(-1), cur_lbstart(-1), cur_lbstop(-1);
 
-
-    xAOD::LumiBlockRangeContainer::const_iterator ib = lbc.begin();
-    xAOD::LumiBlockRangeContainer::const_iterator ie = lbc.end();
-  
-    for( xAOD::LumiBlockRangeContainer::const_iterator i=ib; i!=ie; i++) {
+    for (const xAOD::LumiBlockRange* lbr : lbc) {
       //    for( xAOD::LumiBlockRangeContainer::const_iterator it=lbc.begin(); it != lbc.end(); ++it ) {
       //      const LB_IOVRange* iovr = (*it);
-      cur_runnbr = (*i)->startRunNumber();
-      cur_lbstart = (*i)->startLumiBlockNumber();
-      cur_lbstop = (*i)->stopLumiBlockNumber();
+      cur_runnbr = lbr->startRunNumber();
+      cur_lbstart = lbr->startLumiBlockNumber();
+      cur_lbstop = lbr->stopLumiBlockNumber();
       // store previous run and reset
       if (prev_runnbr!=cur_runnbr) {
         if (prev_runnbr>=0) { (*grl)[prev_runnbr]=goodrun; }
