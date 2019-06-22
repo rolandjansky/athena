@@ -19,5 +19,7 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
   Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
+  std::vector<std::string> m_expert;
+  std::vector<std::string> m_shifter;
 };
 #endif

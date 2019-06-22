@@ -7,7 +7,11 @@
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
   ,m_doRandom(true)
-{}
+  ,m_expert{},m_shifter{}
+{
+  declareProperty ("expert", m_expert);
+  declareProperty ("shifter", m_shifter);
+}
 
 
 TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
@@ -45,6 +49,24 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto tool = getGroup("TrigBjetMonitor");
     fill(tool,run);
   */
+
+  /* print the trigger chain names */
+
+  std::string chainName;
+  int size_expert = m_expert.size();
+  ATH_MSG_INFO(" Size of the expert trigger container: " << size_expert );
+  for (int i =0; i<size_expert; i++){
+    chainName = m_expert.at(i);
+    ATH_MSG_INFO("  Chain number: " << i << " Expert Chain Name: " << chainName );
+  }
+  int size_shifter = m_shifter.size();
+  ATH_MSG_INFO(" Size of the shifter trigger container: " << size_shifter );
+  for (int i =0; i<size_shifter; i++){
+    chainName = m_shifter.at(i);
+    ATH_MSG_INFO("  Chain number: " << i << " Shifter Chain Name: " << chainName );
+  }
+
+  /* Fill some of the histograms with random values */ 
 
     auto E1d0 = Monitored::Scalar<float>("E1d0",0.0);
     auto E2d0 = Monitored::Scalar<float>("E2d0",0.0);

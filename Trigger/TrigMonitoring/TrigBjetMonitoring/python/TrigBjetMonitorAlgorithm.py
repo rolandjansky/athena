@@ -75,6 +75,8 @@ def TrigBjetMonConfig(inputFlags):
             shifter.append(chain[2:])
     print " ==> expert folder: ", expert
     print " ==> shifter folder: ", shifter
+    trigBjetMonAlg.expert = expert
+    trigBjetMonAlg.shifter = shifter
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
@@ -107,10 +109,17 @@ def TrigBjetMonConfig(inputFlags):
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
     print " ==> expert[0]: ", expert[0]
-    myGroup.defineHistogram('E1d0;E1d0', title='Distribution of d0;d0;Events',
-                            path=expert[0],xbins=10,xmin=-1.0,xmax=1.0)
-    myGroup.defineHistogram('E2d0;E2d0', title='Distribution of d0;d0;Events',
-                            path=expert[1],xbins=10,xmin=-1.0,xmax=1.0)
+
+    for i in range ( len(expert) ) :
+        EHist = 'E' + str(i+1) + 'd0;E' + str(i+1) + 'd0'
+        print " ==> EHist: ", EHist
+        myGroup.defineHistogram(EHist, title='Distribution of d0;d0;Events',
+                                path=expert[i],xbins=10,xmin=-1.0,xmax=1.0)
+
+    #myGroup.defineHistogram('E1d0;E1d0', title='Distribution of d0;d0;Events',
+    #                        path=expert[0],xbins=10,xmin=-1.0,xmax=1.0)
+    #myGroup.defineHistogram('E2d0;E2d0', title='Distribution of d0;d0;Events',
+    #                        path=expert[1],xbins=10,xmin=-1.0,xmax=1.0)
 
     #myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
     #                        path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
@@ -123,10 +132,18 @@ def TrigBjetMonConfig(inputFlags):
 
 
     print " ==> shifter[0]: ", shifter[0]
-    shifterGroup.defineHistogram('S1d0;S1d0', title='Distribution of d0;d0;Events',
-                                 path=shifter[0],xbins=10,xmin=-1.0,xmax=1.0)
-    shifterGroup.defineHistogram('S2d0;S2d0', title='Distribution of d0;d0;Events',
-                                 path=shifter[1],xbins=10,xmin=-1.0,xmax=1.0)
+
+    for i in range ( len(shifter) ) :
+        SHist = 'S' + str(i+1) + 'd0;S' + str(i+1) + 'd0'
+        print " ==> SHist: ", SHist
+        shifterGroup.defineHistogram(SHist, title='Distribution of d0;d0;Events',
+                                     path=shifter[i],xbins=10,xmin=-1.0,xmax=1.0)
+
+    #shifterGroup.defineHistogram('S1d0;S1d0', title='Distribution of d0;d0;Events',
+    #                             path=shifter[0],xbins=10,xmin=-1.0,xmax=1.0)
+    #shifterGroup.defineHistogram('S2d0;S2d0', title='Distribution of d0;d0;Events',
+    #                             path=shifter[1],xbins=10,xmin=-1.0,xmax=1.0)
+
     shifterGroup.defineHistogram('S2IP3D_pu;S2IP3D_pu', title='IP3D_pu probability distribution;IP3D_pu;Events',
                                  path=shifter[1],xbins=50,xmin=0.0,xmax=1.0)
 
