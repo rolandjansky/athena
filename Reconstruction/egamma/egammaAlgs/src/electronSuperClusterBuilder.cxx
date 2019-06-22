@@ -236,7 +236,7 @@ const std::vector<std::size_t> electronSuperClusterBuilder::searchForSecondaryCl
 
   float qoverp = seedEgammaRec->trackParticle()->qOverP();
   float seedEOverP = seedEgammaRec->caloCluster()->e() * emFrac * fabs(qoverp);
-  bool doBremSatellite = (seedEOverP > m_secEOverPCut);
+  bool doBremSatellite = (seedEOverP < m_secEOverPCut);
   
   for (std::size_t i = 0 ; i < egammaRecs->size();++i) {    
     //if already used continue
