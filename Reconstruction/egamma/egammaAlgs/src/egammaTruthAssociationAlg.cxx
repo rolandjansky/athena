@@ -321,6 +321,10 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
 
     // Decorate the corresponding truth particle with the link to the reco
     if (m_doEgammaTruthContainer) {
+      if (!egammaTruthContainer) {
+	ATH_MSG_ERROR("The egammaTruthContainer needs to be valid");
+	return StatusCode::FAILURE;
+      }
       const xAOD::TruthParticle *truth = xAOD::TruthHelpers::getTruthParticle(*particle);
       if (truth) {
 	xAOD::TruthParticle *truthEgamma = getEgammaTruthParticle(truth, *egammaTruthContainer);
