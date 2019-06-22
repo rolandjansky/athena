@@ -29,7 +29,7 @@ def _get_prop_value(pycomp, propname):
     v = pycomp.properties()[propname]
     if v == pycomp.propertyNoValue:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if propname == 'OutputLevel':
+        if propname == 'OutputLevel' and hasattr (svcMgr, 'MessageSvc'):
             # special case of OutputLevel...
             v = getattr(svcMgr.MessageSvc, propname)
         else:

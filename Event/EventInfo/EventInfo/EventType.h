@@ -1,7 +1,7 @@
 // dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_EVENTTYPE_H
@@ -129,7 +129,7 @@ public:
     void                get_detdescr_tags(NameTagPairVec& pairs) const;
 
     /// Access DetDescr tags as a single string
-    const std::string&  get_detdescr_tags() const;
+    std::string  get_detdescr_tags() const;
 
     /// Access to the MC generator channel number (was used as run
     /// number for generator events)
