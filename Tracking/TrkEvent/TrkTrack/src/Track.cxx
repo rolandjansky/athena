@@ -202,7 +202,7 @@ void Trk::Track::findPerigeeImpl() const
     {
       if ((*it)->type(TrackStateOnSurface::Perigee)){
         tmpPerigeeParameters = dynamic_cast<const Trk::Perigee*>( (*it)->trackParameters() ) ;
-        if(tmpPerigeeParameters!=nullptr{
+        if(tmpPerigeeParameters!=nullptr){
         break; // found perigee so stop loop.
         }
       }
