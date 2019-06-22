@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -39,8 +39,6 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
-jetContainer = "AntiKt4EMTopoJets"
-
 if not dataType in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
 
@@ -59,22 +57,10 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Set up the systematics loader/handler algorithm:
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-config.sigmaRecommended = 1
-job.algsAdd( config )
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-print( jetSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in jetSequence:
+from FTagAnalysisAlgorithms.FTagAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
+for alg in algSeq:
     job.algsAdd( alg )
     pass
 
