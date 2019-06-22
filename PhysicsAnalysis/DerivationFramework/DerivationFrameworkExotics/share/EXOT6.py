@@ -157,6 +157,15 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot6Seq,"EXOT6")
 
+#q/g tagging
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot6Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot6Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
