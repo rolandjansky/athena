@@ -40,13 +40,24 @@ StatusCode egammaTruthAssociationAlg::initialize() {
   ATH_CHECK(m_truthParticleContainerKey.initialize());
 
   // Now the standard decoration handles
-  ATH_CHECK(initializeDecorKeys(m_electronDecKeys, m_electronDecName));
-  ATH_CHECK(initializeDecorKeys(m_photonDecKeys, m_photonDecName));
+  if (m_matchElectrons) {
+    ATH_CHECK(initializeDecorKeys(m_electronDecKeys, m_electronDecName));
+  } else {
+    m_electronDecKeys.clear();
+  }
+
+  if (m_matchPhotons) {
+    ATH_CHECK(initializeDecorKeys(m_photonDecKeys, m_photonDecName));
+  } else {
+    m_photonDecKeys.clear();
+  }
+
   if (m_matchClusters) {
     ATH_CHECK(initializeDecorKeys(m_clusterDecKeys, m_clusterDecName));
   } else {
     m_clusterDecKeys.clear();
   }
+
   if (m_matchForwardElectrons){
     ATH_CHECK(initializeDecorKeys(m_fwdElectronDecKeys, m_fwdElectronDecName));
   } else {
@@ -104,19 +115,24 @@ StatusCode egammaTruthAssociationAlg::execute() {
   static const SG::AuxElement::Accessor<ElectronLink_t> accElLink("recoElectronLink");
   static const SG::AuxElement::Accessor<PhotonLink_t> accPhLink("recoPhotonLink");
 
-  ATH_MSG_DEBUG("About to match electrons");
-  ATH_CHECK( match(*truthParticles, m_electronDecKeys, accElLink, *egammaTruthContainer) );
+  if (m_matchElectrons) {
+    ATH_MSG_DEBUG("About to match electrons");
+    ATH_CHECK( match(*truthParticles, m_electronDecKeys, accElLink, egammaTruthContainer.ptr()) );
+  }
 
-  ATH_MSG_DEBUG("About to match photons");
-  ATH_CHECK( match(*truthParticles, m_photonDecKeys, accPhLink,	*egammaTruthContainer) );
+  if (m_matchPhotons) {
+    ATH_MSG_DEBUG("About to match photons");
+    ATH_CHECK( match(*truthParticles, m_photonDecKeys, accPhLink, egammaTruthContainer.ptr()) );
+  }
 
   if (m_matchClusters) {
     ATH_MSG_DEBUG("About to match clusters");
-    ATH_CHECK( match(*truthParticles, m_clusterDecKeys,	accClusLink, *egammaTruthContainer) );
+    ATH_CHECK( match(*truthParticles, m_clusterDecKeys,	accClusLink, egammaTruthContainer.ptr()) );
   }
+
   if (m_matchForwardElectrons){
     ATH_MSG_DEBUG("About to match fwd electrons");
-    ATH_CHECK( match(*truthParticles, m_fwdElectronDecKeys, accElLink, *egammaTruthContainer) );
+    ATH_CHECK( match(*truthParticles, m_fwdElectronDecKeys, accElLink, egammaTruthContainer.ptr()) );
   }
 
   return StatusCode::SUCCESS;
@@ -279,7 +295,7 @@ template<class T, class L>
 StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& truthParticles,
 					    const SG::WriteDecorHandleKeyArray<T>& hkeys,
 					    const SG::AuxElement::Accessor<L>& linkAccess,
-					    xAOD::TruthParticleContainer& egammaTruthContainer) {
+					    xAOD::TruthParticleContainer* egammaTruthContainer) {
 
   writeDecorHandles<T> decoHandles(hkeys);
 
@@ -307,7 +323,7 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
     if (m_doEgammaTruthContainer) {
       const xAOD::TruthParticle *truth = xAOD::TruthHelpers::getTruthParticle(*particle);
       if (truth) {
-	xAOD::TruthParticle *truthEgamma = getEgammaTruthParticle(truth, egammaTruthContainer);
+	xAOD::TruthParticle *truthEgamma = getEgammaTruthParticle(truth, *egammaTruthContainer);
 	if (truthEgamma) {
 	  // we found a truthEgamma object we should annotate if this is the best link
 	  bool annotateLink = true; // by default we annotate

@@ -87,7 +87,7 @@ private:
   template<class T, class L> StatusCode match(const xAOD::TruthParticleContainer& truthParticles,
 					      const SG::WriteDecorHandleKeyArray<T>& hkeys,
 					      const SG::AuxElement::Accessor<L>& linkAccess,
-					      xAOD::TruthParticleContainer& egammaTruthContainer) ;
+					      xAOD::TruthParticleContainer* egammaTruthContainer) ;
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
@@ -115,6 +115,16 @@ private:
       "CreateEgammaTruthContainer", true,
       "Create egammaTruthContainer?"};
   
+  /** @brief Match electrons? **/
+  Gaudi::Property<bool> m_matchElectrons {this,
+      "MatchElectrons", true,
+      "Match (central) electrons?"};
+
+  /** @brief Match photons? **/
+  Gaudi::Property<bool> m_matchPhotons {this, 
+      "MatchPhotons", true,
+      "Match photons?"};
+
   /** @brief Match fwd electrons? **/
   Gaudi::Property<bool> m_matchForwardElectrons {this,
       "MatchForwardElectrons", true,
