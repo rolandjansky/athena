@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -101,13 +101,10 @@ namespace Trk {
      unsigned int arrayObjectsNumber() const { return 1; }
 
      /** Return the BinUtility*/
-     const BinUtility* binUtility() const { return 0; }
+     const BinUtility* binUtility() const { return nullptr; }
 
      /** Return the transform*/
-     const Amg::Transform3D* transform() const { return 0; }
-
-     /** Reposition */
-     void updateTransform( Amg::Transform3D& ) const { }
+     const Amg::Transform3D* transform() const { return nullptr; }
 
     private:
      SharedObject<const T>                          m_array;        //!< direct storage of the object
