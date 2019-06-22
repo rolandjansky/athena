@@ -152,14 +152,7 @@ StatusCode MdtCalibrationTool::initialize() {
 
   m_imp->settings.initialize();
   // initialize the MdtIdHelper
-  //TODO: Use detStore() directly
-  ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", name());
-  if ( detStore.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Can't locate the DetectorStore" );
-    return StatusCode::FAILURE;
-  }
-
-  if ( detStore->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
+  if ( detStore()->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MdtIdHelper" );
     return StatusCode::FAILURE;
   }
@@ -170,7 +163,7 @@ StatusCode MdtCalibrationTool::initialize() {
     m_imp->m_BMGid = m_imp->m_mdtIdHelper->stationNameIndex("BMG");
   }
   // initialise MuonGeoModel access
-  if ( detStore->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
+  if ( detStore()->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MuonDetectorManager" );
     return StatusCode::FAILURE;
   }
