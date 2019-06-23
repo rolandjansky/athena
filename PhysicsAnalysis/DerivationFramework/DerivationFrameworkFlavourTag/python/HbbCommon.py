@@ -640,7 +640,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
    if jetToolName not in DFJetAlgs:
      ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMPFlowJets", OutputJetContainer="AntiKt8EMPFlowJets")
      getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
-     getattr(ToolSvc,jetToolName).InputJetPtMin = 0
+     getattr(ToolSvc,jetToolName).InputJetPtMin = 20
      getattr(ToolSvc,jetToolName).RCJetPtMin = 1
      getattr(ToolSvc,jetToolName).RCJetPtFrac = 0
      getattr(ToolSvc,jetToolName).DoArea = False
