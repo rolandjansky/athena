@@ -63,20 +63,20 @@ namespace G4UA{
     ATH_MSG_INFO( "Initializing     " << name() << "\n" <<
                   "OutputFile:      " << m_radMapsFileName   << "\n"                 << 
                   "Material:        " << m_config.material   << "\n"                 << 
-                  "2D Maps:         " << m_config.nBinsz     << " |z|-bins, "        << 
+                  "2D Maps:         " << m_config.nBinsz     << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")          << 
 		                         m_config.nBinsr     << " r-bins"            << "\n"                << 
-		  "Zoom:            " << m_config.zMinZoom   << " < |z|/cm < "       << m_config.zMaxZoom   << ", " << 
+		  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxZoom     << ", " << 
                                          m_config.rMinZoom   << " < r/cm < "         << m_config.rMaxZoom   << "\n" << 
-                  "Full:            " << m_config.zMinFull   << " < |z|/cm < "       << m_config.zMaxFull   << ", " << 
+                  "Full:            " << m_config.zMinFull   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxFull     << ", " << 
                                          m_config.rMinFull   << " < r/cm < "         << m_config.rMaxFull   << "\n" << 
                   "Neutron Spectra: " << m_config.nBinslogEn << " log10E-bins"       << ", "                <<
                                          m_config.logEMinn   << " < log10(E/MeV) < " << m_config.logEMaxn   << "\n" << 
                   "Other Spectra:   " << m_config.nBinslogEo << " log10E-bins"       << ", "                <<
                                          m_config.logEMino   << " < log10(E/MeV) < " << m_config.logEMaxo   << "\n" << 
-                  "3D Maps:         " << m_config.nBinsz3d   << " |z|-bins, "       << 
+                  "3D Maps:         " << m_config.nBinsz3d   << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")         << 
                                          m_config.nBinsr3d   << " r-bins, "         << 
                                          m_config.nBinsphi3d << " phi-bins"         << "\n"                << 
-                  "Zoom:            " << m_config.zMinZoom   << " < |z|/cm < "      << m_config.zMaxZoom   << ", " << 
+                  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxZoom   << ", " << 
                                          m_config.rMinZoom   << " < r/cm < "        << m_config.rMaxZoom   << ", " <<
                                          m_config.phiMinZoom << " < phi/degrees < " << m_config.phiMaxZoom );
       
@@ -203,12 +203,14 @@ namespace G4UA{
     TH2D * h_rz_neut = new TH2D("rz_neut","rz_neut",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
     TH2D * h_rz_chad = new TH2D("rz_chad","rz_chad",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
 
-    h_rz_tid  ->SetXTitle("|z| [cm]");
-    h_rz_eion ->SetXTitle("|z| [cm]");
-    h_rz_niel ->SetXTitle("|z| [cm]");
-    h_rz_h20  ->SetXTitle("|z| [cm]");
-    h_rz_neut ->SetXTitle("|z| [cm]");
-    h_rz_chad ->SetXTitle("|z| [cm]");
+    const char * xtitle =  (m_config.zMinFull<0?"z [cm]":"|z| [cm]");
+
+    h_rz_tid  ->SetXTitle(xtitle);
+    h_rz_eion ->SetXTitle(xtitle);
+    h_rz_niel ->SetXTitle(xtitle);
+    h_rz_h20  ->SetXTitle(xtitle);
+    h_rz_neut ->SetXTitle(xtitle);
+    h_rz_chad ->SetXTitle(xtitle);
 
     h_rz_tid  ->SetYTitle("r [cm]");
     h_rz_eion ->SetYTitle("r [cm]");
@@ -231,12 +233,12 @@ namespace G4UA{
     TH2D *h_full_rz_neut = new TH2D("full_rz_neut","full_rz_neut",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
     TH2D *h_full_rz_chad = new TH2D("full_rz_chad","full_rz_chad",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
 
-    h_full_rz_tid  ->SetXTitle("|z| [cm]");
-    h_full_rz_eion ->SetXTitle("|z| [cm]");
-    h_full_rz_niel ->SetXTitle("|z| [cm]");
-    h_full_rz_h20  ->SetXTitle("|z| [cm]");
-    h_full_rz_neut ->SetXTitle("|z| [cm]");
-    h_full_rz_chad ->SetXTitle("|z| [cm]");
+    h_full_rz_tid  ->SetXTitle(xtitle);
+    h_full_rz_eion ->SetXTitle(xtitle);
+    h_full_rz_niel ->SetXTitle(xtitle);
+    h_full_rz_h20  ->SetXTitle(xtitle);
+    h_full_rz_neut ->SetXTitle(xtitle);
+    h_full_rz_chad ->SetXTitle(xtitle);
 
     h_full_rz_tid  ->SetYTitle("r [cm]");
     h_full_rz_eion ->SetYTitle("r [cm]");
@@ -259,12 +261,12 @@ namespace G4UA{
     TH3D * h_3d_neut = new TH3D("h3d_neut","h3d_neut",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
     TH3D * h_3d_chad = new TH3D("h3d_chad","h3d_chad",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
 
-    h_3d_tid  ->SetXTitle("|z| [cm]");
-    h_3d_eion ->SetXTitle("|z| [cm]");
-    h_3d_niel ->SetXTitle("|z| [cm]");
-    h_3d_h20  ->SetXTitle("|z| [cm]");
-    h_3d_neut ->SetXTitle("|z| [cm]");
-    h_3d_chad ->SetXTitle("|z| [cm]");
+    h_3d_tid  ->SetXTitle(xtitle);
+    h_3d_eion ->SetXTitle(xtitle);
+    h_3d_niel ->SetXTitle(xtitle);
+    h_3d_h20  ->SetXTitle(xtitle);
+    h_3d_neut ->SetXTitle(xtitle);
+    h_3d_chad ->SetXTitle(xtitle);
 
     h_3d_tid  ->SetYTitle("r [cm]");
     h_3d_eion ->SetYTitle("r [cm]");
@@ -291,12 +293,12 @@ namespace G4UA{
     TH3D *h_full_rz_neut_spec = new TH3D("full_rz_neut_spec","full_rz_neut_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEn,m_config.logEMinn,m_config.logEMaxn);
     TH3D *h_rz_neut_spec      = new TH3D("rz_neut_spec","rz_neut_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEn,m_config.logEMinn,m_config.logEMaxn);
 
-    h_rz_neut_spec      ->SetXTitle("|z| [cm]");
+    h_rz_neut_spec      ->SetXTitle(xtitle);
     h_rz_neut_spec      ->SetYTitle("r [cm]");
     h_rz_neut_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_neut_spec      ->SetTitle("FLUX [n(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_neut_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_neut_spec ->SetXTitle(xtitle);
     h_full_rz_neut_spec ->SetYTitle("r [cm]");
     h_full_rz_neut_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_neut_spec ->SetTitle("FLUX [n(log_{10}(E/MeV))/cm^{2}]");
@@ -305,12 +307,12 @@ namespace G4UA{
     TH3D *h_full_rz_gamm_spec = new TH3D("full_rz_gamm_spec","full_rz_gamm_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_gamm_spec      = new TH3D("rz_gamm_spec","rz_gamm_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_gamm_spec      ->SetXTitle("|z| [cm]");
+    h_rz_gamm_spec      ->SetXTitle(xtitle);
     h_rz_gamm_spec      ->SetYTitle("r [cm]");
     h_rz_gamm_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_gamm_spec      ->SetTitle("FLUX [#gamma(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_gamm_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_gamm_spec ->SetXTitle(xtitle);
     h_full_rz_gamm_spec ->SetYTitle("r [cm]");
     h_full_rz_gamm_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_gamm_spec ->SetTitle("FLUX [#gamma(log_{10}(E/MeV))/cm^{2}]");
@@ -319,12 +321,12 @@ namespace G4UA{
     TH3D *h_full_rz_elec_spec = new TH3D("full_rz_elec_spec","full_rz_elec_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_elec_spec      = new TH3D("rz_elec_spec","rz_elec_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_elec_spec      ->SetXTitle("|z| [cm]");
+    h_rz_elec_spec      ->SetXTitle(xtitle);
     h_rz_elec_spec      ->SetYTitle("r [cm]");
     h_rz_elec_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_elec_spec      ->SetTitle("FLUX [e^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_elec_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_elec_spec ->SetXTitle(xtitle);
     h_full_rz_elec_spec ->SetYTitle("r [cm]");
     h_full_rz_elec_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_elec_spec ->SetTitle("FLUX [e^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -333,12 +335,12 @@ namespace G4UA{
     TH3D *h_full_rz_muon_spec = new TH3D("full_rz_muon_spec","full_rz_muon_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_muon_spec      = new TH3D("rz_muon_spec","rz_muon_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_muon_spec      ->SetXTitle("|z| [cm]");
+    h_rz_muon_spec      ->SetXTitle(xtitle);
     h_rz_muon_spec      ->SetYTitle("r [cm]");
     h_rz_muon_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_muon_spec      ->SetTitle("FLUX [#mu^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_muon_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_muon_spec ->SetXTitle(xtitle);
     h_full_rz_muon_spec ->SetYTitle("r [cm]");
     h_full_rz_muon_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_muon_spec ->SetTitle("FLUX [#mu^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -347,12 +349,12 @@ namespace G4UA{
     TH3D *h_full_rz_pion_spec = new TH3D("full_rz_pion_spec","full_rz_pion_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_pion_spec      = new TH3D("rz_pion_spec","rz_pion_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_pion_spec      ->SetXTitle("|z| [cm]");
+    h_rz_pion_spec      ->SetXTitle(xtitle);
     h_rz_pion_spec      ->SetYTitle("r [cm]");
     h_rz_pion_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_pion_spec      ->SetTitle("FLUX [#pi^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_pion_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_pion_spec ->SetXTitle(xtitle);
     h_full_rz_pion_spec ->SetYTitle("r [cm]");
     h_full_rz_pion_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_pion_spec ->SetTitle("FLUX [#pi^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -361,12 +363,12 @@ namespace G4UA{
     TH3D *h_full_rz_prot_spec = new TH3D("full_rz_prot_spec","full_rz_prot_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_prot_spec      = new TH3D("rz_prot_spec","rz_prot_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_prot_spec      ->SetXTitle("|z| [cm]");
+    h_rz_prot_spec      ->SetXTitle(xtitle);
     h_rz_prot_spec      ->SetYTitle("r [cm]");
     h_rz_prot_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_prot_spec      ->SetTitle("FLUX [p(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_prot_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_prot_spec ->SetXTitle(xtitle);
     h_full_rz_prot_spec ->SetYTitle("r [cm]");
     h_full_rz_prot_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_prot_spec ->SetTitle("FLUX [p(log_{10}(E/MeV))/cm^{2}]");
@@ -375,12 +377,12 @@ namespace G4UA{
     TH3D *h_full_rz_rest_spec = new TH3D("full_rz_rest_spec","full_rz_rest_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_rest_spec      = new TH3D("rz_rest_spec","rz_rest_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_rest_spec      ->SetXTitle("|z| [cm]");
+    h_rz_rest_spec      ->SetXTitle(xtitle);
     h_rz_rest_spec      ->SetYTitle("r [cm]");
     h_rz_rest_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_rest_spec      ->SetTitle("FLUX [rest(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_rest_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_rest_spec ->SetXTitle(xtitle);
     h_full_rz_rest_spec ->SetYTitle("r [cm]");
     h_full_rz_rest_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_rest_spec ->SetTitle("FLUX [rest(log_{10}(E/MeV))/cm^{2}]");
@@ -406,8 +408,8 @@ namespace G4UA{
       h_3d_vol  = new TH3D("h3d_vol" ,"h3d_vol" ,m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
       h_3d_norm = new TH3D("h3d_norm","h3d_norm",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
 
-      h_rz_vol  ->SetXTitle("|z| [cm]");
-      h_rz_norm ->SetXTitle("|z| [cm]");
+      h_rz_vol  ->SetXTitle(xtitle);
+      h_rz_norm ->SetXTitle(xtitle);
       h_rz_vol  ->SetYTitle("r [cm]");
       h_rz_norm ->SetYTitle("r [cm]");
       std::string hname("Volume fraction of ");
@@ -415,15 +417,15 @@ namespace G4UA{
       h_rz_vol  ->SetZTitle(hname.data());
       h_rz_norm ->SetZTitle("Volume norm");
 
-      h_full_rz_vol  ->SetXTitle("|z| [cm]");
-      h_full_rz_norm ->SetXTitle("|z| [cm]");
+      h_full_rz_vol  ->SetXTitle(xtitle);
+      h_full_rz_norm ->SetXTitle(xtitle);
       h_full_rz_vol  ->SetYTitle("r [cm]");
       h_full_rz_norm ->SetYTitle("r [cm]");
       h_full_rz_vol  ->SetZTitle(hname.data());
       h_full_rz_norm ->SetZTitle("Volume norm");
 
-      h_3d_vol  ->SetXTitle("|z| [cm]");
-      h_3d_norm ->SetXTitle("|z| [cm]");
+      h_3d_vol  ->SetXTitle(xtitle);
+      h_3d_norm ->SetXTitle(xtitle);
       h_3d_vol  ->SetYTitle("r [cm]");
       h_3d_norm ->SetYTitle("r [cm]");
       h_3d_vol  ->SetZTitle("#phi [#circ]");
@@ -442,7 +444,9 @@ namespace G4UA{
 	double r1=h_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
 	double z1=h_rz_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0);
+	// if |z| instead of z double the volume
+	if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	double val;
 	// TID
 	val =m_report.m_rz_tid[vBin];
@@ -520,7 +524,9 @@ namespace G4UA{
 	double r1=h_full_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_full_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
 	double z1=h_full_rz_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	// if |z| instead of z double the volume
+	if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	double val;
 	// TID
 	val =m_report.m_full_rz_tid[vBin];
@@ -601,7 +607,9 @@ namespace G4UA{
 	  double r1=h_3d_tid->GetYaxis()->GetBinUpEdge(j+1);
 	  double z0=h_3d_tid->GetXaxis()->GetBinLowEdge(i+1);
 	  double z1=h_3d_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	  double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
+	  double vol=(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
+	  // if |z| instead of z double the volume
+	  if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	  // assume that phi-range corresponds to full 360 degrees in case 
 	  // lower phi boundary is 0 - i.e. all phi-segments mapped to first
 	  if ( m_config.phiMinZoom == 0 ) {

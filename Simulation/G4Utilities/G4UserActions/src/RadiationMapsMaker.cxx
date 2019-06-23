@@ -406,7 +406,10 @@ namespace G4UA{
       double dE_ION = dE_TOT-dE_NIEL;
 
       for(unsigned int i=0;i<nStep;i++) {
-	double absz = fabs(z0+dz*(i+0.5));
+	double abszorz = z0+dz*(i+0.5);
+	// if |z| instead of z take abs value
+	if ( m_config.zMinFull >= 0 ) abszorz = fabs(abszorz);
+
 	double rr = sqrt(pow(x0+dx*(i+0.5),2)+
 			 pow(y0+dy*(i+0.5),2));
 	double pphi = atan2(y0+dy*(i+0.5),x0+dx*(i+0.5))*180/M_PI;
@@ -420,9 +423,9 @@ namespace G4UA{
 	int vBinFullSpeco = -1;
 	
 	// zoom 2d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr;
@@ -443,9 +446,9 @@ namespace G4UA{
 	}
 	
 	// full 2d
-	if ( m_config.zMinFull < absz && 
-	     m_config.zMaxFull > absz ) {
-	  int iz = (absz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
+	if ( m_config.zMinFull < abszorz && 
+	     m_config.zMaxFull > abszorz ) {
+	  int iz = (abszorz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
 	  if ( m_config.rMinFull < rr && 
 	       m_config.rMaxFull > rr ) {
 	    int ir = (rr-m_config.rMinFull)/(m_config.rMaxFull-m_config.rMinFull)*m_config.nBinsr;
@@ -466,9 +469,9 @@ namespace G4UA{
 	}
 	
 	// zoom 3d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr3d;
