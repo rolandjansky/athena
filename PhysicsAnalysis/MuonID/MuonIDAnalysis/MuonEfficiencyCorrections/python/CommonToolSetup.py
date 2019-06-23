@@ -94,11 +94,11 @@ def GetPRWTool(
         # this default is for MC16a -> data2016
         PRWLumiCalcFiles = [
                "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root", #data15
-               "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",  #data16
-              #  "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root",      #data17
-              # "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root",     #data18
+               "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root", #data16
+               "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root",     #data17
+               "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root",     #data18
            ],
-        PRWMCConfigFiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid%d_FS.root"%(c,mc) for c in ["a","d","e"] for mc in [410470,301534,361107]  ]
+        PRWMCConfigFiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid%d_FS.root"%(c,mc) for c in ["a","d","e"] for mc in [410470,301534,361107, 345060]  ]
                             ):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr

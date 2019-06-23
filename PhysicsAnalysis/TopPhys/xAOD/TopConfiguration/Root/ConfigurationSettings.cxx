@@ -19,6 +19,7 @@ ConfigurationSettings* ConfigurationSettings::m_instance = 0;
 
 ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronCollectionName", "Name of the Electron container");
+    registerParameter("FwdElectronCollectionName", "Name of the Forward Electrons container, ForwardElectrons or None (default)","None");
     registerParameter("MuonCollectionName", "Name of the Muon container");
     registerParameter("PhotonCollectionName", "Name of the Photon container");
     registerParameter("JetCollectionName", "Name of the Jet container");
@@ -55,6 +56,14 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
     registerParameter("UseElectronChargeIDSelection", "True/False. Switch on/off electron charge ID selection (Default False).", "False");
+    
+    registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)","Tight");
+    registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)","Tight");
+    registerParameter("FwdElectronPt", "Fwd Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("FwdElectronMinEta", "Fwd Electron lower |eta| cut for object selection. Default 2.5", "2.5");
+    registerParameter("FwdElectronMaxEta", "Fwd Electron upper |eta| cut for object selection. Default 4.9", "4.9");
+    registerParameter("FwdElectronBCIDCleaningRunRange", "Specify run range for which the BCID cleaning must be applied for fwd el. in data: \"XXX:YYY\"; the cleaning will be applied for XXX<=runNumber<=YYY", "266904:311481");
+
 
     registerParameter("PhotonPt", "Photon pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
@@ -98,6 +107,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
+    registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False" );
     registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).", "Default" );
 
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");

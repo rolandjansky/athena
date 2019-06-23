@@ -8,6 +8,7 @@
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/FlipTagEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -18,7 +19,6 @@
 // STL includes
 #include <string>
 #include <vector>
-#include <regex>
 #include <functional>
 #include <exception>
 
@@ -56,32 +56,6 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackInputConfig> inputs;
   };
 
-  // ____________________________________________________________________
-  // High level adapter stuff
-  //
-  // We define a few structures to map variable names to type, default
-  // value, etc. These are only used by the high level interface.
-  //
-  // TODO: move this stuff into another file, i.e. either DL2HighLevel
-  // or some utility file that is also included in DL2HighLevel.cxx
-  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
-  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
-  typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
-  typedef std::vector<std::pair<std::regex, TrackSelection> > TrkSelRegexes;
-
-  // Function to map the regular expressions + the list of inputs to a
-  // list of variable configurations.
-  std::vector<DL2InputConfig> get_input_config(
-    const std::vector<std::string>& variable_names,
-    const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes);
-  std::vector<DL2TrackSequenceConfig> get_track_input_config(
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
-    const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes,
-    const TrkSelRegexes& select_regexes);
-
-
   // _____________________________________________________________________
   // Internal code
 
@@ -94,6 +68,8 @@ namespace FlavorTagDiscriminants {
     typedef std::function<double(const xAOD::TrackParticle*,
                                  const xAOD::Jet&)> TrackSortVar;
     typedef std::function<bool(const xAOD::TrackParticle*)> TrackFilter;
+    typedef std::function<Tracks(const Tracks&,
+                                 const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
     typedef std::function<NamedVar(const Jet&)> VarFromJet;
@@ -192,13 +168,16 @@ namespace FlavorTagDiscriminants {
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
         const std::vector<DL2TrackSequenceConfig>& = {},
+        FlipTagConfig = FlipTagConfig::STANDARD,
         EDMSchema = EDMSchema::WINTER_2018);
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceBuilder {
-      TrackSequenceBuilder(SortOrder, TrackSelection, EDMSchema);
+      TrackSequenceBuilder(SortOrder, TrackSelection, EDMSchema,
+                           FlipTagConfig);
       std::string name;
       internal::TracksFromJet tracksFromJet;
+      internal::TrackSequenceFilter flipFilter;
       std::vector<internal::SeqFromTracks> sequencesFromTracks;
     };
     typedef std::function<void(const SG::AuxElement&, double)> OutputSetter;
@@ -222,6 +201,7 @@ namespace FlavorTagDiscriminants {
       TrackSortVar trackSortVar(SortOrder, EDMSchema);
       TrackFilter trackFilter(TrackSelection, EDMSchema);
       SeqFromTracks seqFromTracks(const DL2TrackInputConfig&, EDMSchema);
+      TrackSequenceFilter flipFilter(FlipTagConfig, EDMSchema);
     }
   }
 }

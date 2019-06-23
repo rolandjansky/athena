@@ -35,6 +35,10 @@ namespace top {
 
     m_weight_mc(0.),
     m_weight_pileup(0.),
+    
+    m_weight_fwdElSF(0.),
+    m_weight_fwdElSF_FWDEL_SF_ID_UP(0.),
+    m_weight_fwdElSF_FWDEL_SF_ID_DOWN(0.),
 
     // cumulative SF
     m_weight_leptonSF(0.),
@@ -377,6 +381,9 @@ namespace top {
         //some event weights
         systematicTree->makeOutputVariable(m_weight_pileup, "weight_pileup");
         systematicTree->makeOutputVariable(m_weight_leptonSF , "weight_leptonSF");
+        
+        if(m_config->useFwdElectrons())
+			systematicTree->makeOutputVariable( m_weight_fwdElSF , "weight_fwdElSF");
 
         if (m_config->usePhotons())
           systematicTree->makeOutputVariable(m_weight_photonSF,
@@ -417,7 +424,12 @@ namespace top {
 
           systematicTree->makeOutputVariable(m_weight_pileup_UP   , "weight_pileup_UP");
           systematicTree->makeOutputVariable(m_weight_pileup_DOWN   , "weight_pileup_DOWN");
-
+          
+          if(m_config->useFwdElectrons())
+          {
+		systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_UP , "weight_fwdElSF_FWDEL_SF_ID_UP");
+		systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_DOWN , "weight_fwdElSF_FWDEL_SF_ID_DOWN");
+	  }
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_UP,   "weight_leptonSF_EL_SF_Trigger_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_DOWN, "weight_leptonSF_EL_SF_Trigger_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Reco_UP,      "weight_leptonSF_EL_SF_Reco_UP");
@@ -738,6 +750,20 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
       }
+      
+      //forward electrons
+      if (m_config->useFwdElectrons()) {
+	  systematicTree->makeOutputVariable(m_fwdel_pt,      "fwdel_pt");
+	  systematicTree->makeOutputVariable(m_fwdel_eta,     "fwdel_eta");
+	  systematicTree->makeOutputVariable(m_fwdel_phi,     "fwdel_phi");
+	  systematicTree->makeOutputVariable(m_fwdel_e,       "fwdel_e");
+	  systematicTree->makeOutputVariable(m_fwdel_etcone20,      "fwdel_etcone20");
+	  systematicTree->makeOutputVariable(m_fwdel_etcone30,      "fwdel_etcone30");
+	  systematicTree->makeOutputVariable(m_fwdel_etcone40,      "fwdel_etcone40");
+	  if (systematicTree->name().find("Loose") != std::string::npos) {
+		systematicTree->makeOutputVariable(m_fwdel_isTight, "fwdel_isTight");
+	     }
+      }//end of fwd electrons branches
 
       //muons
       if (m_config->useMuons()) {
@@ -832,6 +858,32 @@ namespace top {
           systematicTree->makeOutputVariable(m_jet_DL1rmu_pb, "jet_DL1rmu_pb");
         }
 
+      }
+
+      // fail-JVT jets
+      if (m_config->saveFailJVTJets()) {
+        systematicTree->makeOutputVariable(m_failJvt_jet_pt,      "failJvt_jet_pt");
+        systematicTree->makeOutputVariable(m_failJvt_jet_eta,     "failJvt_jet_eta");
+        systematicTree->makeOutputVariable(m_failJvt_jet_phi,     "failJvt_jet_phi");
+        systematicTree->makeOutputVariable(m_failJvt_jet_e,       "failJvt_jet_e");
+        systematicTree->makeOutputVariable(m_failJvt_jet_jvt,     "failJvt_jet_jvt");
+        systematicTree->makeOutputVariable(m_failJvt_jet_passfjvt,"failJvt_jet_passfjvt");
+        if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
+          systematicTree->makeOutputVariable(m_failJvt_jet_truthflav, "failJvt_jet_truthflav");
+          systematicTree->makeOutputVariable(m_failJvt_jet_truthPartonLabel, "failJvt_jet_truthPartonLabel");
+          systematicTree->makeOutputVariable(m_failJvt_jet_isTrueHS, "failJvt_jet_isTrueHS");
+          systematicTree->makeOutputVariable(m_failJvt_jet_HadronConeExclExtendedTruthLabelID, "failJvt_jet_truthflavExtended");
+        }
+
+        if (m_config->useJetGhostTrack() ) {
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_pt,      "failJvt_jet_ghostTrack_pt");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_eta,     "failJvt_jet_ghostTrack_eta");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_phi,     "failJvt_jet_ghostTrack_phi");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_e,       "failJvt_jet_ghostTrack_e");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_d0,       "failJvt_jet_ghostTrack_d0");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_z0,       "failJvt_jet_ghostTrack_z0");
+          systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_qOverP,       "failJvt_jet_ghostTrack_qOverP");
+        }
       }
 
       //large-R jets
@@ -1515,7 +1567,19 @@ namespace top {
     //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
     //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
     if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
-
+    
+    //forward electrons
+    if (m_config->useFwdElectrons())
+    {
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_pt, "fwdel_pt");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_eta, "fwdel_eta");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_phi, "fwdel_phi");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_e, "fwdel_e");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_etcone20, "fwdel_etcone20");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_etcone30, "fwdel_etcone30");
+      m_upgradeTreeManager->makeOutputVariable(m_fwdel_etcone40, "fwdel_etcone40");
+    }
+	
     // muons
     m_upgradeTreeManager->makeOutputVariable(m_mu_pt, "mu_pt");
     m_upgradeTreeManager->makeOutputVariable(m_mu_eta, "mu_eta");
@@ -1629,7 +1693,9 @@ namespace top {
       m_weight_pileup    = m_sfRetriever->pileupSF(event);
 
       m_weight_leptonSF  = m_sfRetriever->leptonSF(event,top::topSFSyst::nominal);
-
+      if(m_config->useFwdElectrons())
+	    m_weight_fwdElSF  = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::nominal);
+      
       if (m_config->useTaus())
         m_weight_tauSF = m_sfRetriever->tauSF(event, top::topSFSyst::nominal);
 
@@ -1661,6 +1727,12 @@ namespace top {
 
       // writing the systematic-shifted SFs only in the nominal (or nominal_Loose) tree
       if (event.m_hashValue == m_config->nominalHashValue()) {
+		
+	if(m_config->useFwdElectrons())
+	{  
+	   m_weight_fwdElSF_FWDEL_SF_ID_UP = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::FWDEL_SF_ID_UP);
+	   m_weight_fwdElSF_FWDEL_SF_ID_DOWN  = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::FWDEL_SF_ID_DOWN);
+	}
 
         m_weight_pileup_UP = m_sfRetriever->pileupSF( event, +1 ); // up variation
         m_weight_pileup_DOWN = m_sfRetriever->pileupSF( event, -1 ); // down variation
@@ -1952,6 +2024,43 @@ namespace top {
     }
 
     ATH_MSG_DEBUG(" mu = "<<m_mu_original<<" -> "<<m_mu);
+    
+    //forward electrons
+    if (m_config->useFwdElectrons()) {
+      unsigned int i(0);
+      unsigned int n_electrons = event.m_fwdElectrons.size();
+      m_fwdel_pt.resize(n_electrons);
+      m_fwdel_eta.resize(n_electrons);
+      m_fwdel_phi.resize(n_electrons);
+      m_fwdel_e.resize(n_electrons);
+      m_fwdel_etcone20.resize(n_electrons);
+      m_fwdel_etcone30.resize(n_electrons);
+      m_fwdel_etcone40.resize(n_electrons);
+      m_fwdel_isTight.resize(n_electrons);
+      
+      for (const auto* const elPtr : event.m_fwdElectrons) {
+        m_fwdel_pt[i] = elPtr->pt();
+        m_fwdel_eta[i] = elPtr->eta();
+        m_fwdel_phi[i] = elPtr->phi();
+        m_fwdel_e[i] = elPtr->e();
+        
+        float etcone20 = 0.0; elPtr->isolationValue( etcone20 , xAOD::Iso::topoetcone20 );
+	float etcone30 = 0.0; elPtr->isolationValue( etcone30 , xAOD::Iso::topoetcone30 );
+	float etcone40 = 0.0; elPtr->isolationValue( etcone40 , xAOD::Iso::topoetcone40 );
+
+        m_fwdel_etcone20[i] =etcone20;
+        m_fwdel_etcone30[i] =etcone30;
+        m_fwdel_etcone40[i] =etcone40;
+        
+        if (event.m_isLoose) {
+          if (elPtr->isAvailable<char>("passPreORSelection")) {
+            m_fwdel_isTight[i] = elPtr->auxdataConst<char>("passPreORSelection");
+          }
+        }
+           
+        ++i;
+      }//end of loop on fwd electrons
+    }//end of fwd electrons filling
 
     //electrons
     if (m_config->useElectrons()) {
@@ -2377,6 +2486,113 @@ namespace top {
           }
         } // getReleaseSeries == 25
 #endif // ROOTCORE_RELEASE_SERIES
+
+        ++i;
+      }
+    }
+
+    // fail-JVT jets
+    // btagging info is removed since btagging calibration is available for fail-JVT jets
+    if (m_config->saveFailJVTJets()) {
+      unsigned int i(0);
+      m_failJvt_jet_pt.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_eta.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_phi.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_e.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_jvt.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_passfjvt.resize(event.m_failJvt_jets.size());
+
+      // ghost tracks
+      // fail-JVT jet could still have some ghost tracks, so these variables are kept
+      if( m_config->useJetGhostTrack() ){
+	m_failJvt_jet_ghostTrack_pt    .clear();
+	m_failJvt_jet_ghostTrack_eta   .clear();
+	m_failJvt_jet_ghostTrack_phi   .clear();
+	m_failJvt_jet_ghostTrack_e     .clear();
+	m_failJvt_jet_ghostTrack_d0    .clear();
+	m_failJvt_jet_ghostTrack_z0    .clear();
+	m_failJvt_jet_ghostTrack_qOverP.clear();
+
+        m_failJvt_jet_ghostTrack_pt.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_eta.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_phi.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_e.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_d0.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_z0.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_ghostTrack_qOverP.resize(event.m_failJvt_jets.size());
+      }
+
+      if (m_config->isMC()) {
+        m_failJvt_jet_truthflav.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_truthPartonLabel.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_isTrueHS.resize(event.m_failJvt_jets.size());
+        m_failJvt_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_failJvt_jets.size());
+      }
+
+      for (const auto* const jetPtr : event.m_failJvt_jets) {
+        m_failJvt_jet_pt[i] = jetPtr->pt();
+        m_failJvt_jet_eta[i] = jetPtr->eta();
+        m_failJvt_jet_phi[i] = jetPtr->phi();
+        m_failJvt_jet_e[i] = jetPtr->e();
+        if (m_config->isMC()) {
+          m_failJvt_jet_truthflav[i] = -99;
+          if(jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")){
+            jetPtr->getAttribute("HadronConeExclTruthLabelID", m_failJvt_jet_truthflav[i]);
+          }
+          m_failJvt_jet_truthPartonLabel[i] = -99;
+          if(jetPtr->isAvailable<int>("PartonTruthLabelID")){
+            jetPtr->getAttribute("PartonTruthLabelID", m_failJvt_jet_truthPartonLabel[i]);
+          }
+          m_failJvt_jet_isTrueHS[i] = false;
+          if(jetPtr->isAvailable<char>("AnalysisTop_isHS")){
+            jetPtr->getAttribute("AnalysisTop_isHS", m_failJvt_jet_isTrueHS[i]);
+          }
+          m_failJvt_jet_HadronConeExclExtendedTruthLabelID[i] = -99;
+          if(jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")){
+            jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_failJvt_jet_HadronConeExclExtendedTruthLabelID[i]);
+          }
+        }
+
+        if( m_config->useJetGhostTrack() ){
+          static SG::AuxElement::Accessor< float > accD0( "d0" );
+          static SG::AuxElement::Accessor< float > accZ0( "z0" );
+          static SG::AuxElement::Accessor< float > accQOverP( "qOverP" );
+
+          const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
+
+          const unsigned int nghostTracks=ghostTracks.size();
+
+          m_failJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_e[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
+          m_failJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+
+          for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
+
+	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+
+	    m_failJvt_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+            m_failJvt_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
+            m_failJvt_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
+            m_failJvt_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
+            m_failJvt_jet_ghostTrack_d0[i][iGhost]=accD0(*ghostTracks.at(iGhost));
+            m_failJvt_jet_ghostTrack_z0[i][iGhost]=accZ0(*ghostTracks.at(iGhost));
+            m_failJvt_jet_ghostTrack_qOverP[i][iGhost]=accQOverP(*ghostTracks.at(iGhost));
+
+          }
+        }
+
+        m_failJvt_jet_jvt[i] = -1;
+        if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
+          m_failJvt_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
+        }
+        m_failJvt_jet_passfjvt[i] = -1;
+        if (jetPtr->isAvailable<char>("passFJVT")) {
+          m_failJvt_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
+        }
 
         ++i;
       }

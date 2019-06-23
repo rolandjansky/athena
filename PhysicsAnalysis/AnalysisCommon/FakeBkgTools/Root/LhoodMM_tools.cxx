@@ -6,6 +6,7 @@
 #include "FakeBkgTools/LhoodMM_tools.h"
 #include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/TMinuit_LHMM.h"
+#include "FakeBkgTools/Database.h"
 #include "PathResolver/PathResolver.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -25,6 +26,8 @@
 #endif
 
 using namespace CP;
+using FakeBkgTools::Efficiency;
+using FakeBkgTools::Uncertainty;
 using std::string;
 using std::vector;
 using Clock=std::chrono::high_resolution_clock;
@@ -43,8 +46,6 @@ LhoodMM_tools::LhoodMM_tools(const std::string& name)  :
 
   declareProperty("DoFakeFactorFit",  m_doFakeFactor, "Give results corresponding to the fake factor method rather than the matrix method");
 
-  m_unlimitedSystematicVariations = false;
-  
   // set everything to default values
   reset();
 }
@@ -125,6 +126,8 @@ void LhoodMM_tools::reset() {
 
   m_lastSaveIndex = 0;
 
+  m_alreadyMerged = false;
+
 }
 
 StatusCode LhoodMM_tools::setFitType(std::string ft) {
@@ -175,8 +178,8 @@ StatusCode LhoodMM_tools::register2DHistogram(TH2* h2, const float *xval, const 
 } 
 
 StatusCode LhoodMM_tools::addEventCustom(const std::vector<bool>& isTight_vals,
-                 const std::vector<double>& realEff_vals,
-                 const std::vector<double>& fakeEff_vals,
+                 const std::vector<Efficiency>& realEff_vals,
+                 const std::vector<Efficiency>& fakeEff_vals,
                  const std::vector<int>& charges,
                  float extraweight) {
 
@@ -215,7 +218,6 @@ StatusCode LhoodMM_tools::addEventCustom(const std::vector<bool>& isTight_vals,
     }
 
   }
-
   return StatusCode::SUCCESS;
   
 }
@@ -228,17 +230,29 @@ StatusCode LhoodMM_tools::addEventCustom() {
     return StatusCode::SUCCESS;
   }
   std::vector<bool> isTight_vals;
-  std::vector<double> realEff_vals;
-  std::vector<double> fakeEff_vals;  
+  std::vector<Efficiency> realEff_vals;
+  std::vector<Efficiency> fakeEff_vals;  
   std::vector<int> charges;
   std::vector<FakeBkgTools::ParticleData>::const_iterator particles_it;
   for (particles_it = m_particles.begin(); particles_it != m_particles.end(); particles_it++) { 
     const FakeBkgTools::ParticleData& p = *particles_it;
     isTight_vals.push_back(p.tight);
-    auto r_eff = p.real_efficiency.value(this);
-    auto f_eff = p.fake_efficiency.value(this);
-    realEff_vals.push_back(r_eff);
-    fakeEff_vals.push_back(f_eff);
+    realEff_vals.push_back(p.real_efficiency);
+    fakeEff_vals.push_back(p.fake_efficiency);
+    double r_eff = p.real_efficiency.value(this);
+    double f_eff = p.fake_efficiency.value(this);
+
+    if (particles_it == m_particles.begin() ){
+    
+      for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.real_efficiency.uncertainties)
+        {
+	  ATH_MSG_DEBUG("real eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
+        }
+for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.fake_efficiency.uncertainties)
+        {
+	  ATH_MSG_DEBUG("fake eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
+        }
+    }
     charges.push_back(p.charge);
     if ( r_eff < 0.01 && f_eff< 0.01) {
        ATH_MSG_DEBUG("Found bad efficiency values");
@@ -250,10 +264,9 @@ StatusCode LhoodMM_tools::addEventCustom() {
 
 StatusCode LhoodMM_tools::getTotalYield(float& yield, float& statErrUp, float& statErrDown) {
 
-  if (m_progressFileName != "none") {
+  if (m_progressFileName != "none"  && m_alreadyMerged == false) {
     ATH_CHECK( mergeSubJobs() );
   }
-        
   
   //set output level according to debug flag, also check whether setPrintLevel was called directly
   msgLvl(MSG::DEBUG) ||  msgLvl(MSG::VERBOSE) || (m_printLevel > 0) ?  m_printLevel = 1 : m_printLevel = -1;
@@ -468,9 +481,9 @@ double LhoodMM_tools::logPoisson(double obs, double pred) {
 }
 
 #ifdef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
-    #define ASG_MSG_VERBOSE(x) m_current_lhoodMM_tool->msg(MSG::VERBOSE) << x << std::endl
+    #define ASG_MSG_VERBOSE(x) do { if ( m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) m_current_lhoodMM_tool->msg(MSG::VERBOSE) <<  x << endmsg; } while(0)
 #else
-    #define ASG_MSG_VERBOSE(x) std::cout << x << std::endl    
+    #define ASG_MSG_VERBOSE(x) do (if(m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) std::cout << x << std::endl; } while (0)      
 #endif
 
 void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
@@ -497,6 +510,7 @@ void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f,
   Double_t pars_thisnlep[maxRank];  // a bit of a waste of memory, but avoids compiler warnings for variable-     
 
   if(verbose) ASG_MSG_VERBOSE("theta_nlep_index = " << theta_nlep_index);
+
   int real_index = 1;
   for (int ilep = minnlep; ilep <= maxnlep_loose; ilep++) {
     l->m_curr_nlep = ilep;
@@ -552,6 +566,7 @@ void LhoodMM_tools::fcn_nlep(Int_t &npar, Double_t *, Double_t &f, Double_t *par
   int rank = 0x1 << nlep;
 
   if(verbose) {
+    ASG_MSG_VERBOSE("npar = " << npar);
     for (int ipar = 0; ipar < npar; ipar++) {
       ASG_MSG_VERBOSE("Parameter " << ipar <<  " = " << par[ipar]);
     }
@@ -592,6 +607,7 @@ void LhoodMM_tools::fcn_nlep(Int_t &npar, Double_t *, Double_t &f, Double_t *par
     (*nrf)(l->m_real_indices[nlep][ipar], 0) = par[ipar+1];
   }
   double sinterm = 1.;
+
   if(verbose) ASG_MSG_VERBOSE("nrf[0] = " << (*nrf)(0,0));
 
   for (int ipar = 0; ipar < fsize; ipar++) {
@@ -739,7 +755,6 @@ double LhoodMM_tools::nfakes( const vector<LhoodMMEvent>& mmevts, Double_t *pose
   }
 
   ATH_MSG_VERBOSE("m_minnlep, m_maxnlep = " << m_minnlep << " " << m_maxnlep);
-  ATH_MSG_VERBOSE("Got this far ");
 
   double nfake_fit, nfake_fitErr;
   
@@ -1044,7 +1059,6 @@ StatusCode LhoodMM_tools::fillHisto_internal(const vector<LhoodMMEvent>& mmevts,
   // total yield, and the histogram is a control/validation plot, it's best
   // to set fixNormalization to true.
 
-  ATH_MSG_VERBOSE("Hey, filling a histo here");
   bool is2d = false;
   if (h->GetNbinsY() > 1) is2d = true;
     
@@ -1249,10 +1263,9 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
       if (m_doFakeFactor) {
     vals[0][nlep-ilep-1] = 1.;
       } else {
-    vals[0][nlep-ilep-1] =  (*mmevt_iter).realEff(ilep);
+	vals[0][nlep-ilep-1] =  (*mmevt_iter).realEff(ilep, this);
       }
-
-      vals[1][nlep-ilep-1] = (*mmevt_iter).fakeEff(ilep);
+      vals[1][nlep-ilep-1] = (*mmevt_iter).fakeEff(ilep, this);
       ATH_MSG_VERBOSE("Real and fake efficiencies for lepton " << ilep << ": " << vals[0][nlep-ilep-1] << " " << vals[1][nlep-ilep-1]);
     }
 
@@ -1343,7 +1356,6 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
     for (int itl = 0; itl < rank; itl++) {
       ATH_MSG_VERBOSE("coeff_denom[" << irf << "] = " << coeff_denom[irf]);
       m_coeffs[nlep][itl][irf] = coeff_num[itl][irf]/coeff_denom[irf]; 
-      ATH_MSG_VERBOSE("Here?");
     }
   }
 
@@ -1596,19 +1608,34 @@ double LhoodMM_tools::fixNegErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
 
 StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 
+  ATH_MSG_VERBOSE("Saving progress");
+
   TTree *t = new TTree("LhoodMM_progress", "Stores current info from LhoodMM_toos");
 
   Int_t nlep;
-  Float_t r[nLepMax];
-  Float_t f[nLepMax];
+  
+  Float_t weight;
+  Float_t rnominal[nLepMax];
+  Float_t fnominal[nLepMax]; 
   Bool_t tight[nLepMax];
   Int_t charge[nLepMax];
 
+  std::vector<std::vector<UShort_t> > r_systUID, f_systUID;
+  std::vector<std::vector<float> > r_systUp, r_systDown,  f_systUp, f_systDown;
+
+
   t->Branch("nlep", &nlep, "nlep/I");
-  t->Branch("r", r, "r[nlep]/F");
-  t->Branch("f", f, "f[nlep]/F");
+  t->Branch("weight", &weight, "weight/F");
+  t->Branch("rnominal", rnominal, "rnominal[nlep]");
+  t->Branch("fnominal", fnominal, "fnominal[nlep]");
   t->Branch("tight", tight, "tight[nlep]/O");
   t->Branch("charge", charge, "charge[nlep]/I");
+  t->Branch("r_systUID", &r_systUID);    
+  t->Branch("r_systUp", &r_systUp);
+  t->Branch("r_systDown", &r_systDown);
+  t->Branch("f_systUID", &f_systUID);    
+  t->Branch("f_systUp", &f_systUp);
+  t->Branch("f_systDown", &f_systDown);
 
   dir->cd();
   dir->mkdir("histos_1d");
@@ -1674,13 +1701,48 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
  }
 
   for (unsigned ievt = m_lastSaveIndex; ievt< m_mmevts_total.size(); ievt++) {
+
+    r_systUID.clear();
+    f_systUID.clear();
+    r_systUp.clear();
+    f_systUp.clear();
+    r_systDown.clear();
+    f_systDown.clear();
+
     LhoodMMEvent m = m_mmevts_total[ievt];
     nlep = m.nlep();
+    weight = m.weight();
+
     for (int i = 0; i<nlep; i++) {
-      r[i] = m.realEff(i);
-      f[i] = m.fakeEff(i);
+      rnominal[i] = m.realEff(i);
+      fnominal[i] = m.fakeEff(i);
       tight[i] = m.isTight(i);
       charge[i] = m.charge(i);
+      boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> r =  m.realEffObj(i).uncertainties;
+      std::vector<UShort_t> r_systUIDvec = std::vector<UShort_t>(); 
+      std::vector<float> r_systUpvec = std::vector<float>(); 
+      std::vector<float> r_systDownvec = std::vector<float>(); 
+      for (const auto syst : r ) {
+	r_systUIDvec.push_back(syst.first);
+	r_systUpvec.push_back(syst.second.up);
+	r_systDownvec.push_back(syst.second.down);
+      } 
+      r_systUID.push_back(r_systUIDvec);
+      r_systUp.push_back(r_systUpvec);
+      r_systDown.push_back(r_systDownvec);
+
+      boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> f =  m.fakeEffObj(i).uncertainties;
+      std::vector<UShort_t> f_systUIDvec = std::vector<UShort_t>(); 
+      std::vector<float> f_systUpvec = std::vector<float>(); 
+      std::vector<float> f_systDownvec = std::vector<float>(); 
+      for (const auto& syst : f) {
+	f_systUIDvec.push_back(syst.first);
+	f_systUpvec.push_back(syst.second.up);
+	f_systDownvec.push_back(syst.second.down);
+      } 
+      f_systUID.push_back(f_systUIDvec);
+      f_systUp.push_back(f_systUpvec);
+      f_systDown.push_back(f_systDownvec);
     }
 
     int ih1var = 0;
@@ -1714,6 +1776,8 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 
 StatusCode LhoodMM_tools::mergeSubJobs() {
 
+  ATH_MSG_VERBOSE("Merging sub jobs");
+  m_alreadyMerged = true;
   std::string filename = PathResolverFindDataFile(m_progressFileName);
   TFile* fin = new TFile(filename.c_str());
   if (fin == nullptr) {
@@ -1759,15 +1823,36 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   }
 
   Int_t nlep;
-  Float_t r[nLepMax], f[nLepMax];
-  Int_t charge[nLepMax];
-  Bool_t isTight[nLepMax];
+  Float_t weight;
 
+  Float_t rnominal[nLepMax];
+  Float_t fnominal[nLepMax]; 
+  Bool_t tight[nLepMax];
+  Int_t charge[nLepMax];
+
+  std::vector<std::vector<UShort_t> > *r_systUID, *f_systUID;
+  std::vector<std::vector<float> > *r_systUp, *r_systDown,  *f_systUp, *f_systDown;
+
+  r_systUID= new std::vector<std::vector<UShort_t> >;
+  f_systUID= new std::vector<std::vector<UShort_t> >;
+  r_systUp = new std::vector<std::vector<float> >;
+  r_systDown = new std::vector<std::vector<float> >;
+  f_systUp = new std::vector<std::vector<float> >;
+  f_systDown = new std::vector<std::vector<float> >;
+  
   t->SetBranchAddress("nlep", &nlep);
-  t->SetBranchAddress("r", r);
-  t->SetBranchAddress("f", f);
-  t->SetBranchAddress("tight", isTight);
+  t->SetBranchAddress("weight", &weight);
+  t->SetBranchAddress("rnominal", rnominal);
+  t->SetBranchAddress("fnominal", fnominal);
+  t->SetBranchAddress("tight", tight);
   t->SetBranchAddress("charge", charge);
+
+  t->SetBranchAddress("r_systUID", &r_systUID);    
+  t->SetBranchAddress("r_systUp", &r_systUp);
+  t->SetBranchAddress("r_systDown", &r_systDown);
+  t->SetBranchAddress("f_systUID", &f_systUID);    
+  t->SetBranchAddress("f_systUp", &f_systUp);
+  t->SetBranchAddress("f_systDown", &f_systDown);
 
   int i1dhist = 0;
   for (auto map1_iter= m_values_1dhisto_map.begin(); map1_iter !=   m_values_1dhisto_map.end(); map1_iter++) {
@@ -1796,24 +1881,56 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
     vector<FakeBkgTools::ParticleData> leptons_data;
 
     t->GetEntry(ievt);
-    std::vector<Bool_t> isTightvec;
-    std::vector<Double_t> rvec;
-    std::vector<Double_t> fvec;
-    std::vector<Int_t> chargevec;
 
-    float weight = 1.; // need to actually implement this!
+    std::vector<Bool_t> isTightvec;
+    std::vector<Efficiency> rvec;
+    std::vector<Efficiency> fvec;
+    std::vector<Int_t> chargevec;
 
     for (int ilep = 0; ilep < nlep; ilep++) {
       // currently don't store type and pt for leptons in LhoodMMEvent, so
       // this information is not available.  Will that cause a problem?
-      isTightvec.push_back(isTight[ilep]);
-      rvec.push_back(r[ilep]);
-      fvec.push_back(f[ilep]);
+      isTightvec.push_back(tight[ilep]);
+      Efficiency reff, feff;
+      reff.nominal = rnominal[ilep];
+      feff.nominal = fnominal[ilep];
+      
+      
+      for (unsigned irsys = 0; irsys < (*r_systUID)[ilep].size(); irsys++) {
+	UShort_t id = (*r_systUID)[ilep][irsys];
+	float up = (*r_systUp)[ilep][irsys];
+	float down = (*r_systDown)[ilep][irsys];
+	Uncertainty u;
+	u.up = up;
+	u.down = down;
+	reff.uncertainties.insert(std::make_pair(id, u));
+      }
+
+      for (unsigned ifsys = 0; ifsys < (*f_systUID)[ilep].size(); ifsys++) {
+	UShort_t id = (*f_systUID)[ilep][ifsys];
+	float up = (*f_systUp)[ilep][ifsys];
+	float down = (*f_systDown)[ilep][ifsys];
+	Uncertainty u;
+	u.up = up;
+	u.down = down;
+	feff.uncertainties.insert(std::make_pair(id, u));
+      }
+     
+      rvec.push_back(reff);
+      fvec.push_back(feff);
       chargevec.push_back(charge[ilep]);
     }
 
     addEventCustom(isTightvec, rvec, fvec, chargevec, weight);
+
   }
+  
+  delete r_systUID;
+  delete f_systUID;
+  delete r_systUp;
+  delete f_systUp;
+  delete r_systDown;
+  delete f_systDown;
 
   delete t;
 

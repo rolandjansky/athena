@@ -104,6 +104,7 @@ FTAG1Seq += CfgMgr.BTagTrackAugmenter(
 
 #put custom jet names here
 OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
+                       "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
@@ -197,6 +198,7 @@ addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG1Seq)
+addVRJets(FTAG1Seq, do_ghost=True)
 # Also add Hbb Tagger(s)
 addHbbTagger(FTAG1Seq, ToolSvc)
 addHbbTagger(
@@ -205,7 +207,8 @@ addHbbTagger(
     nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
 # alias for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
+                                            "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo"]
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -254,6 +257,7 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMPFlow",
                                     "BTagging_AntiKt4EMPFlowJFVtx",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtx",
@@ -303,10 +307,12 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.ConeExclBHadronsFinal",
                                        "AntiKt10LCTopoJets.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetPt.GhostAntiKt2TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
+                                       "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag.GhostVR30Rmax4Rmin02TrackJetGhostTagPt.GhostVR30Rmax4Rmin02TrackJetGhostTagCount",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
@@ -321,6 +327,12 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
     FTAG1SlimmingHelper.ExtraVariables.append(FT1_bjetTriggerTracks)
 
+if BTaggingFlags.Do2019Retraining:
+    FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMPFlowJets_BTagging201810",
+                                             "AntiKt4EMPFlowJets_BTagging201903"]
+    FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903"]
+
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG1SlimmingHelper.AppendToDictionary = {
@@ -332,16 +344,24 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   FTAG1DstarAug+"Aux"                              :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKtVR30Rmax4Rmin02TrackGhostTag"             :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackGhostTagAux"          :   "xAOD::JetAuxContainer" ,
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
   "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"    :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagAux" :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagSecVtxAux"   :   "xAOD::VertexAuxContainer",
   "BTagging_AntiKt2Track"                          :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                       :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                     :   "xAOD::BTagVertexContainer"   ,

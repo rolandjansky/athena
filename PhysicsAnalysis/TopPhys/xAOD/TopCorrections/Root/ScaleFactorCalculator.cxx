@@ -20,6 +20,7 @@ ScaleFactorCalculator::ScaleFactorCalculator(const std::string& name) :
 
   m_photonSF(nullptr),
   m_electronSF(nullptr),
+  m_fwdElectronSF(nullptr),
   m_muonSF(nullptr),
   m_tauSF(nullptr),
   m_jetSF(nullptr),
@@ -36,6 +37,7 @@ StatusCode ScaleFactorCalculator::initialize() {
 
   m_photonSF = std::make_unique<top::PhotonScaleFactorCalculator>("top::PhotonScaleFactorCalculator");
   m_electronSF = std::make_unique<top::ElectronScaleFactorCalculator>("top::ElectronScaleFactorCalculator");
+  m_fwdElectronSF = std::make_unique<top::FwdElectronScaleFactorCalculator>("top::FwdElectronScaleFactorCalculator");
   m_muonSF = std::make_unique<top::MuonScaleFactorCalculator>("top::MuonScaleFactorCalculator");
   m_tauSF = std::make_unique<top::TauScaleFactorCalculator>("top::TauScaleFactorCalculator");
   m_jetSF = std::make_unique<top::JetScaleFactorCalculator>("top::JetScaleFactorCalculator");
@@ -51,13 +53,16 @@ StatusCode ScaleFactorCalculator::initialize() {
 
     if (m_config->useElectrons()) {
       top::check(m_electronSF->setProperty("config", m_config), "Failed to setProperty");
-      // m_electronSF->msg().setLevel(MSG::DEBUG);
       top::check(m_electronSF->initialize(), "Failed to initialize");
+    }
+    
+    if (m_config->useFwdElectrons()) {
+      top::check(m_fwdElectronSF->setProperty("config", m_config), "Failed to setProperty");
+      top::check(m_fwdElectronSF->initialize(), "Failed to initialize");
     }
 
     if (m_config->useMuons() && !m_config->isTruthDxAOD()) {
       top::check(m_muonSF->setProperty("config", m_config), "Failed to setProperty");
-      // m_muonSF->msg().setLevel(MSG::DEBUG);
       top::check(m_muonSF->initialize(), "Failed to initialize");
     }
 
@@ -80,7 +85,6 @@ StatusCode ScaleFactorCalculator::initialize() {
     
     if ( (m_config->useElectrons() || m_config->useMuons()) && m_config->useGlobalTrigger() ){
       top::check(m_globalLeptonTriggerSF->setProperty("config", m_config), "Failed to setProperty");
-      // m_globalLeptonTriggerSF->msg().setLevel(MSG::DEBUG); 
       top::check(m_globalLeptonTriggerSF->initialize(), "Failed to initalize");
     }
     
@@ -102,6 +106,8 @@ StatusCode ScaleFactorCalculator::execute() {
       top::check(m_photonSF->execute(), "Failed to execute photon SF");
     if (m_config->useElectrons())
       top::check(m_electronSF->execute(), "Failed to execute electron SF");
+    if (m_config->useFwdElectrons())
+      top::check(m_fwdElectronSF->execute(), "Failed to execute fwd electron SF");
     if (m_config->useMuons() && !m_config->isTruthDxAOD())
       top::check(m_muonSF->execute(), "Failed to execute muon SF");
     if (m_config->useTaus())

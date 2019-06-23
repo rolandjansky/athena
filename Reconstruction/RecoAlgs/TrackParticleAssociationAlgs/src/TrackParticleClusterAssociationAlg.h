@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include <string>
 
 
@@ -32,11 +33,13 @@ class TrackParticleClusterAssociationAlg : public AthAlgorithm
 
   ToolHandle<Rec::IParticleCaloClusterAssociationTool> m_caloClusterAssociationTool;
   ToolHandle <Trk::ITrackSelectorTool>              m_trackSelector; //!< Tool to select tracks
+  ToolHandle<CP::ITrackVertexAssociationTool> m_trackvertexassoTool;
 
   std::string m_trackParticleCollectionName;
   double m_ptCut;
   std::string m_outputPostFix;
   std::string m_caloClusters;
+  std::string m_vertexContname;
 };
 
 

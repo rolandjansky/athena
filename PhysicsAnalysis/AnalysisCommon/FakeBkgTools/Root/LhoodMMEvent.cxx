@@ -3,12 +3,16 @@
 */
 
 #define LhoodMMEvent_cxx
+#include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/LhoodMMEvent.h"
 
 #include <stdexcept>
 #include <iostream>
- 
-void LhoodMMEvent::Init(int nlep, const std::vector<double>& realEff, const std::vector<double>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, double aux, double aux2) {
+
+using FakeBkgTools::Efficiency;
+using CP::BaseFakeBkgTool;
+
+void LhoodMMEvent::Init(int nlep, const std::vector<Efficiency>& realEff, const std::vector<Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, double aux, double aux2) {
 
   m_nlep = nlep;
   m_realEff = realEff;
@@ -28,26 +32,17 @@ void LhoodMMEvent::Init(int nlep, const std::vector<double>& realEff, const std:
   m_aux2 = aux2;
 }
 
-LhoodMMEvent::LhoodMMEvent(int nlep, const std::vector<double>& realEff, const std::vector<double>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, double weight, double aux, double aux2 ) {
+LhoodMMEvent::LhoodMMEvent(int nlep, const std::vector<Efficiency>& realEff, const std::vector<Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, double weight, double aux, double aux2 ) {
 
   Init(nlep, realEff, fakeEff, isTight, charge, weight, aux, aux2);
 }
 
-LhoodMMEvent::LhoodMMEvent(int nlep, const std::vector<float>& realEff, const std::vector<float>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, float aux, float aux2) {
+LhoodMMEvent::LhoodMMEvent(int nlep, const std::vector<Efficiency>& realEff, const std::vector<Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, float aux, float aux2) {
  
-  std::vector<double> realEff_d, fakeEff_d;
-  std::vector<float>::const_iterator effIter;
-  for (effIter = realEff.begin(); effIter != realEff.end(); effIter++) {
-    realEff_d.push_back(*effIter);
-  }
-  for (effIter = fakeEff.begin(); effIter != fakeEff.end(); effIter++) {
-    fakeEff_d.push_back(*effIter);
-  }
-
   double aux_d = aux;
   double aux2_d = aux2;
 
-  Init(nlep, realEff_d, fakeEff_d, isTight, charge, weight, aux_d, aux2_d);
+  Init(nlep, realEff, fakeEff, isTight, charge, weight, aux_d, aux2_d);
 
 }
 
@@ -57,7 +52,34 @@ LhoodMMEvent::LhoodMMEvent(const LhoodMMEvent& mmevt) {
        mmevt.m_charge, mmevt.m_weight, mmevt.m_aux, mmevt.m_aux2);
 }
 
-double LhoodMMEvent::realEff(unsigned ilep) const {
+float LhoodMMEvent::realEff(unsigned ilep,  BaseFakeBkgTool* tool) const {
+  if (ilep < m_nlep) {
+    if (tool == nullptr) {
+      return m_realEff[ilep].nominal;
+    } else {
+      return m_realEff[ilep].value(tool);
+    }
+  } else {
+    throw std::out_of_range(" LhoodMMEvent::realEff: invalid lepton index " + std::to_string(ilep) + "; must be less than " + std::to_string(m_nlep));
+  }
+
+}
+
+float LhoodMMEvent::fakeEff(unsigned ilep, BaseFakeBkgTool* tool) const {
+  if (ilep < m_nlep) {
+    if (tool == nullptr) {
+      return m_fakeEff[ilep].nominal;
+    } else {
+      return m_fakeEff[ilep].value(tool);
+    }
+  } else {
+
+    throw std::out_of_range(" LhoodMMEvent::fakeEff: invalid lepton index " + std::to_string(ilep) + "; must be less than " + std::to_string(m_nlep));
+  }
+
+}
+
+Efficiency LhoodMMEvent::realEffObj(unsigned ilep) const {
   if (ilep <= m_nlep) {
     return m_realEff[ilep];
   } else {
@@ -66,7 +88,7 @@ double LhoodMMEvent::realEff(unsigned ilep) const {
 
 }
 
-double LhoodMMEvent::fakeEff(unsigned ilep) const {
+Efficiency LhoodMMEvent::fakeEffObj(unsigned ilep) const {
   if (ilep <= m_nlep) {
     return m_fakeEff[ilep];
   } else {

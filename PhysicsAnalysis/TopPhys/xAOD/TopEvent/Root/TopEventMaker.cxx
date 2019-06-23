@@ -151,8 +151,37 @@ namespace top {
       }
       
       //shallow copies aren't sorted!
-      //sort only the selected muons (faster)
+      //sort only the selected electrons (faster)
       event.m_electrons.sort(top::descendingPtSorter);             
+    }
+    
+    //forward electrons
+    if (m_config->useFwdElectrons()) {
+		
+	const xAOD::ElectronContainer* calibratedFwdElectrons(nullptr);
+        top::check(evtStore()->retrieve(calibratedFwdElectrons, m_config->sgKeyFwdElectrons(hash) ), "Failed to retrieve fwd electrons");
+        
+        ///-- Shallow copy and save to TStore --///
+        if (!evtStore()->contains<xAOD::ElectronContainer>(m_config->sgKeyFwdElectronsTDS(hash))) {
+        std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > shallow_fwdelectrons = xAOD::shallowCopyContainer( *calibratedFwdElectrons );
+          
+        xAOD::TReturnCode save = evtStore()->tds()->record( shallow_fwdelectrons.first , m_config->sgKeyFwdElectronsTDS(hash) );
+        xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_fwdelectrons.second , m_config->sgKeyFwdElectronsTDSAux(hash) );
+        top::check( (save && saveAux) , "Failed to store object in TStore");
+      }
+      
+      ///-- Pull shallow copy back out of TStore in non-const way --///
+      xAOD::ElectronContainer* calibratedFwdElectronsTDS(nullptr);
+      top::check(evtStore()->retrieve(calibratedFwdElectronsTDS, m_config->sgKeyFwdElectronsTDS(hash) ), "Failed to retrieve fwd electrons"); 
+      
+      for (const auto& index : currentSystematic.goodFwdElectrons()) {
+        event.m_fwdElectrons.push_back(calibratedFwdElectronsTDS->at(index));
+      }
+      
+      //shallow copies aren't sorted!
+      //sort only the selected fwd electrons (faster)
+      event.m_fwdElectrons.sort(top::descendingPtSorter);   
+		
     }
 
     //photons
@@ -302,11 +331,17 @@ namespace top {
         top::check( jet->isAvailable<char>("passJVT") , " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
         if (jet->auxdataConst<char>( "passJVT" ))
           event.m_jets.push_back(calibratedJetsTDS->at(index));
+	if (m_config->saveFailJVTJets()) {
+          if (!jet->auxdataConst<char>( "passJVT" ))
+            event.m_failJvt_jets.push_back(calibratedJetsTDS->at(index));
+	}
       }
       
       //shallow copies aren't sorted!
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
+      if (m_config->saveFailJVTJets())
+        event.m_failJvt_jets.sort(top::descendingPtSorter);
       
     }
 

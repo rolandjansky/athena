@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AthContainers
                           PATCore
                           PATInterfaces
+                          TrigBunchCrossingTool
                           TrigConfInterfaces
                           TrigConfxAOD
                           TrigDecisionTool
@@ -70,6 +71,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   AthContainers                                  
 				  PATCoreLib			  
                                   PATInterfaces
+                                  TrigBunchCrossingTool
                                   TrigConfInterfaces
                                   TrigConfxAODLib
                                   TrigDecisionToolLib

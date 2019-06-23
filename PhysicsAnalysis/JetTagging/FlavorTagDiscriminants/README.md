@@ -37,6 +37,9 @@ There are several user-level tools here:
      expressions to determine properties of the inputs. It also uses
      `PathResolver` to find the input file.
 
+   - `DL2HighLevelTools`: Utilities for `DL2HighLevel`. The intention
+     is to keep the files included in the `DL2.h` header minimal.
+
    - `DL2Tool`: ASG Tool interface around `DL2HighLevel`.
 
 

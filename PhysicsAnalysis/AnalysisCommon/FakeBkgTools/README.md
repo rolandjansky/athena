@@ -7,8 +7,8 @@ These different tools derive from the same interface `CP::IFakeBkgTool` ([header
 
 A minimal example of usage of the tools in analysis code would look like this:
 ```c++
-asg::AnaToolhandle<CP::IFakeBkgTool> tool("CP::AsymptMatrixTool/Tool1");
-ATH_CHECK(tool.setProperty("InputFiles", "real_effs.root, fake_effs.root"));
+asg::AnaToolHandle<CP::IFakeBkgTool> tool("CP::AsymptMatrixTool/Tool1");
+ATH_CHECK(tool.setProperty("InputFiles", std::vector<string>{"real_effs.root", "fake_effs.root"}));
 ATH_CHECK(tool.setProperty("Selection", ">=1T")); /// region of interest = events with >= 1 tight lepton
 ATH_CHECK(tool.setProperty("Process", ">=1F")); /// fake lepton background = all events with >= 1 fake lepton (tight, by default)
 ATH_CHECK(tool.initialize());
@@ -30,12 +30,12 @@ All these methods rely on auxiliary measurements (efficiencies for prompt/fake l
 
 Some of the methods (fake factor, asymptotic matrix tool) are in addition able to provide event-by-event weights, e.g. to store into ROOT ntuples. One can use this feature through the dedicated interface `CP::ILinearFakeBkgTool` which they also derive from:
 ```c++
-AnaToolhandle<CP::ILinearFakeBkgTool> tool("CP::AsymptMatrixTool/Tool1");
+asg::AnaToolHandle<CP::ILinearFakeBkgTool> tool("CP::AsymptMatrixTool/Tool1");
 ///... in the event loop:
     ATH_CHECK(tool->addEvent(particles));
     float weight, statUp, statDown;
-    ATH_CHECK(tool->getEventWeight(yield, statUp, statDown, "=1T", ">=1F"));
-    ATH_CHECK(tool->getEventWeight(yield, statUp, statDown, ">=2T", ">=1F")); /// can be called as many times as needed
+    ATH_CHECK(tool->getEventWeight(yield, "=1T", ">=1F"));
+    ATH_CHECK(tool->getEventWeight(yield, ">=2T", ">=1F")); /// can be called as many times as needed
 ```
 
 More documentation is provided on the following topics:

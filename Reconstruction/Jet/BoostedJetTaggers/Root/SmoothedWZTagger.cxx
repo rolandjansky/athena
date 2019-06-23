@@ -12,6 +12,8 @@
 #include "TF1.h"
 #include "TSystem.h"
 
+#include <stdexcept>
+
 SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   JSSTaggerBase( name ),
   m_dec_mcutL("mcutL"),
@@ -355,24 +357,40 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
     if(isValid){
       static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
       const xAOD::Jet * ungroomedJet = 0;
+
       if(ungroomedLink.isAvailable(jet)){
         ElementLink<xAOD::JetContainer> linkToUngroomed = ungroomedLink(jet);
         if (  linkToUngroomed.isValid() ){
           ungroomedJet = *linkToUngroomed;
-	  std::vector<int> NTrkPt500;
-          ungroomedJet->getAttribute(xAOD::JetAttribute::NumTrkPt500, NTrkPt500);
-          int jet_ntrk = NTrkPt500.at(primaryVertex->index());
 
-          if(jet_ntrk < cut_ntrk)
-            m_accept.setCutResult("PassNtrk",true);
+	  static SG::AuxElement::ConstAccessor< std::vector<int> >    acc_Ntrk   ("NumTrkPt500");
+
+	  if(acc_Ntrk.isAvailable(*ungroomedJet)){
+
+	    const std::vector<int> NTrkPt500 = acc_Ntrk(*ungroomedJet);
+	    m_accept.setCutResult("ValidJetContent", true);
+	    
+	    int jet_ntrk = NTrkPt500.at(primaryVertex->index());
+	    
+	    if(jet_ntrk < cut_ntrk)
+	      m_accept.setCutResult("PassNtrk",true);
+	  }
+	  else {
+	    // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+            // This error message should only occur if analyses are not using smart slimming in their derivations
+            throw std::runtime_error("ERROR: Unable to retrieve Ntrk of the ungroomed parent jet. Please make sure this variable is in your derivations!!!");
+	  }
         }
         else{
-          m_accept.setCutResult("ValidJetContent", false);
+	  // Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+	  // This error message should only occur if analyses are not using smart slimming in their derivations
+	  throw std::runtime_error("ERROR: Unable to retrieve the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
         }
       }
       else{
-        ATH_MSG_WARNING("You're using a tagger that includes Ntrk but don't seem to have a valid ungroomed parent jet. Please make sure they are in your derivation!!!");
-        m_accept.setCutResult("ValidJetContent", false);
+	// Note: throwing an exception here because we can't return StatusCode::FAILURE or similar
+	// This error message should only occur if analyses are not using smart slimming in their derivations
+	throw std::runtime_error("ERROR: Unable to retrieve the link to the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
       }
     }
     else{

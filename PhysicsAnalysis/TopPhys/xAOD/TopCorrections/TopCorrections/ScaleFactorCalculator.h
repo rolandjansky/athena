@@ -30,6 +30,7 @@
 // Local include(s):
 #include "TopCorrections/PhotonScaleFactorCalculator.h"
 #include "TopCorrections/ElectronScaleFactorCalculator.h"
+#include "TopCorrections/FwdElectronScaleFactorCalculator.h"
 #include "TopCorrections/MuonScaleFactorCalculator.h"
 #include "TopCorrections/TauScaleFactorCalculator.h"
 #include "TopCorrections/JetScaleFactorCalculator.h"
@@ -62,6 +63,7 @@ class ScaleFactorCalculator final : public asg::AsgTool{
   
   std::unique_ptr<top::PhotonScaleFactorCalculator>   m_photonSF;
   std::unique_ptr<top::ElectronScaleFactorCalculator> m_electronSF;
+  std::unique_ptr<top::FwdElectronScaleFactorCalculator> m_fwdElectronSF;
   std::unique_ptr<top::MuonScaleFactorCalculator>     m_muonSF;
   std::unique_ptr<top::TauScaleFactorCalculator>      m_tauSF;
   std::unique_ptr<top::JetScaleFactorCalculator>      m_jetSF;

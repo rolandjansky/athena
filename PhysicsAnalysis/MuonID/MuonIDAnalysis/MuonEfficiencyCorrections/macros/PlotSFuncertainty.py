@@ -44,7 +44,7 @@ class SystDependency(object):
                                     bdir = bdir,
                                     log_binning = log_binning )
         self.__1dn_histo = DiagnosticHisto(
-                                    name = "%s_1UP"%(self.__var_name),
+                                    name = "%s_1DOWN"%(self.__var_name),
                                     axis_title = axis_title,
                                     bins = bins, bmin = bmin, bmax = bmax, 
                                     bdir = bdir,
@@ -108,13 +108,13 @@ if __name__ == "__main__":
                     var_name = "pt", 
                     axis_title ="p_{T} #mu(%s) [GeV]"%(wp),
                     calib = calib, log_binning = True,
-                    bins = 100, bmin = 15, bmax = 3000,
+                    bins = 25, bmin = 15, bmax = 1000,
                     wp =wp, sys = sys, test_tree = tree),
             SystDependency(
                     var_name = "eta", 
                     axis_title ="#eta #mu(%s)"%(wp),
                     calib = calib,
-                    bins =25 , bmin = -2.5, bmax = 2.5,
+                    bins =54 , bmin = -2.7, bmax = 2.7,
                     wp =wp, sys = sys, test_tree = tree),
             SystDependency(
                     var_name = "phi", 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         tree.GetEntry(i)
         if i > 0 and i % 5000 == 0: 
             print "INFO: %d/%d events processed"%(i, tree.GetEntries())          
-        if math.fabs(tree.Muon_eta) > 2.5  or tree.Muon_pt < 15.e3: continue
+        #if math.fabs(tree.Muon_eta) <= 2.5  or tree.Muon_pt < 15.e3: continue
         for H in Histos:  
              if tree.Muon_isHighPt == True or  H.name().find("HighPt") == -1: H.fill()
         
@@ -139,8 +139,8 @@ if __name__ == "__main__":
         pu.Prepare1PadCanvas(H.name())
        
         nom = H.get_nom_H1().TH1()
-        up = H.get_1dn_H1().TH1()
-        dn = H.get_1up_H1().TH1()
+        dn = H.get_1dn_H1().TH1()
+        up = H.get_1up_H1().TH1()
         
         up.SetLineColor(ROOT.kRed)
         dn.SetLineColor(ROOT.kBlue)
@@ -153,8 +153,8 @@ if __name__ == "__main__":
         dn.SetTitle("-1#sigma %s"%("systematic" if H.get_sys() == "SYS" else "statistics"))
        
         nom.GetYaxis().SetTitle("Ratio to nominal")
-        pu.drawStyling(nom, 0.98, 
-                            1.02, TopPad = False)
+        pu.drawStyling(nom, 0.95, 
+                            1.05, TopPad = False)
         
         up.Draw("SAMEHIST")
         dn.Draw("HISTSAME")

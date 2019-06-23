@@ -24,7 +24,7 @@ namespace CP {
             m_sf(),
             m_eff(),
             m_mc_eff(),
-            
+                        
             m_sf_decor(std::make_unique<FloatDecorator>(ref_tool.sf_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
             m_eff_decor(std::make_unique<FloatDecorator>(ref_tool.data_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),          
             m_mc_eff_decor(std::make_unique<FloatDecorator>(ref_tool.mc_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
@@ -75,7 +75,7 @@ namespace CP {
             if (sys) {
                 for (int i = 1; i <= nominal->NBins(); ++i) {
                     double content = nominal->GetBinContent(i);
-                    double variation = (m_is_up ? 1. : -1.)*sys->GetBinContent(i);
+                    double variation = (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i);
                     nominal->SetBinContent(i,content + variation);
                 }
                 return;
@@ -90,6 +90,7 @@ namespace CP {
                     nominal.reset();
                     return;
                 }
+                
                 for (int i = 1; i<= nominal->NBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*old_sys->GetBinContent(i));
                 }

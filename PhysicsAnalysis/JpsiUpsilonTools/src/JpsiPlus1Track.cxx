@@ -98,7 +98,7 @@ namespace Analysis {
     m_MuonsUsedInJpsi("NONE"),
     m_excludeJpsiMuonsOnly(true), 
     m_excludeCrossJpsiTracks(false),
-    m_iVertexFitter("Trk::TrkVKalVrtFitter"),
+    m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_useMassConst(true),

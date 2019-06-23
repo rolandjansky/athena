@@ -41,7 +41,7 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
 void setupEfficiencies();
 void lookupEfficiencies(xAOD::IParticle& lepton, ParticleData& lepton_data);
 
-void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned maxnbaseline, float realeff_mean, float fakeeff_mean, float eff_spread, std::string selection, std::string process, bool test_save, bool test_merge, string saveFaileName, string mergeFileName, bool verbose);
+void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned maxnbaseline, float realeff_mean, float fakeeff_mean, float eff_spread, std::string selection, std::string process, bool test_save, bool test_merge, string saveFaileName, string mergeFileName, bool verbose, bool test_histo, bool test_systematics);
 
 double comboProb(vector<FakeBkgTools::ParticleData> leptons_data, std::bitset<64> tights, std::bitset<64> reals);
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 
   unsigned nevents, ncases, minnbaseline, maxnbaseline;
   float realeff_mean, fakeeff_mean, eff_spread;
-  bool test_save, test_merge, verbose;
+  bool test_save, test_merge, test_histo, test_systematics, verbose;
   std::string saveFileNameBase, mergeFileNameBase;
 
   // defaults
@@ -86,6 +86,8 @@ int main(int argc, char *argv[]){
   saveFileNameBase = "saveProgress";
   mergeFileNameBase = "saveProgress";
   test_merge = false;
+  test_histo = false;
+  test_systematics = false;
   verbose = false;
   
   if (verbose) cout << "maxnbaseline = " << maxnbaseline << endl;
@@ -103,15 +105,17 @@ int main(int argc, char *argv[]){
       {"effsigma", required_argument, 0, 's'},
       {"sel", required_argument, 0, 'l'},
       {"proc", required_argument, 0, 'p'},
-      {"test_save", required_argument, 0, 'S'},
+      {"test_save", no_argument, 0, 'S'},
       {"test_merge", required_argument, 0, 'M'},
+      {"test_histo", required_argument, 0, 'H'},
+      {"test_systematics", required_argument, 0, 'E'},
       {"verbose", no_argument, 0, 'v'}
     };
 
   int c;
   int option_index = 0;
 
-  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:l:p:S:M:v", long_options, &option_index)) != -1) {
+  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:l:p:S:M:HEv", long_options, &option_index)) != -1) {
     switch(c) {
     case 'c':
       ncases = atoi(optarg);
@@ -149,6 +153,12 @@ int main(int argc, char *argv[]){
       test_merge = true;
       mergeFileNameBase = optarg;
       break;
+    case 'H':
+      test_histo = true;
+      break;
+    case 'E':
+      test_systematics = true;
+      break;
     case 'v':
       verbose = true;
       break;
@@ -175,11 +185,11 @@ int main(int argc, char *argv[]){
 
   cout << "maxnbaseline = " << maxnbaseline << endl;
 
-  Loop(nevents,ncases, minnbaseline, maxnbaseline, realeff_mean, fakeeff_mean, eff_spread, selection, process, test_save, test_merge, saveFileNameBase, mergeFileNameBase, verbose);
+  Loop(nevents,ncases, minnbaseline, maxnbaseline, realeff_mean, fakeeff_mean, eff_spread, selection, process, test_save, test_merge, saveFileNameBase, mergeFileNameBase, verbose, test_histo, test_systematics);
 
 }
 
-void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned maxnbaseline, float realeff_mean, float fakeeff_mean, float eff_spread, std::string selection, std::string process, bool test_save, bool test_merge, string saveFileNameBase, string mergeFileNameBase, bool verbose)
+void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned maxnbaseline, float realeff_mean, float fakeeff_mean, float eff_spread, std::string selection, std::string process, bool test_save, bool test_merge, string saveFileNameBase, string mergeFileNameBase, bool verbose, bool test_histo, bool test_systematics)
 {
    //Open an output file
   if (verbose) cout << "maxnbaseline = " << maxnbaseline << endl;
@@ -261,7 +271,7 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 
   gSystem->mkdir(outputdirname.c_str());
   rootfilename = outputdirname+"/output.root";
-  TFile *f_out = TFile::Open(rootfilename.c_str(),"RECREATE");
+  std::unique_ptr<TFile> f_out(TFile::Open(rootfilename.c_str(),"RECREATE"));
 
 
   // create output ntuple
@@ -327,26 +337,25 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 
       cout << "Starting case " << icase << endl;
       CP::LhoodMM_tools lhmTool("LhoodMM_tools");
-      //following is to run likelihood MM in fake-factor mode
-      //LhoodMM_tools lhmTool_FF;
-      //lhmTool_FF.setFitType("FF");
-       CP::ApplyFakeFactor fkfTool("ApplyFakeFactor");
       CP::AsymptMatrixTool asmTool("AsymptMatrixTool");
       float asmYield = 0;
-      //suppress FakeFactor tool for now since it will print warning messages
-      //when given unsupported selection or process arguments
-      //float fkfYield;
       float asmErr = 0;
-      //float fkfErr;
-      
-      lhmTool.register1DHistogram(h_lep_pt, &lep_pt);
-      lhmTool.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      if (test_histo) {
+	lhmTool.register1DHistogram(h_lep_pt, &lep_pt);
+	lhmTool.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      }
 
-      initialize(fkfTool, input, selection, process, verbose);
       initialize(asmTool, input, selection, process, verbose);
       initialize(lhmTool, input, selection, process, verbose); 
-      //     initialize(lhmTool_FF, input, selection, process); 
-      
+
+      if (test_systematics) {
+	auto sysvars = lhmTool.affectingSystematics();
+	for(auto& sysvar : lhmTool.affectingSystematics())
+	  {
+	    lhmTool.getSystDescriptor().printUncertaintyDescription(sysvar);
+	  }
+      }
+
       Double_t realeff_mean_thiscase = rand.Gaus(realeff_mean, realeff_spread);
       if (realeff_mean_thiscase > 0.99) realeff_mean_thiscase = 0.99;
       Double_t fakeeff_mean_thiscase = rand.Gaus(fakeeff_mean, fakeeff_spread);
@@ -433,12 +442,9 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  leptons_data.push_back(lepton_data);
 	}
 	
-	fkfTool.addEvent(leptons);
 	asmTool.addEvent(leptons, extraweight);
 	lhmTool.addEvent(leptons, extraweight);
-	
-	//       lhmTool_FF.addEvent(leptons);
-	
+
 	// determine the expected number of fake lepton events
 	// start by looping over all possible number of tight leptons
 	vector<int> lep_indices;
@@ -451,7 +457,6 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	for (long comb = 0; comb < (1<<nlep_select); ++comb) {
 	  tights = std::bitset<64>(comb);
 	  if (fs[nlep_select]->accept_selection(tights, charges)) {
-	    //true_FF += comboProb_FF(leptons_data, tights, reals);
 	    if (fs[nlep_select]->accept_process(nlep_select, reals, tights)) {
 	      true_fakes += extraweight*comboProb(leptons_data, tights, reals);
 	      //true_FF += comboProb_FF(leptons_data, tights, reals); 
@@ -464,16 +469,17 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	asmYield += wgt;
 	asmErr += wgt*wgt;
 	
-	//if(fkfTool.getEventWeightAndUncertainties(wgt, selection, process) != StatusCode::SUCCESS) { cout << "ERROR: ApplyFakeFactor::getEventWeightAndUncertainties() failed\n"; exit(2); }
-	//fkfYield.add(wgt);
-	
 	if (test_save) {
 	  if (ievt > 0 &&  (((10*ievt)%nevents ==0) || ievt == nevents -1) ) {
 	    string saveFileName = saveFileNameBase;
-	    saveFileName+=  "_"+to_string(ievt)+".root";
-	    TFile *saveFile =  new TFile(saveFileName.c_str(), "RECREATE");
+	    saveFileName+=  "_lhm_"+to_string(ievt)+".root";
+	    std::unique_ptr<TDirectory>saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
 	    cout << "testing save/merge" << endl;
-	    lhmTool.saveProgress(saveFile);
+	    lhmTool.saveProgress(saveFile.get());
+	    saveFile->Close();
+	    saveFileName =  saveFileNameBase+"_asm_"+to_string(ievt)+".root";
+	    saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
+	    asmTool.saveProgress(saveFile.get());
 	    saveFile->Close();
 	  }
 	}
@@ -484,50 +490,91 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	leptons.clear();
       }
       
-      asmErr = sqrt(asmErr);
+      asm_err = sqrt(asmErr);
 
       if(lhmTool.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
 
-      CP::SystematicVariation stat{"FAKEBKG_YIELD_STAT", 0};
-      
       asm_fakes = asmYield;
       
-      //      fkf_fakes = fkfYield;
-      
-      
-      //     lhoodFF_fakes = lhmYield_FF.value;
-      //lhoodFF_negerr = lhmYield_FF.uncertainties[Uncertainty::totalStat()].down;
-      //     lhoodFF_poserr = lhmYield_FF.uncertainties[Uncertainty::totalStat()].up;
+      if (test_systematics) {
+	auto sysvars = asmTool.affectingSystematics();
+	
+	for(auto& sysvar : sysvars)
+	  {
+	    float weight, statUp, statDown;
+	    asmTool.applySystematicVariation({sysvar});
+	    asmTool.getTotalYield(weight, statUp, statDown);
+	    asmTool.getSystDescriptor().printUncertaintyDescription(sysvar);
+	    cout << "asm weight = " << weight << endl;
+	    lhmTool.applySystematicVariation({sysvar});
+	    lhmTool.getTotalYield(weight, statUp, statDown);
+	    std::cout << "sysvar = " << sysvar << std::endl;
+	    cout << "lhm weight = " << weight << endl;
+	  }
+      }
+
+      asm_fakes = asmYield;
       
       cout << "OUTPUT nfakes = " << lhoodMM_fakes << " +" << lhoodMM_poserr << " -" <<  lhoodMM_negerr <<  endl;
       cout << "OUTPUT true_fakes = " << true_fakes << endl;
       ntuple->Fill();
     } else {
-      std::string haddcmd = "hadd -f "+mergeFileNameBase+".root "+mergeFileNameBase+"_*.root";
+      std::string haddcmd = "hadd -f "+mergeFileNameBase+"_lhm.root "+mergeFileNameBase+"_lhm_*.root";
+      system(haddcmd.c_str());
+      haddcmd = "hadd -f "+mergeFileNameBase+"_asm.root "+mergeFileNameBase+"_asm_*.root";
       system(haddcmd.c_str());
       CP::LhoodMM_tools lhmTool_merge("LhoodMM_tools_merge");
- 
-      std::string mergeFileName =  mergeFileNameBase+".root";
-      TFile* fmerge = new TFile(mergeFileName.c_str());
-      TDirectory* myDir = (TDirectory*)fmerge;
-      cout << "Really doing this..." << endl;
-      lhmTool_merge.setProperty("ProgressFileName", myDir);
+      std::string mergeFileName =  mergeFileNameBase+"_lhm.root";
+      lhmTool_merge.setProperty("ProgressFileName", mergeFileName);
       cout << "verbose = " << verbose << endl;
       initialize(lhmTool_merge, input, selection, process, verbose);
-      lhmTool_merge.register1DHistogram(h_lep_pt, &lep_pt);
-      lhmTool_merge.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      if (test_histo) {
+	lhmTool_merge.register1DHistogram(h_lep_pt, &lep_pt);
+	lhmTool_merge.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      }
       if(lhmTool_merge.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
-      cout << "merged nfakes = " << lhoodMM_fakes << " + " << lhoodMM_poserr << " " <<  lhoodMM_negerr << endl;
+      cout << "merged lhm nfakes = " << lhoodMM_fakes << " + " << lhoodMM_poserr << " " <<  lhoodMM_negerr << endl;
+      
+      CP::AsymptMatrixTool asmTool_merge("asm_tool_merge");
+      mergeFileName =  mergeFileNameBase+"_asm.root";
+      asmTool_merge.setProperty("ProgressFileName", mergeFileName);
+      cout << "verbose = " << verbose << endl;
+      initialize(asmTool_merge, input, selection, process, verbose);
+      if (test_histo) {
+	lhmTool_merge.register1DHistogram(h_lep_pt, &lep_pt);
+	lhmTool_merge.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      }
+      if(asmTool_merge.getTotalYield(asm_fakes, asm_err, asm_err) != StatusCode::SUCCESS) { cout << "ERROR: AsymptMatrixTool::getTotalYield() failed\n"; exit(2); }
+      cout << "merged asm nfakes = " << asm_fakes << " + " << asm_err << " " <<  asm_err << endl;
+
+      if (test_systematics) {
+	auto sysvars = lhmTool_merge.affectingSystematics();
+	for(auto& sysvar : sysvars)
+	  {
+	    float weight = 0, statUp, statDown;
+	    lhmTool_merge.getSystDescriptor().printUncertaintyDescription(sysvar);
+	    std::cout << "sysvar = " << sysvar << std::endl;
+	    lhmTool_merge.applySystematicVariation({sysvar});
+	    lhmTool_merge.getTotalYield(weight, statUp, statDown);
+	    cout << "merged lhm weight = " << weight << endl;
+	    
+	    asmTool_merge.getSystDescriptor().printUncertaintyDescription(sysvar);
+	    asmTool_merge.applySystematicVariation({sysvar});
+	    asmTool_merge.getTotalYield(weight, statUp, statDown);
+	  cout << "merged asm weight = " << weight << endl;
+	}
+      }      
     }
 
 
     f_out->cd();
-    h_lep_pt->Write();
-    h_lep_pt_eta->Write();
+    if (test_histo) {
+      h_lep_pt->Write();
+      h_lep_pt_eta->Write();
 
-    delete h_lep_pt;
-    delete h_lep_pt_eta;
-
+      delete h_lep_pt;
+      delete h_lep_pt_eta;
+    }
   }
 
   f_out->Write();
@@ -541,14 +588,21 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
 
   int nbin = 100;
 
-  TFile* file = TFile::Open(name.c_str(), "RECREATE");
+  std::unique_ptr<TFile> file(TFile::Open(name.c_str(), "RECREATE"));
 
   if(type == 0)
     {
-      TH1D hElFake("FakeEfficiency_el_pt","FakeEfficiency", nbin, 0., 1.*nbin);
-      TH1D hMuFake("FakeEfficiency_mu_pt","FakeEfficiency", nbin, 0., 1.*nbin);
-      TH1D hElReal("RealEfficiency_el_pt","RealEfficiency", nbin, 0., 1.*nbin);
-      TH1D hMuReal("RealEfficiency_mu_pt","RealEfficiency", nbin, 0., 1.*nbin);
+      TH1D hElFake("FakeEfficiency_el_pt","FakeEfficiency_el_pt", nbin, 0., 1.*nbin);
+      TH1D hMuFake("FakeEfficiency_mu_pt","FakeEfficiency_mu_pt", nbin, 0., 1.*nbin);
+      TH1D hElReal("RealEfficiency_el_pt","RealEfficiency_el_pt", nbin, 0., 1.*nbin);
+      TH1D hMuReal("RealEfficiency_mu_pt","RealEfficiency_mu_pt", nbin, 0., 1.*nbin);
+
+      TH1D hElFake_bigSyst("FakeEfficiency_el_pt__bigSyst","FakeEfficiency_el_pt__bigSyst", nbin, 0., 1.*nbin);
+      TH1D hElFake_smallSyst("FakeEfficiency_el_pt__smallSyst","FakeEfficiency_el_pt__smallSyst", nbin, 0., 1.*nbin);
+      TH1D hMuFake_bigSyst("FakeEfficiency_mu_pt__bigSyst","FakeEfficiency_mu_pt__bigSyst", nbin, 0., 1.*nbin);
+      TH1D hMuFake_smallSyst("FakeEfficiency_mu_pt__smallSyst","FakeEfficiency_mu_pt__smallSyst", nbin, 0., 1.*nbin);
+      TH1D hElReal_bigSyst("RealEfficiency_el_pt__bigSyst","RealEfficiency_el_pt__bigSyst", nbin, 0., 1.*nbin);
+      TH1D hMuReal_bigSyst("RealEfficiency_mu_pt__bigSyst","RealEfficiency_mu_pt__bigSyst", nbin, 0., 1.*nbin);
 
       for (int ibin = 1; ibin <= nbin; ibin++) {
 	Double_t realeff = TMath::Min(rnd.Gaus(realeff_mean, eff_spread), 0.99);
@@ -566,6 +620,15 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
 	hElReal.SetBinError(ibin, eff_spread);
 	hMuReal.SetBinContent(ibin, realeff);
 	hMuReal.SetBinError(ibin, eff_spread);
+
+
+	hElFake_bigSyst.SetBinContent(ibin, 0.20*hElFake.GetBinContent(ibin));
+	hElFake_smallSyst.SetBinContent(ibin, 0.02*hElFake.GetBinContent(ibin));
+	hMuFake_bigSyst.SetBinContent(ibin, 0.20*hMuFake.GetBinContent(ibin));
+	hMuFake_smallSyst.SetBinContent(ibin, 0.02*hMuFake.GetBinContent(ibin));
+	hElReal_bigSyst.SetBinContent(ibin, 0.20*hElReal.GetBinContent(ibin));
+	hMuReal_bigSyst.SetBinContent(ibin, 0.20*hMuReal.GetBinContent(ibin));
+
       }
 
       file->cd();
@@ -573,6 +636,12 @@ void writeROOT(const string& name, int type, float realeff_mean, float fakeeff_m
       hElReal.Write();
       hMuFake.Write();
       hMuReal.Write();
+      hElFake_bigSyst.Write();
+      hElReal_bigSyst.Write(); 
+      hElFake_smallSyst.Write();
+      hMuFake_bigSyst.Write();
+      hMuFake_smallSyst.Write();
+      hMuReal_bigSyst.Write();
     }
   file->Close();
 }

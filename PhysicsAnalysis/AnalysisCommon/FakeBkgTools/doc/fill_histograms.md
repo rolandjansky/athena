@@ -39,6 +39,6 @@ for(auto& sysvar : sysvars)
 
 ### Likelihood matrix tool and histogram normalization
 
-Due to the non-linear nature of the procedure, one will find in general that the sum of the predictions over all bins does not match the unbinned prediction. This is normal! 
+Due to the non-linear nature of the procedure, one will find in general that the sum of the predictions in each bin does not match the overall unbinned prediction. This is normal! 
 
-But it might be annoying. The tool therefore leaves the option to rescale the binned prediction such that the sum of bins matches the unbinned estimate. This can be enabled by setting dedicated property *FixHistogramNormalization* to true.
+But it might be annoying. The tool therefore gives the option to rescale the binned prediction such that the sum of bins matches the unbinned estimate. This can be enabled by setting the dedicated property *FixHistogramNormalization* to true.
