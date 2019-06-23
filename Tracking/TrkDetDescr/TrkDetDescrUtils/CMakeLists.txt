@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives 
-			  CxxUtils)
+			  Control/CxxUtils)
 
 # External dependencies:
 find_package( Eigen )
