@@ -272,8 +272,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 
 ########################################################################
 
-# Number of events to be processed
-theApp.EvtMax = athenaCommonFlags.EvtMax()
 # possibly skip events
 
 if rec.doCBNT():
@@ -554,12 +552,6 @@ if globalflags.InputFormat.is_bytestream():
 
     #Set TypeNames of ByteStreamInputService according to global flags:
     protectedInclude("RecExCommon/BSRead_config.py")
-
-
-try:
-    svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
-except Exception:
-    treatException("Could not set EventSelector.SkipEvents")
 
 
 if rec.doEdmMonitor() and DetFlags.detdescr.ID_on():
