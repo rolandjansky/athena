@@ -109,7 +109,8 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MaskMiddleHTBitArgon                 = False,
                                                                MaskLastHTBitArgon                   = False,
                                                                useDriftTimeHTCorrection        = True,
-                                                               useDriftTimeToTCorrection       = True) # reenable ToT
+                                                               useDriftTimeToTCorrection       = True, # reenable ToT
+                                                               applyDriftTimeArCorrection      = False ) # enable ToT and HT correction also for Ar straws
 
          from AthenaCommon.BeamFlags import jobproperties 
          if InDetFlags.InDet25nsec() and jobproperties.Beam.beamType()=="collisions": 
