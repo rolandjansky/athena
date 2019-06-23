@@ -17,6 +17,8 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
+#include "MuonSelectorTools/MuonSelectionTool.h"
+
 //class TrackIsolationTool;
 
 //==============================================================================
@@ -30,8 +32,10 @@ class MuonSelector : public EventAnalysis
   MuonSelector();
   ~MuonSelector();
 
+
   bool passSelection( const xAOD::Muon* pxMuon );
   void setDebug(bool debug){m_doDebug = debug;}
+  //CP::MuonSelectionTool m_muonSelectionTool;
  
   // Override functions from EventAnalysis
   virtual void Init();

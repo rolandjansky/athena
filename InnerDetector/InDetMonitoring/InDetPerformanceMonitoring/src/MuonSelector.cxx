@@ -28,7 +28,6 @@
 
 
 
-
 // Local debug variables. Global scope, but only accessible by this file.
 static const float CGeV              =  1.0e-3;  // Conversion factor to remove evil MeV
                                                  // nonsense.
@@ -75,7 +74,7 @@ MuonSelector::MuonSelector()
   m_ucID_SCTCut     = 4;        // Hits
   m_ucID_TRTCut     = 0;        // Hits
 
-  m_doDebug     = false;
+  m_doDebug         = true;
   m_doQualSelection = false;
   m_doIsoSelection  = false;
   m_doPtSelection   = true;
@@ -104,6 +103,7 @@ bool MuonSelector::passSelection( const xAOD::Muon* pxMuon)
     {
       // Save local copy of muon address if it's ok.
       m_pxMuon = pxMuon;
+
       // Test muon pass conditions in turn
       if(m_doQualSelection){
 	pass = passQualCuts();
@@ -156,6 +156,19 @@ void MuonSelector::Init()
     (*m_msgStream) << MSG::ERROR << "  * MuonSelector * Init() * Unable to retrieve ToolSvc " << endreq;
     return;
   }
+
+  /*
+  CP::MuonSelectionTool m_muonSelectionTool("MuonSelection");
+  
+  if (m_muonSelectionTool.initialize()) {
+    (*m_msgStream) << MSG::INFO << "  * MuonSelector * Init() * m_muonSelectionTool.initialize() success :)" << endreq;
+    if(m_doDebug){ std::cout << "  * MuonSelector * Init * m_muonSelectionTool.initialize() success :)" << std::endl;}
+  }
+  else {
+    (*m_msgStream) << MSG::ERROR << "  * MuonSelector * Init() * FAILURE * Muon selction tool retrieval failed :( " << endreq;    
+  }
+  */
+
   PARENT::Init();
 }
 
