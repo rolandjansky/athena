@@ -19,13 +19,13 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 #----------------------------------------------------------------
 
 def electronFastCaloCfg( flags ):
-    return fastCaloMenuSequence("ElectronFastCalo")
+    return fastCaloMenuSequence("Electron")
     
 def fastElectronSequenceCfg( flags ):    
     return fastElectronMenuSequence()
 
 def precisionCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence()
+    return precisionCaloMenuSequence('Electron')
 
 #----------------------------------------------------------------
 # Class to configure chain
