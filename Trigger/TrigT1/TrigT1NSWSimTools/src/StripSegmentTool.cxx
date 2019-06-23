@@ -11,12 +11,6 @@
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-
-
 // Muon software includes
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
@@ -36,7 +30,6 @@
 
 // local includes
 #include "TTree.h"
-#include "TVector3.h"
 
 #include <functional>
 #include <algorithm>
@@ -74,8 +67,6 @@ namespace NSWL1 {
     StripSegmentTool::~StripSegmentTool() {
 
     }
-
-//  
   
   StatusCode StripSegmentTool::initialize() {
       ATH_MSG_INFO("initializing " << name() );
@@ -92,7 +83,6 @@ namespace NSWL1 {
         ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       }
       ATH_CHECK(this->book_branches());
-      // retrieve the Incident Service
       ATH_CHECK(m_incidentSvc.retrieve());
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
       ATH_CHECK(m_lutCreatorToolsTGC.retrieve());

@@ -10,10 +10,6 @@
 #include "TrigT1NSWSimTools/StripClusterTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -27,10 +23,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
-#include "TVector3.h"
-
 #include <functional>
 #include <algorithm>
 #include <map>

@@ -28,7 +28,6 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TTree.h"
-#include "TVector3.h"
 
 #include <functional>
 #include <algorithm>
@@ -245,9 +244,9 @@ namespace NSWL1 {
       // No sector implemented yet!!!
      
       // retrieve the current run number and event number
-      const EventInfo* pevt = 0;
-      StatusCode sc = evtStore()->retrieve(pevt);
-      if ( !sc.isSuccess() ) {
+      const DataHandle<EventInfo> pevt; 
+
+      if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
         ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current STRIP cache" ); 
         m_strip_cache_runNumber   = -1;
         m_strip_cache_eventNumber = -1;

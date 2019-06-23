@@ -128,8 +128,7 @@ namespace NSWL1 {
   StatusCode NSWL1Simulation::execute() {
     ATH_MSG_DEBUG( "execute" << name() );
     m_counters.clear();
-
-    const EventInfo* pevt = 0;
+    const DataHandle<EventInfo> pevt;
     ATH_CHECK( evtStore()->retrieve(pevt) );
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();

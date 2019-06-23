@@ -123,11 +123,9 @@ namespace NSWL1 {
         std::string algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-            if(TTree *tree = get_tree_from_histsvc()){
-                m_validation_tree.init_tree(tree);
-            } else {
-                return STATUSCODE(StatusCode::FAILURE, IssueSeverity::FATAL, "cannot book requested output tree");
-            }
+         TTree *tree=nullptr;
+         ATH_CHECK( get_tree_from_histsvc(tree));
+          m_validation_tree.init_tree(tree);
         }           
         // retrieve the Incident Service
         ATH_CHECK( m_incidentSvc.retrieve() );
@@ -232,10 +230,10 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
         // retrieve the current run number and event number
-        const EventInfo* pevt = 0;
+        const DataHandle<EventInfo> pevt; 
         StatusCode sc =evtStore()->retrieve(pevt) ;
         
-        if ( !sc.isSuccess() ) {
+        if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
             ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current PAD cache" );
             m_pad_cache_runNumber   = -1;
             m_pad_cache_eventNumber = -1;
@@ -422,21 +420,16 @@ namespace NSWL1 {
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
     }
     //------------------------------------------------------------------------------
-    TTree* PadTdsOfflineTool::get_tree_from_histsvc()
+    StatusCode PadTdsOfflineTool::get_tree_from_histsvc(TTree*& tree)
     {
-        TTree *tree=NULL;
-        ITHistSvc* tHistSvc=NULL;
+        ITHistSvc* tHistSvc=nullptr;
         m_validation_tree.clear_ntuple_variables();
-        if(service("THistSvc", tHistSvc).isFailure()) {
-            ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        } else {         
-            std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
-            std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
-            if(tHistSvc->getTree(treename, tree).isFailure()) {            
-                ATH_MSG_FATAL(("Could not retrieve the analysis ntuple "+treename+" from the THistSvc").c_str());
-            }
-        }
-        return tree;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+        std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
+        ATH_CHECK(tHistSvc->getTree(treename, tree));
+
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
