@@ -2593,7 +2593,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
             delete result;
             return nullptr;
         } else {
-          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
+          result->setSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG_DEBUG(" Managed cascade fit for " << "B_c -> Ds" );
           m_countPassedBcVtx++;
 
@@ -2858,7 +2858,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
             delete result;
             return nullptr;
         } else {
-          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
+          result->setSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG_DEBUG(" Managed cascade fit for " << "B_c -> Dplus" );
           m_countPassedBcDplusVtx++;
 
@@ -3166,7 +3166,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
             delete result;
             return nullptr;
         } else {
-          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
+          result->setSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG_DEBUG(" Managed cascade fit for " << "B_c -> Dstar" );
           m_countPassedBcDstarVtx++;
 
@@ -3462,7 +3462,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
             delete result;
             return nullptr;
         } else {
-          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
+          result->setSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG_DEBUG(" Managed cascade fit for B_c -> D0" );
           m_countPassedBcD0Vtx++;
 
@@ -3722,7 +3722,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
             delete result;
             return nullptr;
         } else {
-          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
+          result->setSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG_DEBUG(" Managed cascade fit for L_b -> Lambda" );
           m_countPassedLbVtx++;
 
