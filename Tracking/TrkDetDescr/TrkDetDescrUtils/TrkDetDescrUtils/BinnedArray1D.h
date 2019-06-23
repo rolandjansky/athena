@@ -41,8 +41,7 @@ public:
   /**Constructor with std::vector and a  BinUtility - reference counted, will delete objects at the end,
     if this deletion should be turned off, the boolean deletion should be switched to false
     the global position is given by object */
-  BinnedArray1D(const std::vector< std::pair< SharedObject<const T>, 
-                Amg::Vector3D > >& tclassvector, 
+  BinnedArray1D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector, 
                 BinUtility* bingen) :
     BinnedArray<T>(),
     m_array(nullptr),

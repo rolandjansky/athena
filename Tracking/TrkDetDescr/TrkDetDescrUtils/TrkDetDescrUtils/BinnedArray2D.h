@@ -87,8 +87,8 @@ public:
       for (size_t ill =0; ill< ((*barr.m_array)[0])->size(); ++ill){
         (*((*m_array)[ihl]))[ill] = (*((*barr.m_array)[ihl]))[ill];
       }
-      this->prepareCacheArray(); 
     }
+      this->prepareCacheArray(); 
   }
   /**Assignment operator*/
   BinnedArray2D& operator=(const BinnedArray2D& barr)
@@ -96,8 +96,9 @@ public:
     if (this != &barr){
       size_t arrsize = m_array->size();
       // first deleting everything
-      for ( size_t ivec=0 ; ivec < arrsize; ++ivec) 
+      for ( size_t ivec=0 ; ivec < arrsize; ++ivec) {
         delete (*m_array)[ivec];
+      }
       delete m_array;
       delete m_arrayObjects; 
       m_arrayObjects = nullptr;
@@ -185,9 +186,11 @@ private:
     if (!m_arrayObjects){
       m_arrayObjects = new std::vector<const T*>;
       m_arrayObjects->reserve(arrayObjectsNumber());
-      for (size_t ihl=0; ihl< (m_binUtility->bins(1)); ++ihl)
-        for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
+      for (size_t ihl=0; ihl< (m_binUtility->bins(1)); ++ihl){
+        for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill){
           m_arrayObjects->push_back( ((*((*m_array)[ihl]))[ill]).get() );
+        }
+      }
     }
   }
 

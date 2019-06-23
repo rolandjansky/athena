@@ -71,7 +71,7 @@ public:
         for (int j=0; j <v2Size; ++j) {
           (*((*m_array)[i]))[j] = new std::vector< SharedObject<const T>> ( (*binUtilVec)[i][j]->bins() );
         }
-      }
+      } 
     }
 
     // fill the Volume vector into the array
@@ -88,8 +88,8 @@ public:
         (*curVec)[bin3] = ((tclassvector)[ivec]).first;
       } else 
         throw GaudiException("BinnedArray1D1D1D", "Object outside bounds", StatusCode::FAILURE);
-    }
-    this->prepareCacheArray(); 
+    } 
+      this->prepareCacheArray(); 
   }
 
   /** Copy Constructor - copies only pointers! */
