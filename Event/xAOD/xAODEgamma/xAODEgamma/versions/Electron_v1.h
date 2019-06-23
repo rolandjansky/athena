@@ -116,7 +116,7 @@ namespace xAOD {
 
     
     ///@brief Set method for Track to Calo Match values.
-    bool  setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information );
+    bool  setTrackCaloMatchValue( const float value, const EgammaParameters::TrackCaloMatchType information );
 
     ///@brief Accessor to the  matching track(s) float information (index = 0 is the best match)
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
@@ -127,7 +127,7 @@ namespace xAOD {
     ///@brief Accessor to the  matching track(s) int information (index = 0 is the best match)
     /// Will lead to an exception if the information is not available.
     uint8_t trackParticleSummaryIntValue( const SummaryType information, int index = 0) const;
-    float  trackParticleSummaryFloatValue(  const SummaryType information, int index =  0) const;
+    float  trackParticleSummaryFloatValue( const SummaryType information, int index =  0) const;
 
     /// @}
 
