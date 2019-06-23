@@ -10,7 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          Tracking/TrkEvent/TrkEventPrimitives )
+                          Tracking/TrkEvent/TrkEventPrimitives 
+			  CxxUtils)
 
 # External dependencies:
 find_package( Eigen )
@@ -20,5 +21,5 @@ atlas_add_library( TrkDetDescrUtils
                    src/*.cxx
                    PUBLIC_HEADERS TrkDetDescrUtils
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel TrkEventPrimitives )
+		   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel TrkEventPrimitives CxxUtils)
 
