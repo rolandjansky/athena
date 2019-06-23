@@ -66,6 +66,23 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     ATH_MSG_INFO("  Chain number: " << i << " Shifter Chain Name: " << chainName );
   }
 
+  /* Verifiy if the trigger chain was fired */
+
+  for ( auto& trigName : m_expert ) {
+    if ( m_trigDecTool->isPassed(trigName) ) {
+      std::cout << " Trigger chain from expert folder: " << trigName << " has fired !!! " << std::endl;
+    } else {
+      std::cout << " Trigger chain from expert folder: " << trigName << " has not fired " << std::endl;
+    }
+  } // for
+  for ( auto& trigName : m_shifter ) {
+    if ( m_trigDecTool->isPassed(trigName) ) {
+      std::cout << " Trigger chain from shifter folder: " << trigName << " has fired !!! " << std::endl;
+    } else {
+      std::cout << " Trigger chain from shifter folder: " << trigName << " has not fired " << std::endl;
+    }
+  } // for
+
   /* Fill some of the histograms with random values */ 
 
     auto E1d0 = Monitored::Scalar<float>("E1d0",0.0);

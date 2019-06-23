@@ -170,8 +170,8 @@ if __name__=='__main__':
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG,INFO
-    # log.setLevel(DEBUG)
-    log.setLevel(INFO)
+    log.setLevel(DEBUG)
+    # log.setLevel(INFO)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -196,7 +196,7 @@ if __name__=='__main__':
     #trigBjetMonitorAcc.getEventAlgo('TrigBjetMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    # cfg.run() #use cfg.run(20) to only run on first 20 events
     Nevents = 10
-    cfg.run(Nevents)
+    # cfg.run(Nevents)
+    cfg.run() #use cfg.run(20) to only run on first 20 events
 
