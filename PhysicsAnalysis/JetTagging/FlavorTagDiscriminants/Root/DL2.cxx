@@ -198,7 +198,8 @@ namespace FlavorTagDiscriminants {
       TrackSortVar trackSortVar(SortOrder order, EDMSchema schema) {
         typedef xAOD::TrackParticle Tp;
         typedef xAOD::Jet Jet;
-        typedef SG::AuxElement AE;
+        // this typedef is unused, please remove if not needed:
+        //   typedef SG::AuxElement AE;
         BTagTrackAugmenter aug(schema);
         switch(order) {
         case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
