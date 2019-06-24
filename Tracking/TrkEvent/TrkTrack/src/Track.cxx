@@ -128,14 +128,13 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
       m_trackStateVector = new DataVector<const TrackStateOnSurface>;
       m_trackStateVector->reserve(rhs.m_trackStateVector->size());
       TSoS_iterator itTSoSEnd = rhs.m_trackStateVector->end();
-      for( TSoS_iterator itTSoS = rhs.m_trackStateVector->begin();
-           itTSoS!=itTSoSEnd; ++itTSoS){
+      for( TSoS_iterator itTSoS = rhs.m_trackStateVector->begin();itTSoS!=itTSoSEnd; ++itTSoS){
         assert(*itTSoS!=0); // check that is defined.
         TrackStateOnSurface* tsos = (**itTSoS).clone();
         m_trackStateVector->push_back( tsos );
-        if(tsos!=nullptr){
+        if(tsos!=nullptr && tsos->type(TrackStateOnSurface::Perigee)){ 
           const Trk::Perigee*  perigee = dynamic_cast<const Trk::Perigee*>(tsos->trackParameters() ) ;
-          if (perigee!=0 && tsos->type(TrackStateOnSurface::Perigee)){ 
+          if(perigee!=nullptr){  
             m_perigeeParameters.store(perigee);//Now they will be valid
           }
         }
@@ -169,7 +168,9 @@ const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() cons
     {
       const TrackParameters* trackParameters = (*itTSoS)->trackParameters();
       // check to make sure that the TrackParameters exists first
-      if (trackParameters!=0) tmp_ParameterVector.push_back( trackParameters );
+      if (trackParameters!=0) {
+        tmp_ParameterVector.push_back( trackParameters );
+      }
     }
     m_cachedParameterVector.set(std::move(tmp_ParameterVector)); 
   }
@@ -199,9 +200,11 @@ void Trk::Track::findPerigeeImpl() const
       m_trackStateVector->end();
     for( ; it!=itEnd; ++it )
     {
-      tmpPerigeeParameters = dynamic_cast<const Trk::Perigee*>( (*it)->trackParameters() ) ;
-      if (tmpPerigeeParameters!=0 && (*it)->type(TrackStateOnSurface::Perigee)){
+      if ((*it)->type(TrackStateOnSurface::Perigee)){
+        tmpPerigeeParameters = dynamic_cast<const Trk::Perigee*>( (*it)->trackParameters() ) ;
+        if(tmpPerigeeParameters!=nullptr){
         break; // found perigee so stop loop.
+        }
       }
     }
   }
