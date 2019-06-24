@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKSetup.h"
@@ -273,12 +273,12 @@ void TrackFitter711::init()
 
   // These 6 counters will evolve in each step of map building
   // to generalize to 1st/2nd stage extrapolation.
-  int plane_index_1st_stage(0);
-  int plane_index_2nd_stage(0);
-  int coord_index_1st_stage(0);
-  int coord_index_2nd_stage(0);
-  int index_missing_plane(0);
-  int index_missing_coord(0);
+           int plane_index_1st_stage(0);
+           int plane_index_2nd_stage(0);
+  unsigned int coord_index_1st_stage(0);
+  unsigned int coord_index_2nd_stage(0);
+  unsigned int index_missing_plane(0);
+  unsigned int index_missing_coord(0);
 
   //int debugcounter(0);
   do { // maps building
