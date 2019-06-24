@@ -263,26 +263,26 @@ namespace ZDC
     const int peakSample = 5;
     const float peak2ndDerivThreshHG = -12;
     const float peak2ndDerivThreshLG = -10;
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {4.000, 3.380, 3.661, 3.679,
-                                                    4.472, 4.656, 3.871, 4.061
-                                                    };
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {{{4.000, 3.380, 3.661, 3.679},
+                                                     {4.472, 4.656, 3.871, 4.061}
+                                                    }};
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {22,    24.81, 24.48, 24.45,
-                                                    24.17, 24.22, 25.46, 24.45
-                                                    };
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {{{22,    24.81, 24.48, 24.45},
+                                                     {24.17, 24.22, 25.46, 24.45}
+                                                    }};
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {70.00, 72.74, 73.09, 72.25,
-                                                 75.11, 74.94, 73.93, 74.45
-                                                };
-    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {70.00, 73.41, 74.27, 73.30,
-                                                 76.28, 76.07, 74.98, 76.54
-                                                };
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{70.00, 72.74, 73.09, 72.25},
+                                                  {75.11, 74.94, 73.93, 74.45}
+                                                }};
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{70.00, 73.41, 74.27, 73.30},
+                                                  {76.28, 76.07, 74.98, 76.54}
+                                                }};
 
     // Delta T0 cut
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = { -6, -5, -5, -5, -5, -5, -5, -5};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = { -6, -5, -5, -5, -5, -5, -5, -5};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
 
 
     for (size_t side : {0, 1}) {
