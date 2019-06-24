@@ -46,7 +46,6 @@ RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg, const PixelGeoBuilder
   schema.setPixelSchema();
   m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML", schema, basics);
   m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
-  m_svcDynXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
   m_svcRoutingXMLHelper = new PixelRoutingServiceXMLHelper("PIXEL_PIXELROUTINGSERVICE_GEO_XML",basics);
 
   m_routeBarrel = true;
@@ -56,7 +55,6 @@ RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg, const PixelGeoBuilder
 RoutingDyn::~RoutingDyn(){
   delete m_simpleSrvXMLHelper;
   delete m_genXMLHelper;
-  delete m_svcDynXMLHelper;
   delete m_svcRoutingXMLHelper;
 }
 
