@@ -54,7 +54,8 @@ def getTransform():
                                                        'from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
                                                        'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputBS_RDOFile)',
                                                        'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)',
-                                                       'jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)',
+                                                       'if hasattr(runArgs,\'skipEvents\'):',
+                                                       '   jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)',
                                                        'if hasattr(runArgs,\'outputBSFile\'):',
                                                        '   jps.AthenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )']))
 
