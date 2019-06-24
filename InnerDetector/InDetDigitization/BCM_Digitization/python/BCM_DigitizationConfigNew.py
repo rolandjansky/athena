@@ -60,15 +60,14 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc.setPrivateTools(BCM_DigitizationTool(name, **kwargs))
     return acc
 
-def BCM_DigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
+def BCM_DigitizationCfg(flags, name="BCM_Digitization", **kwargs):
     """Return a ComponentAccumulator with configured BCM_Digitization algorithm"""
     acc = PixelGeometryCfg(flags)
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
         kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
     return acc
 
 def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **kwargs):

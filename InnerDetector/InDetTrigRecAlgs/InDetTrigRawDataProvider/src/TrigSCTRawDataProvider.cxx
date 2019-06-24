@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigSCTRawDataProvider.h"
@@ -124,7 +124,6 @@ namespace InDet {
   void TrigSCTRawDataProvider::handle(const Incident& inc) {
   if (inc.type() == "BeginEvent") {
     m_container->cleanup();
-    m_rawDataTool->beginNewEvent();
   }  
 }
 

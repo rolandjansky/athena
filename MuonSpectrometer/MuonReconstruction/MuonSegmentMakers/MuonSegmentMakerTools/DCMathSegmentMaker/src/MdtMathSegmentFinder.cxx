@@ -19,7 +19,7 @@ namespace Muon {
 
   MdtMathSegmentFinder::MdtMathSegmentFinder (const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool (t, n, p),
-    m_dcslFitProvider(""),
+    m_dcslFitProvider("",this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     declareInterface <IMdtSegmentFinder> (this);

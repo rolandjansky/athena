@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTXAODBphysMonTool.cxx
@@ -78,6 +78,7 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 
 using namespace std;
+using namespace TrigCompositeUtils;
 
 namespace  { // variable binning
     const double ptmus[] = {0.,2.,4.,6.,8.,10.,12.,15.,20.,25.,30.,40.,50.,75.,100.};
@@ -412,84 +413,145 @@ StatusCode HLTXAODBphysMonTool::fillTriggers(){
     
         ATH_MSG_DEBUG( " Retrieving HLT details");
         // Getting the EF chain's features:
-        const Trig::FeatureContainer fc = getTDT()->features(chainName);
-        auto & fc_bphysEF   = fc.get<xAOD::TrigBphysContainer>("");
-        auto & fc_bphysL2   = fc.get<xAOD::TrigBphysContainer>("L2BMuMuFex");
-        auto & fc_muonsEF   = fc.get<xAOD::MuonContainer>();
-        auto & fc_muonsL2SA = fc.get<xAOD::L2StandAloneMuonContainer>();
-        auto & fc_muonsL2CB = fc.get<xAOD::L2CombinedMuonContainer>();
 
-        ATH_MSG_DEBUG(  "Trigger(): number of L2 Bphys: " << fc_bphysL2.size() );
-        for (auto bphys: fc_bphysL2){
-            ATH_MSG_DEBUG(  "       number of L2 Bphys size: " << bphys.cptr()->size() );
-            for (auto b: *bphys.cptr()) {
-                ATH_MSG_DEBUG(  "\t\t\t:" << b->mass() << " " << b->fitmass() << " " << b->eta() << " " << b->phi() );
-            }
-        }
-        ATH_MSG_DEBUG(  "Trigger(): number of EF Bphys: " << fc_bphysEF.size() );
-        for (auto bphys: fc_bphysEF){
-            ATH_MSG_DEBUG(  "       number of EF Bphys size: " << bphys.cptr()->size() );
-            for (auto b: *bphys.cptr()) {
-                ATH_MSG_DEBUG(  "\t\t\t:" << b->mass() << " " << b->fitmass() << " " << b->eta() << " " << b->phi() );
-            }
-        }
-        ATH_MSG_DEBUG(  "Trigger(): number of EF Muons: " << fc_muonsEF.size() );
-        for (auto muons: fc_muonsEF){
-            ATH_MSG_DEBUG(  "       number of EF Muons size: " << muons.cptr()->size() );
-            for (auto mu: *muons.cptr()) {
-                ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi() << " " << mu->charge() );
-            }
-        }
-        ATH_MSG_DEBUG(  "Trigger(): number of L2SA Muons: " << fc_muonsL2SA.size() );
-        for (auto muons: fc_muonsL2SA){
-            ATH_MSG_DEBUG(  "       number of L2SA Muons size: " << muons.cptr()->size() );
-            for (auto mu: *muons.cptr()) {
-                ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi()  );
-            }
-        }
-        ATH_MSG_DEBUG(  "Trigger(): number of L2CB Muons: " << fc_muonsL2CB.size() );
-        for (auto muons: fc_muonsL2CB){
-            ATH_MSG_DEBUG(  "       number of L2CB Muons size: " << muons.cptr()->size() );
-            for (auto mu: *muons.cptr()) {
-                ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi() << " " << mu->charge() );
-            }
-        }
+        if (getTDT()->getNavigationFormat() == "TriggerElement") {
 
-        
-        const std::vector<Trig::Combination>& combinations = fc.getCombinations();
-        ATH_MSG_DEBUG(  "Trigger(): number of combinations: " << combinations.size() );
+            const Trig::FeatureContainer fc = getTDT()->features(chainName);
+            auto & fc_bphysEF   = fc.get<xAOD::TrigBphysContainer>("");
+            auto & fc_bphysL2   = fc.get<xAOD::TrigBphysContainer>("L2BMuMuFex");
+            auto & fc_muonsEF   = fc.get<xAOD::MuonContainer>();
+            auto & fc_muonsL2SA = fc.get<xAOD::L2StandAloneMuonContainer>();
+            auto & fc_muonsL2CB = fc.get<xAOD::L2CombinedMuonContainer>();
 
-        std::vector<Trig::Combination>::const_iterator cit;
-        
-        for (cit = combinations.begin(); cit != combinations.end(); ++cit) { // Loop over combinations
-            const Trig::Combination& combination = *cit;
-            if (not cit->active()) {
-                ATH_MSG_DEBUG( "Trigger(): combination " << *cit << " is not active" );
-            } //if not active
-            
-            std::vector<Trig::Feature<xAOD::TrigBphys> > triggerFeatures = combination.get<xAOD::TrigBphys>();
-            std::vector<Trig::Feature<xAOD::TrigBphys> >::const_iterator tfIt;
-            ATH_MSG_DEBUG( "Trigger features: " << triggerFeatures.size()  );
-
-            for (tfIt = triggerFeatures.begin(); tfIt != triggerFeatures.end(); ++tfIt) { // Loop over trigger features
-                //retrieves EF info
-                const xAOD::TrigBphys* trigObj = tfIt->cptr();
-                ATH_MSG_DEBUG( "  features: " << trigObj->mass() << " " << trigObj->eta() << " " << trigObj->phi()  );
-            } // loop over trigger (bphys) features
-            
-            std::vector<Trig::Feature<xAOD::Muon> > triggerFeaturesMuon = combination.get<xAOD::Muon>();
-            std::vector<Trig::Feature<xAOD::Muon> >::const_iterator tfItmu;
-            ATH_MSG_DEBUG( "Trigger features Muons: " << triggerFeaturesMuon.size()  );
-            
-            for (tfItmu = triggerFeaturesMuon.begin(); tfItmu != triggerFeaturesMuon.end(); ++tfItmu) { // Loop over trigger features
-                                                                                          //retrieves EF info
-                const xAOD::Muon* trigObj = tfItmu->cptr();
-                ATH_MSG_DEBUG( "  features: " << trigObj->pt() << " " << trigObj->eta() << " " << trigObj->phi()  );
-            } // loop over trigger (muons) features
+            ATH_MSG_DEBUG(  "Trigger(): number of L2 Bphys: " << fc_bphysL2.size() );
+            for (auto bphys: fc_bphysL2){
+                ATH_MSG_DEBUG(  "       number of L2 Bphys size: " << bphys.cptr()->size() );
+                for (auto b: *bphys.cptr()) {
+                    ATH_MSG_DEBUG(  "\t\t\t:" << b->mass() << " " << b->fitmass() << " " << b->eta() << " " << b->phi() );
+                }
+            }
+            ATH_MSG_DEBUG(  "Trigger(): number of EF Bphys: " << fc_bphysEF.size() );
+            for (auto bphys: fc_bphysEF){
+                ATH_MSG_DEBUG(  "       number of EF Bphys size: " << bphys.cptr()->size() );
+                for (auto b: *bphys.cptr()) {
+                    ATH_MSG_DEBUG(  "\t\t\t:" << b->mass() << " " << b->fitmass() << " " << b->eta() << " " << b->phi() );
+                }
+            }
+            ATH_MSG_DEBUG(  "Trigger(): number of EF Muons: " << fc_muonsEF.size() );
+            for (auto muons: fc_muonsEF){
+                ATH_MSG_DEBUG(  "       number of EF Muons size: " << muons.cptr()->size() );
+                for (auto mu: *muons.cptr()) {
+                    ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi() << " " << mu->charge() );
+                }
+            }
+            ATH_MSG_DEBUG(  "Trigger(): number of L2SA Muons: " << fc_muonsL2SA.size() );
+            for (auto muons: fc_muonsL2SA){
+                ATH_MSG_DEBUG(  "       number of L2SA Muons size: " << muons.cptr()->size() );
+                for (auto mu: *muons.cptr()) {
+                    ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi()  );
+                }
+            }
+            ATH_MSG_DEBUG(  "Trigger(): number of L2CB Muons: " << fc_muonsL2CB.size() );
+            for (auto muons: fc_muonsL2CB){
+                ATH_MSG_DEBUG(  "       number of L2CB Muons size: " << muons.cptr()->size() );
+                for (auto mu: *muons.cptr()) {
+                    ATH_MSG_DEBUG(  "\t\t\t:" << mu->pt() << " " << mu->eta() << " " << mu->phi() << " " << mu->charge() );
+                }
+            }
 
             
-        } // loop over combinations
+            const std::vector<Trig::Combination>& combinations = fc.getCombinations();
+            ATH_MSG_DEBUG(  "Trigger(): number of combinations: " << combinations.size() );
+
+            std::vector<Trig::Combination>::const_iterator cit;
+            
+            for (cit = combinations.begin(); cit != combinations.end(); ++cit) { // Loop over combinations
+                const Trig::Combination& combination = *cit;
+                if (not cit->active()) {
+                    ATH_MSG_DEBUG( "Trigger(): combination " << *cit << " is not active" );
+                } //if not active
+                
+                std::vector<Trig::Feature<xAOD::TrigBphys> > triggerFeatures = combination.get<xAOD::TrigBphys>();
+                std::vector<Trig::Feature<xAOD::TrigBphys> >::const_iterator tfIt;
+                ATH_MSG_DEBUG( "Trigger features: " << triggerFeatures.size()  );
+
+                for (tfIt = triggerFeatures.begin(); tfIt != triggerFeatures.end(); ++tfIt) { // Loop over trigger features
+                    //retrieves EF info
+                    const xAOD::TrigBphys* trigObj = tfIt->cptr();
+                    ATH_MSG_DEBUG( "  features: " << trigObj->mass() << " " << trigObj->eta() << " " << trigObj->phi()  );
+                } // loop over trigger (bphys) features
+                
+                std::vector<Trig::Feature<xAOD::Muon> > triggerFeaturesMuon = combination.get<xAOD::Muon>();
+                std::vector<Trig::Feature<xAOD::Muon> >::const_iterator tfItmu;
+                ATH_MSG_DEBUG( "Trigger features Muons: " << triggerFeaturesMuon.size()  );
+                
+                for (tfItmu = triggerFeaturesMuon.begin(); tfItmu != triggerFeaturesMuon.end(); ++tfItmu) { // Loop over trigger features
+                                                                                              //retrieves EF info
+                    const xAOD::Muon* trigObj = tfItmu->cptr();
+                    ATH_MSG_DEBUG( "  features: " << trigObj->pt() << " " << trigObj->eta() << " " << trigObj->phi()  );
+                } // loop over trigger (muons) features
+
+                
+            } // loop over combinations
+
+        } else { // TrigComposite
+
+            const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphysEF = 
+              getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics);
+
+            const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphysL2 = 
+              getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, "L2BMuMuFex");
+
+            const std::vector< LinkInfo<xAOD::MuonContainer> > fc_muonsEF = 
+              getTDT()->features<xAOD::MuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsEF");
+
+            const std::vector< LinkInfo<xAOD::L2StandAloneMuonContainer> > fc_muonsL2SA = 
+              getTDT()->features<xAOD::L2StandAloneMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsSA");
+
+            const std::vector< LinkInfo<xAOD::L2CombinedMuonContainer> > fc_muonsL2CB = 
+              getTDT()->features<xAOD::L2CombinedMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsCB");          
+
+            ATH_MSG_DEBUG(  "Trigger(): number of L2 Bphys: " << fc_bphysL2.size() );
+            for (const auto& bphys: fc_bphysL2){
+                ATH_CHECK(bphys.isValid());
+                ElementLink<xAOD::TrigBphysContainer> b = bphys.link;
+                ATH_MSG_DEBUG(  "\t\t\t:" << (*b)->mass() << " " << (*b)->fitmass() << " " << (*b)->eta() << " " << (*b)->phi() );
+            }
+            ATH_MSG_DEBUG(  "Trigger(): number of EF Bphys: " << fc_bphysEF.size() );
+            for (const auto& bphys: fc_bphysEF){
+                ATH_CHECK(bphys.isValid());
+                ElementLink<xAOD::TrigBphysContainer> b = bphys.link;
+                ATH_MSG_DEBUG(  "\t\t\t:" << (*b)->mass() << " " << (*b)->fitmass() << " " << (*b)->eta() << " " << (*b)->phi() );
+            }
+
+            ATH_MSG_DEBUG(  "Trigger(): number of EF Muons: " << fc_muonsEF.size() );
+            for (auto muon: fc_muonsEF){
+                ATH_CHECK(muon.isValid());
+                ElementLink<xAOD::MuonContainer> mu = muon.link;
+                ATH_MSG_DEBUG(  "\t\t\t:" << (*mu)->pt() << " " << (*mu)->eta() << " " << (*mu)->phi() << " " << (*mu)->charge() );
+            }
+
+            ATH_MSG_DEBUG(  "Trigger(): number of L2SA Muons: " << fc_muonsL2SA.size() );
+            for (auto muon: fc_muonsL2SA){
+                ATH_CHECK(muon.isValid());
+                ElementLink<xAOD::L2StandAloneMuonContainer> mu = muon.link;
+                ATH_MSG_DEBUG(  "\t\t\t:" << (*mu)->pt() << " " << (*mu)->eta() << " " << (*mu)->phi()  );
+            }
+
+            ATH_MSG_DEBUG(  "Trigger(): number of L2CB Muons: " << fc_muonsL2CB.size() );
+            for (auto muon: fc_muonsL2CB){
+                ATH_CHECK(muon.isValid());
+                ElementLink<xAOD::L2CombinedMuonContainer> mu = muon.link;
+                ATH_MSG_DEBUG(  "\t\t\t:" << (*mu)->pt() << " " << (*mu)->eta() << " " << (*mu)->phi() << " " << (*mu)->charge() );
+            }
+
+            // TODO explicit loop over combinations
+
+        } // navigation if/else
+
     } // for loop over chain names
+
+
     
     return StatusCode::SUCCESS;
 } // fillTriggers
@@ -563,58 +625,100 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroups() {
     bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
     
     if (isPassed){
-    
-      const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
-      const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
-      
-      ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
-    
-      for( auto cont_bphys : fc_bphys ) {
-        ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
-        for ( auto bphys:  *(cont_bphys.cptr()) )  {
-             ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
-             // ignore l2 objects
-             if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
-             
-             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
-             if (trackVector.size() <2) {
-                 ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
-                 continue;
-             }
-           
-             const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
-             if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
-                 ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
-                 continue;
-             }
-             if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
-                 ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
-                 continue;
-             }
-             trk1 = *trackVector.at(0);
-             trk2 = *trackVector.at(1);
 
-             auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
-             auto cur_pair_efficiency_rev = std::make_pair (trk2, trk1);
-             bool sawThisPair_rev=std::find(m_efficiency_denomnoVtxOS_pairs.begin(),m_efficiency_denomnoVtxOS_pairs.end(),cur_pair_efficiency_rev)!=m_efficiency_denomnoVtxOS_pairs.end();
-             
-             if(!sawThisPair_rev){
-             m_efficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
-             }
+        if (getTDT()->getNavigationFormat() == "TriggerElement") {
+
+            const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
+            const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
+
+            ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
+
+            for( auto cont_bphys : fc_bphys ) {
+                ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+                for ( auto bphys:  *(cont_bphys.cptr()) )  {
+                     ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+                     // ignore l2 objects
+                     if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                     
+                     const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+                     if (trackVector.size() <2) {
+                         ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                         continue;
+                     }
+                   
+                     const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+                     if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                         ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                         continue;
+                     }
+                     if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                         ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                         continue;
+                     }
+                     trk1 = *trackVector.at(0);
+                     trk2 = *trackVector.at(1);
+
+                     auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
+                     auto cur_pair_efficiency_rev = std::make_pair (trk2, trk1);
+                     bool sawThisPair_rev=std::find(m_efficiency_denomnoVtxOS_pairs.begin(),m_efficiency_denomnoVtxOS_pairs.end(),cur_pair_efficiency_rev)!=m_efficiency_denomnoVtxOS_pairs.end();
+                     
+                     if(!sawThisPair_rev){
+                        m_efficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
+                     }
+                }
+            }
+
+        } else { // TriggerComposite
+
+            const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphys = 
+              getTDT()->features<xAOD::TrigBphysContainer>(m_trigchain_denomnoVtxOS);
+
+            ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
+
+            for( const auto& b : fc_bphys ) {
+                 ATH_CHECK(b.isValid());
+                 ElementLink<xAOD::TrigBphysContainer> bphys = b.link;
+                 ATH_MSG_DEBUG("REGTEST Level = " << (*bphys)->level());
+                 // ignore l2 objects
+                 if (((*bphys)->level() != xAOD::TrigBphys::EF) &&  ((*bphys)->level() != xAOD::TrigBphys::HLT)) continue;
+                 
+                 const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphys)->trackParticleLinks();
+                 if (trackVector.size() <2) {
+                     ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                     continue;
+                 }
+               
+                 const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+                 if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                     ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                     continue;
+                 }
+                 if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                     ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                     continue;
+                 }
+                 trk1 = *trackVector.at(0);
+                 trk2 = *trackVector.at(1);
+
+                 auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
+                 auto cur_pair_efficiency_rev = std::make_pair (trk2, trk1);
+                 bool sawThisPair_rev=std::find(m_efficiency_denomnoVtxOS_pairs.begin(),m_efficiency_denomnoVtxOS_pairs.end(),cur_pair_efficiency_rev)!=m_efficiency_denomnoVtxOS_pairs.end();
+                 
+                 if(!sawThisPair_rev){
+                    m_efficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
+                 }
+            }
         }
-      }
+    
+        for (const auto& effpair: m_efficiency_chains) {
+            if (fillEfficiencyGroup(Form("noVtx_noOS_%s_eff",effpair.first.c_str()),effpair.second).isFailure()) {
+                ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); 
+                continue;
+            }
+        }
 
-   
+    } // isPassed
         
-      for (const auto& effpair: m_efficiency_chains) {
-        if (fillEfficiencyGroup(Form("noVtx_noOS_%s_eff",effpair.first.c_str()),effpair.second).isFailure()) {
-            ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); 
-            continue;
-        }
-      }
-    } 
-   
-    
     // L1Topo efficiencies
     return StatusCode::SUCCESS;
 }
@@ -623,28 +727,114 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupNam
      // helper method for dedicated Efficiency chains
      ATH_MSG_DEBUG("fillEfficiencyGroup: " << groupName << " " << chainName);
      TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
-     
 
-     const auto& fc       = getTDT()->features(chainName);
-     const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
-     
      std::list<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>>cur_pairs_list(m_efficiency_denomnoVtxOS_pairs);                           
-                               
-     ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
-    
-     for( auto cont_bphys : fc_bphys ) {
-       ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
-       for ( auto bphys:  *(cont_bphys.cptr()) )  {
-            ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+     
+     if (getTDT()->getNavigationFormat() == "TriggerElement") {
+
+         const auto& fc       = getTDT()->features(chainName);
+         const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
+         
+         ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+        
+         for( auto cont_bphys : fc_bphys ) {
+           ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+           for ( auto bphys:  *(cont_bphys.cptr()) )  {
+                ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+                // ignore l2 objects
+                if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                
+                const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+                if (trackVector.size() <2) {
+                    ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                    continue;
+                }
+              
+                const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+                if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                    ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                    continue;
+                }
+                if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                    ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                    continue;
+                }
+                trk1 = *trackVector.at(0);
+                trk2 = *trackVector.at(1);
+                
+                auto cur_pair    = std::make_pair (trk1, trk2);
+                auto cur_pair_rev= std::make_pair (trk2, trk1);             
+                bool sawThisPair      =std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair    )!=cur_pairs_list.end();
+                bool sawThisPair_rev  =std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair_rev)!=cur_pairs_list.end();
+
+
+                // refitted track parameters
+                TLorentzVector origTrk1 = trk1->p4();
+                TLorentzVector origTrk2 = trk2->p4();
+                
+                TLorentzVector orig_onia = origTrk1 + origTrk2;
+                
+                double eta     = orig_onia.Eta(); 
+                double pt      = orig_onia.Pt();  
+                double phi     = orig_onia.Phi(); 
+                
+                double phiTrk1 = origTrk1.Phi();
+                double etaTrk1 = origTrk1.Eta();
+                double ptTrk1  = origTrk1.Pt();
+                
+                double phiTrk2 = origTrk2.Phi();
+                double etaTrk2 = origTrk2.Eta();
+                double ptTrk2  = origTrk2.Pt();
+
+                ATH_MSG_VERBOSE("Efficiency shifter hists " << m_base_path_shifter << " " << groupName);
+                ATH_MSG_VERBOSE("Efficiency eta ");
+                if ((sawThisPair) || (sawThisPair_rev)) {
+                   
+                   if(sawThisPair) { 
+                     cur_pairs_list.erase(std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair    )); 
+                   }           
+                   else  { 
+                     cur_pairs_list.erase(std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair_rev)); 
+                   }         
+                    // ******** SHIFTER ********* //
+                   setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+groupName);
+                   profile(Form("%s_eta",prefix.Data()))->Fill(eta,1.0,1.0);
+                   profile(Form("%s_phi",prefix.Data()))->Fill(phi,1.0,1.0);
+                   profile(Form("%s_pt", prefix.Data()))->Fill(pt*0.001,1.0,1.0);
+                   profile(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1,1.0,1.0);
+                   profile(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1,1.0,1.0);
+                   profile(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001,1.0,1.0);
+                   profile(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2,1.0,1.0);
+                   profile(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2,1.0,1.0);
+                   profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,1.0,1.0);
+                 }
+                 // ******** EXPERT ********* //
+                 setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName);
+                 ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
+
+            }  
+         }
+
+     } else { // Trigger Composite
+
+         const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphys = 
+           getTDT()->features<xAOD::TrigBphysContainer>(m_trigchain_denomnoVtxOS);
+                                            
+         ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+        
+         for( const auto& b : fc_bphys ) {
+            ATH_CHECK(b.isValid());
+            ElementLink<xAOD::TrigBphysContainer> bphys = b.link;
+            ATH_MSG_DEBUG("REGTEST Level = " << (*bphys)->level());
             // ignore l2 objects
-            if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
-            
-            const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+            if (((*bphys)->level() != xAOD::TrigBphys::EF) &&  ((*bphys)->level() != xAOD::TrigBphys::HLT)) continue;
+                
+            const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphys)->trackParticleLinks();
             if (trackVector.size() <2) {
                 ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
                 continue;
             }
-          
+              
             const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
             if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
                 ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
@@ -706,9 +896,10 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupNam
              // ******** EXPERT ********* //
              setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName);
              ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
+         }
 
-        }  
      }
+
      for(auto It=cur_pairs_list.begin();It!=cur_pairs_list.end();It++) {
    
         auto cur_pair=*It;
@@ -1146,20 +1337,58 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiency() {
     bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
     
     if (isPassed){
-    
-      const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
-      const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
-      
-      ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
-    
-      for( auto cont_bphys : fc_bphys ) {
-        ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
-        for ( auto bphys:  *(cont_bphys.cptr()) )  {
-             ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+
+      if (getTDT()->getNavigationFormat() == "TriggerElement") {
+          const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
+          const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
+          
+          ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
+        
+          for( auto cont_bphys : fc_bphys ) {
+            ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+            for ( auto bphys:  *(cont_bphys.cptr()) )  {
+                 ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+                 // ignore l2 objects
+                 if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                 
+                 const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+                 if (trackVector.size() <2) {
+                     ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                     continue;
+                 }
+               
+                 const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+                 if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                     ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                     continue;
+                 }
+                 if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                     ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                     continue;
+                 }
+                 trk1 = *trackVector.at(0);
+                 trk2 = *trackVector.at(1);
+
+                 auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
+                 m_JpsiFinderEfficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
+                 }
+            }
+
+        } else { // TrigComposite
+
+         const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphys = 
+           getTDT()->features<xAOD::TrigBphysContainer>(m_trigchain_denomnoVtxOS);
+          
+          ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
+        
+          for( const auto& b : fc_bphys ) {
+             ATH_CHECK(b.isValid());
+             ElementLink<xAOD::TrigBphysContainer> bphys = b.link;
+             ATH_MSG_DEBUG("REGTEST Level = " << (*bphys)->level());
              // ignore l2 objects
-             if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+             if (((*bphys)->level() != xAOD::TrigBphys::EF) &&  ((*bphys)->level() != xAOD::TrigBphys::HLT)) continue;
              
-             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphys)->trackParticleLinks();
              if (trackVector.size() <2) {
                  ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
                  continue;
@@ -1179,7 +1408,8 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiency() {
 
              auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
              m_JpsiFinderEfficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
-             }
+          }
+
         }
 
 
@@ -1348,9 +1578,6 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
     ATH_MSG_DEBUG("Trigger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName << " group: " << groupName);
     if (!isPassed) return StatusCode::SUCCESS; // only HLT passed chains
     
-    // get HLT items
-    const auto& fc       = getTDT()->features(chainName);
-    
     std::string label   = "";
     std::string labelEF = "";
     std::string labelL2 = "";
@@ -1366,33 +1593,69 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
         labelL2 = "L2BMuMuFex";
     }
 
-    const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>(label);
-    const auto& fc_bphysEF = fc.get<xAOD::TrigBphysContainer>(labelEF);
-    const auto& fc_bphysL2 = fc.get<xAOD::TrigBphysContainer>(labelL2);
-    
-    ATH_MSG_DEBUG("Features: HLT: " << fc_bphys.size());
-    ATH_MSG_DEBUG("Features:  EF: " << fc_bphysEF.size());
-    ATH_MSG_DEBUG("Features:  L2: " << fc_bphysL2.size());
+    if (getTDT()->getNavigationFormat() == "TriggerElement") {
+        // get HLT items
+        const auto& fc       = getTDT()->features(chainName);
 
-    
-    ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
-    
-    m_muon_pairs_processed.clear();
-    
-    for( auto cont_bphys : fc_bphys ) {
-        ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
-        for ( auto bphys:  *(cont_bphys.cptr()) )  {
-            ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+        const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>(label);
+        const auto& fc_bphysEF = fc.get<xAOD::TrigBphysContainer>(labelEF);
+        const auto& fc_bphysL2 = fc.get<xAOD::TrigBphysContainer>(labelL2);
+
+        ATH_MSG_DEBUG("Features: HLT: " << fc_bphys.size());
+        ATH_MSG_DEBUG("Features:  EF: " << fc_bphysEF.size());
+        ATH_MSG_DEBUG("Features:  L2: " << fc_bphysL2.size());
+
+        ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+        
+        m_muon_pairs_processed.clear();
+        
+        for( auto cont_bphys : fc_bphys ) {
+            ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+            for ( auto bphys:  *(cont_bphys.cptr()) )  {
+                ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+
+                // ignore l2 objects
+                if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+                
+                fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);
+                // to be added with more complete informations
+                
+            } // loop over bphys objects
+        } // loop over containers
+
+    } else { // TriggerComposite
+
+        const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphys = 
+          getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg); // Get EF and L2
+
+        const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphysEF = 
+          getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, labelEF);
+
+        const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphysL2 = 
+          getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, labelL2); 
+
+        ATH_MSG_DEBUG("Features: HLT: " << fc_bphys.size());
+        ATH_MSG_DEBUG("Features:  EF: " << fc_bphysEF.size());
+        ATH_MSG_DEBUG("Features:  L2: " << fc_bphysL2.size());
+
+        ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+        
+        m_muon_pairs_processed.clear();
+        
+        for( const auto& b : fc_bphys ) {
+            ATH_CHECK(b.isValid());
+            ElementLink<xAOD::TrigBphysContainer> bphys = b.link;
+            ATH_MSG_DEBUG("REGTEST Level = " << (*bphys)->level());
 
             // ignore l2 objects
-            if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+            if (((*bphys)->level() != xAOD::TrigBphys::EF) &&  ((*bphys)->level() != xAOD::TrigBphys::HLT)) continue;
             
-            fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);
+            fillTrigBphysHists((*bphys),groupName,  m_prefix,groupName,chainName, fullSetOfHists);
             // to be added with more complete informations
-            
+                
         } // loop over bphys objects
-    } // loop over containers
-    
+
+    }
     
     return StatusCode::SUCCESS;
 } //fillTriggerGroup

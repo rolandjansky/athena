@@ -35,6 +35,8 @@ class MsgStream;
 
 namespace InDet{
 
+  class SiSpacePointsSeedMakerEventData;
+
   class ISiZvertexMaker : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -50,51 +52,22 @@ namespace InDet{
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::list<Trk::Vertex> newEvent() const =0;
+      virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const =0;
       virtual std::list<Trk::Vertex> newRegion
-      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
+      (SiSpacePointsSeedMakerEventData& data,
+       const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
       virtual std::list<Trk::Vertex> newRegion
-      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&) const =0;
+      (SiSpacePointsSeedMakerEventData& data,
+       const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,
+       const IRoiDescriptor&) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
      
-      virtual MsgStream&    dump(MsgStream&    out) const=0;
-      virtual std::ostream& dump(std::ostream& out) const=0;
-
+      virtual MsgStream& dump(MsgStream& out) const=0;
     };
-  
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator for MsgStream and  std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  MsgStream&    operator << (MsgStream&   ,const ISiZvertexMaker&);
-  std::ostream& operator << (std::ostream&,const ISiZvertexMaker&);
-  
-  ///////////////////////////////////////////////////////////////////
-  // Inline methods
-  ///////////////////////////////////////////////////////////////////
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator MsgStream
-  ///////////////////////////////////////////////////////////////////
-   
-  inline MsgStream& operator    << 
-    (MsgStream& sl,const ISiZvertexMaker& se)
-    { 
-      return se.dump(sl); 
-    }
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  inline std::ostream& operator << 
-    (std::ostream& sl,const ISiZvertexMaker& se)
-    { 
-      return se.dump(sl); 
-    }   
-  
+ 
 } // end of name space
 
 #endif // ISiZvertexMaker_H

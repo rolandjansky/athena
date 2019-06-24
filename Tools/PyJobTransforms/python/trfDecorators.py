@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTrasforms.trfDecorators
@@ -67,7 +69,7 @@ def stdTrfExceptionHandler(func):
             
         # This subclass is treated as a 'normal' exit condition
         # but it should never happen in production as it's a transform definition error
-        except trfExceptions.TransformSetupException, e:
+        except trfExceptions.TransformSetupException as e:
             msg.critical('Transform setup failed: {0}'.format(e.errMsg))
             msg.critical('To help you debug here is the stack trace:')
             msg.critical(traceback.format_exc(None))
@@ -75,7 +77,7 @@ def stdTrfExceptionHandler(func):
             trfUtils.infanticide(message=True)
             sys.exit(e.errCode)
 
-        except trfExceptions.TransformException, e:
+        except trfExceptions.TransformException as e:
             msg.critical('Got a transform exception in the outer exception handler: {0!s}'.format(e))
             msg.critical('Stack trace is...')
             msg.critical(traceback.format_exc(None))
@@ -84,7 +86,7 @@ def stdTrfExceptionHandler(func):
             trfUtils.infanticide(message=True)
             sys.exit(trfExit.nameToCode('TRF_UNEXPECTED_TRF_EXCEPTION'))
             
-        except Exception, e:
+        except Exception as e:
             msg.critical('Got a general exception in the outer exception handler: {0!s}'.format(e))
             msg.critical('Stack trace is...')
             msg.critical(traceback.format_exc(None))
@@ -132,7 +134,7 @@ def sigUsrStackTrace(func):
 def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=None):
 
     import traceback
-    import Queue
+    import queue
     import multiprocessing as mp
 
     from sys import exc_info
@@ -155,7 +157,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                 exc0=exc_info()[0]
                 exc1=exc_info()[1]
                 exc2=traceback.format_exc()
-                msg.warning('In time limited function %s an exception occurred' % (func.func_name))
+                msg.warning('In time limited function %s an exception occurred' % (func.__name__))
                 msg.warning('Original traceback:')
                 msg.warning(exc2)            
                 queue.put((False,(exc0, exc1, exc2))) 
@@ -185,7 +187,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                 
             n=0
             while n<=lretry:
-                msg.info('Try %i out of %i (time limit %s s) to call %s.' % (n+1, retry+1, ltimeout, func.func_name))
+                msg.info('Try %i out of %i (time limit %s s) to call %s.' % (n+1, retry+1, ltimeout, func.__name__))
                 starttime = time.time()
                 q=mp.Queue(maxsize=1)
                 nargs = (q,) + args
@@ -199,10 +201,10 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     if flag:
                         return result
                     else:
-                        msg.warning('But an exception occurred in function %s.' % (func.func_name))
+                        msg.warning('But an exception occurred in function %s.' % (func.__name__))
                         msg.warning('Returning default return code %s.' % ldefaultrc)
                         return ldefaultrc
-                except Queue.Empty:
+                except queue.Empty:
                     # Our function did not run in time - kill increase timeout
                     msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.' % ltimeout)
                     parent=proc.pid
@@ -222,7 +224,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     raise TransformInternalException(trfExit.nameToCode("TRF_EXTERNAL"), errMsg)
 
             msg.warning('All %i tries failed!' % n)
-            raise TransformTimeoutException(trfExit.nameToCode('TRF_EXEC_TIMEOUT'), 'Timeout in function %s' % (func.func_name))
+            raise TransformTimeoutException(trfExit.nameToCode('TRF_EXEC_TIMEOUT'), 'Timeout in function %s' % (func.__name__))
             
         return funcWithTimeout
     

@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/SGTools
                           Control/StoreGate
                           Trigger/TrigEvent/TrigSteeringEvent
                           Control/AthenaExamples/AthExHive
@@ -27,7 +26,7 @@ atlas_add_library( AthViews
                    src/*.cxx
                    PUBLIC_HEADERS AthViews
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils TrigSteeringEvent )
+                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel CxxUtils TrigSteeringEvent )
 
 atlas_add_component( AthViewsAlgs
                    src/*.cxx

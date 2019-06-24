@@ -113,6 +113,7 @@ public:
                               const EventContext& ctx) const;
 
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
+  StatusCode caloAligned( IOVSVC_CALLBACK_ARGS );
 
   typedef std::map<int,int> MCdo_simul_state;
   typedef std::vector<const HepMC::GenParticle*> MCparticleCollection ;

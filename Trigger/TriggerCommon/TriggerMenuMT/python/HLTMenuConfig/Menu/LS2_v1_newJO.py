@@ -48,6 +48,12 @@ def setupMenu(flags):
        get_flag_item('HLT_g15_etcut_L1EM12', [], ['RATE:SinglePhoton', 'BW:Photon'])
     ]
 
+    flags.Trigger.menu.jet = [
+       get_flag_item('HLT_j45_L1J20', [], ['RATE:SingleJet', 'BW:Jet']),
+       get_flag_item('HLT_j85_L1J20', [], ['RATE:SingleJet', 'BW:Jet']),
+       get_flag_item('HLT_2j35_L1J20', [], ['RATE:SingleJet', 'BW:Jet']),
+    ]
+
     # flags.Trigger.menu.combined = [
     #     get_flag_item('HLT_e8_mu8_L1EM6_MU6', [], ['RATE:SingleMuon', 'BW:Muon'])
     # ]

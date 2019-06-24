@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IIOVSVCTOOL_H
@@ -25,15 +25,7 @@ namespace SG {
 
 class IIOVSvcTool : virtual public IAlgTool {
 public:
-
-  /// Retrieve interface ID
-  static const InterfaceID& interfaceID() { 
-    // Declaration of the interface ID ( interface id, major ver, minor ver) 
-    static const InterfaceID IID_IIOVSvcTool("IIOVSvcTool", 1 , 0); 
-    return IID_IIOVSvcTool; 
-  }
-
-
+  DeclareInterfaceID(IIOVSvcTool, 1, 0);
 
   virtual void setStoreName(const std::string& storeName) = 0;
   virtual const std::string& getStoreName() const = 0;
@@ -99,8 +91,6 @@ public:
   // will return FAILURE if no tools found, or no key found
   virtual StatusCode getTriggeredTools(const std::string& key,
                                        std::set<std::string>& tools) = 0;
-
-  virtual StatusCode reinitialize() = 0;
 
   virtual bool holdsProxy( const SG::DataProxy* proxy ) const = 0;
   virtual bool holdsProxy( const CLID& clid, const std::string& key ) const = 0;

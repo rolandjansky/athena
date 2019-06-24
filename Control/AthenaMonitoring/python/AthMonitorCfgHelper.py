@@ -65,6 +65,14 @@ class AthMonitorCfgHelper(object):
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
             algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
+        if getattr (algObj, 'EnableLumi', False):
+            from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+            self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
+            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+
         self.monSeq += algObj
         return algObj
 
@@ -85,9 +93,13 @@ class AthMonitorCfgHelper(object):
         '''
         from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
         tool = GenericMonitoringTool(name)
-        acc, histsvc = getDQTHistSvc(self.inputFlags)
-        self.resobj.merge(acc)
-        tool.THistSvc = histsvc
+        if self.inputFlags.DQ.isReallyOldStyle:
+            from AthenaCommon.AppMgr import ServiceMgr
+            tool.THistSvc = ServiceMgr.THistSvc
+        else:
+            acc = getDQTHistSvc(self.inputFlags)
+            self.resobj.merge(acc)
+
         tool.HistPath = self.inputFlags.DQ.FileKey + ('/%s' % topPath if topPath else '')
         alg.GMTools += [tool]
         return tool
@@ -196,11 +208,17 @@ def getDQTHistSvc(inputFlags):
     from GaudiSvc.GaudiSvcConf import THistSvc
 
     result = ComponentAccumulator()
+
+    if inputFlags.DQ.isReallyOldStyle:
+        from AthenaCommon.AppMgr import ServiceMgr
+        result.addService(ServiceMgr.THistSvc)
+        return result
+
     histsvc = THistSvc()
     histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (inputFlags.DQ.FileKey, 
                                                             inputFlags.Output.HISTFileName)]
     result.addService(histsvc)
-    return result, histsvc
+    return result
 
 def getTriggerTranslatorToolSimple(inputFlags):
     ''' Set up the Trigger Translator Tool; no reason for this to be called
@@ -214,14 +232,14 @@ def getTriggerTranslatorToolSimple(inputFlags):
     tdt_local_hltconfig = HLTMonTriggerList()
     tdt_mapping = {}
     for tdt_menu, tdt_menu_item in tdt_local_hltconfig.__dict__.items():
-        if not isinstance(tdt_menu_item, collections.Iterable): continue
+        if not isinstance(tdt_menu_item, collections.Iterable):
+            continue
         # work around possibly buggy category items
         if isinstance(tdt_menu_item, basestring):
             tdt_local_logger.debug('String, not list: %s' % tdt_menu)
             tdt_menu_item = [tdt_menu_item]
             if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:
                 tdt_local_logger.debug('Bad formatting: %s' % tdt_menu)
-        patched_names = []
         tdt_menu_item = [_ if (_.startswith('HLT_') or _.startswith('L1_')) else 'HLT_' + _
                          for _ in tdt_menu_item]
         tdt_mapping[tdt_menu] = ','.join(tdt_menu_item)

@@ -19,7 +19,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
 // Tool interfaces
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
@@ -77,8 +76,6 @@ private:
 	int m_nTracksB[2];
 	int m_nTracksEC[2];
 	int m_nTracksEC_B[2];
-	float m_nBSErrors[195];
-	float m_nRobErrors[195];
 	std::vector<unsigned int> m_rodMap;
 	bool m_passEventBurst;
 	bool m_ArgonXenonSplitter;
@@ -165,7 +162,6 @@ private:
 	// Tools
 	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrkSummaryTool", "Trk::TrackSummaryTool/InDetTrackSummaryTool", "Track summary tool name"};
 	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder{this, "trt_hole_search", "TRTTrackHoleSearchTool", "Track hole search tool name"};
-	ToolHandle<ILuminosityTool> m_lumiTool{this, "LuminosityTool", "LuminosityTool", "Luminosity tool name"};
 	ToolHandle<ITRT_DriftFunctionTool> m_drifttool; // keep this public for now
 
 	const TRT_ID* m_pTRTHelper;
@@ -173,15 +169,6 @@ private:
 
 	std::string m_geo_summary_provider;//obsolete
 	std::string m_mapPath;
-
-	int m_rbins;
-	float m_rmin;
-	float m_rmax;
-	float m_tbins;
-	float m_tmin;
-	float m_tmax;
-	float m_fitmin;
-	float m_fitmax;
 
 	TH1F_LW* m_hSummary;
 	TProfile* m_hChipBSErrorsVsLB[2][2];
@@ -464,7 +451,6 @@ private:
 	std::vector<float>  m_scale_hHitWMap_B_Ar;
 	/* Helpers for the scatter histograms - 32 stacks (do same for both side for now) */
 	float m_LLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
-	float m_HLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
 
 	/**Initialize Aging plots**
 	 **HT, All, Barrel, EC, In/A, Out/C, etc...
@@ -482,14 +468,12 @@ private:
 	float m_HTfraconTrack_B[32];
 	float m_LonTrack_B[32];
 	int m_nTrack_B[32];
-	int m_nTrackwithHL_B[32];//obsolete
 
 
 
 	float m_HTfraconTrack_E[64];
 	float m_LonTrack_E[64];
 	int m_nTrack_E[64];
-	int m_nTrackwithHL_E[64];//obsolete
 
 	bool m_doRDOsMon;
 	bool m_doGeoMon;
@@ -550,7 +534,6 @@ private:
 	float m_ResidualScale_B_Ar;
 	float m_ResidualScale_B_Ar_20GeV;
 	float m_TimeResidualScale_B_Ar;
-	float m_nTrkvPhiScale_B;//obsolete
 	int m_nTrksperLB_B;
 	int m_nHitsperLB_B;
 	int m_nHLHitsperLB_B;
@@ -572,7 +555,6 @@ private:
 	float m_ResidualScale_E_Ar[2];
 	float m_ResidualScale_E_Ar_20GeV[2];
 	float m_TimeResidualScale_E_Ar[2];
-	float m_nTrkvPhiScale_E[2];//obsolete
 	int m_nTrksperLB_E[2];
 	int m_nHitsperLB_E[2];
 	int m_nHLHitsperLB_E[2];

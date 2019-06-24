@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecEvent/SiSpacePointsSeed
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack
@@ -43,7 +44,7 @@ atlas_add_component( TrigFastTrackFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigFastTrackFinder )

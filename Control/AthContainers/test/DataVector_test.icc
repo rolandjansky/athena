@@ -3124,7 +3124,14 @@ void test2_operator_assign1()
     }
     check_dtor_log();
 
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
     v1 = v1;
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
     check_dtor_log();
     CHECK_INDICES(v1);
 

@@ -130,7 +130,7 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
   s6.append("|");
 
   std::vector<SiDetElementsLayer_xk>* layer[3];
-  getLayers(layer);
+  std::unique_lock<std::mutex> lock{getLayers(layer)};
 
   int maps = 0;
   if (layer[0]->size()) ++maps;
@@ -312,8 +312,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   if (!m_usePIX && !m_useSCT) return;
 
   std::vector<SiDetElementsLayer_xk>* layer[3];
-  getLayers(layer);
-
+  std::unique_lock<std::mutex> lock{getLayers(layer)};
 
   std::list<Amg::Vector3D>::iterator g=GP.begin(), ge=GP.end();
   float Po[6] = {static_cast<float>((*g).x()), static_cast<float>((*g).y()), static_cast<float>((*g).z()),
@@ -745,32 +744,26 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
   return CB;
 }
 
-void InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const {
+std::unique_lock<std::mutex> InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-  if (slot>=m_cache.size()) {
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-    m_layerVectors[0].resize(slot+1);
-    m_layerVectors[1].resize(slot+1);
-    m_layerVectors[2].resize(slot+1);
-  }
-  if (m_cache[slot]!=evt) {
+  CacheEntry* ent{m_cache.get(ctx)};
+  std::unique_lock lock(ent->m_mutex);
+  if (ent->m_evt!=ctx.evt()) {
     SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec{m_layerVecKey, ctx};
     if (not layerVec.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
     }
-    m_cache[slot] = evt;
+    ent->m_evt = ctx.evt();
     // Condition objects are copied for each event
     // so that we can set used state in shared detector elements.
     // Index 0: Endcap C, 1: Barrel, 2: Endcap A
-    m_layerVectors[0][slot] = (*layerVec)->at(0);
-    m_layerVectors[1][slot] = (*layerVec)->at(1);
-    m_layerVectors[2][slot] = (*layerVec)->at(2);
+    ent->m_layerVectors[0] = (*layerVec)->at(0);
+    ent->m_layerVectors[1] = (*layerVec)->at(1);
+    ent->m_layerVectors[2] = (*layerVec)->at(2);
   }
-  layer[0] = &(m_layerVectors[0][slot]);
-  layer[1] = &(m_layerVectors[1][slot]);
-  layer[2] = &(m_layerVectors[2][slot]);
+  layer[0] = &(ent->m_layerVectors[0]);
+  layer[1] = &(ent->m_layerVectors[1]);
+  layer[2] = &(ent->m_layerVectors[2]);
+
+  return lock;
 }

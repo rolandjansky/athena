@@ -12,7 +12,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
-#include "TrigOnlineSpacePointTool/SpacePointConversionUtils.h"
+#include "SpacePointConversionUtils.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
 #include "TrigSpacePointConversionTool.h"

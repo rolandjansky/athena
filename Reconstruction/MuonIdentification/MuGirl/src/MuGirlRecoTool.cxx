@@ -230,6 +230,8 @@ StatusCode MuGirlRecoTool::initialize() {
 
   if (!m_caloExtensionTool.empty()) ATH_CHECK(m_caloExtensionTool.retrieve());
 
+  ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
+
   ATH_MSG_INFO("MuGirlrecoTool initialized successfully");
 
   return StatusCode::SUCCESS;
@@ -704,12 +706,16 @@ StatusCode MuGirlRecoTool::processHoughData() {
   int NumMaxima = 0;
 
   if (m_pMuonLayerHoughTool) {
-    Muon::MuonLayerHoughTool::HoughDataPerSectorVec data = m_pMuonLayerHoughTool->houghData();
-    ATH_MSG_DEBUG(data.size() << " sector are present in the HoughData");
-    for (unsigned int sector = 0; sector < data.size(); sector++) {
+    SG::ReadHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> data {m_houghDataPerSectorVecKey};
+    if (!data.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(data->size() << " sector are present in the HoughData");
+    for (unsigned int sector = 0; sector < data->size(); sector++) {
       int sector_id = -99;
       bool hits_in_same_sector = true;
-      Muon::MuonLayerHoughTool::HoughDataPerSector sector_data = data.at(sector);
+      Muon::MuonLayerHoughTool::HoughDataPerSector sector_data = data->at(sector);
       ATH_MSG_DEBUG("----------------------------- Sector " << sector
                                                             << " -----------------------------");
       for (unsigned int region = 0; region < sector_data.maxVec.size(); region++) {

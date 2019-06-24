@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.h 
@@ -105,8 +105,6 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   /////////////////////////////////////////////////////////////////// 
  private: 
 
-  std::string m_evtInfoKey;
-
   /** report fpes which happened during step 'step' on behalf of 'caller'
    */
   void report_fpe(const std::string& step, const std::string& caller);
@@ -135,12 +133,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
 
   void UninstallHandler();
   
-  bool m_SigHandInstalled;
-  
   //fexcept_t m_flagp;
   
   /// The FP environment before we initialize.
   fenv_t m_env;
+
+  std::atomic<int> m_nexceptions;
 }; 
 
 // I/O operators

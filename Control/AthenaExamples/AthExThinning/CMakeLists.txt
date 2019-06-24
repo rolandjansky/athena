@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaPython
                           Control/AthenaServices
                           Control/DataModelAthenaPool
-                          Control/SGTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           GaudiKernel
                           PRIVATE
@@ -42,7 +41,7 @@ atlas_add_library( AthExThinningEvent
                    PUBLIC_HEADERS AthExThinning
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel SGTools AthenaPoolUtilities GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib
+                   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel AthenaPoolUtilities GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} )
 
 atlas_add_component( AthExThinningAlgs
@@ -52,19 +51,19 @@ atlas_add_component( AthExThinningAlgs
                      src_lib/SlimmerAlg.cxx
                      src_lib/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib SGTools AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
 
 atlas_add_poolcnv_library( AthExThinningPoolCnv
                            src/*.cxx
                            FILES AthExThinning/AthExParticles.h AthExThinning/AthExIParticles.h AthExThinning/AthExDecay.h AthExThinning/AthExElephantino.h AthExThinning/AthExFatObject.h
                            INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib SGTools AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
+                           LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
 
 atlas_add_dictionary( AthExThinningEventDict
                       AthExThinning/AthExThinningEventDict.h
                       AthExThinning/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib SGTools AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent
                       ELEMENT_LINKS  AthExParticles AthExIParticles )
 
 # Install files from the package:
@@ -82,8 +81,12 @@ atlas_add_test( test_pythinning
                 SCRIPT test/test_pythinning.sh
                 PROPERTIES TIMEOUT 900
                 EXTRA_PATTERNS ":::running" )
+set_tests_properties( AthExThinning_test_pythinning_ctest
+                      PROPERTIES DEPENDS AthExThinning_test_thinning_ctest )
 
 atlas_add_test( test_slimming
                 SCRIPT test/test_slimming.sh
                 PROPERTIES TIMEOUT 900
                 EXTRA_PATTERNS ":::running" )
+set_tests_properties( AthExThinning_test_slimming_ctest
+                      PROPERTIES DEPENDS AthExThinning_test_pythinning_ctest )

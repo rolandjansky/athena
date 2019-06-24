@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
@@ -19,9 +20,9 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
-#include "IDScanHitFilter/IDScanHitFilter.h"
-#include "IDScanHitFilter/IdScanSpPoint.h"
-#include "IDScanHitFilter/Group.h"
+#include "IDScanHitFilter.h"
+#include "IdScanSpPoint.h"
+#include "Group.h"
 
 
 IDScanHitFilter::IDScanHitFilter(const std::string& t, 
@@ -65,10 +66,8 @@ IDScanHitFilter::IDScanHitFilter(const std::string& t,
 
 }
 
-StatusCode IDScanHitFilter::initialize()
+StatusCode IDScanHitFilter::initialize ATLAS_NOT_THREAD_SAFE()
 {
-  StatusCode sc = AthAlgTool::initialize();
-
   m_dPhidRCut = 0.3/m_pTcutInMeV;
 
   ATH_MSG_INFO( "IDScanHitFilter constructed "                        );
@@ -79,10 +78,7 @@ StatusCode IDScanHitFilter::initialize()
   ATH_MSG_INFO( "Clone removal    set to " << m_cloneRemoval    );
   ATH_MSG_INFO( "dphidrcut    set to " << m_dPhidRCut    );
 
-  if (m_numberingTool.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Tool " << m_numberingTool << " not found "  );
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( m_numberingTool.retrieve() );
 
   /// get first endcap layer, so we know how
   /// barrel layers there are 
@@ -109,14 +105,7 @@ StatusCode IDScanHitFilter::initialize()
   //  
   //  m_fullScan = (2*m_ROIphiHalfWidth > 6.28);
 
-  return sc;
-}
-
-
-StatusCode IDScanHitFilter::finalize()
-{
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 

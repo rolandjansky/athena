@@ -34,18 +34,20 @@ class opt :
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = None
-    doPhotonSlice     = None
-    doMuonSlice       = None
-    doJetSlice        = None
-    doMETSlice        = None
-    doBJetSlice       = None
-    doTauSlice        = None
-    doComboSlice      = None
-    doBphysicsSlice   = None
+    doElectronSlice   = True
+    doPhotonSlice     = True
+    doMuonSlice       = True
+    doJetSlice        = True
+    doMETSlice        = True
+    doBjetSlice       = True
+    doTauSlice        = True
+    doCombinedSlice   = True
+    doBphysicsSlice   = True
+    enabledSignatures = []
+    disabledSignatures = []
 #
 ################################################################################
-
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')
@@ -77,9 +79,21 @@ if opt.doEmptyMenu == True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doBJetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
+# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
+# This is temporary and will be re-worked for after M3.5
+for s in slices:
+    signature = s[2:].replace('Slice', '')
+    if 'Electron' in s or 'Photon' in s:
+        signature = 'Egamma'
+
+    if eval('opt.'+s) == True:
+        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.enabledSignatures.append( enabledSig )
+    else:
+        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.disabledSignatures.append( disabledSig )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -87,7 +101,6 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Auto-configuration for athena
@@ -277,17 +290,14 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
 #--------------------------------------------------------------
 # Event Info setup
 #--------------------------------------------------------------
-# If no xAOD::EventInfo is found in a POOL file or we are reading BS, schedule conversion from old EventInfo
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
 if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
     if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
-        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-        topSequence += xAODMaker__EventInfoCnvAlg()
-else:
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg()
+        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+        xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -354,132 +364,8 @@ svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
 if opt.doL1Sim:
-    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
-    caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker")
-    caloTowerMaker.ZeroSuppress = True
-    caloTowerMaker.CellType     = 3
-
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMSim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMJetSim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMEnergySim
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
-
-    from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-    from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
-
-    
-    from AthenaCommon.CFElements import seqAND
-    
-    l1CaloSim = seqAND('l1CaloSim',[
-        caloTowerMaker,
-        #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
-        LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
-        LVL1__Run2JetElementMaker( 'JetElementMaker'),
-        LVL1__CPMSim( 'CPMSim' ) ,
-        LVL1__JEMJetSim( 'JEMJetSim' ) ,
-        LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
-        LVL1__CPCMX( 'CPCMX' ) ,
-        LVL1__JetCMX( 'JetCMX' ) ,
-        LVL1__EnergyCMX( 'EnergyCMX' ) ,
-        LVL1__RoIROD( 'RoIROD' ),
-        LVL1__TrigT1MBTS(),
-        LVL1__TrigT1ZDC()
-    ])
-
-    from IOVDbSvc.CondDB import conddb
-    L1CaloFolderList = []
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
-    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
-    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
-    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
-    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
-
-    
-    for l1calofolder in L1CaloFolderList:
-        #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
-        conddb.addFolder( "TRIGGER_OFL", l1calofolder )
-    # muons
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
-    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = True,
-                                                     DecodeRpcRDO = True,
-                                                     DecodeTgcRDO = True,
-                                                     DecodeCscRDO = True ) 
-    
-    MuonRdoToMuonDigitTool.cscCalibTool = ToolSvc.CscCalibTool
-
-    ToolSvc += MuonRdoToMuonDigitTool
-
-    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
-    from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC    
-    from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-
-    ToolSvc += L1MuctpiTool("L1MuctpiTool")
-    ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-    
-    ToolSvc += L1MuctpiTool("LVL1MUCTPI__L1MuctpiTool") # one for topo, no idea why we need two
-    ToolSvc.LVL1MUCTPI__L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-    
-    
-
-
-    muctpi             = L1Muctpi()
-    muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-    
-    l1MuonSim = seqAND("l1MuonSim", [
-        
-        MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
-                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool),
-
-        TrigT1RPC("TrigT1RPC",
-                  Hardware          = True, # not sure if needed, not there in old config, present in JO
-                  DataDetail        = False,
-                  RPCbytestream     = False,
-                  RPCbytestreamFile = ""),
-        
-        # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
-        # interesting is that this JO sets inexisting properties, commented out below
-        LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
-                                       InputData_perEvent  = "TGC_DIGITS", 
-                                      # ASDOutDataLocation = "ASDOutDataLocation",
-                                      # MuonTrigConfig     = "/Run/MuonTrigConfig",
-                                       MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                       MaskFileName        = "TrigT1TGCMaskedChannel.db",
-                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
-        muctpi
-    ])
-    # only needed for MC
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-    from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
-    from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
-    condSeq = AthSequencer("AthCondSeq")
-    from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
-    condSeq += TGCTriggerDbAlg()
-
-    ctp             = CTPSimulationInReco("CTPSimulation")
-    ctp.DoLUCID     = False
-    ctp.DoBCM       = False
-    ctp.DoL1Topo    = False
-    ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
-    ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
-    
-    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
-    
-    topSequence += l1Sim
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    topSequence += Lvl1SimulationSequence()
 
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
@@ -493,6 +379,15 @@ if opt.doL1Unpacking:
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
+
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+  
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------

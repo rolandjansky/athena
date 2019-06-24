@@ -20,9 +20,7 @@ BasicCellBuilderTool::BasicCellBuilderTool(
                                            const std::string& name,
                                            const IInterface* parent)
   :base_class(type, name, parent),
-   m_caloDDM(0),
-   m_caloCID(0),
-   m_atlas_id(0)
+   m_caloCID(0)
 {
   declareProperty("phi0_em",m_phi0_em);
   declareProperty("phi0_had",m_phi0_had);
@@ -43,14 +41,14 @@ BasicCellBuilderTool::~BasicCellBuilderTool()
   ATH_MSG_DEBUG("in destructor ");
 }
 
-void BasicCellBuilderTool::find_phi0()
+void BasicCellBuilderTool::find_phi0(const CaloDetDescrManager* caloDDM)
 {
   if(m_phi0_em==-1000) {
     ATH_MSG_DEBUG("Trying to find best phi0 of EM calo :");
     m_phi0_em=0;
     cellinfo_vec test_vec;
     const double dphi=2*M_PI/64;
-    findCells(test_vec,0.1,0.2,-dphi,dphi,1);
+    findCells(caloDDM,test_vec,0.1,0.2,-dphi,dphi,1);
     double bestphi0=10000;
 
     for(unsigned int i=0;i<test_vec.size();++i) {
@@ -73,7 +71,7 @@ void BasicCellBuilderTool::find_phi0()
     m_phi0_had=0;
     cellinfo_vec test_vec;
     const double dphi=2*M_PI/64;
-    findCells(test_vec,0.1,0.2,-dphi,dphi,3);
+    findCells(caloDDM,test_vec,0.1,0.2,-dphi,dphi,3);
     double bestphi0=10000;
 
     for(unsigned int i=0;i<test_vec.size();++i) {
@@ -95,15 +93,7 @@ void BasicCellBuilderTool::find_phi0()
 
 StatusCode BasicCellBuilderTool::initialize()
 {
-  ATH_MSG_DEBUG("Accesssing CaloDetDescrManager");
-  m_caloDDM = CaloDetDescrManager::instance() ;
-
-  ATH_MSG_DEBUG("Accesssing CaloCellID");
-  m_caloCID = m_caloDDM->getCaloCell_ID();
-
-  // pointer to detector manager:
-  m_atlas_id = (m_caloDDM->getCalo_Mgr())->getEM_ID();
-
+  ATH_CHECK( detStore()->retrieve (m_caloCID, "CaloCell_ID") );
   return StatusCode::SUCCESS;
 
 }
@@ -207,23 +197,23 @@ double BasicCellBuilderTool::rzent(CaloCell_ID_FCS::CaloSample sample,double eta
 }
 
 
-void BasicCellBuilderTool::init_all_maps()
+void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
 {
   ATH_MSG_INFO("Building all maps");
 
   cellinfo_map* curmap;
   cellinfo_map* curmap2;
 
-  ATH_MSG_DEBUG("size all cells : " <<m_caloDDM->element_end()-m_caloDDM->element_begin()
-                <<  "; LAREM="          <<m_caloDDM->element_end(CaloCell_ID::LAREM)-m_caloDDM->element_begin(CaloCell_ID::LAREM)
-                <<  "; TILE="           <<m_caloDDM->element_end(CaloCell_ID::TILE)-m_caloDDM->element_begin(CaloCell_ID::TILE)
-                <<  "; LARHEC="         <<m_caloDDM->element_end(CaloCell_ID::LARHEC)-m_caloDDM->element_begin(CaloCell_ID::LARHEC)
-                <<  "; LARFCAL="        <<m_caloDDM->element_end(CaloCell_ID::LARFCAL)-m_caloDDM->element_begin(CaloCell_ID::LARFCAL) );
+  ATH_MSG_DEBUG("size all cells : " <<caloDDM->element_end()-caloDDM->element_begin()
+                <<  "; LAREM="          <<caloDDM->element_end(CaloCell_ID::LAREM)-caloDDM->element_begin(CaloCell_ID::LAREM)
+                <<  "; TILE="           <<caloDDM->element_end(CaloCell_ID::TILE)-caloDDM->element_begin(CaloCell_ID::TILE)
+                <<  "; LARHEC="         <<caloDDM->element_end(CaloCell_ID::LARHEC)-caloDDM->element_begin(CaloCell_ID::LARHEC)
+                <<  "; LARFCAL="        <<caloDDM->element_end(CaloCell_ID::LARFCAL)-caloDDM->element_begin(CaloCell_ID::LARFCAL) );
 
 /*
   int nokfcal=0;
   log << MSG::INFO <<  "Loop only fcal" << endmsg ;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloDDM->element_begin(CaloCell_ID::LARFCAL);calo_iter<m_caloDDM->element_end(CaloCell_ID::LARFCAL);++calo_iter) {
+  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin(CaloCell_ID::LARFCAL);calo_iter<caloDDM->element_end(CaloCell_ID::LARFCAL);++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
       ++nokfcal;
@@ -256,7 +246,7 @@ void BasicCellBuilderTool::init_all_maps()
   }
 
 
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloDDM->element_begin();calo_iter<m_caloDDM->element_end();++calo_iter) {
+  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin();calo_iter<caloDDM->element_end();++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
       ++nok;
@@ -662,7 +652,8 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
 
 
 
-void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, double eta_max, double phi_min, double phi_max, int layer)
+void BasicCellBuilderTool::findCells(const CaloDetDescrManager* caloDDM,
+                                     cellinfo_vec & cell_vec, double eta_min, double eta_max, double phi_min, double phi_max, int layer)
 {
   ATH_MSG_VERBOSE("REGION : eta_min=" <<eta_min<<" eta_max=" <<eta_max << " phi_min=" <<phi_min<<" phi_max=" <<phi_max);
 
@@ -696,7 +687,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
   const CaloDetDescrElement* theDDE;
 
   for(unsigned int sc=0;sc<subcalos.size();++sc) {
-    m_caloDDM->cellsInZone(eta_min,eta_max,phi_min,phi_max,subcalos[sc],idhash_list);
+    caloDDM->cellsInZone(eta_min,eta_max,phi_min,phi_max,subcalos[sc],idhash_list);
     ATH_MSG_VERBOSE("sc="<<sc<<" : idhash_list.size()=" <<idhash_list.size());
     caloDDE_list.reserve(caloDDE_list.size()+idhash_list.size());
     vol_list.reserve(vol_list.size()+idhash_list.size());
@@ -708,7 +699,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
 
     std::vector<IdentifierHash>::iterator idhash_list_end(idhash_list.end());
     for(std::vector<IdentifierHash>::iterator it_idhash=idhash_list.begin();it_idhash<idhash_list_end;++it_idhash) {
-      theDDE=m_caloDDM->get_element(*it_idhash);
+      theDDE=caloDDM->get_element(*it_idhash);
       if(theDDE) if(theDDE->volume()>0) {
 
           //dont' fill PreSampler and TileGap

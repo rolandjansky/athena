@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloConditions
                           Calorimeter/CaloTriggerTool
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc )
 
@@ -20,7 +20,7 @@ atlas_add_poolcnv_library( CaloCondAthenaPoolPoolCnv
                            src/*.cxx
                            FILES CaloTriggerTool/LArTTCellMap.h CaloTriggerTool/CaloTTOnOffIdMap.h CaloTriggerTool/CaloTTOnAttrIdMap.h CaloTriggerTool/CaloTTPpmRxIdMap.h CaloConditions/ToolConstants.h CaloConditions/CaloCellFactor.h CaloConditions/CaloCellPositionShift.h CaloConditions/CaloHadWeight.h CaloConditions/CaloEMFrac.h CaloConditions/CaloHadDMCoeff.h CaloConditions/CaloHadDMCoeff2.h CaloConditions/CaloLocalHadCoeff.h
                            TYPES_WITH_NAMESPACE CaloRec::ToolConstants CaloRec::CaloCellFactor CaloRec::CaloCellPositionShift
-                           LINK_LIBRARIES AthenaPoolUtilities CaloConditions CaloTriggerToolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib )
+                           LINK_LIBRARIES AthenaPoolUtilities CaloConditions CaloTriggerToolLib AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -20,6 +20,7 @@
 #include "Acts/Tools/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 // STL
 #include <iostream>
@@ -29,33 +30,33 @@ using Acts::Transform3D;
 using Acts::Vector3D;
 
 const Acts::LayerVector
-ActsStrawLayerBuilder::negativeLayers() const
+ActsStrawLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
-  return mutableThis->endcapLayers(-1);
+  return mutableThis->endcapLayers(gctx, -1);
 }
 
 const Acts::LayerVector
-ActsStrawLayerBuilder::centralLayers() const
+ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx) const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
-  return mutableThis->centralLayers();
+  return mutableThis->centralLayers(gctx);
 }
 
 const Acts::LayerVector
-ActsStrawLayerBuilder::positiveLayers() const
+ActsStrawLayerBuilder::positiveLayers(const Acts::GeometryContext& gctx) const
 {
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsStrawLayerBuilder*>(this);
-  return mutableThis->endcapLayers(1);
+  return mutableThis->endcapLayers(gctx, 1);
 
 }
 
 
 const Acts::LayerVector
-ActsStrawLayerBuilder::centralLayers()
+ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 {
   ACTS_VERBOSE("Building central Straw layers")
 
@@ -126,7 +127,7 @@ ActsStrawLayerBuilder::centralLayers()
             fudge = radius / 4.;
 
             // calculate min/max R and Z
-            Vector3D ctr = straw->center();
+            Vector3D ctr = straw->center(gctx);
             pl.maxR = std::max(pl.maxR, ctr.perp() + radius);
             pl.minR = std::min(pl.minR, ctr.perp() - radius);
             pl.maxZ = std::max(pl.maxZ, ctr.z() + length);
@@ -146,8 +147,8 @@ ActsStrawLayerBuilder::centralLayers()
       pl.minR = prev.maxR + prev.envR.second + pl.envR.first + fudge;
     }
 
-    std::shared_ptr<Acts::Layer> layer 
-      = m_cfg.layerCreator->cylinderLayer(std::move(layerSurfaces), 100, 1, pl);
+    std::shared_ptr<Acts::Layer> layer
+      = m_cfg.layerCreator->cylinderLayer(gctx, std::move(layerSurfaces), 100, 1, pl);
     layers.push_back(layer);
 
     protoLayers.push_back(pl);
@@ -158,7 +159,7 @@ ActsStrawLayerBuilder::centralLayers()
 }
 
 const Acts::LayerVector
-ActsStrawLayerBuilder::endcapLayers(int side)
+ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 {
   ACTS_VERBOSE("Building endcap Straw layers")
 
@@ -220,7 +221,7 @@ ActsStrawLayerBuilder::endcapLayers(int side)
               double radius = strawBounds->r();
               double length = strawBounds->halflengthZ();
 
-              Vector3D ctr = straw->center();
+              Vector3D ctr = straw->center(gctx);
               pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);
               pl.minZ = std::min(pl.minZ, ctr.z() - radius);
               pl.maxR = std::max(pl.maxR, ctr.perp() + length);
@@ -233,8 +234,8 @@ ActsStrawLayerBuilder::endcapLayers(int side)
         }
       }
 
-      std::shared_ptr<Acts::Layer> layer 
-        = m_cfg.layerCreator->discLayer(std::move(wheelSurfaces), 1, 100, pl);
+      std::shared_ptr<Acts::Layer> layer
+        = m_cfg.layerCreator->discLayer(gctx, std::move(wheelSurfaces), 1, 100, pl);
       layers.push_back(layer);
       ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }

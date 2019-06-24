@@ -24,7 +24,7 @@ public:
    StatusCode finalize();
 
 // the method that decides if an event should be passed to the EventSelector
-   bool passEvent(const EventInfo* pEvent);
+   bool passEvent(const EventIDBase& pEvent);
 
 public:
 // to resolve possible conflicts with IProperty::interfaceID()

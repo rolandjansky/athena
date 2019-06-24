@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import sys, re, copy
+import re, copy
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MenuComponents')
 
@@ -42,7 +42,7 @@ class AlgNode(Node):
         self.inputProp=inputProp
 
     def addDefaultOutput(self):
-        if self.outputProp is not '':
+        if self.outputProp != '':
             self.addOutput(("%s_%s"%(self.Alg.name(),self.outputProp)))
 
     def setPar(self, prop, name):
@@ -78,10 +78,10 @@ class AlgNode(Node):
         if name in outputs:
             log.debug("Warning, %s already set in %s, DH not added",name, self.name)
         else:
-            if self.outputProp is not '':
+            if self.outputProp != '':
                 self.setPar(self.outputProp,name)
             else:
-                sys.exit("no OutputProp set")
+                log.error("no OutputProp set")
         Node.addOutput(self, name)
 
 
@@ -101,10 +101,10 @@ class AlgNode(Node):
         if name in inputs:
             log.debug("Warning, %s already set in %s, DH not added",name, self.name)
         else:
-            if self.inputProp is not '':
+            if self.inputProp != '':
                 self.setPar(self.inputProp,name)
             else:
-                sys.exit("no InputProp set")
+                log.error("no InputProp set")
         Node.addInput(self, name)
 
 
@@ -230,15 +230,14 @@ class ComboMaker(AlgNode):
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
         if type(cval) is dict:
             if chain in cval.keys():
-                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", self.name, chain)
-                sys.exit("ERROR, in chain configuration")
+                log.error("ERROR in cofiguration: ComboAlg %s has already been configured for chain %s", self.Alg.name(), chain)
             else:
-                cval[chain]=[allMultis]
+                cval[chain]=allMultis
         else:
             cval=newdict
 
         setattr(self.Alg, self.prop, cval)
-        log.debug("Added chain %s to ComboAlg %s", self.getPar(self.prop), self.name)
+        log.debug("ComboAlg %s has now these chains chain %s", self.Alg.name(), self.getPar(self.prop))
 
 
 
@@ -325,7 +324,6 @@ class MenuSequence(object):
         hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
         if len(self.hypo.getOutputList()):
             log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
-            sys.exit("ERROR, in chain configuration")
         self.hypo.addOutput(hypo_output)
 
         # needed for drawing
@@ -363,7 +361,6 @@ def DoMapSeedToL1Decoder(seed):
     stripSeed  = filter(lambda x: x.isalpha(), seed)
     if stripSeed not in mapSeedToL1Decoder:
         log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
-        sys.exit("ERROR, in chain configuration")
     return (mapSeedToL1Decoder[stripSeed])
 
 #################################################
@@ -376,7 +373,10 @@ class Chain(object):
         self.seed=Seed
         self.vseeds=[]
         vseeds = Seed.strip().split("_")
-        vseeds.pop(0) #remove first L1 string
+        if vseeds[0] == 'L1': 
+            vseeds.pop(0) #remove first L1 string
+        else:
+            log.debug('Threshol(d)s were passed')
         # split multi seeds
         for seed in vseeds:
             split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
@@ -419,7 +419,6 @@ class Chain(object):
 
         else:
             log.error("found %d sequences in this chain and %d seeds. What to do??", tot_seq, tot_seed)
-            sys.exit("ERROR, in chain configuration")
 
     def decodeHypoToolConfs(self, allChainDicts):
         """ This is extrapolating the hypotool configuration from the (combined) chain name"""
@@ -433,7 +432,6 @@ class Chain(object):
 
             if len(chainDict['chainParts']) != len(step.sequences):              
                 log.error("Error in step %s: found %d chain parts and %d sequences", step.name, len(chainDict['chainParts']), len(step.sequences))
-                sys.exit("ERROR, in chain configuration")
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
                 if seq.ca is not None: # The CA merging took care of everything
@@ -478,14 +476,13 @@ class CFSequence(object):
         filter_output = self.filter.getOutputList()
         if len(filter_output) == 0:
             log.error("ERROR, no filter outputs are set!")
-            sys.exit("ERROR, no filter outputs are set!")
+
         
 
         if len(self.step.sequences):
             # check whether the number of filter outputs are the same as the number of sequences in the step
             if len(filter_output) != len(self.step.sequences):
                 log.error("Found %d filter outputs and %d MenuSequences in Step %s", len(self.filter.getOutputList()), len(self.step.sequences), self.step.name)
-                sys.exit("ERROR: Found %d filter outputs differnt from %d MenuSequences in Step %s", len(self.filter.getOutputList()), len(self.step.sequences), self.step.name)
             nseq=0
             for seq in self.step.sequences:
                 filter_out = filter_output[nseq]
@@ -530,6 +527,7 @@ class ChainStep(object):
     def __init__(self, name,  Sequences=[], multiplicity=1):
         self.name = name
         self.sequences=[]
+        self.multiplicity = multiplicity
         self.isCombo=multiplicity>1
         #self.isCombo=len(Sequences)>1
         self.combo=None
@@ -566,7 +564,40 @@ class ChainStep(object):
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 class InEventReco( ComponentAccumulator ):
     """ Class to handle in-event reco """
+    def __init__(self, name, inputMaker=None):
+        super( InEventReco, self ).__init__()
+        self.name = name
+        from AthenaCommon.CFElements import parOR, seqAND
+        self.mainSeq = seqAND( name )
+        self.addSequence( self.mainSeq )
+
+        # Details below to be checked
+        self.inputMakerAlg = inputMaker
+
+        # Avoid registering a duplicate
+        self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name() )
+        self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name())
+        self.addSequence( self.recoSeq, self.mainSeq.name() )
     pass
+
+    def mergeReco( self, ca ):
+        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        return self.merge( ca, sequenceName=self.recoSeq.getName() )
+
+    def addRecoAlg( self, alg ):
+        """Reconstruction alg to be run per event"""
+        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
+        self.addEventAlgo( alg, self.recoSeq.name() )
+
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
+
+    def sequence( self ):
+        return self.mainSeq
+
+    def inputMaker( self ):
+        return self.inputMakerAlg
+
 
 
 class InViewReco( ComponentAccumulator ):

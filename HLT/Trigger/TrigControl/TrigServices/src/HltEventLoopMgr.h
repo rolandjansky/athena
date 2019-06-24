@@ -15,12 +15,13 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h" // number_type
+#include "CxxUtils/checker_macros.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
+#include "GaudiKernel/EventIDBase.h" // number_type
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -83,7 +84,7 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
 
@@ -101,9 +102,14 @@ public:
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
-   * @param par generic parameter
+   * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent( EventContext &&ctx );
+
+  /**
+   * create an Event Context object
+   */
+  virtual EventContext createEventContext() override;
 
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
@@ -231,14 +237,14 @@ private:
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
-    this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoRHKey{
+    this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
-  typedef EventID::number_type numt;
+  typedef EventIDBase::number_type numt;
   /**
    * Detector mask0,1,2,3 - bit field indicating which TTC zones have been built into the event,
    * one bit per zone, 128 bit total, significance increases from first to last

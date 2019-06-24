@@ -173,12 +173,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::finalize()
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream&  InDet::SiCombinatorialTrackFinder_xk::dump(MsgStream& out) const
+MsgStream&  InDet::SiCombinatorialTrackFinder_xk::dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
   out<<std::endl;
-  if (data.nprint) return dumpevent(data, out);
+  if (data.nprint()) return dumpevent(data, out);
   return dumpconditions(out);
 }
 
@@ -258,83 +258,65 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const
 {
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Min pT of track (MeV)   | "<<std::setw(12)<<std::setprecision(5)<<data.pTmin
+  out<<"| Min pT of track (MeV)   | "<<std::setw(12)<<std::setprecision(5)<<data.pTmin()
      <<"                              |"<<std::endl;
-  out<<"| Max Xi2 for cluster     | "<<std::setw(12)<<std::setprecision(5)<<data.xi2max
+  out<<"| Max Xi2 for cluster     | "<<std::setw(12)<<std::setprecision(5)<<data.xi2max()
      <<"                              |"<<std::endl;
-  out<<"| Max Xi2 for outlayer    | "<<std::setw(12)<<std::setprecision(5)<<data.xi2maxNoAdd
+  out<<"| Max Xi2 for outlayer    | "<<std::setw(12)<<std::setprecision(5)<<data.xi2maxNoAdd()
      <<"                              |"<<std::endl;
-  out<<"| Max Xi2 for link        | "<<std::setw(12)<<std::setprecision(5)<<data.xi2maxlink
+  out<<"| Max Xi2 for link        | "<<std::setw(12)<<std::setprecision(5)<<data.xi2maxlink()
      <<"                              |"<<std::endl;
-  out<<"| Min number of clusters  | "<<std::setw(12)<<data.nclusmin
+  out<<"| Min number of clusters  | "<<std::setw(12)<<data.nclusmin()
      <<"                              |"<<std::endl;
-  out<<"| Min number of wclusters | "<<std::setw(12)<<data.nwclusmin
+  out<<"| Min number of wclusters | "<<std::setw(12)<<data.nwclusmin()
      <<"                              |"<<std::endl;
-  out<<"| Max number holes        | "<<std::setw(12)<<data.nholesmax
+  out<<"| Max number holes        | "<<std::setw(12)<<data.nholesmax()
      <<"                              |"<<std::endl;
-  out<<"| Max holes  gap          | "<<std::setw(12)<<data.dholesmax
+  out<<"| Max holes  gap          | "<<std::setw(12)<<data.dholesmax()
      <<"                              |"<<std::endl;
-  out<<"| Use association tool ?  | "<<std::setw(12)<<data.tools.useassoTool()
+  out<<"| Use association tool ?  | "<<std::setw(12)<<data.tools().useassoTool()
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Number input     seeds  | "<<std::setw(12)<<data.inputseeds
+  out<<"| Number input     seeds  | "<<std::setw(12)<<data.inputseeds()
      <<"                              |"<<std::endl;
-  out<<"| Number accepted  seeds  | "<<std::setw(12)<<data.goodseeds
+  out<<"| Number accepted  seeds  | "<<std::setw(12)<<data.goodseeds()
      <<"                              |"<<std::endl;
-  out<<"| Number initial  tracks  | "<<std::setw(12)<<data.inittracks  
+  out<<"| Number initial  tracks  | "<<std::setw(12)<<data.inittracks()
      <<"                              |"<<std::endl;
-  out<<"| Number wrong DE  roads  | "<<std::setw(12)<<data.roadbug  
+  out<<"| Number wrong DE  roads  | "<<std::setw(12)<<data.roadbug()
      <<"                              |"<<std::endl;
-  out<<"| Number output   tracks  | "<<std::setw(12)<<data.findtracks  
+  out<<"| Number output   tracks  | "<<std::setw(12)<<data.findtracks()  
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   return out;
 }
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::SiCombinatorialTrackFinder_xk::dump(std::ostream& out) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator <<
-(MsgStream& sl,const InDet::SiCombinatorialTrackFinder_xk& se)
-{ 
-  return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-(std::ostream& sl,const InDet::SiCombinatorialTrackFinder_xk& se)
-{
-  return se.dump(sl); 
-}   
 
 ///////////////////////////////////////////////////////////////////
 // Initiate track finding tool 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiCombinatorialTrackFinder_xk::newEvent() const
+void InDet::SiCombinatorialTrackFinder_xk::newEvent(SiCombinatorialTrackFinderData_xk& data) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
-  newEvent(data);
+  // Erase statistic information
+  //
+  data.inputseeds() = 0;
+  data.goodseeds()  = 0;
+  data.inittracks() = 0;
+  data.findtracks() = 0;
+  data.roadbug()    = 0;
+
+  // Set track info
+  //
+  data.trackinfo().setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder);
+  data.cosmicTrack() = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -342,55 +324,41 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent() const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiCombinatorialTrackFinder_xk::newEvent
-(Trk::TrackInfo info, const TrackQualityCuts& Cuts) const
+(SiCombinatorialTrackFinderData_xk& data, Trk::TrackInfo info, const TrackQualityCuts& Cuts) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
   newEvent(data);
-  data.trackinfo = info;
+  data.trackinfo() = info;
   
   // Get track qulaity cuts information
   //
   getTrackQualityCuts(data, Cuts);
 
-  data.heavyIon = false;
-  data.cosmicTrack = 0;
+  data.heavyIon() = false;
+  data.cosmicTrack() = 0;
 
   if (info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {
-    data.cosmicTrack = 1;
+    data.cosmicTrack() = 1;
   } else if (info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon)) {
-    data.heavyIon = true;
+    data.heavyIon() = true;
   }
-  data.tools.setHeavyIon(data.heavyIon);
-}
-
-void InDet::SiCombinatorialTrackFinder_xk::newEvent(EventData& data) const {
-  // Erase statistic information
-  //
-  data.inputseeds = 0;
-  data.goodseeds  = 0;
-  data.inittracks = 0;
-  data.findtracks = 0;
-  data.roadbug    = 0;
-
-  // Set track info
-  //
-  data.trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder);
-  data.cosmicTrack = 0;
+  data.tools().setHeavyIon(data.heavyIon());
 }
 
 ///////////////////////////////////////////////////////////////////
 // Finalize track finding tool for given event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiCombinatorialTrackFinder_xk::endEvent() const
+void InDet::SiCombinatorialTrackFinder_xk::endEvent(SiCombinatorialTrackFinderData_xk& data) const
 {
+  if (not data.isInitialized()) initializeCombinatorialData(data);
+
   // Print event information 
   //
   if (m_outputlevel<=0) {
-    EventData& data{getEventData()};
-    data.nprint = 1;
-    ATH_MSG_DEBUG(*this);
+    data.nprint() = 1;
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
@@ -399,43 +367,44 @@ void InDet::SiCombinatorialTrackFinder_xk::endEvent() const
 ///////////////////////////////////////////////////////////////////
 
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
-(const Trk::TrackParameters& Tp,
+(SiCombinatorialTrackFinderData_xk& data,
+ const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  const TrackQualityCuts& Cuts) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
-  data.tools.setBremNoise(false,false);
-  data.tracks.erase(data.tracks.begin(), data.tracks.end());
+  data.tools().setBremNoise(false, false);
+  data.tracks().erase(data.tracks().begin(), data.tracks().end());
 
-  ++data.inputseeds;
+  ++data.inputseeds();
   if (!m_usePIX && !m_useSCT) {
-    return data.tracks;
+    return data.tracks();
   }
 
   // Get track qulaity cuts information
   //
   getTrackQualityCuts(data, Cuts);
   std::multimap<const Trk::PrepRawData*, const Trk::Track*> PT;
-  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks;
+  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks();
  
-  data.trajectory.sortStep();
+  data.trajectory().sortStep();
 
   // Trk::Track production
   //
   Trk::Track* t = convertToTrack(data);
-  ++data.findtracks;
-  data.tracks.push_back(t);
+  ++data.findtracks();
+  data.tracks().push_back(t);
 
-  if (!data.tools.multiTrack() || data.simpleTrack || Sp.size()<=2 || data.cosmicTrack || data.trajectory.pTfirst() < data.tools.pTmin()) return data.tracks;
+  if (!data.tools().multiTrack() || data.simpleTrack() || Sp.size()<=2 || data.cosmicTrack() || data.trajectory().pTfirst() < data.tools().pTmin()) return data.tracks();
 
   while ((t=convertToNextTrack(data))) {
-    ++data.findtracks;
-    data.tracks.push_back(t);
+    ++data.findtracks();
+    data.tracks().push_back(t);
   }
-  return data.tracks;
+  return data.tracks();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -443,42 +412,43 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
-(const Trk::TrackParameters& Tp,
+(SiCombinatorialTrackFinderData_xk& data,
+ const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
-  data.tools.setBremNoise(false, false);
-  data.tracks.erase(data.tracks.begin(), data.tracks.end());
+  data.tools().setBremNoise(false, false);
+  data.tracks().erase(data.tracks().begin(), data.tracks().end());
 
-  ++data.inputseeds;
+  ++data.inputseeds();
   if (!m_usePIX && !m_useSCT) {
-    return data.tracks;
+    return data.tracks();
   }
 
-  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks;
-  if (!data.trajectory.isNewTrack(PT)) return data.tracks;
+  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks();
+  if (!data.trajectory().isNewTrack(PT)) return data.tracks();
 
-  data.trajectory.sortStep();
+  data.trajectory().sortStep();
 
   // Trk::Track production
   //
   Trk::Track* t = convertToTrack(data);
-  if (t==nullptr) return data.tracks;
+  if (t==nullptr) return data.tracks();
 
-  ++data.findtracks;
-  data.tracks.push_back(t);
+  ++data.findtracks();
+  data.tracks().push_back(t);
 
-  if (!data.tools.multiTrack() || data.simpleTrack || Sp.size()<=2 || data.cosmicTrack || data.trajectory.pTfirst() < data.tools.pTmin()) return data.tracks;
+  if (!data.tools().multiTrack() || data.simpleTrack() || Sp.size()<=2 || data.cosmicTrack() || data.trajectory().pTfirst() < data.tools().pTmin()) return data.tracks();
 
   while ((t=convertToNextTrack(data))) {
-    ++data.findtracks;
-    data.tracks.push_back(t);
+    ++data.findtracks();
+    data.tracks().push_back(t);
   } 
-  return data.tracks;
+  return data.tracks();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -487,83 +457,84 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWithBrem
-(const Trk::TrackParameters& Tp,
+(SiCombinatorialTrackFinderData_xk& data,
+ const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT,
  bool isCaloCompatible) const
 {
-  EventData& data{getEventData()};
+  if (not data.isInitialized()) initializeCombinatorialData(data);
 
   // Old information
   //
   int mult = 0;
-  if (data.tools.multiTrack()) mult = 1;
-  double Xi2m = data.tools.xi2multi();
+  if (data.tools().multiTrack()) mult = 1;
+  double Xi2m = data.tools().xi2multi();
 
-  data.tools.setBremNoise(false, true);
-  data.tracks.erase(data.tracks.begin(), data.tracks.end());
+  data.tools().setBremNoise(false, true);
+  data.tracks().erase(data.tracks().begin(), data.tracks().end());
 
-  ++data.inputseeds;
+  ++data.inputseeds();
   if (!m_usePIX && !m_useSCT) {
-    return data.tracks;
+    return data.tracks();
   }
 
   bool Q = findTrack(data, Tp, Sp, Gp, DE, PT);
-  if (Q) Q = data.trajectory.isNewTrack(PT);
+  if (Q) Q = data.trajectory().isNewTrack(PT);
   int na = 0;
   if (Q) {
-    data.trajectory.sortStep();
+    data.trajectory().sortStep();
 
     // Trk::Track production
     //
-    Trk::TrackInfo oldinfo = data.trackinfo;
-    if (isCaloCompatible) data.trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::TrackInCaloROI);
+    Trk::TrackInfo oldinfo = data.trackinfo();
+    if (isCaloCompatible) data.trackinfo().setPatternRecognitionInfo(Trk::TrackInfo::TrackInCaloROI);
 
-    data.tools.setMultiTracks(0, Xi2m);
+    data.tools().setMultiTracks(0, Xi2m);
     Trk::Track* t = convertToTrack(data);
-    data.trackinfo = oldinfo;
-    data.tools.setMultiTracks(mult,Xi2m);
+    data.trackinfo() = oldinfo;
+    data.tools().setMultiTracks(mult,Xi2m);
 
-    if (!t) return data.tracks;
-    ++data.findtracks;
-    data.tracks.push_back(t);
-    na = data.trajectory.nclusters();
-    if (na >=12 && !data.trajectory.nclustersNoAdd()) return data.tracks;
+    if (!t) return data.tracks();
+    ++data.findtracks();
+    data.tracks().push_back(t);
+    na = data.trajectory().nclusters();
+    if (na >=12 && !data.trajectory().nclustersNoAdd()) return data.tracks();
    
-    if (data.trajectory.pTfirst() < data.pTminBrem) return data.tracks;
+    if (data.trajectory().pTfirst() < data.pTminBrem()) return data.tracks();
   }
-  if ((*Sp.begin())->clusterList().second) return data.tracks;
+  if ((*Sp.begin())->clusterList().second) return data.tracks();
  
   // Repeat track finding using electron noise model
   //
-  data.tools.setBremNoise(true,true);
-  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks;
-  if (!data.trajectory.isNewTrack(PT)) return data.tracks;
+  data.tools().setBremNoise(true,true);
+  if (!findTrack(data, Tp, Sp, Gp, DE, PT)) return data.tracks();
+  if (!data.trajectory().isNewTrack(PT)) return data.tracks();
   
-  int nb = data.trajectory.nclusters();
-  if (nb <= na ) return data.tracks;
+  int nb = data.trajectory().nclusters();
+  if (nb <= na) return data.tracks();
   
-  data.trajectory.sortStep();
+  data.trajectory().sortStep();
 
   // Trk::Track production
   //
-  Trk::TrackInfo oldinfo = data.trackinfo;
-  data.trackinfo.setTrackProperties(Trk::TrackInfo::BremFit          );
-  data.trackinfo.setTrackProperties(Trk::TrackInfo::BremFitSuccessful);
-  if (isCaloCompatible) data.trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::TrackInCaloROI);
+  Trk::TrackInfo oldinfo = data.trackinfo();
+  data.trackinfo().setTrackProperties(Trk::TrackInfo::BremFit          );
+  data.trackinfo().setTrackProperties(Trk::TrackInfo::BremFitSuccessful);
+  if (isCaloCompatible) data.trackinfo().setPatternRecognitionInfo(Trk::TrackInfo::TrackInCaloROI);
 
-  data.tools.setMultiTracks(0, Xi2m);
+  data.tools().setMultiTracks(0, Xi2m);
   Trk::Track* t = convertToTrack(data);
-  data.trackinfo = oldinfo;
-  data.tools.setMultiTracks(mult, Xi2m);
+  data.trackinfo() = oldinfo;
+  data.tools().setMultiTracks(mult, Xi2m);
 
-  if (t==nullptr) return data.tracks;
+  if (t==nullptr) return data.tracks();
 
-  ++data.findtracks;
-  data.tracks.push_back(t);
-  return data.tracks;
+  ++data.findtracks();
+  data.tracks().push_back(t);
+  return data.tracks();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -571,12 +542,14 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiCombinatorialTrackFinder_xk::findTrack
-(EventData& data,
+(SiCombinatorialTrackFinderData_xk& data,
  const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT) const
 {
+  if (not data.isInitialized()) initializeCombinatorialData(data);
+
   // List detector element links preparation
   //
   std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL;
@@ -584,13 +557,13 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 
   const InDet::SiClusterContainer* p_pixcontainer = nullptr;
   if (m_usePIX) {
-    SG::ReadHandle<InDet::SiClusterContainer> pixcontainer(m_pixcontainerkey);
-    p_pixcontainer = pixcontainer.ptr();
+    SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey);
+    p_pixcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(pixcontainer.ptr());
   }
   const InDet::SiClusterContainer* p_sctcontainer = nullptr;
   if (m_useSCT) {
-    SG::ReadHandle<InDet::SiClusterContainer> sctcontainer(m_sctcontainerkey);
-    p_sctcontainer = sctcontainer.ptr();
+    SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey);
+    p_sctcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(sctcontainer.ptr());
   }
 
   // List cluster preparation
@@ -604,67 +577,67 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
     }
     if (Sp.size()<=2) TWO = true;
   } else if (Gp.size() > 2) {
-    if (!data.trajectory.globalPositionsToClusters(p_pixcontainer, p_sctcontainer, Gp, DEL, PT, Cl)) return false;
+    if (!data.trajectory().globalPositionsToClusters(p_pixcontainer, p_sctcontainer, Gp, DEL, PT, Cl)) return false;
   } else {
-    if (!data.trajectory.trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
+    if (!data.trajectory().trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
   }
-  ++data.goodseeds;
+  ++data.goodseeds();
 
   // Build initial trajectory
   //
   bool Qr;
-  bool Q = data.trajectory.initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr);
+  bool Q = data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr);
 
   if (!Q && Sp.size() < 2 && Gp.size() > 3) {
 
     Cl.clear();
-    if (!data.trajectory.trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
-    if (!data.trajectory.initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr)) return false;
+    if (!data.trajectory().trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return false;
+    if (!data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr)) return false;
     Q = Qr = true;
   }
 
-  if (!Qr) ++data.roadbug;
+  if (!Qr) ++data.roadbug();
   if (!Q) return false;
-  ++data.inittracks;
-  bool pixseed = data.trajectory.isLastPixel();
+  ++data.inittracks();
+  bool pixseed = data.trajectory().isLastPixel();
   int itmax    = 30;
-  if (data.simpleTrack) itmax = 10;
-  if (data.heavyIon) itmax = 50;
+  if (data.simpleTrack()) itmax = 10;
+  if (data.heavyIon()) itmax = 50;
 
   // Track finding
   //
   if (pixseed) {      // Strategy for pixel seeds
-    if (!data.trajectory.forwardExtension (false,itmax)) return false;
-    if (!data.trajectory.backwardSmoother (false)      ) return false;
-    if (!data.trajectory.backwardExtension(itmax)      ) return false;
+    if (!data.trajectory().forwardExtension (false,itmax)) return false;
+    if (!data.trajectory().backwardSmoother (false)      ) return false;
+    if (!data.trajectory().backwardExtension(itmax)      ) return false;
 
-    if (data.trajectory.difference() > 0) {
-      if (!data.trajectory.forwardFilter()          ) return false;
-      if (!data.trajectory.backwardSmoother (false) ) return false;
+    if (data.trajectory().difference() > 0) {
+      if (!data.trajectory().forwardFilter()          ) return false;
+      if (!data.trajectory().backwardSmoother (false) ) return false;
     } 
-    int na = data.trajectory.nclustersNoAdd();
-    if (data.trajectory.nclusters()+na < data.nclusmin || data.trajectory.ndf() < data.nwclusmin) return false;
+    int na = data.trajectory().nclustersNoAdd();
+    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return false;
   } else {      // Strategy for mixed seeds
-    if (!data.trajectory.backwardSmoother(TWO)       ) return false;
-    if (!data.trajectory.backwardExtension(itmax)    ) return false;
-    if (!data.trajectory.forwardExtension(true,itmax)) return false;
+    if (!data.trajectory().backwardSmoother(TWO)       ) return false;
+    if (!data.trajectory().backwardExtension(itmax)    ) return false;
+    if (!data.trajectory().forwardExtension(true,itmax)) return false;
 
-    int na = data.trajectory.nclustersNoAdd();
-    if (data.trajectory.nclusters()+na < data.nclusmin || data.trajectory.ndf() < data.nwclusmin) return false;
-    if (!data.trajectory.backwardSmoother(false)    ) return false;
+    int na = data.trajectory().nclustersNoAdd();
+    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return false;
+    if (!data.trajectory().backwardSmoother(false)    ) return false;
 
-    na     = data.trajectory.nclustersNoAdd();
-    if (data.trajectory.nclusters()+na < data.nclusmin || data.trajectory.ndf() < data.nwclusmin) return false;
+    na     = data.trajectory().nclustersNoAdd();
+    if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return false;
 
-    if (data.trajectory.difference() > 0) {
-      if (!data.trajectory.forwardFilter()         ) return false;
-      if (!data.trajectory.backwardSmoother (false)) return false;
+    if (data.trajectory().difference() > 0) {
+      if (!data.trajectory().forwardFilter()         ) return false;
+      if (!data.trajectory().backwardSmoother (false)) return false;
     }
   } 
 
-  if (data.trajectory.qualityOptimization()     <           (m_qualityCut*data.nclusmin)    ) return false;
-  if (data.trajectory.pTfirst  () < data.pTmin     && data.trajectory.nclusters() < data.nclusmin ) return false;
-  if (data.trajectory.nclusters() < data.nclusminb || data.trajectory.ndf      () < data.nwclusmin) return false;
+  if (data.trajectory().qualityOptimization()     <           (m_qualityCut*data.nclusmin())    ) return false;
+  if (data.trajectory().pTfirst  () < data.pTmin()     && data.trajectory().nclusters() < data.nclusmin() ) return false;
+  if (data.trajectory().nclusters() < data.nclusminb() || data.trajectory().ndf      () < data.nwclusmin()) return false;
   
   return true;
 }
@@ -673,32 +646,32 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 // Trk::Track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(EventData& data) const
+Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorialTrackFinderData_xk& data) const
 {
-  if (!data.simpleTrack) {
-    return new Trk::Track(data.trackinfo,
-                          data.trajectory.convertToTrackStateOnSurface(data.cosmicTrack),
-                          data.trajectory.convertToFitQuality());
+  if (!data.simpleTrack()) {
+    return new Trk::Track(data.trackinfo(),
+                          data.trajectory().convertToTrackStateOnSurface(data.cosmicTrack()),
+                          data.trajectory().convertToFitQuality());
   }
 
-  Trk::TrackInfo info = data.trackinfo;
+  Trk::TrackInfo info = data.trackinfo();
   info.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinderSimple);
   return new Trk::Track(info,
-                        data.trajectory.convertToSimpleTrackStateOnSurface(data.cosmicTrack),
-                        data.trajectory.convertToFitQuality());
+                        data.trajectory().convertToSimpleTrackStateOnSurface(data.cosmicTrack()),
+                        data.trajectory().convertToFitQuality());
 }
 
 ///////////////////////////////////////////////////////////////////
 // Next Trk::Track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToNextTrack(EventData& data) const
+Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) const
 {
-  DataVector<const Trk::TrackStateOnSurface>* tsos{data.trajectory.convertToNextTrackStateOnSurface()};
+  DataVector<const Trk::TrackStateOnSurface>* tsos{data.trajectory().convertToNextTrackStateOnSurface()};
   if (tsos==nullptr) return nullptr;
-  return new Trk::Track(data.trackinfo,
+  return new Trk::Track(data.trackinfo(),
                         tsos,
-                        data.trajectory.convertToFitQuality());
+                        data.trajectory().convertToFitQuality());
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -851,90 +824,70 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
-(EventData& data, const TrackQualityCuts& Cuts) const
+(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts& Cuts) const
 {
   // Integer cuts
   //
-  if (!Cuts.getIntCut   ("CosmicTrack"         ,data.cosmicTrack)) data.cosmicTrack   =    0;
+  if (!Cuts.getIntCut   ("CosmicTrack"         ,data.cosmicTrack())) data.cosmicTrack()   =    0;
 
-  if (!Cuts.getIntCut   ("MinNumberOfClusters" ,data.nclusmin   )) data.nclusmin      =    7;
-  data.nclusminb = data.nclusmin-1;
-  if (data.nclusminb < 3) data.nclusminb = 3;
+  if (!Cuts.getIntCut   ("MinNumberOfClusters" ,data.nclusmin()   )) data.nclusmin()      =    7;
+  data.nclusminb() = data.nclusmin()-1;
+  if (data.nclusminb() < 3) data.nclusminb() = 3;
 
-  if (!Cuts.getIntCut   ("MinNumberOfWClusters",data.nwclusmin  )) data.nwclusmin     =    7;
+  if (!Cuts.getIntCut   ("MinNumberOfWClusters",data.nwclusmin()  )) data.nwclusmin()     =    7;
 
-  if (!Cuts.getIntCut   ("MaxNumberOfHoles"    ,data.nholesmax  )) data.nholesmax     =    2;
-  if (!Cuts.getIntCut   ("MaxHolesGae"         ,data.dholesmax  )) data.dholesmax     =    2;
-  if (!data.cosmicTrack) {
-    if (data.nholesmax > 2) data.nholesmax = 2;
-    if (data.dholesmax > 2) data.dholesmax = 2;
+  if (!Cuts.getIntCut   ("MaxNumberOfHoles"    ,data.nholesmax()  )) data.nholesmax()     =    2;
+  if (!Cuts.getIntCut   ("MaxHolesGae"         ,data.dholesmax()  )) data.dholesmax()     =    2;
+  if (!data.cosmicTrack()) {
+    if (data.nholesmax() > 2) data.nholesmax() = 2;
+    if (data.dholesmax() > 2) data.dholesmax() = 2;
   }
-  if (data.dholesmax > data.nholesmax) data.dholesmax = data.nholesmax;
+  if (data.dholesmax() > data.nholesmax()) data.dholesmax() = data.nholesmax();
 
   int useasso;
   if (!Cuts.getIntCut   ("UseAssociationTool"  ,useasso      )) useasso         =    0;
 
   int simpletrack;
   if (!Cuts.getIntCut   ("SimpleTrack"         ,simpletrack  )) simpletrack     =    0;
-  simpletrack ? data.simpleTrack = true : data.simpleTrack = false;
+  simpletrack ? data.simpleTrack() = true : data.simpleTrack() = false;
 
   int multitrack;
   if (!Cuts.getIntCut   ("doMultiTracksProd"   ,multitrack   )) multitrack      =    0;
  
   // Double cuts
   //
-  if (!Cuts.getDoubleCut("pTmin"              ,data.pTmin      )) data.pTmin         = 500.;
-  if (!Cuts.getDoubleCut("pTminBrem"          ,data.pTminBrem  )) data.pTminBrem     =1000.;
+  if (!Cuts.getDoubleCut("pTmin"              ,data.pTmin()      )) data.pTmin()         = 500.;
+  if (!Cuts.getDoubleCut("pTminBrem"          ,data.pTminBrem()  )) data.pTminBrem()     =1000.;
 
-  if (!Cuts.getDoubleCut("MaxXi2forCluster"   ,data.xi2max     )) data.xi2max        =   9.;
-  if (!Cuts.getDoubleCut("MaxXi2forOutlier"   ,data.xi2maxNoAdd)) data.xi2maxNoAdd   =  25.;
-  if (!data.cosmicTrack) {
-    if (data.xi2maxNoAdd > 25.) data.xi2maxNoAdd = 25.;
+  if (!Cuts.getDoubleCut("MaxXi2forCluster"   ,data.xi2max()     )) data.xi2max()        =   9.;
+  if (!Cuts.getDoubleCut("MaxXi2forOutlier"   ,data.xi2maxNoAdd())) data.xi2maxNoAdd()   =  25.;
+  if (!data.cosmicTrack()) {
+    if (data.xi2maxNoAdd() > 25.) data.xi2maxNoAdd() = 25.;
   }
-  if (data.xi2maxNoAdd <= data.xi2max) data.xi2maxNoAdd = data.xi2max+5.;
+  if (data.xi2maxNoAdd() <= data.xi2max()) data.xi2maxNoAdd() = data.xi2max()+5.;
 
-  if (!Cuts.getDoubleCut("MaxXi2forSearch"    ,data.xi2maxlink )) data.xi2maxlink    = 100.;
+  if (!Cuts.getDoubleCut("MaxXi2forSearch"    ,data.xi2maxlink() )) data.xi2maxlink()    = 100.;
 
   double xi2m;
   if (!Cuts.getDoubleCut("MaxXi2MultiTracks"  ,xi2m         )) xi2m            =   7.;
-  if (!data.cosmicTrack) {
+  if (!data.cosmicTrack()) {
     if (xi2m > 7.) xi2m = 7.;
   }
 
-  data.tools.setXi2pTmin(data.xi2max, data.xi2maxNoAdd, data.xi2maxlink, data.pTmin);
-  data.tools.setHolesClusters(data.nholesmax, data.dholesmax, data.nclusmin);
-  data.tools.setAssociation(useasso);
-  data.tools.setMultiTracks(multitrack, xi2m);
-  data.trajectory.setParameters();
+  data.tools().setXi2pTmin(data.xi2max(), data.xi2maxNoAdd(), data.xi2maxlink(), data.pTmin());
+  data.tools().setHolesClusters(data.nholesmax(), data.dholesmax(), data.nclusmin());
+  data.tools().setAssociation(useasso);
+  data.tools().setMultiTracks(multitrack, xi2m);
+  data.trajectory().setParameters();
 }
 
-InDet::SiCombinatorialTrackFinder_xk::EventData& InDet::SiCombinatorialTrackFinder_xk::getEventData() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cache.size()) { // Need to extend vectors
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
-    m_eventData.resize(slot+1);
-  }
-  if (m_cache[slot]!=evt) { // New event
-    m_cache[slot] = evt;
-    // Initialization
-    m_eventData[slot] = EventData{};
-
-    // Set SiTools and conditions
-    //
-    m_eventData[slot].tools.setTools(&*m_proptool, &*m_updatortool, &*m_riocreator,
-                                     ((not m_assoTool.empty()) ? &*m_assoTool : nullptr),
-                                     &*m_fieldServiceHandle);
-    m_eventData[slot].tools.setTools(m_usePIX ? &*m_pixelCondSummaryTool : nullptr,
-                                     m_useSCT ? &*m_sctCondSummaryTool : nullptr);
-    m_eventData[slot].tools.setTools(&m_fieldprop);
-
-    // Set tool to trajectory
-    //
-    m_eventData[slot].trajectory.setTools(&m_eventData[slot].tools);
-  }
-  return m_eventData[slot];
+void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(SiCombinatorialTrackFinderData_xk& data) const {
+  data.setTools(&*m_proptool,
+                &*m_updatortool,
+                &*m_riocreator,
+                ((not m_assoTool.empty()) ? &*m_assoTool : nullptr),
+                &*m_fieldServiceHandle,
+                (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
+                (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
+                &m_fieldprop);
 }

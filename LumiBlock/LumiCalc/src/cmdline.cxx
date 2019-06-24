@@ -8,6 +8,9 @@
   we make no copyright claims on it.
 */
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 /* If we use autoconf.  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -617,7 +620,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
               /* specific occurrences */
               if (option_given != (unsigned int) min)
                 {
-                  fprintf (stderr, "%s: %s option occurrences must be %d\n",
+                  fprintf (stderr, "%s: %s option occurrences must be %u\n",
                     prog_name, option_desc, min);
                   error = 1;
                 }
@@ -626,7 +629,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
                 || option_given > (unsigned int) max)
             {
               /* range occurrences */
-              fprintf (stderr, "%s: %s option occurrences must be between %d and %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be between %u and %u\n",
                 prog_name, option_desc, min, max);
               error = 1;
             }
@@ -636,7 +639,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
           /* at least check */
           if (option_given < min)
             {
-              fprintf (stderr, "%s: %s option occurrences must be at least %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be at least %u\n",
                 prog_name, option_desc, min);
               error = 1;
             }
@@ -646,7 +649,7 @@ check_multiple_option_occurrences(const char *prog_name, unsigned int option_giv
           /* at most check */
           if (option_given > max)
             {
-              fprintf (stderr, "%s: %s option occurrences must be at most %d\n",
+              fprintf (stderr, "%s: %s option occurrences must be at most %u\n",
                 prog_name, option_desc, max);
               error = 1;
             }
@@ -792,7 +795,7 @@ int update_arg(void *field, char **orig_field,
   stop_char = 0;
   found = 0;
 
-  if (!multiple_option && prev_given && (*prev_given || (check_ambiguity && *field_given)))
+  if (!multiple_option && field_given && prev_given && (*prev_given || (check_ambiguity && *field_given)))
     {
       if (short_opt != '-')
         fprintf (stderr, "%s: `--%s' (`-%c') option given more than once%s\n", 

@@ -31,8 +31,6 @@
 #include "StoreGate/ReadCondHandle.h"
 #include <cmath>
 #include "TrkRIO_OnTrack/check_cast.h"
-using CLHEP::mm;
-using CLHEP::micrometer;
 
 //clustermap is most likely to be removed at later date
 #define __clustermap
@@ -64,10 +62,7 @@ namespace
       square(vectorOfPositions[k][1] - allLocalPositions[2][1]) / allErrorMatrix[2](1, 1);
   }
 
-  // avoid a lot of '/sqrt(12)' in loops, declare the constant here
-  // constexpr sqrt is a gcc extension, unsupported by clang.
-  //constexpr double TOPHAT_SIGMA = 1. / sqrt(12.);
-  static double TOPHAT_SIGMA = 1. / std::sqrt(12.);
+  constexpr double TOPHAT_SIGMA = 1. / std::sqrt(12.);
 }
 
 InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
@@ -78,7 +73,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
-  m_applyNNcorrection(false),
   m_applydRcorrection(false),
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
@@ -95,10 +89,8 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
 
   declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
-  declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
-  declareProperty("applyNNcorrection", m_applyNNcorrection);
   declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
   declareProperty("EventStore", m_storeGate);
@@ -125,15 +117,19 @@ StatusCode
 InDet::PixelClusterOnTrackTool::initialize() {
 
   ATH_MSG_DEBUG(name() << " initialize()");
+
+  m_errorStrategy = m_errorStrategyProperty;
   ATH_MSG_DEBUG("Error strategy is" << m_errorStrategy);
+
   ATH_MSG_DEBUG("Release 13 flag is" << m_rel13like);
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
   } else {
-    m_IBLParameterSvc->setBoolParameters(m_applyNNcorrection, "doPixelClusterSplitting");
+    m_IBLParameterSvc->setBoolParameters(m_applyNNcorrectionProperty.value(), "doPixelClusterSplitting");
     m_IBLParameterSvc->setBoolParameters(m_IBLAbsent, "IBLAbsent");
   }
+  m_applyNNcorrection = m_applyNNcorrectionProperty;
 
   ATH_CHECK(m_clusterErrorKey.initialize());
 
@@ -324,6 +320,8 @@ InDet::PixelClusterOnTrackTool::correct
 const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correctDefault
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
+  using CLHEP::micrometer;
+
   //  const InDet::SiCluster* SC = dynamic_cast<const InDet::SiCluster*> (&rio);
   const InDet::PixelCluster *pix = nullptr;
 
@@ -1145,6 +1143,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
 
 double
 InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
+  std::lock_guard<std::mutex> lock(m_mutex);
   FillFromDataBase();
   const int fNp = m_fY[layer].size();
   const int fKstep = 0;
@@ -1152,8 +1151,6 @@ InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
   const auto result = std::minmax_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
   const double fXmin = *(result.first);
   const double fXmax = *(result.second);
-  //const double fXmin = *std::min_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
-  //const double fXmax = *std::max_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
 
   int klow = 0;
 

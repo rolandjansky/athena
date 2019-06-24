@@ -105,8 +105,16 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
             else:
                 meta_dict[filename]['nentries'] = None
 
+            # open the tree 'CollectionTree' to read auto flush
+            if current_file.GetListOfKeys().Contains('CollectionTree'):
+                meta_dict[filename]['auto_flush'] = current_file.Get('CollectionTree').GetAutoFlush()
+
             # read and add the 'GUID' value
             meta_dict[filename]['file_guid'] = _read_guid(filename)
+
+            # read and add compression level and algorithm
+            meta_dict[filename]['file_comp_alg'] = current_file.GetCompressionAlgorithm()
+            meta_dict[filename]['file_comp_level'] = current_file.GetCompressionLevel()
 
             # ----- read extra metadata required for 'lite' and 'full' modes ----------------------------------------#
             if mode != 'tiny':

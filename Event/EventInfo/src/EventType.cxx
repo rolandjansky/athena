@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,7 +40,7 @@ EventType::operator<(const EventType& rhs) const
       return(this->m_bit_mask.size() < rhs.m_bit_mask.size());
    }
    for (BitMaskIterator i = this->bit_mask_begin(), j = rhs.bit_mask_begin();
-	   i != this->bit_mask_end(); i++, j++) {
+	   i != this->bit_mask_end(); ++i, ++j) {
       if (*i != *j) {
          return(*i < *j);
       }
@@ -162,13 +162,13 @@ EventType::get_detdescr_tags(NameTagPairVec& pairs) const
     } while (!done);
 }
 
-const std::string&  
+std::string
 EventType::get_detdescr_tags() const
 {
     // Concatenate the dd tags to a single string
     NameTagPairVec pairs;
     get_detdescr_tags(pairs);
-    static std::string result;
+    std::string result;
     result.clear();
     for (unsigned int i = 0; i < pairs.size(); ++i) {
         result += pairs[i].first + ' ' + pairs[i].second + ' ';

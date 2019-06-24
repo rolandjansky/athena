@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ////////////////////////////////////////////////////////////////////////////////
 // IdScan: TrigZFinder
@@ -11,10 +11,8 @@
 #include <cmath>
 #include <vector>
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "IDScanZFinder/TrigZFinder.h"
-#include "IDScanZFinder/ZFinderConstants.h"
+#include "TrigZFinder.h"
+#include "ZFinderConstants.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
@@ -69,16 +67,6 @@ TrigZFinder::TrigZFinder( const std::string& type, const std::string& name, cons
 
 StatusCode TrigZFinder::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize(); // sets properties
-
-  MsgStream athenaLog( msgSvc(), name() );
-
-  if ( sc.isFailure() ){
-    athenaLog << MSG::ERROR << "Error in AthAlgTool::initialize()  " << endmsg;
-    // msg(MSG::ERROR) << "Error in AthAlgTool::initialize()  " << endmsg;
-    return sc;
-  }
-
   //   NB: This should go into the InitializeInternal !!!!!!!!!
   //       NO internal settings should be changed in here, this should just 
   //       be an athena wrapper !!!
@@ -89,28 +77,20 @@ StatusCode TrigZFinder::initialize()
   /// NB: These only have to go here, because they need to write to the msgsvc, and because 
   ///     is rubbish, we can't pass in a pointer to a (non-athena) sub algorithm.
   if ( m_phiBinSize < ZFinder_MinPhiSliceSize ){
-    athenaLog << MSG::WARNING << "TrigZFinder constructor: " << name()  << endmsg;
-    athenaLog << MSG::WARNING 
-		<< "Requested PhiBinSize of "  << m_phiBinSize 
-		<< " degrees is smaller than the minimum allowed (" << ZFinder_MinPhiSliceSize
-		<< " degrees). Set to the minimum value." << endmsg;
+    ATH_MSG_WARNING("Requested PhiBinSize of "  << m_phiBinSize
+                    << " degrees is smaller than the minimum allowed (" << ZFinder_MinPhiSliceSize
+                    << " degrees). Set to the minimum value.");
     //  m_phiBinSize = ZFinder_MinPhiSliceSize;
   }
  
   // NB: This should go into the InitializeInternal !!!!
   if ( m_dphideta > 0 ){
-    athenaLog << MSG::WARNING << "TrigZFinder constructor: " << name()  << endmsg;
-    athenaLog << MSG::WARNING 
-		<< "Requested DPhiDEta of "  << m_dphideta 
-		<< " is positive.  Setting to its negative!" << endmsg;
+    ATH_MSG_WARNING("Requested DPhiDEta of "  << m_dphideta
+                    << " is positive.  Setting to its negative!");
     // m_dphideta *= -1.;
   }
 
-  if (m_numberingTool.retrieve().isFailure()){
-    athenaLog << MSG::FATAL << "Tool " << m_numberingTool
-	      << " not found " << endmsg;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(m_numberingTool.retrieve());
 
   /// get first endcap layer, so we know how
   /// barrel layers there are 
@@ -130,50 +110,46 @@ StatusCode TrigZFinder::initialize()
 
   initializeInternal(maxSiliconLayerNum,offsetEndcapPixels-1);
 
-  athenaLog << MSG::INFO << "TrigZFinder constructed:     name()  "    << name()             << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::PixOnly        set to   "    << m_pixOnly          << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::FullScanMode            "    << m_fullScanMode     << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::z bin size              "    << m_minZBinSize      << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endmsg;
+  ATH_MSG_INFO("TrigZFinder constructed:     name()  "    << name()            );
+  ATH_MSG_INFO("TrigZFinder::PixOnly        set to   "    << m_pixOnly         );
+  ATH_MSG_INFO("TrigZFinder::FullScanMode            "    << m_fullScanMode    );
+  ATH_MSG_INFO("TrigZFinder::PhiBinSize     set to   "    << m_phiBinSize      );
+  ATH_MSG_INFO("TrigZFinder::# of peaks to consider: "    << m_numberOfPeaks   );
+  ATH_MSG_INFO("TrigZFinder::z bin size              "    << m_minZBinSize     );
+  ATH_MSG_INFO("TrigZFinder::eta coeff               "    << m_zBinSizeEtaCoeff);
   
-  athenaLog << MSG::INFO << "TrigZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize  << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_phiBinSize       = " << m_phiBinSize       << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_dphideta         = " << m_dphideta         << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_minZBinSize      = " << m_minZBinSize      << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_chargeAware      = " << m_chargeAware      << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_nFirstLayers     = " << m_nFirstLayers    );
+  ATH_MSG_INFO("TrigZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize );
+  ATH_MSG_INFO("TrigZFinder::m_phiBinSize       = " << m_phiBinSize      );
+  ATH_MSG_INFO("TrigZFinder::m_dphideta         = " << m_dphideta        );
+  ATH_MSG_INFO("TrigZFinder::m_neighborMultiplier = " << m_neighborMultiplier);
+  ATH_MSG_INFO("TrigZFinder::m_minZBinSize      = " << m_minZBinSize     );
+  ATH_MSG_INFO("TrigZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff);
+  ATH_MSG_INFO("TrigZFinder::m_chargeAware      = " << m_chargeAware     );
+  ATH_MSG_INFO("TrigZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi    );
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation  << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxDistCut      = " << m_vrtxDistCut      << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxMixing       = " << m_vrtxMixing       << endmsg;
-  athenaLog << MSG::INFO << "TrigZFinder::m_preferCentralZ   = " << m_preferCentralZ   << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation );
+  ATH_MSG_INFO("TrigZFinder::m_vrtxDistCut      = " << m_vrtxDistCut     );
+  ATH_MSG_INFO("TrigZFinder::m_vrtxMixing       = " << m_vrtxMixing      );
+  ATH_MSG_INFO("TrigZFinder::m_preferCentralZ   = " << m_preferCentralZ  );
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_trustSPprovider  = " << m_trustSPprovider  << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_trustSPprovider  = " << m_trustSPprovider );
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_tripletMode      = " << m_tripletMode      << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_tripletMode      = " << m_tripletMode     );
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_maxLayer         = " << m_maxLayer        << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_maxLayer         = " << m_maxLayer       );
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_minVtxSignificance = " << m_minVtxSignificance  << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_minVtxSignificance = " << m_minVtxSignificance );
 
   if ( m_minVtxSignificance>0 ) { 
-    athenaLog << MSG::INFO << "TrigZFinder::m_percentile     = " << m_percentile  << endmsg;
+    ATH_MSG_INFO("TrigZFinder::m_percentile     = " << m_percentile );
   }
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_weigthThreshold  = " << m_weightThreshold  << endmsg;
+  ATH_MSG_INFO("TrigZFinder::m_weigthThreshold  = " << m_weightThreshold );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
-
-StatusCode TrigZFinder::finalize() { 
-  return AthAlgTool::finalize(); 
-}
 
 TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi)
 {
@@ -193,7 +169,6 @@ TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 
     output->push_back( new TrigVertex( (*vertices)[i]._z, (*vertices)[i]._weight, TrigVertex::NULLID ) );
-    //    std::cout << "SUTT vertex " << i << "\tz "<< (*vertices)[i]._z << "\tn " << (*vertices)[i]._weight << std::endl;
   }
 
   delete vertices;

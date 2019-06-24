@@ -16,6 +16,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 // MuonSpectrometer includes
+#include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
@@ -29,6 +30,7 @@
 #include "MuonSimEvent/CscHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
@@ -66,11 +68,13 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_rpcHitIdHelper(nullptr),
     m_cscHitIdHelper(nullptr),
     m_tgcHitIdHelper(nullptr),
+    m_mdtIdHelper(nullptr),
     m_mmOffToSimId(nullptr),
     m_stgcOffToSimId(nullptr),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_muonMgr(nullptr),
     m_mdtSigmaDriftRadius(0.08),
+    m_BMGid(-1),
     m_createAllMdtHits(true)
 {
   //  template for property decalration
@@ -119,6 +123,13 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   // m_sTgcHitIdHelper = sTgcHitIdHelper::GetHelper(); 
   // m_mmHitIdHelper = MicromegasHitIdHelper::GetHelper(); 
 
+  if (detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
+    ATH_MSG_FATAL("Cannot get MdtIdHelper" );
+    return StatusCode::FAILURE;
+  }  
+  else {
+    ATH_MSG_DEBUG(" Found the MdtIdHelper. " );
+  }
 
   if (detStore()->retrieve(m_muonMgr).isFailure()) {
       ATH_MSG_FATAL( "[ --- ] Cannot retrieve MuonDetectorManager..." );
@@ -158,6 +169,26 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
   ATH_MSG_INFO( "[ mutrack ] initialize() successful." );
+
+     m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+      if(m_BMGpresent){
+        ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+        m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+        for(int phi=6; phi<8; phi++) { // phi sectors
+          for(int eta=1; eta<4; eta++) { // eta sectors
+            for(int side=-1; side<2; side+=2) { // side
+              if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+              for(int roe=1; roe<= ((m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements()); roe++) { // iterate on readout elemets
+                const MuonGM::MdtReadoutElement* mdtRE =
+                      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                if(mdtRE) initDeadChannels(mdtRE);
+              }
+            }
+          }
+        }
+      }
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -346,7 +377,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       if (m_idHelperTool->mdtIdHelper().valid(hid)) {
 	// create first hit 
 	bool hitCreated = createHit(isp, currLay,parm,hid,timeInfo,pitch, true);
-      
 	if (m_createAllMdtHits) {
 	  // nearby hits - check range 
 	  const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(hid);  
@@ -402,7 +432,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
-
    // MDT SECTION 
    if (m_idHelperTool->mdtIdHelper().is_mdt(id)) {
             
@@ -412,13 +441,21 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 						 m_idHelperTool->mdtIdHelper().tube(id));
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
-
+     // local position from the mdt's i
+     const MuonGM::MdtReadoutElement* MdtRoEl = m_muonMgr->getMdtReadoutElement(id);
+     if(m_BMGpresent && m_mdtIdHelper->stationName(id) == m_BMGid ) {
+       auto myIt = m_DeadChannels.find(MdtRoEl->identify());
+       if( myIt != m_DeadChannels.end() ){
+         if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
+           ATH_MSG_DEBUG("Skipping tube with identifier " << m_mdtIdHelper->show_to_string(id) );
+           return false;
+         }
+       }
+     }
      // local position from the mdt's 
      const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
-
      // drift radius
      double residual = m_measTool->residual(lay,parm,id);     
-
      if (fabs(residual)<15.075) {
 
        double dlh = sqrt(15.075*15.075-residual*residual); 
@@ -559,5 +596,43 @@ int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
 
 
   return 0; 
+}
+void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
+  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
+  int nGrandchildren = cv->getNChildVols();
+  if(nGrandchildren <= 0) return;
+
+  Identifier detElId = mydetEl->identify();
+
+  int name = m_mdtIdHelper->stationName(detElId);
+  int eta = m_mdtIdHelper->stationEta(detElId);
+  int phi = m_mdtIdHelper->stationPhi(detElId);
+  int ml = m_mdtIdHelper->multilayer(detElId);
+  std::vector<Identifier> deadTubes;
+  
+    for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
+    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
+      bool tubefound = false;
+      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+        int tubegeo = cv->getIdOfChildVol(kk) % 100;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        if( tubegeo == tube && layergeo == layer ) {
+          tubefound=true;
+          break;
+        }
+        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      }
+      if(!tubefound) {
+        Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+        deadTubes.push_back( deadTubeId );
+        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      }
+    }
+  }
+  std::sort(deadTubes.begin(), deadTubes.end());
+  m_DeadChannels[detElId] = deadTubes;
+  return;
 }
 

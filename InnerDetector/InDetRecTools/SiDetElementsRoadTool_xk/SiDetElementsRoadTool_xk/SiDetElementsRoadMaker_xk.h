@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,6 +22,7 @@
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
@@ -31,6 +34,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 #include <iosfwd>
 #include <list>
 #include <mutex>
@@ -66,8 +70,8 @@ namespace InDet{
     SiDetElementsRoadMaker_xk
       (const std::string&, const std::string&, const IInterface*);
     virtual ~SiDetElementsRoadMaker_xk() = default;
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     ///////////////////////////////////////////////////////////////////
     // Main methods for road builder
@@ -75,25 +79,25 @@ namespace InDet{
       
     virtual void detElementsRoad
       (const std::list<const Trk::SpacePoint*>&,
-       std::list<const InDetDD::SiDetectorElement*>&) const;
+       std::list<const InDetDD::SiDetectorElement*>&) const override;
   
     virtual void detElementsRoad
       (std::list<Amg::Vector3D>&, 
-       std::list<const InDetDD::SiDetectorElement*>&) const;
+       std::list<const InDetDD::SiDetectorElement*>&) const override;
 
     virtual void detElementsRoad
       (const Trk::TrackParameters&,
        Trk::PropDirection,
-       std::list<const InDetDD::SiDetectorElement*>&) const;
+       std::list<const InDetDD::SiDetectorElement*>&) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
 
-    MsgStream&    dump(MsgStream   & out) const;
-    std::ostream& dump(std::ostream& out) const;
+    MsgStream&    dump(MsgStream   & out) const override;
+    std::ostream& dump(std::ostream& out) const override;
 
-  protected:
+  private:
       
     ///////////////////////////////////////////////////////////////////
     // Protected Data
@@ -120,16 +124,19 @@ namespace InDet{
     Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
     int                                  m_outputlevel{};
 
-    // This is not set by third detElementsRoad method but used by  first detElementsRoad method.
+    // This is not set by third detElementsRoad method but used by first detElementsRoad method.
     // This is not multithread safe.
     mutable std::atomic_bool m_test{};
 
-    // Mutex to protect the contents
-    mutable std::mutex m_mutex;
-    // Cache to store events for slots
-    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    // std::vector<SiDetElementsLayer_xk> for each event. This is not const.
-    mutable SiDetElementsLayerVectors_xk m_layerVectors[3] ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    // Cache
+    struct CacheEntry {
+      // Mutex to protect the contents
+      std::mutex m_mutex;
+      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+      // std::vector<SiDetElementsLayer_xk> for each layer. This is not const.
+      SiDetElementsLayerVectors_xk m_layerVectors{SiDetElementsLayerVectors_xk(3)};
+    };
+    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     ///////////////////////////////////////////////////////////////////
     // Methods
@@ -143,7 +150,7 @@ namespace InDet{
 
     MsgStream& dumpConditions(MsgStream& out) const;
 
-    void getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
+    std::unique_lock<std::mutex> getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
   };
 
   MsgStream&    operator << (MsgStream&   , const SiDetElementsRoadMaker_xk&);

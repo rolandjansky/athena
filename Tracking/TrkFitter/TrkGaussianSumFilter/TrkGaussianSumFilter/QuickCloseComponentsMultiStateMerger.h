@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -48,80 +48,32 @@ namespace Trk{
     virtual ~QuickCloseComponentsMultiStateMerger();
 
     /** AlgTool initialise method */
-    StatusCode initialize();
+    StatusCode initialize() override final;
 
     /** AlgTool finalise method */
-    StatusCode finalize();
+    StatusCode finalize() override final;
 
-    virtual const MultiComponentState* merge(const MultiComponentState&) const;
+    virtual const MultiComponentState* merge(const MultiComponentState&) const override final;
 
   private:
-
-    typedef std::multimap<double, ComponentParameters, SortBySmallerWeight> MultiComponentStateMap;
-
-    double calculateDistance(const ComponentParameters , const ComponentParameters) const;
-
-
-    unsigned int m_maximumNumberOfComponents;
-
-    ToolHandle<IComponentSeparationDistance>  m_distance;
-
-    ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner;
-    ToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler
-       {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",""};
-
-    ServiceHandle<IChronoStatSvc>                  m_chronoSvc;           //!< Timing: The Gaudi time auditing service
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    // New merging functions.
-
-    bool m_useFullDistanceCalcArray;
-    bool m_useFullDistanceCalcVector;
+    Gaudi::Property <unsigned int>                  m_maximumNumberOfComponents {this,
+      "MaximumNumberOfComponents", 12 , "Maximum number of components"};
+   
+    ToolHandle<IComponentSeparationDistance>        m_distance {this,
+      "DistanceType","Trk::KullbackLeiblerComponentDistance/KullbackLeiblerComponentDistance","Distance calculator"};
+    
+    ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner {this,
+      "CombinerTool","Trk::MultiComponentStateCombiner/CloseComponentsCombiner"," Combonent combiner"};
+    
+    ToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler {this,
+      "MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler"," "};
+    
+    ServiceHandle<IChronoStatSvc>                  m_chronoSvc;   //!< Timing: The Gaudi time auditing service
 
 
-
-    const MultiComponentState* mergeFullDistVector(IMultiComponentStateAssembler::Cache& cache,
-                                                   const MultiComponentState&) const;
+    
     const MultiComponentState* mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
                                                   const MultiComponentState&) const;
-
-
-    typedef std::vector<std::vector<float> > IndexDistanceMap;
-
-    //Routine to add a new component to the map & calculate distances.
-    //NOTE: New components will always come at the end of the vector,
-    //which should simplify routine.
-    void buildMap(IndexDistanceMap&, std::vector<const ComponentParameters*>&) const;
-
-
-    // Merge components and delete them from map while adding the new one
-    void mergeStateComponents (IndexDistanceMap&, std::vector<const ComponentParameters*>&) const;
-
-    void deleteStateComponents(int ind1, int ind2, std::vector<const ComponentParameters*>&) const;
-
-    //Routine to get rid of all the distance calculations made with
-    //merged components.
-    void deleteStoredDistances(IndexDistanceMap&, int i1, int i2) const;
-
-    //Routine to add a new component to the map & calculate distances.
-    //NOTE: New components will always come at the end of the vector,
-    //which should simplify routine.
-    void addComponentDistances(IndexDistanceMap&, std::vector<const ComponentParameters*>&) const;
-    std::pair<int,int> getMinDistanceIndicesFromMap(IndexDistanceMap&) const;
-
-    //New function to define a reference component, and calculate
-    //KL distances with respect to it.
-    float getMinimumKLDistanceComponent(
-          IndexDistanceMap&,
-          const ComponentParameters* &ref,
-          std::vector<const ComponentParameters*>&,
-          int& minIndex) const;
-
-    void fillKLDistance(
-          IndexDistanceMap&,
-          const ComponentParameters* &ref,
-          std::vector<const ComponentParameters*>&
-          ) const;
 
     //Recalculate the distances for a row of pairs and return the index of the minimum pair
     int  recalculateDistances(  floatPtrRestrict qonpIn,

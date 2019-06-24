@@ -68,6 +68,9 @@ StatusCode  ISF::GenParticleSimWhiteList::initialize()
 /** passes through to the private version of the filter */
 bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) const
 {
+
+  ATH_MSG_VERBOSE( "Checking whether " << particle << " passes the filter." );
+
   static std::vector<int> vertices(500);
   vertices.clear();
   bool so_far_so_good = pass( particle , vertices );
@@ -81,6 +84,8 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) cons
       // Check this particle
       vertices.clear();
       bool parent_all_clear = pass( **it , vertices );
+      ATH_MSG_VERBOSE( "Parent all clear: " << parent_all_clear <<
+         "\nIf true, will not pass the daughter because it should have been picked up through the parent already (to avoid multi-counting)." );
       so_far_so_good = so_far_so_good && !parent_all_clear;
     } // Loop over parents
   } // particle had parents
@@ -95,7 +100,6 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
   bool passFilter = std::binary_search( m_pdgId.begin() , m_pdgId.end() , particle.pdg_id() ) || MC::PID::isNucleus( particle.pdg_id() );
   // Remove documentation particles
   passFilter = passFilter && particle.status()!=3;
-
   // Test all daughter particles
   if (particle.end_vertex() && m_qs && passFilter){
     // Break loops
@@ -104,7 +108,10 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
       for (HepMC::GenVertex::particle_iterator it = particle.end_vertex()->particles_begin(HepMC::children);
                                                it != particle.end_vertex()->particles_end(HepMC::children); ++it){
         passFilter = passFilter && pass( **it , used_vertices );
-        if (!passFilter) break;
+        if (!passFilter) {
+          ATH_MSG_VERBOSE( "Daughter particle " << **it << " does not pass." );
+          break;
+        }
       } // Loop over daughters
     } // Break loops
   } // particle had daughters

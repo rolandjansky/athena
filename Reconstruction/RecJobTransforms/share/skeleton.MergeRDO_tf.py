@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for RDO merging
@@ -127,7 +128,7 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 try:
   ServiceMgr.EventSelector.CollectionType = CollType
 except:
-  print "Reading from file"
+  print("Reading from file")
 
 SkipEvents=0
 ServiceMgr.EventSelector.SkipEvents = SkipEvents
@@ -151,15 +152,15 @@ StreamRDO.ForceRead=TRUE;  #force read of output data objs
 try:
   StreamRDO.AcceptAlgs = AcceptList
 except:
-  print "No accept algs indicated in AcceptList"
+  print("No accept algs indicated in AcceptList")
 try:
   StreamRDO.RequireAlgs = RequireList
 except:
-  print "No accept algs indicated in RequireList"
+  print("No accept algs indicated in RequireList")
 try:
   StreamRDO.VetoAlgs = VetoList
 except:
-  print "No accept algs indicated in VetoList"
+  print("No accept algs indicated in VetoList")
 
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties

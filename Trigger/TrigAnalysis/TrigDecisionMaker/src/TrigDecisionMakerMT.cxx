@@ -251,8 +251,10 @@ size_t TrigDecisionMakerMT::makeBitMap(
 void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
   const size_t block = bit / std::numeric_limits<uint32_t>::digits;
   const size_t requiredSize = block + 1;
-  for (std::vector<uint32_t>* vecPtr : vectors) {
-    vecPtr->resize(requiredSize, 0);
+  if (vectors.size() && requiredSize > (*vectors.begin())->size()) {
+    for (std::vector<uint32_t>* vecPtr : vectors) {
+      vecPtr->resize(requiredSize, 0); // Resize can shrink, here we only ever want to expand
+    }
   }
   return;
 }

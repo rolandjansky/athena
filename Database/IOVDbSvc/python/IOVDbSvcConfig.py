@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from IOVSvc.IOVSvcConf import CondInputLoader
@@ -77,18 +77,19 @@ def IOVDbSvcCfg(configFlags):
 
 #Convenience method to add folders:
 def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None):
+    tagstr = ''
+    if tag is not None:
+        tagstr = '<tag>%s</tag>' % tag
+
     #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
-        return addFolderList(configFlags,((folderstrings,detDb,className),),extensible)
+        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible)
 
     else: #Got a list of folders
         folderdefs=[]
 
         for fs in folderstrings:
-            if tag is not None:
-                fs+= '<tag>%s</tag>' % tag
-        
-            folderdefs.append((fs,detDb,className))
+            folderdefs.append((fs+tagstr,detDb,className))
         
     return addFolderList(configFlags,folderdefs,extensible)
     

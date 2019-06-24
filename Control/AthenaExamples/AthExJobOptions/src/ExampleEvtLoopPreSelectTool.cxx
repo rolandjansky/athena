@@ -52,13 +52,13 @@ StatusCode ExampleEvtLoopPreSelectTool::finalize()
 }
 
 //__________________________________________________________________
-bool  ExampleEvtLoopPreSelectTool::passEvent(const EventInfo* pEvent)
+bool  ExampleEvtLoopPreSelectTool::passEvent(const EventIDBase& pEvent)
 {
 
 // do what needs to be done
    ATH_MSG_DEBUG ("Entering PassEvent ");
 
 
-   EventID::number_type evtNumber = pEvent->event_ID()->event_number();
+   EventID::number_type evtNumber = pEvent.event_number();
    return (0 == (evtNumber % m_prescale));
  }

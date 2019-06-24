@@ -88,6 +88,11 @@ Stream3.ItemList   += ["AthenaPoolTestMatrix#*"]
 
 print Stream3.ItemList
 
+# Change output file catalog to avoid collisions.
+PoolSvc = Service( 'PoolSvc' )
+PoolSvc.WriteCatalog = 'file:AthenaPoolTestStep2WriteDoubleSelector_catalog.xml'
+
+
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------

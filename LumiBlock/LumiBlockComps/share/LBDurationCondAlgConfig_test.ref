@@ -1,0 +1,14 @@
+--- data
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:ConfigurableDb    INFO Read module info for 4747 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+EventInfoMgtInit: Got release version  sss-rel_0
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/TRIGGER/LUMI/LBLB')]
+Py:ComponentAccumulator    INFO  \__ LBDurationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * LBDurationOutputKey: LBDurationCondData
+Py:ComponentAccumulator    INFO      * LBLBFolderInputKey: /TRIGGER/LUMI/LBLB
+IOVDbSvc: ['/TRIGGER/LUMI/LBLB<db>COOLONL_TRIGGER/CONDBR2</db>']

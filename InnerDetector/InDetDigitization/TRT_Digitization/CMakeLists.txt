@@ -44,10 +44,6 @@ atlas_add_component( TRT_Digitization
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRawData InDetSimData InDetSimEvent MagFieldInterfaces HitManagement )
 
-atlas_add_test( TRT_DigitizationConfigNew_test
-                SCRIPT test/TRT_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 600 )
-
 # Install files from the package:
 atlas_install_headers( TRT_Digitization )
 atlas_install_python_modules( python/*.py )

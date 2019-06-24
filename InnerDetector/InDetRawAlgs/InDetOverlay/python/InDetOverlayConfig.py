@@ -6,9 +6,14 @@ from AthenaCommon import CfgMgr
 def getPixelOverlay(name="PixelOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+PixelRDOs");
-    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelRDOs");
-    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelRDOs");
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "PixelRDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "PixelRDOs");
+        kwargs.setdefault("OutputKey", "PixelRDOs");
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+PixelRDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelRDOs");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelRDOs");
 
     kwargs.setdefault("includeBkg", True);
 
@@ -35,9 +40,9 @@ def getSCTOverlay(name="SCTOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "SCT_RDOs");
-        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_RDOs");
-        kwargs.setdefault("OutputKey", "StoreGateSvc+SCT_RDOs");
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "SCT_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "SCT_RDOs");
+        kwargs.setdefault("OutputKey", "SCT_RDOs");
     else:
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+SCT_RDOs");
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_RDOs");
@@ -68,10 +73,16 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     from Digitization.DigitizationFlags import digitizationFlags
 
-    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_RDOs");
-    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
-    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");
-    kwargs.setdefault("SignalInputSDOKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TRT_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "TRT_RDOs");
+        kwargs.setdefault("OutputKey", "TRT_RDOs");
+        kwargs.setdefault("SignalInputSDOKey", overlayFlags.sigPrefix() + "TRT_SDO_Map");
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");
+        kwargs.setdefault("SignalInputSDOKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
 
     kwargs.setdefault("includeBkg", True);
 

@@ -25,8 +25,8 @@ Branch                                                            | Purpose     
 [21.0-TrigMC](https://gitlab.cern.ch/atlas/athena/tree/21.0-TrigMC)  | MC production with new trigger developments | Athena, 21.5.X
 [21.1](https://gitlab.cern.ch/atlas/athena/tree/21.1)             | HLT and P1 monitoring        | AthenaP1, 21.1.X
 [21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations + (Ath)AnalysisBase, 21.2.X
-[21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena + AthSimulation, 21.3.X
-[21.6](https://gitlab.cern.ch/atlas/athena/tree/21.6)             | Event Generation             | AthGenerators, 21.6.X
+[21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena, 21.3.X
+[21.6](https://gitlab.cern.ch/atlas/athena/tree/21.6)             | Event Generation             | AthGeneration, 21.6.X
 [21.9](https://gitlab.cern.ch/atlas/athena/tree/21.9)             | Upgrade Phase-2 developments | Athena + AthSimulation, 21.9.X
 [master](https://gitlab.cern.ch/atlas/athena/tree/master)         | AthenaMT development         | Athena, 22.0.X
 

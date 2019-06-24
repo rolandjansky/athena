@@ -15,6 +15,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 class ITrigJetInfoCollector;
+class xAODJetCollector;
 
 class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  public:
@@ -26,7 +27,10 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
 
   virtual StatusCode initialize() override;
 
-  virtual bool pass(HypoJetVector&, ITrigJetHypoInfoCollector*) const override;
+  virtual bool pass(HypoJetVector&,
+		    xAODJetCollector&,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>&
+		    ) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
@@ -59,11 +63,12 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
 
-  bool testGroup(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
+  bool testGroup(HypoJetVector&,
+		 xAODJetCollector&,
+		 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
   void collectData(const std::string& setuptime,
                    const std::string& exetime,
-                   ITrigJetHypoInfoCollector*,
-                   std::unique_ptr<IConditionVisitor>& cVstr,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
                    bool) const;
 
   std::string toString() const;

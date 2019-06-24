@@ -28,7 +28,7 @@ namespace Muon {
 
   MuonCompetingClustersOnTrackCreator::MuonCompetingClustersOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
+    : AthAlgTool(ty,na,pa), m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this)
   {
     // algtool interface - necessary!
     declareInterface<IMuonCompetingClustersOnTrackCreator>(this);

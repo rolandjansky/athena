@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TUTORIAL_CLASSDEF_H
@@ -9,7 +9,7 @@
 #include <vector>
 #include "MyElement.h"
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF(std::vector<SGTutorial::MyElement>, 9903, 1)
      //the third field is the version which is currently ignored

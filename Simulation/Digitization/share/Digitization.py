@@ -136,10 +136,3 @@ if DetFlags.writeRDOPool.any_on():
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel      = 3
 
-#--------------------------------------------------------------
-# Event related parameters
-#--------------------------------------------------------------
-# Number of events to be processed
-theApp.EvtMax = athenaCommonFlags.EvtMax()
-# Number of input events to be skipped
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()

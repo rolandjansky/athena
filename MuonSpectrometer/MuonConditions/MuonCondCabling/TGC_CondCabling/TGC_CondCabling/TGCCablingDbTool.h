@@ -38,10 +38,10 @@ class TGCCablingDbTool: public AthAlgTool, public ITGCCablingDbTool
   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
   /** Load parameters using the folder name */
   virtual StatusCode loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS);
-
- private: 
   /** Load parameters from text database */
   virtual StatusCode readASD2PP_DIFF_12FromText();
+
+ private: 
 
   /** IIOVSvc member */
   IIOVSvc* m_IOVSvc;

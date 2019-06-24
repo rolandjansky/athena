@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/CxxUtils
                           Event/xAOD/xAODEventInfo
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           Tracking/TrkEvent/TrkPatternParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack )
 
@@ -27,7 +28,18 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( SiSPSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo TrkPatternParameters TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo SiSPSeededTrackFinderData TrkPatternParameters TrkRIO_OnTrack )
+
+# Run tests:
+atlas_add_test( SiSPSeededTracksStandalone
+                SCRIPT athena.py --threads=5 SiSPSeededTrackFinder/SiSPSeededTracksStandalone.py
+                PROPERTIES TIMEOUT 600
+                ENVIRONMENT THREADS=5 )
+
+atlas_add_test( SiSPSeededTracksStandaloneFromESD
+                SCRIPT athena.py --threads=1 SiSPSeededTrackFinder/SiSPSeededTracksStandaloneFromESD.py
+                PROPERTIES TIMEOUT 600
+                ENVIRONMENT THREADS=5 )
 
 # Install files from the package:
 atlas_install_headers( SiSPSeededTrackFinder )

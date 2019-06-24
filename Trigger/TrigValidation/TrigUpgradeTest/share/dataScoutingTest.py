@@ -12,7 +12,7 @@ doMuon   = False
 doJet    = False
 doCombo  = False
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 testChains = []
 
 ##################################################################
@@ -30,32 +30,31 @@ AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    from TrigUpgradeTest.InDetSetup import inDetSetup
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
     
-    inDetSetup()
-    fastCaloStep= fastCaloMenuSequence("Ele")
-    electronStep= electronMenuSequence()
+    fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, None ) 
+    electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
+    precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    step1=ChainStep("Step1_etcut", [fastCalo])
+    step2=ChainStep("Step2_etcut", [electronReco])
+    step3=ChainStep("Step3_etcut", [precisionReco])
     step3_PEB1=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")]) # adds some LAr ROBs and the full HLT result
     step3_DS=ChainStep("Step3_dataScoutingElectronTest", [dataScoutingSequence("dataScoutingElectronTest")]) # adds the special HLT result
     step4_PEB3=ChainStep("Step3_pebtestthree", [pebInfoWriterSequence("pebtestthree")]) # same as pebtestone but without any HLT result
 
     egammaChains = [
         # DS+PEB chain (special HLT result and subset of detector data saved)
-        Chain(name='HLT_e3_etcut_dataScoutingElectronTest_pebtestthree',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_DS, step4_PEB3]  ),
+        Chain(name='HLT_e3_etcut_dataScoutingElectronTest_pebtestthree',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS, step4_PEB3]  ),
 
         # Pure DS chain (only special HLT result saved and no detector data saved)
-        Chain(name='HLT_e5_etcut_dataScoutingElectronTest',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_DS]  ),
+        Chain(name='HLT_e5_etcut_dataScoutingElectronTest',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS]  ),
 
         # PEB chain (full HLT result and subset of detector data saved)
-        Chain(name='HLT_e7_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_PEB1]  ),
+        Chain(name='HLT_e7_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_PEB1]  ),
 
         # Standard chain (full HLT result and full detector data saved)
-        Chain(name='HLT_e12_etcut',  Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+        Chain(name='HLT_e12_etcut',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
     ]
     testChains += egammaChains
 

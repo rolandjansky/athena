@@ -19,20 +19,20 @@ if DQMonFlags.doMonitoring():
 
    # don't set up lumi access if in MC or enableLumiAccess == False
    if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
-      if not hasattr(ToolSvc,"LuminosityTool"):
-         if athenaCommonFlags.isOnline:
-            local_logger.debug("luminosity tool not found, importing online version")
-            from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-            ToolSvc+=LuminosityToolOnline()
-         else:
-            local_logger.debug("luminosity tool not found, importing offline version")
-            from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault 
-            ToolSvc+=LuminosityToolDefault()
+      if athenaCommonFlags.isOnline:
+         local_logger.debug("luminosity tool not found, importing online version")
+         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+         LuminosityCondAlgOnlineDefault()
+      else:
+         local_logger.debug("luminosity tool not found, importing offline version")
+         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault 
+         LuminosityCondAlgDefault()
 
-      if not hasattr(ToolSvc,"TrigLivefractionTool"):
-         local_logger.debug("live fraction tool not found, importing")
-         from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault 
-         ToolSvc+=TrigLivefractionToolDefault()
+      from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault 
+      LBDurationCondAlgDefault()
+
+      from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
+      TrigLiveFractionCondAlgDefault()
 
    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
@@ -281,5 +281,23 @@ if DQMonFlags.doMonitoring():
             local_logger.debug('Applying postexec transform to  ===> %s', tool)
             postprocfunc(tool)
             del postprocfunc
+
+   # # set up new-style monitoring with new-style configuration
+   # # only enable this when we understand details better...
+   # local_logger.info('Setting up new-style DQ monitoring')
+   # from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
+   # from AthenaCommon.Configurable import Configurable
+
+   # _ = Configurable.configurableRun3Behavior
+   # Configurable.configurableRun3Behavior = 1
+   # from AthenaConfiguration.AllConfigFlags import ConfigFlags
+   # ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput()
+   # ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
+   # ConfigFlags.DQ.isReallyOldStyle = True
+   # _2 = AthenaMonitoringCfg(ConfigFlags)
+   # Configurable.configurableRun3Behavior = _
+   # _2.printConfig()
+   # _2.appendToGlobals()
+   # del _, _2
 
 del local_logger

@@ -1,3 +1,4 @@
+from builtins import zip
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with PAT transform options and substeps
@@ -59,7 +60,7 @@ def addNTUPMergeSubsteps(executorSet):
         extraNTUPs = getExtraDPDList(NTUPOnly = True)
         for ntup in extraNTUPs:
             executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+ntup.name.replace('_',''), exe='hadd', inData=[ntup.name], outData=[ntup.name+'_MRG'], exeArgs=[]))
-    except ImportError, e:
+    except ImportError as e:
         msg.warning("Failed to get D3PD lists - probably D3PDs are broken in this release: {0}".format(e))
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXTRAPOLATEMUONTOIPTOOL_H
@@ -11,6 +11,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 
 namespace Trk{
   class IExtrapolator;
@@ -63,12 +64,11 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   ToolHandle<Muon::MuonEDMHelperTool>    m_helper;               //!< muon EDM helper tool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
 
-  mutable unsigned int m_nextrapolations;
-  //mutable unsigned int m_ngoodExtrapolations;
-  mutable unsigned int m_failedClosestPars;
-  mutable unsigned int m_failedExtrapolationLowMom;
-  mutable unsigned int m_failedExtrapolationHighMom;
-  mutable unsigned int m_failedPerigeeCreation;
+  mutable std::atomic_uint m_nextrapolations;
+  mutable std::atomic_uint m_failedClosestPars;
+  mutable std::atomic_uint m_failedExtrapolationLowMom;
+  mutable std::atomic_uint m_failedExtrapolationHighMom;
+  mutable std::atomic_uint m_failedPerigeeCreation;
 };
 
 #endif // EXTRAPOLATEMUONTOIPTOOL_H

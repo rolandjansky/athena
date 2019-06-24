@@ -17,13 +17,14 @@
 
 #include "./IGroupsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
+#include "./IFlowNetworkBuilder.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include <utility>  // std::pair
-#include <set>
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
+#include <optional>
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class MaximumBipartiteGroupsMatcherMT:
 virtual public IGroupsMatcherMT {
@@ -37,14 +38,20 @@ virtual public IGroupsMatcherMT {
 public:
   MaximumBipartiteGroupsMatcherMT(const ConditionsMT& cs);
   ~MaximumBipartiteGroupsMatcherMT(){}
-  bool match(const HypoJetGroupCIter&,
-             const HypoJetGroupCIter&,
-             std::unique_ptr<IConditionVisitor>&) override;
+
+  // cannot match if internal problem (eg FlowNetwork error)
+  std::optional<bool> match(const HypoJetGroupCIter&,
+			    const HypoJetGroupCIter&,
+			    xAODJetCollector&,
+			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+			    bool debug=false) const override;
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
 private:
   ConditionsMT m_conditions;
-  FlowNetwork m_G;
+  bool m_compound;  // true if jet group size >1 
+  std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;
+  std::size_t m_nConditions{0};
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigExL2muCalibTest/TrigPartialEBFilter.h"
@@ -97,7 +97,9 @@ StatusCode TrigPartialEBFilter::execute() {
              (*it).name() != m_calStreamName.value()) it = vecStreamTags.erase(it);
          else ++it;
       }
-      p_EventInfo->trigger_info()->setStreamTags(vecStreamTags); 
+      // FIXME: const_const
+      EventInfo* ei_nc = const_cast<EventInfo*> (p_EventInfo);
+      ei_nc->trigger_info()->setStreamTags(vecStreamTags); 
    }
 
    if (havePhysicsStream) {  // rescale the rate
@@ -114,7 +116,9 @@ StatusCode TrigPartialEBFilter::execute() {
       
          if (vecStreamTags.size() == 0) pHltResult->setAccepted( false );
     
-         p_EventInfo->trigger_info()->setStreamTags(vecStreamTags);
+         // FIXME: const_const
+         EventInfo* ei_nc = const_cast<EventInfo*> (p_EventInfo);
+         ei_nc->trigger_info()->setStreamTags(vecStreamTags);
       }
    }
   

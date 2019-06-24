@@ -24,7 +24,7 @@
 #include <math.h>
 #include <cstring>
 
-Trk::ParamDefsAccessor Trk::KalmanUpdatorAmg::s_enumAccessor;
+const Trk::ParamDefsAccessor Trk::KalmanUpdatorAmg::s_enumAccessor;
 
 // constructor
 Trk::KalmanUpdatorAmg::KalmanUpdatorAmg(const std::string& t,const std::string& n,const IInterface* p) :

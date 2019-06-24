@@ -14,7 +14,6 @@
 #include "boost/filesystem.hpp"
 
 #include <vector>
-using namespace std;
 
 void printpsfile(std::string, TFile* f);
 
@@ -73,6 +72,14 @@ void Init() {
   // create instances for the FTK generic distributions
   histocoordmasketa_ftk = new TH2F("histocoordmasketa_ftk","Track probability of using a coordinate;Coordinate bit;#eta;Prob.",16,0,16,nbins,etamin,etamax);
   histocoordmaskphi_ftk = new TH2F("histocoordmaskphi_ftk","Track probability of using a coordinate;Coordinate bit;#phi;Prob.",16,0,16,nbins,phimin,phimax);
+  for(int i=0;i<=16;i++) {
+     histocoordmasketaphi_ftk[i] = new TH2F
+        (TString::Format("histocoordmasketaphiL%d_ftk",i),"Track probability of using a coordinate;#eta;#phi;Prob.",32,etamin,etamax,32,phimin,phimax);
+     histoeff_etaphiplane[i]= new TH2F
+        (TString::Format("histoeff_etaphiL%d",i),
+         TString::Format("efficiency plane %d;#eta;#phi;Prob.",i),
+         32,etamin,etamax,32,phimin,phimax);
+  }
   histocoordmaskz0_ftk = new TH2F("histocoordmaskz0_ftk","Track probability of using a coordinate;Coordinate bit;#z0;Prob.",16,0,16,nbins,z0min, z0max);
   histonmisseta_ftk = new TH2F("histonmisseta_ftk","Track probability of missing N layers;N Miss;#eta;Prob.",6,0,6,nbins,etamin,etamax);
   histochisqndfeta_ftk = new TH2F("histochisqndfeta_ftk","Track probability of #chi^{2};#chi^{2}/ndf;#eta;Prob.",20,0,20,nbins,etamin,etamax);
@@ -178,6 +185,12 @@ void Init() {
   histod0res_veta = new TProfile("histod0res_veta","#Delta d_{0} (mm);#eta", nbins, etamin, etamax);
   histoz0res_veta = new TProfile("histoz0res_veta","#Delta z_{0} (mm);eta", nbins, etamin, etamax);
   histod0res_vphi = new TProfile("histod0res_vphi","#Delta d_{0} (mm);#phi", nbins, phimin, phimax);
+  histo2d0res_vphi = new TH2F("histo2d0res_vphi","#Delta d_{0} (mm);#phi", nbins, phimin, phimax,50,-5.*Dd0,5.*Dd0);
+  histo2d0res_veta = new TH2F("histo2d0res_veta","#Delta d_{0} (mm);#eta", nbins, etamin, etamax,50,-5.*Dd0,5.*Dd0);
+  histo2d0res_coordbit = new TH2F("histo2d0res_coordbit","#Delta d_{0} (mm);coordinate bit", 16, -0.5, 15.5,50,-5.*Dd0,5.*Dd0);
+  histo2d0truth_vphi = new TH2F("histo2d0truth_vphi",";#phi;truth d_{0} (mm)", nbins, phimin, phimax,50,-4.,4.);
+  histo2d0ftk_vphi = new TH2F("histo2d0ftk_vphi",";#phi;FTK d_{0} (mm)", nbins, phimin, phimax,50,-4.,4.);
+  histo2curvCurv = new TH2F("histo2curvCurv",";curv;curv",50,-abscurvmax ,abscurvmax ,50,-abscurvmax,abscurvmax);
   histoz0res_vphi = new TProfile("histoz0res_vphi","#Delta z_{0} (mm);#phi", nbins, phimin, phimax);
   histod0res_vz0 = new TProfile("histod0res_vz0","#Delta d_{0} (mm);z_{0} (mm)", nbins, z0min, z0max);
   histoz0res_vz0 = new TProfile("histoz0res_vz0","#Delta z_{0} (mm);z_{0} (mm)", nbins, z0min, z0max);
@@ -264,20 +277,15 @@ void Process(Long64_t ientry) {
       curtrack = (Use1stStage ? tracks->getTrackI(itrk) : tracks->getTrack(itrk));
       //if (  TMath::Abs(curtrack->getPt())*1e-3 < ptmincut ) continue;
       
+      
+      //double temp_phi = curtrack->getPhi();
+      //double temp_d0 = curtrack->getIP();
+      //double temp_z0 = curtrack->getZ0();
 
-      double temp_phi = curtrack->getPhi();
-      double temp_d0 = curtrack->getIP();
-      double temp_z0 = curtrack->getZ0();
-
-      // double dx = -0.42;
-      // double dy = -0.53;
-
-
-      // double dx = -0.5491;
-      // double dy = -0.6557;
-
-      double thisd0 = temp_d0 + dx*sin(temp_phi)-dy*cos(temp_phi);
-      double thisz0 = temp_z0 + ((cos(temp_phi) *dx - sin(temp_phi)*dy))*curtrack->getCotTheta();
+      double thisd0 = curtrack->getIP();
+      //temp_d0 + dx*sin(temp_phi)-dy*cos(temp_phi);
+      double thisz0 = curtrack->getZ0();
+      //temp_z0 + ((cos(temp_phi) *dx - sin(temp_phi)*dy))*curtrack->getCotTheta();
 
       histod0_ftk->Fill(thisd0);
 
@@ -356,10 +364,14 @@ void Process(Long64_t ientry) {
       if (curtrack->getBitmask()&(1<<6)) histophiz0_ftk_PixL2->Fill(curtrack->getPhi(),thisz0);
       
       
+      histocoordmasketaphi_ftk[16]
+         ->Fill(curtrack->getEta(),curtrack->getPhi());
       for (Int_t icoord=0;icoord!=curtrack->getNCoords();++icoord) {
 
 	if (curtrack->getBitmask()&(1<<icoord)){
 	  histocoordmasketa_ftk->Fill(icoord,curtrack->getEta());
+	  histocoordmasketaphi_ftk[icoord]
+             ->Fill(curtrack->getEta(),curtrack->getPhi());
 	  histocoordmaskz0_ftk->Fill(icoord,thisz0);
 	  histocoordmaskphi_ftk->Fill(icoord,curtrack->getPhi());
 	  // std::cout << "icoord, eta, z0, phi: " << icoord << ", " << curtrack->getEta() << ", " << thisz0 << ", " << curtrack->getPhi() << std::endl;
@@ -437,6 +449,7 @@ void Process(Long64_t ientry) {
       FTKRoad *road = roads->getRoad(iroad);
       for( int i=0; i < road->getNPlanes(); ++i ) {
 	const std::vector<FTKHit>& hits = road->getHits(i);
+	//	std::vector<FTKHit>::const_iterator match_hit=hits.end();
 	for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
 	  //	  const FTKHit& hit = *ihit;
 	  // printf("plane = %d\n", hit.getPlane());
@@ -482,9 +495,10 @@ void Process(Long64_t ientry) {
   vector<FTKTruthTrack>::const_iterator itr = truthTracks->begin();
   vector<FTKTruthTrack>::const_iterator itrE = truthTracks->end();
   for (;itr!=itrE;++itr) { // loop over the truth tracks
-    const FTKTruthTrack &curtruth = (*itr);
+    const FTKTruthTrack &curtruth_fromFile = (*itr);
+    // apply vertex shift
 
-    int barcode = curtruth.getBarcode();
+    int barcode = curtruth_fromFile.getBarcode();
     if (barcode>100000 || barcode==0) continue;
 
     // select only good truth tracks
@@ -492,88 +506,92 @@ void Process(Long64_t ientry) {
     // double dy = curtruth.getY();
     // double d0 = -1e-3*(dx*py-dy*px)*invpt;
 
-    double px = curtruth.getPX();
-    double py = curtruth.getPY();
-    double pt = 1e-3*TMath::Sqrt(px*px+py*py);
-    double invpt = 1./pt;
+    double px_truth = curtruth_fromFile.getPX();
+    double py_truth = curtruth_fromFile.getPY();
+    double pt_truth = 1e-3*TMath::Hypot(px_truth,py_truth);
+    double invpt_truth = 1./pt_truth;
+    double d0_truth = curtruth_fromFile.getD0();
+    double z0_truth = curtruth_fromFile.getZ();
+    double curv_truth = .5*curtruth_fromFile.getQ()*invpt_truth;
+    double phi_truth = curtruth_fromFile.getPhi();
+    double eta_truth = curtruth_fromFile.getEta();
+    double cotTheta_truth= pt_truth/curtruth_fromFile.getPZ();
+    int pdgcode = curtruth_fromFile.getPDGCode();
+    int eventIndex_truth=curtruth_fromFile.getEventIndex();
 
-    if ( pt < ptmincut ) continue;
+    if (d0_truth<d0min || d0_truth>d0max) continue;
+    if (z0_truth<z0min || z0_truth>z0max) continue;
 
-    double d0 = curtruth.getD0();
-    if (d0<d0min || d0>d0max) continue;
+    if ( pt_truth < ptmincut ) continue;
+    if (curv_truth<-abscurvmax || curv_truth>abscurvmax) continue;
+    if (phi_truth<phimin || phi_truth>phimax) continue;
+    if (eta_truth<etamin || eta_truth>etamax) continue;
+    if (eventIndex_truth!=0 && curtruth_fromFile.getQ()==0) continue;
 
-    double z0 = curtruth.getZ();
-    if (z0<z0min || z0>z0max) continue;
+    // transform variables to shifted vertex
+    // only d0,z0 is corrected here (lowest order corrections)
+    d0_truth -= vtxTruth[0]*sin(phi_truth)-vtxTruth[1]*cos(phi_truth);
+    z0_truth -= vtxTruth[2]+((cos(phi_truth) *vtxTruth[0] - sin(phi_truth)*vtxTruth[1]))*cotTheta_truth;
 
-    double curv = .5*curtruth.getQ()*invpt;
-    if (curv<-abscurvmax || curv>abscurvmax) continue;
-
-    double phi = curtruth.getPhi();
-    if (phi<phimin || phi>phimax) continue;
-
-    double eta = curtruth.getEta();
-    if (eta<etamin || eta>etamax) continue;
-
-    if (curtruth.getEventIndex()!=0 && curtruth.getQ()==0) continue;
 
     ntruth_good += 1;
 
     // Fill the histogram for the generic truth distribution
-    histod0_truth->Fill(d0);
-    histoz0_truth->Fill(z0);
-    histocurv_truth->Fill(curv);
-    histophi_truth->Fill(curtruth.getPhi());
-    histoetaphi_truth->Fill(eta, curtruth.getPhi());
-    histoetaz0_truth->Fill(eta, z0);
-    histoeta_truth->Fill(eta);
-    histoetaabs_truth->Fill(fabs(eta));
+    histod0_truth->Fill(d0_truth);
+    histoz0_truth->Fill(z0_truth);
+    histocurv_truth->Fill(curv_truth);
+    histophi_truth->Fill(phi_truth);
+    histoetaphi_truth->Fill(eta_truth, phi_truth);
+    histoetaz0_truth->Fill(eta_truth, z0_truth);
+    histoeta_truth->Fill(eta_truth);
+    histoetaabs_truth->Fill(fabs(eta_truth));
     histoeff_truth->Fill(0);
-    histopt_truth->Fill(pt);
-    histopt_truth_lg->Fill(pt);
-    histopt_truthlo_lg->Fill(pt);
+    histopt_truth->Fill(pt_truth);
+    histopt_truth_lg->Fill(pt_truth);
+    histopt_truthlo_lg->Fill(pt_truth);
 
-    int pdgcode = curtruth.getPDGCode();
     if (pdgcode==13 || pdgcode==-13) {
       // muon block
       ntruth_good_muon += 1;
 
-      histod0_truth_muon->Fill(d0);
-      histoz0_truth_muon->Fill(z0);
-      histocurv_truth_muon->Fill(curv);
-      histophi_truth_muon->Fill(curtruth.getPhi());
-      histoeta_truth_muon->Fill(eta);
-      histopt_truth_muon->Fill(pt);
-      histopt_truth_muon_lg->Fill(pt);
-      histopt_truth_muonlo_lg->Fill(pt);
+      histod0_truth_muon->Fill(d0_truth);
+      histoz0_truth_muon->Fill(z0_truth);
+      histocurv_truth_muon->Fill(curv_truth);
+      histophi_truth_muon->Fill(phi_truth);
+      histoeta_truth_muon->Fill(eta_truth);
+      histopt_truth_muon->Fill(pt_truth);
+      histopt_truth_muon_lg->Fill(pt_truth);
+      histopt_truth_muonlo_lg->Fill(pt_truth);
     }
 
     // match the barcode and event index values
-    MatchInfo reftruth(barcode,curtruth.getEventIndex());
+    MatchInfo reftruth(barcode,eventIndex_truth);
     pair<FTKBarcodeMM::const_iterator,FTKBarcodeMM::const_iterator> mrange = ftkmatchinfo.equal_range(reftruth);
+    int bitmask=0;
     if (mrange.first != mrange.second) {
-      histod0_truthM->Fill(d0);
-      histoz0_truthM->Fill(z0);
-      histocurv_truthM->Fill(curv);
-      histophi_truthM->Fill(curtruth.getPhi());
-      histoetaphi_truthM->Fill(eta, curtruth.getPhi());
-      histoetaz0_truthM->Fill(eta, z0);
-      histoeta_truthM->Fill(eta);
-      histoetaabs_truthM->Fill(fabs(eta));
+      histod0_truthM->Fill(d0_truth);
+      histoz0_truthM->Fill(z0_truth);
+      histocurv_truthM->Fill(curv_truth);
+      histophi_truthM->Fill(phi_truth);
+      histoetaphi_truthM->Fill(eta_truth, phi_truth);
+      histoetaz0_truthM->Fill(eta_truth, z0_truth);
+      histoeta_truthM->Fill(eta_truth);
+      histoetaabs_truthM->Fill(fabs(eta_truth));
       histoeff_truthM->Fill(0);
-      histopt_truthM->Fill(pt);
-      histopt_truthMlo_lg->Fill(pt);
-      histopt_truthM_lg->Fill(pt);
+      histopt_truthM->Fill(pt_truth);
+      histopt_truthMlo_lg->Fill(pt_truth);
+      histopt_truthM_lg->Fill(pt_truth);
 
       if (pdgcode==13 || pdgcode==-13) {
         // matched muon block
-        histod0_truthM_muon->Fill(d0);
-        histoz0_truthM_muon->Fill(z0);
-        histocurv_truthM_muon->Fill(curv);
-        histophi_truthM_muon->Fill(curtruth.getPhi());
-        histoeta_truthM_muon->Fill(eta);
-        histopt_truthM_muon->Fill(pt);
-        histopt_truthM_muon_lg->Fill(pt);
-        histopt_truthM_muonlo_lg->Fill(pt);
+        histod0_truthM_muon->Fill(d0_truth);
+        histoz0_truthM_muon->Fill(z0_truth);
+        histocurv_truthM_muon->Fill(curv_truth);
+        histophi_truthM_muon->Fill(phi_truth);
+        histoeta_truthM_muon->Fill(eta_truth);
+        histopt_truthM_muon->Fill(pt_truth);
+        histopt_truthM_muon_lg->Fill(pt_truth);
+        histopt_truthM_muonlo_lg->Fill(pt_truth);
       }
 
       const FTKTrack *bestftk(0x0);
@@ -586,22 +604,43 @@ void Process(Long64_t ientry) {
       }
       
       if (bestftk) {
-	histod0res->Fill(d0-bestftk->getIP());
-	histoz0res->Fill(z0-bestftk->getZ0());
-	histod0res_veta->Fill(eta,d0-bestftk->getIP());
-	histoz0res_veta->Fill(eta,z0-bestftk->getZ0());
-	histod0res_vphi->Fill(curtruth.getPhi(),d0-bestftk->getIP());
-	histoz0res_vphi->Fill(curtruth.getPhi(),z0-bestftk->getZ0());
-	histod0res_vz0->Fill(z0,d0-bestftk->getIP());
-	histoz0res_vz0->Fill(z0,z0-bestftk->getZ0());
+	histod0res->Fill(d0_truth-bestftk->getIP());
+	histoz0res->Fill(z0_truth-bestftk->getZ0());
+	histod0res_veta->Fill(eta_truth,d0_truth-bestftk->getIP());
+	histoz0res_veta->Fill(eta_truth,z0_truth-bestftk->getZ0());
+	histod0res_vphi->Fill(phi_truth,d0_truth-bestftk->getIP());
+	histo2d0res_vphi->Fill(phi_truth,d0_truth-bestftk->getIP());
+	histo2d0res_veta->Fill(eta_truth,d0_truth-bestftk->getIP());
+	histo2d0truth_vphi->Fill(phi_truth,d0_truth);
+	histo2d0ftk_vphi->Fill(phi_truth,bestftk->getIP());
+	histo2curvCurv->Fill(curv_truth,bestftk->getHalfInvPt()*1.E3);
+	histoz0res_vphi->Fill(phi_truth,z0_truth-bestftk->getZ0());
+	histod0res_vz0->Fill(z0_truth,d0_truth-bestftk->getIP());
+	histoz0res_vz0->Fill(z0_truth,z0_truth-bestftk->getZ0());
 
-	histocurvres->Fill(curv-bestftk->getHalfInvPt()*1e3);
-	histophires->Fill(curtruth.getPhi()-bestftk->getPhi());
-	histoetares->Fill(eta-bestftk->getEta());
-	historelptres->Fill((pt-TMath::Abs(bestftk->getPt())*1e-3)*invpt);
-	historelptrespt->Fill(pt,(pt-TMath::Abs(bestftk->getPt())*1e-3)*invpt);
+	histocurvres->Fill(curv_truth-bestftk->getHalfInvPt()*1e3);
+	histophires->Fill(phi_truth-bestftk->getPhi());
+	histoetares->Fill(eta_truth-bestftk->getEta());
+	historelptres->Fill((pt_truth-TMath::Abs(bestftk->getPt())*1e-3)*invpt_truth);
+	historelptrespt->Fill(pt_truth,(pt_truth-TMath::Abs(bestftk->getPt())*1e-3)*invpt_truth);
+        bitmask=bestftk->getBitmask();
+        for(int icoord=0;icoord<16;icoord++) {
+           if (bitmask&(1<<icoord)){
+              histo2d0res_coordbit->Fill(icoord,d0_truth-bestftk->getIP());
+           }
+        }
       }
     }
+    // fill efficiency per plane in eta,phi
+    if(mrange.first!=mrange.second) {
+       bitmask |= 1<<16;
+       for(Int_t icoord=0;icoord<=16;++icoord) {
+          if (bitmask&(1<<icoord)){
+             histoeff_etaphiplane[icoord]->Fill(eta_truth,phi_truth);
+          }
+       }
+    }
+
   } // end loop over truth tracks
 
   // fill counter histograms
@@ -719,6 +758,15 @@ void Terminate(std::string& outputname) {
 
   ofile->Add(histocoordmasketa_ftk);
   ofile->Add(histocoordmaskphi_ftk);
+  for(int i=0;i<16;i++) {
+     histocoordmasketaphi_ftk[i]->Divide(histocoordmasketaphi_ftk[16]); 
+     histoeff_etaphiplane[i]->Divide(histoeff_etaphiplane[16]); 
+  }
+
+  for(int i=0;i<16;i++) {
+     ofile->Add(histocoordmasketaphi_ftk[i]);
+     ofile->Add(histoeff_etaphiplane[i]);
+  }
   ofile->Add(histocoordmaskz0_ftk);
   ofile->Add(histonmisseta_ftk);
   ofile->Add(histochisqndfeta_ftk);
@@ -813,6 +861,12 @@ void Terminate(std::string& outputname) {
   ofile->Add(histod0res_veta);
   ofile->Add(histoz0res_veta);
   ofile->Add(histod0res_vphi);
+  ofile->Add(histo2d0res_vphi);
+  ofile->Add(histo2d0res_veta);
+  ofile->Add(histo2d0res_coordbit);
+  ofile->Add(histo2d0truth_vphi);
+  ofile->Add(histo2d0ftk_vphi);
+  ofile->Add(histo2curvCurv);
   ofile->Add(histoz0res_vphi);
   ofile->Add(histod0res_vz0);
   ofile->Add(histoz0res_vz0);
@@ -897,8 +951,11 @@ int main(int argc, char **argv) {
   std::string output;
   std::vector<std::string> files;
   ptmincut = 0;
-  dx = -0.5;
-  dy = -0.5;
+  //dx = -0.5;
+  //dy = -0.5;
+  vtxTruth[0]=0.;
+  vtxTruth[1]=0.;
+  vtxTruth[2]=0.;
 
   try {
     std::string appName = boost::filesystem::basename(argv[0]);
@@ -914,8 +971,11 @@ int main(int argc, char **argv) {
       ("use-first-stage", po::value<int>(&Use1stStage)->default_value(0), "-1: Use roads, 1: Use 1st stage tracks, 0(default): Use 2nd stage tracks")
       ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files")
        ("ptmincut", po::value<double>(&ptmincut), "min pt cut on truth tracks")
-       ("dx", po::value<double>(&dx)->default_value(-0.5), "dx")
-       ("dy", po::value<double>(&dy)->default_value(-0.5), "dx")
+       //("dx", po::value<double>(&dx)->default_value(-0.5), "vertex-x for d0,z0 shift")
+       //("dy", po::value<double>(&dy)->default_value(-0.5), "vertex-y for d0,z0 shift")
+       ("vxTruth", po::value<double>(vtxTruth+0)->default_value(0.), "vertex-x shift for truth tracks")
+       ("vyTruth", po::value<double>(vtxTruth+1)->default_value(0.), "vertex-y shift for truth tracks")
+       ("vzTruth", po::value<double>(vtxTruth+2)->default_value(0.), "vertex-z shift for truth tracks")
        ("psfile", "Produce postscript file with efficieny plots");
 
     po::variables_map vm;

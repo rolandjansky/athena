@@ -86,3 +86,20 @@ atlas_add_test( FillParamsCondAlg_test
   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities CoolLumiUtilitiesLib TestTools )
 
+
+atlas_add_test( OnlineLumiCalibrationCondAlgConfig_test
+                SCRIPT python -m CoolLumiUtilities.OnlineLumiCalibrationCondAlgConfig
+                 EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( FillParamsCondAlgConfig_test
+                SCRIPT python -m CoolLumiUtilities.FillParamsCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( BunchLumisCondAlgConfig_test
+                SCRIPT python -m CoolLumiUtilities.BunchLumisCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( BunchGroupCondAlgConfig_test
+                SCRIPT python -m CoolLumiUtilities.BunchGroupCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+

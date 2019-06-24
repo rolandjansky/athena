@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILERECALGS_TILEINFOLOADER_H
-#define TILERECALGS_TILEINFOLOADER_H
+#ifndef TILECONDITIONS_TILEINFOLOADER_H
+#define TILECONDITIONS_TILEINFOLOADER_H
 //****************************************************************************
 // Filename : TileInfoLoader.h
 // Author   : Ed Frank
@@ -35,10 +35,8 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 // Athena includes
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
@@ -52,7 +50,7 @@ class TileInfo;
 
 static const InterfaceID IID_TileInfoLoader("TileInfoLoader", 1, 0);
 
-class TileInfoLoader: public AthService {
+class ATLAS_CHECK_THREAD_SAFETY TileInfoLoader: public AthService {
 
     friend class SvcFactory<TileInfoLoader> ;
 
@@ -149,4 +147,4 @@ private:
     TileInfoLoader& operator=(const TileInfoLoader&);
 };
 
-#endif  // TileInfoLoader.h
+#endif  // TILECONDITIONS_TILEINFOLOADER_H

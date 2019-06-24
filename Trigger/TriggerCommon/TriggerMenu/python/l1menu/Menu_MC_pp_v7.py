@@ -411,7 +411,7 @@ def defineMenu():
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM",
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40",
 
         # combined tau - lepton
         "L1_EM15HI_2TAU12IM",          
@@ -1111,6 +1111,7 @@ def defineMenu():
         'L1_J40.0ETA25_XE50' : 177,
         'L1_MU10_2J20' : 278,
 	'L1_TAU40_2TAU20IM' : 254,
+	'L1_TAU60_2TAU40' : 274,
         'L1_MU10_2J15_J20' : 255,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,

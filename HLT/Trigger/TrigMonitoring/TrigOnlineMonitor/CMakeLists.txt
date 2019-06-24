@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           PRIVATE
                           Control/AthenaKernel
+                          Control/AthenaMonitoring
                           Event/ByteStreamCnvSvcBase
                           Event/EventInfo
                           Trigger/TrigConfiguration/TrigConfL1Data

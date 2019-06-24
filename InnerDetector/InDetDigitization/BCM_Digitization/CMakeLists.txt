@@ -28,10 +28,6 @@ atlas_add_component( BCM_Digitization
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib xAODEventInfo GeneratorObjects InDetBCM_RawData InDetSimData InDetSimEvent )
 
-atlas_add_test( BCM_DigitizationConfigNew_test
-                SCRIPT test/BCM_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py test/*.py )

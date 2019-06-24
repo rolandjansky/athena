@@ -1,3 +1,6 @@
+from __future__ import print_function
+from future.utils import iteritems
+from builtins import object
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.transform
@@ -117,7 +120,7 @@ class transform(object):
             
     @property
     def exitCode(self):
-        if self._exitCode == None:
+        if self._exitCode is None:
             msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKNOWN"')
             return trfExit.nameToCode('TRF_UNKNOWN')
         else:
@@ -125,7 +128,7 @@ class transform(object):
         
     @property
     def exitMsg(self):
-        if self._exitMsg == None:
+        if self._exitMsg is None:
             msg.warning('Transform exit message getter: _exitMsg is unset, returning empty string')
             return ''
         else:
@@ -252,7 +255,7 @@ class transform(object):
             # Need to know if any input or output files were set - if so then we suppress the
             # corresponding parameters from AMI
             inputFiles = outputFiles = False
-            for k, v in self._argdict.iteritems():
+            for k, v in iteritems(self._argdict):
                 if k.startswith('input') and isinstance(v, argFile):
                     inputFiles = True
                 elif k.startswith('output') and isinstance(v, argFile):
@@ -269,7 +272,7 @@ class transform(object):
                 from PyJobTransforms.trfAMI import TagInfo
                 tag=TagInfo(self._argdict['AMIConfig'].value)
                 updateDict = {}
-                for k, v in dict(tag.trfs[0]).iteritems():
+                for k, v in iteritems(dict(tag.trfs[0])):
                     # Convert to correct internal key form
                     k = cliToKey(k)
                     if inputFiles and k.startswith('input'):
@@ -293,7 +296,7 @@ class transform(object):
                     msg.debug('Read: {0}'.format(jsonParams))
                     extraParameters.update(convertToStr(jsonParams))
                     argfile.close()
-                except Exception, e:
+                except Exception as e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when deserialising JSON file {0} ({1})'.format(self._argdict['argJSON'], e))
             
             # Event Service
@@ -305,7 +308,7 @@ class transform(object):
                 extraParameters.update(updateDict)
                 
             # Process anything we found
-            for k,v in extraParameters.iteritems():
+            for k,v in iteritems(extraParameters):
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
                 if k not in self.parser._argClass:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Argument "{0}" not known (try "--help")'.format(k))
@@ -321,7 +324,7 @@ class transform(object):
 
             # Set the key name as an argument property - useful to be able to look bask at where this
             # argument came from
-            for k, v in self._argdict.iteritems():
+            for k, v in iteritems(self._argdict):
                 if isinstance(v, argument):
                     v.name = k
                     
@@ -337,7 +340,7 @@ class transform(object):
                 JSONDump(self._argdict)
                 sys.exit(0)
 
-        except trfExceptions.TransformArgException, e:
+        except trfExceptions.TransformArgException as e:
             msg.critical('Argument parsing failure: {0!s}'.format(e))
             self._exitCode = e.errCode
             self._exitMsg = e.errMsg
@@ -345,7 +348,7 @@ class transform(object):
             self.generateReport()
             sys.exit(self._exitCode)
             
-        except trfExceptions.TransformAMIException, e:
+        except trfExceptions.TransformAMIException as e:
             msg.critical('AMI failure: {0!s}'.format(e))
             self._exitCode = e.errCode
             self._exitMsg = e.errMsg
@@ -386,13 +389,13 @@ class transform(object):
             
             if 'showSteps' in self._argdict:
                 for exe in self._executors:
-                    print "Executor Step: {0} (alias {1})".format(exe.name, exe.substep)
+                    print("Executor Step: {0} (alias {1})".format(exe.name, exe.substep))
                     if msg.level <= logging.DEBUG:
-                        print " {0} -> {1}".format(exe.inData, exe.outData)
+                        print(" {0} -> {1}".format(exe.inData, exe.outData))
                 sys.exit(0)
                         
             if 'showGraph' in self._argdict:
-                print self._executorGraph
+                print(self._executorGraph)
                 sys.exit(0)
                 
             # Graph stuff!
@@ -404,9 +407,9 @@ class transform(object):
             if 'showPath' in self._argdict:
                 msg.debug('Execution path list is: {0}'.format(self._executorPath))
                 # Now print it nice
-                print 'Executor path is:'
+                print('Executor path is:')
                 for node in self._executorPath:
-                    print '  {0}: {1} -> {2}'.format(node['name'], list(node['input']), list(node['output']))
+                    print('  {0}: {1} -> {2}'.format(node['name'], list(node['input']), list(node['output'])))
                 sys.exit(0)
 
             msg.debug('Execution path is {0}'.format(self._executorPath))
@@ -486,7 +489,7 @@ class transform(object):
         self._inputData = list()
         self._outputData = list()
         
-        for key, value in self._argdict.iteritems():
+        for key, value in iteritems(self._argdict):
             # Note specifier [A-Za-z0-9_]+? makes this match non-greedy (avoid swallowing the optional 'File' suffix)
             m = re.match(r'(input|output|tmp)([A-Za-z0-9_]+?)(File)?$', key)
             # N.B. Protect against taking argunents which are not type argFile
@@ -499,15 +502,15 @@ class transform(object):
                 
         ## @note If we have no real data then add the pseudo datatype NULL, which allows us to manage
         #  transforms which can run without data
-        if len(self._inputData) is 0:
+        if len(self._inputData) == 0:
             self._inputData.append('inNULL')
-        if len(self._outputData) is 0:
+        if len(self._outputData) == 0:
             self._outputData.append('outNULL')            
         msg.debug('Transform has this input data: {0}; output data {1}'.format(self._inputData, self._outputData))
         
         # Now see if we have any steering - manipulate the substep inputs and outputs before we
         # setup the graph
-        if 'steering' in self._argdict.keys():
+        if 'steering' in self._argdict:
             msg.debug('Now applying steering to graph: {0}'.format(self._argdict['steering'].value))
             self._doSteering()
         
@@ -524,7 +527,7 @@ class transform(object):
         self._executorGraph.findExecutionPath()
         
         self._executorPath = self._executorGraph.execution
-        if len(self._executorPath) is 0:
+        if len(self._executorPath) == 0:
             raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_SETUP'), 
                                                         'Execution path finding resulted in no substeps being executed'
                                                         '(Did you correctly specify input data for this transform?)')
@@ -538,7 +541,7 @@ class transform(object):
     def _doSteering(self, steeringDict = None):
         if not steeringDict:
             steeringDict = self._argdict['steering'].value
-        for substep, steeringValues in steeringDict.iteritems():
+        for substep, steeringValues in iteritems(steeringDict):
             foundSubstep = False
             for executor in self._executors:
                 if executor.name == substep or executor.substep == substep:
@@ -552,7 +555,7 @@ class transform(object):
                             startSet = executor.outData
                         origLen = len(startSet)
                         msg.debug('Data values to be modified are: {0}'.format(startSet))
-                        if steeringValue[1] is '+':
+                        if steeringValue[1] == '+':
                             startSet.add(steeringValue[2])
                             if len(startSet) != origLen + 1:
                                 raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
@@ -573,7 +576,7 @@ class transform(object):
     @property
     def lastExecuted(self):
         # Just make sure we have the path traced
-        if not hasattr(self, '_executorPath') or len(self._executorPath) is 0:
+        if not hasattr(self, '_executorPath') or len(self._executorPath) == 0:
             return None
             
         lastExecutor = self._executorDictionary[self._executorPath[0]['name']]
@@ -635,7 +638,7 @@ class transform(object):
             if reportType is None or 'pilotPickle' in reportType:
                 self._report.writePilotPickleReport(filename='{0}Extract.pickle'.format(baseName), fast=fast, fileReport=fileReport)
 
-        except trfExceptions.TransformTimeoutException, reportException:
+        except trfExceptions.TransformTimeoutException as reportException:
             msg.error('Received timeout when writing report ({0})'.format(reportException))
             msg.error('Report writing is aborted - sorry. Transform will exit with TRF_METADATA_CALL_FAIL status.')
             if ('orphanKiller' in self._argdict):
@@ -644,7 +647,7 @@ class transform(object):
                 infanticide(message=True)
             sys.exit(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'))
 
-        except trfExceptions.TransformException, reportException:
+        except trfExceptions.TransformException as reportException:
             # This is a bad one!
             msg.critical('Attempt to write job report failed with exception {0!s}: {1!s}'.format(reportException.__class__.__name__, reportException))
             msg.critical('Stack trace now follows:\n{0}'.format(traceback.format_exc()))
@@ -718,10 +721,10 @@ class transform(object):
     def getFiles(self, io = None):
         res = []
         msg.debug('Looking for file arguments matching: io={0}'.format(io))
-        for argName, arg in self._argdict.iteritems():
+        for argName, arg in iteritems(self._argdict):
             if isinstance(arg, argFile):
                 msg.debug('Argument {0} is argFile type ({1!s})'.format(argName, arg))
-                if io != None and arg.io != io:
+                if io is not None and arg.io != io:
                     continue
                 msg.debug('Argument {0} matches criteria'.format(argName))
                 res.append(arg)

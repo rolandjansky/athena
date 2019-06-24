@@ -24,13 +24,13 @@ StatusCode SCT_AlignCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
 
   // Read Handles
-  if (not m_useDynamicAlignFolders.value()) { // Static
-    ATH_CHECK(m_readKeyStatic.initialize());
-  } else { // Dynamic
-    ATH_CHECK(m_readKeyDynamicL1.initialize());
-    ATH_CHECK(m_readKeyDynamicL2.initialize());
-    ATH_CHECK(m_readKeyDynamicL3.initialize());
-  }
+  // Static
+  ATH_CHECK(m_readKeyStatic.initialize(!m_useDynamicAlignFolders.value()));
+  // Dynamic
+  ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders.value()));
+
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
 

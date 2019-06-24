@@ -44,7 +44,6 @@ CoraCoolDatabasePtr CoraCoolDatabaseSvc::openDatabase(
 			    "CoraCoolDatabaseSvc::openDatabase");
     }
   }
-  CoraCoolDatabasePtr dbase(new CoraCoolDatabase(dbconn,
-                                                 cooldb,m_coralsvc,readonly));
+  CoraCoolDatabasePtr dbase(new CoraCoolDatabase(dbconn,cooldb,m_coralsvc,readonly));
   return dbase;
 }

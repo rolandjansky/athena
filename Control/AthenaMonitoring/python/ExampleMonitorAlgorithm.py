@@ -13,10 +13,11 @@ def ExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration 
-    # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    # If you need to set up special tools, etc., you will need your own ComponentAccumulator;
+    # uncomment the following 2 lines and use the last three lines of this function instead of the ones
+    # just before
+    # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    # result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -117,7 +118,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags

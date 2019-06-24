@@ -79,10 +79,15 @@ StatusCode TrigMultiTrkHypoMT::initialize()
   Gaudi::Property<std::vector<float>> m_nTrkMassMin { this, "nTrkMassMin", {0},""}; // both min+max need to be defined
   Gaudi::Property<std::vector<float>> m_nTrkMassMax { this, "nTrkMassMax", {-1},""};
   */
-    
-    ATH_CHECK( m_trackParticleContainerKey.initialize() );
-    renounce(m_trackParticleContainerKey);
-    
+    if(m_particleType == 0){
+        ATH_CHECK( m_trackParticleContainerKey.initialize() );
+        renounce(m_trackParticleContainerKey);
+    } else if (m_particleType == 1){
+        ATH_CHECK( m_muonContainerKey.initialize() );
+        renounce(m_muonContainerKey);
+    } else{
+        ATH_MSG_ERROR("Particle type > 1 requested, we are not configured for that yet!");
+    }
     ATH_CHECK( m_bphysHelperTool.retrieve() );
 
  	if ( not m_monTool.name().empty() ) {
@@ -167,6 +172,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
   		//all that is necessary.
   		
   		//tracks are SG::ReadHandle<xAOD::TrackParticleContainer>	
+  		if(m_particleType == 0){
   		auto tracks = ViewHelper::makeHandle( *viewELInfo.link, m_trackParticleContainerKey, context );
   		ATH_CHECK( tracks.isValid() );
     	 //so each time the loop starts, tracks is reset to contain tracks from a different view
@@ -177,7 +183,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
          
          const xAOD::TrackParticleContainer* tpcont = dynamic_cast<const xAOD::TrackParticleContainer* > (tracks->at(0)->container());
           
-        for(auto track : *tracks){
+         for(auto track : *tracks){
         
             const ElementLink<xAOD::TrackParticleContainer> track_link = 
                      ElementLink<xAOD::TrackParticleContainer>(*tpcont, track->index(), context);       
@@ -185,7 +191,28 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
 
         	all_tracks.push_back(track_link);
         	track_decision_map[track_link] = previousDecision;
-        }           
+         }
+         } else if(m_particleType == 1){
+             auto muons = ViewHelper::makeHandle( *viewELInfo.link, m_muonContainerKey, context );
+  		     ATH_CHECK( muons.isValid() );
+    	     //so each time the loop starts, tracks is reset to contain tracks from a different view
+    	     ATH_MSG_DEBUG( "Made handle " << m_muonContainerKey << " size: "
+                  << muons->size() );  
+ 
+             if(muons->size() == 0) continue;
+                   
+             for(auto muon : *muons){
+        
+                const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();       
+                ATH_CHECK(track_link.isValid());
+
+            	all_tracks.push_back(track_link);
+                track_decision_map[track_link] = previousDecision;
+         }
+
+         
+         
+         }           
     }
     mon_NTrk = all_tracks.size();
     bool passNTrack_and_pTcuts = passNTracks(m_nTrk, m_ptTrkMin, all_tracks, good_tracks, m_mindR);
@@ -288,7 +315,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
         	// If you needed to re-map the previous decision(s), then call decisionIDs once
         	// for each previous decision
         	// if the same previous decision is called twice, that's fine - internally takes care of that
-        	linkToPrevious( newDecision, previousDecision );
+        	linkToPrevious( newDecision, previousDecision, context );
         	if(itrk == 0 ){
         		decisionIDs(previousDecision, previousDecisionIDs0);
 			}else{
@@ -311,6 +338,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
       ATH_CHECK( tool->decide(hypoToolInput) );
     }
     
+    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
     ATH_MSG_DEBUG("StatusCode TrigMultiTrkHypoMT::execute_r success");
     return StatusCode::SUCCESS;
 }

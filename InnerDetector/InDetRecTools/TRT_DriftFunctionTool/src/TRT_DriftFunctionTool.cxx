@@ -424,7 +424,7 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
 
 //
 // returns the time over threshold correction in ns
-double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw)
+double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw) const
 {
   int tot_index = tot/m_drifttimeperbin;
   if (tot_index < 0) tot_index = 0;
@@ -439,7 +439,7 @@ double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id, 
 }
 
 // Returns high threshold correction to the drift time (ns)
-double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id, bool isArgonStraw)
+double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id, bool isArgonStraw) const
 {
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
 

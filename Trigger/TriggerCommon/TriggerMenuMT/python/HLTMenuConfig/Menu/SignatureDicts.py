@@ -48,7 +48,7 @@ ChainDictTemplate = {
     'chainName'    : '',
     'L1item'        : '',
     'topo'          : '',
-    'signatures'    : '',
+    'signatures'    : [],
     'stream'        : '',
     'groups'        : [],
     'EBstep'        : '',
@@ -191,19 +191,9 @@ MuonChainParts = {
     'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
-    'reccalibInfo'   : [],
-    'trkInfo'        : [],
-    'hypoInfo'       : [],
-    'FSinfo'         : [],
-    'L2IDAlg'        : ['L2Star',],
-    'L2SAAlg'        : ['l2muonSA',],
-    'L2CBAlg'        : ['muComb',],
-    'EFAlg'          : ['SuperEF'],
     'addInfo'        : ['1step'],
-    'overlapRemoval' : ['wOvlpRm',],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
-    'specialStream'  : ['delayed'],
     'eventBuildType' : AllowedEventBuildingIdentifiers,
     }
 # ---- MuonDictinary of default Values ----
@@ -217,19 +207,9 @@ MuonChainParts_Default = {
     'extra'          : '',    
     'IDinfo'         : '',    
     'isoInfo'        : '',    
-    'reccalibInfo'   : '',    
-    'trkInfo'        : '',    
-    'hypoInfo'       : '',    
-    'FSinfo'         : '',
-    'L2IDAlg'        : ['L2StarA'],
-    'L2SAAlg'        : ['l2muonSA'],
-    'L2CBAlg'        : ['muComb'],
-    'EFAlg'          : ['SuperEF'],
-    'overlapRemoval' : ['wOvlpRm'],
     'addInfo'        : [],
     'topo'           : [],
     'flavour'        : '',
-    'specialStream'  : '',
     'eventBuildType' : '',
     }
 
@@ -247,7 +227,6 @@ BphysicsChainParts['topo'] = AllowedTopos_Bphysics
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
-BphysicsChainParts_Default['overlapRemoval'] = ['noOvlpRm']
 
 #==========================================================
 # Taus
@@ -260,8 +239,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['tracktwo', 'ptonly', ],
-    'selection'    : ['medium1', 'perf', ],
+    'preselection' : ['tracktwo', 'tracktwoMVA', 'ptonly', ],
+    'selection'    : ['medium1', 'mediumRNN', 'perf', ],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : [],

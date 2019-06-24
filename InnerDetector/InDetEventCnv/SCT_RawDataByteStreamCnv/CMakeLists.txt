@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetByteStreamErrors
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/xAOD/xAODEventInfo
@@ -32,13 +33,13 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData InDetByteStreamErrors AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
 
 # Run tests:
 atlas_add_test( TestSCTDecode
-                SCRIPT athena.py --threads=3 SCT_RawDataByteStreamCnv/testSCTDecode.py
+                SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTDecode.py
                 PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=3 )
+                ENVIRONMENT THREADS=5 )
 atlas_add_test( TestSCTEncodeSerial
                 SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
                 PROPERTIES TIMEOUT 300 )

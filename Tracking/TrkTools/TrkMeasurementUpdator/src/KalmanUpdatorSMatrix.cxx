@@ -25,7 +25,7 @@
 // using namespace ROOT::Math;
 // using ROOT::Math::SMatrix;
 
-Trk::ParamDefsAccessor Trk::KalmanUpdatorSMatrix::s_enumAccessor;
+const Trk::ParamDefsAccessor Trk::KalmanUpdatorSMatrix::s_enumAccessor;
 
 // constructor
 Trk::KalmanUpdatorSMatrix::KalmanUpdatorSMatrix(const std::string& t,const std::string& n,const IInterface* p) :

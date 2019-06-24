@@ -101,7 +101,7 @@ sub scan_logfile(){
   @patterns=();
   if ($errors) {
       push @patterns, "^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN ";
-      push @patterns, "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|inconsistent use of tabs and spaces in indentation|glibc detected|tcmalloc\: allocation failed"
+      push @patterns, "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|ImportError|AttributeError|inconsistent use of tabs and spaces in indentation|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|illegal instruction"
       }
   if ($warnings) {
       push @patterns, "WARNING ";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSIMHITVARIABLES_H
@@ -32,9 +32,6 @@ class MMSimHitVariables : public ValAlgVariables
     m_NSWMM_hitGlobalDirectionX(0), 
     m_NSWMM_hitGlobalDirectionY(0), 
     m_NSWMM_hitGlobalDirectionZ(0), 
-    m_NSWMM_hitLocalPositionX(0), 
-    m_NSWMM_hitLocalPositionY(0), 
-    m_NSWMM_hitLocalPositionZ(0), 
     m_NSWMM_detector_globalPositionX(0),
     m_NSWMM_detector_globalPositionY(0),
     m_NSWMM_detector_globalPositionZ(0),
@@ -51,7 +48,6 @@ class MMSimHitVariables : public ValAlgVariables
     m_NSWMM_particleEncoding(0), 
     m_NSWMM_kineticEnergy(0), 
     m_NSWMM_depositEnergy(0), 
-    m_NSWMM_StepLength(0),
     m_NSWMM_sim_stationName(0),
     m_NSWMM_sim_stationEta(0),
     m_NSWMM_sim_stationPhi(0),
@@ -103,10 +99,6 @@ class MMSimHitVariables : public ValAlgVariables
   std::vector<double> *m_NSWMM_hitGlobalDirectionY;
   std::vector<double> *m_NSWMM_hitGlobalDirectionZ;
 
-  std::vector<double> *m_NSWMM_hitLocalPositionX;
-  std::vector<double> *m_NSWMM_hitLocalPositionY;
-  std::vector<double> *m_NSWMM_hitLocalPositionZ;
-
   std::vector<double> *m_NSWMM_detector_globalPositionX;
   std::vector<double> *m_NSWMM_detector_globalPositionY;
   std::vector<double> *m_NSWMM_detector_globalPositionZ;
@@ -127,7 +119,6 @@ class MMSimHitVariables : public ValAlgVariables
   std::vector<int> *m_NSWMM_particleEncoding;
   std::vector<double> *m_NSWMM_kineticEnergy;
   std::vector<double> *m_NSWMM_depositEnergy;
-  std::vector<double> *m_NSWMM_StepLength;
 
   std::vector<std::string> *m_NSWMM_sim_stationName;
   std::vector<int> *m_NSWMM_sim_stationEta;

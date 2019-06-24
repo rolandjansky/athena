@@ -50,6 +50,7 @@
 
 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 
@@ -722,13 +723,13 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     iSeed=0;
 
     long int trackIndex=0;
-
+    
     if(m_checkSeedRedundancy) m_siClusterMap.clear();
 
     bool PIX = true;
     bool SCT = true;
-
-    m_trackMaker->newTrigEvent(PIX,SCT);
+    InDet::SiTrackMakerEventData_xk trackEventData;    
+    m_trackMaker->newTrigEvent(trackEventData, PIX, SCT);
 
     for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -755,7 +756,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
       ++m_nSeeds;
 
-      std::list<Trk::Track*> tracks = std::move(m_trackMaker->getTracks(spList));
+      std::list<Trk::Track*> tracks = m_trackMaker->getTracks(trackEventData, spList);
 
       for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
         if((*t)) {
@@ -802,7 +803,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
       }
     }
 
-    m_trackMaker->endEvent();
+    m_trackMaker->endEvent(trackEventData);
     for(auto& seed : triplets) delete seed;
 
     //clone removal

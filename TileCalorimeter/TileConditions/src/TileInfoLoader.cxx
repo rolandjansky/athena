@@ -807,6 +807,7 @@ void TileInfoLoader::buildCovMatrix (TileInfo& info)
 
             // load tokens to be searched for in a string
             char* word;
+            char* saveptr;
             const char* TOKENS = { " \t\n" };
 
             // read Matrix
@@ -820,9 +821,9 @@ void TileInfoLoader::buildCovMatrix (TileInfo& info)
                 if (*buff == '!' || *buff == '*') continue;
                 //
                 if (column == 0) {
-                  word = strtok(buff, TOKENS);
+                  word = strtok_r(buff, TOKENS, &saveptr);
                 } else {
-                  word = strtok(NULL, TOKENS);
+                  word = strtok_r(NULL, TOKENS, &saveptr);
                 }
                 double pippo = (word) ? atof(word) : 0.0;
                 //            int nread = sscanf(buff, "%1f", &pippo);

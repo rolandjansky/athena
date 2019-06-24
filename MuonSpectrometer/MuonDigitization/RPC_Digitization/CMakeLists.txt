@@ -42,10 +42,6 @@ atlas_add_component( RPC_Digitization
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps PileUpToolsLib xAODEventInfo GaudiKernel MuonSimData MuonSimEvent HitManagement AthenaKernel EventInfo GeneratorObjects MuonCondInterface MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib PathResolver )
 
-atlas_add_test( RPC_DigitizationConfigNew_test
-                SCRIPT test/RPC_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_headers( RPC_Digitization )
 atlas_install_python_modules( python/*.py )

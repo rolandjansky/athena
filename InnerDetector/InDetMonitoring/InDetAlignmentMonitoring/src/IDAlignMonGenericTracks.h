@@ -40,7 +40,6 @@ class SCT_ID;
 class TRT_ID;
 
 namespace Trk  { 
-  //class VxCandidate;
   class Track;
   class VxTrackAtVertex;
 }
@@ -396,10 +395,8 @@ protected:
  
   bool fillVertexInformation() const;
   const Trk::Track*        getTrkTrack(const Trk::VxTrackAtVertex*)const;
-  //const Trk::VxCandidate*  findAssociatedVertex(const Trk::Track *) const;
   const xAOD::Vertex*      findAssociatedVertexTP(const xAOD::TrackParticle *) const;
 
-  //mutable std::map<const Trk::Track*, const Trk::VxCandidate* > m_trackVertexMap;
   mutable std::map<const xAOD::TrackParticle*, const xAOD::Vertex* > m_trackVertexMapTP;
   
   const AtlasDetectorID*                m_idHelper;

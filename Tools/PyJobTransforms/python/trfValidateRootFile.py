@@ -9,6 +9,8 @@
 
 
 
+from __future__ import print_function
+from builtins import range
 import sys
 import logging
 
@@ -148,10 +150,10 @@ def checkFile(fileName, the_type, requireTree):
 
 
 def usage():
-    print "Usage: validate filename type requireTree verbosity"
-    print "'type'  must be either 'event' or 'basket'"
-    print "'requireTree' must be either 'true' or 'false'"
-    print "'verbosity' must be either 'on' or 'off'"
+    print("Usage: validate filename type requireTree verbosity")
+    print("'type'  must be either 'event' or 'basket'")
+    print("'requireTree' must be either 'true' or 'false'")
+    print("'verbosity' must be either 'on' or 'off'")
 
     return 2
 

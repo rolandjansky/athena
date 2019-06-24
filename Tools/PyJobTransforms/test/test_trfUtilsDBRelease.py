@@ -50,7 +50,9 @@ class DBReleasetest(unittest.TestCase):
     def test_tarball(self):
         try:
             os.symlink('/afs/cern.ch/work/g/graemes/ddm/ddo.000001.Atlas.Ideal.DBRelease.v220701/DBRelease-22.7.1.tar.gz', 'DBRelease-22.7.1.tar.gz')
-        except (IOError, OSError) as (errno, errMsg):
+        except (IOError, OSError) as xxx_todo_changeme:
+            # Ignore file exists - if that happens the link was already there
+            (errno, errMsg) = xxx_todo_changeme.args
             # Ignore file exists - if that happens the link was already there
             if errno == 17:
                 pass

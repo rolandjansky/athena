@@ -108,14 +108,14 @@ void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
 
 void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
     plot()->setTP(m_tp);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
 void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
     plot()->setEmulation(m_doEmulation);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
         tool->setEmulationTool(m_emulationTool);
@@ -190,7 +190,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
 
     // propagate the emulation tool for all tools
     if( m_doEmulation ){
-      for( const auto& tool : m_tools) {
+      for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
         tool->setEmulationTool(m_emulationTool);  
       }

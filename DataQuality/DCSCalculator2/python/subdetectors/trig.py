@@ -3,7 +3,7 @@
 from DCSCalculator2.lib import DCSC_Subdetector_DefectsOnly, DCSC_Defect_Global_Variable, connect_adjacent_iovs_defect
 from DCSCalculator2.variable import DefectIOV
 from DQUtils import process_iovs
-from DQUtils.sugar import IOVSet, RunLumi
+from DQUtils.sugar import IOVSet
 from DQUtils.iov_truncator import truncate_to_run_iovs, make_run_iovs
 
 class Online_Beamspot_Status(DCSC_Defect_Global_Variable):

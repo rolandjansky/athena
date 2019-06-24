@@ -70,11 +70,13 @@ namespace Muon {
                          std::vector<int>& information,
                          std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
+    virtual
     void searchForHoles(
                         const Trk::Track& track,
-                        std::vector<int>& information, Trk::ParticleHypothesis hyp) const;
+                        std::vector<int>& information, Trk::ParticleHypothesis hyp) const override;
 
-    void addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const;
+    virtual
+    void addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const override;
 
 private:
 

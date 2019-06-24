@@ -51,7 +51,7 @@ namespace NSWL1 {
       m_clusters()
     {
       declareInterface<NSWL1::IStripClusterTool>(this);
-      declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple");
+      declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
     }
 
@@ -505,7 +505,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
 	     else{
 	      m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
-	      ATH_MSG_DEBUG("Adding Cluster with " << cr_cluster->size() << "hits" << m_clusters.size() << " m_clusters so far");
           cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();//create a new empty cluster and assign this hit as the first hit
           cr_cluster->push_back(std::move(this_hit));
 	     }
@@ -514,7 +513,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       if(cr_cluster->size() != 0)m_clusters.push_back(std::move(cr_cluster));//don't forget the last cluster in the loop
       // No sector implemented yet!!!
       ATH_MSG_DEBUG("Found :" << m_clusters.size() << " M_Clusters ");
-      fill_strip_validation_id(clusters);
+      if(m_doNtuple) fill_strip_validation_id(clusters);
       return StatusCode::SUCCESS;
   }
   

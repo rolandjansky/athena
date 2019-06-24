@@ -21,6 +21,7 @@
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/ActsVersion.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsLayerBuilder.h"
@@ -29,6 +30,7 @@
 #include "ActsInterop/IdentityHelper.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 
 ActsTrackingGeometrySvc::ActsTrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
@@ -42,7 +44,11 @@ StatusCode
 ActsTrackingGeometrySvc::initialize()
 {
   ATH_MSG_INFO(name() << " is initializing");
-  
+  ATH_MSG_INFO("Acts version is: v" << Acts::VersionMajor << "."
+                                    << Acts::VersionMinor << "."
+                                    << Acts::VersionPatch
+                                    << " [" << Acts::CommitHash << "]");
+
   ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
@@ -50,14 +56,17 @@ ActsTrackingGeometrySvc::initialize()
   if (m_detStore->retrieve(m_TRT_idHelper, "TRT_ID").isFailure()) {
     msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endmsg;
   }
-  
 
+
+
+  Acts::LayerArrayCreator::Config lacCfg;
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-      makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
+      lacCfg, makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
 
+  Acts::TrackingVolumeArrayCreator::Config tvcCfg;
   auto trackingVolumeArrayCreator
       = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-          makeActsAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
+          tvcCfg, makeActsAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
 
   Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
@@ -72,23 +81,23 @@ ActsTrackingGeometrySvc::initialize()
   try {
     // PIXEL
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv =  makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
-    
+
     // SCT
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv = makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
 
     // TRT
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv = makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
   }
   catch (const std::invalid_argument& e) {
@@ -100,14 +109,25 @@ ActsTrackingGeometrySvc::initialize()
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
           makeActsAthenaLogger(this, "TrkGeomBldr", "ActsTGSvc"));
-  
-  m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
-  
-  //const Acts::TrackingVolume* = m_trackingGeometry->highestTrackingVolume();
 
+
+  // default geometry context, this is nominal
+  ActsGeometryContext constructionContext;
+  constructionContext.construction = true;
+
+  m_trackingGeometry = trackingGeometryBuilder
+    ->trackingGeometry(constructionContext.any());
+
+  ATH_MSG_VERBOSE("Building nominal alignment store");
+  ActsAlignmentStore* nominalAlignmentStore = new ActsAlignmentStore();
+
+  populateAlignmentStore(nominalAlignmentStore);
+
+  // manage ownership
+  m_nominalAlignmentStore = std::unique_ptr<const ActsAlignmentStore>(nominalAlignmentStore);
 
   ATH_MSG_INFO("Acts TrackingGeometry construction completed");
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -118,7 +138,7 @@ ActsTrackingGeometrySvc::trackingGeometry() {
   return m_trackingGeometry;
 }
 
-std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
+std::shared_ptr<const Acts::ITrackingVolumeBuilder>
 ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
 {
   std::string managerName = manager->getName();
@@ -127,7 +147,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
   std::shared_ptr<const Acts::ILayerBuilder> gmLayerBuilder;
   if (manager->getName() == "TRT") {
-    auto matcher = [](Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
+    auto matcher = [](const Acts::GeometryContext& /*gctx*/, Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
                       const Acts::Surface* /*bS*/) -> bool {
       return false;
     };
@@ -158,15 +178,15 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     //gmLayerBuilder->positiveLayers();
   }
   else {
-    auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
-                      const Acts::Surface* bS) -> bool {
+    auto matcher = [](const Acts::GeometryContext& /*gctx*/, Acts::BinningValue bValue,
+                      const Acts::Surface* aS, const Acts::Surface* bS) -> bool {
 
       auto a = dynamic_cast<const ActsDetectorElement*>(aS->associatedDetectorElement());
       auto b = dynamic_cast<const ActsDetectorElement*>(bS->associatedDetectorElement());
       if ((not a) or (not b)){
         throw std::runtime_error("Cast of surface associated element to ActsDetectorElement failed in ActsTrackingGeometrySvc::makeVolumeBuilder");
       }
-    
+
       IdentityHelper idA = a->identityHelper();
       IdentityHelper idB = b->identityHelper();
 
@@ -186,7 +206,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
       }
 
       if (bValue == Acts::binR) {
-        return (idA.eta_module() == idB.eta_module()) 
+        return (idA.eta_module() == idB.eta_module())
                && (idA.layer_disk() == idB.layer_disk())
                && (idB.bec() == idA.bec());
       }
@@ -208,7 +228,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
 
     ActsLayerBuilder::Config cfg;
-    
+
     if(managerName == "Pixel") {
       cfg.subdetector = ActsDetectorElement::Subdetector::Pixel;
     }
@@ -221,14 +241,14 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
       throw std::invalid_argument("Number of barrel material bin counts != 2");
     }
     std::vector<size_t> brlBins(m_barrelMaterialBins);
-    cfg.barrelMaterialBins = {brlBins.at(0), 
+    cfg.barrelMaterialBins = {brlBins.at(0),
                               brlBins.at(1)};
 
     if (m_endcapMaterialBins.size() != 2) {
       throw std::invalid_argument("Number of endcap material bin counts != 2");
     }
     std::vector<size_t> ecBins(m_endcapMaterialBins);
-    cfg.endcapMaterialBins = {ecBins.at(0), 
+    cfg.endcapMaterialBins = {ecBins.at(0),
                               ecBins.at(1)};
 
     cfg.mng = static_cast<const InDetDD::SiDetectorManager*>(manager);
@@ -261,16 +281,19 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 }
 
 void
-ActsTrackingGeometrySvc::setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) 
+ActsTrackingGeometrySvc::populateAlignmentStore(ActsAlignmentStore *store) const
 {
-  std::lock_guard<std::mutex> lock(m_gasMapMutex);
-  m_gasMap[ctx.slot()] = gas;
+  // populate the alignment store with all detector elements
+  m_trackingGeometry->visitSurfaces(
+    [store](const Acts::Surface* srf) {
+    const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
+    const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
+    gmde->storeTransform(store);
+  });
 }
 
 const ActsAlignmentStore*
-ActsTrackingGeometrySvc::getAlignmentStore(const EventContext& ctx) const
+ActsTrackingGeometrySvc::getNominalAlignmentStore() const
 {
-  std::lock_guard<std::mutex> lock(m_gasMapMutex);
-  if (m_gasMap.find(ctx.slot()) == m_gasMap.end()) return nullptr;
-  return m_gasMap[ctx.slot()];
+  return m_nominalAlignmentStore.get();
 }

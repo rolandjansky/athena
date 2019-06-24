@@ -1,11 +1,11 @@
-from AthenaCommon.Constants import ERROR
+from AthenaCommon.Constants import ERROR,DEBUG
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
 
@@ -30,14 +30,16 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='Cells
 def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=False, cells=inputEDM)
-   algo.CaloClusters="HLT_TopoCaloCluster"
+   from TrigEDMConfig.TriggerEDMRun3 import recordable
+   algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    algo.OutputLevel=OutputLevel
    return algo
 
 def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix="") :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(name="TrigCaloClusterMakerMT_topo"+algSuffix, doMoments=True, doLC=True, cells=inputEDM)
-   algo.CaloClusters="caloclusters"
+   from TrigEDMConfig.TriggerEDMRun3 import recordable
+   algo.CaloClusters=recordable("HLT_TopoCaloClusters"+algSuffix)
    algo.OutputLevel=OutputLevel
    return algo
 
@@ -104,26 +106,27 @@ def HLTCellMaker(RoIs='FSJETRoI', outputName="CaloCells", algSuffix=""):
     return cellMakerAlgo
 
 def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
-    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
-    RecoSequence = parOR("ClusterRecoSequenceFS", [cellMake])
-    return (RecoSequence, cellMake.CellsName)
+    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+    RecoSequence = parOR("ClusterRecoSequenceFS", [cellMaker])
+    return (RecoSequence, cellMaker.CellsName)
    
  
 def HLTFSTopoRecoSequence(RoIs):
-    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName, algSuffix="FS")
-    RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMake, topoClusterMaker])
+    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="FS")
+    RecoSequence = parOR("TopoClusterRecoSequenceFS", [cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
 
 def HLTRoITopoRecoSequence(RoIs):
-    cellMake = HLTCellMaker(RoIs, algSuffix="RoI")
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName, algSuffix="RoI")
-    RecoSequence = parOR("TopoClusterRecoSequenceRoI", [cellMake, topoClusterMaker])
+    cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
+    RecoSequence = parOR("RoITopoClusterRecoSequence", [cellMaker, topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
   
   
 def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
-    cellMake = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
-    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMake.CellsName, algSuffix="LC")
-    RecoSequence = parOR("LCTopoClusterRecoSequenceFS",[cellMake,topoClusterMaker])
+    cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
+    cellMaker.OutputLevel=DEBUG
+    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
+    RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

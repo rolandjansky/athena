@@ -28,11 +28,10 @@
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
-#include "StoreGate/DataHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -41,20 +40,25 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArRawConditions/LArAutoCorrNoise.h"
+#include "LArDigitization/LArHitEMap.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+
+#include "LArRawEvent/LArDigitContainer.h"
 
 class StoreGateSvc;
 class ITriggerTime;
-class LArDigitContainer;
 class LArOnlineID;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-class LArHitEMap;
+class CaloCell_ID;
 class LArDigit;
 class ILArOFC;
+class CaloDetDescrManager;
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -96,14 +100,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 #define MAXADC 4096       // Maximal Adc count + 1 ( used for the overflows)
 
 
-  StatusCode AddHit(const Identifier & cellId, float energy, float time, bool iSignal, unsigned int offset, unsigned int ical);
+  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
 
 
   StatusCode MakeDigit(const Identifier & cellId,
 		       HWIdentifier & ch_id,
-		       const std::vector<std::pair<float,float> >  *TimeE,
+		       const std::vector<std::pair<float,float> >* TimeE,
 		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
-		       const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
+		       const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
 
 
   StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
@@ -136,23 +140,27 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 // >>>>>>>> private data parts
 //
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
-  LArHitEMap* m_hitmap{};   // map of hits in cell
-  LArHitEMap* m_hitmap_DigiHSTruth{};   // map of hits in cell
+
+
+  SG::WriteHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+  SG::WriteHandle<LArHitEMap> m_hitmap; //Set in perpareEvent, used in subsequent methods (mergeEvent, fillMapFromHit)
+  SG::WriteHandleKey<LArHitEMap> m_hitMapKey_DigiHSTruth{this,"LArHitEMapKey","LArHitEMap_DigiHSTruth"};
+  SG::WriteHandle<LArHitEMap> m_hitmap_DigiHSTruth; //Set in perpareEvent, used in subsequent methods (mergeEvent, fillMapFromHit)
+
   std::vector <std::string> m_HitContainer; // hit container name list
   std::vector<int> m_CaloType;
 
 //
 // ........ Algorithm properties
 //
-  Gaudi::Property<std::string> m_SubDetectors{this, "SubDetectors", "LAr_All",
-      "subdetector selection"};      // subdetectors
-  Gaudi::Property<std::string> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
-      "Name of output digit container"};    // output digit container name list
-  Gaudi::Property<std::string> m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", "LArDigitContainer_DigiHSTruth",
-      "Name of output signal digit container"};    // output digit container name list
-  LArDigitContainer* m_DigitContainer{};
-  LArDigitContainer* m_DigitContainer_DigiHSTruth{};
-  Gaudi::Property< std::vector<std::string> > m_EmBarrelHitContainerName{this, "EmBarrelHitContainerName", {"LArHitEMB"},
+  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
+      "Name of output digit container"};    // output digit container name list 
+  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", 
+      "LArDigitContainer_DigiHSTruth", "Name of output signal digit container"};    // output digit container name list  
+  SG::WriteHandle<LArDigitContainer> m_DigitContainer;
+  SG::WriteHandle<LArDigitContainer> m_DigitContainer_DigiHSTruth;
+
+   Gaudi::Property< std::vector<std::string> > m_EmBarrelHitContainerName{this, "EmBarrelHitContainerName", {"LArHitEMB"},
       "Hit container name for EMB"};
   Gaudi::Property< std::vector<std::string> > m_EmEndCapHitContainerName{this, "EmEndCapHitContainerName", {"LArHitEMEC"},
       "Hit container name for EMEC"};
@@ -164,6 +172,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
   Gaudi::Property<bool> m_PileUp{this, "PileUp", false,
       "Pileup mode (default=false)"};                // pile up or not
+
 // Switches (true by default) on Noise for each sub-detector (can be combined)
   Gaudi::Property<bool> m_NoiseInEMB {this, "NoiseInEMB", true,
       "put noise in EMB (default=true)"};               // noise in Barrel is off if false
@@ -242,18 +251,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   int m_sampleGainChoice{2};
   Gaudi::Property<bool> m_roundingNoNoise{this, "RoundingNoNoise", true,
       "if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average"};  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
-
-// Detector Description objects
-
-  //const DataHandle<ILArNoise>     m_dd_noise;
-  //const DataHandle<ILArfSampl>    m_dd_fSampl;
-  //const DataHandle<ILArPedestal>  m_dd_pedestal;
-  //const DataHandle<ILArShape>     m_dd_shape;
+ 
   SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoise","SG Key of ILArNoise object"};
   SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSampl","SG Key of LArfSampl object"};
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
   SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
 
   //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
@@ -261,10 +266,13 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
+  const CaloCell_ID*     m_calocell_id{};
   const LArEM_ID*        m_larem_id{};
   const LArHEC_ID*       m_larhec_id{};
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
+
+  const CaloDetDescrManager* m_caloDDMgr{};
 
   Gaudi::Property<bool> m_skipNoHit{this, "SkipNoHit", false,
       "Skip events with no LAr hits (default=false)"};
@@ -283,7 +291,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-  unsigned int m_n_cells{0};
 
   const ILArOFC* m_larOFC{};
 

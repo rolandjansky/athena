@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   IRegSelSvc.h        
@@ -8,11 +8,9 @@
 //    Interface for the RegionSelector (RegSelSvc) service                  
 // 
 //
-//   $Id: IRegSelSvc.h,v 1.1.1.1 2008-11-19 15:33:35 sutt Exp $
 
-#ifndef IREGSELSVC_H
-#define IREGSELSVC_H
-#include "GaudiKernel/IInterface.h"
+#ifndef IREGIONSELECTOR_IREGSELSVC_H
+#define IREGIONSELECTOR_IREGSELSVC_H
 #include "Identifier/IdentifierHash.h"
 #include <vector>
 #include <stdint.h>
@@ -20,19 +18,14 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
-//static const InterfaceID IID_IRegSelSvc("IRegSelSvc", 1 , 0);
-
 class IRegSelSvc: virtual public IInterface {
  public:
+  /// InterfaceID
+  DeclareInterfaceID( IRegSelSvc, 1 , 0 );
+
   /// Destructor
   virtual ~IRegSelSvc(){}
-  /// Retrieve interface ID
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID("IRegSelSvc", 1 , 0);
-    return IID; 
-  }
-  //static const InterfaceID& interfaceID() { return IID_IRegSelSvc; }
-  
+
   
   /// IdentifierHash methods
   

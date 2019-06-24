@@ -1,3 +1,5 @@
+from past.builtins import basestring
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def hitColls2SimulatedDetectors(inputlist):
@@ -12,7 +14,7 @@ def hitColls2SimulatedDetectors(inputlist):
                            'CSC_Hits': 'CSC', 'TGC_Hits': 'TGC', 'RPC_Hits': 'RPC',
                            'TruthEvent': 'Truth'} #'': 'ALFA', '': 'ZDC',
     for entry in inputlist:
-        if entry[1] in simulatedDictionary.keys():
+        if entry[1] in simulatedDictionary:
             if simulatedDictionary[entry[1]] not in simulatedDetectors:
                 simulatedDetectors += [simulatedDictionary[entry[1]]]
     return simulatedDetectors
@@ -35,7 +37,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
     except AssertionError:
         skeletonLog.error("Failed to open input file: %s", getHITSFile(runArgs))
     #check evt_type of input file
-    if 'evt_type' in f.infos.keys():
+    if 'evt_type' in f.infos:
         import re
         if not re.match(str(f.infos['evt_type'][0]), 'IS_SIMULATION') :
             skeletonLog.error('This input file has incorrect evt_type: %s',str(f.infos['evt_type']))
@@ -46,14 +48,14 @@ def HitsFilePeeker(runArgs, skeletonLog):
     else :
         skeletonLog.warning('Could not find \'evt_type\' key in athfile.infos. Unable to that check evt_type is correct.')
     metadatadict = dict()
-    if 'metadata' in f.infos.keys():
-        if '/Simulation/Parameters' in f.infos['metadata'].keys():
+    if 'metadata' in f.infos:
+        if '/Simulation/Parameters' in f.infos['metadata']:
             metadatadict = f.infos['metadata']['/Simulation/Parameters']
             if isinstance(metadatadict, list):
                 skeletonLog.warning("%s inputfile: %s contained %s sets of Simulation Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
                 metadatadict=metadatadict[-1]
         ##Get IOVDbGlobalTag
-        if 'IOVDbGlobalTag' not in metadatadict.keys():
+        if 'IOVDbGlobalTag' not in metadatadict:
             try:
                 assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
                 metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
@@ -65,8 +67,8 @@ def HitsFilePeeker(runArgs, skeletonLog):
                     skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
-        if 'SimulatedDetectors' not in metadatadict.keys():
-            if 'eventdata_items' in f.infos.keys():
+        if 'SimulatedDetectors' not in metadatadict:
+            if 'eventdata_items' in f.infos:
                 metadatadict['SimulatedDetectors'] = hitColls2SimulatedDetectors(f.infos['eventdata_items'])
             else :
                 metadatadict['SimulatedDetectors'] = ['pixel','SCT','TRT','BCM','Lucid','LAr','Tile','MDT','CSC','TGC','RPC','Truth']
@@ -77,15 +79,15 @@ def HitsFilePeeker(runArgs, skeletonLog):
     ## Configure DetDescrVersion
     if hasattr(runArgs,"geometryVersion"):
         inputGeometryVersion = runArgs.geometryVersion
-        if type(inputGeometryVersion) == str and inputGeometryVersion.endswith("_VALIDATION"):
+        if isinstance(inputGeometryVersion, basestring) and inputGeometryVersion.endswith("_VALIDATION"):
             inputGeometryVersion = inputGeometryVersion.replace("_VALIDATION", "")
-        if 'SimLayout' in metadatadict.keys():
+        if 'SimLayout' in metadatadict:
             if not re.match(metadatadict['SimLayout'], inputGeometryVersion):
                 skeletonLog.warning("command-line geometryVersion (%s) does not match the value used in the Simulation step (%s) !",
                                     inputGeometryVersion, metadatadict['SimLayout'])
         globalflags.DetDescrVersion.set_Value_and_Lock( inputGeometryVersion )
         skeletonLog.info("Using geometryVersion from command-line: %s", globalflags.DetDescrVersion.get_Value())
-    elif 'SimLayout' in metadatadict.keys():
+    elif 'SimLayout' in metadatadict:
         globalflags.DetDescrVersion.set_Value_and_Lock( metadatadict['SimLayout'] )
         skeletonLog.info("Using geometryVersion from HITS file metadata %s", globalflags.DetDescrVersion.get_Value())
     else:
@@ -93,7 +95,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
 
     ## Configure ConditionsTag
     if hasattr(runArgs,"conditionsTag"):
-        if 'IOVDbGlobalTag' in metadatadict.keys():
+        if 'IOVDbGlobalTag' in metadatadict:
             if not re.match(metadatadict['IOVDbGlobalTag'], runArgs.conditionsTag):
                 skeletonLog.warning("command-line conditionsTag (%s) does not match the value used in the Simulation step (%s) !",
                                     runArgs.conditionsTag, metadatadict['IOVDbGlobalTag'])
@@ -102,7 +104,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
                 skeletonLog.info("Using conditionsTag from command-line: %s", globalflags.ConditionsTag.get_Value())
             else:
                 skeletonLog.info("globalflags.ConditionsTag already locked to %s - will not alter it.", globalflags.ConditionsTag.get_Value())
-    elif 'IOVDbGlobalTag' in metadatadict.keys():
+    elif 'IOVDbGlobalTag' in metadatadict:
         globalflags.ConditionsTag.set_Value_and_Lock( metadatadict['IOVDbGlobalTag'] )
         skeletonLog.info("Using conditionsTag from HITS file metadata %s", globalflags.ConditionsTag.get_Value())
     else:
@@ -110,7 +112,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
         raise SystemExit("conditionsTag not found in HITS file metadata or on transform command-line!")
 
     ## Configure DetFlags
-    if 'SimulatedDetectors' in metadatadict.keys():
+    if 'SimulatedDetectors' in metadatadict:
         from AthenaCommon.DetFlags import DetFlags
         # by default everything is off
         DetFlags.all_setOff()
@@ -119,7 +121,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
             cmd='DetFlags.%s_setOn()' % subdet
             skeletonLog.debug(cmd)
             try:
-                exec cmd
+                exec(cmd)
             except:
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
         DetFlags.simulateLVL1.all_setOff()

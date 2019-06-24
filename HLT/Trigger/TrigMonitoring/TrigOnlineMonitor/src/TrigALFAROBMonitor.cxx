@@ -19,7 +19,7 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -436,7 +436,8 @@ StatusCode TrigALFAROBMonitor::execute() {
     if (p_EventInfo) {
       StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
       vecStreamTags.push_back( TriggerInfo::StreamTag(m_debugStreamName,"debug",false) );
-      p_EventInfo->trigger_info()->setStreamTags(vecStreamTags);
+      // FIXME: const_cast
+      const_cast<TriggerInfo*>(p_EventInfo->trigger_info())->setStreamTags(vecStreamTags);
     }
   }
 
@@ -785,7 +786,7 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE
     std::ostringstream ost;
     ost << "0x" << std::hex << robFrag.source_id();
     if (m_hist_failedChecksumForALFAROB) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_failedChecksumForALFAROB->Fill((ost.str()).c_str(), 1.);
       m_hist_failedChecksumForALFAROB->LabelsDeflate("X");
     }

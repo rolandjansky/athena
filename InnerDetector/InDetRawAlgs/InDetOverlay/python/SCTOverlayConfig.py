@@ -10,8 +10,8 @@ def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
     """Return a ComponentAccumulator for SCTOverlay algorithm"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + flags.Overlay.BkgPrefix + "SCT_RDOs")
-    kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
+    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputKey", "SCT_RDOs")
 
     kwargs.setdefault("includeBkg", True);

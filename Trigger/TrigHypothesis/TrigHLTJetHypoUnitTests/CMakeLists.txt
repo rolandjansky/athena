@@ -31,12 +31,13 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    src/LooseCleanerTest.cxx
    src/MaximumBipartiteGroupsMatcherTest.cxx
    src/MaximumBipartiteGroupsMatcherMTTest.cxx
-   src/MaximumBipartiteGroupsMatcherMTTest_BadConfig.cxx
+   src/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
    src/MultiJetMatcherTest.cxx
    src/OrderedCollectionsMatcherTest.cxx
    src/SelectedJetsMatcherTest.cxx
    src/TLorentzVectorFactoryTest.cxx
    src/TightCleanerTest.cxx
+   src/xAODJetCollectorTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
    TrigHLTJetHypoLib )

@@ -87,7 +87,7 @@ def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
 def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
+    kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
@@ -227,16 +227,19 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     kwargs.setdefault("ItemList", ["SiHitCollection#SCT_Hits"] )
     return PileUpXingFolder(name, **kwargs)
 
-def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type SCT digitization"""
+def SCT_DigitizationBasicCfg(toolCfg, flags, name="SCT_DigitizationBasic", **kwargs):
+    """Return a ComponentAccumulator with BasictoolCfg type SCT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(toolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    alg = SCT_Digitization(name, **kwargs)
-    acc.addEventAlgo(alg)
-    # FIXME once OutputStreamCfg merges correctly
-    #acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
+    acc.addEventAlgo(SCT_Digitization(name, **kwargs))
+    return acc
+
+def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
+    """Return a ComponentAccumulator with toolCfg type SCT digitization and Output"""
+    acc = SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
     return acc
 
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
@@ -249,5 +252,5 @@ def SCT_DigitizationPUCfg(flags, name="SCT_DigitizationPU", **kwargs):
 
 def SCT_DigitizationOverlayCfg(flags, name="SCT_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with Overlay SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
+    return SCT_DigitizationBasicCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
 

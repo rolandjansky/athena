@@ -19,7 +19,6 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
 
 namespace AthEx {
 

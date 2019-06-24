@@ -32,9 +32,7 @@ AllowedEventBuildingIdentifiers.extend(['pebtestfour','pebtestfive'])
 if (doElectron):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    from TrigUpgradeTest.InDetSetup import inDetSetup
-    
-    inDetSetup()
+
     fastCaloStep= fastCaloMenuSequence("Ele")
     electronStep= electronMenuSequence()
 

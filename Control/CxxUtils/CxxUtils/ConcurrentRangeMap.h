@@ -146,6 +146,7 @@ public:
   struct DeletePayload
   {
     /// Initialize with an explicit deletion function.
+    // cppcheck-suppress uninitMemberVar  // false positive
     DeletePayload (delete_function* delfcn)
       : m_delete (delfcn)
     {
@@ -158,6 +159,7 @@ public:
       delete reinterpret_cast<const U*>(p);
     }
     template <class U>
+    // cppcheck-suppress uninitMemberVar  // false positive
     DeletePayload (const std::default_delete<U>&)
     {
       m_delete = delfcn<U>;
@@ -184,7 +186,7 @@ public:
    *   payload_unique_ptr p = std::unique_ptr<U> (...);
    @endcode
    *
-   * where U* must be convertable to T*.  In this case, the pointer
+   * where U* must be convertible to T*.  In this case, the pointer
    * will be deleted as a U*.
    * Second, one can supply an explicit deletion function:
    *

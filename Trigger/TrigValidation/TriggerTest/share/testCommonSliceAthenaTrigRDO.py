@@ -28,7 +28,6 @@ except:
 
 # flags for RecExCommon
 doTrigger=True
-TriggerModernConfig=True
 rec.doWriteAOD=False
 rec.doWriteESD=False
 rec.doWriteTAG=False

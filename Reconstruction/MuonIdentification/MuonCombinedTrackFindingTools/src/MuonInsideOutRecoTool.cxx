@@ -210,8 +210,13 @@ namespace MuonCombined {
     
       // more than 1 track call ambiguity solver and select first track
       TrackCollection* resolvedTracks = m_trackAmbiguityResolver->process(&tracks);
-      selectedTrack = resolvedTracks->front();
-      delete resolvedTracks;
+      if (!resolvedTracks || resolvedTracks->empty() ) {
+         ATH_MSG_WARNING("Ambiguity resolver returned no tracks. Arbitrarily using the first track of initial collection.");
+         selectedTrack = tracks.front();
+      } else {
+        selectedTrack = resolvedTracks->front();
+        delete resolvedTracks;
+      }
     }
     // get candidate
     const Muon::MuonCandidate* candidate = trackCandidateLookup[selectedTrack];

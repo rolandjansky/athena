@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExStoreGateExample includes
@@ -12,7 +12,6 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
 
 namespace AthViews {
 
@@ -71,7 +70,7 @@ StatusCode ViewMergeAlg::execute()
 
   //Output the merged data
   SG::WriteHandle< std::vector< int > > outputHandle( m_w_ints, ctx );
-  outputHandle.record( CxxUtils::make_unique< std::vector< int > >( outputVector ) );
+  outputHandle.record( std::make_unique< std::vector< int > >( outputVector ) );
   if ( !outputHandle.isValid() )
   {
     ATH_MSG_INFO( "Unable to load main event store for output" );

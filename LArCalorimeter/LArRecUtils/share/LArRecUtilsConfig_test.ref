@@ -1,0 +1,48 @@
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+--- LArOFCCondAlg 1
+Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * UseDelta: 0
+Py:ComponentAccumulator    INFO      * firstSample: 0
+Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
+--- LArOFCCondAlg 2
+Py:LArOFCCondAlgCfg    INFO   OFC optimization asking for no average shift as extra constraint everywhere
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * DeltaBunch: 1
+Py:ComponentAccumulator    INFO      * UseDelta: 2
+Py:ComponentAccumulator    INFO      * firstSample: 0
+Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
+--- LArOFCCondAlg 3
+Py:LArOFCCondAlgCfg    INFO   OFC *MIXED* optimization
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * DeltaBunch: 1
+Py:ComponentAccumulator    INFO      * UseDelta: 1
+Py:ComponentAccumulator    INFO      * firstSample: 0
+Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
+--- LArAutoCorrTotalCondAlg
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nsamples: 32

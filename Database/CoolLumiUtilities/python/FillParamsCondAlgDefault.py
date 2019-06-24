@@ -27,10 +27,9 @@ def FillParamsCondAlgDefault():
     folder = '/TDAQ/OLC/LHC/FILLPARAMS'
 
     # Mistakenly created as multi-version folder, must specify HEAD 
-    if not conddb.folderRequested( folder ):
-        conddb.addFolderWithTag('TDAQ', folder, 'HEAD',
-                                className = 'AthenaAttributeList')
-        log.info("FillParamsToolDefault requested %s", folder)
+    conddb.addFolderWithTag('TDAQ', folder, 'HEAD',
+                            className = 'AthenaAttributeList')
+    log.info("FillParamsToolDefault requested %s", folder)
 
     from CoolLumiUtilities.CoolLumiUtilitiesConf import \
          FillParamsCondAlg

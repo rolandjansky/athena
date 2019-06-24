@@ -1,3 +1,4 @@
+
 ## Get the logger
 from AthenaCommon.Logging import *
 atlasG4log = logging.getLogger('AtlasG4')

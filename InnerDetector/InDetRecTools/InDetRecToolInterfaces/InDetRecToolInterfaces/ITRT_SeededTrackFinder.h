@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@ class MsgStream;
 
 namespace InDet {
 
+  class SiCombinatorialTrackFinderData_xk;
  
   static const InterfaceID IID_ITRT_SeededTrackFinder
     ("InDet::ITRT_SeededTrackFinder",1,0);
@@ -49,10 +50,12 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::list<Trk::Track*> getTrack
-        (const Trk::TrackSegment&) = 0;
-      virtual void newEvent()=0;
-      virtual void newRegion(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
-      virtual void endEvent()=0;
+        (SiCombinatorialTrackFinderData_xk& combinatorialData,
+         const Trk::TrackSegment&) = 0;
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)=0;
+      virtual void newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+                             const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
+      virtual void endEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)=0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

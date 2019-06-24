@@ -205,7 +205,7 @@ StatusCode MdtCalibrationTool::initialize() {
 bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
                                              double signedTrackLength,
                                              double triggerTime,
-                                             bool resolFromRtrack ) {
+                                             bool resolFromRtrack ) const {
   MdtCalibrationSvcInput inputData;
   inputData.tof = signedTrackLength*m_imp->m_inverseSpeedOfLight;
   inputData.triggerOffset = triggerTime;
@@ -214,14 +214,14 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
 
 bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
                                              const MdtCalibrationSvcInput &inputData,
-                                             bool resolFromRtrack ) {
+                                             bool resolFromRtrack ) const {
   return driftRadiusFromTime( hit, inputData, m_imp->settings, resolFromRtrack );
 }
 
 bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
                                              const MdtCalibrationSvcInput &inputData,
                                              const MdtCalibrationSvcSettings &settings,
-                                             bool resolFromRtrack ) {
+                                             bool resolFromRtrack ) const {
 
   if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. ) {
     // Should be an ERROR, but can't return StatusCode::FAILURE
@@ -441,7 +441,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
                                                   double signedTrackLength,
                                                   double secondSignedTrackLength,
                                                   bool &secondDigitIsPrompt,
-                                                  double triggerTime ){
+                                                  double triggerTime ) const {
   MdtCalibrationSvcInput inputData;
   inputData.tof = signedTrackLength*m_imp->m_inverseSpeedOfLight;
   inputData.triggerOffset = triggerTime;
@@ -458,7 +458,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
                                                   const MdtCalibrationSvcInput &inputData,
                                                   const MdtCalibrationSvcInput &secondInputData,
                                                   const MdtCalibrationSvcSettings &settings,
-                                                  bool &secondDigitIsPrompt ) {
+                                                  bool &secondDigitIsPrompt ) const {
 
   // 13/02/2009 A.Koutsman: after discussion with P.Kluit rebuilt this function to use the standard way
   // of calibrating a MdtCalibHit with driftRadiusFromTime(...)
@@ -678,7 +678,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   return true;
 }  //end MdtCalibrationTool::twinPositionFromTwinHits
 
-double MdtCalibrationTool::tdcBinSize(const Identifier &id) {
+double MdtCalibrationTool::tdcBinSize(const Identifier &id) const {
 //BMG which uses HPTDC instead of AMT, and has 0.2ns TDC ticksize
   //if( m_imp->m_mdtIdHelper->stationName(id) == 54 )  //BMG
     //return 0.2;
@@ -917,7 +917,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
   return corTime;
 }  //end MdtCalibrationTool::Imp::applyCorrections
 
-Muon::MdtDriftCircleStatus MdtCalibrationTool::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings ) {
+Muon::MdtDriftCircleStatus MdtCalibrationTool::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings ) const {
   if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. ) {
       ATH_MSG_WARNING( " Unphysical time window detected, both ranges should be positive: "
 		       << " lower bound " << settings.timeWindowLowerBound()

@@ -7,7 +7,12 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigEDMConfig.TriggerEDMRun3 import recordable
       
+class precisionCaloMenuDefs(object):
+      """Static class to collect all string manipulation in Calo sequences """
+      precisionCaloClusters= recordable("HLT_CaloEMClusters")
+
 def precisionCaloSequence(ConfigFlags):
     """ Creates PrecisionCalo sequence """
     # EV creator
@@ -20,7 +25,6 @@ def precisionCaloSequence(ConfigFlags):
     
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec import precisionCaloRecoSequence
-    # from TrigUpgradeTest.precisionCaloRec import precisionCaloRecoSequence
     (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(InViewRoIs)
 
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
@@ -29,7 +33,7 @@ def precisionCaloSequence(ConfigFlags):
     precisionCaloSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
     return (precisionCaloSequence, precisionCaloViewsMaker, sequenceOut)
 
-def precisionCaloMenuSequence():
+def precisionCaloMenuSequence(name):
     """ Creates precisionCalo MENU sequence """
     (sequence, precisionCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionCaloSequence, ConfigFlags)
 
@@ -37,7 +41,7 @@ def precisionCaloMenuSequence():
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlgMT
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT("precisionCaloHypo")
+    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT(name+"precisionCaloHypo")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

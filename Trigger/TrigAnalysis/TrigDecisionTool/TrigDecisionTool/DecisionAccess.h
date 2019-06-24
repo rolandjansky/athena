@@ -107,17 +107,35 @@ namespace Trig {
 
     /**
      * @brief Runs 3+. Returns all features related to given chain group
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
+     * @param[in] container Optional requirement to return only features within the specificed container name. Not checked if not specified. 
+     * @param[in] featureCollectionMode For oneFeaturePerLeg, stop exploring each route through the navigation once one matching feature has been found.
+     * @param[in] featureName Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    const ElementLinkVector<CONTAINER> features(const Trig::ChainGroup* group, 
-                                                unsigned int condition = TrigDefs::Physics) const;
+    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const Trig::ChainGroup* group,
+                                                                    const unsigned int condition = TrigDefs::Physics,
+                                                                    const std::string container = "",
+                                                                    const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
+                                                                    const std::string featureName = "feature") const;
 
     /**
      * @brief Runs 3+. Returns features related to given chain
+     * @param[in] group Chain group to return features for.
+     * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
+     * @param[in] container Optional requirement to return only features within the specificed container name. Not checked if not specified. 
+     * @param[in] featureCollectionMode For oneFeaturePerLeg, stop exploring each route through the navigation once one matching feature has been found.
+     * @param[in] featureName Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    const ElementLinkVector<CONTAINER> features(const std::string& chainName = "HLT_.*", 
-                                                unsigned int condition = TrigDefs::Physics) const;
+    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const std::string& chainName = "HLT_.*",
+                                                                    const unsigned int condition = TrigDefs::Physics,
+                                                                    const std::string container = "",
+                                                                    const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
+                                                                    const std::string featureName = "feature") const;
 
     /**
      * @brief gives back feature matching (by seeding relation)

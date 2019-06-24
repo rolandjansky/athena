@@ -13,6 +13,7 @@
 //
 
 #include "./SingleConditionMatcherMT.h"
+#include "./xAODJetCollector.h"
 #include <sstream>
 #include <algorithm>
 
@@ -20,17 +21,21 @@ SingleConditionMatcherMT::SingleConditionMatcherMT(const ConditionBridgeMT& cb):
   m_condition(cb){
 }
   
-bool SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
-                                     const HypoJetGroupCIter& jets_e,
-                                     std::unique_ptr<IConditionVisitor>& v) {
+std::optional<bool>
+SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
+                                const HypoJetGroupCIter& jets_e,
+				xAODJetCollector& jetCollector,
+                                const std::unique_ptr<ITrigJetHypoInfoCollector>& v,
+				bool ) const {
 
   
   for(auto i=jets_b; i != jets_e; ++i){
     if (m_condition.isSatisfied(*i, v)){
-      return true;
+      jetCollector.addJets((*i).cbegin(), (*i).cend());
+      return std::make_optional<bool>(true);
     }
   }
-  return false;
+  return  std::optional<bool>(false);
 }
 
 

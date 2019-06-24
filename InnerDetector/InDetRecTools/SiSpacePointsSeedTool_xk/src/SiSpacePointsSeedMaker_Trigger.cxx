@@ -59,9 +59,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if (m_outputlevel<=0) {
-    EventData& data{getEventData()};
+    EventData data;
+    initializeEventData(data);
     data.nprint=0;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 
   m_initialized = true;
@@ -82,9 +83,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(int) const
+void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   data.trigger = false;
   if (!m_pixel && !m_sct) return;
@@ -188,9 +189,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(int) const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
+(EventData& data, const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   data.trigger = false;
   if (!m_pixel && !m_sct) return;
@@ -274,11 +275,13 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& IRD) const
+(EventData& data,
+ const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
+ const IRoiDescriptor& IRD) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
-  newRegion(vPixel, vSCT);
+  newRegion(data, vPixel, vSCT);
 
   data.trigger = true;
 
@@ -301,9 +304,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 // with two space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::find2Sp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Trigger::find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 0;
   if (lv.begin()!=lv.end()) mode = 1;
@@ -326,7 +329,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find2Sp(const std::list<Trk::Vertex>
   
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
@@ -335,9 +338,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find2Sp(const std::list<Trk::Vertex>
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 2;
   if (lv.begin()!=lv.end()) mode = 3;
@@ -362,13 +365,13 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const std::list<Trk::Vertex>
 
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(lv);
+  find3Sp(data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -377,9 +380,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const std::list<Trk::Vertex>
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   int mode = 5;
   if (lv.begin()!=lv.end()) mode = 6;
@@ -404,7 +407,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(const std::list<Trk::Vertex>
 
   if (m_outputlevel<=0) {
     data.nprint=1;
-    ATH_MSG_DEBUG(*this);
+    dump(data, msg(MSG::DEBUG));
   }
 }
 
@@ -412,9 +415,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(const std::list<Trk::Vertex>
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dump(MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dump(EventData& data, MsgStream& out) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
 
   if (data.nprint) return dumpEvent(data, out);
   return dumpConditions(data, out);
@@ -584,35 +587,6 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpEvent(EventData& data, Msg
 }
 
 ///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::SiSpacePointsSeedMaker_Trigger::dump(std::ostream& out) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-(MsgStream& sl,const InDet::SiSpacePointsSeedMaker_Trigger& se)
-{ 
-  return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-(std::ostream& sl,const InDet::SiSpacePointsSeedMaker_Trigger& se)
-{ 
-  return se.dump(sl);
-}   
-
-///////////////////////////////////////////////////////////////////
 // Find next set space points
 ///////////////////////////////////////////////////////////////////
 
@@ -643,11 +617,10 @@ bool InDet::SiSpacePointsSeedMaker_Trigger::newVertices(EventData& data, const s
 
   if (s1==0 && s2==0) return false;
 
-  std::list<Trk::Vertex>::const_iterator v;
-  data.l_vertex.erase(data.l_vertex.begin(),data.l_vertex.end());
+  data.l_vertex.clear();
   
-  for (v=lV.begin(); v!=lV.end(); ++v) {
-    data.l_vertex.push_back(static_cast<float>((*v).position().z()));
+  for (const Trk::Vertex& v : lV) {
+    data.l_vertex.insert(static_cast<float>(v.position().z()));
     if (data.l_vertex.size() >= m_maxNumberVertices) break;
   }
   return false;
@@ -1547,9 +1520,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Trigger::next() const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Trigger::next(EventData& data) const
 {
-  EventData& data{getEventData()};
+  if (not data.initialized) initializeEventData(data);
+
   if (data.i_seed==data.i_seede) {
     findNext(data);
     if (data.i_seed==data.i_seede) return nullptr;
@@ -1564,13 +1538,11 @@ bool InDet::SiSpacePointsSeedMaker_Trigger::isZCompatible
 {
   if (Zv < m_zmin || Zv > m_zmax) return false;
 
-  std::list<float>::iterator v=data.l_vertex.begin(),ve=data.l_vertex.end();
-  if (v==ve) return true;
+  if (data.l_vertex.size()==0) return true;
 
-  float dZmin = fabs((*v)-Zv);
-  ++v;
-  for (; v!=ve; ++v) {
-    float dZ = fabs((*v)-Zv);
+  float dZmin = std::numeric_limits<float>::max();
+  for (const float& v : data.l_vertex) {
+    float dZ = fabs(v-Zv);
     if (dZ<dZmin) dZmin=dZ;
   }
   return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
@@ -1578,15 +1550,14 @@ bool InDet::SiSpacePointsSeedMaker_Trigger::isZCompatible
 
 float InDet::SiSpacePointsSeedMaker_Trigger::dZVertexMin(EventData& data, float& Z) const
 {
-  std::list<float>::iterator v=data.l_vertex.begin(),ve=data.l_vertex.end();
-  if (v==ve) return 0.;
+  if (data.l_vertex.size()==0) return 0.;
 
-  float dZm = 1.E10;
-  for (; v!=ve; ++v) {
-    float dZ = fabs((*v)-Z);
-    if (dZ<dZm) dZm = dZ;
+  float dZmin = std::numeric_limits<float>::max();
+  for (const float& v : data.l_vertex) {
+    float dZ = fabs(v-Z);
+    if (dZ<dZmin) dZmin = dZ;
   }
-  return dZm;
+  return dZmin;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1665,54 +1636,14 @@ void InDet::SiSpacePointsSeedMaker_Trigger::fillSeeds(EventData& data) const
   }
 }
 
-InDet::SiSpacePointsSeedMaker_Trigger::EventData&
-InDet::SiSpacePointsSeedMaker_Trigger::getEventData() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  EventContext::ContextID_t slot{ctx.slot()};
-  EventContext::ContextEvt_t evt{ctx.evt()};
-  if (not m_initialized) slot = 0;
-  std::lock_guard<std::mutex> lock{m_mutex};
-  if (slot>=m_cache.size()) { // Need to extend vectors
-    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
-    m_eventData.resize(slot+1);
-  }
-  if (m_cache[slot]!=evt) { // New event
-    m_cache[slot] = evt;
-    // Initialization
-    m_eventData[slot] = EventData{}; // This will be improved later.
-
-    // Build radius sorted containers
-    m_eventData[slot].r_Sorted.resize(m_r_size);
-    m_eventData[slot].r_index.resize(m_r_size, 0);
-    m_eventData[slot].r_map.resize(m_r_size, 0);
-
-    // Build radius-azimuthal-Z sorted containers
-    for (int i=0; i<SizeRFZ; ++i) {
-      m_eventData[slot].rfz_index[i] = 0;
-      m_eventData[slot].rfz_map[i] = 0;
-    }
-
-    // Build radius-azimuthal-Z sorted containers for Z-vertices
-    for (int i=0; i<SizeRFZV; ++i) {
-      m_eventData[slot].rfzv_index[i] = 0;
-      m_eventData[slot].rfzv_map[i] = 0;
-    }
-
-    m_eventData[slot].SP.resize(m_maxsizeSP, nullptr);
-    m_eventData[slot].R.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].Tz.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].Er.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].U.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].V.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].Zo.resize(m_maxsizeSP, 0.);
-    m_eventData[slot].OneSeeds.resize(m_maxOneSize);
-
-    m_eventData[slot].i_seed  = m_eventData[slot].l_seeds.begin();
-    m_eventData[slot].i_seede = m_eventData[slot].l_seeds.end  ();
-    m_eventData[slot].seed  = m_eventData[slot].mapSeeds.begin();
-    m_eventData[slot].seede = m_eventData[slot].mapSeeds.end  ();
-  }
-
-  return m_eventData[slot]; 
+void InDet::SiSpacePointsSeedMaker_Trigger::initializeEventData(EventData& data) const {
+  data.initialize(EventData::Trigger,
+                  m_maxsizeSP,
+                  m_maxOneSize,
+                  0, // maxsize not used
+                  m_r_size,
+                  0, // sizeRF not used
+                  SizeRFZ,
+                  SizeRFZV,
+                  false); // checkEta not used
 }

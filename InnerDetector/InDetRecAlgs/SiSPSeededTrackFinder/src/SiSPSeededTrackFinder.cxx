@@ -4,6 +4,8 @@
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
@@ -110,20 +112,22 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
     return StatusCode::SUCCESS;
   }
 
+  SiSpacePointsSeedMakerEventData seedEventData;
   bool ZVE = false;
   if (m_useZvertexTool) {
-    std::list<Trk::Vertex> vertices = m_zvertexmaker->newEvent();
+    std::list<Trk::Vertex> vertices = m_zvertexmaker->newEvent(seedEventData);
     if (not vertices.empty()) ZVE = true;
-    m_seedsmaker->find3Sp(vertices);
+    m_seedsmaker->find3Sp(seedEventData, vertices);
   } else {
-    m_seedsmaker->newEvent(-1);
+    m_seedsmaker->newEvent(seedEventData, -1);
     std::list<Trk::Vertex> VZ;
-    m_seedsmaker->find3Sp(VZ);
+    m_seedsmaker->find3Sp(seedEventData, VZ);
   }
 
   const bool PIX = true;
   const bool SCT = true;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   bool ERR = false;
   Counter_t counter{};
@@ -131,9 +135,9 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   std::multimap<double, Trk::Track*> qualityTrack;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
-    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
     for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
@@ -143,7 +147,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //
@@ -194,14 +198,17 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   //
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
   Trk::PerigeeSurface per(beamSpotHandle->beamPos());
+
+  SiSpacePointsSeedMakerEventData seedEventData;
  
-  m_seedsmaker->newEvent(0);
+  m_seedsmaker->newEvent(seedEventData, 0);
   std::list<Trk::Vertex> VZ;
-  m_seedsmaker->find3Sp(VZ);
+  m_seedsmaker->find3Sp(seedEventData, VZ);
 
   const bool PIX = true ;
   const bool SCT = true ;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   std::vector<int> nhistogram(m_histsize, 0);
   std::vector<double> zhistogram(m_histsize, 0.);
@@ -213,10 +220,10 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   std::multimap<double, Trk::Track*> qualityTrack;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
     bool firstTrack{true};
-    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
     for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
@@ -232,21 +239,21 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
     }
   }
 
-  m_seedsmaker->newEvent(1); 
+  m_seedsmaker->newEvent(seedEventData, 1);
 
   double ZB[2];
   if (not m_ITKGeometry) {
     findZvertex(VZ, ZB, nhistogram, zhistogram, phistogram);
-    m_seedsmaker->find3Sp(VZ, ZB);
+    m_seedsmaker->find3Sp(seedEventData, VZ, ZB);
   } else {
-    m_seedsmaker->find3Sp(VZ);
+    m_seedsmaker->find3Sp(seedEventData, VZ);
   }
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    for (Trk::Track* t: m_trackmaker->getTracks(trackEventData, seed->spacePoints())) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
@@ -255,7 +262,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //

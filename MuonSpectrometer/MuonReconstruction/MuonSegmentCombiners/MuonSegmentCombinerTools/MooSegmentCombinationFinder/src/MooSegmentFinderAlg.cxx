@@ -24,9 +24,9 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   m_keyMdt("MDT_DriftCircles"),
   m_patternCombiLocation("MuonHoughPatternCombinations"),
   m_segmentLocation("MooreSegments"),
-  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
-  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
-  m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
+  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder", this),
+  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
+  m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
 {
   declareProperty("UseRPC",m_useRpc = true);
   declareProperty("UseTGC",m_useTgc = true);
@@ -77,6 +77,7 @@ StatusCode MooSegmentFinderAlg::initialize()
 
   ATH_CHECK( m_patternCombiLocation.initialize() );
   ATH_CHECK( m_segmentLocation.initialize() );
+  ATH_CHECK( m_houghDataPerSectorVecKey.initialize() );
   
   return StatusCode::SUCCESS; 
 }
@@ -124,6 +125,14 @@ StatusCode MooSegmentFinderAlg::execute()
     }else{
       ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }
+  }
+
+  // write hough data to SG
+  if (output.houghDataPerSectorVec) {
+    SG::WriteHandle<std::vector<Muon::HoughDataPerSec>> handle {m_houghDataPerSectorVecKey};
+    ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
+  } else {
+    ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
   }
 
   //do cluster based segment finding

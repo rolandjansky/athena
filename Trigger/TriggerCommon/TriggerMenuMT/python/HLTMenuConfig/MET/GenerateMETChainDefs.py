@@ -2,6 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.MET.METChainDef import MetChainConfiguration as MetChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
@@ -28,7 +29,7 @@ def generateChainConfigs( chainDict ):
 
     if len(listOfChainDefs)>1:
         log.warning("Implement case for mulit-step met chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 

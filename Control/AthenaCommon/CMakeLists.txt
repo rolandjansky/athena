@@ -9,6 +9,9 @@ atlas_subdir( AthenaCommon )
 atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
+# External dependencies:
+find_package( six )
+
 # Install files from the package:
 atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )

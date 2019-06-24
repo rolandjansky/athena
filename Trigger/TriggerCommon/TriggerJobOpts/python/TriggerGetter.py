@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import jobproperties
@@ -24,6 +24,9 @@ excludeTracePattern.append ("*/TriggerMenu/*")
 excludeTracePattern.append("*/TrigSteering/TrigSteeringConfig.py")
 
 
+
+
+
 class TriggerGetter(Configured):
     #    _output = {"HLT::HLTResult" : ["HLTResult_L2", "HLTResult_EF"] }
     _configured=True
@@ -46,16 +49,11 @@ class TriggerGetter(Configured):
 
         # start with print some information what this will do
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d" % (recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly()) )
-        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMTHLT: %s" % (TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMTHLT() ) )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMT: %s" % (TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMT() ) )
 
-        if TF.doMTHLT():
+        if TF.doMT():
             log.info("configuring MT Trigger, actually nothing happens for now")
-            
             return True
-
-            
-        
-
         
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
@@ -131,7 +129,7 @@ class TriggerGetter(Configured):
                 # StreamBS.ItemList +=["TileRawChannelContainer#*"]
                 StreamBS.ItemList +=["2927#*"]
                 StreamBS.ItemList +=["2934#*"] # added on request from: Arantxa Ruiz Martinez for TileRODMu
-
+                
                 # don't need Muons in transient BS
                 # StreamBS.ItemList +=["MdtCsmContainer#*"]
                 # StreamBS.ItemList +=["RpcPadContainer#*"]

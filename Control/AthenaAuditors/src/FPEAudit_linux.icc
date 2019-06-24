@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_FPEAUDIT_LINUX_ICC
@@ -28,24 +28,15 @@ extern "C"
 {
   namespace FPEAudit
   {
-    int n_fp_exceptions=0;
-    const int MAXARRAY=100;
-    struct sigaction oldactHandler;
-    
-    void *s_array_O[MAXARRAY];
-    void *s_array_I[MAXARRAY];
-    void *s_array_D[MAXARRAY];
-    
     void fpe_sig_action( int sig, siginfo_t *si, void *puc )
     {
       // call old handlers if too many exceptions occured in this job
-      // n_fp_exceptions is initially set to m_NstacktracesOnFPE (property "NStacktracesOnFPE")
-      if ( n_fp_exceptions < 0 )
+      if ( s_handlerDisabled )
         {
-          if (oldactHandler.sa_flags & SA_SIGINFO) {
-            if (oldactHandler.sa_handler) oldactHandler.sa_sigaction(sig,si,puc);
+          if (s_oldactHandler.sa_flags & SA_SIGINFO) {
+            if (s_oldactHandler.sa_handler) s_oldactHandler.sa_sigaction(sig,si,puc);
           } else {
-            if (oldactHandler.sa_handler) oldactHandler.sa_handler(sig);
+            if (s_oldactHandler.sa_handler) s_oldactHandler.sa_handler(sig);
           }
         }
       
@@ -72,24 +63,24 @@ extern "C"
       // stack trace is later printed in FPEAuditor::report_fpe()
       if ( si->si_code == FPE_FLTDIV )
         {
-          nptrs = backtrace(s_array_D, 100);
+          nptrs = backtrace(s_tlsdata.s_array_D, 100);
           std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
           if ( nptrs<100 )
-            s_array_D[nptrs]=NULL;
+            s_tlsdata.s_array_D[nptrs]=NULL;
         }
       else if ( si->si_code == FPE_FLTOVF )
         {
-          nptrs = backtrace(s_array_O, 100);
+          nptrs = backtrace(s_tlsdata.s_array_O, 100);
           std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
           if ( nptrs<100 )
-            s_array_O[nptrs]=NULL;
+            s_tlsdata.s_array_O[nptrs]=NULL;
         }
       else
         {
-          nptrs = backtrace(s_array_I, 100);
+          nptrs = backtrace(s_tlsdata.s_array_I, 100);
           std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
           if ( nptrs<100 )
-            s_array_I[nptrs]=NULL;
+            s_tlsdata.s_array_I[nptrs]=NULL;
         }
       
       // reset FPE mask of the context where FPE occured
@@ -160,12 +151,6 @@ extern "C"
       //      fprintf(stderr, "in 64 bit code\n");
 #endif
 #endif
-      if (n_fp_exceptions)
-        --n_fp_exceptions;
-      if (n_fp_exceptions == 0)
-        {
-          fprintf(stderr, "too many SIGFPE detected, will be uninstalling signal handler\n");
-        }
     }
     
     /*

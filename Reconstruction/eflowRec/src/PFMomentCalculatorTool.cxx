@@ -31,6 +31,9 @@ StatusCode PFMomentCalculatorTool::initialize(){
       return StatusCode::SUCCESS;
     }
   }
+  else {
+    m_clusterCalibHitMomentsMaker2.disable();
+  }
  
   return StatusCode::SUCCESS;
 }

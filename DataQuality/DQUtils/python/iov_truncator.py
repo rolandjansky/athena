@@ -1,15 +1,12 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 from collections import namedtuple
-from os import environ
 
 from .oracle import atlas_runs_set
-from .general import timer
 from .sugar import RunLumi
-from .general import flattened
 from .events import iov_yielder
 
 try:
@@ -26,7 +23,6 @@ except ImportError:
         A dummy fetch_iovs for testing. Returns two runs, one 100 LBs long 
         and the other 50 long.
         """
-        from collections import namedtuple
         T = namedtuple("EOR_VAL", "since, until RunNumber")
         
         return map(T._make, [(rlumi(  1, 0), rlumi(1,  100),           1),
@@ -130,11 +126,10 @@ def truncate_to_run_iovs(run_iovs, *iovs):
     
 def test_truncator():
     
-    from collections import namedtuple
     IOV = namedtuple("IOV", "since until channel state")
     GOOD = True
     BAD = False
-    A, B, C = 1, 2, 3
+    A, B = 1, 2
     
     def __repr__(self):
         """
@@ -155,9 +150,9 @@ def test_truncator():
         IOV(rlumi(101, 0), rlumi(101, 0),   B, BAD),
     ]
     
-    result = truncate_iovs(iovs)
+    result = truncate_to_run_iovs(iovs)
     
-    print len(result)
+    print(len(result))
     
     from pprint import pprint
     

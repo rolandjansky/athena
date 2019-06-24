@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for RAW->ESD
@@ -22,7 +23,7 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
     
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -121,7 +122,7 @@ if hasattr(runArgs,"outputDRAW_WMUNUFile"):
 
 if hasattr(runArgs,"trigFilterList"):
     rec.doTriggerFilter.set_Value_and_Lock(True)
-    rec.triggerFilterList = "|".join(runArgs.trigFilterList)
+    rec.triggerFilterList = "||".join(runArgs.trigFilterList)
 
 if hasattr(runArgs,"outputESDFile"):
     rec.doESD.set_Value_and_Lock( True )

@@ -306,7 +306,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
 
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
+            #self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
@@ -414,7 +414,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
+            #self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
@@ -425,13 +425,14 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
 
 
             # Include full set of tools
-
-            # Set seedcalo energy scale (Full RoI)
-            tools.append(taualgs.getJetSeedBuilder())
+            # Set seedcalo energy scale (Full RoI), will keep the line below commented out for now
+            #tools.append(taualgs.getJetSeedBuilder())
             # Associate RoI vertex or Beamspot to tau - don't use TJVA
-            tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
+            #Comment this tool for now
+            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
-            tools.append(taualgs.getTauAxis())
+            #Comment this tool for now
+            #tools.append(taualgs.getTauAxis())
             
             # for now, use 'doMVATES=False' to detect tracktwoEF, instead of introducing new flag
             if not doMVATES:

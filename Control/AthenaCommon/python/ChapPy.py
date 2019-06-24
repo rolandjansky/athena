@@ -23,6 +23,7 @@ import os
 import subprocess
 import time
 import types
+from past.builtins import basestring
 
 def dump( buf, stdout = sys.stdout ):
     """
@@ -287,7 +288,7 @@ class AthenaApp(object):
     def __lshift__(self, o):
         if isinstance(o, str):
             import textwrap
-            self._jobo.write(textwrap.dedent(o))
+            self._jobo.write(textwrap.dedent(o).encode())
             self._jobo.flush()
             return
         raise TypeError('unexpected type %s'%type(o))

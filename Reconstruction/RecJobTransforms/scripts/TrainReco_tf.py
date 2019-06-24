@@ -10,8 +10,12 @@
 # Train_reco_tf.py --inputNTUP_COMMONFile=NTUP_COMMON.01316372._001218.root.1 --outputDNTUPFile DNTUP --reductionConf SM1
 #==================================================================
 
+from __future__ import print_function
+from builtins import next
+from future import standard_library
+standard_library.install_aliases()
 import re
-import os, commands
+import os, subprocess
 from time import sleep
 import sys
 import pickle
@@ -19,7 +23,7 @@ import tempfile
 
 def get_filename(subname):
     try:
-        return os.listdir('.')[(i for i, name in enumerate(os.listdir('.')) if subname in name).next()]
+        return os.listdir('.')[next((i for i, name in enumerate(os.listdir('.')) if subname in name))]
     except:
         return None
 
@@ -39,7 +43,7 @@ if __name__ == '__main__':
     for tmpKeyVal in sys.argv[1:]:
         try:
             tmpMatch = re.search('^([^=]+)=(.+)$',tmpKeyVal)
-            if tmpMatch != None:
+            if tmpMatch is not None:
                 mapKey = tmpMatch.group(1)
                 mapVal = tmpMatch.group(2)
                 search = mapKey.find('--output')
@@ -54,7 +58,7 @@ if __name__ == '__main__':
                     # use string
                     argMap[mapKey] = mapVal
         except:
-            print "warning: %s arg not recognised, skipping it" % tmpKeyVal
+            print("warning: %s arg not recognised, skipping it" % tmpKeyVal)
     
     #print "Reco_wrap_tf.py: arguments : " + str(sys.argv[1:])
     #print "Reco_wrap_tf.py: arg map   : " + str(argMap)
@@ -65,7 +69,7 @@ if __name__ == '__main__':
     # execute original trf
     com = '%s %s ' % (trfName,trfArgs)
     sys.stdout.flush()
-    print "Reco_tf.py: running %s" % com
+    print("Reco_tf.py: running %s" % com)
     retStat = os.system(com)
     try:
         os.remove(tmpName)
@@ -76,10 +80,10 @@ if __name__ == '__main__':
     xmlfile = open('metadata.xml','r')
     newxmlfile = open('new.xml','w')
     xmlcontents = xmlfile.read()
-    for key in fileNameMap.keys():
+    for key in fileNameMap:
         mvString = "mv %s %s" % (key,fileNameMap[key])
         sys.stdout.flush()
-        print "Renaming file %s --> %s" % (key,fileNameMap[key])
+        print("Renaming file %s --> %s" % (key,fileNameMap[key]))
         retStat = os.system(mvString)
         newxml = xmlcontents.replace(key,fileNameMap[key])
         xmlcontents = newxml

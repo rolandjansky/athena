@@ -210,29 +210,39 @@ namespace TrigCompositeUtils {
   private:
     std::string m_name;
   };
+
+  /**
+   * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
+   * @param[in] eventStore Pointer to event store within current event context
+   * @param[in] id ID of chain to located failed decision nodes for. Passing 0 returns all decision nodes which failed at least one chain.
+   * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
+   **/
+  std::vector<const Decision*> getRejectedDecisionNodes(StoreGateSvc* eventStore, const DecisionID id = 0);
   
   /**
    * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
    * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
-   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
+   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
+   * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
+   * enforceDecisionOnStartNode should be true if navigating for a trigger which passed (e.g. starting from HLTPassRaw)
+   * enforceDecisionOnStartNode should be false if navigating for a trigger which failed but whose failing start node(s) were recovered via getRejectedDecisionNodes
    **/
-  void recursiveGetDecisions( const Decision* start, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0 );
+  void recursiveGetDecisions(const Decision* start, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnStartNode = true);
 
 
   /**
    * @brief Used by recursiveGetDecisions
+   * @see recursiveGetDecisions
    **/
-  void recursiveGetDecisionsInternal( const Decision* start, const size_t location, std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const DecisionID id = 0);
-
-  /**
-   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
-   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[oneFeaturePerLeg] oneFeaturePerLeg If True, stops at the first feature (of the correct type) found per path through the navigation.
-   * @return Typed vector of element links to all features found on the supplied linkVector.
-   **/ 
-  template<class CONTAINER>
-  ElementLinkVector<CONTAINER> getFeaturesOfType( const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg = true );
+  void recursiveGetDecisionsInternal(const Decision* start, 
+    const size_t location, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnNode = true);
 
   /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
@@ -256,6 +266,31 @@ namespace TrigCompositeUtils {
     ElementLink<T> link;
   };
 
+
+  /// @name Constant string literals used within the HLT
+  /// @{
+  const std::string& initialRoIString();
+  const std::string& initialRecRoIString();
+  const std::string& roiString();
+  const std::string& viewString();
+  const std::string& featureString();
+  const std::string& seedString();
+  /// @}
+
+
+  /**
+   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
+   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
+   * @param[oneFeaturePerLeg] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
+   * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
+   **/
+  template<class CONTAINER>
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
+    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const bool oneFeaturePerLeg = true,
+    const std::string& featureName = featureString());
+
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
    * @arg start the TC  from where the link back is to be looked for
@@ -272,15 +307,7 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
-  /// @name Constant string literals used within the HLT
-  /// @{
-  const std::string& initialRoIString();
-  const std::string& intitalRecRoIString();
-  const std::string& roiString();
-  const std::string& viewString();
-  const std::string& featureString();
-  const std::string& seedString();
-  /// @}
+
 
 
 }

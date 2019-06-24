@@ -9,6 +9,7 @@
 #  @note Tests of ATLAS specific file formats (that thus rely on other
 #  parts of Athena) live here
 
+from __future__ import print_function
 import sys
 import unittest
 
@@ -47,29 +48,29 @@ class argPOOLFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             esdFile = argPOOLFile(testFile, io = 'input', type='esd')
-            self.assertEqual(esdFile.getMetadata(metadataKeys =  tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'nentries': 10L, 'file_size': 17033381}})
+            self.assertEqual(esdFile.getMetadata(metadataKeys =  tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'nentries': 10, 'file_size': 17033381}})
             esdFile = argPOOLFile(testFile, io = 'output', type='esd')
-            self.assertEqual(esdFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'file_size': 17033381, 'integrity': True, 'nentries': 10L}}) 
+            self.assertEqual(esdFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'file_size': 17033381, 'integrity': True, 'nentries': 10}}) 
             self.assertEqual(esdFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}})
             self.assertEqual(esdFile.prodsysDescription['type'],'file')
         except OSError:
             # With python 2.7 this should call the self.skip() method
-            print >>sys.stderr, 'WARNING Skipping test_argPOOLFileMetadata_ESD - stat on AFS test file failed'
+            print('WARNING Skipping test_argPOOLFileMetadata_ESD - stat on AFS test file failed', file=sys.stderr)
 
     def test_argPOOLFileMetadata_AOD(self):
         try:
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             aodFile = argPOOLFile(testFile, io = 'input', type='aod')
-            self.assertEqual(aodFile.getMetadata(metadataKeys = tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'nentries': 10L, 'file_size': 4673269}})
+            self.assertEqual(aodFile.getMetadata(metadataKeys = tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'nentries': 10, 'file_size': 4673269}})
             aodFile = argPOOLFile(testFile, io = 'output', type='aod')
-            self.assertEqual(aodFile.getMetadata(),{'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'file_size': 4673269, 'integrity': True, 'nentries': 10L}}) 
+            self.assertEqual(aodFile.getMetadata(),{'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'file_size': 4673269, 'integrity': True, 'nentries': 10}}) 
             self.assertEqual(aodFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}}) 
             self.assertEqual(aodFile.prodsysDescription['type'],'file')
             self.assertTrue(aodFile.prodsysDescription['subtype']=='AOD')
         except OSError:
             # With python 2.7 this should call the self.skip() method
-            print >>sys.stderr, 'WARNING Skipping test_argPOOLFileMetadata_AOD - stat on AFS test file failed'
+            print('WARNING Skipping test_argPOOLFileMetadata_AOD - stat on AFS test file failed', file=sys.stderr)
 
 class argTAGFiles(unittest.TestCase):
     def test_argTAGFileMetadata(self):
@@ -77,12 +78,12 @@ class argTAGFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1'
             os.stat(testFile)
             tagFile = argTAGFile(testFile, io = 'input', type='tag')
-            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'file_type': 'tag', 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'file_size': 12222088, 'integrity': True, 'nentries': 38112L}}) 
-            self.assertEqual(tagFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'nentries': 38112L}})
+            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'file_type': 'tag', 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'file_size': 12222088, 'integrity': True, 'nentries': 38112}}) 
+            self.assertEqual(tagFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'nentries': 38112}})
             self.assertEqual(tagFile.prodsysDescription['type'],'file')
         except OSError:
             # With python 2.7 this should call the self.skip() method
-            print >>sys.stderr, 'WARNING Skipping test_argTAGFileMetadata - stat on AFS test file failed'
+            print('WARNING Skipping test_argTAGFileMetadata - stat on AFS test file failed', file=sys.stderr)
 
 class argBSFiles(unittest.TestCase):
     def tearDown(self):
@@ -103,7 +104,7 @@ class argBSFiles(unittest.TestCase):
             self.assertEqual(rawFile.prodsysDescription['type'],'file')
         except OSError:
             # With python 2.7 this should call the self.skip() method
-            print >>sys.stderr, 'WARNING Skipping test_argAthenaFileMetadata - stat on AFS test file failed'
+            print('WARNING Skipping test_argAthenaFileMetadata - stat on AFS test file failed', file=sys.stderr)
 
     def test_argBSMultiFileMetadata(self):
         try:
@@ -121,7 +122,7 @@ class argBSFiles(unittest.TestCase):
             self.assertEqual(rawFile.prodsysDescription['type'], 'file')
         except OSError:
             # With python 2.7 this should call the self.skip() method
-            print >>sys.stderr, 'WARNING Skipping test_argAthenaMultiFileMetadata - stat on AFS test file failed'
+            print('WARNING Skipping test_argAthenaMultiFileMetadata - stat on AFS test file failed', file=sys.stderr)
 
 
 if __name__ == '__main__':

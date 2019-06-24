@@ -140,6 +140,7 @@ namespace MuonCombined {
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -331,6 +332,8 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Refining candidates " << candidates.size());
     for( auto& candidate : candidates ){
       
+      ATH_MSG_DEBUG("   candidate: betaseed beta" << candidate->betaSeed.beta<<", error"<< candidate->betaSeed.error<< " layerDataVec size" << candidate->layerDataVec.size()<<" hits size" <<candidate->hits.size() );
+      
       // get beta from candidate and pass it to TOF tool
       float beta = candidate->betaFitResult.beta;
       m_stauTofTool->setBeta(beta);
@@ -397,7 +400,7 @@ namespace MuonCombined {
   }
   
   void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
-    
+    ATH_MSG_VERBOSE("extractTimeMeasurementsFromTrack for candidate: beta seed " << candidate.betaSeed.beta );
     Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
     
@@ -417,6 +420,8 @@ namespace MuonCombined {
       ATH_MSG_WARNING(" track without states, cannot extractTimeMeasurementsFromTrack " );
       return; 
     }
+    
+    ATH_MSG_VERBOSE("Track : "<<(*combinedTrack));
 
     // store RPC prds for clustering 
     typedef std::vector<const Muon::MuonClusterOnTrack*> RpcClVec;
@@ -609,6 +614,8 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
+    ATH_MSG_VERBOSE("RPCs per chamber " + rpcPrdsPerChamber.size() );
+     
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
       const RpcClVec&             phiClusters = std::get<1>(chit->second);
@@ -1301,10 +1308,12 @@ namespace MuonCombined {
       clusters.push_back( phiClusterOnTrack->clone() );
     }
 
+    ATH_MSG_DEBUG("About to loop over Hough::Hits");
+    
     std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
-      
+      ATH_MSG_DEBUG("hit x,y_min,y_max,w = "<<(*hit)->x<<","<<(*hit)->ymin<<","<<(*hit)->ymax<<","<<(*hit)->w);
       // treat the case that the hit is a composite TGC hit
       if( (*hit)->tgc ){
         for( const auto& prd : (*hit)->tgc->etaCluster.hitList ) handleCluster(*prd,clusters);
@@ -1314,6 +1323,18 @@ namespace MuonCombined {
         else                        handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),clusters);
       }
     }
+    
+    ATH_MSG_DEBUG("About to loop over calibrated hits");
+    
+    
+    ATH_MSG_DEBUG("Dumping MDTs");
+    for (auto it : mdts)
+      ATH_MSG_DEBUG(*it);
+    
+    ATH_MSG_DEBUG("Dumping clusters");
+    for (auto it : clusters)
+      ATH_MSG_DEBUG(*it);
+    
 
     // require at least 2 MDT hits
     if( mdts.size() > 2 ){
@@ -1325,12 +1346,12 @@ namespace MuonCombined {
 			  mdts, clusters,
 			  !clusters.empty(), segColl.get(), intersection.trackParameters->momentum().mag() );
       if( segColl ){
-	Trk::SegmentCollection::iterator sit = segColl->begin();
-	Trk::SegmentCollection::iterator sit_end = segColl->end();
-	for( ; sit!=sit_end;++sit){
-	  Trk::Segment* tseg=*sit;
-	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
-          ATH_MSG_DEBUG( " " << m_printer->print(*mseg) );
+      	Trk::SegmentCollection::iterator sit = segColl->begin();
+      	Trk::SegmentCollection::iterator sit_end = segColl->end();
+      	for( ; sit!=sit_end;++sit){
+      	  Trk::Segment* tseg=*sit;
+      	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
+          ATH_MSG_DEBUG( "Segment:  " << m_printer->print(*mseg) );
           segments.push_back( std::shared_ptr<const Muon::MuonSegment>(mseg) );
         }
       }
@@ -1443,15 +1464,22 @@ namespace MuonCombined {
     Muon::MuonStationIndex::DetectorRegionIndex regionIndex = intersection.layerSurface.regionIndex;
     Muon::MuonStationIndex::LayerIndex  layerIndex  = intersection.layerSurface.layerIndex;
 
+    // get hough data
+    SG::ReadHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> houghDataPerSectorVec {m_houghDataPerSectorVecKey};
+    if (!houghDataPerSectorVec.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return;
+    }
+
     // sanity check
-    if( static_cast<int>(m_layerHoughTool->houghData().size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << m_layerHoughTool->houghData().size() );
+    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = m_layerHoughTool->houghData()[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

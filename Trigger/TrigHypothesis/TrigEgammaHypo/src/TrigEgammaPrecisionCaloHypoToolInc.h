@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOPRECISIONHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOPRECISIONHYPOTOOLINC_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -38,7 +38,7 @@ class TrigEgammaPrecisionCaloHypoToolInc : public extends<AthAlgTool, ITrigEgamm
   HLT::Identifier m_decisionId;
   
   //Calorimeter electron ID  cuts
-  Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
+  Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for PRECISION calo selection:eta bins
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
   Gaudi::Property< std::vector<float> > m_eT2thr { this, "ET2thr", {}, "Second layer ET threshold" };
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
@@ -48,4 +48,4 @@ class TrigEgammaPrecisionCaloHypoToolInc : public extends<AthAlgTool, ITrigEgamm
   int findCutIndex( float eta ) const;
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOPRECISIONHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOL_H

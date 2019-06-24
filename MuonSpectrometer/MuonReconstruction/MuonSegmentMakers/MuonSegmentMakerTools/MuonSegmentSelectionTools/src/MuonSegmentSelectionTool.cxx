@@ -24,7 +24,7 @@ namespace Muon {
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
+      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool", this)
   {
     declareInterface<IMuonSegmentSelectionTool>(this);
 

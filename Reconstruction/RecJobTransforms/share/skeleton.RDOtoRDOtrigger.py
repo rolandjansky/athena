@@ -1,3 +1,5 @@
+from future.utils import iteritems
+
 ####################################################################
 #
 # Skeleton top job options for RDO->RDOprime (RDO with trigger done)
@@ -15,12 +17,19 @@ rec.doJetMissingETTag.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doTau.set_Value_and_Lock(False)
-  
 rec.doTrigger.set_Value_and_Lock(True)
 rec.doRDOTrigger.set_Value_and_Lock(True)
 recAlgs.doTrigger.set_Value_and_Lock(True)
+rec.doMonitoring.set_Value_and_Lock(False)
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+DQMonFlags.doMonitoring.set_Value_and_Lock(False)
+DQMonFlags.doLArMon.set_Value_and_Lock(False)
 
+#disable offline ID configuration and reco
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doNewTracking.set_Value_and_Lock(False)
 
+from AthenaCommon.CFElements import findAlgorithm, findOwningSequence, findSubSequence
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('rdo_to_rdotrigger')
 recoLog.info( '****************** STARTING RDO->RDOTrigger MAKING *****************' )
@@ -58,22 +67,26 @@ if hasattr(runArgs,"preExec"):
         exec(cmd)
 
 ## Pre-include
-if hasattr(runArgs,"preInclude"): 
+if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-if TriggerFlags.doMTHLT():
-    log.info("configuring MT Trigger, actually nothing happens for now")
-    
-else:
-        
+# Setup the algorithm and output sequences
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+outSequence = AthSequencer("AthOutSeq")
+
+
+if not TriggerFlags.doMT():
+
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     # small hack, switching temporarily the ESD writing on, to allow writing of some trigger containers into the RDOTrigger file
-    rec.doWriteESD = True 
+    rec.doWriteESD = True
     cfg = TriggerConfigGetter()
     rec.doWriteESD.set_Value_and_Lock( False )
-    # end of hack. 
+    # end of hack.
 
 def preplist(input):
     triglist = []
@@ -82,12 +95,78 @@ def preplist(input):
             triglist.append(k + "#" + j)
     return triglist
 
-    
+
+if TriggerFlags.doMT():
+    TriggerFlags.doHLT.set_Value_and_Lock(False)
+    from CaloRec.CaloRecFlags import jobproperties
+    jobproperties.CaloRecFlags.doLArNoisyRO.set_Value_and_Lock(False)
+
 #========================================================
 # Central topOptions (this is one is a string not a list)
 #========================================================
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
+
+
+if TriggerFlags.doMT():
+    
+    log.info("configuring MT Trigger")
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.EnableVerboseViews( True )
+    recoLog.info( "Configuring LVL1 simulation (MT)" )
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    topSequence += Lvl1SimulationSequence(None)
+    recoLog.info( "Configuring HLT (MT)" )
+
+
+    from TrigUpgradeTest.TestUtils import L1DecoderTest
+    topSequence += L1DecoderTest()
+    
+    include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+    topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
+
+    # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
+    fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeBSOutKey")
+    topSequence.StreamBS.ExtraOutputs += [fakeTypeKey]
+    findAlgorithm( topSequence, "L1Decoder" ).ExtraInputs += [fakeTypeKey]
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
+    from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.lock()
+    triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
+    Configurable.configurableRun3Behavior=False
+
+
+    include ("InDetRecExample/InDetRecCabling.py")
+
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()
+    def signaturesToGenerate():
+        TriggerFlags.Slices_all_setOff()
+        TriggerFlags.EgammaSlice.setAll()
+        TriggerFlags.MuonSlice.setAll()
+        TriggerFlags.METSlice.setAll()
+        TriggerFlags.JetSlice.setAll()
+        #TriggerFlags.TauSlice.setAll()
+        TriggerFlags.CombinedSlice.setAll()
+
+    menu.overwriteSignaturesWith(signaturesToGenerate)
+    allChainConfigs = menu.generateMT()
+
+    if not hasattr(svcMgr, 'THistSvc'):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc()
+
+    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    setTHistSvcOutput(svcMgr.THistSvc.Output)
+
+
+    
 
 if rec.doFileMetaData():
    from RecExConfig.ObjKeyStore import objKeyStore
@@ -95,11 +174,6 @@ if rec.doFileMetaData():
                  "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
    objKeyStore.addManyTypesMetaData( metadataItems )
 
-# Setup the algorithm and output sequences
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-from AthenaCommon.AlgSequence import AthSequencer
-outSequence = AthSequencer("AthOutSeq")
 
 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
         RoIBResultToAOD
@@ -110,12 +184,12 @@ for i in topSequence.getAllChildren():
        if not hasattr(i,'RoIBResultToxAOD'):
            idx += 1
            topSequence.insert(idx, RoIBResultToAOD("RoIBResultToxAOD"))
-           
+
 for i in outSequence.getAllChildren():
-    if "StreamRDO" in i.getName() and ( not TriggerFlags.doMTHLT() ):
+    if "StreamRDO" in i.getName() and ( not TriggerFlags.doMT() ):
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker,WritexAODTrigDecision
         topSequence.insert(idx, TrigDecisionMaker('TrigDecMaker'))
-        from AthenaCommon.Logging import logging 
+        from AthenaCommon.Logging import logging
         log = logging.getLogger( 'WriteTrigDecisionToAOD' )
         log.info('TrigDecision writing enabled')
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
@@ -130,7 +204,7 @@ for i in outSequence.getAllChildren():
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList
         _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
         _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-    
+
 
         StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
         StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]
@@ -141,18 +215,30 @@ for i in outSequence.getAllChildren():
         StreamRDO.ItemList += preplist(getLvl1ESDList())
         from TrigEDMConfig.TriggerEDM import getLvl1AODList
         StreamRDO.ItemList += preplist(getLvl1AODList())
-        StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]             
-       
-    if "StreamRDO" in i.getName() and TriggerFlags.doMTHLT():
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+        StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+
+    if "StreamRDO" in i.getName() and TriggerFlags.doMT():
+
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
-
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
+
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
         for item in TriggerHLTList:
             if "ESD" in item[1] or "AOD" in item[1]:
-                StreamRDO.ItemList += item[0]
+                StreamRDO.ItemList += [item[0]]
+
+        from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
+        print topSequence.HLTTop.Members
+        hypos = collectHypos( topSequence.HLTTop )
+        filters = collectFilters( topSequence.HLTTop )
+        decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
+        StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
+        StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
         
+
+
+
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from TrigDecisionTool.TrigDecisionToolConf import *
 
@@ -160,7 +246,7 @@ if hasattr(ToolSvc, 'TrigDecisionTool'):
     ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
     ToolSvc.TrigDecisionTool.UseAODDecision = True
 
-if TriggerFlags.doMTHLT():
+if TriggerFlags.doMT():
     pass
 else:
     # inform TD maker that some parts may be missing
@@ -192,7 +278,7 @@ StreamRDO.ItemList +=["2934#*"]
 rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
 
 ## Post-include
-if hasattr(runArgs,"postInclude"): 
+if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
 
@@ -202,3 +288,15 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
+
+ServiceMgr.MessageSvc.debugLimit=10000000
+ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+#from AthenaCommon.Constants import DEBUG
+#findAlgorithm( topSequence, "TauL2CaloHypo").OutputLevel=DEBUG
+#findAlgorithm( topSequence, "TrigTauRecMerged_TauPrecisionMVA").OutputLevel=DEBUG
+
+
+import AthenaCommon.Configurable as Configurable
+Configurable.log.setLevel( INFO )
+print topSequence
+

@@ -67,10 +67,12 @@ class FordFulkerson{
    * @param G the flow network
    * @param s the source vertex
    * @param t the sink vertex
-   * @throws std::out_of_range unless 0 <= s < V
-   * @throws std::out_of_range unless 0 <= t < V
-   * @throws std::invalid_argument if s = t
-   * @throws std::runtime_error if initial flow is infeasible
+   *
+   * Error state true if:
+   * s = t
+   * initial flow is infeasible
+   *
+   * Throws if used while in error state
    */
   
   FordFulkerson(const FlowNetwork& G, int s, int t);
@@ -79,7 +81,7 @@ class FordFulkerson{
    * Returns the value of the maximum flow.
    * @return the value of the maximum flow
    */
-  double value() const noexcept;
+  double value() const;
 
   /**
    * Is vertex <tt>v</tt> on the <tt>s</tt> side of the minimum st-cut?
@@ -88,15 +90,17 @@ class FordFulkerson{
    *    the <tt>t</tt> side.
    * @throws std::out_of_range unless 0 <= v < V
    */
-  bool inCut(int v);
-  
+  bool error() const {return m_hasError;}
+  std::string errMsg() const {return m_errMsg;}
  private:
 
-  // throw an exception if v is outside prescibed range
-  void validate(int v, int V);
+  bool inCut(int v);
+  
+  // check if v is outside prescibed range
+  bool validate(int v, int V);
 
 
-  void checkFeasibility(const FlowNetwork& G, int s, int t) const;
+  void checkFeasibility(const FlowNetwork& G, int s, int t);
 
   // return excess flow at vertex v
   double excess(const FlowNetwork& G, int v) const noexcept;
@@ -113,6 +117,9 @@ class FordFulkerson{
 
   // current value of max flow
   double m_value;
+
+  bool m_hasError{false};
+  std::string m_errMsg{""};
 };
 
 #endif

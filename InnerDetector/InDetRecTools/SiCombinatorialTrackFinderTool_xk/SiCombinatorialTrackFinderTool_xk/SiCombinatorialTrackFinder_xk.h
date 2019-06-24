@@ -20,12 +20,14 @@
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLinks_xk.h"
+#include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
+#include "SiSPSeededTrackFinderData/SiTrajectory_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -34,14 +36,11 @@
 
 #include <list>
 #include <map>
-#include <mutex>
 #include <vector>
 
 class MsgStream;
 
 namespace InDet {
-
-  //class SiClusterContainer;
 
  /**
   @class SiCombinatorialTrackFinder_xk 
@@ -70,49 +69,51 @@ namespace InDet {
       SiCombinatorialTrackFinder_xk
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~SiCombinatorialTrackFinder_xk() = default;
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for local track finding
       ///////////////////////////////////////////////////////////////////
 
       virtual const std::list<Trk::Track*>& getTracks
-	(const Trk::TrackParameters&, 
+        (SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&) const;
+	 const TrackQualityCuts&) const override;
 
       virtual const std::list<Trk::Track*>& getTracks
-	(const Trk::TrackParameters&, 
+        (SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const override;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
-	(const Trk::TrackParameters&, 
+        (SiCombinatorialTrackFinderData_xk& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
-	 bool) const;
+	 bool) const override;
    
-      virtual void newEvent() const;
-      virtual void newEvent(Trk::TrackInfo, const TrackQualityCuts&) const;
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data) const override;
+      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data,
+                            Trk::TrackInfo, const TrackQualityCuts&) const override;
 
-      virtual void endEvent() const;
-     
+      virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump(MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      MsgStream& dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const override;
 
-    protected:
+    private:
       
       ///////////////////////////////////////////////////////////////////
       // Protected Data
@@ -133,9 +134,9 @@ namespace InDet {
       PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssosiationTool",
           "InDet::InDetPRD_AssociationToolGangedPixels"};
 
-      SG::ReadHandleKey<InDet::SiClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
+      SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
           "PixelClusters"};
-      SG::ReadHandleKey<InDet::SiClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
+      SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
           "SCT_Clusters"};
       SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
           "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
@@ -158,51 +159,22 @@ namespace InDet {
       // Updated in only mapDetectorElementsProduction
       InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
 
-      mutable std::mutex m_mutex;
-      mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-      struct EventData {
-        SiTrajectory_xk trajectory; // Track trajectory
-        Trk::TrackInfo trackinfo;
-        InDet::SiTools_xk tools;
-        std::list<Trk::Track*> tracks; // List found tracks
-        int nprint{0};  // Kind output information
-        int inputseeds{0}; // Number input seeds
-        int goodseeds{0}; // Number accepted seeds
-        int findtracks{0}; // Number found tracks
-        int inittracks{0}; // Number initial tracks
-        int roadbug{0}; // Number wrong DE roads
-        bool heavyIon{false};
-        int cosmicTrack{0};  // Is it cosmic track (0 or 1)
-        int nclusmin{0}; // Min number clusters
-        int nclusminb{0}; // Min number clusters
-        int nwclusmin{0}; // Min number weighted clusters
-        int nholesmax{0}; // Max number holes
-        int dholesmax{0}; // Max holes gap
-        bool simpleTrack{false};
-        double pTmin{0.}; // min pT
-        double pTminBrem{0.}; // min pT for brem noise model
-        double xi2max{0.}; // max Xi2 for updators
-        double xi2maxNoAdd{0.}; // max Xi2 for clusters
-        double xi2maxlink{0.}; // max Xi2 for clusters
-      };
-      mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
       bool findTrack
-        (EventData& data,
+        (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
 
-      void getTrackQualityCuts(EventData& data, const TrackQualityCuts&) const;
+      void getTrackQualityCuts(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts&) const;
 
-      Trk::Track* convertToTrack(EventData& data) const;
-      Trk::Track* convertToNextTrack(EventData& data) const;
+      Trk::Track* convertToTrack(SiCombinatorialTrackFinderData_xk& data) const;
+      Trk::Track* convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) const;
  
       void magneticFieldInit();
 
@@ -216,17 +188,12 @@ namespace InDet {
 	(std::list<const InDetDD::SiDetectorElement*>        &,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&) const;
 
-      void newEvent(EventData& data) const;
-
-      EventData& getEventData() const;
-
       MsgStream& dumpconditions(MsgStream& out) const;
-      MsgStream& dumpevent(EventData& data, MsgStream& out) const;
+      MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
+
+      void initializeCombinatorialData(SiCombinatorialTrackFinderData_xk& data) const;
 
     };
-
-  MsgStream&    operator << (MsgStream&   ,const SiCombinatorialTrackFinder_xk&);
-  std::ostream& operator << (std::ostream&,const SiCombinatorialTrackFinder_xk&); 
 
 } // end of name space
 

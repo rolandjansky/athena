@@ -52,13 +52,15 @@ pileUpEventLoopMgr.firstXing=0
 pileUpEventLoopMgr.lastXing=0
 pileUpEventLoopMgr.IsEventOverlayJob=True
 pileUpEventLoopMgr.IsEventOverlayJobMC=not overlayFlags.isDataOverlay()
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+if athenaCommonFlags.SkipEvents.statusOn:
+    ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Set up MC input
 mcEvtSel=EventSelectorAthenaPool("mcSignal_EventSelector")
 mcEvtSel.InputCollections = SignalInputCollections
 mcEvtSel.KeepInputFilesOpen = True
-mcEvtSel.SkipEvents = athenaCommonFlags.SkipEvents()
+if athenaCommonFlags.SkipEvents.statusOn:
+    mcEvtSel.SkipEvents = athenaCommonFlags.SkipEvents()
 
 ServiceMgr += mcEvtSel
 pileUpEventLoopMgr.SignalSelector="mcSignal_EventSelector"

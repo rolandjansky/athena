@@ -1,3 +1,15 @@
+from __future__ import print_function
+from __future__ import division
+from future.utils import iteritems
+from future.utils import itervalues
+
+
+from builtins import object
+from future import standard_library
+standard_library.install_aliases()
+
+from builtins import int
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfReports
@@ -11,7 +23,7 @@
 
 __version__ = '$Revision: 784023 $'
 
-import cPickle as pickle
+import pickle as pickle
 import json
 import os.path
 import platform
@@ -83,16 +95,16 @@ class trfReport(object):
             if not self._dataDictionary:
                 self._dataDictionary = self.python(fast = fast, fileReport = fileReport)
 
-            print >> report, '# {0} file generated on'.format(self.__class__.__name__), isodate()
-            print >> report, pprint.pformat(self._dataDictionary)
+            print('# {0} file generated on'.format(self.__class__.__name__), isodate(), file=report)
+            print(pprint.pformat(self._dataDictionary), file=report)
             if dumpEnv:
-                print >> report, '# Environment dump'
-                eKeys = os.environ.keys()
+                print('# Environment dump', file=report)
+                eKeys = list(os.environ)
                 eKeys.sort()
                 for k in eKeys:
-                    print >> report, '%s=%s' % (k, os.environ[k])
-            print >> report, '# Machine report'
-            print >> report, pprint.pformat(machineReport().python(fast = fast))
+                    print('%s=%s' % (k, os.environ[k]), file=report)
+            print('# Machine report', file=report)
+            print(pprint.pformat(machineReport().python(fast = fast)), file=report)
 
     def writeGPickleReport(self, filename, fast = False):
         with open(filename, 'w') as report:
@@ -100,7 +112,7 @@ class trfReport(object):
 
     def writeClassicXMLReport(self, filename, fast = False):
         with open(filename, 'w') as report:
-            print >> report, prettyXML(self.classicEltree(fast = fast), poolFileCatalogFormat = True)
+            print(prettyXML(self.classicEltree(fast = fast), poolFileCatalogFormat = True), file=report)
 
     def writePilotPickleReport(self, filename, fast = False, fileReport = defaultFileReport):
         with open(filename, 'w') as report:
@@ -156,7 +168,7 @@ class trfJobReport(trfReport):
             if fileReport[fileType]:
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
-        for dataType, dataArg in self._trf._dataDictionary.iteritems():
+        for dataType, dataArg in iteritems(self._trf._dataDictionary):
             if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
                 continue
             if fileReport[dataArg.io]:
@@ -195,7 +207,7 @@ class trfJobReport(trfReport):
         maxWorkers = 1
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
         # Reduce childCpuTime by times reported in the executors (broken for MP...?)
-        for exeName, exeReport in myDict['resource']['executor'].iteritems():
+        for exeName, exeReport in iteritems(myDict['resource']['executor']):
             if 'mpworkers' in exeReport:
                 if exeReport['mpworkers'] > maxWorkers : maxWorkers = exeReport['mpworkers']
             try:
@@ -250,8 +262,8 @@ class trfJobReport(trfReport):
         # Extract some executor parameters here
         for exeKey in ('preExec', 'postExec', 'preInclude', 'postInclude'):
             if exeKey in self._trf.argdict:
-                for substep, pyfrag in self._trf.argdict[exeKey].value.iteritems():
-                    if substep is 'all':
+                for substep, pyfrag in iteritems(self._trf.argdict[exeKey].value):
+                    if substep == 'all':
                         ElementTree.SubElement(trfTree, 'META', type = 'string', name = exeKey, value = str(pyfrag))
                     else:
                         ElementTree.SubElement(trfTree, 'META', type = 'string', name = exeKey + '_' + substep, value = str(pyfrag))
@@ -265,7 +277,7 @@ class trfJobReport(trfReport):
                                        value = str(self._trf.argdict[exeKey].value))
 
         # Now add information about output files
-        for dataArg in self._trf._dataDictionary.itervalues():
+        for dataArg in itervalues(self._trf._dataDictionary):
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
@@ -293,7 +305,7 @@ class trfJobReport(trfReport):
         # Emulate the NEEDCHECK behaviour
         if hasattr(self._trf, '_executorPath'):
             for executor in self._trf._executorPath:
-                if hasattr(executor, '_logScan') and self._trf.exitCode is 0:
+                if hasattr(executor, '_logScan') and self._trf.exitCode == 0:
                     if executor._logScan._levelCounter['FATAL'] > 0 or executor._logScan._levelCounter['CRITICAL'] > 0:
                         # This should not happen!
                         msg.warning('Found FATAL/CRITICAL errors and exit code 0 - reseting to TRF_LOGFILE_FAIL')
@@ -317,8 +329,8 @@ class trfJobReport(trfReport):
             # Mangle substep argumemts back to the old format
             for substepKey in ('preExec', 'postExec', 'preInclude', 'postInclude'):
                 if substepKey in self._trf.argdict:
-                    for substep, values in self._trf.argdict[substepKey].value.iteritems():
-                        if substep is 'all':
+                    for substep, values in iteritems(self._trf.argdict[substepKey].value):
+                        if substep == 'all':
                             trfDict['jobOutputs'][-1]['more']['metadata'][substepKey] = values
                         else:
                             trfDict['jobOutputs'][-1]['more']['metadata'][substepKey + '_' + substep] = values
@@ -327,8 +339,8 @@ class trfJobReport(trfReport):
         nentries = 'UNKNOWN'
         for fileArg in self._trf.getFiles(io = 'input'):
             thisArgNentries = fileArg.nentries
-            if isinstance(thisArgNentries, (int, long)):
-                if nentries is 'UNKNOWN':
+            if isinstance(thisArgNentries, int):
+                if nentries == 'UNKNOWN':
                     nentries = thisArgNentries
                 elif thisArgNentries != nentries:
                     msg.warning('Found a file with different event count than others: {0} != {1} for {2}'.format(thisArgNentries, nentries, fileArg))
@@ -363,7 +375,7 @@ class trfExecutorReport(object):
                       'exeConfig' : {}
                       }
         # Add executor config information
-        for k, v in self._exe.extraMetadata.iteritems():
+        for k, v in iteritems(self._exe.extraMetadata):
             reportDict['exeConfig'][k] = v
 
         # Do we have a logscan to add?
@@ -371,7 +383,7 @@ class trfExecutorReport(object):
             try:
                 json.dumps(self._exe._logScan.python)
                 reportDict['logfileReport'] = self._exe._logScan.python
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 msg.error('Problem with serialising logfile report as JSON - this will be skipped from the report ({0})'.format(e))
             reportDict['metaData'] = self._exe._logScan._metaData
 
@@ -416,11 +428,11 @@ class trfFileReport(object):
     #  @param base How extensive to make the report: name or full
     def python(self, fast = False, type = 'full'):
         # First entity contains shared properties - same for all files in this argFile
-        if type is 'name':
+        if type == 'name':
             fileArgProps = {'dataset': self._fileArg.dataset,
                             'nentries': self._fileArg.getnentries(fast),
                             'subFiles' : []}
-        elif type is 'full':
+        elif type == 'full':
             fileArgProps = {'dataset' : self._fileArg.dataset,
                             'type' : self._fileArg.type,
                             'subFiles' : [],
@@ -473,10 +485,10 @@ class trfFileReport(object):
             entry = {'name': os.path.basename(filename)}
         else:
             entry = {'name': os.path.relpath(os.path.normpath(filename))}
-        if type is 'name':
+        if type == 'name':
             # For 'name' we return only the GUID
             entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, metadataKeys = ['file_guid'])[filename])
-        elif type is 'full':
+        elif type == 'full':
             # Suppress io because it's the key at a higher level and _exists because it's internal
             entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, maskMetadataKeys = ['io', '_exists', 'integrity', 'file_type'])[filename])
         else:
@@ -509,13 +521,13 @@ class trfFileReport(object):
         tree = ElementTree.Element('File', ID = str(self._fileArg.getSingleMetadata(fname = filename, metadataKey = 'file_guid', populate = not fast)))
         logical = ElementTree.SubElement(tree, 'logical')
         lfn = ElementTree.SubElement(logical, 'lfn', name = filename)
-        for myKey, classicKey in self._internalToClassicMap.iteritems():
+        for myKey, classicKey in iteritems(self._internalToClassicMap):
             # beam_type is tricky - we return only the first list value,
             # (but remember, protect against funny stuff!)
-            if myKey is 'beam_type':
+            if myKey == 'beam_type':
                 beamType = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
                 if isinstance(beamType, list):
-                    if len(beamType) is 0:
+                    if len(beamType) == 0:
                         ElementTree.SubElement(tree, 'metadata', att_name = classicKey, att_value = '')
                     else:
                         ElementTree.SubElement(tree, 'metadata', att_name = classicKey, att_value = str(beamType[0]))
@@ -553,19 +565,19 @@ class trfFileReport(object):
                     'dataset' : self._fileArg.dataset,
                     }
         # Fill in the mapped 'primary' keys
-        for myKey, classicKey in self._internalToGpickleMap.iteritems():
+        for myKey, classicKey in iteritems(self._internalToGpickleMap):
             fileDict[classicKey] = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
-            if classicKey is 'checkSum' and fileDict[classicKey] is 'UNDEFINED':
+            if classicKey == 'checkSum' and fileDict[classicKey] == 'UNDEFINED':
                 # Old style is that we give back None when we don't know
                 fileDict[classicKey] = None
-            elif fileDict[classicKey] is 'UNDEFINED':
+            elif fileDict[classicKey] == 'UNDEFINED':
                 # Suppress things we don't generally expect to know
                 del fileDict[classicKey]
         # Base 'more' stuff which is known by the argFile itself
         fileDict['more'] = {'metadata' : {'fileType' : self._fileArg.type}}
-        for myKey, classicKey in self._internalToGpickleMoreMap.iteritems():
+        for myKey, classicKey in iteritems(self._internalToGpickleMoreMap):
             value = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
-            if value is not 'UNDEFINED':
+            if value != 'UNDEFINED':
                 fileDict['more']['metadata'][classicKey] = value
 
         return fileDict
@@ -581,7 +593,7 @@ class machineReport(object):
         for attr in attrs:
             try:
                 machine[attr] = getattr(platform, attr).__call__()
-            except AttributeError, e:
+            except AttributeError as e:
                 msg.error('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
 
         # Now try to get processor information from /proc/cpuinfo
@@ -598,12 +610,12 @@ class machineReport(object):
                             machine['model_name'] = v
                     except ValueError:
                         pass
-        except Exception, e:
+        except Exception as e:
             msg.warning('Unexpected error while parsing /proc/cpuinfo: {0}'.format(e))
         try:
             with open('/etc/machinefeatures/hs06') as hs:
                 machine['hepspec'] = hs.readlines()[0].strip()
-        except IOError, e:
+        except IOError as e:
             pass
         return machine
 
@@ -615,7 +627,7 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
         msg.warning('Job report has no "files" section')
         return dataDict
     for iotype in jobReport['files']:
-        if io is 'all' or io == iotype:
+        if io == 'all' or io == iotype:
             for filedata in jobReport['files'][iotype]:
                 dataDict[filedata['type']] = filedata
     return dataDict

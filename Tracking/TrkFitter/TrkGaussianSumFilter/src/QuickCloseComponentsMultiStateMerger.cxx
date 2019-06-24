@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -19,15 +19,8 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/Chrono.h"
-
-#include <boost/bimap.hpp>
-#include <boost/bimap/set_of.hpp>
-#include <boost/bimap/multiset_of.hpp>
-
-#include <map>
 #include <limits>
-
-typedef boost::bimap<boost::bimaps::multiset_of<float>, boost::bimaps::set_of<int>> bimap_t;
+#include <map>
 
 
 #if !defined(__GNUC__)
@@ -41,25 +34,15 @@ typedef boost::bimap<boost::bimaps::multiset_of<float>, boost::bimaps::set_of<in
 #endif
 
 
-Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type, const std::string& name, const IInterface* parent)
+Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type, 
+                                                                                const std::string& name, 
+                                                                                const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_maximumNumberOfComponents(5),
-  m_distance("Trk::KullbackLeiblerComponentDistance/KullbackLeiblerComponentDistance"),
-  m_stateCombiner("Trk::MultiComponentStateCombiner/CloseComponentsCombiner"),
-  m_chronoSvc("ChronoStatSvc", name),
-  m_useFullDistanceCalcArray(true),
-  m_useFullDistanceCalcVector(true)
+  m_chronoSvc("ChronoStatSvc", name)
 {
 
   declareInterface<IMultiComponentStateMerger>(this);
-
-  declareProperty("CombinerTool",m_stateCombiner);
-  declareProperty("MaximumNumberOfComponents", m_maximumNumberOfComponents);
-  declareProperty("DistanceType", m_distance);
-  declareProperty("FullDistanceCalcArray", m_useFullDistanceCalcArray);
-  declareProperty("FullDistanceCalcVector", m_useFullDistanceCalcVector);
-
 }
 
 Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger()
@@ -101,14 +84,6 @@ StatusCode Trk::QuickCloseComponentsMultiStateMerger::initialize()
   }
 
   ATH_MSG_INFO(  "Initialisation of " << type() << " under instance " << name() << " was successful" );
-
-  if (m_useFullDistanceCalcArray)
-    ATH_MSG_INFO("Using full KL-distance based merging : Array");
-  else if (m_useFullDistanceCalcVector)
-    ATH_MSG_INFO("Using full KL-distance based merging : Vector");
-  else
-    ATH_MSG_INFO("Using default distance based merging");
-
   return StatusCode::SUCCESS;
 
 }
@@ -122,17 +97,13 @@ StatusCode Trk::QuickCloseComponentsMultiStateMerger::finalize()
 
 }
 
-const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState& unmergedState) const
+const Trk::MultiComponentState* 
+Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState& unmergedState) const
 {
 
-  // Start the timer
-  //Chrono chrono( &(*m_chronoSvc), "CloseComponentMerger" );
-
   ATH_MSG_VERBOSE(  "Merging state with " << unmergedState.size() << " components" );
-
-  unsigned int numberOfComponents = unmergedState.size();
   //Assembler Cache
-    IMultiComponentStateAssembler::Cache cache;
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
   bool isAssemblerReset = m_stateAssembler->reset(cache);
 
@@ -155,15 +126,15 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
 
   Trk::MultiComponentState::const_iterator component = unmergedState.begin();
 
-  // Scan all components for covariance matricies. If one or more component is missing an error matrix, component reduction is impossible.
+  // Scan all components for covariance matricies. If one or more component 
+  // is missing an error matrix, component reduction is impossible.
   for ( ; component != unmergedState.end(); ++component){
-
     const AmgSymMatrix(5)* measuredCov = component->first->covariance();
-
-    if ( !measuredCov )
+    if ( !measuredCov ){
       componentWithoutMeasurement = true;
+      break;
+    }
   }
-
 
   const Trk::TrackParameters* combinedState = unmergedState.begin()->first->clone();
   const Trk::ComponentParameters reducedState( combinedState, 1. );
@@ -172,455 +143,17 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
     return ( new Trk::MultiComponentState( reducedState ) );
   }
 
-  // Options to use full KL distance-based algorithm.
-  if (m_useFullDistanceCalcArray) {
-    delete combinedState;
-    return mergeFullDistArray(cache,unmergedState);
-  } else if(m_useFullDistanceCalcVector){
-    delete combinedState;
-    return mergeFullDistVector(cache,unmergedState);
-  }
-
-
-
-
-  m_chronoSvc->chronoStart("QCCM::merge");
-
-  // These should be sorted by key....
-  SortBySmallerWeight comparator;
-  MultiComponentStateMap unmergedComponentsMap(comparator);
-
-  // Clone unmerged state as STL methods deletes components
-  Trk::MultiComponentState* clonedUnmergedState = unmergedState.clone();
-
-  component = clonedUnmergedState->begin();
-
-  for ( ; component != clonedUnmergedState->end(); ++component ){
-
-    // Map components of multi-component state list into multi-map
-    double  distance  = calculateDistance( reducedState, *component );
-
-    if (distance == 0)
-      ATH_MSG_DEBUG( "Distance  == 0 hmmm interesting" );
-
-    unmergedComponentsMap.insert( std::make_pair(distance, *component) );
-  }
-
-
-  ATH_MSG_VERBOSE("  Start Reducing Components   " );
-
-
-  while (numberOfComponents > m_maximumNumberOfComponents){
-
-    // Reset the merged components multi-map for next iteration
-
-    double minDistance(9.9e12);
-    double key1(-99999999),key2(-99999999);
-    MultiComponentStateMap::iterator mapComponent = unmergedComponentsMap.begin();
-    MultiComponentStateMap::iterator mapComponentEnd = unmergedComponentsMap.end();
-    --mapComponentEnd;
-    MultiComponentStateMap::iterator tempIter;
-
-    MultiComponentStateMap::iterator iterKey1,iterKey2;
-
-    for ( ; mapComponent != mapComponentEnd; ++mapComponent){
-      tempIter = mapComponent;
-      ++tempIter;
-
-      double distance  =  tempIter->first - mapComponent->first ;
-      //std::cout << "1st " << mapComponent->first <<" 2nd " << tempIter->first <<" = "<< distance << std::endl;
-
-      if ( distance < minDistance )
-  {
-    key1 = mapComponent->first;
-    key2 = tempIter->first;
-    iterKey1 = mapComponent;
-    iterKey2 = tempIter;
-    minDistance = distance;
-  }
-    }
-
-    if ( key1 != -99999999 && key2 != -99999999 && iterKey1 != iterKey2 ){
-
-      Trk::MultiComponentState* componentsToBeMerged = new Trk::MultiComponentState();
-
-      ATH_MSG_VERBOSE( "key1 " << key1 << " key2 " << key2 );
-
-      componentsToBeMerged->push_back( iterKey1->second );
-      componentsToBeMerged->push_back( iterKey2->second );
-
-      // Combine the closest distance components
-      const Trk::ComponentParameters* combinedComponents = m_stateCombiner->combineWithWeight( *componentsToBeMerged );
-
-      if (msgLvl(MSG::VERBOSE)) msg() << "Weight of new component"<< combinedComponents->second << endmsg;
-
-      // Erase these components from the unmerged components map. These need to be deleted also as new memory is assigned in the combiner
-      delete componentsToBeMerged;
-
-      unmergedComponentsMap.erase( iterKey1 );
-      unmergedComponentsMap.erase( iterKey2 );
-
-      double  distance  = calculateDistance( reducedState, *combinedComponents );
-
-      if (distance == 0)
-        ATH_MSG_DEBUG("Distance  == 0 hmmm interesting");
-
-      unmergedComponentsMap.insert( std::make_pair(distance, *combinedComponents) );
-
-      // Delete memory allocated to component parameters pair. This does not delete the inserted copy
-      delete combinedComponents;
-
-      // Decrement the number of components
-      --numberOfComponents;
-
-    } else {
-
-      ATH_MSG_DEBUG( " Keys are either equal or totally nonsensical " );
-
-      // Something has gone amiss...... what shall i do
-      clonedUnmergedState->clear();
-      delete clonedUnmergedState;
-
-      m_chronoSvc->chronoStop("QCCM::merge");
-      return ( new Trk::MultiComponentState( reducedState ) );
-
-    }
-
-    ATH_MSG_VERBOSE( "Number of components: " << numberOfComponents );
-
-  }
-
-  // std::cout << "   Finished Reducing Components   " <<std::endl;
   delete combinedState;
-
-  // Build final state containing both merged and unmerged components
-
-  MultiComponentStateMap::const_iterator mapComponent = unmergedComponentsMap.begin();
-
-  for ( ; mapComponent != unmergedComponentsMap.end(); ++mapComponent) {
-
-    // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(cache,mapComponent->second);
-
-    if ( !componentAdded )
-      ATH_MSG_WARNING( "Component could not be added to the state in the assembler" );
-
-    // Free up memory from track parameters in unmerged components map
-    delete mapComponent->second.first;
-
-  }
-
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
-
-  ATH_MSG_VERBOSE( "Number of components in merged state: " << mergedState->size() );
-
-  // Memory clean up
-  clonedUnmergedState->clear();
-  delete clonedUnmergedState;
-
-  m_chronoSvc->chronoStop("QCCM::merge");
-  return mergedState;
+  return mergeFullDistArray(cache,unmergedState);
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-double Trk::QuickCloseComponentsMultiStateMerger::calculateDistance(const Trk::ComponentParameters referenceParameters , const Trk::ComponentParameters variableParameters  ) const
+const Trk::MultiComponentState* 
+Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+                                                              const Trk::MultiComponentState& mcs) const
 {
-
-  double distance(0);
-
-  distance = (*m_distance)( referenceParameters, variableParameters);
-
-  return distance;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FUNCTIONS TO USE INDEX DISTANCE MAP //
-
-void Trk::QuickCloseComponentsMultiStateMerger::addComponentDistances(IndexDistanceMap& indexDistanceMap, std::vector<const ComponentParameters*> &tempComponents) const
-{
-
-  //ATH_MSG_VERBOSE("Adding component distances to map");
-
-  std::vector<const ComponentParameters*>::iterator newDist = (tempComponents.end()-1);
-  std::vector<const ComponentParameters*>::iterator tcIter  = (tempComponents.begin());
-
-  for (; tcIter != tempComponents.end(); ++tcIter) {
-
-    if (tcIter == newDist) continue;
-
-    float distance(calculateDistance(*(*tcIter), *(*newDist)));
-
-    //ATH_MSG_VERBOSE("Adding new distance: " << distance << " to map key: " << std::distance(tempComponents.begin(),tcIter));
-
-    indexDistanceMap[std::distance(tempComponents.begin(),tcIter)].push_back(distance);
-
-  }
-
-  //Need to resize to account for the fact we have a new entry now.
-  indexDistanceMap.resize(indexDistanceMap.size()+1);
-
-  //ATH_MSG_VERBOSE("Done adding component distances to map");
-
-}
-
-std::pair<int,int> Trk::QuickCloseComponentsMultiStateMerger::getMinDistanceIndicesFromMap(IndexDistanceMap& indexDistanceMap) const
-{
-
-  std::pair<int,int> minIndices(std::make_pair(-1,-1));
-
-  IndexDistanceMap::iterator idIter = indexDistanceMap.begin();
-
-  float minDistance(std::numeric_limits<float>::max());
-  for (; idIter != indexDistanceMap.end(); ++idIter) {
-
-    if (idIter == indexDistanceMap.end()-1) continue;
-
-    std::vector<float>::iterator distIter = std::min_element(idIter->begin(),idIter->end());
-    float localMin(*distIter);
-    if (localMin < minDistance) {
-      minDistance = localMin;
-      int index1(std::distance(indexDistanceMap.begin(),idIter)),
-          index2(std::distance(idIter->begin(),distIter)+index1+1);
-      minIndices = std::make_pair(index1, index2);
-    }
-  }
-
-  //ATH_MSG_VERBOSE("From map, get minimum indices: " << minIndices.first << " and " << minIndices.second);
-
-  return minIndices;
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Trk::QuickCloseComponentsMultiStateMerger::fillKLDistance(
-                    IndexDistanceMap& indexDistanceMap,
-                    const ComponentParameters*     &ref,
-                    std::vector<const ComponentParameters*> &mcs) const
-{
-
-  //ATH_MSG_VERBOSE("Getting minimum KL distance component");
-
-  //Find location of ref in mcs to skip it.
-  std::vector<const ComponentParameters*>::iterator refIter = std::find(mcs.begin(),mcs.end(),ref);
-  if (refIter == mcs.end()) {
-    ATH_MSG_FATAL("Couldn't find reference parameter in the component vector???");
-  }
-
-  //We can just start with the next component over, since otherwise we'd be
-  //doing the same calculation 2x for every component.
-  std::vector<const ComponentParameters*>::iterator mcsIter = refIter + 1;
-
-  for (; mcsIter != mcs.end(); ++mcsIter) {
-
-    float distance(calculateDistance(*ref, *(*mcsIter)));
-
-    //Save the value in the map for later.
-    indexDistanceMap[std::distance(mcs.begin(),refIter)].push_back(distance);
-
-  }
-}
-
-
-void Trk::QuickCloseComponentsMultiStateMerger::buildMap( IndexDistanceMap& idm,  std::vector<const ComponentParameters*> &tempComponents) const
-{
-  // Calculate everything from scratch.
-
-  std::vector<const ComponentParameters*>::iterator mcsIter = tempComponents.begin();
-  for (; mcsIter != tempComponents.end(); ++mcsIter) {
-    fillKLDistance(idm,*mcsIter,tempComponents);
-  }
-}
-
-
-void Trk::QuickCloseComponentsMultiStateMerger::deleteStateComponents(int ind1, int ind2, std::vector<const ComponentParameters*> &mcs) const
-{
-
-  //ATH_MSG_VERBOSE("Erasing merged components ...");
-
-  int indexA(-1), indexB(-1);
-
-  if (ind2>ind1) {
-    indexA = ind2;
-    indexB = ind1;
-  } else {
-    indexA = ind1;
-    indexB = ind2;
-  }
-
-  //Best way to do this is probably get iterators corresponding to the
-  //indices, and then use 'erase' to remove them from the MCS.
-  std::vector<const ComponentParameters*>::iterator iterA = mcs.begin(), iterB = mcs.begin();
-
-  //Shift iterators to right places.
-  std::advance(iterA,indexA);
-  std::advance(iterB,indexB);
-
-  ATH_MSG_VERBOSE("Deleting component A ...");
-  if (mcs[indexA]) {
-    delete mcs[indexA];
-  }
-
-  ATH_MSG_VERBOSE("Deleting component B ...");
-  if (mcs[indexB]) {
-    delete mcs[indexB];
-  }
-
-  ATH_MSG_VERBOSE("Erasing iterators from vector ...");
-  mcs.erase(iterA);
-  mcs.erase(iterB);
-
-  //ATH_MSG_VERBOSE("Done with erasing");
-
-}
-
-void Trk::QuickCloseComponentsMultiStateMerger::mergeStateComponents ( IndexDistanceMap& idm, std::vector<const ComponentParameters*> &mcs) const
-{
-
-  //Step 1: Get the components to merged.
-  std::pair<int,int> mergeIndices(getMinDistanceIndicesFromMap(idm));
-
-  //ATH_MSG_VERBOSE("Indices are: " << mergeIndices.first << " and " << mergeIndices.second);
-
-  //Step 2: Merge them.
-  Trk::MultiComponentState* componentsToBeMerged = new Trk::MultiComponentState();
-
-  componentsToBeMerged->push_back( *mcs[mergeIndices.first]  );
-  componentsToBeMerged->push_back( *mcs[mergeIndices.second] );
-
-  const Trk::ComponentParameters* combinedComponents = m_stateCombiner->combineWithWeight( *componentsToBeMerged );
-
-  //Step 3: Delete the old components from the map.
-  delete componentsToBeMerged;
-
-  deleteStateComponents(mergeIndices.first, mergeIndices.second, mcs);
-
-  if (mergeIndices.first > mergeIndices.second)
-    deleteStoredDistances(idm, mergeIndices.second, mergeIndices.first);
-  else
-    deleteStoredDistances(idm, mergeIndices.first,  mergeIndices.second);
-
-  //Step 4: Insert the newly merged component into the MCS.
-  mcs.push_back(combinedComponents);
-
-  //Step 5: Add new distance calculations to index distance map.
-  addComponentDistances(idm, mcs);
-
-}
-
-// Method to take an input MCS and minimize it from 'X' components to
-// 'm_maximumNumberOfComponents' components.
-const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistVector(IMultiComponentStateAssembler::Cache& cache,
-                                                                                               const Trk::MultiComponentState& mcs) const
-{
-
-  m_chronoSvc->chronoStart("QCCM::mergeFullDist");
-
-  //NEW: Clear storage for indices / distances.
-  IndexDistanceMap indexDistanceMap;
-  indexDistanceMap.resize(mcs.size());
-
-  ATH_MSG_VERBOSE("Cloning unmerged state and getting components");
-
-  // Clone unmerged state as STL methods deletes components.
-  Trk::MultiComponentState::const_iterator component = mcs.begin();
-
-  std::vector<const ComponentParameters*> tempComponents;
-  for ( ; component != mcs.end(); ++component ) {
-    tempComponents.push_back((*component).clone());
-  }
-
-  // Build map
-  buildMap(indexDistanceMap,tempComponents);
-
-  ATH_MSG_VERBOSE("Starting component merging");
-
-  //Do component merging.
-  while (tempComponents.size() > m_maximumNumberOfComponents) {
-    mergeStateComponents( indexDistanceMap,tempComponents);
-  }
-
-  ATH_MSG_VERBOSE("Done component merging, adding components to state assembler");
-
-  //Make a new MCS out of merged components.
-  std::vector<const ComponentParameters*>::iterator mcsIter = tempComponents.begin();
-
-  for ( ; mcsIter != tempComponents.end(); ++mcsIter){
-
-    // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(cache,*(*mcsIter));
-
-    if ( !componentAdded )
-      ATH_MSG_WARNING( "Component could not be added to the state in the assembler" );
-
-  }
-
-  ATH_MSG_VERBOSE("Got states, doing final assembly of merged state");
-
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
-
-  // Memory clean up. Gotta also clean up those pesky track parameters.
-  // for (unsigned int ic(0); ic < clonedUnmergedState->size(); ic++)
-  //   if (clonedUnmergedState->at(ic).first)
-  //     delete clonedUnmergedState->at(ic).first;
-
-  // clonedUnmergedState->clear();
-  // delete clonedUnmergedState;
-
-  //Delete remaining track components, clear out the vector of states.
-  for (unsigned int it(0); it < tempComponents.size(); it++) {
-    if (tempComponents[it]) {
-      if (tempComponents[it]->first)
-        delete tempComponents[it]->first;
-      delete tempComponents[it];
-    }
-  }
-  tempComponents.clear();
-
-  //std::vector<Trk::ComponentParameters>().swap(tempComponents);
-  //delete tempComponents;
-
-  //if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endmsg;
-
-  m_chronoSvc->chronoStop("QCCM::mergeFullDist");
-
-  return mergedState;
-
-}
-
-//Routine to get rid of all the distance calculations made with
-//merged components.
-void Trk::QuickCloseComponentsMultiStateMerger::deleteStoredDistances(IndexDistanceMap& indexDistanceMap, int i1, int i2) const {
-
-  IndexDistanceMap::iterator iter1 = indexDistanceMap.begin();
-  IndexDistanceMap::iterator iter2 = indexDistanceMap.begin();
-
-  std::advance(iter1,i1);
-  std::advance(iter2,i2);
-
-  //Erase larger iterator entries first to avoid index shifting.
-  indexDistanceMap.erase(iter2);
-
-  for (int ik(0); ik < i2; ik++) {
-    indexDistanceMap[ik].erase(indexDistanceMap[ik].begin()+(i2-ik)-1);
-  }
-
-  //Erase smaller iterator entries.
-  indexDistanceMap.erase(iter1);
-  for (int ik(0); ik < i1; ik++) {
-    indexDistanceMap[ik].erase(indexDistanceMap[ik].begin()+(i1-ik)-1);
-  }
-
-}
-
-const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
-                                                                                              const Trk::MultiComponentState& mcs) const
-{
-  //m_chronoSvc->chronoStart("QCCM::mergeFullDistArray");
 
 
   const int n = mcs.size();
@@ -692,8 +225,6 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   // This loop can be vectorised
   calculateAllDistances(  qonp, qonpCov, qonpG, distances, n);
 
-
-
   //Loop over all componants until you reach the target amount
   unsigned int numberOfComponents = n;
   int minIndex = -1;
@@ -701,12 +232,8 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
 
   while (numberOfComponents > m_maximumNumberOfComponents){
 
-    //Find minimum
-    //std::pair <int ,int > min = findMinimumPair( distances,statesToMerge, n );
-
     //Searching for the minimum distances is slowest part of the loop
-    // lets try and speed it up by reducing the number searches by 2
-    //Note that a boost::bimap could be used but it is really slow.
+    //lets try and speed it up by reducing the number searches by 2
     if( nextMinIndex < 1 ){
       //Run search again
       std::pair <int ,int > min = findMinimumIndex( distances, nn2 );
@@ -721,7 +248,6 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
     int mini = indexToI[minIndex];
     int minj = indexToJ[minIndex];
 
-    //std::cout << mini << " "  <<  minj << std::endl;
 
     if(mini==minj) {
       ATH_MSG_ERROR(  "Err keys are equal key1 " << mini << " key2 " << minj );
@@ -739,7 +265,8 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
 
     ATH_MSG_VERBOSE( "Weight of new component "<< combinedComponents->second );
 
-    // Erase these components from the unmerged components map. These needs to be deleted also as new memory is assigned in the combiner
+    // Erase these components from the unmerged components map. 
+    // These needs to be deleted also as new memory is assigned in the combiner
     // This will also delete the components in the vector statesToMerge
     delete componentsToBeMerged;
     delete statesToMerge[mini]; statesToMerge[mini]=0;
@@ -810,16 +337,15 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   }
   statesToMerge.clear();
 
-  //m_chronoSvc->chronoStop("QCCM::mergeFullDistArray");
-
   return mergedState;
-
 }
 
 
 
 
-void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict  distancesIn, const int mini,const  int  n)const{
+void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict  distancesIn, 
+                                                                const int mini,
+                                                                const  int  n)const{
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
 
@@ -836,10 +362,11 @@ void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict
 
 }
 
-
-
-
-void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrRestrict qonpIn,  floatPtrRestrict  qonpCovIn,  floatPtrRestrict qonpGIn, floatPtrRestrict distancesIn, int  n) const
+void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrRestrict qonpIn,  
+                                                                       floatPtrRestrict  qonpCovIn,  
+                                                                       floatPtrRestrict qonpGIn, 
+                                                                       floatPtrRestrict distancesIn, 
+                                                                       int  n) const
 {
 
   float *qonp = (float*)__builtin_assume_aligned(qonpIn, 32);
@@ -857,13 +384,19 @@ void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrR
       float covarianceDifference = qonpCovi - qonpCov[j];
       float G_difference = qonpG[j] - qonpGi;
       float G_sum        = qonpGi + qonpG[j];
-      distances[ indexConst + j ] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
+      distances[ indexConst + j ] = covarianceDifference * G_difference + 
+        parametersDifference * G_sum * parametersDifference;
     }
   }
 }
 
 
-int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRestrict qonpIn,  floatPtrRestrict  qonpCovIn,  floatPtrRestrict qonpGIn, floatPtrRestrict distancesIn, int mini, int  n) const
+int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRestrict qonpIn,  
+                                                                     floatPtrRestrict qonpCovIn,  
+                                                                     floatPtrRestrict qonpGIn, 
+                                                                     floatPtrRestrict distancesIn, 
+                                                                     int mini, 
+                                                                     int n) const
 {
 
   float *qonp = (float*)__builtin_assume_aligned(qonpIn, 32);
@@ -916,7 +449,9 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
 }
 
 
-std::pair<int, int>  Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex( const floatPtrRestrict distancesIn, const int n) const
+std::pair<int, int>  
+Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex(const floatPtrRestrict distancesIn, 
+                                                            const int n) const
 {
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
@@ -936,7 +471,10 @@ std::pair<int, int>  Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex
 }
 
 
-std::pair<int, int> Trk::QuickCloseComponentsMultiStateMerger::findMinimumPair( const floatPtrRestrict distancesIn,const std::vector <const Trk::ComponentParameters*>& comps, const int n) const
+std::pair<int, int> 
+Trk::QuickCloseComponentsMultiStateMerger::findMinimumPair(const floatPtrRestrict distancesIn,
+                                                           const std::vector <const Trk::ComponentParameters*>& comps, 
+                                                           const int n) const
 {
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);

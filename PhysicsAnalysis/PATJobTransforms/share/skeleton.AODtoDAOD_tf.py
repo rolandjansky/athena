@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Skeleton file for AOD to DAOD (Reduction framework) job
 #
 # $Id: skeleton.AODtoDAOD_tf.py 731616 2016-03-22 15:25:39Z cranshaw $
@@ -10,7 +11,7 @@ msg.info( '****************** STARTING AOD->DAOD MAKING *****************' )
 def getSubSequences(sequence,sequenceList):
     sequenceList.append(sequence)
     for item in sequence:
-        if type(item).__name__ == 'AthSequencer':
+        if isinstance(item, AthSequencer):
             getSubSequences(item,sequenceList)
     return
 
@@ -18,7 +19,7 @@ if hasattr(runArgs, "reductionConf"):
     msg.info('Will attempt to make the following reduced formats: {0}'.format(runArgs.reductionConf))
 else:
     msg.error('AOD Reduction job started, but with no "reductionConf" array - aborting')
-    raise RuntimeError, "No reductions configured"
+    raise RuntimeError("No reductions configured")
 
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
@@ -29,7 +30,7 @@ try:
     release = project + '-' + version
     rec.AtlasReleaseVersion = release
 except:
-    print "WARNING: Unable to construct AtlasReleaseVersion from environment"
+    print("WARNING: Unable to construct AtlasReleaseVersion from environment")
 
 if hasattr(runArgs,"inputAODFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -57,7 +58,7 @@ elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
     # Leave the remainder for the internal setup
 else:
     msg.error('AOD Reduction job started, but with no AOD inputs - aborting')
-    raise RuntimeError, "No AOD input"
+    raise RuntimeError("No AOD input")
 
 listOfFlags=[]
 
@@ -65,7 +66,7 @@ try:
     from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags
     listOfFlags.append(derivationFlags)
 except ImportError:
-    print "WARNING DerivationFrameworkProdFlags not available."  
+    print("WARNING DerivationFrameworkProdFlags not available.")  
 
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -74,7 +75,7 @@ passThroughMode = False
 if hasattr(runArgs,"passThrough"):
     passThroughMode = runArgs.passThrough
 
-#if (passThroughMode==True):
+#if (passThroughMode is True):
 #    msg.warning("Pass through mode is ON: decision of derivation kernels will be IGNORED!")
 #    rec.doDPD.passThroughMode = True
 
@@ -105,7 +106,7 @@ if passThroughMode:
     getSubSequences(mainSeq,sequenceList)
     for seq in sequenceList:
         for item in seq:
-            if type(item).__name__=='DerivationFramework__DerivationKernel':
+            if isinstance(item, DerivationFramework__DerivationKernel):
                 item.SkimmingTools = []
     msg.info( 'Pass through mode was requested. Skimming tools have been removed from all kernels.')
 

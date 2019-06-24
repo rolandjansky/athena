@@ -23,7 +23,8 @@
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
@@ -32,8 +33,6 @@
 
 #include <iosfwd>
 #include <list>
-#include <map>
-#include <mutex>
 #include <vector>
 
 class MsgStream;
@@ -43,6 +42,8 @@ namespace Trk {
 }
 
 namespace InDet {
+
+  using EventData = SiSpacePointsSeedMakerEventData;
 
   class SiSpacePointsSeedMaker_BeamGas : 
     public extends<AthAlgTool,ISiSpacePointsSeedMaker>
@@ -60,31 +61,34 @@ namespace InDet {
     SiSpacePointsSeedMaker_BeamGas
     (const std::string&, const std::string&, const IInterface*);
     virtual ~SiSpacePointsSeedMaker_BeamGas() = default;
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
 
-    virtual void newEvent(int iteration) const;
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const;
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& iRD) const;
+    virtual void newEvent(EventData& data, int iteration) const override;
+    virtual void newRegion(EventData& data,
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
+    virtual void newRegion(EventData& data,
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
+                           const IRoiDescriptor& iRD) const override;
       
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with two space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find2Sp(const std::list<Trk::Vertex>& lv) const;
+    virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with three space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv) const;
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* zVertex) const;
+    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
@@ -92,21 +96,20 @@ namespace InDet {
     // Variable means (2,3,4,....) any number space points
     ///////////////////////////////////////////////////////////////////
  
-    virtual void findVSp(const std::list<Trk::Vertex>& lv) const;
+    virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
       
     ///////////////////////////////////////////////////////////////////
     // Iterator through seeds pseudo collection produced accordingly
     // methods find    
     ///////////////////////////////////////////////////////////////////
 
-    virtual const SiSpacePointsSeed* next() const;
-      
+    virtual const SiSpacePointsSeed* next(EventData& data) const override;
+
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
 
-    virtual MsgStream&    dump(MsgStream   & out) const;
-    virtual std::ostream& dump(std::ostream& out) const;
+    virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
 
   private:
     enum Size {SizeRF=53,
@@ -177,63 +180,6 @@ namespace InDet {
     float m_ipt2{0.};
     float m_sF{0.};
 
-    mutable std::mutex m_mutex;
-    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    struct EventData { // To hold event dependent data
-      bool endlist{true};
-      int state{0};
-      int nspoint{2};
-      int nlist{0};
-      int mode{0};
-      int fNmin{0};
-      int zMin{0};
-      int nprint{0};
-      int ns{0};
-      int nsaz{0};
-      int nr{0};
-      int nrf{0};
-      int nrfz{0};
-      int nOneSeeds{0};
-      int rf_index[SizeRF];
-      int rf_map[SizeRF];
-      int rfz_index[SizeRFZ];
-      int rfz_map[SizeRFZ];
-      float K{0.};
-
-      ///////////////////////////////////////////////////////////////////
-      // Beam geometry
-      ///////////////////////////////////////////////////////////////////
-      float xbeam[4]{0., 1., 0., 0.}; // x,ax,ay,az - center and x-axis direction
-      float ybeam[4]{0., 0., 1., 0.}; // y,ax,ay,az - center and y-axis direction
-      float zbeam[4]{0., 0., 0., 1.}; // z,ax,ay,az - center and z-axis direction
-
-      std::vector<int> r_index;
-      std::vector<int> r_map;
-      std::vector<std::list<InDet::SiSpacePointForSeed*>> r_Sorted;
-      std::vector<InDet::SiSpacePointsSeed> OneSeeds;
-      std::multimap<float, InDet::SiSpacePointsSeed*> mapOneSeeds;
-      std::list<InDet::SiSpacePointForSeed*> rf_Sorted[SizeRF];
-      std::list<InDet::SiSpacePointForSeed*> rfz_Sorted[SizeRFZ];
-      std::list<InDet::SiSpacePointForSeed> l_spforseed;
-      std::list<InDet::SiSpacePointForSeed>::iterator i_spforseed;
-      std::list<InDet::SiSpacePointForSeed*>::iterator rMin;
-      std::list<InDet::SiSpacePointsSeed>           l_seeds;
-      std::list<InDet::SiSpacePointsSeed>::iterator i_seed;
-      std::list<InDet::SiSpacePointsSeed>::iterator i_seede;
-
-      ///////////////////////////////////////////////////////////////////
-      // Tables for 3 space points seeds search
-      ///////////////////////////////////////////////////////////////////
-      std::vector<InDet::SiSpacePointForSeed*> SP;
-      std::vector<float> R;
-      std::vector<float> Tz;
-      std::vector<float> Er;
-      std::vector<float> U;
-      std::vector<float> V;
-      std::vector<float> Zo;
-    };
-    mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
     ///////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////
@@ -285,11 +231,8 @@ namespace InDet {
     void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
     bool isUsed(const Trk::SpacePoint*) const;
 
-    EventData& getEventData() const;
+    void initializeEventData(EventData& data) const;
   };
-
-  MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_BeamGas&);
-  std::ostream& operator << (std::ostream&,const SiSpacePointsSeedMaker_BeamGas&);
 
 } // end of name space
 

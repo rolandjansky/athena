@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1Algs/VP1Alg.h"
@@ -147,7 +147,7 @@ StatusCode VP1Alg::execute()
     unsigned time = evt->event_ID()->time_stamp();//0 means no info.
 
     // Get L1 trigger type
-    TriggerInfo* trig = evt->trigger_info();
+    const TriggerInfo* trig = evt->trigger_info();
     unsigned int trigType = trig ? trig->level1TriggerType() : 0;
 
     if (m_noGui||m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time)) {

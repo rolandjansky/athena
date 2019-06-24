@@ -24,7 +24,12 @@ class ConfigurationError(RuntimeError):
 _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
 def printProperties(msg, c, nestLevel = 0):
-    for propname, propval in six.iteritems(c.getValuedProperties()):
+    # Iterate in sorted order.
+    props = c.getValuedProperties()
+    propnames = list(props.keys())
+    propnames.sort()
+    for propname in propnames:
+        propval = props[propname]
         # Ignore empty lists
         if propval==[]:
             continue
@@ -770,12 +775,19 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
+        try:
+            from AthenaPython import PyAthenaComps
+            PyAlg = PyAthenaComps.Alg
+        except ImportError:
+            PyAlg = type(None)
+
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
-                pass
+                if isinstance (alg, PyAlg):
+                    alg.setup()
             pass
 
 
@@ -784,6 +796,8 @@ class ComponentAccumulator(object):
             addCompToJos(alg)
             condalgseq.append(alg.getFullName())
             bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
+            if isinstance (alg, PyAlg):
+                alg.setup()
             pass
 
 

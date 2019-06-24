@@ -10,9 +10,11 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -25,6 +27,8 @@
 #include "Acts/Propagator/detail/StandardAborters.hpp"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/Utilities/MagneticFieldContext.hpp"
+#include "Acts/Utilities/Result.hpp"
 
 // BOOST
 #include <boost/variant/variant.hpp>
@@ -53,12 +57,19 @@ public:
 
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
-  propagate(const parameters_t& startParameters,
+  propagate(const EventContext& ctx,
+            const parameters_t& startParameters,
             double pathLimit = std::numeric_limits<double>::max()) const
   {
     ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-    Options options;
+    Acts::MagneticFieldContext mctx;
+    const ActsGeometryContext& gctx
+      = m_trackingGeometryTool->getGeometryContext(ctx);
+
+    auto anygctx = gctx.any();
+
+    Options options(anygctx, mctx);
     options.pathLimit = pathLimit;
     bool debug = msg().level() == MSG::VERBOSE;
     options.debug = debug;
@@ -73,7 +84,13 @@ public:
 
     std::vector<Acts::detail::Step> steps;
     DebugOutput::result_type debugOutput;
-    std::tie(steps, debugOutput) = boost::apply_visitor(visitor, *m_varProp);
+    auto res = boost::apply_visitor(visitor, *m_varProp);
+    if (!res.ok()) {
+      ATH_MSG_ERROR("Got error during propagation:" << res.error()
+          << ". Returning empty step vector.");
+      return {};
+    }
+    std::tie(steps, debugOutput) = std::move(*res);
 
     if(debug) {
       ATH_MSG_VERBOSE(debugOutput.debugString);
@@ -85,8 +102,11 @@ public:
     return steps;
   }
 
-  void
-  prepareAlignment() const;
+  const ActsTrackingGeometryTool*
+  trackingGeometryTool() const
+  {
+    return m_trackingGeometryTool.get();
+  }
 
 private:
   // set up options for propagation
@@ -107,36 +127,40 @@ private:
 
   std::unique_ptr<VariantPropagator> m_varProp;
 
+  using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
+                                            DebugOutput::result_type>>;
   template <typename parameters_t, typename options_t>
-  struct PropagatorVisitor 
-  : boost::static_visitor<std::pair<std::vector<Acts::detail::Step>, 
-                                    DebugOutput::result_type>> {
+  struct PropagatorVisitor
+  : boost::static_visitor<ResultType> {
 
     PropagatorVisitor(const parameters_t& parameters, options_t options)
       : m_parameters(parameters), m_options(std::move(options))
     {}
 
     template <typename propagator_t>
-    std::pair<std::vector<Acts::detail::Step>, DebugOutput::result_type>
+    ResultType
     operator()(const propagator_t& propagator) const
     {
-      const auto& result = propagator.propagate(m_parameters, m_options);
-      auto steppingResults = result.template get<SteppingLogger::result_type>();
-      auto debugOutput = result.template get<DebugOutput::result_type>();
+      auto result = propagator.propagate(m_parameters, m_options);
+      if (!result.ok()) {
+        return result.error();
+      }
+      auto& propRes = *result;
+
+      auto steppingResults = propRes.template get<SteppingLogger::result_type>();
+      auto debugOutput = propRes.template get<DebugOutput::result_type>();
       // try to force return value optimization, not sure this is necessary
-      return {std::move(steppingResults.steps), std::move(debugOutput)};
+      return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
     }
 
     const parameters_t& m_parameters;
     options_t m_options;
 
   };
-  
+
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
-
-  Options m_propagationOptions;
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};
   Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}};

@@ -80,13 +80,20 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'MC_pp_v7_tight_mc_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'Physics_pp_v7_primaries')
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
     flags.addFlag('Trigger.menuVersion',
                   lambda prevFlags:  release_metadata()['release'] )
     
+    # generate or not the HLT configuration
+    flags.addFlag('Trigger.generateHLTConfig', False)
+    
+    # HLT XML file name 
+    flags.addFlag('Trigger.HLTConfigFile',
+                lambda prevFlags: 'HLTconfig_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateLVL1Config', False)
     
@@ -98,8 +105,14 @@ def createTriggerFlags():
     flags.addFlag('Trigger.generateLVL1TopoConfig', False)
     
     # L1 topo XML file name
-    flags.addFlag('Trigger.LVL1TopoConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    def _deriveTopoConfigName(prevFlags):
+        import re
+        menuSetup = prevFlags.Trigger.triggerMenuSetup
+        m = re.match(r'(.*v\d).*', menuSetup)
+        if m:
+            menuSetup = m.groups()[0]
+        return "L1Topoconfig_" + menuSetup + "_" + prevFlags.Trigger.menuVersion + ".xml"
+    flags.addFlag('Trigger.LVL1TopoConfigFile', _deriveTopoConfigName)
 
     
     # trigger reconstruction 

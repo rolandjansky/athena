@@ -4,7 +4,7 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "IDScanHitFilter/IDScanHitFilter.h"
+#include "../IDScanHitFilter.h"
 
 DECLARE_COMPONENT( IDScanHitFilter )
 

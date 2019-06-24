@@ -10,7 +10,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
 
-def photonMenuSequence():
+def fastPhotonMenuSequence():
     """Creates secpond step photon sequence"""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
@@ -29,6 +29,7 @@ def photonMenuSequence():
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
+    l2PhotonViewsMaker.RequireParentView = True
     
     thePhotonFex.RoIs = l2PhotonViewsMaker.InViewRoIs
 

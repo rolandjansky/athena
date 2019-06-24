@@ -138,14 +138,14 @@ class doHLT(JobProperty):
 _flags.append(doHLT)
 
 # Define Default Flags
-class doMTHLT(JobProperty):
+class doMT(JobProperty):
     """ Run upgrade type of config """
     statusOn=True
     allowedType=['bool']
     from AthenaCommon.ConcurrencyFlags import jobproperties
     StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
         
-_flags.append(doMTHLT)
+_flags.append(doMT)
 
 
 class doMergedHLTResult(JobProperty):

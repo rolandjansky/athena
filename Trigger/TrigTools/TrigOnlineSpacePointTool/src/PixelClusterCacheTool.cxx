@@ -18,9 +18,9 @@
 #include <sstream>
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
+#include "FastPixelClusterization.h"
 
-#include "TrigOnlineSpacePointTool/PixelClusterCacheTool.h"
+#include "PixelClusterCacheTool.h"
 #include "eformat/SourceIdentifier.h" 
 using eformat::helper::SourceIdentifier;
 #include "ByteStreamData/ROBData.h" 

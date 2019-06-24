@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IDCSLFITPROVIDER
@@ -26,7 +26,7 @@ namespace Muon {
     /** @brief fitter factory
 	@return provides pointer to fitter, ownsership not passed to client
     */
-    virtual TrkDriftCircleMath::DCSLFitter* getFitter() = 0;
+    virtual const TrkDriftCircleMath::DCSLFitter* getFitter() const = 0;
 
   };
   

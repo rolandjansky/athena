@@ -1,0 +1,3 @@
+ApplicationMgr.ExtSvc = {"StoreGateSvc/ConditionStore"};
+LBDurationCondAlg.LBLBFolderInputKey = "testLBLB";
+LBDurationCondAlg.LBDurationOutputKey = "LBDurationCondData";

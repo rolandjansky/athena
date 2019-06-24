@@ -22,7 +22,7 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "eformat/DetectorMask.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -272,7 +272,7 @@ void TrigOpMoni::FillIOVDbHist()
   
   // final configuration of histograms
   {
-    scoped_lock_histogram lock;
+    oh_scoped_lock_histogram lock;
     IOVDbRunHist->LabelsDeflate("X");
     IOVDbRunHist->LabelsDeflate("Y");
     IOVDbRunHist->GetYaxis()->LabelsOption("a");
@@ -352,7 +352,7 @@ void TrigOpMoni::FillIOVDbChangeHist()
 
       if ( m_iovChangeHist ) {
         // Perform a locked fill and remove any empty bins to allow correct gathering
-        scoped_lock_histogram lock;
+        oh_scoped_lock_histogram lock;
         m_iovChangeHist->Fill(boost::lexical_cast<string>(m_pEvent->event_ID()->lumi_block()).c_str(), folder.c_str(), 1);
         m_iovChangeHist->LabelsDeflate("X");
         m_iovChangeHist->LabelsDeflate("Y");
@@ -516,7 +516,7 @@ void TrigOpMoni::FillSubDetHist()
 
       // final configuration of histogram
       {
-        scoped_lock_histogram lock;
+        oh_scoped_lock_histogram lock;
         SubDetHist->LabelsDeflate("X");
         SubDetHist->LabelsDeflate("Y");
         SubDetHist->GetYaxis()->LabelsOption("a");

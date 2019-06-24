@@ -208,6 +208,8 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--Save1stStageTrks', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Save 1st stage tracks', group="TrigFTKTrackFitter")
+    parser.add_argument('--SaveStepByStepTrks', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Save step-by-step tracks', group="TrigFTKTrackFitter")
 
     parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of HW configuration file', group='TrigFTKTrackFitter')
@@ -215,10 +217,11 @@ def addTrigFTKSimTFOptions(parser):
                         help="Hit Warrior threshold", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKTrackFitter')
-    parser.add_argument('--FirstStageHitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="First Stage Hit Warrior type: 0 No First Stage Overlap Removal, 1 Overlap Removal within the Same Road (def), 2 Overlap Removal within the Same Sector", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
+
+    parser.add_argument('--AuxDoctor', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables Aux Doctor Overlap Removal", group='TrigFTKTrackFitter')
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
@@ -227,18 +230,15 @@ def addTrigFTKSimTFOptions(parser):
                         help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
 
     parser.add_argument('--dTIBL', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
-                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKSim')
+                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKTrackFitter')
 
 
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help="Enables firmware-style constants", group='TrigFTKSim')
+                        help="Enables firmware-style constants", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="Limit on the number of combinations per road", group='TrigFTKSim')
+                        help="Limit on the number of combinations per road", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="limit the number of hits per plane per road", group='TrigFTKSim')
-
-    parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
+                        help="limit the number of hits per plane per road", group='TrigFTKTrackFitter')
 
     parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='track fitter mode', group='TrigFTKTrackFitter', nargs='+')
@@ -254,8 +254,11 @@ def addTrigFTKSimTFOptions(parser):
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKTrackFitter')
     parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKTrackFitter')
-    parser.add_argument('--Chi2DofCut', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='Chi2 cut on second stage tracks', group='TrigFTKTrackFitter')    
+    parser.add_argument('--Chi2DofCutAux', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Chi2 cut on first stage tracks', group='TrigFTKTrackFitter')
+    parser.add_argument('--Chi2DofCutSSB', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Chi2 cut on second stage tracks', group='TrigFTKTrackFitter')
+    
     return None
 
 

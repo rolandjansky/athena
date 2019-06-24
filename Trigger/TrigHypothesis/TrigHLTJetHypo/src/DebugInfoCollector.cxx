@@ -5,39 +5,30 @@
 #include "./DebugInfoCollector.h"
 #include <sstream>
 #include <fstream>
+
+DebugInfoCollector::DebugInfoCollector(const std::string& name):m_name(name){}
+
 void DebugInfoCollector::collect(const std::string& key,
                                  const std::string& info){
-  m_info[key] += info;
-  m_calls[key] += 1;
+  m_info[key].push_back(info);
 }
 
-std::string DebugInfoCollector::toString() const noexcept{
+std::string DebugInfoCollector::toString() const {
   std::stringstream ss;
-  ss << "DEBUGInfoCollector:\n";
+  ss << "DEBUGInfoCollector: " << m_name << '\n';
   for(const auto& i: m_info){
-    ss << i.first << '\n';
-    ss << "   "  << i.second << " calls " << m_calls.at(i.first) << '\n';
+    ss << "  " << i.first << '\n';
+    for(const auto& m : i.second){
+      ss << "    "  << m <<  '\n';
+    }
   }
   return ss.str();
 }
 
 
-void DebugInfoCollector::write(std::string name,
-                                      uint32_t run,
-                                      uint32_t event) const {
+void DebugInfoCollector::write() const{
   auto report = this->toString();
-  std::stringstream ss;
-  ss << "jetHypo_" << name << "_" << run << "_" << event;
-  std::ofstream out(ss.str());
+  std::ofstream out(m_name+".log");
   out << report;   
 }
 
-
-void DebugInfoCollector::write(std::string name, std::size_t id) const {
-  auto report = this->toString();
-  std::stringstream ss;
-  ss << "jetHypo_" << name << "_" << id;
-  std::ofstream out(ss.str());
-  out << report;
-  out.close();
-}

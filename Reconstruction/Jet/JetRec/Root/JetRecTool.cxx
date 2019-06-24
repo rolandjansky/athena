@@ -199,37 +199,22 @@ StatusCode JetRecTool::initialize() {
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_modifiers.size()
                << " jet modifiers.");
   m_modclocks.resize(m_modifiers.size());
-
+  ATH_CHECK(m_modifiers.retrieve());
   size_t iclk = 0;
-  for ( ModifierArray::const_iterator imod=m_modifiers.begin();
-        imod!=m_modifiers.end(); ++imod ) {
-    ToolHandle<IJetModifier> hmod = *imod;
-    if ( hmod.retrieve().isSuccess() ) {
-      ATH_MSG_INFO(prefix << "Retrieved " << hmod->name());
-    } else {
-      ATH_MSG_ERROR(prefix << "Unable to retrieve IJetModifier");
-      rstat = StatusCode::FAILURE;
-    }
+  for ( auto & mod : m_modifiers) {
     m_modclocks[iclk++].Reset();
-    hmod->inputContainerNames(m_incolls);
-    hmod->setPseudojetRetriever(m_ppjr);
+    mod->inputContainerNames(m_incolls);
+    mod->setPseudojetRetriever(m_ppjr);
   }
   // Fetch the jet consumers.
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_consumers.size()
                << " jet consumers.");
+  ATH_CHECK(m_consumers.retrieve());
   m_conclocks.resize(m_consumers.size());
-  iclk = 0;
-  for ( ConsumerArray::const_iterator icon=m_consumers.begin();
-        icon!=m_consumers.end(); ++icon ) {
-    ToolHandle<IJetConsumer> hcon = *icon;
-    if ( hcon.retrieve().isSuccess() ) {
-      ATH_MSG_INFO(prefix << "Retrieved " << hcon->name());
-    } else {
-      ATH_MSG_ERROR(prefix << "Unable to retrieve IJetConsumer");
-      rstat = StatusCode::FAILURE;
-    }
-    m_conclocks[iclk++].Reset();
+  for ( auto& clk : m_conclocks) {
+    clk.Reset();
   }
+  
   ATH_MSG_INFO(prefix << "Input collection names:");
   for (const auto& name : m_incolls) ATH_MSG_INFO(prefix << "  " << name);
   ATH_MSG_INFO(prefix << "Output collection names:");

@@ -13,8 +13,8 @@
  * $Header: /build/atlas/cvs/atlas/offline/Database/IOVDbSvc/src/IOVDbSvc.h,v 1.48 2009-02-10 14:09:58 hawkings Exp $
  */
 
-#ifndef IOVDBSVC_IOVDBSVC_H
-#define IOVDBSVC_IOVDBSVC_H
+#ifndef IOVDbSvc_IOVDbSvc_h
+#define IOVDbSvc_IOVDbSvc_h
 
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IService.h"
@@ -37,10 +37,6 @@
 #include "CoolKernel/ValidityKey.h"
 
 #include "IOVDbConn.h"
-
-//for using the msg service
-	//#include "AthenaKernel/MsgStreamMember.h"
-	//#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
 #include <string>
@@ -233,7 +229,12 @@ private:
   BooleanProperty m_par_onlineMode;
   // check to ensure global/HVS tags are locked (for production)
   BooleanProperty m_par_checklock;
-
+  // Source of data as a string; default is "COOL_DATABASE"
+  std::string m_par_source{};
+  // Format of data; default is empty string (default for a given source)
+  std::string m_par_format{};
+  // Can output to file for debugging purposes
+  bool m_outputToFile{false};
   // internal parameters  
   // handles to other services and tools
   ServiceHandle<IIOVSvc>         m_h_IOVSvc;
@@ -245,8 +246,6 @@ private:
   ServiceHandle<IPoolSvc>        m_h_poolSvc;
   ToolHandle<IIOVDbMetaDataTool> m_h_metaDataTool;
   ServiceHandle<ITagInfoMgr>     m_h_tagInfoMgr;
-  // message stream
-  //MsgStream* m_log;
         
   // Flag to signal when a pool payload has been requested. This
   // implies that a pool file has been open during an event, and will
@@ -287,24 +286,7 @@ private:
   FolderMap m_foldermap;
   // gloal abort flag
   bool m_abort;
-  
-  protected:
-   /// Log a message using the Athena controlled logging system
-   /**
-          MsgStream&
-          msg(MSG::Level lvl) const {
-            return m_msg.get() << lvl;
-          }
-       
-          /// Check whether the logging system is active at the provided verbosity level
-          bool
-          msgLvl(MSG::Level lvl) {
-            return m_msg.get().level() <= lvl;
-          }
-       
-          /// Private message stream member
-          mutable Athena::MsgStreamMember m_msg;**/
-
+ 
 };
 
 #endif

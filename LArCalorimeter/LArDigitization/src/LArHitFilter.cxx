@@ -13,6 +13,7 @@
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/IdentifierHash.h"
 #include "LArDigitization/LArHitEMap.h"
+#include "CaloIdentifier/CaloIdManager.h"
 
 LArHitFilter::LArHitFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)

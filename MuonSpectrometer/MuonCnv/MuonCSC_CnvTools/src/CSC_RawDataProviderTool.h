@@ -80,8 +80,6 @@ private:
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
   ServiceHandle<CSCcablingSvc>        m_cabling;
 
-  bool				      m_createContainerEachEvent;
-
   /// CSC container cache key
   SG::UpdateHandleKey<CscRawDataCollection_Cache> m_rdoContainerCacheKey ;
 };

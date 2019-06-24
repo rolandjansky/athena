@@ -8,6 +8,7 @@ import traceback
 import EventKernel.ParticleDataType
 from egammaRec.egammaRecFlags import jobproperties
 from egammaRec import egammaKeys
+from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.Configured import Configured
 
 
@@ -26,6 +27,7 @@ class egammaTrackSlimmer ( Configured ) :
         InputPhotonContainerName=egammaKeys.outputPhotonKey(),
         TrackParticleContainerName= egammaKeys.outputTrackParticleKey(), 
         VertexContainerName= egammaKeys.outputConversionKey(), 
+        InDetTrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(), 
         doThinning=True
         )
       print theEgammaTrackSlimmer

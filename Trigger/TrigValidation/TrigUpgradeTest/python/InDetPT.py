@@ -2,6 +2,14 @@
 #
 #           Setup of precision tracking
 
+from AthenaCommon.Include import include
+include.block("InDetTrigRecExample/EFInDetConfig.py")
+include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
+
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("InDetPT")
+
+
 def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
 #def makeInDetPrecisionTracking( whichSignature, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
   from AthenaCommon.AppMgr import ToolSvc
@@ -121,7 +129,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   
   
   #allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
-  print  InDetTrigMTxAODTrackParticleCnvAlg
+  log.info(InDetTrigMTxAODTrackParticleCnvAlg)
   
   #ToolSvc.InDetTrigHoleSearchTool.SctSummaryTool.InDetTrigInDetSCT_FlaggedConditionTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
 

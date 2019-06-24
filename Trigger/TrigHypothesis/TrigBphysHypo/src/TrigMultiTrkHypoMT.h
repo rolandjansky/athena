@@ -21,6 +21,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "xAODMuon/MuonContainer.h"
+
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthViews/View.h"
@@ -71,6 +73,11 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
         "Tracks",                     // default value of StoreGate key
         "input TrackParticle container name"};
 
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey{ this,
+        "MuonCollectionKey",         // property name
+        "CBCombinedMuon",                     // default value of StoreGate key
+        "input EF Muon container name"};
+
     SG::WriteHandleKey<xAOD::TrigBphysContainer> m_bphysObjContKey{ this,
         "bphysCollectionKey",         // property name
         "TrigBphysContainer",         // default value of StoreGate key
@@ -96,6 +103,8 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
   Gaudi::Property<std::vector<float>> m_nTrkMassMax { this, "nTrackMassMax", {100000},"list of maxes for nTrk mass windows"};
 
   Gaudi::Property<float> m_mindR { this, "overlapdR",0.01 ,"Minimum dR between tracks (overlap removal)"};
+    
+  Gaudi::Property<int> m_particleType { this, "particleType", 0, "Types of particles to use. 0 = tracks, 1 = EF Muons, 2 = tbd..."}; 
     
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 

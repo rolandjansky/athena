@@ -40,6 +40,8 @@ class MsgStream;
 
 namespace InDet{
 
+  class SiTrackMakerEventData_xk;
+
   /**
   @class SiTrackMaker_xk 
   
@@ -66,32 +68,31 @@ namespace InDet{
       SiTrackMaker_xk
       (const std::string&,const std::string&,const IInterface*);
       virtual ~SiTrackMaker_xk() = default;
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for local track finding
       ///////////////////////////////////////////////////////////////////
       
       virtual std::list<Trk::Track*>
-      getTracks(const std::list<const Trk::SpacePoint*>& Sp) const;
+      getTracks(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const override;
 
       virtual std::list<Trk::Track*>
-      getTracks(const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const;
+      getTracks(SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const override;
 
-      virtual void newEvent(bool PIX, bool SCT) const;
-      virtual void newTrigEvent(bool PIX, bool SCT) const;
+      virtual void newEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
+      virtual void newTrigEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
 
-      virtual void endEvent() const;
+      virtual void endEvent(SiTrackMakerEventData_xk& data) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump(MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      MsgStream& dump(SiTrackMakerEventData_xk& data, MsgStream& out) const override;
 
-    protected:
+    private:
       
       SiTrackMaker_xk() = delete;
       SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
@@ -145,47 +146,14 @@ namespace InDet{
       bool m_heavyion{false}; // Is it heavy ion events
       Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
 
-      mutable std::mutex m_mutex;
-      mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-      struct EventData { // To hold event dependent data
-        // Counters
-        int inputseeds{0}; // Number input seeds
-        int goodseeds{0}; // Number good seeds
-        int findtracks{0}; // Numbe found tracks
-
-        // Flag for dump method
-        int nprint{0}; // Kind output information
-
-        // Updated by many methods
-        std::multimap<const Trk::PrepRawData*, const Trk::Track*> clusterTrack;
-        std::array<double, 9> par;
-
-        // Updated only by newEvent and newTrigEvent methods
-        bool pix{false};
-        bool sct{false};
-
-        // Updated only by getTracks
-        bool dbm{false};
-
-        // Updated only by newEvent method
-        std::list<double> caloF;
-        std::list<double> caloR;
-        std::list<double> caloZ;
-        std::list<double> hadF;
-        std::list<double> hadR;
-        std::list<double> hadZ;
-        double xybeam[2]{0., 0.};
-      };
-      mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      const Trk::TrackParameters* getAtaPlane(EventData& data,
+      const Trk::TrackParameters* getAtaPlane(SiTrackMakerEventData_xk& data,
                                               bool sss,
                                               const std::list<const Trk::SpacePoint*>& SP) const;
-      const Trk::TrackParameters* getAtaPlaneDBM(EventData& data,
+      const Trk::TrackParameters* getAtaPlaneDBM(SiTrackMakerEventData_xk& data,
                                                  const std::list<const Trk::SpacePoint*>& SP) const;
 
       bool globalPositions(const Trk::SpacePoint* s0,
@@ -197,23 +165,18 @@ namespace InDet{
       bool globalPosition(const Trk::SpacePoint* sp, double* dir, double* p) const;
       void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
-      void detectorElementsSelection(EventData& data,
+      void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
-      bool newSeed(EventData& data, const std::list<const Trk::SpacePoint*>& Sp) const;
-      bool isNewTrack(EventData& data, Trk::Track* Tr) const;
-      bool isCaloCompatible(EventData& data) const;
-      bool isHadCaloCompatible(EventData& data) const;
+      bool newSeed(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const;
+      bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
+      bool isCaloCompatible(SiTrackMakerEventData_xk& data) const;
+      bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isDBMSeeds(const Trk::SpacePoint* s) const;
-      void clusterTrackMap(EventData& data, Trk::Track* Tr) const;
-
-      EventData& getEventData() const;
+      void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
 
       MsgStream& dumpconditions(MsgStream& out) const;
-      MsgStream& dumpevent(EventData& data, MsgStream& out) const;
+      MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
     };
-
-    MsgStream&    operator << (MsgStream& sl, const SiTrackMaker_xk& se);
-    std::ostream& operator << (std::ostream& sl, const SiTrackMaker_xk& se); 
 
 } // end of name space
 
