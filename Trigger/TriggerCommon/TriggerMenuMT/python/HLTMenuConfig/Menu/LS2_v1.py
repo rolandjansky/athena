@@ -95,8 +95,8 @@ def setupMenu():
         ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),        
         
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
-        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),       
-
+        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_5j70_0eta240_L1J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
 
     ]
