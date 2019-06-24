@@ -55,6 +55,10 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # result.merge(caloNoiseAcc)
     # myMonAlg.CaloNoiseTool = caloNoiseTool
 
+    # set up geometry / conditions
+    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
+
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
@@ -101,45 +105,8 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # and the sequence containing the created algorithms. If we haven't called
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
-    return helper.result()
+    #return helper.result()
     
     # # Otherwise, merge with result object and return
-    # acc, seq = helper.result()
-    # result.merge(acc)
-    # return result
-
-
-if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # Setup logs
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
-    log.setLevel(INFO)
-
-    # Set the Athena configuration flags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.Output.HISTFileName = 'SCTLorentzMonOutput.root'
-    ConfigFlags.GeoModel.Align.Dynamic = False
-    ConfigFlags.Detector.GeometryID = True
-    ConfigFlags.Detector.GeometryMuon = True
-    ConfigFlags.lock()
-
-    # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
-    cfg.merge(PoolReadCfg(ConfigFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg=AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
-
-    sctLorentzMonAcc = SCTLorentzMonAlgConfig(ConfigFlags)
-    
-    cfg.merge(sctLorentzMonAcc)
-    cfg.run()
+    result.merge(helper.result())
+    return result

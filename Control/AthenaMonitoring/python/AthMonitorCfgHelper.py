@@ -93,9 +93,13 @@ class AthMonitorCfgHelper(object):
         '''
         from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
         tool = GenericMonitoringTool(name)
-        acc, histsvc = getDQTHistSvc(self.inputFlags)
-        self.resobj.merge(acc)
-        tool.THistSvc = histsvc
+        if self.inputFlags.DQ.isReallyOldStyle:
+            from AthenaCommon.AppMgr import ServiceMgr
+            tool.THistSvc = ServiceMgr.THistSvc
+        else:
+            acc = getDQTHistSvc(self.inputFlags)
+            self.resobj.merge(acc)
+
         tool.HistPath = self.inputFlags.DQ.FileKey + ('/%s' % topPath if topPath else '')
         alg.GMTools += [tool]
         return tool
@@ -204,11 +208,17 @@ def getDQTHistSvc(inputFlags):
     from GaudiSvc.GaudiSvcConf import THistSvc
 
     result = ComponentAccumulator()
+
+    if inputFlags.DQ.isReallyOldStyle:
+        from AthenaCommon.AppMgr import ServiceMgr
+        result.addService(ServiceMgr.THistSvc)
+        return result
+
     histsvc = THistSvc()
     histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (inputFlags.DQ.FileKey, 
                                                             inputFlags.Output.HISTFileName)]
     result.addService(histsvc)
-    return result, histsvc
+    return result
 
 def getTriggerTranslatorToolSimple(inputFlags):
     ''' Set up the Trigger Translator Tool; no reason for this to be called
