@@ -28,8 +28,20 @@ extern "C"
 {
   namespace FPEAudit
   {
-    void fpe_sig_action( int sig, siginfo_t *si, void *puc )
+    void fpe_sig_action( int /*sig*/, siginfo_t *si, void *puc )
     {
+#if 0
+      // Pre-MT code had this.  If the handler had been disabled,
+      // this would fall back to the previous behavior on a signal,
+      // which would usually mean a crash.  However, this would not really
+      // be expected to happen, since exceptions are masked when the
+      // handler is disabled.  However, with MT, it would be possible
+      // for a signal to be generated if it happens in a different
+      // thread than the one in which the handler was disabled.
+      // As we probably never really want to go to the fallback
+      // behavior (since that would well mean a crash), just disable
+      // this behavior.
+
       // call old handlers if too many exceptions occured in this job
       if ( s_handlerDisabled )
         {
@@ -39,6 +51,7 @@ extern "C"
             if (s_oldactHandler.sa_handler) s_oldactHandler.sa_handler(sig);
           }
         }
+#endif
       
       // modify mcontext_t struct to reset FPE exception mask
       ucontext_t *uc = (ucontext_t *)puc;
@@ -376,7 +389,14 @@ extern "C"
               int     status;
 	      
               bool found = bfd_find_nearest_line(ibfd, text, symtab, offset, &file, &func, &line);
-	      
+
+              // dli_sname can be null.  If we try to write that
+              // to a MsgStream, the stream will misbehave (all subsequent
+              // messages will be blank).
+              const char* dli_sname = info.dli_sname;
+              if (!dli_sname) {
+                dli_sname = "(null)";
+              }
               if ( found && file)
                 {
                   do
@@ -393,9 +413,13 @@ extern "C"
                       else
                         {
                           if (print)
-                            fprintf(stderr,"%s : %s (%s,%u)\n", first ? "  in function" : "  included from", func ? func : info.dli_sname, file, line);
-                          else
-                            msg << ( first ? "  in function" : "  included from" ) << " : " << ( func ? func : info.dli_sname ) << " (" << file << ":" << line << ")\n";
+                            fprintf(stderr,"%s : %s (%s,%u)\n", first ? "  in function" : "  included from", func ? func : dli_sname, file, line);
+                          else {
+                            msg << ( first ? "  in function" : "  included from" )
+                                << " : "
+                                << ( func ? func : dli_sname )
+                                << " (" << file << ":" << line << ")\n";
+                          }
                         }
                       free(realname);
 		      
