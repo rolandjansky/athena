@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace Trk {
     BinnedArray1D1D1D() :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtil1(0),
       m_binUtil2(0),
       m_binUtilArray(0)
@@ -52,7 +52,7 @@ namespace Trk {
                       BinUtility* binUtil1, BinUtility* binUtil2, std::vector<std::vector<BinUtility*> >* binUtilVec) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtil1(binUtil1),
       m_binUtil2(binUtil2),
       m_binUtilArray(binUtilVec)
@@ -95,7 +95,7 @@ namespace Trk {
       BinnedArray1D1D1D(const BinnedArray1D1D1D& barr)
       : BinnedArray<T>(),
         m_array(0),
-        m_arrayObjects(0),
+        m_arrayObjects(nullptr),
 	m_binUtil1(0),
 	m_binUtil2(0),
 	m_binUtilArray(0)
@@ -148,7 +148,7 @@ namespace Trk {
 	      delete (*m_array)[ia];
 	    }
 	    delete m_array;
-	    delete m_arrayObjects; m_arrayObjects = 0;
+	    m_arrayObjects.release();
 	    // bin utilities
 	    int v1Size = m_binUtil1->bins();
 	    int v2Size = m_binUtil2->bins();
@@ -210,7 +210,6 @@ namespace Trk {
 	    delete (*m_array)[ia];
 	  }
 	  delete m_array;
-	  delete m_arrayObjects;
 	  int v1Size = m_binUtil1->bins();
 	  int v2Size = m_binUtil2->bins();
 	  delete m_binUtil1;
@@ -271,15 +270,16 @@ namespace Trk {
       /** Return all objects of the Array */
       const std::vector< const T* >& arrayObjects() const {
 	if (!m_arrayObjects){
-	  m_arrayObjects = new std::vector<const T*>;
+	   std::unique_ptr< std::vector< const T* >> arrayObjects = std::make_unique< std::vector<const T*> >();
 	  for (size_t ibin1=0; ibin1<m_binUtil1->bins(); ++ibin1) {
 	    for (size_t ibin2=0; ibin2<m_binUtil2->bins(); ++ibin2) {               
 	      for (size_t ibin3 = 0; ibin3< (*m_binUtilArray)[ibin1][ibin2]->bins(); ++ibin3) {
-	        m_arrayObjects->push_back(((*((*((*m_array)[ibin1]))[ibin2]))[ibin3]).get());
+	        arrayObjects->push_back(((*((*((*m_array)[ibin1]))[ibin2]))[ibin3]).get());
 	      }
 	    }
 	  }
-	}
+    m_arrayObjects.set(std::move(arrayObjects));  	
+  }
 	return (*m_arrayObjects);
       }
 
@@ -291,7 +291,7 @@ namespace Trk {
  
       private:
        std::vector<std::vector< std::vector< SharedObject<const T> >* >* >*     m_array;        //!< vector of pointers to the class T
-       mutable std::vector< const T* >*                          m_arrayObjects; //!< forced 1D vector of pointers to class T
+       CxxUtils::CachedUniquePtr<std::vector< const T* >>        m_arrayObjects; //!< forced 1D vector of pointers to class T
        BinUtility*                                               m_binUtil1;   //!< binUtility for retrieving and filling the Array
        BinUtility*                                               m_binUtil2;   //!< binUtility for retrieving and filling the Array
        std::vector<std::vector<BinUtility*> >*                   m_binUtilArray;    //!< binUtility for retrieving and filling the Array

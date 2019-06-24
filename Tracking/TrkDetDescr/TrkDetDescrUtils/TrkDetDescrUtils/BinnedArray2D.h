@@ -38,7 +38,7 @@ namespace Trk {
      BinnedArray2D() :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(0) 
      {}
 
@@ -48,7 +48,7 @@ namespace Trk {
      BinnedArray2D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector, BinUtility* bingen) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(bingen) 
       {
 
@@ -75,7 +75,7 @@ namespace Trk {
      BinnedArray2D(const BinnedArray2D& barr) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(0) 
       {
           m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
@@ -96,7 +96,7 @@ namespace Trk {
           for ( size_t ivec=0 ; ivec < arrsize; ++ivec) 
               delete (*m_array)[ivec];
           delete m_array;
-          delete m_arrayObjects; m_arrayObjects = 0;
+          m_arrayObjects.release();
           delete m_binUtility;
           // now refill
           m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
@@ -122,7 +122,6 @@ namespace Trk {
         for ( size_t ivec=0 ; ivec < m_array->size(); ++ivec) 
             delete (*m_array)[ivec];
         delete m_array;
-        delete m_arrayObjects;
         delete m_binUtility;
       }
 
@@ -166,12 +165,15 @@ namespace Trk {
      /** Return all objects of the Array */
      const std::vector< const T* >& arrayObjects() const {
       if (!m_arrayObjects){
-        m_arrayObjects = new std::vector<const T*>;
-        m_arrayObjects->reserve(arrayObjectsNumber());
-          for (size_t ihl=0; ihl< (m_binUtility->bins(1)); ++ihl)
-            for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
-               m_arrayObjects->push_back( ((*((*m_array)[ihl]))[ill]).get() );
-       }
+        std::unique_ptr< std::vector< const T* >> arrayObjects = std::make_unique< std::vector<const T*> >();
+        arrayObjects->reserve(arrayObjectsNumber());
+          for (size_t ihl=0; ihl< (m_binUtility->bins(1)); ++ihl){
+            for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill){
+               arrayObjects->push_back( ((*((*m_array)[ihl]))[ill]).get() );
+            }
+          }
+       m_arrayObjects.set(std::move(arrayObjects));
+      }
        return (*m_arrayObjects);
      }
 
@@ -182,9 +184,9 @@ namespace Trk {
      const BinUtility* binUtility() const { return(m_binUtility); }
 
     private:
-     std::vector< std::vector< SharedObject<const T> >* >*     m_array;        //!< vector of pointers to the class T
-     mutable std::vector< const T* >*                          m_arrayObjects; //!< forced 1D vector of pointers to class T
-     BinUtility*                                               m_binUtility;   //!< binUtility for retrieving and filling the Array
+     std::vector< std::vector< SharedObject<const T> >* >*    m_array;        //!< vector of pointers to the class T
+     CxxUtils::CachedUniquePtr<std::vector< const T* >>       m_arrayObjects; //!< forced 1D vector of pointers to class T
+     BinUtility*                                              m_binUtility;   //!< binUtility for retrieving and filling the Array
 
   };
 

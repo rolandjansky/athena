@@ -37,7 +37,7 @@ public:
     NavBinnedArray1D() :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(),
       m_transf(0){}
 
@@ -47,7 +47,7 @@ public:
     NavBinnedArray1D(const std::vector< SharedObject<const T> >& tclassvector, BinUtility* bingen, Amg::Transform3D* transform) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(SharedObject<BinUtility>(bingen)),
       m_transf(transform)
     {
@@ -61,7 +61,7 @@ public:
     NavBinnedArray1D(const NavBinnedArray1D& barr, std::vector< SharedObject<const T> >* vec, Amg::Transform3D& shift) :
       BinnedArray<T>(),
       m_array(vec),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(barr.m_binUtility),
       m_transf(new Amg::Transform3D(shift*(*barr.m_transf)))
     {}
@@ -70,7 +70,7 @@ public:
     NavBinnedArray1D(const NavBinnedArray1D& barr) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(barr.m_binUtility),
       m_transf(0)
     {
@@ -89,7 +89,7 @@ public:
         if (this != &barr){
         
             delete m_array;
-            delete m_arrayObjects; m_arrayObjects = 0;
+            m_arrayObjects.release();
             delete m_transf;
            // now refill
             m_binUtility = barr.m_binUtility;
@@ -114,7 +114,6 @@ public:
     ~NavBinnedArray1D()
     {
         delete m_array;
-        delete m_arrayObjects;
         delete m_transf;
     }
 
@@ -165,9 +164,11 @@ public:
      /** Return all objects of the Array */
      const std::vector< const T* >& arrayObjects() const {
          if (!m_arrayObjects){
-             m_arrayObjects = new std::vector<const T*>;
-             for (unsigned int ill=0; ill < m_array->size(); ++ill)
-                 m_arrayObjects->push_back( ((*m_array)[ill]).get());
+           std::unique_ptr< std::vector< const T* >> arrayObjects = std::make_unique< std::vector<const T*> >();  
+             for (unsigned int ill=0; ill < m_array->size(); ++ill){
+                 arrayObjects->push_back( ((*m_array)[ill]).get());
+             }
+             m_arrayObjects.set(std::move(arrayObjects)); 
          }
          return (*m_arrayObjects);
      }
@@ -182,7 +183,7 @@ public:
      Amg::Transform3D* transform() const { return(m_transf); }
 
      /** Reposition */
-     void updateTransform( Amg::Transform3D& transform ) const {
+     void updateTransform( Amg::Transform3D& transform ) {
          Amg::Transform3D* tr = m_transf;
          m_transf = new Amg::Transform3D(transform* (*m_transf));
          delete tr;
@@ -190,9 +191,9 @@ public:
 
  private:
      std::vector< SharedObject<const T> >*                     m_array;        //!< vector of pointers to the class T
-     mutable std::vector< const T* >*                          m_arrayObjects; //!< forced 1D vector of pointers to class T
+     CxxUtils::CachedUniquePtr<std::vector< const T* >>        m_arrayObjects; //!< forced 1D vector of pointers to class T
      SharedObject<BinUtility>                                  m_binUtility;   //!< binUtility for retrieving and filling the Array
-     mutable Amg::Transform3D*                                 m_transf;      // !< transform into local navigation coordinates
+     Amg::Transform3D*                                         m_transf;      // !< transform into local navigation coordinates
 
  };
 

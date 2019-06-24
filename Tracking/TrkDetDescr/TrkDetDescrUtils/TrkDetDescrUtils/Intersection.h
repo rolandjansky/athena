@@ -47,7 +47,7 @@ namespace Trk {
    template <class T> class ObjectIntersection {
      public:  
        Intersection  intersection;
-       mutable const T*    object;
+       const T*            object;
        PropDirection       pDirection;
    
        /** Object intersection */
@@ -69,9 +69,9 @@ namespace Trk {
     template <class T, class R, class S> class FullIntersection {
       public:  
         Intersection  intersection;
-        mutable const T*    object;
-        mutable const R*    representation;
-        mutable const S*    result;
+        const T*    object;
+        const R*    representation;
+        const S*    result;
         PropDirection       pDirection;
     
         /** Full intersection */
