@@ -221,25 +221,24 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     return false;
   }
 
-  ATH_MSG_VERBOSE("Input: tof " << inputData.tof << " trigger offset " << inputData.triggerOffset);
-  if( inputData.pointOfClosestApproach ) ATH_MSG_VERBOSE("  PointOfClosestApproach");
-  if( inputData.trackDirection )         ATH_MSG_VERBOSE("  TrackDirection");
-  if( inputData.nominalWireSurface )     ATH_MSG_VERBOSE("  Nom. WireSurface");
-  if( inputData.wireSurface )            ATH_MSG_VERBOSE("  Sagged Wiresurface");
-
-  ATH_MSG_VERBOSE("Settings: window " << settings.timeWindowLowerBound() << "  " << settings.timeWindowUpperBound());
-  if( settings.doTof )     ATH_MSG_VERBOSE(" Tof");
-  if( settings.doProp )    ATH_MSG_VERBOSE(" Prop");
-  if( settings.doTemp )    ATH_MSG_VERBOSE(" Temp");
-  if( settings.doField )   ATH_MSG_VERBOSE(" Field");
-  if( settings.doWireSag ) ATH_MSG_VERBOSE(" WireSag");
-  if( settings.doSlew )    ATH_MSG_VERBOSE(" Slew");
-  if( settings.doBkg )     ATH_MSG_VERBOSE(" Bkg");
+  if (msgLvl(MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE("Input: tof " << inputData.tof << " trigger offset " << inputData.triggerOffset);
+    if( inputData.pointOfClosestApproach ) ATH_MSG_VERBOSE("  PointOfClosestApproach");
+    if( inputData.trackDirection )         ATH_MSG_VERBOSE("  TrackDirection");
+    if( inputData.nominalWireSurface )     ATH_MSG_VERBOSE("  Nom. WireSurface");
+    if( inputData.wireSurface )            ATH_MSG_VERBOSE("  Sagged Wiresurface");
+    ATH_MSG_VERBOSE("Settings: window " << settings.timeWindowLowerBound() << "  " << settings.timeWindowUpperBound());
+    if( settings.doTof )     ATH_MSG_VERBOSE(" Tof");
+    if( settings.doProp )    ATH_MSG_VERBOSE(" Prop");
+    if( settings.doTemp )    ATH_MSG_VERBOSE(" Temp");
+    if( settings.doField )   ATH_MSG_VERBOSE(" Field");
+    if( settings.doWireSag ) ATH_MSG_VERBOSE(" WireSag");
+    if( settings.doSlew )    ATH_MSG_VERBOSE(" Slew");
+    if( settings.doBkg )     ATH_MSG_VERBOSE(" Bkg");
+  }
 
   const Identifier &id = hit.identify();
-
   const MuonGM::MdtReadoutElement *geo = hit.geometry();
-
   // set geometry pointer if not yet set
   if ( !geo ) {
     geo = m_imp->getGeometry( id );
