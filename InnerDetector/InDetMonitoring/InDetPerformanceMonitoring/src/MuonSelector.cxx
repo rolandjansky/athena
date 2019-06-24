@@ -74,7 +74,7 @@ MuonSelector::MuonSelector()
   m_ucID_SCTCut     = 4;        // Hits
   m_ucID_TRTCut     = 0;        // Hits
 
-  m_doDebug         = true;
+  m_doDebug         = false;
   m_doQualSelection = false;
   m_doIsoSelection  = false;
   m_doPtSelection   = true;

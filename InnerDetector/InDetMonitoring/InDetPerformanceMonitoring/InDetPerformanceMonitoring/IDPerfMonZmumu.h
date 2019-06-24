@@ -172,6 +172,8 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   mutable unsigned int            m_evtNumber;
   mutable unsigned int            m_lumi_block;
   mutable unsigned int            m_event_mu;
+  int                             m_triggerPrescale;
+  mutable unsigned int            m_nVertex;
 
   double m_positive_px;
   double m_positive_py;
@@ -184,6 +186,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_positive_d0_PV;
   double m_positive_z0_PVerr;
   double m_positive_d0_PVerr;
+  int m_positive_1_vtx;
 
   double m_positive_2_px;
   double m_positive_2_py;
@@ -196,8 +199,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_positive_2_d0_PV;
   double m_positive_2_z0_PVerr;
   double m_positive_2_d0_PVerr;
-
-
+  int m_positive_2_vtx;
 
   double m_negative_px;
   double m_negative_py;
@@ -210,6 +212,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_negative_d0_PV;
   double m_negative_z0_PVerr;
   double m_negative_d0_PVerr;
+  int m_negative_1_vtx;
 
   double m_negative_2_px;
   double m_negative_2_py;
@@ -222,6 +225,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_negative_2_d0_PV;
   double m_negative_2_z0_PVerr;
   double m_negative_2_d0_PVerr;
+  int m_negative_2_vtx;
 
   double m_4mu_minv;
 
@@ -233,8 +237,6 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   double m_met;
   double m_metphi;
   
-  int m_triggerPrescale;
-
   std::string m_sTriggerChainName;
   std::string m_outputTracksName;
   bool m_doRemoval;

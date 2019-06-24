@@ -103,6 +103,12 @@ class FourMuonEvent : public EventAnalysis
   void setContainer( PerfMonServices::CONTAINERS container) { m_container = container; };
   inline double GetInvMass() {return m_FourMuonInvMass;}
 
+  inline int GetNVertex () {return m_nVertex;}
+  inline int GetVertexMuNeg1 () {return m_muonneg1_vtx;}
+  inline int GetVertexMuNeg2 () {return m_muonneg2_vtx;}
+  inline int GetVertexMuPos1 () {return m_muonpos1_vtx;}
+  inline int GetVertexMuPos2 () {return m_muonpos2_vtx;}
+
  protected:
   virtual void BookHistograms();
 
@@ -173,6 +179,14 @@ class FourMuonEvent : public EventAnalysis
   int m_muonpos2;
   int m_muonneg1;
   int m_muonneg2;
+
+  // 
+  int m_nVertex; // number of vertex to which the muons are associated
+  int m_muonneg1_vtx; // tell us wich of the vertex
+  int m_muonneg2_vtx; // tell us wich of the vertex
+  int m_muonpos1_vtx; // tell us wich of the vertex
+  int m_muonpos2_vtx; // tell us wich of the vertex
+
 };
 //==============================================================================
 #endif

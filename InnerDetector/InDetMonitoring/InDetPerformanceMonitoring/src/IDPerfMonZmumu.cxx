@@ -526,50 +526,55 @@ StatusCode IDPerfMonZmumu::initialize()
     ATH_MSG_INFO("initialize() ** defining m_FourMuTree ");
     m_FourMuTree = new TTree((m_FourMuTreeName).c_str(), "Four Muon monitoring");
 
-    m_FourMuTree->Branch("runNumber"  ,  &m_runNumber,  "runNumber/I");
-    m_FourMuTree->Branch("eventNumber",  &m_evtNumber,  "eventNumber/I");
-    m_FourMuTree->Branch("lumi_block" ,  &m_lumi_block,  "lumi_block/I");
-    m_FourMuTree->Branch("mu"         ,  &m_event_mu,  "mu/I");
+    m_FourMuTree->Branch("runNumber"  ,  &m_runNumber,       "runNumber/I");
+    m_FourMuTree->Branch("eventNumber",  &m_evtNumber,       "eventNumber/I");
+    m_FourMuTree->Branch("lumi_block" ,  &m_lumi_block,      "lumi_block/I");
+    m_FourMuTree->Branch("mu"         ,  &m_event_mu,        "mu/I");
     m_FourMuTree->Branch("preScale"   ,  &m_triggerPrescale, "preScale/I");
+    m_FourMuTree->Branch("nVertex"    ,  &m_nVertex,         "nVertex/I");
 
-    m_FourMuTree->Branch("Negative_1_Px",  &m_negative_px,  "Negative_Px/D");
-    m_FourMuTree->Branch("Negative_1_Py",  &m_negative_py,  "Negative_Py/D");
-    m_FourMuTree->Branch("Negative_1_Pz",  &m_negative_pz,  "Negative_Pz/D");
-    m_FourMuTree->Branch("Negative_1_z0",  &m_negative_z0,  "Negative_z0/D");
-    m_FourMuTree->Branch("Negative_1_d0",  &m_negative_d0,  "Negative_d0/D");
-    m_FourMuTree->Branch("Negative_1_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
-    m_FourMuTree->Branch("Negative_1_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+    m_FourMuTree->Branch("Negative_1_Px",     &m_negative_px,   "Negative_1_Px/D");
+    m_FourMuTree->Branch("Negative_1_Py",     &m_negative_py,   "Negative_1_Py/D");
+    m_FourMuTree->Branch("Negative_1_Pz",     &m_negative_pz,   "Negative_1_Pz/D");
+    m_FourMuTree->Branch("Negative_1_z0",     &m_negative_z0,   "Negative_1_z0/D");
+    m_FourMuTree->Branch("Negative_1_d0",     &m_negative_d0,   "Negative_1_d0/D");
+    m_FourMuTree->Branch("Negative_1_z0_err", &m_negative_z0_err,  "Negative_1_z0_err/D");
+    m_FourMuTree->Branch("Negative_1_d0_err", &m_negative_d0_err,  "Negative_1_d0_err/D");
+    m_FourMuTree->Branch("Negative_1_vtx",    &m_negative_1_vtx,  "Negative_1_vtx/I"); // vertex identifier
 
-    m_FourMuTree->Branch("Negative_2_Px",  &m_negative_2_px,  "Negative_Px/D");
-    m_FourMuTree->Branch("Negative_2_Py",  &m_negative_2_py,  "Negative_Py/D");
-    m_FourMuTree->Branch("Negative_2_Pz",  &m_negative_2_pz,  "Negative_Pz/D");
-    m_FourMuTree->Branch("Negative_2_z0",  &m_negative_2_z0,  "Negative_z0/D");
-    m_FourMuTree->Branch("Negative_2_d0",  &m_negative_2_d0,  "Negative_d0/D");
-    m_FourMuTree->Branch("Negative_2_z0_err",  &m_negative_2_z0_err,  "Negative_z0_err/D");
-    m_FourMuTree->Branch("Negative_2_d0_err",  &m_negative_2_d0_err,  "Negative_d0_err/D");
+    m_FourMuTree->Branch("Negative_2_Px",     &m_negative_2_px,  "Negative_2_Px/D");
+    m_FourMuTree->Branch("Negative_2_Py",     &m_negative_2_py,  "Negative_2_Py/D");
+    m_FourMuTree->Branch("Negative_2_Pz",     &m_negative_2_pz,  "Negative_2_Pz/D");
+    m_FourMuTree->Branch("Negative_2_z0",     &m_negative_2_z0,  "Negative_2_z0/D");
+    m_FourMuTree->Branch("Negative_2_d0",     &m_negative_2_d0,  "Negative_2_d0/D");
+    m_FourMuTree->Branch("Negative_2_z0_err", &m_negative_2_z0_err,  "Negative_2_z0_err/D");
+    m_FourMuTree->Branch("Negative_2_d0_err", &m_negative_2_d0_err,  "Negative_2_d0_err/D");
+    m_FourMuTree->Branch("Negative_2_vtx",    &m_negative_2_vtx,  "Negative_2_vtx/I");
 
-    m_FourMuTree->Branch("Positive_1_Px",  &m_positive_px,  "Positive_Px/D");
-    m_FourMuTree->Branch("Positive_1_Py",  &m_positive_py,  "Positive_Py/D");
-    m_FourMuTree->Branch("Positive_1_Pz",  &m_positive_pz,  "Positive_Pz/D");
-    m_FourMuTree->Branch("Positive_1_z0",  &m_positive_z0,  "Positive_z0/D");
-    m_FourMuTree->Branch("Positive_1_d0",  &m_positive_d0,  "Positive_d0/D");
-    m_FourMuTree->Branch("Positive_1_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
-    m_FourMuTree->Branch("Positive_1_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
+    m_FourMuTree->Branch("Positive_1_Px",  &m_positive_px,  "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_1_Py",  &m_positive_py,  "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_1_Pz",  &m_positive_pz,  "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_1_z0",  &m_positive_z0,  "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_1_d0",  &m_positive_d0,  "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_1_z0_err",  &m_positive_z0_err,  "Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_1_d0_err",  &m_positive_d0_err,  "Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_1_vtx",  &m_positive_1_vtx,  "Positive_1_vtx/I");
 
-    m_FourMuTree->Branch("Positive_2_Px",  &m_positive_2_px,  "Positive_Px/D");
-    m_FourMuTree->Branch("Positive_2_Py",  &m_positive_2_py,  "Positive_Py/D");
-    m_FourMuTree->Branch("Positive_2_Pz",  &m_positive_2_pz,  "Positive_Pz/D");
-    m_FourMuTree->Branch("Positive_2_z0",  &m_positive_2_z0,  "Positive_z0/D");
-    m_FourMuTree->Branch("Positive_2_d0",  &m_positive_2_d0,  "Positive_d0/D");
-    m_FourMuTree->Branch("Positive_2_z0_err",  &m_positive_2_z0_err,  "Positive_z0_err/D");
-    m_FourMuTree->Branch("Positive_2_d0_err",  &m_positive_2_d0_err,  "Positive_d0_err/D");
+    m_FourMuTree->Branch("Positive_2_Px",  &m_positive_2_px,  "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_2_Py",  &m_positive_2_py,  "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_2_Pz",  &m_positive_2_pz,  "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_2_z0",  &m_positive_2_z0,  "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_2_d0",  &m_positive_2_d0,  "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_2_z0_err",  &m_positive_2_z0_err,  "Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_2_d0_err",  &m_positive_2_d0_err,  "Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_2_vtx",  &m_positive_2_vtx,  "Positive_2_vtx/I");
 
     m_FourMuTree->Branch("minv4mu",   &m_4mu_minv,  "minv4mu/D");
     m_FourMuTree->Branch("pv_x",      &m_pv_x   ,   "pv_x/D");
     m_FourMuTree->Branch("pv_y",      &m_pv_y   ,   "pv_y/D");
     m_FourMuTree->Branch("pv_z",      &m_pv_z   ,   "pv_z/D");
     m_FourMuTree->Branch("nTrkInVtx", &m_nTrkInVtx, "nTrkInVtx/I");
-
+    
     m_FourMuTree->Branch("met",       &m_met,     "met/D");
     m_FourMuTree->Branch("metphi",    &m_metphi,  "metphi/D");
   }
@@ -832,10 +837,10 @@ StatusCode IDPerfMonZmumu::execute()
 
 	if (m_doDebug || true) {
 	  std::cout << " * IDPerfMonZmumu::execute * going to fill FourMu ntuple with following muons: " << std::endl;
-	  std::cout << "       muon1_pos    Pt= " << muon1_pos->pt() << "  q= " << muon1_pos->charge() << std::endl;
-	  std::cout << "       muon2_pos    Pt= " << muon2_pos->pt() << "  q= " << muon2_pos->charge() << std::endl;
-	  std::cout << "       muon1_neg    Pt= " << muon1_neg->pt() << "  q= " << muon1_neg->charge() << std::endl;
-	  std::cout << "       muon2_neg    Pt= " << muon2_neg->pt() << "  q= " << muon2_neg->charge() << std::endl;
+	  std::cout << "       muon1_neg    Pt= " << muon1_neg->pt() << "  q= " << muon1_neg->charge() << "  in vtx: " << m_4mu.GetVertexMuNeg1() << std::endl;
+	  std::cout << "       muon2_neg    Pt= " << muon2_neg->pt() << "  q= " << muon2_neg->charge() << "  in vtx: " << m_4mu.GetVertexMuNeg2() << std::endl;
+	  std::cout << "       muon1_pos    Pt= " << muon1_pos->pt() << "  q= " << muon1_pos->charge() << "  in vtx: " << m_4mu.GetVertexMuPos1() << std::endl;
+	  std::cout << "       muon2_pos    Pt= " << muon2_pos->pt() << "  q= " << muon2_pos->charge() << "  in vtx: " << m_4mu.GetVertexMuPos1() << std::endl;
 	}
 	m_positive_px = muon1_pos->p4().Px();
 	m_positive_py = muon1_pos->p4().Py();
@@ -871,9 +876,17 @@ StatusCode IDPerfMonZmumu::execute()
 	  std::cout << "            muonneg_1 d0= " << m_negative_d0   << "   z0= " << m_negative_z0   << std::endl;
 	  std::cout << "            muonneg_2 d0= " << m_negative_2_d0 << "   z0= " << m_negative_2_z0 << std::endl;
 	}
-	
+	//
+
+	m_nVertex =        m_4mu.GetNVertex ();
+	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
+	m_negative_2_vtx = m_4mu.GetVertexMuNeg2();
+	m_positive_1_vtx = m_4mu.GetVertexMuPos1();
+	m_positive_2_vtx = m_4mu.GetVertexMuPos2();
+
 	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
-	if (muon1_pos->vertex() != NULL) {
+
+	if (muon1_neg->vertex() != NULL) {
 	  m_pv_x = muon1_pos->vertex()->x();
 	  m_pv_y = muon1_pos->vertex()->y();
 	  m_pv_z = muon1_pos->vertex()->z();
@@ -884,30 +897,12 @@ StatusCode IDPerfMonZmumu::execute()
 		      << ", " << m_pv_z
 		      << ") " << std::endl;
 	  }
-	}
-	if (muon2_pos->vertex() != NULL) {
-	  if (m_doDebug) {
-	    std::cout << "                                            muon2_pos (x, y, z)= (" << muon2_pos->vertex()->x()
-		      << ", " << muon2_pos->vertex()->y()
-		      << ", " << muon2_pos->vertex()->z()
-		      << ") " << std::endl;
-	  }
-	}
-	if (muon1_neg->vertex() != NULL) {
-	  if (m_doDebug) {
-	    std::cout << "                                            muon1_neg (x, y, z)= (" << muon1_neg->vertex()->x()
-		      << ", " << muon1_neg->vertex()->y()
-		      << ", " << muon1_neg->vertex()->z()
-		      << ") " << std::endl;
-	  }
-	}
-	if (muon2_neg->vertex() != NULL) {
-	  if (m_doDebug) {
-	    std::cout << "                                            muon1_neg (x, y, z)= (" << muon2_neg->vertex()->x()
-		      << ", " << muon2_neg->vertex()->y()
-		      << ", " << muon2_neg->vertex()->z()
-		      << ") " << std::endl;
-	  }
+	  std::cout << " -- salva -- nvtx: " << m_nVertex        
+		    << "           muneg1: " << m_negative_1_vtx 
+		    << "           muneg2: " << m_negative_2_vtx 
+		    << "           mupos1: " << m_positive_1_vtx 
+		    << "           mupos2: " << m_positive_2_vtx 
+		    << std::endl;
 	}
 	
 	m_4mu_minv = m_4mu.GetInvMass();
