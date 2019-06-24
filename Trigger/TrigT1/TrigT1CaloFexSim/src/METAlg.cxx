@@ -123,7 +123,7 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
     if(useEtaBins) Et_sub = TMath::Abs(Et) - area*rho;
 
     else{
-      if(eta < 2.4) Et_sub = TMath::Abs(Et) - rho;
+      if(fabs(eta < 2.4)) Et_sub = TMath::Abs(Et) - rho;
       else Et_sub = TMath::Abs(Et) - 4*rho;
     }
 
