@@ -282,4 +282,22 @@ if DQMonFlags.doMonitoring():
             postprocfunc(tool)
             del postprocfunc
 
+   # # set up new-style monitoring with new-style configuration
+   # # only enable this when we understand details better...
+   # local_logger.info('Setting up new-style DQ monitoring')
+   # from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
+   # from AthenaCommon.Configurable import Configurable
+
+   # _ = Configurable.configurableRun3Behavior
+   # Configurable.configurableRun3Behavior = 1
+   # from AthenaConfiguration.AllConfigFlags import ConfigFlags
+   # ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput()
+   # ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
+   # ConfigFlags.DQ.isReallyOldStyle = True
+   # _2 = AthenaMonitoringCfg(ConfigFlags)
+   # Configurable.configurableRun3Behavior = _
+   # _2.printConfig()
+   # _2.appendToGlobals()
+   # del _, _2
+
 del local_logger
