@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack, Will Buttinger
 
@@ -42,66 +42,10 @@ elif dataType=="afii":
 jps.AthenaCommonFlags.FilesInput = [testFile]
 
 
-# Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-athAlgSeq += sysLoader
 
-# Include, and then set up the pileup analysis sequence:
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
-    makePileupAnalysisSequence
-pileupSequence = makePileupAnalysisSequence( dataType )
-pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
-print( pileupSequence ) # For debugging
-
-# Add the pileup sequence to the job:
-athAlgSeq += pileupSequence
-
-# Include, and then set up the muon analysis algorithm sequence:
-from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequenceMedium = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, shallowViewOutput = False,
-                                               workingPoint = 'Medium.Iso', postfix = 'medium' )
-muonSequenceMedium.configure( inputName = 'Muons',
-                              outputName = 'AnalysisMuonsMedium_%SYS%' )
-print( muonSequenceMedium ) # For debugging
-
-# Add the sequence to the job:
-athAlgSeq += muonSequenceMedium
-
-muonSequenceTight = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, shallowViewOutput = False,
-                                               workingPoint = 'Tight.Iso', postfix = 'tight' )
-muonSequenceTight.removeStage ("calibration")
-muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
-                             outputName = 'AnalysisMuons_%SYS%',
-                             affectingSystematics = muonSequenceMedium.affectingSystematics())
-print( muonSequenceTight ) # For debugging
-
-# Add the sequence to the job:
-athAlgSeq += muonSequenceTight
-
-# Add an ntuple dumper algorithm:
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
-treeMaker.TreeName = 'muons'
-athAlgSeq += treeMaker
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerEventInfo' )
-ntupleMaker.TreeName = 'muons'
-ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
-                         'EventInfo.eventNumber   -> eventNumber', ]
-ntupleMaker.systematicsRegex = '(^$)'
-athAlgSeq += ntupleMaker
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
-ntupleMaker.TreeName = 'muons'
-ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
-                         'AnalysisMuons_NOSYS.phi -> mu_phi',
-                         'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
-ntupleMaker.systematicsRegex = '(^MUON_.*)'
-athAlgSeq += ntupleMaker
-treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
-treeFiller.TreeName = 'muons'
-athAlgSeq += treeFiller
-
-
+from MuonAnalysisAlgorithms.MuonAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
 # Write a mini-xAOD if requested:
 if athArgs.write_xaod:
