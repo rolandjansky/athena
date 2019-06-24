@@ -334,7 +334,9 @@ StatusCode JGTowerReader::execute() {
 
   //manage containers that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers,"gCaloTowers"));
+  CHECK(evtStore()->record(gCaloTowersAux, "gCaloTowersAux."));
   CHECK(evtStore()->record(pu_sub,"pu_subTowers"));
+  CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
   
   setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
