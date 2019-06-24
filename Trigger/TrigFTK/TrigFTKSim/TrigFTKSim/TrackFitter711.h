@@ -21,7 +21,7 @@
 class TrackFitter711 : public TrackFitter {
 protected:
   bool m_use_guessing; // true (default) if the MJ algorithm is used for the estrapolation
-  int m_ncoords_incomplete; // number of coordinates in the incomplete fits
+  unsigned int m_ncoords_incomplete; // number of coordinates in the incomplete fits
   int m_nplanes_incomplete; // number of layers used for the incomplete tracks
 
   unsigned int m_incomplete_coordsmask; // mask with a 0 in the ingored coordinates
