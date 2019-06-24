@@ -28,7 +28,6 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TTree.h"
-#include "TVector3.h"
 
 #include <functional>
 #include <algorithm>
@@ -65,15 +64,10 @@ namespace NSWL1 {
 
     {
       declareInterface<NSWL1::IStripTdsTool>(this);
-
       declareProperty("RndmEngineName", m_rndmEngineName = "StripTdsOfflineTool", "the name of the random engine");
       declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
-      declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
-
-      // reserve enough slots for the trigger sectors and fills empty vectors
-      // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      //std::vector<std::unique_ptr<StripData>>::iterator it = m_strip_cache.begin();
+      declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {
@@ -104,80 +98,35 @@ namespace NSWL1 {
     ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
- 
-
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
       std::string algo_name = pnamed->name();
-      
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
-        StatusCode sc = service("THistSvc", tHistSvc);
-        if(sc.isFailure()) {
-          ATH_MSG_FATAL("Unable to retrieve THistSvc");
-          return sc;
-        }
-
+        ATH_CHECK(service("THistSvc", tHistSvc));
         char ntuple_name[40]={'\0'};
         //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
-
         m_tree = 0;
-        sc = tHistSvc->getTree(ntuple_name,m_tree);
-        if (sc.isFailure()) {
-          this->clear_ntuple_variables();
-          ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
-          return sc;
-        } else {
-          ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
-          sc = this->book_branches();
-          if (sc.isFailure()) {
-            ATH_MSG_ERROR("Cannot book the branches for the analysis ntuple");
-          }
-        }
-
-      };
-
-      // retrieve the Incident Service
-      if( m_incidentSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Incident Service successfully retrieved");
+        ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       }
+      ATH_CHECK(this->book_branches());
+      // retrieve the Incident Service
+      ATH_CHECK(m_incidentSvc.retrieve());
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
       // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
+      ATH_CHECK(m_rndmSvc.retrieve());
       // retrieve the random engine
       m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (m_rndmEngine==0) {
         ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
         return StatusCode::FAILURE;
       }
-
       //  retrieve the MuonDetectormanager
-      if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-      }
-
+      ATH_CHECK(detStore()->retrieve( m_detManager ));
       //  retrieve the sTGC offline Id helper
-      if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-        ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-      }
- 
+      ATH_CHECK(detStore()->retrieve( m_sTgcIdHelper )); 
       return StatusCode::SUCCESS;
     }
 
@@ -185,7 +134,6 @@ namespace NSWL1 {
       if( inc.type()==IncidentType::BeginEvent ) {
         this->clear_cache();  
         this->reset_ntuple_variables();
-
         m_strip_cache_status = CLEARED;
       }
     }
@@ -205,20 +153,16 @@ namespace NSWL1 {
       m_strip_isSmall= new std::vector< float >();
       m_strip_eta= new std::vector< float >();
       m_strip_phi= new std::vector< float >();
+      m_strip_readStrip = new std::vector<float >();
       m_strip_channel= new std::vector< int >();
       m_strip_BCID= new std::vector< int >();
       m_strip_wedge= new std::vector< int >();
       m_strip_time= new std::vector< float >();
-
-
-
-
+      
       if (m_tree) {
-	    std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+	      std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
         m_tree->Branch(TString::Format("%s_nStripHits",n).Data(),&m_nStripHits,TString::Format("%s_nStripHits/i",n).Data());
-
-        ATH_MSG_INFO("StripTdsOfflineTool Booking variable" << TString::Format("%s_nStripHits",n).Data());
         m_tree->Branch(TString::Format("%s_charge",n).Data(),&m_stripCharge);
         m_tree->Branch(TString::Format("%s_charge_6bit",n).Data(),&m_stripCharge_6bit);
         m_tree->Branch(TString::Format("%s_charge_10bit",n).Data(),&m_stripCharge_10bit);
@@ -232,22 +176,16 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_eta",n).Data(),&m_strip_eta);
         m_tree->Branch(TString::Format("%s_phi",n).Data(),&m_strip_phi);
         m_tree->Branch(TString::Format("%s_readStrip",n).Data(),&m_strip_readStrip);
-
         m_tree->Branch(TString::Format("%s_channel",n).Data(),&m_strip_channel);
         m_tree->Branch(TString::Format("%s_BCID",n).Data(),&m_strip_BCID);
         m_tree->Branch(TString::Format("%s_wedge",n).Data(),&m_strip_wedge);
         m_tree->Branch(TString::Format("%s_time",n).Data(),&m_strip_time);
-      }
-      else { 
-         return StatusCode::FAILURE;
       }
       return StatusCode::SUCCESS;
     }
 
 
     void StripTdsOfflineTool::reset_ntuple_variables() {
-      // if ntuple is not booked nothing to do
-      if ( m_tree==0 ) return;
       this->clear_ntuple_variables();
       //reset the ntuple variables
       m_nStripHits = 0;
@@ -305,11 +243,10 @@ namespace NSWL1 {
 
       // No sector implemented yet!!!
      
-
       // retrieve the current run number and event number
-      const EventInfo* pevt = 0;
-      StatusCode sc = evtStore()->retrieve(pevt);
-      if ( !sc.isSuccess() ) {
+      const DataHandle<EventInfo> pevt; 
+
+      if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
         ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current STRIP cache" ); 
         m_strip_cache_runNumber   = -1;
         m_strip_cache_eventNumber = -1;
@@ -370,92 +307,69 @@ namespace NSWL1 {
       for(; it!=it_e; ++it) {
         const sTgcDigitCollection* coll = *it;
   
-	    ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
+	      ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
         
-	     for (unsigned int item=0; item<coll->size(); item++) {
+	      for (unsigned int item=0; item<coll->size(); item++) {
             const sTgcDigit* digit = coll->at(item);
             Identifier Id = digit->identify();
-
-	        const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
+	          const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
             int channel_type   = m_sTgcIdHelper->channelType(Id);
- 	        // process only Strip data
-	        if (channel_type!=1) continue;           
+ 	          // process only Strip data
+	          if (channel_type!=1) continue;           
             
-	        Amg::Vector2D  strip_lpos;
-	        Amg::Vector3D strip_gpos;
-	        rdoEl->stripPosition(Id,strip_lpos);
-	        //Amg::Vector3D pos(strip_lpos.x(),strip_lpos.y(),0.0);
-	  
-	        //	  ATH_MSG_DEBUG( "Grabbed local pos" );
-            auto stripSurface=rdoEl->surface(Id);
-            
-	        stripSurface.localToGlobal(strip_lpos, strip_gpos, strip_gpos);
-	        //strip_gpos = rdoEl->localToGlobalCoords(pos,Id);
+	          Amg::Vector2D  strip_lpos;
+	          Amg::Vector3D strip_gpos;
+	          rdoEl->stripPosition(Id,strip_lpos);
+            auto stripSurface=rdoEl->surface(Id); 
+	          stripSurface.localToGlobal(strip_lpos, strip_gpos, strip_gpos);
 
-
-	        std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
+	          std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
             int stationEta     = m_sTgcIdHelper->stationEta(Id);
             int stationPhi     = m_sTgcIdHelper->stationPhi(Id);
             int wedge      = m_sTgcIdHelper->multilayer(Id);
             int layer        = m_sTgcIdHelper->gasGap(Id);
-          
             int channel        = m_sTgcIdHelper->channel(Id);
-	        int bctag          = digit->bcTag();
-	
+	          int bctag          = digit->bcTag();
 
-
-	        strip_hit_number++;
-
+	          strip_hit_number++;
             int strip_eta        = 0;// m_sTgcIdHelper->stripEta(Id);
             int strip_phi        = 0;// m_sTgcIdHelper->stripPhi(Id);
 
             ATH_MSG_DEBUG(     "sTGC Strip hit " << strip_hit_number << ":  Station Name [" << stName << "]"
-			     << "  Station Eta ["  << stationEta             << "]"
-			     << "  Station Phi ["  << stationPhi             << "]"
-			     << "  Wedge ["    << wedge              << "]"
-			     << "  Layer ["       << layer                << "]"
-			     << "  Type ["         << channel_type           << "]"
-			     << "  ChNr ["         << channel                << "]"
-			     << "  Strip Eta ["      << strip_eta                << "]"
-			     << "  Strip Phi ["      << strip_phi                << "]" 
-			     << "  Strip bcTAg ["      << bctag                << "]" );
+			        << "  Station Eta ["  << stationEta             << "]"
+			        << "  Station Phi ["  << stationPhi             << "]"
+			        << "  Wedge ["    << wedge              << "]"
+			        << "  Layer ["       << layer                << "]"
+			        << "  Type ["         << channel_type           << "]"
+			        << "  ChNr ["         << channel                << "]"
+			        << "  Strip Eta ["      << strip_eta                << "]"
+			        << "  Strip Phi ["      << strip_phi                << "]" 
+			        << "  Strip bcTAg ["      << bctag                << "]" );
 
             int isSmall = stName[2] == 'S';
-
             int trigger_sector = (isSmall)? stationPhi*2-1 : stationPhi*2-2;
             int cache_index    = (stationEta>0)? trigger_sector + 16 : trigger_sector;
-
             ATH_MSG_DEBUG(     "sTGC Strip hit " << strip_hit_number << ":  Trigger Sector [" << trigger_sector << "]"
-			     << "  Cache Index ["  << cache_index                         << "]" );
-
+			        << "  Cache Index ["  << cache_index                         << "]" );
 
             // process STRIP hit time: apply the time delay, set the BC tag for the hit according to the trigger capture window               
 
-
             //ATH_MSG_INFO("Strip at GposZ=" << strip_gpos->z() << " belongs to multiplet ");
-            if(m_doNtuple){
-                ATH_MSG_DEBUG( "Fill Stuff" );  
-                m_strip_global_X->push_back(strip_gpos.x());
-                m_strip_global_Y->push_back(strip_gpos.y());
-                m_strip_global_Z->push_back(strip_gpos.z());
-                m_strip_local_X->push_back(strip_lpos.x());
-                m_strip_local_Y->push_back(strip_lpos.y());
-                m_strip_layer->push_back(layer);
-                m_strip_isSmall->push_back(isSmall);
-                m_strip_eta->push_back(stationEta);
-                m_strip_phi->push_back(stationPhi);
-                ATH_MSG_DEBUG( "Fill Stuff more" );
-            }
-
-
-
-            //S.I
-            //StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
+            ATH_MSG_DEBUG( "Fill Stuff" );  
+            m_strip_global_X->push_back(strip_gpos.x());
+            m_strip_global_Y->push_back(strip_gpos.y());
+            m_strip_global_Z->push_back(strip_gpos.z());
+            m_strip_local_X->push_back(strip_lpos.x());
+            m_strip_local_Y->push_back(strip_lpos.y());
+            m_strip_layer->push_back(layer);
+            m_strip_isSmall->push_back(isSmall);
+            m_strip_eta->push_back(stationEta);
+            m_strip_phi->push_back(stationPhi);
+            ATH_MSG_DEBUG( "Fill Stuff more" );
             auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
-            //S.I
             strip->set_locX(strip_lpos.x());
             strip->set_locY(strip_lpos.y());
-        
+
             bool read_strip=readStrip(strip.get(),padTriggers);
             if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
                 ATH_MSG_FATAL("StripTdsOfflineTool:NO MATCH ALL \n" <<
@@ -466,19 +380,16 @@ namespace NSWL1 {
             }
 
             strip->set_readStrip(read_strip);
-
             strip->set_globX(strip_gpos.x());
             strip->set_globY(strip_gpos.y());
             strip->set_globZ(strip_gpos.z());
-
             strip->set_locX(strip_lpos.x());
             strip->set_locY(strip_lpos.y());
             strip->set_locZ(0             );
             m_strip_cache.push_back(std::move(strip));
-	  }//collections
-
-    }//items
-      if (m_doNtuple) this->fill_strip_validation_id();
+	      }//collections
+      }//items
+      this->fill_strip_validation_id();
       ATH_MSG_DEBUG( "fill_strip_cache: end of processing" );
       return OK;
   }
@@ -487,14 +398,7 @@ namespace NSWL1 {
 
 
   bool  StripTdsOfflineTool::readStrip(StripData* strip,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers){
-    /*!
-     * ReadStrip(uint16_t bandID,StripData* strip): Simple function to return wether a fired strip should 
-     *be readout base on a pad trigger bandID
-     * Inputs: Pad bandID (uint16_t), and StripData strip.
-     */
 
-    
-    //End test
     if (strip->bandId() !=-1){
       ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: BandId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
 		   <<"sectiorID:"<< strip->sectorId() + 1<< "\n" <<"layer:"<<strip->wedge()<< "\n");
