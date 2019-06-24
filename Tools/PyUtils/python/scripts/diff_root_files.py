@@ -57,6 +57,10 @@ def _is_exit_early():
                   action='store_true',
                   default=False,
                   help="""Enable verbose printout""")
+@acmdlib.argument('--order-trees',
+                  action='store_true',
+                  default=False,
+                  help="""To order trees according to event numbers""")
 @acmdlib.argument('--mode',
                   choices=g_ALLOWED_MODES,
                   default='detailed',
@@ -107,6 +111,7 @@ def main(args):
     msg.info('entries:        %s', args.entries)
     msg.info('mode:           %s', args.mode)
     msg.info('error mode:     %s', args.error_mode)
+    msg.info('order trees:    %s', args.order_trees)
 
     import PyUtils.Helpers as H
     with H.ShutUp() :
@@ -124,6 +129,40 @@ def main(args):
             'leaves': set(leaves),
             }
     
+    def ordered_indices(tree, reverse_order = False):
+        from collections import OrderedDict
+        import operator
+
+        dict_in = {}
+        nevts = tree.GetEntriesFast()
+
+        for idx in range(0, nevts):
+            if idx % 100 == 0: msg.debug('Read {} events from the input so far'.format(idx))
+            tree.GetEntry(idx)
+            if hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
+                event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
+                event_number = event_info.eventNumber
+            elif hasattr(tree,'EventInfo_p4_McEventInfo'):
+                event_info = getattr(tree,'EventInfo_p4_McEventInfo')
+                event_number = event_info.m_event_ID.m_event_number
+            elif hasattr(tree,'EventInfo_p4_ByteStreamEventInfo'):
+                event_info = getattr(tree,'EventInfo_p4_ByteStreamEventInfo')
+                event_number = event_info.m_event_ID.m_event_number
+            elif hasattr(tree,'ByteStreamEventInfo'):
+                event_info = getattr(tree,'ByteStreamEventInfo')
+                event_number = event_info.m_event_ID.m_event_number
+            else:
+                msg.error('Cannot read event info, will bail out.')
+                break
+            msg.debug('Idx : EvtNum {:10d} : {}'.format(idx,event_number))
+            dict_in[idx] = event_number
+
+        # Sort the dictionary by event numbers
+        dict_out = OrderedDict(sorted(dict_in.items(), key=operator.itemgetter(1), reverse = reverse_order))
+
+        # Write out the ordered index list
+        return [idx for idx in dict_out]
+
     def diff_tree(fold, fnew, args):
         infos = {
             'old' : tree_infos(fold.tree, args),
@@ -145,7 +184,7 @@ def main(args):
             itr_entries = args.entries
             pass
         msg.info('comparing over [%s] entries...', itr_entries)
-                
+
         old_leaves = infos['old']['leaves'] - infos['new']['leaves']
         if old_leaves:
             msg.warning('the following variables exist only in the old file !')
@@ -167,8 +206,18 @@ def main(args):
         from itertools import izip
         summary = collections.defaultdict(int)
 
-        old_dump_iter = fold.dump(args.tree_name, itr_entries)
-        new_dump_iter = fnew.dump(args.tree_name, itr_entries)
+        if args.order_trees:
+            slice_max = int(itr_entries) if int(itr_entries) > 0 else None
+            itr_entries_old = ordered_indices(fold.tree)[0:slice_max]
+            itr_entries_new = ordered_indices(fnew.tree)[0:slice_max]
+            msg.debug('List of old indices {}'.format(itr_entries_old))
+            msg.debug('List of new indices {}'.format(itr_entries_new))
+        else:
+            itr_entries_old = itr_entries
+            itr_entries_new = itr_entries
+
+        old_dump_iter = fold.dump(args.tree_name, itr_entries_old)
+        new_dump_iter = fnew.dump(args.tree_name, itr_entries_new)
 
         def leafname_fromdump(entry):
             return '.'.join([s for s in entry[2] if not s.isdigit()])
@@ -211,14 +260,15 @@ def main(args):
             
             read_old = True
             read_new = True
-            if d_old == d_new:
+
+            if (args.order_trees and d_old[-1] == d_new[-1]) or d_old == d_new:
                 n_good += 1
                 continue
             
             if d_old:    
                 tree_name, ientry, name, iold = d_old
             if d_new:
-                tree_name, ientry, name, inew = d_new
+                tree_name, jentry, name, inew = d_new
 
             # FIXME: that's a plain (temporary?) hack
             if name[-1] in args.known_hacks:
@@ -234,7 +284,7 @@ def main(args):
                     else:
                         print '::sync-old ABSENT'
                     if d_new:
-                        print '::sync-new %s' %'.'.join(["%03i"%ientry]+map(str, d_new[2]))
+                        print '::sync-new %s' %'.'.join(["%03i"%jentry]+map(str, d_new[2]))
                     else:
                         print '::sync-new ABSENT'
                     pass
@@ -247,7 +297,7 @@ def main(args):
                     summary[d_old[2][0]] += 1
                 else:
                     branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
-                    branch_new = '.'.join(["%03i"%ientry, d_new[2][0]])
+                    branch_new = '.'.join(["%03i"%jentry, d_new[2][0]])
                     if branch_old < branch_new: 
                         if not _is_summary():
                             print '::sync-old skipping entry'
