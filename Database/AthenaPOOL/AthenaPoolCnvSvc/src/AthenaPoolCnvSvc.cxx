@@ -893,7 +893,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       return(StatusCode::FAILURE);
    }
    Token* token = nullptr;
-   if (par[0] == "SHM") {
+   if (par[0].substr(0, 3) == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
       token->setAuxString("[PNAME=" + par[2] + "]");
