@@ -58,7 +58,7 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, const bool useEtaBins, int f
  for(unsigned int i = 0; i < size; i++){
    const xAOD::JGTower* tower = towers->at(i);
 
-   float eta = TMath::Abs(tower->eta());
+   float eta = tower->eta();
    float Et = tower->et();
 
    if(!useNegTowers && Et < 0) continue;
@@ -72,7 +72,7 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, const bool useEtaBins, int f
      else area_b += 0.5;
    }
    if(fabs(eta) > 2.5){
-     if(eta < 3.2) area_c += 1.;
+     if(fabs(eta) < 3.2) area_c += 1.;
      else area_c += 4.;
    }
 
@@ -82,7 +82,7 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, const bool useEtaBins, int f
        //length++;
      }
    }else{
-     if(eta < 2.4){
+     if(fabs(eta) < 2.4){
        if(Et < et_max){
 	 rho += Et;
 	 length++;

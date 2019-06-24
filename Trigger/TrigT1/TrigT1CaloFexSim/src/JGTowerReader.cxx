@@ -211,6 +211,7 @@ StatusCode JGTowerReader::execute() {
   xAOD::JGTowerAuxContainer* gCaloTowersAux = new xAOD::JGTowerAuxContainer();
   xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
   gCaloTowers->setStore(gCaloTowersAux);
+
   for(unsigned t = 0; t < gTowers->size(); t++){
     const xAOD::JGTower* gt_em = gTowers->at(t);
     const float eta = gt_em->eta();
@@ -331,6 +332,10 @@ StatusCode JGTowerReader::execute() {
  
   ATH_MSG_DEBUG ("Algorithm passed");
 
+  //manage containers that have been created: save gCaloTowers and pu_sub to SG
+  CHECK(evtStore()->record(gCaloTowers,"gCaloTowers"));
+  CHECK(evtStore()->record(pu_sub,"pu_subTowers"));
+  
   setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
 }
@@ -703,6 +708,7 @@ StatusCode JGTowerReader::MET_etaBins(const xAOD::JGTowerContainer* gTs, TString
   }
 
   if(METAlg::m_METMap.find(metName) == METAlg::m_METMap.end()) METAlg::m_METMap[metName] = met;
+
   return StatusCode::SUCCESS;
 }
 
@@ -763,7 +769,7 @@ StatusCode JGTowerReader::ProcessObjects(){
     (*acc_mht)(*METCont) = met->mht;
     (*acc_mst)(*METCont) = met->mst;
     CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
-    CHECK(evtStore()->record(METContAux,Form("%s_METAux",it->first.Data())));
+    CHECK(evtStore()->record(METContAux,Form("%s_METAux.",it->first.Data())));
     ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
 
   }
