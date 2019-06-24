@@ -125,10 +125,6 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s,
   new_avg_trk_flightDirRelEta("averageTrackRelativeEta")
 {
   using namespace FlavorTagDiscriminants;
-  // these typedefs are unused commenting them out for now
-  // if not needed, please remove:
-  //   typedef SG::AuxElement::ConstAccessor<float> AEF;
-  //   typedef SG::AuxElement::ConstAccessor<double> AED;
   typedef SG::AuxElement::Decorator<float> ADF;
   typedef SG::AuxElement::Decorator<double> ADD;
   typedef SG::AuxElement::Decorator<char> ADC;
