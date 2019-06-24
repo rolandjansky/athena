@@ -116,20 +116,25 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
       }
       else {
         std::vector<const CurvilinearParameters*> dummyPar{};
-        std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
+        std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,
+                                                                                          nullptr,
+                                                                                          std::move(dummyPar));
         caloextensions.push_back(std::move (dummyExt));
       }
     }
     else{
       std::vector<const CurvilinearParameters*> dummyPar{};
-      std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
+      std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,
+                                                                                   nullptr,
+                                                                                   std::move(dummyPar));
       caloextensions.push_back(std::move (dummyExt));
     }
   }
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
 
   ParticleHypothesis particleType = muon;  
   if( abs(particle.pdgId()) == 11 )      {particleType = muon;} 
@@ -153,7 +158,8 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   return caloExtension( startPars, alongMomentum, particleType );
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle ) const {
 
   // create start parameters
   const Trk::NeutralPerigee& perigee = particle.perigeeParameters();
@@ -168,46 +174,32 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   return caloExtension( startPars, alongMomentum, muon );
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
 
 
   /* 
-   * The electrons are done separately here.
-   *
-   * Here we have also the Gaussian Sum Filter having out back
-   * as a main case to consider
    *
    * In principle we will extrapolate either from the perigee or 
-   * from the last measurement of the trackParticle
-   * The extrapolation will be done as a muon since this
+   * from the last measurement of the trackParticle.
+   *
+   * For electrons the extrapolation will be done as a muon since this
    * is the closest to non-interacting in the calorimeter
    * while still providing intersections.
    */
 
+  ParticleHypothesis particleType = m_particleType;
   if(m_particleType == electron || 
      particle.particleHypothesis() ==  xAOD::electron ){  
-    ATH_MSG_DEBUG("Fitting using electron hypothesis");
-    ParticleHypothesis particleTypeForElectron = muon;//nonInteracting;
-    if(!m_startFromPerigee){
-      unsigned int index(0);
-      if(particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)){    
-        return caloExtension(particle.curvilinearParameters(index),alongMomentum,particleTypeForElectron);
-      } else {
-        ATH_MSG_INFO("No last measurement:"
-                     <<" Perhaps you try to run the extrapolator after slimming."
-                     <<" Falling back to perigee");
-      }
-    }
-    return caloExtension(particle.perigeeParameters(),alongMomentum,particleTypeForElectron);
+    ATH_MSG_DEBUG("Extrapolating electrons with muon hypothesis");
+    particleType = muon;//closest to nonInteracting;
   }
 
-  /* 
-   * This is the case for muons of pions
-   * Extra logic for the muon spectrometer entry and exit
+
+  /*
+   * For perigee or when there is no Trk::Track
+   * Get parameters and check wrt to muon spectrometer
    */
-  ParticleHypothesis particleType = m_particleType;
-
-
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255 
@@ -218,14 +210,18 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   }
 
   const Track& track = *particle.track();
-  // look-up the parameters closest to the calorimeter in ID and muon system
+  /*
+   * Look-up the parameters closest to the calorimeter in 
+   * ID and muon system
+   */
   ATH_MSG_DEBUG("trying to add calo layers" );
   const TrackParameters* idExitParamers = 0;
   const TrackParameters* muonEntryParamers = 0;
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = track.trackStateOnSurfaces()->begin();
   for ( ; itTSoS != track.trackStateOnSurfaces()->end(); ++itTSoS) {
     // select state with track parameters on a measurement
-    if ( !(**itTSoS).trackParameters() || !(**itTSoS).type(TrackStateOnSurface::Measurement) || (**itTSoS).type(TrackStateOnSurface::Outlier) ) continue;
+    if ( !(**itTSoS).trackParameters() || !(**itTSoS).type(TrackStateOnSurface::Measurement) 
+         || (**itTSoS).type(TrackStateOnSurface::Outlier) ) continue;
     const Identifier& id = (**itTSoS).trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
     if( m_detID->is_indet(id) ) idExitParamers = (**itTSoS).trackParameters();
     if( m_detID->is_muon(id) && !muonEntryParamers ) muonEntryParamers = (**itTSoS).trackParameters();
@@ -236,6 +232,7 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   }
   // pick start parameters, start in ID if possible
   const TrackParameters* startPars = idExitParamers ? idExitParamers : muonEntryParamers;
+ 
   if( !startPars ){
     ATH_MSG_WARNING("Failed to find  start parameters");
     return nullptr;
