@@ -239,11 +239,11 @@ void TrackFitter711::init()
 
   // allocate once the array of recovered tracks
   combtrackI = new FTKTrack[m_ncoords_incomplete];
-  for (int ic=0;ic!=m_ncoords_incomplete;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords_incomplete;++ic) {
     combtrackI[ic].setNCoords(m_ncoords_incomplete);
     combtrackI[ic].setNPlanes(m_nplanes_incomplete);
   }
-  m_complete_maskI = ~(~0<<m_ncoords_incomplete);
+  m_complete_maskI = (1 << m_ncoords_incomplete) - 1;
 
   m_nplanes_ignored = m_nplanes-m_nplanes_incomplete;
   m_ncoords_ignored = m_ncoords-m_ncoords_incomplete;
@@ -1338,7 +1338,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
     // set the incomplete track coordinates
-    for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
+    for (unsigned int ix=0; ix!=m_ncoords_incomplete; ++ix) {
       int cix = m_CImap_eff[ix];
       newtrk.setCoord(cix,curtrackI.getCoord(ix));
 
@@ -3256,7 +3256,7 @@ void TrackFitter711::prepareTrack() {
   }
 
   // set the incomplete track coordinates
-  for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
+  for (unsigned int ix=0; ix!=m_ncoords_incomplete; ++ix) {
     int cix = m_CImap_eff[ix];
     newtrk.setCoord(cix,newtrkI.getCoord(ix));
 
@@ -3990,13 +3990,13 @@ void TrackFitter711::printLayerInversionResult() {
   std::cout << "}" << std::endl;
 
   std::cout << "m_CImap: {";
-  for (int ii = 0; ii < m_ncoords_incomplete; ++ii) {
+  for (unsigned int ii = 0; ii < m_ncoords_incomplete; ++ii) {
     std::cout << m_CImap[ii] << " , ";
   }
   std::cout << "}" << std::endl;
 
   std::cout << "m_CImap_eff: {";
-  for (int ii = 0; ii < m_ncoords_incomplete; ++ii) {
+  for (unsigned int ii = 0; ii < m_ncoords_incomplete; ++ii) {
     std::cout << m_CImap_eff[ii] << " , ";
   }
   std::cout << "}" << std::endl;
