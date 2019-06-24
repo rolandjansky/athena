@@ -46,7 +46,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_useConditionsHTStatus(false),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
-  m_applyArCorrection(false),
   m_trt_mgr_location("TRT"),
   m_trt_mgr(0),
   m_trtid(0),
@@ -80,7 +79,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   declareProperty("UseConditionsHTStatus",m_useConditionsHTStatus);
   declareProperty("useDriftTimeToTCorrection",m_useToTCorrection);
   declareProperty("useDriftTimeHTCorrection",m_useHTCorrection);
-  declareProperty("applyDriftTimeArCorrection",m_applyArCorrection);
   declareProperty("RejectIfFirstBit",m_reject_if_first_bit);
   declareProperty("RejectIfFirstBitArgon",m_reject_if_first_bit_argon);
   declareProperty("MinTrailingEdge",m_min_trailing_edge);
@@ -290,12 +288,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       double rawTime   = m_driftFunctionTool->rawTime(newtdcvalue);
       unsigned int word = (*r)->getWord(); 
             
-      if (m_useToTCorrection && !(isArgonStraw && !m_applyArCorrection)) {
+      if (m_useToTCorrection && !isArgonStraw) {
         rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id);     
       }  
       
 //      if (m_useHTCorrection && (*r)->highLevel()) {
-      if (m_useHTCorrection && !(isArgonStraw && !m_applyArCorrection) &&
+      if (m_useHTCorrection && !isArgonStraw &&
           ((!m_mask_first_HT_bit &&  (word & 0x04000000)) ||
            (!m_mask_middle_HT_bit && (word & 0x00020000)) ||
            (!m_mask_last_HT_bit &&   (word & 0x00000100)))) {

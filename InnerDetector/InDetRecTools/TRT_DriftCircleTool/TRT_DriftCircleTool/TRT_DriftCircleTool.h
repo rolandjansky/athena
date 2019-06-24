@@ -82,7 +82,6 @@ public:
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws?
   bool				                   m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?
   bool				                   m_useHTCorrection;  //!< Shall the High Threshold correction be used?
-  bool                                 m_applyArCorrection; //!< Shall the ToT and HT corrections be used also for Ar straws?
   std::string                          m_trt_mgr_location ; //!< Manager name
   const InDetDD::TRT_DetectorManager * m_trt_mgr          ; //!< Manager handle
   const TRT_ID                       * m_trtid            ; //!< ID helper
