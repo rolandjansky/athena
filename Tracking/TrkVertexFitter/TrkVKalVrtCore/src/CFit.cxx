@@ -156,9 +156,9 @@ int fitVertex(VKVertex * vk)
 {
     int  i, jerr, tk, it=0;
 
-    double chi2df, dparst[6];
+    double dparst[6];
     double chi2min, chi21s=11., chi22s=10., vShift;
-    double aermd[30],tmpd[30];  // temporary array
+    double aermd[6],tmpd[6]={0.};  // temporary arrays
     double tmpPer[5],tmpCov[15], tmpWgt[15];
     double VrtMomCov[21],PartMom[4];
     double cnstRemnants=0., iniCnstRem=0.;
@@ -188,7 +188,6 @@ int fitVertex(VKVertex * vk)
     VKTrack * trk=0;
 
     chi2min = 1e15;
-    chi2df = 0.;
 
     if( vrtForCFT.nmcnst && vrtForCFT.useMassCnst )  {       //mass constraints are present
       std::vector<int> index;
@@ -344,8 +343,9 @@ int fitVertex(VKVertex * vk)
 //Reset mag.field
           for( i=0; i<3; i++) dparst[i]=vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
           vrtForCFT.localbmag=myMagFld.getMagFld(dparst,(vk->vk_fitterControl).get());
-	  if ( vk->passNearVertex ) {
+	  if ( vk->passNearVertex && it>1 ) {  //No necessary information at first iteration
             jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
 	    cfdcopy( PartMom, &dparst[3], 3);  //vertex part of it is filled above
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
@@ -370,14 +370,15 @@ int fitVertex(VKVertex * vk)
         }
 //
 // 
-	if (chi22s > 1e8) {  IERR = -1; return IERR; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s > 1e8)     { return  -1; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s != chi22s) { return -14; }      // Chi2 == nan  - BAD FIT
 	for( i=0; i<3; i++) newVrtXYZ[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
 	//std::cout.precision(11);
 	//std::cout<<"NNFIT Iter="<<it<<" Chi2ss="<< chi21s <<", "<<chi22s<<", "<<vShift<<'\n';
 	//std::cout<<"NNVertex="<<newVrtXYZ[0]<<", "<<newVrtXYZ[1]<<", "<<newVrtXYZ[2]<<'\n';
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
-	chi2df = fabs(chi21s - chi22s);
+	double chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = std::min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
 //std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
@@ -397,7 +398,8 @@ int fitVertex(VKVertex * vk)
 
 // Track near vertex constraint recalculation for next fit
 	if ( vk->passNearVertex ) {
-            jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            if(it==1) jerr = afterFit(vk,        0, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            else      jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
@@ -478,6 +480,8 @@ int fitVertex(VKVertex * vk)
         ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
     cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance
+    FitCONTROL->setVertexMass(sqrt((ptot[3]-ptot[2])*(ptot[3]+ptot[2]) - ptot[1]*ptot[1] - ptot[0]*ptot[0]) );
+    FitCONTROL->setVrtMassError(0.);
 //     
 //  If required - get full covariance matrix
 //
