@@ -87,7 +87,7 @@ FwdJet.JvtPtMax: 50e3
 FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-Jet.LargeRuncConfig: None
+Jet.LargeRuncConfig: rel21/Spring2019/R10_GlobalReduction.config
 # 80% efficiency working points
 Jet.WtaggerConfig: SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
 Jet.ZtaggerConfig: SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
