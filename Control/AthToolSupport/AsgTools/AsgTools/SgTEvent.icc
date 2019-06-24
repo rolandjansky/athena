@@ -112,11 +112,6 @@ namespace asg {
 
    template< typename T >
    StatusCode SgTEvent::record( std::unique_ptr<T> pobj, const std::string& name ) {
-     return record( pobj.release(), name );
-   }
-
-   template< typename T >
-   StatusCode SgTEvent::record( T* pobj, const std::string& name ) {
 
       // Make sure the object is initialised:
       if( ( ! m_pevm ) && initialize().isFailure() ) {
@@ -127,7 +122,7 @@ namespace asg {
 
       // If a transient store is available, try recording it there:
       if( m_ptds ) {
-         if( m_ptds->template record( pobj, name ).isSuccess() ) {
+         if( m_ptds->template record( std::move( pobj ), name ).isSuccess() ) {
             return StatusCode::SUCCESS;
          } else {
             return StatusCode::FAILURE;
@@ -135,11 +130,17 @@ namespace asg {
       }
 
       // If not, then let's try with the event store:
-      if( m_pevm->template record( pobj, name ).isSuccess() ) {
+      if( m_pevm->template record( std::move( pobj ), name ).isSuccess() ) {
          return StatusCode::SUCCESS;
       } else {
          return StatusCode::FAILURE;
       }
+   }
+
+   template< typename T >
+   StatusCode SgTEvent::record( T* pobj, const std::string& name ) {
+     // this is the legacy interface, forwarding it to new one
+     return record( std::unique_ptr<T>(pobj), name );
    }
 
    /// Container overwriting is not allowed in standalone mode. The function is
