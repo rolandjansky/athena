@@ -27,7 +27,7 @@ class TileEMScaleCondAlg: public AthAlgorithm {
   public:
 
     TileEMScaleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileEMScaleCondAlg() = default;
+    virtual ~TileEMScaleCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;

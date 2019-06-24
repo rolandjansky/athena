@@ -36,7 +36,7 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
   public:
 
     TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileDCSCondAlg() = default;
+    virtual ~TileDCSCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
