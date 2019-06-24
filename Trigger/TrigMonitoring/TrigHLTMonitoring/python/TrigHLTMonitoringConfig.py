@@ -1,4 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+def createHLTDQConfigFlags():
+    from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+    acf=AthConfigFlags()
+    acf.addFlag('DQ.Steering.HLT.doMET', True)
+    return acf
+
+def TrigHLTMonitoringConfig(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
+
+    if flags.DQ.Steering.HLT.doMET:
+        from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
+        result.merge(TrigMETMonConfig(flags))
+
+    return result
 
 def HLTGeneralTool():
     #from AthenaCommon.AppMgr import ToolSvc

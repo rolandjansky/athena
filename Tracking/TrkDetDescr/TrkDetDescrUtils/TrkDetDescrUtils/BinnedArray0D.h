@@ -107,7 +107,7 @@ namespace Trk {
      const Amg::Transform3D* transform() const { return 0; }
 
      /** Reposition */
-     void updateTransform( Amg::Transform3D& ) const { }
+     void updateTransform( Amg::Transform3D& )  { }
 
     private:
      SharedObject<const T>                          m_array;        //!< direct storage of the object

@@ -65,6 +65,13 @@ def getTrigDecisionTool(flags):
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
  
     rv = ComponentAccumulator()
+
+    if flags.DQ.isReallyOldStyle:
+        from AthenaCommon.AppMgr import ToolSvc
+        rv.addPublicTool(ToolSvc.TrigDecisionTool)
+        getTrigDecisionTool.rv = rv
+        return getTrigDecisionTool.rv
+
     rv.merge(getTrigConfigSvc(flags))
     
     tdt = Trig__TrigDecisionTool('TrigDecisionTool', TrigConfigSvc=rv.getService('TrigConfigSvc'))

@@ -7,7 +7,7 @@
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -443,7 +443,7 @@ bool TrigROBMonitor::verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment 
     std::ostringstream ost;
     ost << "0x" << std::hex << robFrag.source_id();
     if (m_hist_failedChecksumForROB) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_failedChecksumForROB->Fill((ost.str()).c_str(), 1.);
       m_hist_failedChecksumForROB->LabelsDeflate("X");
     }

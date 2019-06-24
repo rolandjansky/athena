@@ -28,7 +28,10 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+  return StatusCode::SUCCESS;
+}
 
+StatusCode GenericMonitoringTool::start() {
   if ( not m_explicitBooking ) {
     ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();

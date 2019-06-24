@@ -133,6 +133,7 @@ namespace MuonCombined {
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
+    declareProperty("TrackQuery", m_trackQuery);
      
   }
 

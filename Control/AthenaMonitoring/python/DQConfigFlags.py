@@ -4,14 +4,39 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
+_steeringFlags = [ 'doGlobalMon', 'LVL1CaloMon', 'doCTPMon', 'doHLTMon',
+                   'doPixelMon', 'doSCTMon', 'doTRTMon', 'doInDetMon',
+                   'doLArMon', 'doTileMon',
+                   'doCaloGlobalMon', 'doMuonMon',
+                   'doLucidMon', 'doAFPMon',
+                   'doHIMon', 'doEgammaMon', 'doJetMon', 'doMissingEtMon',
+                   'doTauMon', 'doJetTagMon' ]
+
+_lowLevelSteeringFlags = [ 'InDet.doGlobalMon', 'InDet.doAlignMon',
+                           'InDet.doPerfMon',  'Muon.doRawMon',
+                           'Muon.doTrackMon', 'Muon.doAlignMon',
+                           'Muon.doSegmentMon',
+                           'Muon.doPhysicsMon', 'Muon.doTrkPhysMon',
+                           'Muon.doCombinedMon'
+                           ]
+
 def createDQConfigFlags():
     acf=AthConfigFlags()
     acf.addFlag('DQ.doMonitoring', True)
-    acf.addFlag('DQ.doGlobalMon', True)
     acf.addFlag('DQ.doStreamAwareMon', True)
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
     acf.addFlag('DQ.useTrigger', True)
+
+    # temp thing for steering from inside old-style ...
+    acf.addFlag('DQ.isReallyOldStyle', False)
+
+    # steering ...
+    for flag in _steeringFlags + _lowLevelSteeringFlags:
+        acf.addFlag('DQ.Steering.' + flag, True)
+    # HLT steering ...
+    from TrigHLTMonitoring.TrigHLTMonitoringConfig import createHLTDQConfigFlags
+    acf.join(createHLTDQConfigFlags())
     return acf
 
 def createComplexDQConfigFlags():
@@ -44,3 +69,10 @@ def getEnvironment(flags):
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
         return 'tier0'
+
+def allSteeringFlagsOff():
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    for flag in _steeringFlags:
+        setattr(getattr(ConfigFlags, 'DQ.Steering'), flag, False)
+        #print flag
+        #getattr(ConfigFlags, 'DQ.Steering.' + flag).set(False)

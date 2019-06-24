@@ -43,7 +43,8 @@ namespace xAOD {
     /// Default constructor
     Photon_v1();
 
-    /// Copy ctor. This involves copying the entire Auxilary store (Deep copy), and is a slow operation which should be used sparingly.
+    /// Copy ctor. This involves copying the entire Auxilary store (Deep copy).
+    ///It is a slow operation which should be used sparingly.
     Photon_v1(const Photon_v1& ph);
 
     /// @}
@@ -101,7 +102,7 @@ namespace xAOD {
     float vertexCaloMatchValue( const EgammaParameters::VertexCaloMatchType information ) const;
 
     ///@brief Set method for CaloMatch values.
-    bool  setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information );
+    bool  setVertexCaloMatchValue( const float value, const EgammaParameters::VertexCaloMatchType information );
 
     ///@brief return the photon conversion type (see EgammaEnums)
     xAOD::EgammaParameters::ConversionType conversionType() const{

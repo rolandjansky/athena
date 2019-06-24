@@ -9,10 +9,12 @@
 #ifndef TRKDETDESCRUTILS_MEMORYLOGGER_H
 #define TRKDETDESCRUTILS_MEMORYLOGGER_H
 
-// STL
 #include <iostream>
+#include <atomic>
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
+
+
 
 namespace Trk {
 
@@ -41,8 +43,8 @@ namespace Trk {
 
 
       private:
-        mutable float           m_vsize;  //!< virtual memory size
-        mutable float           m_rss;    //!< real memory size
+        mutable std::atomic<float>           m_vsize;  //!< virtual memory size
+        mutable std::atomic<float>           m_rss;    //!< real memory size
 
     };
 

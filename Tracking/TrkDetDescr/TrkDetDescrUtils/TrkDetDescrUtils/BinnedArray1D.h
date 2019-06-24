@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 
 //STL
 #include <vector>
+
+#include "CxxUtils/CachedUniquePtr.h"
 
 class MsgStream;
 
@@ -35,7 +37,7 @@ namespace Trk {
      BinnedArray1D():
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(0){}
 
      /**Constructor with std::vector and a  BinUtility - reference counted, will delete objects at the end,
@@ -44,7 +46,7 @@ namespace Trk {
      BinnedArray1D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector, BinUtility* bingen) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(bingen)
       {
         // prepare the binned Array
@@ -65,7 +67,7 @@ namespace Trk {
      BinnedArray1D(const BinnedArray1D& barr) :
       BinnedArray<T>(),
       m_array(0),
-      m_arrayObjects(0),
+      m_arrayObjects(nullptr),
       m_binUtility(0)
       {
           m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
@@ -81,9 +83,8 @@ namespace Trk {
       {
         if (this != &barr){
 
-          delete m_array;
-          delete m_arrayObjects; 
-          m_arrayObjects = 0;
+          delete m_array; 
+          m_arrayObjects.release();
           delete m_binUtility;
           // now refill
           m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
@@ -94,8 +95,6 @@ namespace Trk {
             (*m_array)[ient] = (*barr.m_array)[ient];
            }
           }
-
-
         }
         return *this;
       }
@@ -107,7 +106,6 @@ namespace Trk {
      ~BinnedArray1D()
       {
         delete m_array;
-        delete m_arrayObjects;
         delete m_binUtility;
       }
 
@@ -143,10 +141,14 @@ namespace Trk {
      /** Return all objects of the Array */
      const std::vector< const T* >& arrayObjects() const {
       if (!m_arrayObjects){
-        m_arrayObjects = new std::vector<const T*>;
-        m_arrayObjects->reserve(arrayObjectsNumber());
-        for (size_t ill=0; ill< (m_binUtility->bins(0)); ++ill)
-              m_arrayObjects->push_back(((*m_array)[ill]).get());
+        std::unique_ptr< std::vector< const T* >> arrayObjects 
+          = std::make_unique< std::vector<const T*> >();
+        auto bins = m_binUtility->bins(0);
+        arrayObjects->reserve(bins);
+        for (size_t ill=0; ill< bins; ++ill){
+              arrayObjects->push_back(((*m_array)[ill]).get());
+        }
+       m_arrayObjects.set(std::move(arrayObjects));
        }
        return (*m_arrayObjects);
      }
@@ -158,9 +160,9 @@ namespace Trk {
      const BinUtility* binUtility() const { return(m_binUtility); }
 
     private:
-     std::vector< SharedObject<const T> >*                     m_array;        //!< vector of pointers to the class T
-     mutable std::vector< const T* >*                          m_arrayObjects; //!< forced 1D vector of pointers to class T
-     BinUtility*                                               m_binUtility;   //!< binUtility for retrieving and filling the Array
+     std::vector< SharedObject<const T> >*               m_array;        //!< vector of pointers to the class T
+     CxxUtils::CachedUniquePtr<std::vector< const T* >>  m_arrayObjects; //!< forced 1D vector of pointers to class T
+     BinUtility*                                         m_binUtility;   //!< binUtility for retrieving and filling the Array
 
   };
 
