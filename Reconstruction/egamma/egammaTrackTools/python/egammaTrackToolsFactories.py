@@ -10,12 +10,13 @@ import AthenaCommon.CfgMgr as CfgMgr
 
 EMLastCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
                                            name="EMLastCaloExtensionTool",
-                                           Extrapolator = egammaExtrapolator)
+                                           Extrapolator = egammaExtrapolator,
+                                           ParticleType = "electron")
 
 EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                             name="EMParticleCaloExtensionTool",
                                             Extrapolator = egammaExtrapolator,
-                                            ParticleType="muon",
+                                            ParticleType="electron",
                                             StartFromPerigee = True)
 
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
