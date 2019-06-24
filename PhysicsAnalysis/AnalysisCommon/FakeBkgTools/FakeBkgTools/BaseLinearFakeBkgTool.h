@@ -23,11 +23,11 @@
 namespace FakeBkgTools
 {
   /// These are defined in FakeBkgInternals.h
-  class ParticleData;
+  struct ParticleData;
   class FinalState;
   class Database;
-  class Weight;
-  class Yield;
+  struct Weight;
+  struct Yield;
   enum class Client;
 }
 

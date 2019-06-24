@@ -474,9 +474,13 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
                 auto& label = subattributes.at(tag + "/label");
                 if(label)
                 {
-                    float normFactor;
+                    float normFactor {0};
                     if(tag == "TH1") normFactor = 1.f / getWeightedAverage(hist, stream);
-                    else if(tag == "bin") normFactor = 1.f / table.m_efficiencies[0].nominal;
+                    else
+                    {
+                      assert (tag == "bin");
+                      normFactor = 1.f / table.m_efficiencies[0].nominal;
+                    }
                     if(!std::isnormal(normFactor) || normFactor<=0.) throw(XmlError(label) << "computed normalization factor is 0 / NaN / infinite / negative");
                     if(!m_normFactors.emplace(label.str()+"-"+std::to_string(type), normFactor).second)
                         throw(XmlError(label) << "label \"" << label.str() << "\" has already been used");
