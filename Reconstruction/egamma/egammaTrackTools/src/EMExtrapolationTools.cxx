@@ -323,7 +323,6 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
       }
     }
   }
-  int max = deltaEta.size(); 
   return StatusCode::SUCCESS;   
 }
 
@@ -585,7 +584,7 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
       if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && 
            !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier))  && 
            (*rItTSoS)->measurementOnTrack()!=nullptr && 
-           !(m(*rItTSoS)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack))){
+           !((*rItTSoS)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack))){
         trkPar = (*rItTSoS)->measurementOnTrack();
         break;
       }
