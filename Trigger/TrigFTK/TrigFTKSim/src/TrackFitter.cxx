@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKSetup.h"
@@ -1074,7 +1074,7 @@ list<FTKTrack>::iterator TrackFitter::removeTrack(list<FTKTrack> &tracks_list, l
 
 //Track remover for first stage does not delete tracks, as they are still needed for HW duplciate comparison
 
-list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &tracks_list, list<FTKTrack>::iterator itrack,
+list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &, list<FTKTrack>::iterator itrack,
                           FTKTrack &rejtrk, const FTKTrack &killer, bool rejnew)
 {
 
