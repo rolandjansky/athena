@@ -213,6 +213,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
 
     kwargs.setdefault("UseCaloTG", True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     if muonRecFlags.enableErrorTuning():
         kwargs.setdefault("MuonErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidErrorOptimisationTool",
                                                                              "MuonErrorOptimisationTool",
@@ -346,6 +347,7 @@ def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBu
     kwargs.setdefault('TrackSummaryTool', 'TMEF_TrackSummaryTool')#gpt
     kwargs.setdefault('MuonHoleRecovery', 'MuonSegmentRegionRecoveryTool')#gpt
     kwargs.setdefault('AllowCleanerVeto', False)
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     from MuidTrackBuilder.MuidTrackBuilderConf import Rec__OutwardsCombinedMuonTrackBuilder
     return Rec__OutwardsCombinedMuonTrackBuilder(name, **kwargs)
 
@@ -376,6 +378,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
     kwargs.setdefault("MuonSelectionTool", "")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
