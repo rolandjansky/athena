@@ -227,17 +227,25 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   //same for fat groomed jets
   std::string fatjetcoll(m_fatJets);
-  if (fatjetcoll.size()>3) fatjetcoll = fatjetcoll.substr(0,fatjetcoll.size()-4); //remove (new) suffix
+  if (fatjetcoll.size()>3) fatjetcoll = fatjetcoll.substr(0,fatjetcoll.size()-4); //remove "Jets" suffix
   if (!m_jetFatCalibTool.isUserConfigured() && !m_fatJets.empty()) {
     toolName = "JetFatCalibTool_" + m_fatJets;
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
+    std::string jesConfigFat = m_jesConfigFat;
+    std::string jesCalibSeqFat = m_jesCalibSeqFat;
+    // add Insitu if data
+    if (isData()) {
+      jesConfigFat = m_jesConfigFatData;
+      jesCalibSeqFat += "_Insitu_InsituCombinedMass";
+    }
+
     // now instantiate the tool
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
-    ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", m_jesConfigFat) );
-    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", m_jesCalibSeqFat) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", jesConfigFat) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", jesCalibSeqFat) );
     // always set to false : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
-    ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", false) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
@@ -309,15 +317,15 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   // Initialise jet uncertainty tool for fat jets
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
   if (!m_fatjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_fatJetUncConfig.empty()) {
 
     toolName = "JetUncertaintiesTool_" + m_fatJets;
     m_fatjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("JetDefinition", fatjetcoll) );
-    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("MCType", "MC16a") );
+    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("MCType", "MC16") );
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("IsData", isData()) );
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("ConfigFile", m_fatJetUncConfig) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
 
