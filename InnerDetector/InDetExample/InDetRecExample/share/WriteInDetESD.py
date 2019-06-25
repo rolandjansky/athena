@@ -219,6 +219,8 @@ if InDetFlags.doxAOD():
   if InDetFlags.doLowPtRoI():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()+'Aux.' + excludedAuxData]
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODLowPtRoIVertexContainer()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLowPtRoIVertexContainer()+'Aux.' + excludedVertexAuxData]
      
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetESDList directly
 # added to InDetRec_all.py after include WriteInDetESD!

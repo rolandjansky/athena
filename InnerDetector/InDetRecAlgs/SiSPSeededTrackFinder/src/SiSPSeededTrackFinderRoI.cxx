@@ -10,6 +10,11 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "CxxUtils/make_unique.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +32,8 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
+  m_vxOutputName ( "LowPtRoIVertices" ),
+  //m_vxOutputNameAuxPostfix ( "Aux." ),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
@@ -46,6 +53,8 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("TrackTool"           ,m_trackmaker          );
   declareProperty("TracksLocation"      ,m_outputTracks        );
+  declareProperty ( "VxOutputName",m_vxOutputName );
+  //declareProperty ( "VxOutputNameAuxPostfix",m_vxOutputNameAuxPostfix );
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
   declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
@@ -142,11 +151,55 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   double ZBoundary[2];
   if (m_listRoIs.size() == 0) {
 	msg(MSG::INFO) << "no selectedRoIs " << endreq;
+
+	//VERTEX WITH NO ROI
+	xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+	xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+	theVertexContainer->setStore( theVertexAuxContainer );
+	xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+	theVertexContainer->push_back( dummyxAODVertex );
+	msg(MSG::INFO) << "container made " << endreq;
+	//dummyxAODVertex->setPosition( m_listRoIs[0].z_reference );
+	dummyxAODVertex->setZ( -99.9 );
+	msg(MSG::INFO) << "Z SET HERE " << endreq;
+	msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+	
+	if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
+	  msg(MSG::INFO) << "DOES IT PASS? " << endreq;
+	  CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+	}
+	if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
+	  CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+	}
+
 	return StatusCode::SUCCESS;
   }
   ZBoundary[0] = m_listRoIs[0].z_window[0];
   ZBoundary[1] = m_listRoIs[0].z_window[1];
+  //m_listRoIs[0].z_reference is the midpoint
   msg(MSG::INFO) << "selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]<< endreq;
+  
+  //VERTEX
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+  xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+  theVertexContainer->setStore( theVertexAuxContainer );
+  xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+  theVertexContainer->push_back( dummyxAODVertex );
+  msg(MSG::INFO) << "container made " << endreq;
+  //dummyxAODVertex->setPosition( m_listRoIs[0].z_reference );
+  dummyxAODVertex->setZ( m_listRoIs[0].z_reference );
+  msg(MSG::INFO) << "Z SET HERE " << endreq;
+  msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+
+  if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
+    msg(MSG::INFO) << "DOES IT PASS? " << endreq;
+    CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+  }
+  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
+    CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+  }
+  
+
   // Find seeds that point within the RoI region in z
   //  
   m_seedsmaker  ->newEvent(-1); 

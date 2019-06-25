@@ -597,6 +597,12 @@ class LowPtRoITracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ResolvedLowPtRoITrackTruthCollection'
 
+class LowPtRoIVertices(JobProperty):
+    """StoreGate key for LowPtRoI vertices """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'LowPtRoIVertices'
+
 class PixelTracks(JobProperty):
     """StoreGate key for resolved pixel standalone tracks """
     statusOn     = True
@@ -1169,6 +1175,12 @@ class xAODLowPtRoITrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "LowPtRoITrackParticles"
 
+class xAODLowPtRoIVertexContainer(JobProperty):
+    """xAOD Vertex for LowPtRoI"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "LowPtRoIVertexContainer"
+
 class xAODPixelTrackParticleContainer(JobProperty):
     """xAOD PixelTrackParticle"""
     statusOn = True
@@ -1338,6 +1350,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoITracks)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoITracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoIDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoIVertices)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
@@ -1436,6 +1449,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContain
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowPtRoITrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLowPtRoIVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)
