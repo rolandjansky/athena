@@ -40,26 +40,27 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseConditions(True)
-        pixelConditionsSummaryToolSetup.setUseDCSState(isData  and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseByteStream(isData)
-        pixelConditionsSummaryToolSetup.setUseTDAQ(False)
-        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-        pixelConditionsSummaryToolSetup.setup()
 
-    InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+    #################
+    # Module status #
+    #################
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-    if InDetFlags.usePixelDCS():
-        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+    if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDeadMap=True,
+                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                    UseCalibConditions=True)
 
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelConditionsSummaryTool
-
- 
     #####################
     # Calibration Setup #
     #####################
@@ -105,7 +106,6 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-
 
 #
 # --- Load SCT Conditions Services

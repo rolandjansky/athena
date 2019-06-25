@@ -136,7 +136,6 @@ class PixelConditionsServicesSetup:
       TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
       TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
 
-    ToolSvc += TrigPixelConditionsSummaryTool
     self.summaryTool = TrigPixelConditionsSummaryTool
 
     if self._print: print TrigPixelConditionsSummaryTool
