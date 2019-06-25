@@ -36,10 +36,12 @@ TEST_F(xAODJetCollectorTest, multipleInputJets){
 
   constexpr std::size_t njets{11};
   HypoJetVector jets;
+  std::vector<xAOD::Jet> xaodjets (njets);
+  std::vector<HypoJet::xAODJetAsIJet> ijets;
+  ijets.reserve (njets);
   for(unsigned int ijet = 0; ijet < njets; ++ijet){
-    xAOD::Jet j;
-    HypoJet::xAODJetAsIJet hjet(&j, ijet);
-    jets.push_back(&hjet);
+    ijets.emplace_back (&xaodjets[ijet], ijet);
+    jets.push_back(&ijets.back());
   }
 
   xAODJetCollector collector;
@@ -55,10 +57,12 @@ TEST_F(xAODJetCollectorTest, nonXAODJets){
 
   unsigned int njets{11};
   HypoJetVector jets;
+  std::vector<TLorentzVectorAsIJet> ijets;
+  ijets.reserve (njets);
   for(unsigned int ijet = 0; ijet < njets; ++ijet){
     TLorentzVector v;
-    TLorentzVectorAsIJet tl_as_ij(v);
-    jets.push_back(&tl_as_ij);
+    ijets.emplace_back (v);
+    jets.push_back(&ijets.back());
   }
 
   xAODJetCollector collector;
