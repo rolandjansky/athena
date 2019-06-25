@@ -95,6 +95,7 @@ private:
 
   StatusCode initializeWithTauSelectionTool();
 
+  StatusCode initializeTools_2019_summer();
   StatusCode initializeTools_2018_summer();
   StatusCode initializeTools_mc16_prerec();
   StatusCode initializeTools_2017_moriond();
@@ -102,7 +103,6 @@ private:
   StatusCode initializeTools_2016_ichep();
   StatusCode initializeTools_mc15_moriond();
   StatusCode initializeTools_mc15_pre_recommendations();
-  StatusCode initializeTools_mc12_final();
 
 private:
 
