@@ -66,21 +66,40 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     DQMonFlags.useTrigger = False
     DQMonFlags.doLVL1CaloMon = False
     from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
-    _TriggerESDList = {}
-    _TriggerAODList = {}
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList 
-    _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-    _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if TriggerFlags.doMT():
+        # Note this mirrors skeleton.RDOtoRDOTrigger. It should migrate to a getTriggerEDMList style function
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+        for item in TriggerHLTList:
+            if "ESD" in item[1]:
+                objKeyStore.addManyTypesStreamESD( [item[0]] )
+            if "AOD" in item[1]:
+                objKeyStore.addManyTypesStreamAOD( [item[0]] )
+        # We also want to propagate the navigation to ESD and AOD. For now, unconditionally
+        # Note: Not every TrigComposite collection is navigation, there are other use cases too.
+        # So in future we should filter more heavily than this too.
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        rawCollections = convert_itemList(layout='#join')
+        for item in rawCollections:
+            if item.startswith("xAOD::TrigComposite"):
+                objKeyStore.addManyTypesStreamESD( [item] )
+                objKeyStore.addManyTypesStreamAOD( [item] )
+                print(item)
+    else:
+        _TriggerESDList = {}
+        _TriggerAODList = {}
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        objKeyStore.addManyTypesStreamESD( _TriggerESDList )
+        objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
     from TrigEDMConfig.TriggerEDM import getLvl1ESDList
     from TrigEDMConfig.TriggerEDM import getLvl1AODList
-    from RecExConfig.ObjKeyStore import objKeyStore
     from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
     objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
     objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
     objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
     objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
-    objKeyStore.addManyTypesStreamESD( _TriggerESDList )  
-    objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
     if rec.doFileMetaData():
        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
                         "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
