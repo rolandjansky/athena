@@ -170,7 +170,7 @@ GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name         
                                                                    MaximumNumberOfComponents = 12)
 ToolSvc += GsfComponentReduction
 
-from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
+from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator
 egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
 ToolSvc += egTrkUpdator
 
