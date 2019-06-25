@@ -210,7 +210,8 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   /// in case of continuous WP you can choose to ignore some of the eigenvectors
   std::string m_excludeEV;
   ///possibility to compute the direct tagging SFs map directly from the TruthTaggingTool
-  bool m_doDirectTag;
+  // member is unused, please remove if not needed:
+  //   bool m_doDirectTag;
 
   //*********************************//
   // Prop. of BTaggingSelectionTool  //

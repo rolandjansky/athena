@@ -20,10 +20,10 @@
 namespace FakeBkgTools
 {
   /// These are defined in FakeBkgInternals.h
-  class ParticleData;
+  struct ParticleData;
   class FinalState;
   class Database;
-  class Efficiency;
+  struct Efficiency;
   enum class Client;
 }
 
@@ -176,7 +176,7 @@ class BaseFakeBkgTool : virtual public CP::IFakeBkgTool, public CP::IFakeBkgSyst
 
     std::pair<uint16_t, float> identifyCpSystematicVariation(const CP::SystematicVariation& systematic) const;
     
-    friend class FakeBkgTools::Efficiency;
+    friend struct FakeBkgTools::Efficiency;
 };
 
 }
