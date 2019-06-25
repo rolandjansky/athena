@@ -90,13 +90,13 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     
     # --------------------
     def getdimuL2(self):
-        stepName = 'Step1_l2Dimu'
+        stepName = 'Step2_l2Dimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuL2SequenceCfg, None)
         return ChainStep(stepName, [bphySeq])
 
     def getdimuEF(self):
-        stepName = 'Step1_efDimu'
+        stepName = 'Step5_efDimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuEFSequenceCfg, None)
         return ChainStep(stepName, [bphySeq])
