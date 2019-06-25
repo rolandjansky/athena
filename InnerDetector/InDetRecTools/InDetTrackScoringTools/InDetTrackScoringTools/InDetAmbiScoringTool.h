@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -18,7 +18,7 @@
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include <vector>
 #include <string>
