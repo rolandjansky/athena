@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -12,7 +12,6 @@
 #include "EventContextAthenaPool.h"
 #include "PoolCollectionConverter.h"
 
-#include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
@@ -23,7 +22,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/ICollectionSize.h"
 
 // Framework
@@ -47,60 +45,9 @@
 
 //________________________________________________________________________________
 EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLocator* pSvcLocator) :
-	::AthService(name, pSvcLocator),
-	m_beginIter(nullptr),
-	m_endIter(nullptr),
-	m_activeStoreSvc("ActiveStoreSvc", name),
-	m_poolCollectionConverter(nullptr),
-	m_headerIterator(nullptr),
-	m_guid(),
-	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
-	m_incidentSvc("IncidentSvc", name),
-	m_helperTools(this),
-	m_counterTool("", this),
-	m_eventStreamingTool("", this),
-        m_curCollection(0),
-	m_evtCount(0),
-	m_firedIncident(false) {
-   declareProperty("ProcessMetadata",     m_processMetadata = true);
-   declareProperty("ShowSizeStatistics",  m_showSizeStat = false);
-   declareProperty("CollectionType",      m_collectionType = "ImplicitROOT");
-   declareProperty("CollectionTree",      m_collectionTree = "POOLContainer");
-   declareProperty("Connection",          m_connection);
-   declareProperty("RefName",             m_refName);
-   declareProperty("AttributeListKey",    m_attrListKey = "Input");
-   declareProperty("InputCollections",    m_inputCollectionsProp);
-   declareProperty("Query",               m_query = "");
-   declareProperty("KeepInputFilesOpen",  m_keepInputFilesOpen = false);
-   declareProperty("SkipEvents",          m_skipEvents = 0);
-   declareProperty("SkipEventSequence",   m_skipEventSequenceProp);
-   declareProperty("HelperTools",         m_helperTools);
-   declareProperty("CounterTool",         m_counterTool);
-   declareProperty("SharedMemoryTool",    m_eventStreamingTool);
-
-   // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
-   // to override the run number coming in on the input stream
-   declareProperty("RunNumber",           m_runNo = 0);
-   m_runNo.verifier().setLower(0);
-   declareProperty("OldRunNumber",        m_oldRunNo = 0);
-   m_oldRunNo.verifier().setLower(0);
-   declareProperty("OverrideRunNumberFromInput",   m_overrideRunNumberFromInput = false);
-   // The following properties are only for compatibility with
-   // McEventSelector and are not really used anywhere
-   declareProperty("EventsPerRun",        m_eventsPerRun = 1000000);
-   m_eventsPerRun.verifier().setLower(0);
-   declareProperty("FirstEvent",          m_firstEventNo = 0);
-   m_firstEventNo.verifier().setLower(0);
-   declareProperty("FirstLB",             m_firstLBNo = 0);
-   m_firstLBNo.verifier().setLower(0);
-   declareProperty("EventsPerLB",         m_eventsPerLB = 1000);
-   m_eventsPerLB.verifier().setLower(0);
-   declareProperty("InitialTimeStamp",    m_initTimeStamp = 0);
-   m_initTimeStamp.verifier().setLower(0);
-   declareProperty("TimeStampInterval",   m_timeStampInterval = 0);
-   declareProperty("OverrideRunNumber",   m_overrideRunNumber = false);
-   declareProperty("OverrideEventNumber", m_overrideEventNumber = false);
-   declareProperty("OverrideTimeStamp",   m_overrideTimeStamp = false);
+	base_class(name, pSvcLocator)
+{
+   declareProperty("HelperTools", m_helperTools);
 
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorAthenaPool::inputCollectionsHandler, this);
 }
