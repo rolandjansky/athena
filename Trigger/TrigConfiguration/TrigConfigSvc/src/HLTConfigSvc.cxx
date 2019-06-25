@@ -155,7 +155,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_3j200_L1J20"] = "L1_J20";
       dummyChains["HLT_5j70_0eta240_L1J20"] = "L1_J20";
-      dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU1020"] = "L1_EM8I_MU1020";
+      dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU10"] = "L1_EM8I_MU10";
       dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
       dummyChains["HLT_g5_etcut"] = "L1_EM3";
       dummyChains["HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20"] = "L1_L1J20";
