@@ -89,6 +89,7 @@ StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
   bool m_UseTrigger;
   bool m_doIsoSelection;
   bool m_doIPSelection;
+  bool m_doMCPSelection;
   double m_MassWindowLow;
   double m_MassWindowHigh;
   double m_LeadingMuonPtCut;

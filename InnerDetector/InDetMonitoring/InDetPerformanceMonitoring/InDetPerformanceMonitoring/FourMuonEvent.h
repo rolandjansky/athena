@@ -90,6 +90,10 @@ class FourMuonEvent : public EventAnalysis
     m_xMuonID.doIPSelection(doIPsel);
   }
 
+  void doMCPSelection(bool doMCP) {
+    m_xMuonID.doMCPSelection(doMCP);
+  }
+
   void        OrderMuonList ();
   inline void SetMuonPtCut (double newvalue) { m_xMuonID.SetPtCut(newvalue);}
 

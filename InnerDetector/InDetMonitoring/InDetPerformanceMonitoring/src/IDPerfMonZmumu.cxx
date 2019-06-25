@@ -101,6 +101,7 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   declareProperty("UseTrigger"    ,    m_UseTrigger     = false);
   declareProperty("doIsoSelection",    m_doIsoSelection = true );
   declareProperty("doIPSelection",     m_doIPSelection = true );
+  declareProperty("doMCPSelection",    m_doMCPSelection = true );
   declareProperty("isMC",              m_isMC = false);
   declareProperty("doRefit",           m_doRefit = false);
   declareProperty("doIPextrToPV",      m_doIP = false);
@@ -675,6 +676,7 @@ StatusCode IDPerfMonZmumu::execute()
   m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
   m_xZmm.doIsoSelection(m_doIsoSelection);
   m_xZmm.doIPSelection(m_doIPSelection);
+  m_xZmm.doMCPSelection (m_doMCPSelection);
   m_xZmm.SetMassWindowLow(m_MassWindowLow);
   m_xZmm.SetMassWindowHigh(m_MassWindowHigh);
   m_xZmm.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
@@ -817,6 +819,7 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.setContainer(PerfMonServices::MUON_COLLECTION);
     m_4mu.doIsoSelection(m_doIsoSelection);
     m_4mu.doIPSelection(m_doIPSelection);
+    m_4mu.doMCPSelection (m_doMCPSelection);
     m_4mu.SetMassWindowLow(m_MassWindowLow);
     m_4mu.SetMassWindowHigh(m_MassWindowHigh);
     m_4mu.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
@@ -897,12 +900,6 @@ StatusCode IDPerfMonZmumu::execute()
 		      << ", " << m_pv_z
 		      << ") " << std::endl;
 	  }
-	  std::cout << " -- salva -- nvtx: " << m_nVertex        
-		    << "           muneg1: " << m_negative_1_vtx 
-		    << "           muneg2: " << m_negative_2_vtx 
-		    << "           mupos1: " << m_positive_1_vtx 
-		    << "           mupos2: " << m_positive_2_vtx 
-		    << std::endl;
 	}
 	
 	m_4mu_minv = m_4mu.GetInvMass();

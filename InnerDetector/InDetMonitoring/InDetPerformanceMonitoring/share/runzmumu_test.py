@@ -365,13 +365,14 @@ if zmumuval == True:
                                     FourMuTreeFolder = "/ZmumuValidationUserSel/fourmu",# Only filled if doFourMuAnalysis is set to true
                                     doIsoSelection = True,
                                     doIPSelection = True,
+                                    doMCPSelection = True, # Medium 
                                     doFourMuAnalysis = True,
-                                    StoreZmumuNtuple = False,
+                                    StoreZmumuNtuple = True,
                                     #loose selection to have Z and JPsi in the n tuple
                                     MassWindowLow = 1.,
-                                    MassWindowHigh = 1000.,
-                                    PtLeadingMuon = 10.,#10 #4 #15.,
-                                    PtSecondMuon = 2.,#10 #4 #15.,
+                                    MassWindowHigh = 2000.,
+                                    PtLeadingMuon = 5., #10 #4 #15.,
+                                    PtSecondMuon =  2., #10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     Z0Gap = 5.0, # in mm
                                     OutputLevel = INFO)
