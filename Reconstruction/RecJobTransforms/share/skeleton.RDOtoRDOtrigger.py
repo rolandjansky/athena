@@ -215,6 +215,20 @@ for i in outSequence.getAllChildren():
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
+        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        topSequence += TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
+        log.info('TrigDecision writing enabled')
+
+        # Note: xAODMaker__TrigDecisionCnvAlg no longer needed. TrigDecisionMakerMT goes straight to xAOD
+        # Note: xAODMaker__TrigNavigationCnvAlg no longer needed. MT navigation is natively xAOD 
+        
+        # *** June 2019 TEMPORARY *** for use with TrigDecMakerMT until a proper config svc is available
+        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
+        ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
+
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
@@ -231,19 +245,30 @@ for i in outSequence.getAllChildren():
         decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
-        
 
-
+        StreamRDO.ItemList += [ "xAOD::TrigDecision#xTrigDecision" ]            # TODO - move this back in to TrigEDMRun3
+        StreamRDO.ItemList += [ "xAOD::TrigDecisionAuxInfo#xTrigDecisionAux." ] # TODO - move this back in to TrigEDMRun3
+        StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from TrigDecisionTool.TrigDecisionToolConf import *
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
-    ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
-    ToolSvc.TrigDecisionTool.UseAODDecision = True
+    if TriggerFlags.doMT():
+        ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
+        # To pick up hacked config svc
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+    else:
+    	# Causes TDT to use Run-1 style behaviour in this part of the transform
+        ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
+        ToolSvc.TrigDecisionTool.UseAODDecision = True
 
 if TriggerFlags.doMT():
-    pass
+    # inform TD maker that some parts may be missing
+    if TriggerFlags.dataTakingConditions()=='Lvl1Only':
+        topSequence.TrigDecMakerMT.doHLT=False
+    elif TriggerFlags.dataTakingConditions()=='HltOnly':
+        topSequence.TrigDecMakerMT.doL1=False
 else:
     # inform TD maker that some parts may be missing
     if TriggerFlags.dataTakingConditions()=='Lvl1Only':
