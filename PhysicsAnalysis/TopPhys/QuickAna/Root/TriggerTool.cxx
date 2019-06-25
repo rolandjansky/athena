@@ -344,8 +344,8 @@ namespace ana
 
       // If we are in the wrong year, then stop here
       if ( (my_runNumber<290000 && m_year!=Only2015 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017) ||
-           (my_runNumber>290000 && my_runNumber<320000 && m_year!=Only2016 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017) || 
-           (my_runNumber>320000 && my_runNumber<342000 && m_year!=Only2017 && m_year!=Only2016_2017 && m_year!=Only2015_2016_2017) ||
+           (my_runNumber>290000 && my_runNumber<320000 && m_year!=Only2016 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017 && m_year!=Only2016_2017_2018) || 
+           (my_runNumber>320000 && my_runNumber<342000 && m_year!=Only2017 && m_year!=Only2016_2017 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017_2018) ||
            (my_runNumber>342000 && m_year!=Only2018 && m_year!=Only2016_2017_2018) ) return StatusCode::SUCCESS;
 
       // This is unreadably ugly...
