@@ -18,8 +18,8 @@ topSequence.InDetTRTRawDataProvider_FS.RoIs   = "FSRoI"
 topSequence.InDetSCT_Clusterization_FS.RoIs   = "FSRoI"
 topSequence.InDetPixelClusterization_FS.RoIs  = "FSRoI"
 
-print topSequence.InDetTrigTrackParticleCreatorAlgMinBias
-topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName = "FSRoI"
+
+
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MinBias
 theFTF              = TrigFastTrackFinder_MinBias()
@@ -27,7 +27,7 @@ theFTF.isRoI_Seeded = True
 theFTF.RoIs         = "FSRoI"
 topSequence += theFTF
 
-
-
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
 
 

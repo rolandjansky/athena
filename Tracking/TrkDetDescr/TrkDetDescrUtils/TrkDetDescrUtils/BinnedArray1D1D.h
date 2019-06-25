@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 //STL
 #include <vector>
 
+#include "CxxUtils/CachedUniquePtr.h"
 class MsgStream;
 
 namespace Trk {
@@ -37,7 +38,7 @@ namespace Trk {
       BinnedArray1D1D()
       : BinnedArray<T>(),
         m_array(0),
-        m_arrayObjects(0),
+        m_arrayObjects(nullptr),
         m_steeringBinUtility(0),
         m_singleBinUtilities(0)
       {}
@@ -50,7 +51,7 @@ namespace Trk {
                      std::vector<BinUtility*>* singleBinGen)
       : BinnedArray<T>(),
         m_array(0),
-        m_arrayObjects(0),
+        m_arrayObjects(nullptr),
         m_steeringBinUtility(steeringBinGen1D),
         m_singleBinUtilities(singleBinGen)
       {
@@ -82,7 +83,7 @@ namespace Trk {
       BinnedArray1D1D(const BinnedArray1D1D& barr)
       : BinnedArray<T>(),
         m_array(0),
-        m_arrayObjects(0),
+        m_arrayObjects(nullptr),
         m_steeringBinUtility(0),
         m_singleBinUtilities(0)
       {
@@ -119,7 +120,7 @@ namespace Trk {
               // first deleting everything
               for ( int ivec=0 ; ivec < arrsize; ++ivec) delete (*m_array)[ivec];
               delete m_array;
-              delete m_arrayObjects; m_arrayObjects = 0;
+              m_arrayObjects.release();
               delete m_steeringBinUtility;
 
               std::vector<BinUtility*>::iterator singleBinIter = m_singleBinUtilities->begin();
@@ -162,7 +163,6 @@ namespace Trk {
           int arrsize = m_array->size();
           for ( int ivec=0 ; ivec < arrsize; ++ivec) delete (*m_array)[ivec];
           delete m_array;
-          delete m_arrayObjects;
           delete m_steeringBinUtility;
           if (m_singleBinUtilities) {
               std::vector<BinUtility*>::iterator binIter = m_singleBinUtilities->begin();
@@ -208,15 +208,18 @@ namespace Trk {
 
       /** Return all objects of the Array */
       const std::vector< const T* >& arrayObjects() const {
-	if (!m_arrayObjects){
-	  m_arrayObjects = new std::vector<const T*>;
-	  for (size_t isteer=0; isteer<m_steeringBinUtility->bins(); ++isteer)
-	    {
-	      for (size_t isingle = 0; isingle< (*m_singleBinUtilities)[isteer]->bins(); ++isingle)
-		{ m_arrayObjects->push_back(((*((*m_array)[isteer]))[isingle]).get()); }
-	    }
-	}
-	return (*m_arrayObjects);
+        if (!m_arrayObjects){
+          std::unique_ptr< std::vector< const T* >> arrayObjects = std::make_unique< std::vector<const T*> >(); 
+            for (size_t isteer=0; isteer<m_steeringBinUtility->bins(); ++isteer)
+            {
+              for (size_t isingle = 0; isingle< (*m_singleBinUtilities)[isteer]->bins(); ++isingle)
+              { 
+                arrayObjects->push_back(((*((*m_array)[isteer]))[isingle]).get()); 
+              }
+            }
+          m_arrayObjects.set(std::move(arrayObjects));
+        }
+        return (*m_arrayObjects);
       }
 
       /** Number of Entries in the Array */
@@ -227,7 +230,7 @@ namespace Trk {
 
     private:
       std::vector< std::vector< SharedObject<const T> >* >*     m_array;               //!< vector of pointers to the class T
-      mutable std::vector< const T* >*                          m_arrayObjects;        //!< forced 1D vector of pointers to class T
+      CxxUtils::CachedUniquePtr<std::vector< const T* >>        m_arrayObjects;        //!< forced 1D vector of pointers to class T
       BinUtility*                                               m_steeringBinUtility;  //!< binUtility for retrieving and filling the Array
       std::vector<BinUtility*>*                                 m_singleBinUtilities;  //!< single bin utilities
   };

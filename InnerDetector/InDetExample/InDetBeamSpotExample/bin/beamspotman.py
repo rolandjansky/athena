@@ -129,6 +129,7 @@ parser.add_option('', '--rl', dest='runMin', type='int', default=None, help='Min
 parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Maximum run number for mctag (inclusive)')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
+parser.add_option('', '--resubRunning', dest='resubRunning', action='store_true', default=False, help='Resubmit all "running" jobs')
 parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
 
 g_deprecated = OptionGroup(parser, 'Deprecated Options')
@@ -301,7 +302,7 @@ if cmd=='runMon' and len(args)==3:
         run_jobs(options.monjoboptions, dsname,
                 '{}.{}'.format(options.montaskname, tag),
                 {
-                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal; export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase',
                     'useBeamSpot' : True,
                     'beamspottag' : options.beamspottag,
                     },
@@ -326,11 +327,11 @@ if cmd=='runMon' and len(args)==3:
                 '--match', options.filter,
                 '--exclude', r'.*\.TMP\.log.*',
                 '--directory', dataset,
-                '--queue', 'atlasb1_long')
+                '--queue', '"tomorrow"')
     else:
         run_jobs(options.monjoboptions, dsname, '{}.{}'.format(options.montaskname, tag),
                 {
-                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal; export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase',
                     'useBeamSpot' : True,
                     'beamspottag' : options.beamspottag,
                     },
@@ -396,9 +397,12 @@ if cmd=='backup' and len(args)==2:
         status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
 
         if status:
-            # Continue to try other files if one failed to upload to EOS
-            print '\nERROR: Unable to copy file to EOS to %s/%s' % (path,outname)
-            continue
+            os.system('rm -rf  %s/%s' % (path,outname) )
+            status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+            if status:
+              # Continue to try other files if one failed to upload to EOS
+              print '\nERROR: Unable to copy file to EOS to %s/%s' % (path,outname)
+              continue
 
         os.system('rm %s/%s' % (tmpdir,outname))
         status = os.system('echo "`date`   %s/%s" >> %s/backup.log' % (path,outname,d)) >> 8
@@ -650,6 +654,7 @@ if cmd=='queryT0' and len(args)==3:
 #
 # Run command over set of matching tasks
 #
+print len(args)
 if cmd=='runCmd' and len(args)==4:
     dssel = args[1]
     tasksel = args[2]
@@ -920,7 +925,10 @@ if cmd=='archive' and len(args)==3:
                     sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
                 status = os.system('xrdcp %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
                 if status:
-                    sys.exit('\n**** ERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
+                    os.system('rm -rf  %s/%s' % (path,outname) )
+                    status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+                    if status:
+                      sys.exit('\n**** ERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
 
                 os.system('rm %s/%s' % (tmpdir,outname))
                 n = taskman.setValue(dsname,taskname,'ONDISK',archivedCode)
@@ -959,6 +967,17 @@ if cmd=='resubmit' and len(args) in [3,4]:
     basepath = os.path.join(os.getcwd(), dsname, taskname)
     dircontents = os.listdir(basepath)
 
+    condorScriptTemplate="""executable            = %(scriptfile)s
+arguments             = $(ClusterID) $(ProcId)
+output                = %(logfile)s.out 
+error                 = %(logfile)s.err
+log                   = %(logfile)s.log
+universe              = vanilla
++JobFlavour           = %(batchqueue)s  
+queue
+"""
+
+
     for dir in dircontents:
         if not os.path.isdir(os.path.join(basepath, dir)):
             continue
@@ -971,7 +990,7 @@ if cmd=='resubmit' and len(args) in [3,4]:
         isRunning = False
         isFailed = False
         for f in os.listdir(fullpath):
-          if re.search('RUNNING', f) or re.search('POSTPROCESSING',f):
+          if re.search('RUNNING', f):
             isRunning = True
           if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
             with open(os.path.join(fullpath, jobname + '.exitstatus.dat')) as statusFile:
@@ -980,9 +999,11 @@ if cmd=='resubmit' and len(args) in [3,4]:
             if status != "0":
               isFailed  = True
               isRunning = False
-
-        if (isRunning or not isFailed) and not options.resubAll:
+        if options.resubRunning  and isRunning:
+          print "Will resubmit running job"
+        elif (isRunning or not isFailed) and not options.resubAll:
           continue
+       
 
         for f in os.listdir(fullpath):
           if re.search('.exitstatus.', f):
@@ -1005,7 +1026,15 @@ if cmd=='resubmit' and len(args) in [3,4]:
         jobConfig['logfile'] = '%(jobdir)s/%(jobname)s.log' % jobConfig
         jobConfig['scriptfile'] = '%(jobdir)s/%(jobname)s.sh' % jobConfig
 
-        batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
+        condorScript = condorScriptTemplate % jobConfig
+        print condorScript
+        script = open('condorSubmit.sub','w')
+        script.write(condorScript)
+        script.close()
+        os.chmod('condorSubmit.sub',0755)
+        #batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
+        batchCmd = 'condor_submit condorSubmit.sub'
+
         print batchCmd
         os.system(batchCmd)
 
@@ -1021,7 +1050,7 @@ if cmd=='resubmit' and len(args) in [3,4]:
 # Defines one task with several jobs where the splitting into groups of 5 LBs is done by hand
 #
 if cmd=='reproc' and len(args)==5:
-    from InDetBeamSpotExample import LSFJobRunner
+    from InDetBeamSpotExample import HTCondorJobRunner
 
     jobopts   = args[1]
     dsname    = args[2]
@@ -1108,8 +1137,8 @@ if cmd=='reproc' and len(args)==5:
             params['lbList'] = intlbs
             jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
-            queue = options.batch_queue or 'atlasb1_long'
-            runner = LSFJobRunner.LSFJobRunner(
+            queue = options.batch_queue or '"tomorrow"'
+            runner = HTCondorJobRunner.HTCondorJobRunner(
                     jobnr=jobnr,
                     jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
@@ -1145,8 +1174,8 @@ if cmd=='reproc' and len(args)==5:
 #
 
 if cmd=='runaod' and len(args)==5:
-    from InDetBeamSpotExample import LSFJobRunner
 
+    from InDetBeamSpotExample import HTCondorJobRunner
     jobopts   = args[1]
     dsname    = args[2]
     taskname  = args[3]
@@ -1174,8 +1203,12 @@ if cmd=='runaod' and len(args)==5:
     lbMap = {}
     backend = DiskUtils.EOS() if options.eos else None
     fs = DiskUtils.FileSet.from_input(inputdata, backend=backend)
+    print "****************************************************"
+    print "*************** printing files *********************"
+    print fs
     fs = fs.matching(options.filter)
     for f, lbs in fs.with_lumi_blocks(options.lbfilemap):
+        print f, lbs
         lbMap[f] = lbs
         files.append(f)
     if not files: fail('No files were found.')
@@ -1274,8 +1307,8 @@ if cmd=='runaod' and len(args)==5:
             queue = options.batch_queue
             if queue is None:
                 # run on a different queue for VdM scans to avoid clogging up the normal queue
-                queue='atlasb1_long' if options.pseudoLbFile else 'atlasb1'
-            runner = LSFJobRunner.LSFJobRunner(
+                queue='"tomorrow"' if options.pseudoLbFile else '"tomorrow"'
+            runner = HTCondorJobRunner.HTCondorJobRunner(
                     jobnr=jobnr,
                     jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
@@ -1417,7 +1450,7 @@ if cmd=='runBCID' and len(args)==3:
     #       other data sets we have only the merged files.
     run_jobs(options.bcidjoboptions, dsname, options.bcidtaskname,
             {
-                'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal; export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase',
                 'SeparateByBCID' : True,
                 'VertexNtuple' : False,
                 },

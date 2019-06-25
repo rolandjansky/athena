@@ -33,7 +33,7 @@ given by a vector of VxCandidate*. The class OWNS the VxCandidate. Pointers
 #include "AthenaKernel/CLASS_DEF.h"
 #include "xAODTracking/Vertex.h"
 #include <vector>
-
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -70,12 +70,20 @@ namespace Trk {
     /* set the list of Vertices */
     void setVertices(const std::vector<xAOD::Vertex*> &);
 
-    void getSVOwnership(bool Ownership) const { m_SVOwnership=Ownership; }
+    /* non MT safe seeter with getter on its name ...*/
+    void getSVOwnership ATLAS_NOT_THREAD_SAFE(bool Ownership) const { 
+      const_cast<bool&> (m_SVOwnership)=Ownership;/*Marked ATLAS_NOT_THREAD_SAFE*/ 
+    }
+    /* set Ownership */
+    void setSVOwnership (bool Ownership) { 
+      m_SVOwnership=Ownership; 
+    }
+
 
   protected:
 
     std::vector<xAOD::Vertex*> m_vertices;
-    mutable bool m_SVOwnership;
+    bool m_SVOwnership;
 
   };
 

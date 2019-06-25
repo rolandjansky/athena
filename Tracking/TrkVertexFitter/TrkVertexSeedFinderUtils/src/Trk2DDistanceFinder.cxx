@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -11,7 +11,6 @@
 
 #include "TrkVertexSeedFinderUtils/Trk2DDistanceFinder.h"
 #include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
-#include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -88,7 +87,7 @@ namespace Trk
     std::pair<PointOnTrack,PointOnTrack> minpoints; 
 
     try {
-      minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b));
+      minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b), &m_points);
     } catch (...) {
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Problem with 2d analytic minimum distance finder" << endmsg;
       m_numberOfMinimizationFailures+=1;
@@ -145,12 +144,12 @@ namespace Trk
   
   /**method to obtain the distance (call CalculateMinimumDistance before) **/
   double  Trk2DDistanceFinder::GetDistance() const {
-    return dist(m_2ddistanceseeder->GetClosestPoints());//GetSeedPoint has to be implemented
+    return dist(m_points);//GetSeedPoint has to be implemented
   }
     
   /** method to obtain the points on the two tracks at minimum distance **/
   const std::pair<Amg::Vector3D,Amg::Vector3D>  Trk2DDistanceFinder::GetPoints() const {
-    return m_2ddistanceseeder->GetClosestPoints();
+    return m_points;
   }
 
   

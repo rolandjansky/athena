@@ -95,3 +95,12 @@ atlas_add_test( TileDQstatusTool_test
   PROPERTIES TIMEOUT 600
   EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TileRawChannelCorrectionConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelCorrectionConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)

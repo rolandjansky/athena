@@ -12,7 +12,6 @@ atlas_depends_on_subdirs(
    GaudiKernel
    PRIVATE
    Control/AthenaBaseComps
-   Control/SGTools
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolUtilities
    DetectorDescription/Identifier
@@ -37,7 +36,7 @@ atlas_add_component( PixelCabling
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES}
-   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
+   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib
    AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PathResolver PixelCablingLib )
 
 atlas_add_test( PixelCablingConfigNew_test

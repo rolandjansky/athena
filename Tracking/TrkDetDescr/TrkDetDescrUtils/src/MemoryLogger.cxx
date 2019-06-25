@@ -12,8 +12,8 @@
 
 
 Trk::MemoryLogger::MemoryLogger() :
- m_vsize(-1),
- m_rss(-1)
+ m_vsize{-1},
+ m_rss{-1}
 {}
 
 void Trk::MemoryLogger::refresh(int pid) const
@@ -26,14 +26,18 @@ void Trk::MemoryLogger::refresh(int pid) const
 
     std::ifstream status(filename.str().c_str());
     std::string buff;
+    float vsize;
+    float rss;
     // loop over the files in the input
       while (!status.eof()){
          status >> buff;
-         if ( buff == "VmSize:" ) status >> m_vsize;
-         if ( buff == "VmRSS:" )  status >> m_rss;
+         if ( buff == "VmSize:" ) status >> vsize;
+         if ( buff == "VmRSS:" )  status >> rss;
        }
      // close the file again
      status.close();
+     m_vsize.store(vsize);
+     m_rss.store(vsize);
 #else
 #warning MemoryLogger does not yet work on the mac.
 #endif

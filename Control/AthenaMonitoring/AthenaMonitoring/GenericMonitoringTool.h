@@ -81,6 +81,7 @@ public:
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
 
   /// Retrieve the histogram fillers
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;

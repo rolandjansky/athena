@@ -25,6 +25,10 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.doMonitoring.set_Value_and_Lock(False)
 DQMonFlags.doLArMon.set_Value_and_Lock(False)
 
+#disable offline ID configuration and reco
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doNewTracking.set_Value_and_Lock(False)
+
 from AthenaCommon.CFElements import findAlgorithm, findOwningSequence, findSubSequence
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('rdo_to_rdotrigger')

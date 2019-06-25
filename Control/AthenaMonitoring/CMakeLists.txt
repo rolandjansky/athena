@@ -47,6 +47,7 @@ atlas_add_component( AthenaMonitoring
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( share/Run3DQTestingDriver.py )
 
 # Units tests C++:
 file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )

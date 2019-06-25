@@ -390,7 +390,7 @@ bool TrigLBNHist<HTYPE>::fetchLateEventsHist() {
     return true;
   //   cerr << "late events for " << this->GetName() << endl;
 
-  //m_lateEvents.histogram = (HTYPE*)lock_histogram_operation<HTYPE>((HTYPE*)this)->Clone((m_name+"_lateevents").c_str());
+  //m_lateEvents.histogram = (HTYPE*)oh_lock_histogram<HTYPE>((HTYPE*)this)->Clone((m_name+"_lateevents").c_str());
   TH1::AddDirectory(false);
   m_lateEvents.histogram = new HTYPE(*this);
   m_lateEvents.histogram->SetName((m_name+"_lateevents").c_str());
@@ -409,7 +409,7 @@ template<class HTYPE>
 bool TrigLBNHist<HTYPE>::addNewHist(unsigned lbn, bool force) {
   //std::cout << " will make new histogram " << m_name << " for LBN : " << lbn << " force " << force << std::endl;
 
-  //  HTYPE *newHist = (HTYPE*) lock_histogram_operation<HTYPE>((HTYPE*)this)->Clone(m_name.c_str());
+  //  HTYPE *newHist = (HTYPE*) oh_lock_histogram<HTYPE>((HTYPE*)this)->Clone(m_name.c_str());
 
   TH1::AddDirectory(false);
   HTYPE* newHist = new HTYPE(*this);

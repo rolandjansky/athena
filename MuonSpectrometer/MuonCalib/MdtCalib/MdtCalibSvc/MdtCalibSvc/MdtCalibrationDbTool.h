@@ -33,9 +33,7 @@ namespace MuonCalib{
  * derived from MuonCalib::IMdtCalibDBTool to access different types of DB
  * (currently implemented ASCII files and COOL CLOBS)*/
 
-//TODO: Use public extends<AthAlgTool, IInterface> here. Then you can construct the base class using base_class.
-
-class MdtCalibrationDbTool : public AthAlgTool, virtual public IInterface {
+class MdtCalibrationDbTool : public extends<AthAlgTool, IInterface> {
 public:
   /** constructor */
   MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent);

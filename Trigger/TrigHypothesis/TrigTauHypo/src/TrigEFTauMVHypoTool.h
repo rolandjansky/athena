@@ -6,7 +6,6 @@
 #define TRIGEFTAUMVHYPOTOOL_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TGraph.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -53,11 +52,6 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
   Gaudi::Property<int>  m_numWideTrack{ this, "numWideTrack", 1, "Tau number of wide tracks" };
 
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
-
-  std::string m_cut_level;
-  std::map<std::string,TGraph> m_cuts;
-  std::unique_ptr<TGraph> m_OneProngGraph;
-  std::unique_ptr<TGraph> m_MultiProngGraph;
 
 
 };

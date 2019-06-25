@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFInsideOutSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
 
 
@@ -45,9 +45,6 @@ def FSmuEFCBSequenceCfg(flags):
 
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
-
-def muEFInsideOutSequenceCfg(flags):
-    return muEFInsideOutSequence()
 
 
 ############################################# 
@@ -170,10 +167,4 @@ class MuonChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring empty step")
         return ChainStep(stepName)
 
-    #-------------------
-    def getmuEFInsideOut(self):
-        stepName = 'Step1_muInsideOut'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve(muEFInsideOutSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
 

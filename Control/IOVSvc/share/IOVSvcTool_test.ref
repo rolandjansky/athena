@@ -60,9 +60,9 @@ IncidentSvc         DEBUG Adding [EndEvent] listener 'ConditionStore' with prior
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ConditionStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+ToolSvc.IOVSvcTool   INFO IOVRanges will be checked at every Event
 IncidentSvc         DEBUG Adding [CheckIOV] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [ReloadProxies] listener 'ToolSvc.IOVSvcTool' with priority 100
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
-IOVSvcTool          DEBUG replace proxy [Dooo:6666/old] @0x1ef43f0 with [Dooo:6666/new] @0x1f0c300
+ToolSvc.IOVSvcTool  DEBUG replace proxy [Dooo:6666/old] @0x1ef43f0 with [Dooo:6666/new] @0x1f0c300
 *** IOVSvcTool_test OK ***

@@ -45,66 +45,27 @@ namespace Trk
     };
 
 
-    StatusCode initialize();
-    StatusCode finalize();
-    
     //default constructor due to Athena interface
     Trk2dDistanceSeeder(const std::string& t, const std::string& n, const IInterface*  p);
     
     //
     //destructor
-    ~Trk2dDistanceSeeder();
+    virtual ~Trk2dDistanceSeeder();
 
-    const TwoPointOnTrack GetSeed(const TwoTracks &);
-
-    //additional methods to use stored information
-
-    const Amg::Vector3D GetCrossingPoint() const;
-  
-    const TwoPoints GetClosestPoints() const;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
-    double GetDistance() const;        
-        
-  private:
+    const TwoPointOnTrack GetSeed (const TwoTracks& mytracks,
+                                   TwoPoints* twopoints = nullptr) const;
 
+
+  private:
+    double getBField (const Perigee& p) const;
+    
     //option
     bool m_solveAmbiguityUsingZ;
 
-    //Temporary variables needed in the calculation...
-
-    std::pair<Amg::Vector3D,Amg::Vector3D> m_centersofcurv;
-
-    double m_bfield1;
-    double m_bfield2;
-    
-    //distance on the transverse plane
-    double m_distance2d;
-    
-    //  radius of first track in transverse plane
-    double m_abs1;
-    
-    // radius of second track in transverse plane
-    double m_abs2;
-    
-    double m_sgnr1;
-    
-    double m_sgnr2;
-    
-    // phi angle of first track in circle
-    double m_phi1;
-    
-    //same for second
-    double m_phi2;
-
-    //tangent phi at point of closest approach
-    double m_phitanpoca1;
-    
-    //same fo
-    double m_phitanpoca2;
-
-    //variables for magnetic field tool needed to retrieve the correct Bz
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-
   };
 }
 #endif

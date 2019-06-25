@@ -61,8 +61,8 @@ void test1 (Trk::Trk2dDistanceSeeder& tool)
   Trk::Perigee p1a (pos1a, mom1a,  1, pos1a);
   Trk::Perigee p1b (pos1b, mom1b, -1, pos1b);
 
-  Trk::TwoPointOnTrack pot = tool.GetSeed (Trk::TwoTracks (p1a, p1b));
-  Trk::TwoPoints pp = tool.GetClosestPoints();
+  Trk::TwoPoints pp;
+  Trk::TwoPointOnTrack pot = tool.GetSeed (Trk::TwoTracks (p1a, p1b), &pp);
 
   assertVec3D (pot.first.getPerigee().position(),  pos1a);
   assertVec3D (pot.first.getPerigee().momentum(),  mom1a);
@@ -84,8 +84,7 @@ void test1 (Trk::Trk2dDistanceSeeder& tool)
   Trk::Perigee p3a (pos3a, mom3a,  1, pos3a);
   Trk::Perigee p3b (pos3b, mom3b, -1, pos3b);
 
-  pot = tool.GetSeed (Trk::TwoTracks (p3a, p3b));
-  pp = tool.GetClosestPoints();
+  pot = tool.GetSeed (Trk::TwoTracks (p3a, p3b), &pp);
 
   assertVec3D (pot.first.getPerigee().position(),  pos3a);
   assertVec3D (pot.first.getPerigee().momentum(),  mom3a);

@@ -40,7 +40,6 @@ class ParticleCaloExtensionTool : virtual public IParticleCaloExtensionTool, pub
 public:
 
   ParticleCaloExtensionTool(const std::string&,const std::string&,const IInterface*);
-
   virtual ~ParticleCaloExtensionTool();
 
   virtual StatusCode initialize() override final;
@@ -69,16 +68,15 @@ public:
 private:
 
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TruthParticle& particle ) const;
-  std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
+  std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::NeutralParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", ""};
-  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, electron,nonInteracting"};
+  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon",
+    "The particle type : muon, pion, electron,nonInteracting"};
   Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
   const AtlasDetectorID* m_detID;
   ParticleHypothesis  m_particleType ;
-
-
 };
 }
 

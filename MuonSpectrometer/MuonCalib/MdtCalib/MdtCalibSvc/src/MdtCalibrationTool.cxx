@@ -118,11 +118,10 @@ MdtCalibrationTool::Imp::Imp(std::string name) :
 
 
 MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_dbTool("MdtCalibrationDbTool",this)
 {
-  //TODO: Use smart pointer
-  m_imp = new MdtCalibrationTool::Imp(name);
+  m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
   declareProperty("TimeWindowUpperBound",m_imp->settings.windowUpperBound );
@@ -144,7 +143,7 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
 }
 
 MdtCalibrationTool::~MdtCalibrationTool() {
-  delete m_imp;
+  m_imp.reset();
 }
 
 StatusCode MdtCalibrationTool::initialize() {
@@ -152,14 +151,7 @@ StatusCode MdtCalibrationTool::initialize() {
 
   m_imp->settings.initialize();
   // initialize the MdtIdHelper
-  //TODO: Use detStore() directly
-  ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", name());
-  if ( detStore.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Can't locate the DetectorStore" );
-    return StatusCode::FAILURE;
-  }
-
-  if ( detStore->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
+  if ( detStore()->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MdtIdHelper" );
     return StatusCode::FAILURE;
   }
@@ -170,7 +162,7 @@ StatusCode MdtCalibrationTool::initialize() {
     m_imp->m_BMGid = m_imp->m_mdtIdHelper->stationNameIndex("BMG");
   }
   // initialise MuonGeoModel access
-  if ( detStore->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
+  if ( detStore()->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MuonDetectorManager" );
     return StatusCode::FAILURE;
   }
@@ -229,29 +221,24 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     return false;
   }
 
-  // Easiest MessageSvc implementation, not necessarily the best
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Input: tof " << inputData.tof << " trigger offset " << inputData.triggerOffset;
-    if( inputData.pointOfClosestApproach ) msg(MSG::VERBOSE) << "  PointOfClosestApproach";
-    if( inputData.trackDirection )         msg(MSG::VERBOSE) << "  TrackDirection";
-    if( inputData.nominalWireSurface )     msg(MSG::VERBOSE) << "  Nom. WireSurface";
-    if( inputData.wireSurface )            msg(MSG::VERBOSE) << "  Sagged Wiresurface";
-    msg(MSG::VERBOSE) << endmsg;
-    msg(MSG::VERBOSE) << "Settings: window " << settings.timeWindowLowerBound() << "  " << settings.timeWindowUpperBound();
-    if( settings.doTof )     msg(MSG::VERBOSE) << " Tof";
-    if( settings.doProp )    msg(MSG::VERBOSE) << " Prop";
-    if( settings.doTemp )    msg(MSG::VERBOSE) << " Temp";
-    if( settings.doField )   msg(MSG::VERBOSE) << " Field";
-    if( settings.doWireSag ) msg(MSG::VERBOSE) << " WireSag";
-    if( settings.doSlew )    msg(MSG::VERBOSE) << " Slew";
-    if( settings.doBkg )     msg(MSG::VERBOSE) << " Bkg";
-    msg(MSG::VERBOSE) << endmsg;
+    ATH_MSG_VERBOSE("Input: tof " << inputData.tof << " trigger offset " << inputData.triggerOffset);
+    if( inputData.pointOfClosestApproach ) ATH_MSG_VERBOSE("  PointOfClosestApproach");
+    if( inputData.trackDirection )         ATH_MSG_VERBOSE("  TrackDirection");
+    if( inputData.nominalWireSurface )     ATH_MSG_VERBOSE("  Nom. WireSurface");
+    if( inputData.wireSurface )            ATH_MSG_VERBOSE("  Sagged Wiresurface");
+    ATH_MSG_VERBOSE("Settings: window " << settings.timeWindowLowerBound() << "  " << settings.timeWindowUpperBound());
+    if( settings.doTof )     ATH_MSG_VERBOSE(" Tof");
+    if( settings.doProp )    ATH_MSG_VERBOSE(" Prop");
+    if( settings.doTemp )    ATH_MSG_VERBOSE(" Temp");
+    if( settings.doField )   ATH_MSG_VERBOSE(" Field");
+    if( settings.doWireSag ) ATH_MSG_VERBOSE(" WireSag");
+    if( settings.doSlew )    ATH_MSG_VERBOSE(" Slew");
+    if( settings.doBkg )     ATH_MSG_VERBOSE(" Bkg");
   }
 
   const Identifier &id = hit.identify();
-
   const MuonGM::MdtReadoutElement *geo = hit.geometry();
-
   // set geometry pointer if not yet set
   if ( !geo ) {
     geo = m_imp->getGeometry( id );
@@ -288,8 +275,6 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
       return false;
     }
 
-    //TODO: Use ATH_MSG macro
-
     // extract calibration constants for single tube
     const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeData =
       data.tubeCalib->getCalib( ml, layer, tube );
@@ -298,21 +283,21 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
       inversePropSpeed = singleTubeData->inversePropSpeed;
       adcCal = singleTubeData->adcCal;
     } else {      
-      msg(MSG::WARNING) << "failed to access tubedata for "
+      ATH_MSG_WARNING("failed to access tubedata for "
 			<< ml << " " << layer << " " << tube
-			<< " using defaults.. " << endmsg;
+			<< " using defaults.. ");
       if ( geo )
-	msg(MSG::WARNING) << "detel " << geo->getMultilayer()
+	ATH_MSG_WARNING("detel " << geo->getMultilayer()
 			  << " lay " << geo->getNLayers()
-			  << " tubes " << geo->getNtubesperlayer() << endmsg;
+			  << " tubes " << geo->getNtubesperlayer());
       t0 =  800.;
     }
 
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
   } else {
-    msg(MSG::WARNING) << "MdtTubeCalibContainer not found for "
-		      << m_imp->m_mdtIdHelper->print_to_string( id ) << endmsg;
+    ATH_MSG_WARNING("MdtTubeCalibContainer not found for "
+		      << m_imp->m_mdtIdHelper->print_to_string( id ));
     ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
     return false;
   }

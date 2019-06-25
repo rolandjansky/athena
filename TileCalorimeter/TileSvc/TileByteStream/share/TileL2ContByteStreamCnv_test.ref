@@ -71,7 +71,7 @@ IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should 
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 ClassIDSvc           INFO  getRegistryEntries: read 3213 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
@@ -722,7 +722,7 @@ IOVDbSvc                                           INFO preLoadAddresses: Removi
 IOVDbSvc                                           INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 ClassIDSvc                                         INFO  getRegistryEntries: read 3213 CLIDRegistry entries for module ALL
 IOVSvc                                             INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool                                         INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool                                  INFO IOVRanges will be checked at every Event
 IOVDbSvc                                           INFO Opening COOL connection for COOLOFL_TILE/OFLP200
 IOVDbSvc                                           INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc                                           INFO Disconnecting from COOLOFL_TILE/OFLP200

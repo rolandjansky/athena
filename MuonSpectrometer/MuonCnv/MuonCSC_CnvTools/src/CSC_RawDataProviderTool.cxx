@@ -61,77 +61,6 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
   const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();
   m_hid2re.set( &(*m_cabling), idHelper );
 
-  // Check if EventSelector has the ByteStreamCnvSvc
-  bool has_bytestream = false;
-  IJobOptionsSvc* jobOptionsSvc;
-  if ( service("JobOptionsSvc", jobOptionsSvc).isFailure()) {
-    ATH_MSG_ERROR ( "Could not find JobOptionsSvc" );
-    return StatusCode::FAILURE;
-  } else {
-    IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-    if(svc != 0 ) {
-      ATH_MSG_INFO ( " Tool = " << name() 
-                     << " is connected to JobOptionsSvc Service = "
-                     << svc->name() );
-    } else {
-      ATH_MSG_ERROR ( " Tool = " << name() 
-                     << " is failed to be connected to JobOptionsSvc Service." );
-      return StatusCode::FAILURE;
-    }
-  }
-    
-  IJobOptionsSvc* TrigConfSvc;
-  if ( service("TrigConf::HLTJobOptionsSvc", TrigConfSvc, false).isFailure()) {
-    ATH_MSG_DEBUG ( "Could not find TrigConf::HLTJobOptionsSvc" );
-    TrigConfSvc = 0;
-  } else {
-    IService* svc = dynamic_cast<IService*>(TrigConfSvc);
-    if(svc != 0 ) {
-      ATH_MSG_INFO ( " Tool = " << name() 
-                     << " is connected to HLTJobOptionsSvc Service = "
-                     << svc->name() );
-    } else {
-      ATH_MSG_ERROR ( " Tool = " << name() 
-                     << " is failed to be connected to HLTJobOptionsSvc Service." );
-      return StatusCode::FAILURE;
-    }
-  }
-    
-  if(jobOptionsSvc==0 && TrigConfSvc==0)
-  {
-    ATH_MSG_FATAL ( "Bad job configuration" );
-    return StatusCode::FAILURE;  
-  }
-    
-    
-  const std::vector<const Property*>* byteStreamNavProps
-        = (jobOptionsSvc)?  jobOptionsSvc->getProperties("ByteStreamNavigationProviderSvc") : 0;
-
-  const std::vector<const Property*>* dataFlowProps 
-        = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
-
-  const std::vector<const Property*>* eventSelProps 
-        = (jobOptionsSvc)? jobOptionsSvc->getProperties("EventSelector") :
-	                   TrigConfSvc->getProperties("EventSelector");	
-    
-    
-  if     ( dataFlowProps != 0 ) has_bytestream = true;
-  if( byteStreamNavProps != 0 ) has_bytestream = true;
-  else if( eventSelProps != 0 )
-  {
-      for (std::vector<const Property*>::const_iterator 
-           cur  = eventSelProps->begin();
-	   cur != eventSelProps->end(); cur++) {
-	    
-        if( (*cur)->name() == "ByteStreamInputSvc" ) has_bytestream = true;
-      }
-  } 
-  else has_bytestream = true;
-  
-  
-  // register the container only when the imput from ByteStream is set up     
-  m_createContainerEachEvent = has_bytestream || m_containerKey.key() != "CSCRDO";
-
   // Initialise the container cache if available  
   ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
@@ -202,14 +131,6 @@ StatusCode
 Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
                                        const EventContext& ctx) const
 {
-  if(m_createContainerEachEvent==false)
-  {
-    ATH_MSG_DEBUG ( "Container " << m_containerKey.key()
-                    << " for bytestream conversion not available." );
-    ATH_MSG_DEBUG ( "Try retrieving it from the Store" );
-        
-    return StatusCode::SUCCESS;
-  }
 
   SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey, ctx);
   if (rdoContainerHandle.isPresent())

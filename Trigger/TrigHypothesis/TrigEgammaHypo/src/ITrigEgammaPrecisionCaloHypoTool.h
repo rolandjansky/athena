@@ -5,13 +5,11 @@
 #define TRIGEGAMMAHYPO_ITRIGL2CALOPRECISIONHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-
-
-
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 
 /**
- * @class Base for tools dooing L2 Calo Hypo selection
+ * @class Base for tools dooing precision Calo Hypo selection
  * @brief 
  **/
 
