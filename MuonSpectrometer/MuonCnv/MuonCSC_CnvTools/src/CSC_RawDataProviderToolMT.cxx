@@ -3,10 +3,10 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// CSC_RawDataProviderTool.cxx, (c) ATLAS Detector software
+// CSC_RawDataProviderToolMT.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "CSC_RawDataProviderTool.h"
+#include "CSC_RawDataProviderToolMT.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "ByteStreamData/ROBData.h"
 
@@ -27,26 +27,31 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 //================ Constructor =================================================
 
-Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
+Muon::CSC_RawDataProviderToolMT::CSC_RawDataProviderToolMT(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p) :
   CSC_RawDataProviderToolCore(t, n, p)
 {
   declareInterface<IMuonRawDataProviderTool>(this);
 
+  declareProperty ("CscContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSC container");
+
 }
 
 //================ Destructor =================================================
 
-Muon::CSC_RawDataProviderTool::~CSC_RawDataProviderTool()
+Muon::CSC_RawDataProviderToolMT::~CSC_RawDataProviderToolMT()
 {}
 
 //================ Initialisation =================================================
 
-StatusCode Muon::CSC_RawDataProviderTool::initialize()
+StatusCode Muon::CSC_RawDataProviderToolMT::initialize()
 {
   // call initialize from base class
   ATH_CHECK( CSC_RawDataProviderToolCore::initialize() );
+
+  // Initialise the container cache if available  
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
   return StatusCode::SUCCESS;
 }
@@ -54,7 +59,7 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
 //============================================================================================
 
 // new one
-StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect){
+StatusCode Muon::CSC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect){
 
   const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();
   IdContext cscContext = idHelper->module_context();
@@ -72,7 +77,7 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHa
   return convert(vecOfRobf, rdoIdhVect);
 }
 
-StatusCode Muon::CSC_RawDataProviderTool::convert(const EventContext& ctx) const {
+StatusCode Muon::CSC_RawDataProviderToolMT::convert(const EventContext& ctx) const {
   
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   const std::vector< uint32_t >& robIds = m_hid2re.allRobIds();
@@ -85,38 +90,33 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const EventContext& ctx) const
 }
 
 
-StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
+StatusCode Muon::CSC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
                                                   const std::vector<IdentifierHash>& /* collections */){
-  const CSC_RawDataProviderTool* cthis = this;
+  const CSC_RawDataProviderToolMT* cthis = this;
   return cthis->convert (vecRobs, Gaudi::Hive::currentContext());
 }
 
 StatusCode
-Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
+Muon::CSC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
                                        const EventContext& ctx) const
 {
 
-  // logic for run-2 (not thread safe mode)
-  if (ctx.slot() > 1) {
-    ATH_MSG_FATAL ( "CSC_RawDataProviderTool is not thread safe, but you are trying to run with > 1 thread. You must switch to 1 thread or use CSC_RawDataProviderToolMT" );
-    return StatusCode::FAILURE;
-  }
-
-  CscRawDataContainer* container = 0;
-
   SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey, ctx);
-  // here we have to check if the container is already present and if it is we retrieve from SG and then add to it
-  if (rdoContainerHandle.isPresent()) {
-    const CscRawDataContainer* rdoContainer_c = 0;
-    ATH_CHECK( evtStore()->retrieve( rdoContainer_c, m_containerKey.key() ) );
-    container = const_cast<CscRawDataContainer*>(rdoContainer_c);
 
-  } else {
-
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
     ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_muonMgr->cscIdHelper()->module_hash_max() )));
     ATH_MSG_DEBUG( "Created CSCRawDataContainer" );
-    container = rdoContainerHandle.ptr();
   }
+  else{
+    SG::UpdateHandle<CscRawDataCollection_Cache> update(m_rdoContainerCacheKey, ctx);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<CscRawDataContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+  
+  CscRawDataContainer* container = rdoContainerHandle.ptr();
 
   if(!container) {
     ATH_MSG_ERROR("CSC RDO container pointer is null, cannot decode data");
