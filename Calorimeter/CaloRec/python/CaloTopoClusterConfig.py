@@ -354,8 +354,8 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
         CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
-        # Needed?
-        from CaloRec import CaloClusterTopoCoolFolder
+        from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
+        result.merge(caloTopoCoolFolderCfg(configFlags))
 
     result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
     return result
@@ -373,7 +373,7 @@ if __name__=="__main__":
 
     #log.setLevel(DEBUG)
 
-    ConfigFlags.Input.Files = ["myESD-data.pool.root"]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     ConfigFlags.lock()
