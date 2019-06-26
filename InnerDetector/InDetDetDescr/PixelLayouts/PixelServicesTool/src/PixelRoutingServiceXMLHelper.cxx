@@ -39,7 +39,7 @@ PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(const std::string& en
     }
 
   if(!bParsed){
-    msg(MSG::WARNING) << "XML file "<<fileName<<" not found"<<endmsg;
+    msg(MSG::WARNING) << "XML file "<<fileName<<"("<<envName<<")"<<" not found"<<endmsg;
     return;
     }
 }

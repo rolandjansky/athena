@@ -21,7 +21,7 @@ ServicesTrackerBuilder::ServicesTrackerBuilder()
 
 }
 
-ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderBasics* basics, bool bSvcDynAuto, bool bBarrelModuleMaterial) const
+ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderBasics* basics, bool bBarrelModuleMaterial) const
 {
 
   const Athena::MsgStreamMember msg(Athena::Options::Eager,"ServiceTrackerBuilder");
@@ -40,8 +40,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
   
   msg << MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
 
-  //  ServicesDynTracker* tracker = new ServicesDynTracker(msg);
-  ServicesDynTracker* tracker = new ServicesDynTracker(basics, bSvcDynAuto,bBarrelModuleMaterial);
+  ServicesDynTracker* tracker = new ServicesDynTracker(basics,bBarrelModuleMaterial);
   msg << MSG::DEBUG << "Created new ServicesDynTracker()" << endmsg;
 
   std::string suffix;

@@ -10,7 +10,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServicesDynTracker.h"
 #include "PixelServicesTool/ServicesTrackerBuilder.h"
 
-/*#include "PixelServicesTool/VolumeGeoCompBuilder.h"*/
 #include "PixelServicesTool/VolumeStandardBuilder.h"
 #include "PixelServicesTool/SimpleServiceVolumeMaker.h"
 
@@ -39,7 +38,7 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
   // Collect the layer&disc information from geometry
   //     and build the corresponding LayerContainers in ServiceDynTracker
   ServicesTrackerBuilder trackerBuilder;
-  ServicesDynTracker* tracker = trackerBuilder.buildGeometry(basics,bSvcDynAuto,bBarrelModuleMaterial);
+  ServicesDynTracker* tracker = trackerBuilder.buildGeometry(basics,bBarrelModuleMaterial);
   
   if(tracker==0) return;
 

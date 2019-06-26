@@ -16,18 +16,12 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServiceStaticBuilder.h"
 #include "PixelServicesTool/ServiceDynamicBuilder.h"
 
-// #include "InDetGeoModelUtils/GeoSimpleObject.h"
-// #include "InDetGeoModelUtils/GeoServiceAssembly.h"
-
 #include "PixelInterfaces/IPixelServicesTool.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "InDetGeoModelUtils/OraclePixGeoAccessor.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h" 
-/*#include "InDetGeoModelStdUtils/GeoEnvelopeStd.h"*/
-// #include "InDetGeoModelStdUtils/GeoBarrelStd.h"
-// #include "InDetGeoModelStdUtils/GeoLayerStd.h"
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -52,7 +46,6 @@ PixelServicesTool::PixelServicesTool(const std::string& type, const std::string&
   declareInterface<IPixelServicesTool>(this);
 
   //default settings
-  //  declareProperty("ServiceBuilderTool", m_serviceBuilderTool);
   declareProperty("ReadSvcFromDB",m_bReadSvcFromDB);
   declareProperty("SvcDynAutomated",m_bSvcDynAutomated=true);
   declareProperty("BarrelModuleMaterial",m_bSetupBarrelModuleMaterial=false);
@@ -96,15 +89,6 @@ StatusCode PixelServicesTool::finalize()
   return sc;
 }
 
-
-// // Register callback function on ConDB object
-// // Empty for now
-// StatusCode PixelServicesTool::registerCallback( StoreGateSvc*)
-// {
-//   return StatusCode::SUCCESS;
-// }
-
-
 void PixelServicesTool::resetServices()
 {
   if(m_pixServices) {
@@ -133,21 +117,25 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     return;
   }
 
-  ATH_MSG_INFO("InDetServicesTool::buildServices - built services");
-
-  // Add service materials
-  std::string fileName="ServiceMaterial.xml";
-  if(const char* env_p = std::getenv("PIXEL_PIXELSERVICEMATERIAL_GEO_XML")) fileName = std::string(env_p);
-  GeoPixelXMLMaterial matBuilder(basics,fileName);
-  matBuilder.Build("indet");
+  ATH_MSG_INFO("InDetServicesTool::buildServices - building services");
 
   // Link to material manager and msgstream
   m_basics = basics;
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
 
+
   // Access to teh xml file that defines the geometry envelope
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",m_basics);
+
+
+  // Add service materials
+  std::string fileName="ServiceMaterial.xml";
+  if(const char* env_p = std::getenv("")) fileName = std::string(env_p);
+  if(const char* env_p = std::getenv("PIXEL_PIXELSERVICEMATERIAL_GEO_XML")) fileName = std::string(env_p);
+  GeoPixelXMLMaterial matBuilder(basics,fileName);
+  matBuilder.Build("indet");
+
   
   //  const GeoShape * envelopeShape;
   double pixelRmin = genDBHelper.getEnvelopeRMin();
@@ -187,33 +175,6 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 
   // SvcRegion defined locally
   ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : "<<svcRegions.size()<<"  cyl : "<<cylBarrel<<" "<<cylEndcap<<"  dyn ");
-//   if(svcRegions.size()==0)
-//     {
-//       if(cylBarrel||cylEndcap){
-// 	double delta=0.001;
-// 	pixZone->add(new InDetDD::TubeZone("P",-pixelZmax+delta,pixelZmax-delta,pixelRmin+delta,pixelRmax-delta));
-//       }
-//       else {
-// 	if(endcapCPresent)pixZone->add(new InDetDD::TubeZone("C",-endcapZmax,-endcapZmin,endcapRmin,endcapRmax, true));
-// 	pixZone->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
-// 	if(endcapAPresent) pixZone->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
-//       }
-//     }
-
-  // Check if services are to be defined automatically - GeoModel automated system (used for initial LoI geometries)
-  bool bDynBuilder=false;
-  fileName = "";
-  if(const char* env_p = std::getenv("PIXEL_PIXELDYNAMICSERVICE_GEO_XML")) fileName = std::string(env_p);
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  if(file.size()>0 && m_bSvcDynAutomated) bDynBuilder = true;
-  
-  // Check if services are to be defined automatically - automated system based on XML file description
-  fileName = "";
-  if(const char* env_p = std::getenv("PIXEL_PIXELROUTINGSERVICE_GEO_XML")) fileName = std::string(env_p);
-  file = PathResolver::find_file (fileName, "DATAPATH");
-  if(file.size()>0&&!m_bSvcDynAutomated) bDynBuilder = true;
-
-  ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : dynamic services "<<bDynBuilder);
 
   // Define service envelopes for standard cylindrical barrel/endcap geometries
   if(cylBarrel){
@@ -229,8 +190,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     topZone.add(pixZone);
 	
     m_pixServices = new ServiceStaticBuilder(basics, &topZone);
-    if(bDynBuilder) m_dynServices = new ServiceDynamicBuilder(basics, &topZone, 
-                                                              m_bSvcDynAutomated,m_bSetupBarrelModuleMaterial);
+    m_dynServices = new ServiceDynamicBuilder(m_basics, &topZone,m_bSvcDynAutomated,m_bSetupBarrelModuleMaterial);
 
     return;
   }
@@ -265,11 +225,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       InDetDD::UnboundedZone topZone("Mother");
       int nbZone=0;
       for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
-	//	    std::cout<<"   check svcRegion inside zone "<<(*it)->label()<<" : "<<(*it)->getZmin()<<" "<<(*it)->getZmax()<<" / "<<(*it)->getRmin()<<" "<<(*it)->getRmax()<<" "<<std::endl;
 	bool bRadial = ((*it)->getRmin()>rmin&&(*it)->getRmax()<rmax);
 	bool bZpos = ((*it)->getZmin()>zmin&&(*it)->getZmax()<zmax);
 	if(bRadial&&bZpos){
-	  //	      std::cout<<"   check if point inside svcRegion - OK "<<(*it)->label()<<std::endl;
 	  pixZone->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax()));
 	  nbZone++;
 	}
@@ -283,15 +241,13 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       
       // Takes ownership of pixZone
       if(i==0) {
-	m_pixServices = new ServiceStaticBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone);
-	if(bDynBuilder) { 
+	m_pixServices = new ServiceStaticBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone); 
 	  m_ECmatrialFudges = getMaterialFudgesSvcEc();
 	  m_dynServices = new ServiceDynamicBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone, m_bSvcDynAutomated, m_bSetupBarrelModuleMaterial, &m_ECmatrialFudges);
-	}
       }
       else {
 	m_pixServices->addTopZone(&topZone);
-	if(bDynBuilder) m_dynServices->addTopZone(&topZone);
+	m_dynServices->addTopZone(&topZone);
 	
       }
     }
@@ -329,11 +285,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  
 	  int nbZone=0;
 	  for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
-	    //	    std::cout<<"   check svcRegion inside zone "<<(*it)->label()<<" : "<<(*it)->getZmin()<<" "<<(*it)->getZmax()<<" / "<<(*it)->getRmin()<<" "<<(*it)->getRmax()<<" "<<std::endl;
 	    bool bRadial = ((*it)->getRmin()>rmin&&(*it)->getRmax()<rmax);
 	    bool bZpos = ((*it)->getZmin()>zmin&&(*it)->getZmax()<zmax);
 	    if(bRadial&&bZpos){
-	      //	      std::cout<<"   check if point inside svcRegion - OK "<<(*it)->label()<<std::endl;
 	      pixZoneA->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax()));
 	      nbZone++;
 	    }
@@ -345,7 +299,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  
 	  // Takes ownership of pixZone
 	  m_pixServices->addTopZone(&topZoneA);
-	  if(bDynBuilder) m_dynServices->addTopZone(&topZoneA);
+	  m_dynServices->addTopZone(&topZoneA);
 	}
     }
 
@@ -380,15 +334,12 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  
 	  int nbZone=0;
 	  for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
-	    //	    std::cout<<"   check svcRegion inside zone "<<(*it)->label()<<" : "<<(*it)->getZmin()<<" "<<(*it)->getZmax()<<" / "<<(*it)->getRmin()<<" "<<(*it)->getRmax()<<" "<<std::endl;
 	    bool bRadial = ((*it)->getRmin()>rmin&&(*it)->getRmax()<rmax);
 	    bool bZpos = ((*it)->getZmin()>zmin&&(*it)->getZmax()<zmax);
 	    if(bRadial&&bZpos){
-	      //	      std::cout<<"   check if point inside svcRegion - OK "<<(*it)->label()<<std::endl;
 	      pixZoneC->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax(),true));
 	      nbZone++;
 	    }
-	    //	    else std::cout<<"   check if point inside svcRegion - "<<bRadial<<" "<<bZpos<<std::endl;
 	  }
 	  if(nbZone==0)pixZoneC->add(new InDetDD::TubeZone(osC.str(),-zmax+delta,-zmin-delta,rmin+delta,rmax-delta,true));
 	  ATH_MSG_DEBUG("   nbZone "<<nameC.str()<<" : "<<osC.str()<<" "<<nbZone<<" / "<<svcRegions.size());
@@ -396,7 +347,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  
 	  // Takes ownership of pixZone
 	  m_pixServices->addTopZone(&topZoneC);
-	  if(bDynBuilder) m_dynServices->addTopZone(&topZoneC);
+	  m_dynServices->addTopZone(&topZoneC);
 	  
 	}
     }	
@@ -436,10 +387,10 @@ void PixelServicesTool::buildAndPlace(const std::string & region, GeoFullPhysVol
   //  m_pixServices->getBuilder(i)->resetServices();
 
   if(m_pixServices==0){
-    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined");
+    ATH_MSG_ERROR("InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined");
   }
   if(m_dynServices==0){
-    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined");
+    ATH_MSG_ERROR("InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined");
   }
 
   if(m_pixServices&&bStatic)
@@ -566,11 +517,6 @@ std::string PixelServicesTool::getLayerModuleMaterialName(int iLayer, int nbModu
   std::map<std::string,std::string> svcMaterialNameTable = m_dynServices->getSvcMaterialNameTable();
   std::ostringstream idName;
   idName<<"Barrel_L"<<iLayer<<"_M"<<nbModule;
-
-  //  std::cout<<">> svcMaterialTable - PixelServicesTool "<<idName.str()<<std::endl;
-  //   std::map<std::string,std::string>::iterator it2;
-  //   for (it2 = svcMaterialNameTable.begin(); it2 !=svcMaterialNameTable.end(); ++it2)
-  //     std::cout<<"- svcMaterialTable : "<<it2->first<<" "<<it2->second<<std::endl;
   
   std::map<std::string, std::string>::iterator it;
   it  = svcMaterialNameTable.find(idName.str());
@@ -608,11 +554,6 @@ std::string PixelServicesTool::getLayerStaveModuleMaterialName(int iLayer, int i
   std::map<std::string,std::string> svcMaterialNameTable = m_dynServices->getSvcMaterialNameTable();
   std::ostringstream idName;
   idName<<"Barrel_L"<<iLayer<<"_S"<<iStave<<"_M"<<nbModule;
-
-  //  std::cout<<">> svcMaterialTable - PixelServicesTool "<<idName.str()<<std::endl;
-  //   std::map<std::string,std::string>::iterator it2;
-  //   for (it2 = svcMaterialNameTable.begin(); it2 !=svcMaterialNameTable.end(); ++it2)
-  //     std::cout<<"- svcMaterialTable : "<<it2->first<<" "<<it2->second<<std::endl;
   
   std::map<std::string, std::string>::iterator it;
   it  = svcMaterialNameTable.find(idName.str());
@@ -669,46 +610,3 @@ ServiceDynamicBuilder::SvcEcMaterialFudges PixelServicesTool::getMaterialFudgesS
   return factors;
 
 }
-
-// std::vector<GeoServiceAssembly* > PixelServicesTool::getServiceAssemblies()
-// {
-
-// //   std::vector<GeoServiceAssembly* > v;
-
-// //   int nbSvc = m_pixServices->getServiceNumber();
-
-// //   for(int i=0; i<nbSvc; i++)
-// //     {
-// //       GeoSimpleObject *obj=m_pixServices->getServiceObject(i);
-
-// //       //      std::cout<<"Service material : "<<obj->getMaterialName()<<std::endl;
-
-// //       if(obj->getMaterialName()=="special::ether"||obj->getMaterialName()=="ether"){
-// // 	GeoServiceAssembly *svc=new GeoServiceAssembly(obj->physVolume<GeoPhysVol>(), 0, obj->getTransform(), obj->name(), false);
-// // 	svc->placeService(*obj, HepGeom::Transform3D(),0);
-// // 	v.push_back(svc);
-// //       }
-// //     }
-
-// //   return v;
-  
-// }
-
-
-// std::vector<GeoSimpleObject* > PixelServicesTool::getServiceObjects()
-// {
-
-//   std::vector<GeoSimpleObject* > v;
-
-//   int nbSvc = m_pixServices->getServiceNumber();
-
-//   for(int i=0; i<nbSvc; i++)
-//     {
-//       GeoSimpleObject *obj=m_pixServices->getServiceObject(i);
-
-//       if(obj->getMaterialName()!="special::ether"&&obj->getMaterialName()!="ether")v.push_back(obj);
-//     }
-
-//   return v;
-  
-// }
