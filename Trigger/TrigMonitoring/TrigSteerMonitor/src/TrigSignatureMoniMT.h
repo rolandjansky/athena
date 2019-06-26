@@ -9,7 +9,7 @@
 #include <memory>
 #include <TH2.h>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/LockedHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -22,19 +22,19 @@
  **/
 
 
-class TrigSignatureMoniMT : public ::AthAlgorithm
+class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
 { 
  public: 
 
   TrigSignatureMoniMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute() override;
+  virtual StatusCode  execute( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
  private: 
   TrigSignatureMoniMT();
+
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
 
     
@@ -48,18 +48,18 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "/EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
 
-  LockedHandle<TH2> m_passHistogram;
-  LockedHandle<TH2> m_countHistogram;
-  LockedHandle<TH2> m_rateHistogram;
+  mutable LockedHandle<TH2> m_passHistogram;
+  mutable LockedHandle<TH2> m_countHistogram;
+  mutable LockedHandle<TH2> m_rateHistogram;
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX() const;
   int nBinsY() const;
   StatusCode initHist(LockedHandle<TH2>&);
-  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
-  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram);
-  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
+  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
+  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
+  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
 }; 
 
 inline int TrigSignatureMoniMT::nBinsX() const { 

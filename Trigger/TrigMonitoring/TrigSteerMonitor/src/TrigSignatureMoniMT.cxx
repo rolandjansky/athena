@@ -10,7 +10,7 @@
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ) 
+  ::AthReentrantAlgorithm( name, pSvcLocator ) 
 {}
 
 StatusCode TrigSignatureMoniMT::initialize() {
@@ -110,7 +110,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) {
+StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
@@ -122,7 +122,7 @@ StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::Decisio
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) {
+StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
@@ -133,13 +133,13 @@ StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigComposit
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) {
+StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
   return fillPassEvents(dc, row, m_rateHistogram); 
 }
 
-StatusCode TrigSignatureMoniMT::execute()  {  
+StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
 
-  auto l1Decisions = SG::makeHandle( m_l1DecisionsKey );
+  auto l1Decisions = SG::makeHandle( m_l1DecisionsKey, context );
 
   const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1
   const TrigCompositeUtils::Decision* unprescaledChains = nullptr; // Activated and passed prescale check
@@ -186,7 +186,7 @@ StatusCode TrigSignatureMoniMT::execute()  {
   }
 
   const int row = m_passHistogram->GetYaxis()->GetNbins();
-  auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey );
+  auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey, context );
   ATH_CHECK( finalDecisionsHandle.isValid() );
   TrigCompositeUtils::DecisionIDContainer finalIDs;
   for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
@@ -205,9 +205,6 @@ StatusCode TrigSignatureMoniMT::execute()  {
   
   return StatusCode::SUCCESS;
 }
-
-
-
 
 int TrigSignatureMoniMT::nBinsY() const {     
   return m_collectorTools.size()+3; // in, after ps, out
