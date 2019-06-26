@@ -107,35 +107,35 @@ class MuonChainConfiguration(ChainConfigurationBase):
         
     # --------------------
     def getmuComb(self):
-        stepName = 'Step1_muComb'
+        stepName = 'Step2_muComb'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muCombSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFSA(self):
-        stepName = 'Step1_muEFSA'
+        stepName = 'Step3_muEFSA'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFSASequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFMS(self):
-        stepName = 'Step1_muEFMS'
+        stepName = 'Step3_muEFMS'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuIso(self):
-        stepName = 'Step1_muIso'
+        stepName = 'Step3_muIso'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muIsoSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
 
     # --------------------
     def getmuEFCB(self):
-        stepName = 'Step1_muEFCB'
+        stepName = 'Step4_muEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFCBSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
@@ -149,14 +149,14 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getFSmuEFCB(self):
-        stepName = 'Step1_FSmuEFCB'
+        stepName = 'Step2_FSmuEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
 
     #---------------------
     def getmuEFIso(self):
-        stepName = 'Step1_muEFIso'
+        stepName = 'Step5_muEFIso'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
         return ChainStep(stepName, [muSeq], self.mult)
