@@ -13,20 +13,19 @@
 namespace Trk {
 
 /** @class SharedObject
-  
+
   typedef for shared_ptr.
   Here just to ease migrations of clients
   to C++11 style smart ptr with thread safe
-  reference counting.  
+  reference counting.
   */
 
-template <class T> 
-using SharedObject = std::shared_ptr<T>;  
+template<class T>
+using SharedObject = std::shared_ptr<T>;
 
 template<typename T>
-auto do_not_delete = [](T*){};
+auto do_not_delete = [](T*) {};
 
 } // end of namespace
-
 
 #endif // TRKDETDESCRUITLS_SHAREDOBJECT_H
