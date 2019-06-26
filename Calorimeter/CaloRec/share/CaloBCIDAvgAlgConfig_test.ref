@@ -1,0 +1,67 @@
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+--- data
+Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
+Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+--- mc
+Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
+Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
+Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
+Py:ConfigurableDb    INFO Read module info for 4886 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+EventInfoMgtInit: Got release version  sss-22.0.0
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:MCBunchCrossingTool    INFO Adding folder to IOVDbSvc: /Digitization/Parameters
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * LArDAC2uAKey: LArDAC2uASym
+Py:ComponentAccumulator    INFO      * LArMphysOverMcalKey: LArMphysOverMcalSym
+Py:ComponentAccumulator    INFO      * LArRampKey: LArRampSym
+Py:ComponentAccumulator    INFO      * LAruA2MeVKey: LAruA2MeVSym
+Py:ComponentAccumulator    INFO      * UseFEBGainTresholds: False
+Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * UseDelta: 0
+Py:ComponentAccumulator    INFO      * firstSample: 0
+Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
+Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nsamples: 5
+--- online
+Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
+Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
