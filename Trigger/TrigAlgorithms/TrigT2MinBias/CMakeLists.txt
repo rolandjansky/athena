@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PRIVATE
                           TileCalorimeter/TileIdentifier
                           Tracking/TrkEvent/TrkSpacePoint
                           Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigTools/TrigTimeAlgs
+                          Event/xAOD/xAODTrigger )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -35,8 +36,7 @@ find_package( tdaq-common )
 atlas_add_component( TrigT2MinBias
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} xAODTrigMinBias ZdcEvent GaudiKernel TileEvent TrigT2CaloCommonLib TrigCaloEvent TrigInDetEvent TrigInterfacesLib IRegionSelector xAODEventInfo ZdcConditions ZdcIdentifier InDetIdentifier InDetRawData InDetPrepRawData TileIdentifier TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} xAODTrigger xAODTrigMinBias ZdcEvent GaudiKernel TileEvent TrigT2CaloCommonLib TrigCaloEvent TrigInDetEvent TrigInterfacesLib IRegionSelector xAODEventInfo ZdcConditions ZdcIdentifier InDetIdentifier InDetRawData InDetPrepRawData TileIdentifier TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-
