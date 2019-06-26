@@ -63,6 +63,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 PHYSThinningHelper = ThinningHelper( "PHYSThinningHelper" )
 PHYSThinningHelper.AppendToStream( PHYSStream )
 
+# Inner detector group recommendations for indet tracks in analysis
 PHYS_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 PHYSTrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "PHYSTrackParticleThinningTool",
@@ -73,13 +74,22 @@ PHYSTrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name 
 
 ToolSvc += PHYSTrackParticleThinningTool
 
+# Include inner detector tracks associated with muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+PHYSMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "PHYSMuonTPThinningTool",
+                                                                        ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                        MuonKey                 = "Muons",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ApplyAnd = False)
+ToolSvc += PHYSMuonTPThinningTool
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool],
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool],
                                                                        AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 #====================================================================
 # JET/MET   
