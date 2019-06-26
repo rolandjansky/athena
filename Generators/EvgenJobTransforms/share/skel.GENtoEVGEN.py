@@ -9,7 +9,6 @@
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
 import ast
-from check_jo_consistency import check_consistency
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
@@ -219,6 +218,7 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
+include("EvgenJobTransforms/check_jo_consistency.py")
 check_consistency(jofile)
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
