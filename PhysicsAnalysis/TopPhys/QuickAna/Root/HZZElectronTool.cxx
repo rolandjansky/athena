@@ -246,5 +246,5 @@ namespace ana
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FCLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "Loose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "FCLoose"))
 }
