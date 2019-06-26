@@ -5,7 +5,7 @@
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-eventAlgs,viewAlgs = makeInDetAlgs(whichSignature='FS', separateTrackParticleCreator='MinBias') 
+eventAlgs,viewAlgs = makeInDetAlgs(whichSignature='FS', separateTrackParticleCreator='MinBias')
 
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -27,7 +27,11 @@ theFTF.isRoI_Seeded = True
 theFTF.RoIs         = "FSRoI"
 topSequence += theFTF
 
-topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 
 
+from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
+SpCount=TrigCountSpacePointsMT()
+SpCount.OutputLevel= DEBUG
+topSequence += SpCount
