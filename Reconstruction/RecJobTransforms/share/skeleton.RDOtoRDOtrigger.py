@@ -131,7 +131,10 @@ if TriggerFlags.doMT():
     # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
     fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeBSOutKey")
     topSequence.StreamBS.ExtraOutputs += [fakeTypeKey]
-    findAlgorithm( topSequence, "L1Decoder" ).ExtraInputs += [fakeTypeKey]
+    l1Decoder = findAlgorithm( topSequence, "L1Decoder" )
+    l1Decoder.ExtraInputs += [fakeTypeKey]
+    l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
+
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
     from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
