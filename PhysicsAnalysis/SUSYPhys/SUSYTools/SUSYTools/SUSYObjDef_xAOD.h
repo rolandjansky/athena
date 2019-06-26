@@ -719,6 +719,7 @@ namespace ST {
     std::string m_jesConfigEMPFlow;
     std::string m_jesConfigEMPFlowAFII;
     std::string m_jesConfigFat;
+    std::string m_jesConfigFatData;
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
     std::string m_jesCalibSeqAFII;

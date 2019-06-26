@@ -22,6 +22,7 @@
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
+#include "Root/EGSelectorConfigurationMapping.h"
 
 namespace top {
 
@@ -105,11 +106,11 @@ StatusCode EgammaCPTools::setupSelectors() {
 	if(m_config->useFwdElectrons())
 	{
 		m_fwdElectronSelector = new AsgForwardElectronLikelihoodTool("CP::FwdElectronSelector"); 
-		top::check( m_fwdElectronSelector->setProperty("ConfigFile", "ElectronPhotonSelectorTools/offline/mc16_20180716/FwdLH"+m_config->fwdElectronID()+"Conf.conf") , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
+		top::check( m_fwdElectronSelector->setProperty("ConfigFile", EgammaSelectors::ForwardLHPointToConfFile.at(m_config->fwdElectronID()+"LHForwardElectron")) , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
 		top::check( m_fwdElectronSelector->initialize(), "Couldn't initialise Forward Electron LH ID Tool" );
 		
 		m_fwdElectronSelectorLoose = new AsgForwardElectronLikelihoodTool("CP::FwdElectronSelectorLoose"); 
-		top::check( m_fwdElectronSelectorLoose->setProperty("ConfigFile", "ElectronPhotonSelectorTools/offline/mc16_20180716/FwdLH"+m_config->fwdElectronIDLoose()+"Conf.conf") , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
+		top::check( m_fwdElectronSelectorLoose->setProperty("ConfigFile", EgammaSelectors::ForwardLHPointToConfFile.at(m_config->fwdElectronIDLoose()+"LHForwardElectron")) , "Failed to set config for AsgElectronFwdLikelihoodTool"); 
 		top::check( m_fwdElectronSelectorLoose->initialize(), "Couldn't initialise Forward Electron LH ID Loose Tool" );
 		
 		if(!m_config->isMC())

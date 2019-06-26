@@ -37,7 +37,7 @@ bool successful(const CP::SystematicCode& arg) { return arg == CP::SystematicCod
 #define FBT_CHECK(x) \
     while(true) { \
         if(successful(x)) break; \
-        Error("fbtTestBasics", ("failure encounted on l." + std::to_string(__LINE__)).c_str()); \
+        Error("fbtTestBasics", "%s", ("failure encounted on l." + std::to_string(__LINE__)).c_str()); \
         return false; \
     }
 
