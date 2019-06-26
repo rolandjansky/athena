@@ -235,8 +235,9 @@ def getTopoCalibMoments(configFlags):
 # Maybe offline reco options should be extracted from flags elsewhere
 def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
     result=ComponentAccumulator()
-    from AthenaCommon.AlgSequence import AthSequencer
-    result.addSequence(AthSequencer(sequenceName))
+    if (sequenceName != 'AthAlgSeq'):
+        from AthenaCommon.AlgSequence import AthSequencer
+        result.addSequence(AthSequencer(sequenceName))
 
     if not clustersname: clustersname = "CaloTopoClusters"
 
@@ -265,8 +266,11 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     from TileConditions.TileConditionsConfig import tileCondCfg
     result.merge(tileCondCfg(configFlags))
 
-    theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
-
+    if not doLCCalib:
+         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
+    else:
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
+         
     # maker tools
     TopoMaker = CaloTopoClusterMaker("TopoMaker")
         
@@ -346,15 +350,14 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
         doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
     if doLCCalib:
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
-        if not clustersname:
-            CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
+        #if not clustersname:
+        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
         # Needed?
         from CaloRec import CaloClusterTopoCoolFolder
 
     result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
-
     return result
 
 
