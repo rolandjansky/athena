@@ -19,23 +19,18 @@ decription           : Class for merging components of a multi-state based on
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
-#include <map>
 
 typedef float * __restrict__ floatPtrRestrict ;
 
 namespace Trk{
 
   class IMultiComponentStateCombiner;
-  class IComponentSeparationDistance;
   class TrackStateOnSurface;
-
 
   class QuickCloseComponentsMultiStateMerger : public AthAlgTool, virtual public IMultiComponentStateMerger {
 
@@ -59,9 +54,6 @@ namespace Trk{
     Gaudi::Property <unsigned int>                  m_maximumNumberOfComponents {this,
       "MaximumNumberOfComponents", 12 , "Maximum number of components"};
    
-    ToolHandle<IComponentSeparationDistance>        m_distance {this,
-      "DistanceType","Trk::KullbackLeiblerComponentDistance/KullbackLeiblerComponentDistance","Distance calculator"};
-    
     ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner {this,
       "CombinerTool","Trk::MultiComponentStateCombiner/CloseComponentsCombiner"," Combonent combiner"};
     
@@ -145,9 +137,6 @@ namespace Trk{
     void*  m_ad;
     size_t m_size;
   }; // class Aligned
-
-
-
 
 }
 
