@@ -84,7 +84,6 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
             if item.startswith("xAOD::TrigComposite"):
                 objKeyStore.addManyTypesStreamESD( [item] )
                 objKeyStore.addManyTypesStreamAOD( [item] )
-                print(item)
     else:
         _TriggerESDList = {}
         _TriggerAODList = {}
