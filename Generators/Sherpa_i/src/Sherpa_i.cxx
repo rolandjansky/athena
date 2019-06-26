@@ -36,7 +36,7 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("PluginCode", m_plugincode = "");
 
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
-  declareProperty("CleanupGeneratedFiles", m_cleanup=false);
+  declareProperty("CleanupGeneratedFiles", m_cleanup=true);
 }
 
 

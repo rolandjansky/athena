@@ -7,6 +7,20 @@ from ..external import ExternalMadSpin
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
 
+#-----------------------------------------------------------------------------------
+# Manual fix for openloops libraries path, avoiding issues when /afs not available
+#-----------------------------------------------------------------------------------
+import os
+logger.info("Manual fixes for OpenLoops libraries paths")
+logger.info("OpenLoopsPath (before) = {0}".format(os.getenv('OpenLoopsPath')))
+logger.info("LD_LIBRARY_PATH (before) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
+OLPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-00-04-00/POWHEG-BOX-RES/ttbb/obj-gfortran"
+os.environ['OpenLoopsPath'] = OLPath
+ldpath = os.getenv('LD_LIBRARY_PATH')
+ldpath_new = OLPath+ ":" + OLPath + "/proclib:" + ldpath
+os.environ['LD_LIBRARY_PATH'] = ldpath_new
+logger.info("OpenLoopsPath (after) = {0}".format(os.getenv('OpenLoopsPath')))
+logger.info("LD_LIBRARY_PATH (after) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
 
 
 # Dictionary to convert the PowhegControl decay mode names to the appropriate

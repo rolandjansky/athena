@@ -103,13 +103,15 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
     mglog.info('Finished process generation at '+str(time.asctime()))
 
-    if ''==thedir:
-        directories = os.listdir( os.getcwd() )
-        for adir in sorted(directories):
-            if 'PROC' in adir: thedir=adir
-
-    if not os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
-        raise RuntimeError('No diagrams for this process in dir='+str(thedir))
+    thedir = None
+    for adir in sort(glob( os.getcwd()+'/*PROC*' ),reverse=True):
+        if os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
+            if thedir==None: thedir=adir
+            else:
+                mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
+                mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
+    if thedir==None:
+        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+sort(glob( os.getcwd()+'/*PROC*' ),reverse=True))
 
     # Special catch related to path setting and using afs
     import os
@@ -118,7 +120,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     option_paths = {}
     for l in in_config.readlines():
         for o in needed_options:
-            if o+' =' in l.split('#')[0]:
+            if o+' =' in l.split('#')[0] and 'MCGenerators' in l.split('#')[0]:
                 old_path = l.split('#')[0].split('=')[1].strip().split('MCGenerators')[1]
                 old_path = old_path[ old_path.find('/') : ]
                 if o =='lhapdf' and 'LHAPATH' in os.environ:
