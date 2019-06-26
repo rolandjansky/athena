@@ -16,9 +16,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <iostream>  // for DEBUG only
 using namespace std;
 
-ServicesDynTracker::ServicesDynTracker(const PixelGeoBuilderBasics* basics, bool bSvcDynAuto, bool bSvcBrlModule):
+ServicesDynTracker::ServicesDynTracker(const PixelGeoBuilderBasics* basics, bool bSvcBrlModule):
   PixelGeoBuilder(basics),
-  m_bSvcDynAuto(bSvcDynAuto),
   m_bSvcBrlModule(bSvcBrlModule),
   m_msg(basics->msgStream())
 {
@@ -105,13 +104,6 @@ void ServicesDynTracker::constructEndcapLayer( double zpos, double rmin, double 
 					       int nstaves, const std::string& suffix,
 					       int nModulesPerStave, int nChipsPerModule)
 {
-  
-  PixelDynamicServiceXMLHelper svcDynHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML", getBasics());
-
-  if(m_bSvcDynAuto) {
-    double rEosMin = svcDynHelper.EndcapEOSRMin(layerNum);  
-    if(rmax<rEosMin) rmax=rEosMin;
-  }
 
   ServicesDynLayer* nl = new ServicesDynLayer( zpos, rmin, rmax, nstaves,
 					       type, (DetTypeDyn::Part)DetTypeDyn::Endcap, layerNum, 
@@ -125,26 +117,20 @@ void ServicesDynTracker::constructEndcapLayer( double zpos, double rmin, double 
 
 void ServicesDynTracker::computeServicesPerLayer()
 {
-  if(m_bSvcDynAuto) {
-    // Code as defined in the PixelGeoModel package // maintained for LoI geometries
-    RoutingDynAuto routing(msgStream(),getBasics());
-    routing.createRoutingVolumes(*this);
-    finaliseServices();
+   
+  // Code that read routes from XML file
+  Athena::MsgStreamMember msgRouting(Athena::Options::Eager,"RoutingDyn");
+  RoutingDyn routing(msgRouting,getBasics());
+  routing.createRoutingVolumes(*this);
+  routing.addRouteMaterial(getBasics());
+  if(m_bSvcBrlModule){
+    routing.computeBarrelModuleMaterial(getBasics());
+    std::map<std::string,std::string> svcMap = routing.getSvcMaterialNameTable();      
+    m_svcMaterialNameTable.insert(svcMap.begin(), svcMap.end());
   }
-  else {
-    // Code that read routes from XML file
-    Athena::MsgStreamMember msgRouting(Athena::Options::Eager,"RoutingDyn");
-    RoutingDyn routing(msgRouting,getBasics());
-    routing.createRoutingVolumes(*this);
-    routing.addRouteMaterial(getBasics());
-    if(m_bSvcBrlModule){
-      routing.computeBarrelModuleMaterial(getBasics());
-      std::map<std::string,std::string> svcMap = routing.getSvcMaterialNameTable();      
-      m_svcMaterialNameTable.insert(svcMap.begin(), svcMap.end());
-    }
-    routing.saveLayerSvcLinearMaterial(getBasics());
-  }
+  routing.saveLayerSvcLinearMaterial(getBasics());
 }
+
 
 
 void ServicesDynTracker::finaliseServices()

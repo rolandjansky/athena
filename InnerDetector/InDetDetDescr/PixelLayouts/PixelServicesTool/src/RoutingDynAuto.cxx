@@ -44,10 +44,6 @@ RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg, const PixelGe
   m_routeBarrel = true;
   m_routeEndcap = true;
 
-//   if(m_svcOtherXMLHelper){
-//     m_routeBarrel = m_svcOtherXMLHelper->routeBarrelStandard();
-//     m_routeEndcap = m_svcOtherXMLHelper->routeEndcapStandard();
-//   }
   
 }
 

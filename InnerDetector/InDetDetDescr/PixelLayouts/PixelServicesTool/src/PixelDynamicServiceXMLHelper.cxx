@@ -32,7 +32,10 @@ PixelDynamicServiceXMLHelper::PixelDynamicServiceXMLHelper(std::string envFileNa
       m_bParsed = ParseFile(file);
     }
   
-  if(!m_bParsed) return;
+  if(!m_bParsed) {
+    msg(MSG::WARNING) << "XML file "<<fileName<<"("<<envName<<")"<<" not found"<<endmsg;
+    return;
+  }
 }
 
 PixelDynamicServiceXMLHelper::~PixelDynamicServiceXMLHelper()
