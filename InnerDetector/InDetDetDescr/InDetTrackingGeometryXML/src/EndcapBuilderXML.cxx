@@ -86,7 +86,7 @@ InDet::EndcapLayerTmp *InDet::EndcapBuilderXML::getLayerTmp(unsigned int ilayer)
   return m_xmlReader->getSCTEndcapLayerTemplate(ilayer); 
 }
 
-void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, int startLayer, int endLayer, 
+void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int cavernSide, int startLayer, int endLayer, 
 						   std::vector< Trk::Layer* >& v_layers) const
 {  
   // Get layer template for this index 
@@ -98,19 +98,19 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
     int layer_pos = layerTmp->layer_pos;
     if(layer_pos<startLayer) return; 
     if(endLayer>=0 && layer_pos>endLayer) return;
-    createActiveDiscLayers(itmpl, side, v_layers);
+    createActiveDiscLayers(itmpl, cavernSide, v_layers);
   }  else { 
     // if it's rings, check if ring layer has to be built: 
     int layer_pos = layerTmp->layer_pos;
     if(layer_pos<startLayer) return;
     if(endLayer>=0 && layer_pos>endLayer) return;
-    createActiveRingLayers(itmpl, side, v_layers);
+    createActiveRingLayers(itmpl, cavernSide, v_layers);
   } 
 
   return;  
 }
 
- void InDet::EndcapBuilderXML::createActiveDiscLayers(unsigned int itmpl, int side, 
+ void InDet::EndcapBuilderXML::createActiveDiscLayers(unsigned int itmpl, int cavernSide, 
 							std::vector< Trk::Layer* >& v_layers) const
 {  
 
@@ -132,7 +132,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
 
   unsigned int nRings = layerTmp->ringpos.size();
 
-  ATH_MSG_DEBUG("Building Disc Layer " << itmpl << " '" << layerTmp->name << "' side " << side << " with " <<  nRings << " rings");
+  ATH_MSG_DEBUG("Building Disc Layer " << itmpl << " '" << layerTmp->name << "' cavernSide " << cavernSide << " with " <<  nRings << " rings");
 
   // prepare vectors to store BinUtilitiesPhi vs R
   std::vector<float> rCenters;
@@ -142,7 +142,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
   for(unsigned int iring = 0; iring < nRings; iring++){
 
     int nsectors          = layerTmp->nsectors.at(iring);
-    double zpos           = side*layerTmp->ringpos.at(iring);
+    double zpos           = cavernSide*layerTmp->ringpos.at(iring);
     double modzoff        = layerTmp->zoffset.at(iring);
     double mod0phioffset  = layerTmp->phioffset.at(iring);
     double thck           = layerTmp->thickness.at(iring);
@@ -152,10 +152,10 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
 
     ATH_MSG_DEBUG("  DISC: building ring " << iring << " z=" << zpos <<  " zoffset="  << modzoff 
 		 << " phioffset=" << mod0phioffset << " thck=" << thck << " " << nsectors 
-		 << " innerR=" << innerR << " outerR=" << outerR << " centerR = <" << centerR << "> side=" << side);
+		 << " innerR=" << innerR << " outerR=" << outerR << " centerR = <" << centerR << "> cavernSide=" << cavernSide);
 
     // create elements for current ring
-    createDiscModules(itmpl,iring,side,cElements,centersOnModule);
+    createDiscModules(itmpl,iring,cavernSide,cElements,centersOnModule);
     
     // check zMin, zMax, rMin and rMax to compute disc bounds
     rMin = std::min(innerR, rMin); 
@@ -259,7 +259,7 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
   
 } 
    
-void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int side, 
+void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cavernSide, 
 						       std::vector< Trk::Layer* >& v_layers) const
 {  
 
@@ -267,13 +267,13 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
   InDet::EndcapLayerTmp *layerTmp = getLayerTmp(itmpl);
   if(!layerTmp) return;
 
-  ATH_MSG_DEBUG("Building Ring Layer " << itmpl << " '" << layerTmp->name << "' side " << side);
+  ATH_MSG_DEBUG("Building Ring Layer " << itmpl << " '" << layerTmp->name << "' cavernSide " << cavernSide);
 
   // Loop over rings - create one discLayer per ring
   unsigned int nRings = layerTmp->ringpos.size();
   for(unsigned int iring = 0; iring < nRings; iring++){
     
-    double zpos = side*layerTmp->ringpos.at(iring);
+    double zpos = cavernSide*layerTmp->ringpos.at(iring);
     double innerR = layerTmp->innerRadius.at(iring);
     double outerR = layerTmp->outerRadius.at(iring);
     
@@ -287,7 +287,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
     (*transf) = Amg::Translation3D(0.,0.,zpos);
 
     ATH_MSG_DEBUG("  RING: building ring " << iring << " zpos=" << zpos <<  " thck="  << disc_thickness << " nsect=" << nsectors 
-		 << " innerR=" << innerR << " outerR=" << outerR << " side=" << side );
+		 << " innerR=" << innerR << " outerR=" << outerR << " cavernSide=" << cavernSide );
 
     // create elements
     std::vector<Trk::TrkDetElementBase*> cElements ;
@@ -295,7 +295,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
     //store the centerOnModule
     std::vector<Amg::Vector3D> centersOnModule;
   
-    createDiscModules(itmpl,iring,side,cElements,centersOnModule);
+    createDiscModules(itmpl,iring,cavernSide,cElements,centersOnModule);
 
     // compute bin utility in Phi 
     // find lowest and highest bounds in phi (not trivial when there is a phi offset of module 0 !)
@@ -375,7 +375,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
 
 
 // LayerBuilder interface method - returning Disc modules for one ring
-void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int side, 
+void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int cavernSide, 
 						  std::vector<Trk::TrkDetElementBase*>& cElements, std::vector<Amg::Vector3D>& centersOnModule) const 
 {
   InDet::EndcapLayerTmp *layerTmp = getLayerTmp(itmpl);
@@ -384,7 +384,7 @@ void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int side,
   Trk::TrkDetElementBase* elem         = 0;
   Trk::TrkDetElementBase* previousElem = 0;
   ATH_MSG_DEBUG("Building sector 0 for layer index " << itmpl << " iring " << iring);
-  Trk::TrkDetElementBase* firstElem    = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,0,side,centersOnModule);
+  Trk::TrkDetElementBase* firstElem    = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,0,cavernSide,centersOnModule);
   cElements.push_back(firstElem);
   previousElem = firstElem;
   int nsectors = layerTmp->nsectors.at(iring);
@@ -393,7 +393,7 @@ void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int side,
   for(int isector=1;isector<nsectors;isector++) {
 
     ATH_MSG_DEBUG("Building sector " << isector << " for layer " << itmpl << " iring " << iring);
-    elem = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,isector,side,centersOnModule);
+    elem = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,isector,cavernSide,centersOnModule);
     if(elem==0) continue;
     cElements.push_back(elem);
 
@@ -411,7 +411,7 @@ void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int side,
 }
 
 // create the disc planar element
-Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl, int iring, int isector, int side, std::vector<Amg::Vector3D>& centersOnModule) const
+Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl, int iring, int isector, int cavernSide, std::vector<Amg::Vector3D>& centersOnModule) const
 {
 
   InDet::EndcapLayerTmp *layerTmp = getLayerTmp(itmpl);
@@ -421,7 +421,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   
   // rings parameters
   int nsectors             = layerTmp->nsectors.at(iring);
-  double zpos              = side*layerTmp->ringpos.at(iring); 
+  double zpos              = cavernSide*layerTmp->ringpos.at(iring); 
   double zoffset           = layerTmp->zoffset.at(iring); 
   double mod0phioffset     = layerTmp->phioffset.at(iring);
   double ring_rmin         = layerTmp->outerRadius.at(iring);
@@ -432,10 +432,10 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   int         roEta        = layerTmp->readoutEta.at(iring);             
 
   // set identifiers variables
-  int brl_ec = 2*side; // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
-  int region = roRegion=="B"? side : 2*side; //
+  int brl_ec = 2*cavernSide; // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
+  int region = roRegion=="B"? cavernSide : 2*cavernSide; //
 
-  int iphi   = side>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
+  int iphi   = cavernSide>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
  
   bool isOuterMost = false; // JL -- needs to be fixed 
   bool isBarrel = roRegion=="B"? true : false;
