@@ -12,7 +12,7 @@ doMuon   = True
 doJet    = False
 doCombo  = False
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence, RecoFragmentsPool
 testChains = []
 
 ##################################################################
@@ -30,22 +30,22 @@ AllowedEventBuildingIdentifiers.extend(['pebtestfour','pebtestfive'])
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
+    precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    fastCaloStep= fastCaloMenuSequence("Ele")
-    electronStep= electronMenuSequence()
-
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
+    FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
+    PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
     step3_pebtestone=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
     step3_pebtestfour=ChainStep("Step3_pebtestfour", [pebInfoWriterSequence("pebtestfour")])
 
-    egammaChains = [
-        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestfour',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestfour]  ),
-        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+    egammaChains  = [
+        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestfour', Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestfour]  ),
+        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep]  )
     ]
     testChains += egammaChains
 
