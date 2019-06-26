@@ -61,9 +61,9 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                        IsOldCosmics 	= False )
   ToolSvc += CSCRodDecoder
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "CSC_RawDataProviderTool",
-                                                             Decoder     = CSCRodDecoder )
+  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
+  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
+                                                               Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool

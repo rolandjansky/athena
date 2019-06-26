@@ -113,7 +113,8 @@ def CscDataPreparatorCfg( flags, roisKey ):
     # Set Csc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
     CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = acc.getPublicTool( "CscRdoToCscPrepDataTool" ),
-                                                         CscClusterProvider   = acc.getPublicTool( "CscThesholdClusterBuilderTool" ) )
+                                                         CscClusterProvider   = acc.getPublicTool( "CscThesholdClusterBuilderTool" ),
+                                                         CscRawDataProvider   = acc.getPublicTool( "CSC_RawDataProviderToolMT" ) )
                                                          #DecodeBS = DetFlags.readRDOBS.CSC_on() ) # This should be used flags
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
  
