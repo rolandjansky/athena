@@ -158,14 +158,17 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 	theVertexContainer->setStore( theVertexAuxContainer );
 	xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
 	theVertexContainer->push_back( dummyxAODVertex );
-	msg(MSG::INFO) << "container made " << endreq;
+	//msg(MSG::INFO) << "container made " << endreq;
 	//dummyxAODVertex->setPosition( m_listRoIs[0].z_reference );
 	dummyxAODVertex->setZ( -99.9 );
-	msg(MSG::INFO) << "Z SET HERE " << endreq;
-	msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+	//msg(MSG::INFO) << "Z SET HERE " << endreq;
+	//msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+
+	dummyxAODVertex->auxdecor<double>("boundary_1") = -99.9;
+	dummyxAODVertex->auxdecor<double>("boundary_2") = -99.9;
 	
 	if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
-	  msg(MSG::INFO) << "DOES IT PASS? " << endreq;
+	  //msg(MSG::INFO) << "DOES IT PASS? " << endreq;
 	  CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
 	}
 	if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
@@ -185,19 +188,23 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   theVertexContainer->setStore( theVertexAuxContainer );
   xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
   theVertexContainer->push_back( dummyxAODVertex );
-  msg(MSG::INFO) << "container made " << endreq;
+  //msg(MSG::INFO) << "container made " << endreq;
   //dummyxAODVertex->setPosition( m_listRoIs[0].z_reference );
   dummyxAODVertex->setZ( m_listRoIs[0].z_reference );
-  msg(MSG::INFO) << "Z SET HERE " << endreq;
-  msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+  //msg(MSG::INFO) << "Z SET HERE " << endreq;
+  //msg(MSG::INFO) << "output name" << m_vxOutputName << endreq;
+
+  dummyxAODVertex->auxdecor<double>("boundary_1") = ZBoundary[0];
+  dummyxAODVertex->auxdecor<double>("boundary_2") = ZBoundary[1];
 
   if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
-    msg(MSG::INFO) << "DOES IT PASS? " << endreq;
+    //msg(MSG::INFO) << "DOES IT PASS? " << endreq;
     CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
   }
   if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
     CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
   }
+
   
 
   // Find seeds that point within the RoI region in z
