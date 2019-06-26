@@ -384,7 +384,7 @@ void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int cavern
   Trk::TrkDetElementBase* elem         = 0;
   Trk::TrkDetElementBase* previousElem = 0;
   ATH_MSG_DEBUG("Building sector 0 for layer index " << itmpl << " iring " << iring);
-  Trk::TrkDetElementBase* firstElem    = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,0,cavernSide,centersOnModule);
+  Trk::TrkDetElementBase* firstElem    = static_cast<Trk::TrkDetElementBase *> ( createDiscDetElement(itmpl,iring,0,cavernSide,centersOnModule) );
   cElements.push_back(firstElem);
   previousElem = firstElem;
   int nsectors = layerTmp->nsectors.at(iring);
@@ -393,7 +393,7 @@ void InDet::EndcapBuilderXML::createDiscModules(int itmpl, int iring, int cavern
   for(int isector=1;isector<nsectors;isector++) {
 
     ATH_MSG_DEBUG("Building sector " << isector << " for layer " << itmpl << " iring " << iring);
-    elem = (Trk::TrkDetElementBase *) createDiscDetElement(itmpl,iring,isector,cavernSide,centersOnModule);
+    elem = static_cast<Trk::TrkDetElementBase *> ( createDiscDetElement(itmpl,iring,isector,cavernSide,centersOnModule) );
     if(elem==0) continue;
     cElements.push_back(elem);
 
@@ -467,9 +467,9 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   Amg::Vector3D centerOnModule(r*cos(phi), r*sin(phi), z);
       
   Amg::Transform3D transform = m_moduleProvider->getTransform(r,dr,xshift,z,stereoO,tilt,rot,phi,useDisc);    
-  Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
+  Trk::TrkDetElementBase* planElement = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
 												   transform, m_pixelCase, isBarrel, isOuterMost, debug,
-												   useDisc, ring_rmin, ring_rmax, stereoO);
+														useDisc, ring_rmin, ring_rmax, stereoO) );
  
   if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
 
@@ -490,9 +490,9 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
     Amg::Vector3D centerOnModule_os(r*cos(phi), r*sin(phi), z);
     
     Amg::Transform3D transform_os = m_moduleProvider->getTransform(r,dr,xshift,z,stereoI,tilt,rot,phi,useDisc);    
-    Trk::TrkDetElementBase* planElement_os = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule_os, 
+    Trk::TrkDetElementBase* planElement_os = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule_os, 
 													transform_os, m_pixelCase, isBarrel, isOuterMost,debug,
-													useDisc, ring_rmin, ring_rmax, stereoI);
+														     useDisc, ring_rmin, ring_rmax, stereoI) );
     
     
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
