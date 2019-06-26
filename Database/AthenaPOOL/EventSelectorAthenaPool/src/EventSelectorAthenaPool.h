@@ -165,6 +165,9 @@ private: // properties
    Gaudi::Property<std::string> m_collectionType{this, "CollectionType", "ImplicitROOT", ""};
    /// CollectionTree, prefix of the collection TTree: default = "POOLContainer_".
    Gaudi::Property<std::string> m_collectionTree{this, "CollectionTree", "POOLContainer", ""};
+   /// Connection, connection string.
+   // TODO: check if really not used anywhere
+   Gaudi::Property<std::string> m_connection{this, "Connection", "", ""};
    /// RefName, attribute name.
    Gaudi::Property<std::string> m_refName{this, "RefName", "", ""};
    /// AttributeList SG key
@@ -184,6 +187,22 @@ private: // properties
    ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
    ToolHandle<IAthenaSelectorTool> m_counterTool{this, "CounterTool", "", ""};
    ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
+
+   /// The following are included for compatibility with McEventSelector and are not really used.
+   /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
+   /// simulated events, needed to use condition
+   Gaudi::CheckedProperty<int> m_runNo{this, "RunNumber", 0, ""};
+   Gaudi::CheckedProperty<int> m_oldRunNo{this, "OldRunNumber", 0, ""};
+   Gaudi::Property<bool> m_overrideRunNumber{this, "OverrideRunNumber", false, ""};
+   Gaudi::Property<bool> m_overrideRunNumberFromInput{this, "OverrideRunNumberFromInput", false, ""};
+   // TODO: check if not really used
+   Gaudi::CheckedProperty<int> m_firstEventNo{this, "FirstEvent", 0, ""};
+   // TODO: check if not really used
+   Gaudi::CheckedProperty<int> m_eventsPerRun{this, "EventsPerRun", 1000000, ""};
+   Gaudi::CheckedProperty<int> m_firstLBNo{this, "FirstLB", 0, ""};
+   Gaudi::CheckedProperty<int> m_eventsPerLB{this, "EventsPerLB", 1000, ""};
+   Gaudi::CheckedProperty<int> m_initTimeStamp{this, "InitialTimeStamp", 0, ""};
+   Gaudi::Property<int> m_timeStampInterval{this, "TimeStampInterval", 0, ""};
 
    mutable long m_curCollection{};
    mutable std::vector<int> m_numEvt;

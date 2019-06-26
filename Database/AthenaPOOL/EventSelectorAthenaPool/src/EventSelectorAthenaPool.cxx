@@ -49,6 +49,15 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
 {
    declareProperty("HelperTools", m_helperTools);
 
+   // TODO: validate if those are even used
+   m_runNo.verifier().setLower(0);
+   m_oldRunNo.verifier().setLower(0);
+   m_eventsPerRun.verifier().setLower(0);
+   m_firstEventNo.verifier().setLower(0);
+   m_firstLBNo.verifier().setLower(0);
+   m_eventsPerLB.verifier().setLower(0);
+   m_initTimeStamp.verifier().setLower(0);
+
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorAthenaPool::inputCollectionsHandler, this);
 }
 //________________________________________________________________________________
@@ -72,7 +81,7 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
