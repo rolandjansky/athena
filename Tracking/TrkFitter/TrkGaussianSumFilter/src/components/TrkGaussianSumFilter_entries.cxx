@@ -1,6 +1,5 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/KullbackLeiblerComponentDistance.h"
-#include "TrkGaussianSumFilter/CloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/LargestWeightsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/MahalanobisComponentDistance.h"
@@ -20,7 +19,6 @@
 
 DECLARE_COMPONENT( Trk::QuickCloseComponentsMultiStateMerger )
 DECLARE_COMPONENT( Trk::KullbackLeiblerComponentDistance )
-DECLARE_COMPONENT( Trk::CloseComponentsMultiStateMerger )
 DECLARE_COMPONENT( Trk::LargestWeightsMultiStateMerger )
 DECLARE_COMPONENT( Trk::GsfMaterialMixtureConvolution )
 DECLARE_COMPONENT( Trk::MahalanobisComponentDistance )
