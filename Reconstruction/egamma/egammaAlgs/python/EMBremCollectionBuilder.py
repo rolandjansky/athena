@@ -39,7 +39,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         GSFRefitterTool = egammaTrkRefitterTool(name = 'GSFRefitterTool',
-                                                FitterTool = egammaRec.EMCommonRefitter.GSFTrackFitter,
+                                                FitterTool = egammaRec.EMCommonRefitter.getGSFTrackFitter(),
                                                 useBeamSpot = False,
                                                 Extrapolator = AtlasExtrapolator(),
                                                 ReintegrateOutliers=True)
