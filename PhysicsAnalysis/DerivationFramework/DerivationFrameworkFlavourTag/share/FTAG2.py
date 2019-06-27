@@ -269,7 +269,9 @@ if BTaggingFlags.Do2019Retraining:
     FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMPFlowJets_BTagging201810",
                                              "AntiKt4EMPFlowJets_BTagging201903"]
     FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
-                                         "BTagging_AntiKt4EMPFlow_201903"]
+                                         "BTagging_AntiKt4EMPFlow_201903",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
