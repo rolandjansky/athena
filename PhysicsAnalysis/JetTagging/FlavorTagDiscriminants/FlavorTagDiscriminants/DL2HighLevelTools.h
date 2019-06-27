@@ -23,7 +23,6 @@ namespace FlavorTagDiscriminants {
   typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
   typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
   typedef std::vector<std::pair<std::regex, TrackSelection> > TrkSelRegexes;
-  typedef std::vector<std::pair<std::regex, std::string>> ReplaceRegexes;
 
   // Function to map the regular expressions + the list of inputs to a
   // list of variable configurations.
@@ -38,6 +37,7 @@ namespace FlavorTagDiscriminants {
     const TrkSelRegexes& select_regexes);
 
   // replace strings for flip taggers
-  void rewriteFlipConfig(lwt::GraphConfig&, const ReplaceRegexes&);
+  void rewriteFlipConfig(lwt::GraphConfig&, const StringRegexes&);
+  void flipSequenceSigns(lwt::GraphConfig&, const std::regex&);
 }
 #endif
