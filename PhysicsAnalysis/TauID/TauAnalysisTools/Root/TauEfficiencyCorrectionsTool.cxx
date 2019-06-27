@@ -44,6 +44,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "VarNameEleOLRHadTau",          m_sVarNameEleOLRHadTau          = "" );
   declareProperty( "VarNameEleOLRElectron",        m_sVarNameEleOLRElectron        = "" );
   declareProperty( "VarNameJetIDHadTau",           m_sVarNameJetIDHadTau           = "" );
+  declareProperty( "VarNameRecoHadTau",            m_sVarNameDecayModeHadTau       = "" );
   declareProperty( "VarNameContJetIDHadTau",       m_sVarNameContJetIDHadTau       = "" );
   declareProperty( "VarNameEleIDHadTau",           m_sVarNameEleIDHadTau           = "" );
   declareProperty( "VarNameTriggerHadTau",         m_sVarNameTriggerHadTau         = "" );
@@ -51,6 +52,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "TriggerName",                  m_sTriggerName                  = "" );
   declareProperty( "TriggerYear",                  m_sTriggerYear                  = "2016" );
   declareProperty( "TriggerSFMeasurement",         m_sTriggerSFMeasurement         = "combined" ); // "combined", "Ztauttau" or "ttbar"
+  declareProperty( "UseTauSubstructure",           m_bUseTauSubstructure           = false );
 
   declareProperty( "UseIDExclusiveSF",             m_bUseIDExclusiveSF             = false );
   declareProperty( "UseInclusiveEta",              m_bUseInclusiveEta              = false );
@@ -160,6 +162,9 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       m_vEfficiencyCorrectionTypes.push_back(SFEleOLRElectron);
       ATH_MSG_VERBOSE( "added SFEleOLRElectron" );
     }
+
+    if (m_bUseTauSubstructure)
+      m_vEfficiencyCorrectionTypes.push_back(SFDecayMode);
 
   }
   else if ((m_sRecommendationTag == "2018-summer" or
@@ -357,10 +362,12 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_ALWAYS( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
     ATH_MSG_ALWAYS( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
     ATH_MSG_ALWAYS( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
+    ATH_MSG_ALWAYS( "  InputFilePathDecayModeHadTau " << m_sInputFilePathDecayModeHadTau );
     ATH_MSG_ALWAYS( "  InputFilePathTriggerHadTau " << m_sInputFilePathTriggerHadTau );
     ATH_MSG_ALWAYS( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
     ATH_MSG_ALWAYS( "  VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
     ATH_MSG_ALWAYS( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
+    ATH_MSG_ALWAYS( "  VarNameDecayModeHadTau " << m_sVarNameDecayModeHadTau );
     ATH_MSG_ALWAYS( "  VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
     ATH_MSG_ALWAYS( "  VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
     ATH_MSG_ALWAYS( "  VarNameTriggerHadTau " << m_sVarNameTriggerHadTau );
@@ -368,6 +375,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_ALWAYS( "  TriggerName " << m_sTriggerName );
     ATH_MSG_ALWAYS( "  TriggerYear " << m_sTriggerYear );
 
+    ATH_MSG_ALWAYS( "  UseTauSubstructure " << m_bUseTauSubstructure );
     ATH_MSG_ALWAYS( "  UseIDExclusiveSF " << m_bUseIDExclusiveSF );
     ATH_MSG_ALWAYS( "  UseInclusiveEta " << m_bUseInclusiveEta );
     ATH_MSG_ALWAYS( "  UseTriggerInclusiveEta " << m_bUseTriggerInclusiveEta );
@@ -391,11 +399,13 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_DEBUG( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathDecayModeHadTau " << m_sInputFilePathDecayModeHadTau );
     ATH_MSG_DEBUG( "  InputFilePathTriggerHadTau " << m_sInputFilePathTriggerHadTau );
     ATH_MSG_DEBUG( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
     ATH_MSG_DEBUG( "  VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
     ATH_MSG_DEBUG( "  VarNameEleOLRElectron " << m_sVarNameEleOLRElectron );
     ATH_MSG_DEBUG( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
+    ATH_MSG_DEBUG( "  VarNameDecayModeHadTau " << m_sVarNameDecayModeHadTau );
     ATH_MSG_DEBUG( "  VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
     ATH_MSG_DEBUG( "  VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
     ATH_MSG_DEBUG( "  VarNameTriggerHadTau " << m_sVarNameTriggerHadTau );
@@ -403,6 +413,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_DEBUG( "  TriggerName " << m_sTriggerName );
     ATH_MSG_DEBUG( "  TriggerYear " << m_sTriggerYear );
 
+    ATH_MSG_DEBUG( "  UseTauSubstructure " << m_bUseTauSubstructure );
     ATH_MSG_DEBUG( "  UseIDExclusiveSF " << m_bUseIDExclusiveSF );
     ATH_MSG_DEBUG( "  UseInclusiveEta " << m_bUseInclusiveEta );
     ATH_MSG_DEBUG( "  UseTriggerInclusiveEta " << m_bUseTriggerInclusiveEta );
@@ -529,7 +540,14 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
     if (iEfficiencyCorrectionType == SFJetIDHadTau)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2018-summer.root";
+      if (m_sInputFilePathJetIDHadTau.empty())
+      {
+        if (m_bUseTauSubstructure)
+          m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
+        else
+          m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2018-summer.root";
+      }
+
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
 
       std::string sJetIDWP = ConvertJetIDToString(m_iIDLevel);
@@ -543,6 +561,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       m_vCommonEfficiencyTools.push_back(tTool);
       ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau));
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameJetIDHadTau));
+      ATH_CHECK(tTool->setProperty("UseTauSubstructure", m_bUseTauSubstructure));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
       ATH_CHECK(tTool->setProperty("WP", sJetIDWP));
     }
@@ -584,6 +603,29 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameRecoHadTau));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
     }
+    else if (iEfficiencyCorrectionType == SFDecayMode)
+    {
+      // only set vars if they differ from "", which means they have been configured by the user
+      if (m_sInputFilePathDecayModeHadTau.empty()) m_sInputFilePathDecayModeHadTau = sDirectory+"DecayModeSubstructure_TrueHadTau_2019-summer.root";
+      if (m_sVarNameDecayModeHadTau.length() == 0) m_sVarNameDecayModeHadTau = "TauScaleFactorDecayModeHadTau";
+
+      std::string sJetIDWP = ConvertJetIDToString(m_iIDLevel);
+      if (sJetIDWP.empty()) 
+      {
+        ATH_MSG_WARNING("Could not find valid ID working point. Skip ID efficiency corrections.");
+        continue;
+      }
+
+      asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("DecayModeHadTauTool", this);
+      m_vCommonEfficiencyTools.push_back(tTool);
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*tTool, TauAnalysisTools::CommonEfficiencyTool));
+      ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathDecayModeHadTau));
+      ATH_CHECK(tTool->setProperty("VarName", m_sVarNameDecayModeHadTau));
+      ATH_CHECK(tTool->setProperty("UseTauSubstructure", true));
+      ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
+      ATH_CHECK(tTool->setProperty("WP", sJetIDWP));
+    }
+
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
       if (m_tPRWTool.empty())   // use single setup

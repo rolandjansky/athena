@@ -119,6 +119,8 @@ enum EfficiencyCorrectionType
   // SFEleIDJet       = 21,
   // SFEleIDElectron  = 22,
   // SFEleIDMuon      = 23,
+
+  SFDecayMode = 24,
 };
 
 enum EfficiencyCorrectionSystematicType

@@ -94,6 +94,7 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   declareProperty( "SplitMu",             m_bSplitMu             = false );
   declareProperty( "SplitMCCampaign",     m_bSplitMCCampaign     = false );
   declareProperty( "MCCampaign",          m_sMCCampaign          = "");
+  declareProperty( "UseTauSubstructure",  m_bUseTauSubstructure  = false);
 }
 
 /*
@@ -186,14 +187,30 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     return CP::CorrectionCode::Ok;
   }
 
-  // get prong extension for histogram name
-  std::string sProng = ConvertProngToString(xTau.nTracks());
+  // get decay mode or prong extension for histogram name
+  std::string sMode;
+  if (m_bUseTauSubstructure)
+  {
+    int iDecayMode = -1;
+    xTau.panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, iDecayMode);
+    sMode = ConvertDecayModeToString(iDecayMode);
+    if (sMode == "")
+    {
+      ATH_MSG_WARNING("Found tau with unknown decay mode. Skip efficiency correction.");
+      return CP::CorrectionCode::Ok;
+    }
+  }
+  else
+  {
+    sMode = ConvertProngToString(xTau.nTracks());
+  }
+
   std::string sMu = "";
   std::string sMCCampaign = "";
 
   if (m_bSplitMu) sMu = ConvertMuToString(iMu);
   if (m_bSplitMCCampaign) sMCCampaign = GetMcCampaignString(iRunNumber);
-  std::string sHistName = m_sSFHistName + sProng + sMu + sMCCampaign;
+  std::string sHistName = m_sSFHistName + sMode + sMu + sMCCampaign;
 
   // get standard scale factor
   CP::CorrectionCode tmpCorrectionCode = getValue(sHistName,
@@ -226,7 +243,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     if (dDirection>0)   sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng + sMu + sMCCampaign;
+    sHistName += sMode + sMu + sMCCampaign;
 
     // get the uncertainty from the histogram
     tmpCorrectionCode = getValue(sHistName,
@@ -442,6 +459,29 @@ std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
 }
 
 /*
+  decay mode converter
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::ConvertDecayModeToString(const int& iDecayMode)
+{
+  switch(iDecayMode)
+  {
+    case xAOD::TauJetParameters::DecayMode::Mode_1p0n:
+      return "_r1p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1p1n:
+      return "_r1p1n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1pXn:
+      return "_r1pXn";
+    case xAOD::TauJetParameters::DecayMode::Mode_3p0n:
+      return "_r3p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_3pXn:
+      return "_r3pXn";
+    default:
+      return "";
+  }
+}
+
+/*
   Read in a root file and store all objects to a map of this type:
   std::map<std::string, tTupleObjectFunc > (see header) It's basically a map of
   the histogram name and a function pointer based on the TObject type (TH1F,
@@ -476,6 +516,12 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
         m_fX = &caloTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
+      if (sTitle == "TruthDecayMode")
+      {
+        m_fX = &truthDecayMode;
+        ATH_MSG_DEBUG("using truth decay mode for x-axis");
+      }
+
       continue;
     }
     else if (sKeyName == "Yaxis")
