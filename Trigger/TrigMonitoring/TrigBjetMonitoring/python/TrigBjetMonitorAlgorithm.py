@@ -68,15 +68,27 @@ def TrigBjetMonConfig(inputFlags):
     print " ==> bjet_triglist: ", bjet_triglist
     expert = []
     shifter = []
+    expertI = []
+    shifterI = []
+    eI = 0
+    sI = 0
     for chain in bjet_triglist :
         if chain[0:1] == "E" :
             expert.append(chain[2:])
+            eI = eI + 1
+            expertI.append(str(eI))
         if chain[0:1] == "S" :
             shifter.append(chain[2:])
+            sI = sI + 1
+            shifterI.append(str(sI))
     print " ==> expert folder: ", expert
     print " ==> shifter folder: ", shifter
     trigBjetMonAlg.expert = expert
     trigBjetMonAlg.shifter = shifter
+    print " ==> expertI folder: ", expertI
+    print " ==> shifterI folder: ", shifterI
+    trigBjetMonAlg.expertI = expertI
+    trigBjetMonAlg.shifterI = shifterI
 
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
@@ -111,7 +123,8 @@ def TrigBjetMonConfig(inputFlags):
     print " ==> expert[0]: ", expert[0]
 
     for i in range ( len(expert) ) :
-        EHist = 'E' + str(i+1) + 'd0;E' + str(i+1) + 'd0'
+        #EHist = 'E' + str(i+1) + 'd0;E' + str(i+1) + 'd0'
+        EHist = 'E' + str(i+1) + 'd0'
         print " ==> EHist: ", EHist
         myGroup.defineHistogram(EHist, title='Distribution of d0;d0;Events',
                                 path=expert[i],xbins=10,xmin=-1.0,xmax=1.0)
@@ -134,7 +147,8 @@ def TrigBjetMonConfig(inputFlags):
     print " ==> shifter[0]: ", shifter[0]
 
     for i in range ( len(shifter) ) :
-        SHist = 'S' + str(i+1) + 'd0;S' + str(i+1) + 'd0'
+        #SHist = 'S' + str(i+1) + 'd0;S' + str(i+1) + 'd0'
+        SHist = 'S' + str(i+1) + 'd0' 
         print " ==> SHist: ", SHist
         shifterGroup.defineHistogram(SHist, title='Distribution of d0;d0;Events',
                                      path=shifter[i],xbins=10,xmin=-1.0,xmax=1.0)
@@ -144,8 +158,16 @@ def TrigBjetMonConfig(inputFlags):
     #shifterGroup.defineHistogram('S2d0;S2d0', title='Distribution of d0;d0;Events',
     #                             path=shifter[1],xbins=10,xmin=-1.0,xmax=1.0)
 
-    shifterGroup.defineHistogram('S2IP3D_pu;S2IP3D_pu', title='IP3D_pu probability distribution;IP3D_pu;Events',
-                                 path=shifter[1],xbins=50,xmin=0.0,xmax=1.0)
+
+    shifterGroup.defineHistogram('Off_NVtx', title='Number of Offline Vertices;NVtx;Events',
+                                 path='Offline',xbins=100,xmin=0.0,xmax=100.)
+
+    shifterGroup.defineHistogram('Off_xVtx', title='Offline xVtx;xVtx;Events',
+                                 path='Offline',xbins=200,xmin=-1.5,xmax=+1.5)
+    shifterGroup.defineHistogram('Off_yVtx', title='Offline yVtx;yVtx;Events',
+                                 path='Offline',xbins=200,xmin=-1.5,xmax=+1.5)
+    shifterGroup.defineHistogram('Off_zVtx', title='Offline zVtx;zVtx;Events',
+                                 path='Offline',xbins=200,xmin=-200.0,xmax=+200.0)
 
     #shifterGroup.defineHistogram('run',title='Run Number;run;Events',
     #                              path='SomePath',xbins=1000000,xmin=-0.5,xmax=999999.5)
@@ -197,6 +219,6 @@ if __name__=='__main__':
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     Nevents = 10
-    # cfg.run(Nevents)
+    #cfg.run(Nevents)
     cfg.run() #use cfg.run(20) to only run on first 20 events
 
