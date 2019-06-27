@@ -38,15 +38,22 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
   cat ${JOB_LOG}
 fi
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
+echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
 timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
-
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
+
+echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
+timeout 5m check_log.pl --config checklogTriggerTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} 2>&1 | tee warnings.log
 
 ### PERFMON
 
+echo $(date "+%FT%H:%M %Z")"     Running perfmon"
 timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz
-timeout 5m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
+
+### HISTOGRAM COUNT
+
+echo $(date "+%FT%H:%M %Z")"     Running histSizes"
+timeout 5m histSizes.py -t expert-monitoring.root 2>&1 | tee histSizes.log
 
 ### CHAINDUMP
 
@@ -142,6 +149,12 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+### GENERATE JSON WITH POST-PROCESSING INFORMATION
+
+echo $(date "+%FT%H:%M %Z")"     Running trig-test-json.py"
+timeout 5m trig-test-json.py
+cat extra-results.json && echo
 
 ### SUMMARY
 
