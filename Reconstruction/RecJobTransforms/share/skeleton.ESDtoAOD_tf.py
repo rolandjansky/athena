@@ -55,6 +55,10 @@ if hasattr(runArgs,"outputAODFile"):
             if item.startswith("xAOD::TrigComposite"):
                 objKeyStore.addManyTypesStreamESD( [item] )
                 objKeyStore.addManyTypesStreamAOD( [item] )
+        if rec.doFileMetaData():
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
     else: # not TriggerFlags.doMT()
         pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
 
