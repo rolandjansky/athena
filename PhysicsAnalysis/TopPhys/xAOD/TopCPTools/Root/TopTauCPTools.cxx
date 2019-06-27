@@ -270,9 +270,11 @@ StatusCode TauCPTools::setupCalibration() {
     } else {
       ITauEffCorrTool* tauEffCorrTool
         =  new TauAnalysisTools::TauEfficiencyCorrectionsTool(tauEffCorrNameLoose);
-      top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
-      top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
+      if (m_config->isMC()){
+        top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
+        top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                   "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
+      }
       top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionToolLoose),
                   "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
       top::check(tauEffCorrTool->initialize() , "Failed to initialize");
