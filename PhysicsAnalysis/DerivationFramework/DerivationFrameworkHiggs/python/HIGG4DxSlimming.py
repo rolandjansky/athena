@@ -99,7 +99,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     # add tau-ID variables needed to rerun tau ID for HiggsCP analysis
     if HIGG4DxName == 'HIGG4D3':
         ExtraContentTaus[0] += ".centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.absipSigLeadTrk.massTrkSys.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.trFlightPathSig"
-        
+        ExtraContentTaus += ["TauTracks.CaloSamplingEtaEM.CaloSamplingEtaHad.CaloSamplingPhiEM.CaloSamplingPhiHad"]
 
     ExtraTausTruth = [
         "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"
@@ -135,12 +135,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     if HIGG4DxName == 'HIGG4D6':
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraContentJets
 
-    if HIGG4DxName == 'HIGG4D1':
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2']:
         from HIGG4DxAugmentation import JetTagConfig
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
     
-
     #extra containers
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AllVariables += ["LVL1JetRoIs"]
@@ -190,6 +189,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                "TruthNeutrinos", 
                                                "TruthTaus", 
                                                "TruthBoson",
+                                               "TruthPhotons",
                                                ]
 
     #trigger content
