@@ -276,7 +276,10 @@ def main(args):
             
             n_bad += 1
 
-            in_synch = d_old and d_new and d_old[:-1] == d_new[:-1]
+            if not args.order_trees:
+                in_synch = d_old and d_new and d_old[:-1] == d_new[:-1]
+            else:
+                in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
             if not in_synch:
                 if not _is_summary():
                     if d_old:
@@ -347,7 +350,10 @@ def main(args):
                     break
                 continue
             
-            n = '.'.join(map(str, ["%03i"%ientry]+name))
+            if not args.order_trees:
+                n = '.'.join(map(str, ["%03i"%ientry]+name))
+            else:
+                n = '.'.join(map(str, ["%03i.%03i"%(ientry,jentry)]+name))
             diff_value = 'N/A'
             try:
                 diff_value = 50.*(iold-inew)/(iold+inew)
