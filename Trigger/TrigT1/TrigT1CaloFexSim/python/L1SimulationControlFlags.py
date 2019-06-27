@@ -61,6 +61,14 @@ class ApplySCQual(JobProperty):
 _caloflags.append(ApplySCQual)
 
 
+class UseAllCalo(JobProperty):
+    """ Needs to be enabled when no Trigger Towers available """
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = False
+_caloflags.append(UseAllCalo)
+
+
 class RunFexAlgorithms(JobProperty):
     """ ComputeClusters """
     statusOn = True
