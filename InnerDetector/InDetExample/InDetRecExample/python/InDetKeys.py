@@ -597,12 +597,6 @@ class LowPtRoITracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ResolvedLowPtRoITrackTruthCollection'
 
-class LowPtRoIVertices(JobProperty):
-    """StoreGate key for LowPtRoI vertices """
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'LowPtRoIVertices'
-
 class PixelTracks(JobProperty):
     """StoreGate key for resolved pixel standalone tracks """
     statusOn     = True
@@ -1350,7 +1344,6 @@ jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoITracks)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoITracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoIDetailedTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(LowPtRoIVertices)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
