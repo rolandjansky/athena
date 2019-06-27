@@ -37,9 +37,7 @@ namespace FlavorTagDiscriminants {
     const TrkSelRegexes& select_regexes);
 
   // replace strings for flip taggers
-  void rewriteFlipConfig(lwt::GraphConfig&, const StringRegexes&,
-                         std::streambuf* debug_stream);
-  void flipSequenceSigns(lwt::GraphConfig&, const std::regex&,
-                         std::streambuf* debug_stream);
+  void rewriteFlipConfig(lwt::GraphConfig&, const StringRegexes&);
+  void flipSequenceSigns(lwt::GraphConfig&, const std::regex&);
 }
 #endif

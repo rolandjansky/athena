@@ -30,8 +30,7 @@ namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
                              EDMSchema schema,
-                             FlipTagConfig flip_config,
-                             std::streambuf* debug_stream):
+                             FlipTagConfig flip_config):
     m_dl2(nullptr)
   {
     // get the graph
@@ -136,8 +135,8 @@ namespace FlavorTagDiscriminants {
     std::regex flip_sequences(".*signed_[dz]0.*");
 
     if (flip_config == FlipTagConfig::NEGATIVE_IP_ONLY) {
-      rewriteFlipConfig(config, flip_converters, debug_stream);
-      flipSequenceSigns(config, flip_sequences, debug_stream);
+      rewriteFlipConfig(config, flip_converters);
+      flipSequenceSigns(config, flip_sequences);
     }
 
     // ___________________________________________________________________
