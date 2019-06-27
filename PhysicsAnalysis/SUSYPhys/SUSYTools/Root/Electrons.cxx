@@ -435,6 +435,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
+        dec_sfChIDEff(el) = chf_sf;
         sf *= chf_sf;
         break;
       case CP::CorrectionCode::Error:
