@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHENAPOOLCNVSVC_H
-#define ATHENAPOOLCNVSVC_H
+#ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
+#define ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
 
 /** @file AthenaPoolCnvSvc.h
  *  @brief This file contains the class definition for the AthenaPoolCnvSvc class.
