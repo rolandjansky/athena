@@ -232,9 +232,7 @@ IOVSvcTool::initialize() {
   // For hybrid MP/MT
   p_incSvc->addListener( this, "ReloadProxies", pri, true);
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("Tool initialized");
-#endif
 
   return status;
 }
@@ -573,15 +571,11 @@ IOVSvcTool::regProxy( const DataProxy *proxy, const std::string& key) {
     return StatusCode::FAILURE;
   }
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("registering proxy " << fullProxyName(proxy) << " at " << proxy);
-#endif
 
   if (m_proxies.find(proxy) != m_proxies.end()) {
-#ifndef NDEBUG
     ATH_MSG_DEBUG("Proxy for " << fullProxyName(proxy)
                   << " already registered: " << proxy->name());
-#endif
     return StatusCode::SUCCESS;
   }
 
@@ -614,16 +608,12 @@ IOVSvcTool::deregProxy( const DataProxy *proxy) {
     return StatusCode::FAILURE;
   }
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("removing proxy " << fullProxyName(proxy) << " at " << proxy);
-#endif
 
   std::set<const SG::DataProxy*, SortDPptr>::iterator itr = m_proxies.find(proxy);
   if (itr == m_proxies.end()) {
-#ifndef NDEBUG
     ATH_MSG_DEBUG("Proxy for " << fullProxyName(proxy)
                   << " not registered: " << proxy->name());
-#endif
     return StatusCode::SUCCESS;
   }
 
@@ -824,9 +814,7 @@ void IOVSvcTool::setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr)
     string objname = m_names[proxy];
 
     if (*irn == iovr) {
-#ifndef NDEBUG
       ATH_MSG_DEBUG("Range has not changed. Returning");
-#endif
       delete range;
       return;
       // is this true? still in the start and stop sets? FIXME
@@ -848,9 +836,7 @@ void IOVSvcTool::setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr)
     delete ent;
   }
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("adding to start and stop sets");
-#endif
   IOVEntry *ent = new IOVEntry(proxy,range);
   
   m_entries[ proxy ] = ent;
@@ -865,10 +851,8 @@ IOVSvcTool::setRange(const CLID& clid, const std::string& key,
                      IOVRange& iovr)
 {
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("setRange()  for clid: " << clid << "  key: " << key
                 << "  in IOVrange:" << iovr);
-#endif
 
   if (!iovr.start().isValid() || !iovr.stop().isValid()) {
     ATH_MSG_ERROR("IOVRange " << iovr << "is not valid. Start OK: "
@@ -1097,9 +1081,7 @@ IOVSvcTool::preLoadProxies() {
 StatusCode 
 IOVSvcTool::triggerCallback(IOVSvcCallBackFcn* fcn, const std::string& key ) {
  
-#ifndef NDEBUG
   ATH_MSG_VERBOSE("triggerCallback(BFCN*)");
-#endif
 
   int I;
   std::list<std::string> klist;
@@ -1118,9 +1100,7 @@ StatusCode
 IOVSvcTool::triggerCallback( const SG::DataProxy *dp, 
                              const std::string& key ) {
  
-#ifndef NDEBUG
   ATH_MSG_VERBOSE("triggerCallback(DataProxy*)");
-#endif
 
   std::map<const SG::DataProxy*, BFCN*>::const_iterator pitr =
     m_proxyMap.find(dp);
@@ -1307,9 +1287,7 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
                     << dp->name());
   }
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("register by " << c.name() << " bound to " << fullname);
-#endif
 
   if (trigger) {
     if (m_first) {
@@ -1346,11 +1324,9 @@ IOVSvcTool::regFcn(const CallBackID c1,
         const SG::DataProxy* prx2 = fitr2->second;
 
         if (prx1 == prx2) {
-#ifndef NDEBUG
           ATH_MSG_DEBUG("Callback function " << c2.name()
                         << " cannot be registered since it has already been registered "
                         << "against " << m_names[prx1]);
-#endif
         } else {
           proxyset.insert(prx1);    // don't care if it gets done many times
         }
@@ -1370,11 +1346,9 @@ IOVSvcTool::regFcn(const CallBackID c1,
   }
 
   if (proxyset.size() == 0) {
-#ifndef NDEBUG
     ATH_MSG_DEBUG("Callback function " << c2.name()
                   << " cannot be registered, since it has already been registered"
                   << " against everything it can be.");
-#endif
     return StatusCode::SUCCESS;
   }
 
@@ -1396,9 +1370,7 @@ IOVSvcTool::regFcn(const CallBackID c1,
     m_proxyMap.insert(std::pair<const SG::DataProxy*,BFCN* >(prx,obs2));
     m_bfcnMap.insert(std::pair<BFCN*,const SG::DataProxy*>(obs2,prx));
 
-#ifndef NDEBUG
     ATH_MSG_DEBUG("register by " << c2.name() << " bound to " << m_names[prx]);
-#endif
     klist.push_back( prx->name() );
 
   }
@@ -1620,9 +1592,7 @@ IOVSvcTool::resetAllProxies() {
   set< const DataProxy* >::iterator itr = m_proxies.begin();
   for (; itr != m_proxies.end(); ++itr) {
     DataProxy *prx = const_cast<DataProxy*>( *itr );
-#ifndef NDEBUG
     ATH_MSG_VERBOSE("clearing proxy payload for " << m_names[prx]);
-#endif
     
     p_cndSvc->clearProxyPayload(prx);
     
