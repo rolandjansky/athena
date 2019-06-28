@@ -16,7 +16,6 @@ export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/vali
 export EVENTS=20
 export THREADS=1
 export JOB_LOG="athena.RDOtoAOD.log"
-export AODTOCHECK="RDO_TRIG.pool.root" # to run checkFile and checkxAOD on this
 export VALIDATIONFLAGS="doExample,doMET,doPFlow,doEgamma,doInDet,doTau,doJet,doBtag,doZee,doMuon,doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet"
 
 # run the first transform
