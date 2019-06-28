@@ -11,6 +11,11 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.DetFlags import DetFlags
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
+CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
+CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
+ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
+ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
+MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
 
 class muonNames(object):
   def __init__(self):
@@ -22,19 +27,19 @@ class muonNames(object):
     self.L2CBName = "MuonL2CBInfo"
     self.EFSAName = "Muons"
     self.EFCBName = "MuonsCB"
-    self.EFCBOutInName = "MuonsCBOutsideIn"
-    self.EFCBInOutName = "MuonsCBInsideOut"
+    self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
+    self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = "MuonsL2ISInfo"
     self.EFIsoMuonName = "MuonsIso"
 
   def getNames(self, name):
 
     if "FS" in name:
-      self.EFSAName = "Muons_FS"
-      self.EFCBName = "MuonsCB_FS"
+      self.EFSAName = recordable("HLT_Muons_FS")
+      self.EFCBName = recordable("HLT_MuonsCB_FS")
     if "RoI" in name:
-      self.EFSAName = "Muons_RoI"
-      self.EFCBName = "MuonsCB_RoI"
+      self.EFSAName = recordable("HLT_Muons_RoI")
+      self.EFCBName = recordable("HLT_MuonsCB_RoI")
     return self
 
 
@@ -545,7 +550,7 @@ def muEFSARecoSequence( RoIs, name ):
   msMuonName = muNames.EFSAName
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
-  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName )
+  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -718,7 +723,7 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.SegmentContainerName = "CBSegments"
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
-  themuoncbcreatoralg.CombinedLocation = "CBCombinedMuon"
+  themuoncbcreatoralg.CombinedLocation = "HLT_CBCombinedMuon_"+name
 
   #Add all algorithms
   efAlgs.append(theIndetCandidateAlg)
@@ -806,10 +811,10 @@ def muEFInsideOutRecoSequence(RoIs, name):
   insideoutcreatoralg.MakeClusters=False
   insideoutcreatoralg.ClusterContainerName=""
   insideoutcreatoralg.MuonContainerLocation = cbMuonName
-  insideoutcreatoralg.SegmentContainerName = "CBSegments_"+name
-  insideoutcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons_"+name
-  insideoutcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons_"+name
-  insideoutcreatoralg.CombinedLocation = "CBCombinedMuon_"+name
+  insideoutcreatoralg.SegmentContainerName = "InsideOutCBSegments"
+  insideoutcreatoralg.ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons"
+  insideoutcreatoralg.MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons"
+  insideoutcreatoralg.CombinedLocation = "InsideOutCBCombinedMuon"
 
   efAlgs.append(theInsideOutRecoAlg)
   efAlgs.append(insideoutcreatoralg)
