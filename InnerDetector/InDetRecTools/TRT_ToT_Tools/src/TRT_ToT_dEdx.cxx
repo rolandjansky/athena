@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -16,6 +16,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TrkSurfaces/Surface.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -30,17 +31,13 @@
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p)
   :
   AthAlgTool(t,n,p),
-  m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
-  m_isData(true),
-  m_isDataSet(false)
+  m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
 
   SetDefaultConfiguration();
 
-  //      m_gasTypeInStraw        = kUnset;
-  m_L                                                     = 0.;
   m_timingProfile         = 0;
   m_trtId                                         = 0;
   m_trtman                                        = 0;
@@ -60,6 +57,7 @@ void TRT_ToT_dEdx::SetDefaultConfiguration()
   declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.85);
   declareProperty("TRT_dEdx_trackConfig_minRtrack",m_trackConfig_minRtrack=0.15);
   declareProperty("TRT_dEdx_useZeroRHitCut",m_useZeroRHitCut=true);
+  declareProperty("TRT_dEdx_isData",m_isData=true);
 }
 
 
@@ -80,6 +78,7 @@ void TRT_ToT_dEdx::ShowDEDXSetup() const
   ATH_MSG_DEBUG("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
   ATH_MSG_DEBUG("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
   ATH_MSG_DEBUG("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
+  ATH_MSG_DEBUG("m_isData                        ="<<m_isData<<"");
   ATH_MSG_DEBUG(" ");
   ATH_MSG_DEBUG("//////////////////////////////////////////////////////////////////");
 }
@@ -160,6 +159,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   ATH_MSG_INFO("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
   ATH_MSG_INFO("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
   ATH_MSG_INFO("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
+  ATH_MSG_INFO("m_isData                        ="<<m_isData<<"");
   ATH_MSG_INFO(" ");
   ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
 
@@ -177,16 +177,45 @@ StatusCode TRT_ToT_dEdx::finalize()
   return StatusCode::SUCCESS;
 }
 
+double TRT_ToT_dEdx::strawLength(const Trk::TrackParameters *trkP) const
+{
+  double length=0;
+  if(!trkP) return length; 
+  const Trk::Surface* trkS = &trkP->associatedSurface();
+  if(!trkS)  return length;   
+  const Identifier DCId = trkS->associatedDetectorElementIdentifier(); 
+  double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
+  double Trt_HitTheta = trkP->parameters()[Trk::theta];
+  double Trt_HitPhi = trkP->parameters()[Trk::phi];
+  int HitPart =  m_trtId->barrel_ec(DCId);
+  double strawphi = trkS->center().phi();
+
+
+  if (std::abs(HitPart)==1) { //Barrel
+    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
+  }
+  else
+    if (std::abs(HitPart)==2) { //EndCap
+      length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+    }
+    else {
+      ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
+      throw std::exception();
+    }
+
+  return length;
+}
 
 
 
 bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr) const
 {
-  return isGood_Hit(itr, m_divideByL, m_useHThits);
+  double l;
+  return isGood_Hit(itr, m_divideByL, m_useHThits, l);
 }
 
 bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideByL, 
-                              bool useHThits) const
+                              bool useHThits, double& length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   if (!trkM)  return false;   
@@ -209,12 +238,13 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideBy
   if ( m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only
   if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
 
+  length=0;
   if (std::abs(HitPart)==1) { //Barrel
-    m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
+    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
   }
   else
     if (std::abs(HitPart)==2) { //EndCap
-      m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+      length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
     }
     else {
       ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
@@ -222,7 +252,7 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideBy
     }
 
   if(divideByL)
-    if ( m_L < 1.7 ) return false; // Length in the straw
+    if ( length < 1.7 ) return false; // Length in the straw
   if(!useHThits){
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
@@ -250,47 +280,23 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track) const
 }
 
 
-bool TRT_ToT_dEdx::isData() const {
-  if (m_isDataSet) {
-    return m_isData;
-  } else {
-   
-    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-    if (!eventInfo.isValid()){
-      REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
-      return false;
-    }
-
-    // check if data or MC 
-    m_isData = true;
-    if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){
-      m_isData=false;
-    }
-
-    m_isDataSet = true;
-    return m_isData;
-  }
-}
-
-
 
 double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThits, bool corrected) const
 {
   ATH_MSG_DEBUG("dEdx()");
 
   double nVtx=-1.;
-
   // Event information 
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
   if (!eventInfo.isValid()){
     REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
     return 0;
   }
-
+ 
   //    Average interactions per crossing for the current BCID
   double mu = -1.;
   mu = eventInfo->averageInteractionsPerCrossing();
-  if(isData()) {
+  if(m_isData) {
     nVtx = 1.3129 + 0.716194*mu + (-0.00475074)*mu*mu;
   }
   else
@@ -315,8 +321,9 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
       double ToTsum = 0;
 
       for ( ; itr!=itre ; ++itr) {
-        if ( isGood_Hit((*itr),divideByL,useHThits)) {
-          vecToT.push_back(correctToT_corrRZ(*itr,divideByL,corrected));
+        double l=0;
+        if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
+          vecToT.push_back(correctToT_corrRZ(*itr,divideByL,corrected,l));
         }
       } 
           
@@ -343,24 +350,23 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
         std::vector<double> vecToT_Ar;
         std::vector<double> vecToT_Kr;
 
-        int gasTypeForCorrectNormalization = m_useTrackPartWithGasType;
         if(m_useTrackPartWithGasType!=kUnset)
           {
-            ATH_MSG_WARNING("dEdX_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to"<<m_useTrackPartWithGasType<<", but kUnset is requiered. Setting that to kUnset. Check you tool configuration.");
-            m_useTrackPartWithGasType=kUnset;
+            ATH_MSG_WARNING("dEdX_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to"<<m_useTrackPartWithGasType<<", but kUnset is requiered. Check you tool configuration.");
           }
 
         for ( ; itr!=itre ; ++itr) {
-          if ( isGood_Hit((*itr),divideByL,useHThits)) {
+          double l=0;
+          if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
             gasType=gasTypeInStraw(*itr);
             if(gasType==kXenon)
-              vecToT_Xe.push_back(correctToT_corrRZ(*itr, divideByL, corrected));
+              vecToT_Xe.push_back(correctToT_corrRZ(*itr, divideByL, corrected,l));
             else
               if(gasType==kArgon)
-                vecToT_Ar.push_back(correctToT_corrRZ(*itr, divideByL, corrected));
+                vecToT_Ar.push_back(correctToT_corrRZ(*itr, divideByL, corrected,l));
               else
                 if(gasType==kKrypton)
-                  vecToT_Kr.push_back(correctToT_corrRZ(*itr, divideByL, corrected));
+                  vecToT_Kr.push_back(correctToT_corrRZ(*itr, divideByL, corrected,l));
                 else
                   ATH_MSG_ERROR("dEdX_Estimator():: During scenario kAlgReweight variable gasTypeInStraw got value kUnset.");
           }
@@ -405,7 +411,6 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
               }
           }
 
-        m_useTrackPartWithGasType = gasTypeForCorrectNormalization;
 
         // Boost speed.
         int nhits  = nhitsXe + nhitsAr + nhitsKr;
@@ -471,7 +476,8 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useH
       int nhits =0;
 
       for ( ; itr!=itre ; ++itr) {
-        if ( isGood_Hit((*itr),divideByL,useHThits)) {
+        double l=0;
+        if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
           nhits++;
         }
       } 
@@ -489,15 +495,14 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useH
         int nhitsAr = 0;
         int nhitsKr = 0;
 
-        int gasTypeForCorrectNormalization = m_useTrackPartWithGasType;
         if(m_useTrackPartWithGasType!=kUnset)
           {
-            ATH_MSG_WARNING("usedHits_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to "<<m_useTrackPartWithGasType<<", but kUnset is required. Setting that to kUnset. Check you tool configuration.");
-            m_useTrackPartWithGasType=kUnset;
+            ATH_MSG_WARNING("usedHits_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to "<<m_useTrackPartWithGasType<<", but kUnset is required. Check you tool configuration.");
           }
 
         for ( ; itr!=itre ; ++itr) {
-          if ( isGood_Hit((*itr),divideByL,useHThits)) {
+          double l=0;
+          if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
             gasType=gasTypeInStraw(*itr);
             if(gasType==kXenon)
               nhitsXe++;
@@ -512,7 +517,6 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useH
           }
         } 
 
-        m_useTrackPartWithGasType = gasTypeForCorrectNormalization;
 
         int ntrunk = 1;
         if(divideByL) {
@@ -806,12 +810,14 @@ double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, doub
 
 double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const
 {
-
-  return correctToT_corrRZ(itr, m_divideByL, m_corrected);
-
+  double l=0;
+  if(isGood_Hit(itr,m_divideByL,m_useHThits,l)) {
+    return correctToT_corrRZ(itr, m_divideByL, m_corrected,l);
+  }
+  return 0;
 }
 
-double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected) const
+double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected, double length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   const Trk::TrackParameters* trkP = itr->trackParameters();
@@ -866,7 +872,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool
         }  
     }
  
-  if(divideByL) ToT = ToT/m_L;
+  if(divideByL && length>0) ToT = ToT/length;
   if(!corrected) return ToT;
   /* else correct */
            
@@ -898,13 +904,15 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool
 
 double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata) const {
 
+  double l=strawLength(trkP) ;
+
   return correctToT_corrRZL(trkP, driftcircle, HitPart, Layer, StrawLayer, isdata,
-                            m_useHThits);
+                            m_useHThits, l);
 }
 
-double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata, bool useHThits) const
+double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata, bool useHThits, double length) const
 {
-  if (isdata != isData()) {
+  if (isdata != m_isData) {
     ATH_MSG_ERROR("TRT_ToT_dEdx::correctToT_corrRZL called with isData = " << isdata
                   << " but data type is " << m_isData << ". Ignoring!");
   }
@@ -954,7 +962,7 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
         }  
     }
 
-  ToT = ToT/m_L;
+  if(length>0) ToT = ToT/length;
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
@@ -980,7 +988,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
 double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata, bool useHThits) const
 {
 
-  if (isdata != isData()) {
+  if (isdata != m_isData) {
     ATH_MSG_ERROR("TRT_ToT_dEdx::correctToT_corrRZ called with isData = " << isdata
                   << " but data type is " << m_isData << ". Ignoring!");
   }
@@ -1120,7 +1128,7 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
   double f = 0;
   double r = driftRadius;
   int offset = 0;
-  if(isData()){
+  if(m_isData){
     if(set==0){ // long straws in barrel
       //int layerindex = Layer*30+Strawlayer;
       //int parId=0;
@@ -1198,7 +1206,7 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   double r = fabs(driftRadius);
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
-  if(isData()){
+  if(m_isData){
     a = Dedxcorrection->para_end_corrRZL_DATA[gasType][(0)*28+Layer];
     b = Dedxcorrection->para_end_corrRZL_DATA[gasType][(1)*28+Layer];
     c = Dedxcorrection->para_end_corrRZL_DATA[gasType][(2)*28+Layer];
@@ -1244,7 +1252,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
   double a,b,c,d,e,f,g;  
 
   if(Layer==0 && Strawlayer<9){ // short straws
-    if(isData()){
+    if(m_isData){
       a = Dedxcorrection->para_short_corrRZL_DATA[gasType][(0)*9+Strawlayer];
       b = Dedxcorrection->para_short_corrRZL_DATA[gasType][(1)*9+Strawlayer];
       c = Dedxcorrection->para_short_corrRZL_DATA[gasType][(2)*9+Strawlayer];
@@ -1263,7 +1271,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
     }
     
   }else{
-    if(isData()){
+    if(m_isData){
       a = Dedxcorrection->para_long_corrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
       b = Dedxcorrection->para_long_corrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
       c = Dedxcorrection->para_long_corrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
@@ -1559,12 +1567,12 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
 
   int side = 0; // A side
   if(sign <0) side =1; // C side
-  if(isData())
+  if(m_isData)
     a = Dedxcorrection->para_end_mimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
   else
     a = Dedxcorrection->para_end_mimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
 
-  ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << isData() << " gasTypeInStraw = " << gasType
+  ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << m_isData << " gasTypeInStraw = " << gasType
                 << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
                 << " a = " << a << "" );
 
@@ -1595,18 +1603,18 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
     }
 
   if(Layer==0 && Strawlayer<9){ // short straws
-    if(isData())
+    if(m_isData)
       a = Dedxcorrection->para_short_mimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
     else
       a = Dedxcorrection->para_short_mimicToXe_MC[gasType][Strawlayer*20+(rBin)];
   }else{
-    if(isData())
+    if(m_isData)
       a = Dedxcorrection->para_long_mimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
     else
       a = Dedxcorrection->para_long_mimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
   }
 
-  ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << isData() << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
+  ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << m_isData << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
 
   return a;
 }
