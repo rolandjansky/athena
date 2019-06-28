@@ -18,81 +18,6 @@
 #include <math.h>//for sincos function
 
 ///////////////////////////////////////////////////////////////////
-// Set trajectory element
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiTrajectoryElement_xk::set
-(int                                               st,
- const InDet::SiDetElementBoundaryLink_xk*&        dl,
- const InDet::SiClusterCollection::const_iterator& sb, 
- const InDet::SiClusterCollection::const_iterator& se,
- const InDet::SiCluster*                           si
- )
-{
-  m_fieldMode    = false; 
-  if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
-  m_status       = 0                       ;
-  m_detstatus    = st                      ;
-  m_ndist        = 0                       ;
-  m_nlinksF      = 0                       ;
-  m_nlinksB      = 0                       ;
-  m_nholesF      = 0                       ;
-  m_nholesB      = 0                       ;
-  m_dholesF      = 0                       ;
-  m_dholesB      = 0                       ;
-  m_nclustersF   = 0                       ;
-  m_nclustersB   = 0                       ;
-  m_npixelsB     = 0                       ;
-  m_ndfF         = 0                       ;
-  m_ndfB         = 0                       ;
-  m_ntsos        = 0                       ;
-  m_detelement   = dl->detElement()        ;
-  m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface();
-  m_sibegin      = sb                      ;
-  m_siend        = se                      ; 
-  m_cluster      = si                      ;
-  m_clusterOld   = si                      ;
-  m_clusterNoAdd = 0                       ;
-  m_stereo       = false                   ; 
-  m_xi2F         = 10000.                  ;
-  m_xi2B         = 10000.                  ;
-  m_xi2totalF    = 0.                      ;
-  m_xi2totalB    = 0.                      ;
-  m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
-  m_halflenght   = 0.                      ;
-  m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-
-  if(m_tools->heavyion()) {
-    if(m_ndf==2) {m_xi2max = 13.; m_xi2maxNoAdd = 13.;}
-    else         {m_xi2max =  4.; m_xi2maxNoAdd =  8.;}
-  }
-
-  noiseInitiate()                          ;
-  (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
-    m_stereo = true : m_stereo = false;
-
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
-
-  if(!m_detstatus) {
-
-    IdentifierHash idHash = m_detelement->identifyHash();
-    if(m_ndf==2) {if(!m_tools->pixcond()->isGood(idHash)) m_detstatus = -1;}
-    else         {if(!m_tools->sctcond()->isGood(idHash)) m_detstatus = -1;}
-  }
-  
-  const Amg::Transform3D& T  = m_surface->transform();
-
-  m_Tr[ 0] = T(0,0); m_Tr[ 1]=T(1,0); m_Tr[ 2]=T(2,0);
-  m_Tr[ 3] = T(0,1); m_Tr[ 4]=T(1,1); m_Tr[ 5]=T(2,1);
-  m_Tr[ 6] = T(0,2); m_Tr[ 7]=T(1,2); m_Tr[ 8]=T(2,2);
-  m_Tr[ 9] = T(0,3); m_Tr[10]=T(1,3); m_Tr[11]=T(2,3);
-  m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
-  m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
-  return;
-}
-
-///////////////////////////////////////////////////////////////////
 // Set work information to trajectory
 ///////////////////////////////////////////////////////////////////
 
@@ -362,83 +287,6 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
     if(m_dist < -2. ) ++m_ndist;
   }
   return true;
-}
-
-///////////////////////////////////////////////////////////////////
-// Forward propagation for search closest cluster
-///////////////////////////////////////////////////////////////////
-
-bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
- (int n,const Trk::TrackParameters& Tpa,
- const InDet::SiDetElementBoundaryLink_xk*&        dl,
- const InDet::SiClusterCollection::const_iterator& sb, 
- const InDet::SiClusterCollection::const_iterator& se)
-{
-  m_detstatus    = 1                       ;
-  m_sibegin      = sb                      ;
-  m_siend        = se                      ; 
-  m_detelement   = dl->detElement()        ;
-  m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface();
-  m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-  m_halflenght   = 0.                      ;
-  m_stereo       = false                   ;
-
-  (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
-    m_stereo = true : m_stereo = false;
-
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
-
-  if(!n) {
-    Trk::PatternTrackParameters Tp; if(!Tp.production(&Tpa)) return false;
-    if(!propagateParameters(Tp,m_parametersPF,m_step)) return false;
- 
-   if(!m_parametersPF.iscovariance()) {
-
-      double cv[15]={ .02 ,
-	 	       0., .02,
-		       0., 0.,.000001,
-		       0., 0.,   0.,.000001,
-		       0., 0.,   0.,   0.,.000000001};
-      
-      m_parametersPF.setCovariance(cv);
-    }
-  }
-  else {
-    if(!propagate(m_parametersPF,m_parametersPF,m_step)) return false;
-  }
-  m_nlinksF=searchClusters(m_parametersPF,m_linkF);
-  return true;
-}
-
-///////////////////////////////////////////////////////////////////
-// Forward propagation for search closest cluster
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiTrajectoryElement_xk::CloseClusterSeach
- (Trk::PatternTrackParameters& Tpa,
- const InDet::SiDetElementBoundaryLink_xk*&        dl,
- const InDet::SiClusterCollection::const_iterator& sb, 
- const InDet::SiClusterCollection::const_iterator& se)
-{
-  m_detstatus    = 1                       ;
-  m_cluster      = 0                       ;
-  m_sibegin      = sb                      ;
-  m_siend        = se                      ; 
-  m_detelement   = dl->detElement()        ;
-  m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface();
-  m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-  m_halflenght   = 0.                      ;
-  m_stereo       = false                   ;
-
-  (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
-    m_stereo = true : m_stereo = false;
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
-
-  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkF)) return;
-  m_cluster = m_linkF[0].cluster();
-  m_xi2F    = m_linkF[0].xi2    ();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -741,349 +589,6 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
   }
   return true;
 } 
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster with stereo angle
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0;  if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xl  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-
-    const InDet::SiCluster*      c = (*p);
-    const Amg::Vector2D&         M = c->localPosition();
-    const Amg::MatrixX&          V = c->localCovariance();
-
-    double MV0 = V(0,0);
-    double MV1 = V(1,0);
-    double MV2 = V(1,1);
-    double v0  = MV0+PV0;
-    double v1  = MV1+PV1;
-    double v2  = MV2+PV2;
-    double r0  = M[0]-P0;
-    double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d;
-    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
-    if(x > Xc) continue;
-
-    r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
-    x  -= (r1*r1)/MV2                                       ;
-    r1 -= m_halflenght                                      ;
-    
-    if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm+6.;
-    }
-    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xl);}
-  return nl;
-}
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster without stereo angle for pixels
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0; if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-    
-    const InDet::SiCluster*  c  = (*p); 
-    const Amg::Vector2D&     M = c->localPosition();
-
-    double MV0 = c->width().phiR();
-    double MV2 = c->width().z   ();
-
-    double r0  = M[0]-P0, r02 = r0*r0; 
-    double r1  = M[1]-P1, r12 = r1*r1;
-
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
-    double v1  =                  PV1;
-    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
-    double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
-
-    if(x>Xc) continue;
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm;
-    }
-    else if(!nl) {Xc = x; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
-} 
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster without stereo angle for SCT 
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0; if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-    
-    const InDet::SiCluster*      c = (*p); 
-    const Amg::Vector2D&         M = c->localPosition();
-
-    double MV0 = c->width().phiR()   ;
-    double v0  = .08333*(MV0*MV0)+PV0;   
-    double r0  = M[0]-P0;
-    double d   = 1./v0;
-    double x   = (r0*r0)*d;
-    
-    if(x>Xc) continue;
-    
-    double dP1 = (P1-M[1])+PV1*d*r0;
-
-    if(fabs(dP1) > m_halflenght) {
-
-      double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
-      
-      double v1 = PV1;
-      double v2 = PV2;  
-      d = v0*v2-v1*v1  ; if(d<=0.) continue; 
-      x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
-      if(x>Xc) continue;
-    }
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm;
-    }
-    else if(!nl) {Xc = x; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
-}
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster with stereo angle
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0;  if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xl  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-
-    const InDet::SiCluster*      c = (*p); 
-    if(m_assoTool->isUsed(*c)) continue;
-    const Amg::Vector2D&         M = c->localPosition();
-    const Amg::MatrixX&          V = c->localCovariance();
-
-    double MV0 = V(0,0);
-    double MV1 = V(1,0);
-    double MV2 = V(1,1);
-    double v0  = MV0+PV0;
-    double v1  = MV1+PV1;
-    double v2  = MV2+PV2;
-    double r0  = M[0]-P0;
-    double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d;
-    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
-    if(x > Xc) continue;
-
-    r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
-    x  -= (r1*r1)/MV2                                       ;
-    r1 -= m_halflenght                                      ;
-    
-    if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm+6.;
-    }
-    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xl);}
-  return nl;
-}
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster without stereo angle for pixels
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0; if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-    
-    const InDet::SiCluster*  c  = (*p);  
-    if(m_assoTool->isUsed(*c)) continue;
-    const Amg::Vector2D&     M = c->localPosition();
-
-    double MV0 = c->width().phiR();
-    double MV2 = c->width().z   ();
-
-    double r0  = M[0]-P0, r02 = r0*r0; 
-    double r1  = M[1]-P1, r12 = r1*r1;
-
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
-    double v1  =                  PV1;
-    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
-    double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
-
-    if(x>Xc) continue;
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm;
-    }
-    else if(!nl) {Xc = x; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
-} 
-
-///////////////////////////////////////////////////////////////////
-// Search closest cluster without stereo angle for SCT 
-///////////////////////////////////////////////////////////////////
-
-int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
-{
-  int nl     = 0; if(m_detstatus<=0) return 0;
-
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xm  = m_xi2max    ;
-
-  const InDet::SiCluster* cl = 0;
-
-  InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
-  for(; p!=m_siend; ++p) {
-    
-    const InDet::SiCluster*      c = (*p); 
-    if(m_assoTool->isUsed(*c)) continue;
-    const Amg::Vector2D&         M = c->localPosition();
-
-    double MV0 = c->width().phiR()   ;
-    double v0  = .08333*(MV0*MV0)+PV0;   
-    double r0  = M[0]-P0;
-    double d   = 1./v0;
-    double x   = (r0*r0)*d;
-    
-    if(x>Xc) continue;
-    
-    double dP1 = (P1-M[1])+PV1*d*r0;
-
-    if(fabs(dP1) > m_halflenght) {
-
-      double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
-      
-      double v1 = PV1;
-      double v2 = PV2;  
-      d = v0*v2-v1*v1  ; if(d<=0.) continue; 
-      x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
-      if(x>Xc) continue;
-    }
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm;
-    }
-    else if(!nl) {Xc = x; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
-}
 
 ///////////////////////////////////////////////////////////////////
 // TrackStateOnSurface production 
@@ -1855,4 +1360,359 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
     dR[0]+=(dA[0]*S); dR[1]+=(dA[1]*S); dR[2]+=(dA[2]*S);
   }
   return true;
+}
+
+InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
+{
+  m_detstatus  =-1  ;
+  m_status     = 0  ;
+  m_nlinksF    = 0  ;
+  m_nlinksB    = 0  ;
+  m_ndist      = 0  ;
+  m_radlength  = .03;
+  m_radlengthN = .03;
+  m_energylose = .4 ;
+  m_tools      = 0  ;
+  m_noisemodel = 0  ; 
+  m_covariance.resize(2,2);
+  m_covariance<<0.,0.,0.,0.;
+  m_ndf         = 0 ;
+  m_ndfF        = 0 ;
+  m_ndfB        = 0 ;
+  m_ntsos       = 0 ;
+  m_maxholes    = 0 ;
+  m_maxdholes   = 0 ;
+  m_xi2F        = 0.;
+  m_xi2B        = 0.;
+  m_xi2totalF   = 0.;
+  m_xi2totalB   = 0.;
+  m_halflenght  = 0.;
+  m_step        = 0.;
+  m_xi2max      = 0.;
+  m_dist        = 0.;
+  m_xi2maxNoAdd = 0.;
+  m_xi2maxlink  = 0.;  
+  m_xi2multi    = 0.;
+  m_detelement  = 0 ; 
+  m_detlink     = 0 ;
+  m_surface     = 0 ;
+  m_cluster     = 0 ;
+  m_clusterOld  = 0 ;
+  m_clusterNoAdd= 0 ;
+  m_fieldService= 0 ;
+  m_updatorTool = 0 ;
+  m_proptool    = 0 ;
+  m_assoTool    = 0 ;
+  m_riotool     = 0 ;
+  m_inside      = 0 ;
+  m_nholesF     = 0 ;
+  m_nholesB     = 0 ;
+  m_dholesF     = 0 ;
+  m_dholesB     = 0 ;
+  m_nclustersF  = 0 ;
+  m_nclustersB  = 0 ;
+  m_npixelsB    = 0 ;
+  m_stereo      = false;
+  m_fieldMode   = false;
+  m_useassoTool = false;
+
+  m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
+}
+
+InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk(const SiTrajectoryElement_xk& E)
+{
+  *this          = E;
+}
+  
+InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator = 
+(const InDet::SiTrajectoryElement_xk& E) 
+{
+  if(&E==this) return(*this);
+
+  m_fieldMode    = E.m_fieldMode   ;
+  m_status       = E.m_status      ;
+  m_detstatus    = E.m_detstatus   ;
+  m_inside       = E.m_inside      ;
+  m_ndist        = E.m_ndist       ;
+  m_stereo       = E.m_stereo      ;
+  m_detelement   = E.m_detelement  ;
+  m_detlink      = E.m_detlink     ;
+  m_surface      = E.m_surface     ;
+  m_sibegin      = E.m_sibegin     ;
+  m_siend        = E.m_siend       ; 
+  m_cluster      = E.m_cluster     ;
+  m_clusterOld   = E.m_clusterOld  ;
+  m_clusterNoAdd = E.m_clusterNoAdd;
+  m_parametersPF = E.m_parametersPF;
+  m_parametersUF = E.m_parametersUF;
+  m_parametersPB = E.m_parametersPB;
+  m_parametersUB = E.m_parametersUB;
+  m_parametersSM = E.m_parametersSM;
+  m_dist         = E.m_dist        ;
+  m_xi2F         = E.m_xi2F        ;
+  m_xi2B         = E.m_xi2B        ;
+  m_xi2totalF    = E.m_xi2totalF   ;
+  m_xi2totalB    = E.m_xi2totalB   ;
+  m_radlength    = E.m_radlength   ;
+  m_radlengthN   = E.m_radlengthN  ;
+  m_energylose   = E.m_energylose  ;
+  m_halflenght   = E.m_halflenght  ;
+  m_step         = E.m_step        ;
+  m_nlinksF      = E.m_nlinksF     ;
+  m_nlinksB      = E.m_nlinksB     ;
+  m_nholesF      = E.m_nholesF     ;
+  m_nholesB      = E.m_nholesB     ;
+  m_dholesF      = E.m_dholesF     ;
+  m_dholesB      = E.m_dholesB     ;
+  m_noisemodel   = E.m_noisemodel  ;
+  m_ndf          = E.m_ndf         ;
+  m_ndfF         = E.m_ndfF        ;
+  m_ndfB         = E.m_ndfB        ;
+  m_ntsos        = E.m_ntsos       ;
+  m_nclustersF   = E.m_nclustersF  ; 
+  m_nclustersB   = E.m_nclustersB  ;
+  m_npixelsB     = E.m_npixelsB    ;
+  m_noise        = E.m_noise       ;
+  m_tools        = E.m_tools       ;
+  m_covariance   = E.m_covariance  ;
+  for(int i=0; i!=m_nlinksF; ++i) {m_linkF[i]=E.m_linkF[i];}
+  for(int i=0; i!=m_nlinksB; ++i) {m_linkB[i]=E.m_linkB[i];}
+  for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
+  for(int i=0; i!=m_ntsos  ; ++i) {m_utsos[i]=E.m_utsos [i];}
+  return(*this);
+}
+
+int InDet::SiTrajectoryElement_xk::numberClusters() const
+{
+  int n = 0;
+  if (m_detstatus<=0) return n;
+
+  if (m_itType==PixelClusterColl) {
+    const InDet::PixelClusterCollection::const_iterator* sibegin
+      = std::any_cast<const InDet::PixelClusterCollection::const_iterator>(&m_sibegin);
+    const InDet::PixelClusterCollection::const_iterator* siend
+      = std::any_cast<const InDet::PixelClusterCollection::const_iterator>(&m_siend);
+    if (sibegin==nullptr or siend==nullptr) return 0;
+    for (InDet::PixelClusterCollection::const_iterator p = *sibegin; p!=*siend; ++p) {
+      ++n;
+    }
+  } else if (m_itType==SCT_ClusterColl) {
+    const InDet::SCT_ClusterCollection::const_iterator* sibegin
+      = std::any_cast<const InDet::SCT_ClusterCollection::const_iterator>(&m_sibegin);
+    const InDet::SCT_ClusterCollection::const_iterator* siend
+      = std::any_cast<const InDet::SCT_ClusterCollection::const_iterator>(&m_siend);
+    if (sibegin==nullptr or siend==nullptr) return 0;
+    for (InDet::SCT_ClusterCollection::const_iterator p = *sibegin; p!=*siend; ++p) {
+      ++n;
+    }
+  } else {
+    const InDet::SiClusterCollection::const_iterator* sibegin
+      = std::any_cast<const InDet::SiClusterCollection::const_iterator>(&m_sibegin);
+    const InDet::SiClusterCollection::const_iterator* siend
+      = std::any_cast<const InDet::SiClusterCollection::const_iterator>(&m_siend);
+    if (sibegin==nullptr or siend==nullptr) return 0;
+    for (InDet::SiClusterCollection::const_iterator p = *sibegin; p!=*siend; ++p) {
+      ++n;
+    }
+  }
+  return n;
+}
+  
+bool InDet::SiTrajectoryElement_xk::difference() const
+{
+  if( m_cluster == m_clusterOld && m_status == 3)  return false;
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Test for next compatible cluster
+/////////////////////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::isNextClusterHoleB(bool& cl,double& X)
+{
+  cl = false             ;
+  X  = m_xi2totalB-m_xi2B;
+
+  if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_xi2max) {
+    X+=m_linkB[1].xi2();
+    cl = true; return true;
+  }
+
+  if(m_inside < 0) {
+    if(m_nholesB < m_maxholes && m_dholesB < m_maxdholes) return true;
+    return false;
+  }
+  return true;
+}
+
+bool InDet::SiTrajectoryElement_xk::isNextClusterHoleF(bool& cl,double& X)
+{
+  cl = false             ;
+  X  = m_xi2totalF-m_xi2F;
+
+  if(m_detstatus == 2) return false;
+  if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_xi2max) {
+    X+=m_linkF[1].xi2();
+    cl = true; return true;
+  }
+
+  if(m_inside < 0) {
+    if(m_nholesF < m_maxholes && m_dholesF < m_maxdholes) return true;
+    return false;
+  }
+  return true;
+}
+
+void InDet::SiTrajectoryElement_xk::setCluster(const InDet::SiCluster* Cl)
+{
+  m_cluster = Cl;
+}
+  
+
+void InDet::SiTrajectoryElement_xk::setParametersB(Trk::PatternTrackParameters& P)
+{
+  m_parametersUB = P;
+} 
+
+void InDet::SiTrajectoryElement_xk::setParametersF(Trk::PatternTrackParameters& P)
+{
+  m_parametersUF = P;
+}
+
+void InDet::SiTrajectoryElement_xk::setNdist(int n)
+{
+  m_ndist = n;
+}
+ 
+/////////////////////////////////////////////////////////////////////////////////
+// Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+/////////////////////////////////////////////////////////////////////////////////
+  
+bool InDet::SiTrajectoryElement_xk::addCluster
+(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& Xi2)
+{
+  int N; 
+  if(!m_stereo) {
+
+    patternCovariances
+      (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
+
+    if(m_detelement->isSCT()) {
+      return m_updatorTool->addToStateOneDimension
+        (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+    } 
+    return m_updatorTool->addToState
+      (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+  }
+  return m_updatorTool->addToStateOneDimension
+    (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Add pixel or SCT cluster to pattern track parameters without Xi2 calculation
+/////////////////////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::addCluster
+(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
+{
+  if(!m_stereo) {
+
+    patternCovariances
+      (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
+    if(m_detelement->isSCT()) {
+      return m_updatorTool->addToStateOneDimension
+        (Ta,m_cluster->localPosition(),m_covariance,Tb);
+    }
+    return m_updatorTool->addToState
+      (Ta,m_cluster->localPosition(),m_covariance,Tb);
+  }
+  return m_updatorTool->addToStateOneDimension
+    (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+}
+  
+/////////////////////////////////////////////////////////////////////////////////
+// Add two pattern track parameters without Xi2 calculation
+/////////////////////////////////////////////////////////////////////////////////
+ 
+bool InDet::SiTrajectoryElement_xk::combineStates 
+(Trk::PatternTrackParameters& Ta,
+ Trk::PatternTrackParameters& Tb,
+ Trk::PatternTrackParameters& Tc)
+{
+  return m_updatorTool->combineStates(Ta,Tb,Tc);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Propagate pattern track parameters to surface
+/////////////////////////////////////////////////////////////////////////////////
+
+void InDet::SiTrajectoryElement_xk::noiseInitiate()
+{
+  m_noisemodel = 1; m_noise.initiate();
+}
+
+///////////////////////////////////////////////////////////////////
+// Initiate state
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::initiateState
+(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
+{
+  return Tb.initiate(Ta,m_cluster->localPosition(),m_cluster->localCovariance());
+}
+
+///////////////////////////////////////////////////////////////////
+// Pattern covariances
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiTrajectoryElement_xk::patternCovariances
+(const InDet::SiCluster* c,double& covX,double& covXY,double& covY)
+{
+  const Amg::MatrixX& v = c->localCovariance();
+  covX  = c->width().phiR(); covX*=(covX*.08333); if(covX < v(0,0)) covX=v(0,0);
+  covXY = 0.;
+  if(m_ndf==1) {covY=v(1,1);}
+  else         {
+    covY=c->width().z(); covY*=(covY*.08333); if(covY < v(1,1)) covY=v(1,1);
+  }
+}
+
+///////////////////////////////////////////////////////////////////
+// Last detector elements with clusters
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiTrajectoryElement_xk::lastActive()
+{
+  m_detstatus = 2;
+}
+
+Trk::TrackStateOnSurface* InDet::SiTrajectoryElement_xk::tsos (int i) 
+{
+  if(i<0 || i>2) return 0;
+
+  bool us = m_utsos[i]; 
+  m_utsos[i] = true;
+
+  if(us) return new Trk::TrackStateOnSurface(*m_tsos[i]);
+
+  return m_tsos[i];  
+}
+
+///////////////////////////////////////////////////////////////////
+// Set electrom noise model
+///////////////////////////////////////////////////////////////////
+  
+void InDet::SiTrajectoryElement_xk::bremNoiseModel()
+{
+  m_noisemodel = 2;
+}
+
+///////////////////////////////////////////////////////////////////
+// Search clusters compatible with track
+///////////////////////////////////////////////////////////////////
+
+int InDet::SiTrajectoryElement_xk::searchClusters(Trk::PatternTrackParameters& Tp, SiClusterLink_xk* L) {
+  if (m_itType==PixelClusterColl) return searchClustersSub<InDet::PixelClusterCollection::const_iterator>(Tp, L);
+  if (m_itType==SCT_ClusterColl) return searchClustersSub<InDet::SCT_ClusterCollection::const_iterator>(Tp, L);
+  return searchClustersSub<InDet::SiClusterCollection::const_iterator>(Tp, L);
 }

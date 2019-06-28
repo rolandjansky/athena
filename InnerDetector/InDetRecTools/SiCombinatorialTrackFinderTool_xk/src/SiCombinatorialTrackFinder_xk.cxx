@@ -555,15 +555,15 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL;
   detectorElementLinks(DE, DEL);
 
-  const InDet::SiClusterContainer* p_pixcontainer = nullptr;
+  const InDet::PixelClusterContainer* p_pixcontainer = nullptr;
   if (m_usePIX) {
     SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey);
-    p_pixcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(pixcontainer.ptr());
+    p_pixcontainer = pixcontainer.ptr();
   }
-  const InDet::SiClusterContainer* p_sctcontainer = nullptr;
+  const InDet::SCT_ClusterContainer* p_sctcontainer = nullptr;
   if (m_useSCT) {
     SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey);
-    p_sctcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(sctcontainer.ptr());
+    p_sctcontainer = sctcontainer.ptr();
   }
 
   // List cluster preparation
