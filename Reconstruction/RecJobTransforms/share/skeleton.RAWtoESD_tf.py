@@ -68,7 +68,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
     from RecExConfig.ObjKeyStore import objKeyStore
     if TriggerFlags.doMT():
-        # Note this mirrors skeleton.RDOtoRDOTrigger. It should migrate to a getTriggerEDMList style function
+        # Note this mirrors skeleton.RDOtoRDOTrigger_tf and skeleton.ESDtoAOD_tf. It should migrate to a getTriggerEDMList style function
         from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
         for item in TriggerHLTList:
             if "ESD" in item[1]:
@@ -84,7 +84,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
             if item.startswith("xAOD::TrigComposite"):
                 objKeyStore.addManyTypesStreamESD( [item] )
                 objKeyStore.addManyTypesStreamAOD( [item] )
-    else:
+    else: # not TriggerFlags.doMT()
         _TriggerESDList = {}
         _TriggerAODList = {}
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList
