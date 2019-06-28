@@ -838,13 +838,6 @@ StatusCode IDPerfMonZmumu::execute()
 	const xAOD::TrackParticle* muon1_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(1));
 	const xAOD::TrackParticle* muon2_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(2));
 
-	if (m_doDebug || true) {
-	  std::cout << " * IDPerfMonZmumu::execute * going to fill FourMu ntuple with following muons: " << std::endl;
-	  std::cout << "       muon1_neg    Pt= " << muon1_neg->pt() << "  q= " << muon1_neg->charge() << "  in vtx: " << m_4mu.GetVertexMuNeg1() << std::endl;
-	  std::cout << "       muon2_neg    Pt= " << muon2_neg->pt() << "  q= " << muon2_neg->charge() << "  in vtx: " << m_4mu.GetVertexMuNeg2() << std::endl;
-	  std::cout << "       muon1_pos    Pt= " << muon1_pos->pt() << "  q= " << muon1_pos->charge() << "  in vtx: " << m_4mu.GetVertexMuPos1() << std::endl;
-	  std::cout << "       muon2_pos    Pt= " << muon2_pos->pt() << "  q= " << muon2_pos->charge() << "  in vtx: " << m_4mu.GetVertexMuPos1() << std::endl;
-	}
 	m_positive_px = muon1_pos->p4().Px();
 	m_positive_py = muon1_pos->p4().Py();
 	m_positive_pz = muon1_pos->p4().Pz();
@@ -873,13 +866,6 @@ StatusCode IDPerfMonZmumu::execute()
 	m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
 	m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
 	
-	if (m_doDebug) {
-	  std::cout << " --fourmu-- muonpos_1 d0= " << m_positive_d0   << "   z0= " << m_positive_z0   << std::endl;
-	  std::cout << "            muonpos_2 d0= " << m_positive_2_d0 << "   z0= " << m_positive_2_z0 << std::endl;
-	  std::cout << "            muonneg_1 d0= " << m_negative_d0   << "   z0= " << m_negative_z0   << std::endl;
-	  std::cout << "            muonneg_2 d0= " << m_negative_2_d0 << "   z0= " << m_negative_2_z0 << std::endl;
-	}
-	//
 
 	m_nVertex =        m_4mu.GetNVertex ();
 	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
@@ -893,17 +879,10 @@ StatusCode IDPerfMonZmumu::execute()
 	  m_pv_x = muon1_pos->vertex()->x();
 	  m_pv_y = muon1_pos->vertex()->y();
 	  m_pv_z = muon1_pos->vertex()->z();
-	  if (m_doDebug) {
-	    std::cout << " --fourmu-- going to fill FourMu ntuple with PV as follows -- " << std::endl 
-		      << "                                            muon1_pos (x, y, z)= (" << m_pv_x
-		      << ", " << m_pv_y
-		      << ", " << m_pv_z
-		      << ") " << std::endl;
-	  }
 	}
 	
 	m_4mu_minv = m_4mu.GetInvMass();
-	if (m_doDebug) std::cout << " -- IDPerfMonZmumu::execute -- m_4mu.GetInvMass= " << m_4mu_minv << std::endl;
+	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- m_4mu.GetInvMass= " << m_4mu_minv);
 	
 	// MET test
 	// declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
@@ -932,13 +911,8 @@ StatusCode IDPerfMonZmumu::execute()
 	  m_metphi = -1;
 	}
 	msg(MSG::INFO) << " Zmumu event with MET = " << met->met() << endreq;   
-	if (m_doDebug) {
-	  std::cout << " -- fourmu -- zmumu -- met = " << met->met() << std::endl;   
-	  std::cout << "                    -- phi = " << met->phi() << std::endl;   
-	}
-	
+	// 
 	m_FourMuTree->Fill();
-	ATH_MSG_WARNING("Accepted 4-muon event. Ntuple filled :)");
       }
     } // succesful 4mu reco
     else {
@@ -1151,7 +1125,7 @@ StatusCode IDPerfMonZmumu::execute()
     ATH_MSG_DEBUG(" Execute() completed for Run: " << m_runNumber << "  event: " << m_evtNumber);
   }
 
-  if (m_doDebug) std::cout<< " --IDPerfMonZmumu::execute--  event completed -- Run: " << m_runNumber << "  event: " << m_evtNumber << std::endl;
+  ATH_MSG_DEBUG(" --IDPerfMonZmumu::execute--  event completed -- Run: " << m_runNumber << "  event: " << m_evtNumber);
   return StatusCode::SUCCESS;
 }
 

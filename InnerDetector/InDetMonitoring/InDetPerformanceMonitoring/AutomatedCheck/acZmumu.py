@@ -367,7 +367,8 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
-            #print (" <acZmumu> testArea: %s" %(m_testArea))
+            
+            print (" <acZmumu> submiting job number %d" %(len(listOfSubmittedRuns)))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> job to be submmited");
                 # move to the submission folder
@@ -508,7 +509,6 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
             theOptions = "--useShortLivedReplicas  --forceStaged"
 
     theExtraOptions = "" 
-    print " cmtconfig len= ", len(m_workDirPlatform) 
     if (len(m_workDirPlatform)>0): 
         theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
     else:

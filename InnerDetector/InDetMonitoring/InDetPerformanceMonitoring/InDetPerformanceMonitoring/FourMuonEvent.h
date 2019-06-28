@@ -58,60 +58,43 @@ class FourMuonEvent : public EventAnalysis
   virtual bool Reco();
 
   // Public access methods
-  unsigned int  getNumberOfTaggedMuons()         {  return m_numberOfFullPassMuons; }
-  const std::string   getRegion() const ;
-  void setDebugMode(bool debug) { m_doDebug=debug;}
+  inline void                        doIsoSelection(bool doIso) { m_xMuonID.doIsoSelection(doIso); }
+  inline void                        doIPSelection(bool doIPsel) { m_xMuonID.doIPSelection(doIPsel);}
+  inline void                        doMCPSelection(bool doMCP) { m_xMuonID.doMCPSelection(doMCP);}
+  inline bool                        EventPassed () { return m_passedSelectionCuts; }
+  inline const float&                get4MuInvMass (ZTYPE eType)          { return m_fInvariantMass[eType];  } 
+  inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
+  inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
+  inline double                      GetInvMass() { return m_FourMuonInvMass; }
+  inline const xAOD::TrackParticle*  getMSTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
+  inline const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart );
+  inline const float&                getLeptonOpeningAngle( ZTYPE eType ) { return m_fMuonDispersion[eType]; }
+  unsigned int                       getNegMuon( int eType );
+  inline unsigned int                getNumberOfTaggedMuons() { return m_numberOfFullPassMuons; }
+  inline int                         GetNVertex () { return m_nVertex; }
+  float                              getPtImbalance( ZTYPE eType );
+  const std::string                  getRegion() const ;
+  unsigned int                       getPosMuon( int eType );
+  inline int                         GetVertexMuNeg1 () { return m_muonneg1_vtx; }
+  inline int                         GetVertexMuNeg2 () { return m_muonneg2_vtx; }
+  inline int                         GetVertexMuPos1 () { return m_muonpos1_vtx; }
+  inline int                         GetVertexMuPos2 () { return m_muonpos2_vtx; }
+  int                                getZCharge( ZTYPE eType );
+  inline const float&                getZEta   ( ZTYPE eType ) { return m_fZEtaDir[eType];      }
+  inline const float&                getZMass  ( ZTYPE eType ) { return m_fInvariantMass[eType];}
+  inline const float&                getZPhi   ( ZTYPE eType ) { return m_fZPhiDir[eType];      }
+  inline const float&                getZPt    ( ZTYPE eType ) { return m_fZPt[eType];          }
+  void                               OrderMuonList ();
+  void                               setContainer (PerfMonServices::CONTAINERS container) { m_container = container; };
+  inline void                        setDebugMode (bool debug) { m_doDebug=debug; }
+  void                               SetLeadingMuonPtCut (double newvalue); 
+  inline void                        SetMassWindowLow (double newvalue) {m_MassWindowLow = newvalue;}
+  inline void                        SetMassWindowHigh (double newvalue) {m_MassWindowHigh = newvalue;}
+  inline void                        SetMuonPtCut (double newvalue) { m_xMuonID.SetPtCut(newvalue);}
+  void                               SetSecondMuonPtCut (double newvalue); 
+  inline void                        SetOpeningAngleCut (double newvalue) {m_OpeningAngleCut = newvalue;}
+  inline void                        SetZ0GapCut (double newvalue) {m_Z0GapCut = newvalue;}
 
-  const xAOD::Muon*           getCombMuon(  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getMSTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getIDTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart );
-
-  float getPtImbalance( ZTYPE eType );
-
-  const float& getZPt(   ZTYPE eType )                  {  return m_fZPt[eType];            }
-  const float& getZEta(  ZTYPE eType )                  {  return m_fZEtaDir[eType];        }
-  const float& getZPhi(  ZTYPE eType )                  {  return m_fZPhiDir[eType];        }
-  const float& getLeptonOpeningAngle( ZTYPE eType )     {  return m_fMuonDispersion[eType]; }
-  const float& getZMass( ZTYPE eType )                  {  return m_fInvariantMass[eType];  }
-  const float& get4MuInvMass (ZTYPE eType)              {  return m_fInvariantMass[eType];  } 
-
-  int  getZCharge( ZTYPE eType );
-  bool EventPassed() {    return m_passedSelectionCuts;   }
-
-  unsigned int getPosMuon( int eType );
-  unsigned int getNegMuon( int eType );
-
-  void doIsoSelection(bool doIso) {
-    m_xMuonID.doIsoSelection(doIso);
-  }
-
-  void doIPSelection(bool doIPsel) {
-    m_xMuonID.doIPSelection(doIPsel);
-  }
-
-  void doMCPSelection(bool doMCP) {
-    m_xMuonID.doMCPSelection(doMCP);
-  }
-
-  void        OrderMuonList ();
-  inline void SetMuonPtCut (double newvalue) { m_xMuonID.SetPtCut(newvalue);}
-
-  inline void SetMassWindowLow (double newvalue) {m_MassWindowLow = newvalue;}
-  inline void SetMassWindowHigh (double newvalue) {m_MassWindowHigh = newvalue;}
-  void SetLeadingMuonPtCut (double newvalue); 
-  void SetSecondMuonPtCut (double newvalue); 
-  inline void SetOpeningAngleCut (double newvalue) {m_OpeningAngleCut = newvalue;}
-  inline void SetZ0GapCut (double newvalue) {m_Z0GapCut = newvalue;}
-
-  void setContainer( PerfMonServices::CONTAINERS container) { m_container = container; };
-  inline double GetInvMass() {return m_FourMuonInvMass;}
-
-  inline int GetNVertex () {return m_nVertex;}
-  inline int GetVertexMuNeg1 () {return m_muonneg1_vtx;}
-  inline int GetVertexMuNeg2 () {return m_muonneg2_vtx;}
-  inline int GetVertexMuPos1 () {return m_muonpos1_vtx;}
-  inline int GetVertexMuPos2 () {return m_muonpos2_vtx;}
 
  protected:
   virtual void BookHistograms();
