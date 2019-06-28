@@ -5,7 +5,7 @@
 #ifndef VXVERTEX_VERTEX_H
 #define VXVERTEX_VERTEX_H
 #include "GeoPrimitives/GeoPrimitives.h"
-
+#include <atomic>
 /**
  * @class Trk::Vertex 
  * 
@@ -54,7 +54,7 @@ namespace Trk
     Amg::Vector3D m_position; //!< vertex position
 
     /** number of objects of this type in memory */
-    static unsigned int s_numberOfInstantiations;
+    static std::atomic<unsigned int> s_numberOfInstantiations;
   };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug 
