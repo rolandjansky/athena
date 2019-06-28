@@ -132,7 +132,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     # Schedule towermaker
     from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createJGTowerReader, createJGTowerMaker
     l1simAlgSeq += createJGTowerMaker( useSCQuality = simflags.Calo.ApplySCQual(),
-                                       useAllCalo = False,
+                                       useAllCalo = simflags.Calo.UseAllCalo(),
                                        SuperCellType = SCIn,
                                        SuperCellQuality = simflags.Calo.QualBitMask() )
 
