@@ -13,9 +13,11 @@
 #include <ostream>
 
 // static gravity direction
+alignas(16)
 const Amg::Vector3D Trk::LineSaggingDescriptor::s_gravityDirection = -1 * Amg::Vector3D::UnitY();
 
 // a reference direction
+alignas(16)
 const Amg::Vector3D Trk::LineSaggingDescriptor::s_referenceDirection(1./sqrt(3.),1./sqrt(3.),1./sqrt(3.));
 
 // and a electro static scale factor
