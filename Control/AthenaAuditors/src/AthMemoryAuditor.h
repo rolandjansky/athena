@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthMemoryAuditor.h 
@@ -10,6 +10,12 @@
 /////////////////////////////////////////////////////////////////// 
 #ifndef ATHENASERVICES_ATHMEMORYAUDITOR_H 
 #define ATHENASERVICES_ATHMEMORYAUDITOR_H 1
+
+// This auditor is not thread-safe without signiicant work.
+// Disable checking for now.
+// We'll also report an ERROR is this is used in an MT job.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // STL includes
 #include <string>
