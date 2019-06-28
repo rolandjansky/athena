@@ -11,12 +11,6 @@
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-
-
 // Muon software includes
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
@@ -27,6 +21,8 @@
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
+#include "MuonRegionSelector/sTGC_RegionSelectorTable.h"
+
 // random numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -34,7 +30,6 @@
 
 // local includes
 #include "TTree.h"
-#include "TVector3.h"
 
 #include <functional>
 #include <algorithm>
@@ -56,10 +51,9 @@ namespace NSWL1 {
       m_ridxScheme(0),
       m_dtheta_min(0),
       m_dtheta_max(0),
-      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable")//name can be made configurable through JO just in case storegate config. changes in the future      
+      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable")
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
-
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
       declareProperty("rIndexBits", m_rIndexBits = 8,   "number bits in R-index calculation");
@@ -67,15 +61,12 @@ namespace NSWL1 {
       declareProperty("dthetaMin", m_dtheta_min = -15,  "minimum allowed value for dtheta in mrad");
       declareProperty("dthetaMax", m_dtheta_max = 15,   "maximum allowed value for dtheta in mrad");
       declareProperty("rIndexScheme", m_ridxScheme = 1, "rIndex slicing scheme/ 0-->R / 1-->eta");
-      declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
 
     }
 
     StripSegmentTool::~StripSegmentTool() {
 
     }
-
-//  
   
   StatusCode StripSegmentTool::initialize() {
       ATH_MSG_INFO("initializing " << name() );
@@ -83,51 +74,18 @@ namespace NSWL1 {
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
       std::string algo_name = pnamed->name();
-
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
-        StatusCode sc = service("THistSvc", tHistSvc);
-        if(sc.isFailure()) {
-          ATH_MSG_FATAL("Unable to retrieve THistSvc");
-          return sc;
-        }
-
+        ATH_CHECK(service("THistSvc", tHistSvc));
         char ntuple_name[40]={'\0'};
-        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
-
         m_tree = 0;
-        sc = tHistSvc->getTree(ntuple_name,m_tree);
-
-        if (sc.isFailure()) {
-          ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
-          return sc;
-        } 
-        else {
-          ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
-          sc = this->book_branches();
-          if (sc.isFailure()) {
-            ATH_MSG_ERROR("Cannot book the branches for the analysis ntuple");
-          }
-        }
-
+        ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       }
-
-
-      // retrieve the Incident Service
-      if( m_incidentSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Incident Service successfully rertieved");
-      }
+      ATH_CHECK(this->book_branches());
+      ATH_CHECK(m_incidentSvc.retrieve());
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-      
-      ATH_CHECK( m_trigRdoContainer.initialize() );
-      
       ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
-
       ATH_CHECK( FetchDetectorEnvelope());
       return StatusCode::SUCCESS;
     }
@@ -138,45 +96,35 @@ namespace NSWL1 {
       }
     }
     
-    StatusCode StripSegmentTool::FetchDetectorEnvelope(){//S.I : Sufficient to call this only once. probably inside init()
+    StatusCode StripSegmentTool::FetchDetectorEnvelope(){
         const MuonGM::MuonDetectorManager* p_det;
         ATH_CHECK(detStore()->retrieve(p_det));
         const auto  p_IdHelper =p_det->stgcIdHelper();
-        const auto ModuleContext = p_IdHelper->module_context();
-        auto regSelector = m_lutCreatorToolsTGC->getLUT();
-        float rmin=-1.;
-        float rmax=-1.;
-        float zfar=-1.;
-        float znear=-1;
+        const auto regSelector = m_lutCreatorToolsTGC->getLUT();
+        std::vector<const RegSelModule*>  moduleList;
+        for(const auto& i : p_IdHelper->idVector()){// all modules
+            IdentifierHash moduleHashId;            
+            p_IdHelper->get_module_hash( i, moduleHashId);
+            moduleList.push_back(regSelector->Module(moduleHashId));
+        }
         float etamin=-1;
         float etamax=-1;
-        int ctr=0;
-          for(const auto& i : p_IdHelper->idVector()){// all modules
-            IdentifierHash moduleHashId;            
-            p_IdHelper->get_hash( i, moduleHashId, &ModuleContext );
-            auto module=regSelector->Module(moduleHashId);
-            if(module->zMax()<0) continue;
-            if(ctr==0){
-                rmin=module->rMin();
-                rmax=module->rMax();
-                etamin=module->_etaMin();
-                etamax=module->_etaMax();
-                /*
-                 we shouldnt  care whether it's side A/C. However keep in mind that we always return positive nrs here.
-                 So you may have to handle it later depending on what you want to calculate
-                 */                
-                zfar=module->zMax();
-                znear=module->zMin();
-
-            }
-            ctr++;
-            if(etamin>module->_etaMin() ) etamin=module->_etaMin();
-            if(etamax<module->_etaMax() ) etamax=module->_etaMax();
-            if(zfar<module->zMax()) zfar=module->zMax();
-            if(znear>module->zMin()) znear=module->zMin();
-            if(rmin>module->rMin()) rmin=module->rMin();
-            if(rmax<module->rMax()) rmax=module->rMax();
-        }
+        float rmin=-1;
+        float rmax=-1;
+        float zmin=-1;
+        float zmax=-1;
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->_etaMin()) < fabs(M2->_etaMin());} );
+        etamin=moduleList.at(0)->_etaMin();
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->_etaMax()) > fabs(M2->_etaMax());} );
+        etamax=moduleList.at(0)->_etaMax();
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->rMin()) < fabs(M2->rMin());} );
+        rmin=moduleList.at(0)->rMin();
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->rMax()) > fabs(M2->rMax());} );
+        rmax=moduleList.at(0)->rMax();
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->zMin()) < fabs(M2->zMin());} );
+        zmin=moduleList.at(0)->zMin();
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->zMax()) > fabs(M2->zMax());} );
+        zmax=moduleList.at(0)->zMax();
         
         if(rmin<=0 || rmax<=0){
             ATH_MSG_FATAL("Unable to fetch NSW r/z boundaries");
@@ -184,9 +132,8 @@ namespace NSWL1 {
         }
         m_rbounds= std::make_pair(rmin,rmax);
         m_etabounds=std::make_pair(etamin,etamax);
-
-        m_zbounds=std::make_pair(znear,zfar);
-        ATH_MSG_INFO("rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second<<" zfar="<<zfar<<" znear="<<znear);
+        m_zbounds=std::make_pair(zmin,zmax);
+        ATH_MSG_INFO("rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second<<" zmin="<<zmin<<" zmax="<<zmax<<" etamin="<<etamin<<" etamax="<<etamax);
         return StatusCode::SUCCESS;
     }
   
@@ -227,16 +174,13 @@ namespace NSWL1 {
  } 
  
  
-    StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
-      
-      /** S.I If you worry(you should) about events with no clusters why dont we add this at the very beginning ? ***/
+    StatusCode StripSegmentTool::find_segments( std::vector< std::unique_ptr<StripClusterData> >& clusters,
+                                              const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer){
       if (clusters.size()==0){
           ATH_MSG_WARNING("Received event with no clusters. Skipping...");  
           return StatusCode::SUCCESS;
       }
-      /*********************************************************/
-       auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();//to be posted to the SG
-      
+
       std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
        int bcid=-1;
@@ -250,16 +194,17 @@ namespace NSWL1 {
           sector Id ranges from 1 to 8 + combined with the info Small or Large.
           */
           sectorid=cl->sectorId();  
-	      if(cl->isSmall()) sectorid*=2;
+	      
+          if(cl->isSmall()) sectorid*=2;
           else sectorid=sectorid*2-1;
           /*****************************************************************************************************/
           auto item =cluster_map.find(cl->bandId());
-	      if (item != cluster_map.end()){
-	        item->second[cl->wedge()-1].push_back(std::move(cl));
-	      }
-	      else{
-	        cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
-	      }
+	        if (item != cluster_map.end()){
+	          item->second[cl->wedge()-1].push_back(std::move(cl));
+	        }
+	        else{
+	          cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
+	        }
       }
       auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>((uint16_t)(sectorid), (uint16_t)(bcid));
       
@@ -275,34 +220,34 @@ namespace NSWL1 {
              continue;
          }
 
-	     float glx1=0;
-	     float gly1=0;
+	       float glx1=0;
+	       float gly1=0;
          float glx2=0;
          float gly2=0;
          float glx=0;
          float gly=0;
-	     float phi=0;
-	     float eta_inf=0;
+	       float phi=0;
+	       float eta_inf=0;
          float eta=0;
-	     float charge1=0;
+	       float charge1=0;
          float charge2=0;
 
-	     //first measuement
-	     float r1=0;
-	     float z1=0;
-	     for( const auto& cl : band.second[0] ){//inner
-	       r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
-	       z1+=cl->globZ()*cl->charge();
-	       glx1+=cl->globX()*cl->charge();
-	       gly1+=cl->globY()*cl->charge();
-	       charge1+=cl->charge();
-	     }
+	       //first measuement
+	       float r1=0;
+	       float z1=0;
+	       for( const auto& cl : band.second[0] ){//inner
+	         r1+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+	         z1+=cl->globZ()*cl->charge();
+	         glx1+=cl->globX()*cl->charge();
+	         gly1+=cl->globY()*cl->charge();
+	         charge1+=cl->charge();
+	       }
 
-	     //first measurement 
-	     //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
-	     float r2=0;
-	     float z2=0;
-	     for( const auto& cl : band.second[1] ){//outer
+	       //first measurement 
+	       //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
+	       float r2=0;
+	       float z2=0;
+	       for( const auto& cl : band.second[1] ){//outer
              r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
              z2+=cl->globZ()*cl->charge();
              glx2+=cl->globX()*cl->charge();
@@ -394,43 +339,33 @@ namespace NSWL1 {
         uint8_t dtheta_int=findDtheta(dtheta);
         auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);      
         trgRawData->push_back(std::move(rdo_segment));
-        
-        
-        if(m_doNtuple){
-        //Fill ntuple info
-            m_seg_wedge1_size->push_back(band.second[0].size());
-            m_seg_wedge2_size->push_back(band.second[1].size());
-            m_seg_bandId->push_back(bandId);
-            m_seg_phiId->push_back(phiId);
-            m_seg_rIdx->push_back(rIndex);
-            m_seg_theta->push_back(theta);
-            m_seg_dtheta->push_back(dtheta);
-            m_seg_dtheta_int->push_back(dtheta_int);
-            m_seg_eta->push_back(eta);
-            m_seg_eta_inf->push_back(eta_inf);
-            m_seg_phi->push_back(phi);
-            m_seg_global_r->push_back(avg_r); 
-            m_seg_global_x->push_back(glx);
-            m_seg_global_y->push_back(gly); 
-            m_seg_global_z->push_back(avg_z); 
-            m_seg_dir_r->push_back(slope); 
-            m_seg_dir_y->push_back(-99); 
-            m_seg_dir_z->push_back(-99);        
-        }
+
+        m_seg_wedge1_size->push_back(band.second[0].size());
+        m_seg_wedge2_size->push_back(band.second[1].size());
+        m_seg_bandId->push_back(bandId);
+        m_seg_phiId->push_back(phiId);
+        m_seg_rIdx->push_back(rIndex);
+        m_seg_theta->push_back(theta);
+        m_seg_dtheta->push_back(dtheta);
+        m_seg_dtheta_int->push_back(dtheta_int);
+        m_seg_eta->push_back(eta);
+        m_seg_eta_inf->push_back(eta_inf);
+        m_seg_phi->push_back(phi);
+        m_seg_global_r->push_back(avg_r); 
+        m_seg_global_x->push_back(glx);
+        m_seg_global_y->push_back(gly); 
+        m_seg_global_z->push_back(avg_z); 
+        m_seg_dir_r->push_back(slope); 
+        m_seg_dir_y->push_back(-99); 
+        m_seg_dir_z->push_back(-99);
       }//end of clmap loop
-       
     
-      //save rdo to the SG 
       trgContainer->push_back(std::move(trgRawData));
-      auto rdohandle = SG::makeHandle( m_trigRdoContainer );
-      ATH_CHECK( rdohandle.record( std::move(trgContainer)));
 
       return StatusCode::SUCCESS;
     }
 
     StatusCode StripSegmentTool::book_branches() {
-      // m_cl_n= 0;
-      // m_cl_charge = new std::vector< int >();
 
       m_seg_theta = new std::vector< float >();    
       m_seg_dtheta = new std::vector< float >();
@@ -452,22 +387,18 @@ namespace NSWL1 {
       m_seg_wedge2_size = new std::vector< int >();
 
        if (m_tree) {
-	     std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+	       std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
          const char* n = ToolName.c_str();
          m_tree->Branch(TString::Format("%s_seg_theta",n).Data(),&m_seg_theta);
          m_tree->Branch(TString::Format("%s_seg_dtheta",n).Data(),&m_seg_dtheta);
          m_tree->Branch(TString::Format("%s_seg_dtheta_int",n).Data(),&m_seg_dtheta_int);
-
          m_tree->Branch(TString::Format("%s_seg_eta",n).Data(),&m_seg_eta);
          m_tree->Branch(TString::Format("%s_seg_eta_inf",n).Data(),&m_seg_eta_inf);
          m_tree->Branch(TString::Format("%s_seg_phi",n).Data(),&m_seg_phi);
-
          m_tree->Branch(TString::Format("%s_seg_global_r",n).Data(),&m_seg_global_r);
          m_tree->Branch(TString::Format("%s_seg_global_x",n).Data(),&m_seg_global_x);
          m_tree->Branch(TString::Format("%s_seg_global_y",n).Data(),&m_seg_global_y);
          m_tree->Branch(TString::Format("%s_seg_global_z",n).Data(),&m_seg_global_z);
-
-
          m_tree->Branch(TString::Format("%s_seg_dir_r",n).Data(),&m_seg_dir_r);
          m_tree->Branch(TString::Format("%s_seg_dir_y",n).Data(),&m_seg_dir_y);
          m_tree->Branch(TString::Format("%s_seg_dir_z",n).Data(),&m_seg_dir_z);
@@ -477,18 +408,12 @@ namespace NSWL1 {
          m_tree->Branch(TString::Format("%s_seg_wedge1_size",n).Data(),&m_seg_wedge1_size);
          m_tree->Branch(TString::Format("%s_seg_wedge2_size",n).Data(),&m_seg_wedge2_size);
        }
-      // else { 
-      //    return StatusCode::FAILURE;
-      // }
       return StatusCode::SUCCESS;
     }
 
 
 
     void StripSegmentTool::reset_ntuple_variables() {
-      // if ntuple is not booked nothing to do
-      if ( m_tree==0 ) return;
-      //reset the ntuple variables
       clear_ntuple_variables();
     }
 
@@ -511,14 +436,6 @@ namespace NSWL1 {
       m_seg_rIdx->clear();
       m_seg_wedge2_size->clear();
       m_seg_wedge1_size->clear();
-  }
-
-
- 
-
-
-
+    }
 
 }
-
-//  LocalWords:  pos lpos
