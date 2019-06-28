@@ -28,7 +28,7 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
             return None
         return getattr (condSeq, name)
 
-    if suffix == '':
+    if suffix != '':
         pass
     elif isOnline:
         _isOnline = True
