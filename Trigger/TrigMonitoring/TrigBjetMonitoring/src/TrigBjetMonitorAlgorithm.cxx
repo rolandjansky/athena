@@ -4,12 +4,15 @@
 
 #include "TrigBjetMonitorAlgorithm.h"
 
+#include "xAODTracking/TrackParticle.h"
+
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
   ,m_doRandom(true)
   ,m_expert{},m_shifter{}
   ,m_MuonContainerKey("Muons")
   ,m_VertexContainerKey("PrimaryVertices")
+  ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty ("expert", m_expert);
   declareProperty ("shifter", m_shifter);
@@ -78,6 +81,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   auto tool = getGroup("TrigBjetMonitor");
 
+  std::string trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"; // for FTK chains should be revised !
+
   std::string NameF = "E";
   int i = 0;
   for ( auto& trigName : m_expert ) {
@@ -87,12 +92,32 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       std::cout << " i: " << i << " NameH: " << NameH << std::endl;
       auto d0 = Monitored::Scalar<float>(NameH,0.0);
       // here should come the retrival of d0 from the Trigger Track Container
-      fill(tool,d0);
+      // Read the TrigFeature contener
+      Trig::FeatureContainer fc = m_trigDec->features(trigName);
+      const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
+      ATH_MSG_INFO("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigName);
+      std::cout << " Size of bjetCombs : " << bjetCombs.size() << std::endl;
+      // Take all combinations for this b-jet trigger
+      std::vector< Trig::Combination >::const_iterator bjetComb;
+      for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
+	const Trig::Combination& comb = *bjetComb;
+	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
+	ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
+	if ( not onlinetracks.empty() ) { 
+	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
+	  ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
+	  for(const auto* trk : *onlinetrack) {
+	    d0 = trk->d0();
+	    ATH_MSG_INFO("        d0: " << d0);
+	    fill(tool,d0);
+	  }// onlinetrack
+	}// onlinetracks
+      }// bjet combinations
     } else {
       std::cout << " Trigger chain from expert folder: " << trigName << " has not fired " << std::endl;
     }
     i++;
-  } // for
+  } // for expert chains
   NameF = "S";
   i = 0;
   for ( auto& trigName : m_shifter ) {
@@ -107,10 +132,10 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       std::cout << " Trigger chain from shifter folder: " << trigName << " has not fired " << std::endl;
     }
     i++;
-  } // for
+  } // for shifter chains
 
   /* Read muons */
-
+  /*
   auto pT_mu = Monitored::Scalar<float>("pT_mu",0.0);
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
   if (! muons.isValid() ) {
@@ -121,6 +146,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     pT_mu = muonItr->pt();
     std::cout << " pT_mu: " << pT_mu << std::endl;
   }
+  */
 
   /* Read off-line PV's  and fill histograms */
 

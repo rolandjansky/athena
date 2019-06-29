@@ -127,7 +127,7 @@ def TrigBjetMonConfig(inputFlags):
         EHist = 'E' + str(i+1) + 'd0'
         print " ==> EHist: ", EHist
         myGroup.defineHistogram(EHist, title='Distribution of d0;d0;Events',
-                                path=expert[i],xbins=10,xmin=-1.0,xmax=1.0)
+                                path=expert[i],xbins=200,xmin=-2.0,xmax=2.0)
 
     #myGroup.defineHistogram('E1d0;E1d0', title='Distribution of d0;d0;Events',
     #                        path=expert[0],xbins=10,xmin=-1.0,xmax=1.0)

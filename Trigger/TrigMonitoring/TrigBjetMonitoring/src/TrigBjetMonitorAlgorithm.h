@@ -12,6 +12,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
@@ -30,5 +31,6 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   std::vector<std::string> m_shifterI;
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey;
   SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContainerKey;
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 };
 #endif
