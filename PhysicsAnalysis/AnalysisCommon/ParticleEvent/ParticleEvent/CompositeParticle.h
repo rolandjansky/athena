@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticle.h 
@@ -24,7 +24,7 @@
 
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"
