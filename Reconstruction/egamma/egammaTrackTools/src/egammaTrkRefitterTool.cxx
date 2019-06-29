@@ -17,8 +17,7 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/VxTrackAtVertex.h"
+#include "TrkVertexOnTrack/VertexOnTrack.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkSurfaces/PerigeeSurface.h"
@@ -71,13 +70,6 @@ StatusCode egammaTrkRefitterTool::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_ITrackFitter);
   }
 
-  //linearized track factory
-  if (m_linFactory.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_linFactory );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Retrieved VertexLinearizedTrackFactory tool " << m_linFactory );
-  }
 
   // configure Atlas extrapolator
   if (m_extrapolator.retrieve().isFailure()) {
@@ -217,8 +209,10 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
     egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(cache.originalTrack,cache.electron);
   
     if(collect.m_measurements.size()>4)
-      cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(collect.m_measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+      cache.refittedTrack.reset(m_ITrackFitter->fit(collect.m_measurements,
+                                                    *cache.originalTrack->perigeeParameters(),
+                                                    m_runOutlier,
+                                                    m_ParticleHypothesis)
                                 );
     else {
       ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector refitting without BS");
@@ -231,7 +225,9 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
     if(measurements.size()>4){
       ATH_MSG_DEBUG("Could not remove TRT hits !!!");
       cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+                                 m_ITrackFitter->fit(measurements,*cache.originalTrack->perigeeParameters(),
+                                                     m_runOutlier,
+                                                     m_ParticleHypothesis)
                                 );
     } else {
       ATH_MSG_DEBUG("Not enough measurements on track remove TRT hits?");
@@ -278,12 +274,14 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk
   }
   
   const Trk::TrackParameters* lastValidTrkParameters(0);  
-  for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
+  for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); 
+        rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   { 
     if (lastValidTrkParameters!=0){
       break;
     }
-    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
+    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && 
+         (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
     {
       lastValidTrkParameters = (*rItTSoS)->trackParameters()->clone();
     }
@@ -320,7 +318,8 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
 
 
 
-egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg) const {
+egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, 
+                                                                                    const xAOD::Electron* eg) const {
   ATH_MSG_DEBUG("Adding a Point to the Track");  
 
 

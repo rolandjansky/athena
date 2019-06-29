@@ -39,16 +39,12 @@ MODIFIED:
 
 class IBeamCondSvc;
 class AtlasDetectorID ;
-
-#include "VxVertex/RecVertex.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+namespace Trk{
+class VertexOnTrack;
+}
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #include <memory>
-namespace Trk{
-  class VxTrackAtVertex;
-  class VertexOnTrack;
-}
 
 class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthAlgTool 
 {
@@ -69,13 +65,13 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
   typedef IegammaTrkRefitterTool::Cache Cache;
   /** @brief Refit the track associated with an egamma object*/
-  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Cache& cache) const override;
+  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Cache& cache) const override final;
   
   /** @brief Refit a track assoicated to a TrackParticle*/  
-  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& cache) const override;  
+  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& cache) const override final;  
   
   /** @brief Refit a track*/
-  virtual StatusCode  refitTrack(const Trk::Track*, Cache& cache) const override;
+  virtual StatusCode  refitTrack(const Trk::Track*, Cache& cache) const override final;
 
   
  private:
@@ -131,17 +127,14 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
 
   /** @brief The track refitter */
   ToolHandle<Trk::ITrackFitter> m_ITrackFitter {this,  
-      "FitterTool", "TrkKalmanFitter/AtlasKalmanFitter",
+      "FitterTool", "Trk__GaussianSumFitter/GSFTrackFitter",
       "ToolHandle for track fitter implementation"};
 
   /** @brief track extrapolator */
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
       "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
       "Track extrapolator"};
-
-  ToolHandle<Trk::IVertexLinearizedTrackFactory> m_linFactory {this,
-      "LinearizedTrackFactory", "Trk::FullLinearizedTrackFactory"};
-
+  
   ServiceHandle<IBeamCondSvc> m_beamCondSvc;     //!< condition service for beam-spot retrieval
   
   /** @brief Option to use very simplistic beam spot constraint*/ 
