@@ -267,12 +267,39 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     }
 
   // configure default set of variations if not set by the constructor using TauSelectionTool or the user
-  if ((m_sRecommendationTag== "2019-summer" or m_sRecommendationTag== "2018-summer" or m_sRecommendationTag== "mc16-prerec" or m_sRecommendationTag== "2017-moriond" or m_sRecommendationTag == "2016-fall" or m_sRecommendationTag == "2016-ichep" or m_sRecommendationTag == "mc15-moriond") and m_vEfficiencyCorrectionTypes.size() == 0)
+  if (m_sRecommendationTag== "2019-summer" and m_vEfficiencyCorrectionTypes.size() == 0)
+  {
+    m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
+                                    SFJetIDHadTau
+                                   };
+    if (m_iOLRLevel != OLRNONE)
+    {
+      if (!(m_iOLRLevel==TAUELEOLR or m_iOLRLevel==ELEBDTLOOSEPLUSVETO or
+           m_iOLRLevel==ELEBDTMEDIUMPLUSVETO or m_iOLRLevel==ELEBDTLOOSE or
+           m_iOLRLevel==ELEBDTMEDIUM))
+      {
+        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_iOLRLevel <<
+          " are not supported in recommendations tag " << m_sRecommendationTag <<
+          "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
+      }
+      else
+      {
+        m_vEfficiencyCorrectionTypes.push_back(SFEleOLRHadTau);
+        m_vEfficiencyCorrectionTypes.push_back(SFEleOLRElectron);
+      }
+    }
+
+    if (m_bUseTauSubstructure)
+      m_vEfficiencyCorrectionTypes.push_back(SFDecayMode);
+  }
+  else if ((m_sRecommendationTag== "2018-summer" or m_sRecommendationTag== "mc16-prerec" or m_sRecommendationTag== "2017-moriond" or m_sRecommendationTag == "2016-fall" or m_sRecommendationTag == "2016-ichep" or m_sRecommendationTag == "mc15-moriond") and m_vEfficiencyCorrectionTypes.size() == 0)
+  {
     m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
                                     SFJetIDHadTau,
                                     SFEleOLRHadTau,
                                     SFEleOLRElectron
                                    };
+  }
   else if (m_sRecommendationTag == "mc15-pre-recommendations" and m_vEfficiencyCorrectionTypes.size() == 0)
     m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
                                     SFJetIDHadTau,
