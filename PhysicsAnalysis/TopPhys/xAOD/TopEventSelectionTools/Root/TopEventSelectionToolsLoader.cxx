@@ -7,6 +7,7 @@
 
 #include "TopEventSelectionTools/ExamplePlots.h"
 #include "TopEventSelectionTools/JetFlavorPlots.h"
+#include "TopEventSelectionTools/JetFtagEffPlots.h"
 #include "TopEventSelectionTools/FakesMMConfigs.h"
 #include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
 #include "TopEventSelectionTools/GlobalTrigMatchSelector.h"
@@ -154,6 +155,8 @@ namespace top {
       return new top::ExamplePlots(name, outputFile, wk, config);
     else if (toolname == "JETFLAVORPLOTS")
       return new top::JetFlavorPlots(name, outputFile, param, config, wk);
+    else if (toolname == "JETFTAGEFFPLOTS")
+        return new top::JetFtagEffPlots(name,outputFile,param,config, wk);
     else if (toolname == "GRL")
         return new top::GRLSelector();
     else if (toolname == "GTRIGDEC")
