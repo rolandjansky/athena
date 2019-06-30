@@ -2866,6 +2866,9 @@ StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const doub
         }
         const float value = m_accTagScaleFactor(constJet);
         m_accTagScaleFactor(jet) = shift*value;
+	if ( shift*value < 0.0 ){
+	  m_accTagScaleFactor(jet) = 0.0;
+	}
         return StatusCode::SUCCESS;
     }
 

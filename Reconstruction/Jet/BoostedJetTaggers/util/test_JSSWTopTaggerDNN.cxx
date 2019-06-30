@@ -34,6 +34,7 @@
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "JetInterface/IJetSelector.h"
+#include "BoostedJetTaggers/IJetTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
@@ -196,7 +197,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing JSSWTopTaggerDNN Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
+  asg::AnaToolHandle<IJetTagger> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
@@ -268,7 +269,7 @@ int main( int argc, char* argv[] ) {
 	      m_Tagger->tag( *jetSC );
 	      m_jetUncToolSF->applySystematicVariation(sysSet);
 	      m_jetUncToolSF->applyCorrection(*jetSC);
-	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
+	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF");
 	    }
 	  }
 	}
