@@ -27,6 +27,7 @@ const double JetFtagEffPlots::toGeV = 0.001;
 JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
                                TFile* outputFile, const std::string& params, std::shared_ptr<top::TopConfig> config, EL::Worker* wk) :
     m_nominalHashValue(0),
+    m_CDIfile("xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"),
     m_fill_total_hists(false),
     m_apply_jet_isolation(false),
     m_jet_isolation_cut(0.8),
@@ -62,6 +63,8 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
         m_WP = s.substr(3,s.size()-3);
       else if (s.substr(0,7)=="tagger:")
         m_tagger = s.substr(7,s.size()-7);
+      else if (s.substr(0,8)=="CDIfile:")
+        m_CDIfile = s.substr(8,s.size()-8);
       else if (s.substr(0,3)=="pt:" || s.substr(0,3)=="pT:" )
         m_ptBins = s.substr(3,s.size()-3);
       else if (s.substr(0,7)=="abseta:" )
@@ -137,7 +140,7 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
 
 
     m_selection_tool = asg::AnaToolHandle<IBTaggingSelectionTool>("BTaggingSelectionTool/BTagSelec_"+m_tagger+"_"+m_WP+"_"+m_jetCollection);
-    top::check( m_selection_tool.setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" ) , "failed to initialize BtagSelectionTool "+m_tagger+"_"+m_WP+"_"+m_jetCollection );
+    top::check( m_selection_tool.setProperty( "FlvTagCutDefinitionsFileName",m_CDIfile ) , "failed to initialize BtagSelectionTool "+m_tagger+"_"+m_WP+"_"+m_jetCollection );
     top::check( m_selection_tool.setProperty("TaggerName",    m_tagger  ) , "failed to initialize BtagSelectionTool "+m_tagger+"_"+m_WP+"_"+m_jetCollection );
     top::check( m_selection_tool.setProperty("OperatingPoint", m_WP ) , "failed to initialize BtagSelectionTool "+m_tagger+"_"+m_WP+"_"+m_jetCollection );
     top::check( m_selection_tool.setProperty("JetAuthor",      m_jetCollection  ) , "failed to initialize BtagSelectionTool "+m_tagger+"_"+m_WP+"_"+m_jetCollection );

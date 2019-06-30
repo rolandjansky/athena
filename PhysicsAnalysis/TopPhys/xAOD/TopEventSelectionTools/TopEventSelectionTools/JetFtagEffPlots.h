@@ -71,6 +71,8 @@ class JetFtagEffPlots : public EventSelectorBase {
   // Nominal hash value
   std::size_t m_nominalHashValue;
 
+  std::string m_CDIfile;
+  
   bool m_fill_total_hists;
 
   bool m_apply_jet_isolation;
