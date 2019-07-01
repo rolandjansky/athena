@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -36,10 +36,10 @@ class ComponentParameters : public std::pair<const TrackParameters*, double>{
   ComponentParameters & operator=(const ComponentParameters&) = default;
 
   /** Virtual destructor */
-  virtual ~ComponentParameters();
+  ~ComponentParameters();
 
   /** Clone method */
-  virtual const ComponentParameters* clone() const;
+  const ComponentParameters* clone() const;
 
 };
 

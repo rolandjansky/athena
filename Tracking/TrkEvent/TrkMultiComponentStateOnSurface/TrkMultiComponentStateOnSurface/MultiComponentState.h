@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -37,33 +37,33 @@ class MultiComponentState : public std::list<ComponentParameters>{
   MultiComponentState( const ComponentParameters& );
 
   /** Virtual destructor */
-  virtual ~MultiComponentState();
+   ~MultiComponentState();
 
   /** Clone method */
-  virtual MultiComponentState* clone() const;
+  MultiComponentState* clone() const;
 
   /** Clone with rescaled weight scaling factor */
-  virtual MultiComponentState* cloneWithWeightScaling( double ) const;
+  MultiComponentState* cloneWithWeightScaling( double ) const;
 
   /** Clone with covariance matricies scaled by a factor */
-  virtual MultiComponentState* cloneWithScaledError( double ) const;
+  MultiComponentState* cloneWithScaledError( double ) const;
 
   /** Clone with covariance matrix componants scaled by individual factors
       This will only work if there are 5 track parameters in each componant
   */
-  virtual MultiComponentState* cloneWithScaledError( double, double,
-                                                     double, double, 
-                                                     double ) const;
+  MultiComponentState* cloneWithScaledError( double, double,
+                                             double, double, 
+                                             double ) const;
 
   /** Check to see if all components in the state have measured track parameters */
-  virtual bool isMeasured() const;
+  bool isMeasured() const;
 
   /** Clone state performing renormalisation of total state weighting to one */
-  virtual MultiComponentState* clonedRenormalisedState() const;
+  MultiComponentState* clonedRenormalisedState() const;
 
   /** Dump methods */
-  virtual MsgStream&    dump( MsgStream& ) const;
-  virtual std::ostream& dump( std::ostream& ) const;
+  MsgStream&    dump( MsgStream& ) const;
+  std::ostream& dump( std::ostream& ) const;
   
 };
 
