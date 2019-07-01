@@ -1374,7 +1374,7 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
     return false ;
   }
 
-  double * Pv = new double[ ntrk ] ;
+  std::vector<double> Pv (ntrk);
   double vx = 0., vy = 0., vz = 0., eK0 = 0. ;
   double pi2 = 139.57018*139.57018 ;   // Pion in MeV
 
@@ -1407,11 +1407,10 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
   if ( ntrk != 2 )
   {
     ATH_MSG_VERBOSE( " ntrk != 2 , Meaningless to test V0 " );
-    delete Pv ;
     return false ;
   }
 
-  if (  a0z > 15. || Rxy > 500. ) { delete Pv ; return false ; }
+  if (  a0z > 15. || Rxy > 500. ) { return false ; }
 
   // 1 eV^(-1) of time = hbar / eV = 6.582173*10^(-16) second,  for energy-time in natural unit
 //  double planck = 6.582173 ;      
@@ -1432,8 +1431,6 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
       || ( mGam > 0 && sqrt( mGam ) < 40. )  // gamma conversion ;
       || ( mLam > 0 && fabs( sqrt( mLam ) - 1115.683 ) < 200.  ) //  Lambda 
      )  return true ;
-
-  delete Pv ;
 
   return false ;
 }
