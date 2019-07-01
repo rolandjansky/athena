@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
                           Control/Navigation
-                          Control/SGTools
+                          Control/AthenaKernel
                           Event/EventKernel
                           Event/FourMom
                           Event/NavFourMom
@@ -27,14 +27,14 @@ atlas_add_library( ParticleEvent
                    PUBLIC_HEADERS ParticleEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom Particle VxVertex
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks Navigation AthenaKernel EventKernel FourMom NavFourMom Particle VxVertex
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( ParticleEventDict
                       ParticleEvent/ParticleEventDict.h
                       ParticleEvent/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom Particle VxVertex ParticleEvent
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks Navigation AthenaKernel EventKernel FourMom NavFourMom Particle VxVertex ParticleEvent
                       NAVIGABLES  DataVector<ParticleBase> NeutrinoContainer CompositeParticleContainer
                       DATA_LINKS  TrackParticleAssocs INav4MomToTrackParticleAssocs )
 

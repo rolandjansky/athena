@@ -1,7 +1,7 @@
 //dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEEVENT_NEUTRINOCONTAINER_H
@@ -20,7 +20,7 @@
 /// INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ParticleEvent/Neutrino.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/IParticleContainer.h" // needed so macros done in correct order
