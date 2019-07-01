@@ -1961,7 +1961,10 @@ class ItemDef:
                         LVL1MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( TOPO_2DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)    # noqa: F821
                     else:
                         LVL1MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( TOPO_1DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)    # noqa: F821
-                    LVL1MenuItem('L1_DR25-TAU20ITAU12I-J25').setLogic( TOPO_1DISAMB_J25ab_0DR25_TAU20abi_TAU12abi & physcond)    # noqa: F821
+                    if '_v8' in TriggerFlags.triggerMenuSetup():                    
+                        LVL1MenuItem('L1_DR25-TAU20ITAU12I-J25').setLogic( TOPO_2DISAMB_J25ab_0DR25_TAU20abi_TAU12abi & physcond)    # noqa: F821
+                    else:
+                        LVL1MenuItem('L1_DR25-TAU20ITAU12I-J25').setLogic( TOPO_1DISAMB_J25ab_0DR25_TAU20abi_TAU12abi & physcond)    # noqa: F821
                     LVL1MenuItem('L1_LAR-EM').setLogic( TOPO_LAR_EM20shi1 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-11897)     # noqa: F821
                     LVL1MenuItem('L1_LAR-J').setLogic( TOPO_LAR_J100s1 & physcond).setTriggerType( TT.lardemo )  # LAr demo (ATR-11897)     # noqa: F821
                     if '_v8' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
@@ -2040,7 +2043,6 @@ class ItemDef:
                         LVL1MenuItem('L1_BPH-0DR3-EM7J15_2MU4').setLogic( MU4.x(2) & TOPO_0DR03_EM7ab_CJ15ab & physcond)    # noqa: F821
                         LVL1MenuItem('L1_BPH-0M9-EM7-EM5_MU4'      ).setLogic( MU4 & TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
                         LVL1MenuItem('L1_BPH-0DR3-EM7J15_MU4').setLogic(  MU4 &TOPO_0DR03_EM7ab_CJ15ab & physcond)    # noqa: F821
-
     #SX end ATR-12789
 
                     LVL1MenuItem('L1_LATE-MU10_XE50').setLogic( TOPO_LATE_MU10s1 & XE50 & physcond)  # noqa: F821

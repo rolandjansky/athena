@@ -18,181 +18,98 @@ def defineMenu():
 
         
         # module: 0, FPGA: 0
-        TopoOutput( algoname='INVM_AJ_HighMass',                            module=0, fpga=0, clock=0, firstbit=0 ), # need 4bits 
-        TopoOutput( algoname='INVM_AJ_LowMass',                             module=0, fpga=0, clock=0, firstbit=4 ), # 4 bits 
-        TopoOutput( algoname='0INVM9-EM7ab-EMab',                           module=0, fpga=0, clock=0, firstbit=8 ), #v6
-        TopoOutput( algoname='HT150-J20s5.ETA31',                           module=0, fpga=0, clock=0, firstbit=9 ),
-        TopoOutput( algoname='HT190-J15s5.ETA21',                           module=0, fpga=0, clock=0, firstbit=10 ),
-        TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
-###### free
-        TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=0, fpga=0, clock=0, firstbit=15 ),  #v6 new   
-###### free
+        TopoOutput( algoname='HT190-J15s5.ETA21',                           module=1, fpga=0, clock=0, firstbit=0 ),
+        TopoOutput( algoname='0DR03-EM7ab-CJ15ab',                          module=1, fpga=0, clock=0, firstbit=1 ),
+        TopoOutput( algoname='INVM_NFF',                                    module=1, fpga=0, clock=0, firstbit=2 ), # 4 bits to 1 bit
+        TopoOutput( algoname='INVM_AJ_HighMass',                            module=1, fpga=0, clock=0, firstbit=3 ), # 4bits to 1 bit
+        TopoOutput( algoname='INVM_AJ_LowMass',                             module=1, fpga=0, clock=0, firstbit=4 ), # 4 bits to 1 bit
+        TopoOutput( algoname='HT150-J20s5.ETA31',                           module=1, fpga=0, clock=0, firstbit=5 ),
+        TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=1, fpga=0, clock=0, firstbit=6 ),
+        TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=1, fpga=0, clock=0, firstbit=7 ),
+        TopoOutput( algoname='10MINDPHI-J20s2-XE50',                        module=1, fpga=0, clock=0, firstbit=8 ),
+        TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=0, clock=0, firstbit=9 ),
+        TopoOutput( algoname='0DETA20-J50s1-Js2',                           module=1, fpga=0, clock=0, firstbit=10 ), # says 4 bits originally but not in L1Topo
+        TopoOutput( algoname='1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',       module=1, fpga=0, clock=0, firstbit=11 ),
+        TopoOutput( algoname='2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',       module=1, fpga=0, clock=0, firstbit=12 ),
+        TopoOutput( algoname='1DISAMB-TAU12abi-J25ab',                      module=1, fpga=0, clock=0, firstbit=13 ),
+        #combine below into 2 o/p bits: ZAFB_DPHI
+        TopoOutput( algoname='60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=0, firstbit=14 ),
+        TopoOutput( algoname='60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=0, firstbit=15 ),
+       
+        #Combine 4 VBF triggers
 
-        TopoOutput( algoname='400INVM9999-0DPHI20-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=0 ), # v8 new
-        TopoOutput( algoname='400INVM9999-0DPHI22-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=1 ), # v8 new
-        TopoOutput( algoname='ZEE-EM20shi2',                                module=0, fpga=0, clock=1, firstbit=2 ),
-###### free
-        TopoOutput( algoname='0DR03-EM7ab-CJ15ab',                          module=0, fpga=0, clock=1, firstbit=4 ), #v6
-        TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=0, fpga=0, clock=1, firstbit=5 ),  #v6 new
-        TopoOutput( algoname='10MINDPHI-J20s2-XE50',                        module=0, fpga=0, clock=1, firstbit=6 ),
-        TopoOutput( algoname='100RATIO-0MATCH-TAU30si2-EMall',              module=0, fpga=0, clock=1, firstbit=7 ),
-        TopoOutput( algoname='NOT-0MATCH-TAU30si1-EMall',                   module=0, fpga=0, clock=1, firstbit=8 ),
-        TopoOutput( algoname='LAR-EM20shi1',                                module=0, fpga=0, clock=1, firstbit=9 ),
-        TopoOutput( algoname='LAR-J100s1',                                  module=0, fpga=0, clock=1, firstbit=10 ),
-        TopoOutput( algoname='NOT-02MATCH-EM10s1-AJj15all.ETA49',           module=0, fpga=0, clock=1, firstbit=11 ),
-        TopoOutput( algoname='27DPHI32-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits
-###### free
-        TopoOutput( algoname='400INVM9999-0DPHI24-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=14 ), # v8 new
-        TopoOutput( algoname='400INVM9999-0DPHI26-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=15 ), # v8 new
-#        TopoOutput( algoname='30MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=2 ),#v6
-#        TopoOutput( algoname='0DETA10-Js1-Js2',                             module=0, fpga=0, clock=1, firstbit=4 ),
-#        TopoOutput( algoname='10MINDPHI-Js2-XE50',                          module=0, fpga=0, clock=1, firstbit=5 ),
-#        TopoOutput( algoname='05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49',  module=0, fpga=0, clock=1, firstbit=12 ),
+        TopoOutput( algoname='CEP-CJ50s6ETA21',                             module=1, fpga=0, clock=1, firstbit=0 ),
+        TopoOutput( algoname='CEP-CJ60s6',                                  module=1, fpga=0, clock=1, firstbit=1 ),
+        TopoOutput( algoname='CEP-CJ50s6',                                  module=1, fpga=0, clock=1, firstbit=2 ),
+        TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=3 ),
 
+        #TopoOutput( algoname='400INVM9999-0DPHI20-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=0 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI22-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=1 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI24-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=14 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI26-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=15 ), # v8 new
+
+        #TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # v8 new
+        #TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # v8 new
+
+#tackle next, prolly needs combination, CHECK
+   
+#add new
+#merge VBF
+#######        TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=0, clock=0, firstbit=xx ), # 6 bits
+# TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-J20s6',                                 module=1, fpga=0, clock=0, firstbit=yy ),#1 bit
+#400INVM9999-0DPHI24-J30s6-J20s6 fpga=0, bits=1
+#400INVM9999-0DPHI22-J30s6-J20s6 fpga=0, bits=1
+#400INVM9999-0DPHI20-J30s6-J20s6
+        #TopoOutput( algoname='CEP-CJ50s6ETA21',                             module=1, fpga=1, clock=, firstbit=5 ),
+        #can do TopoOutput( algoname='60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=1, clock=1, firstbit=12 ),
+        #can doTopoOutput( algoname='60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=1, clock=1, firstbit=13 ),
 
         # module: 0, FPGA: 1
+        TopoOutput( algoname='0INVM9-EM7ab-EMab',                           module=1, fpga=1, clock=0, firstbit=0 ),
+        TopoOutput( algoname='INVM_EMs6',                                   module=1, fpga=1, clock=0, firstbit=1 ), # 3bits to 2 bits
+        TopoOutput( algoname='DISAMB-30INVM-EM20his2-TAU12ab',              module=1, fpga=1, clock=0, firstbit=3 ),
+        TopoOutput( algoname='100RATIO-0MATCH-TAU30si2-EMall',              module=1, fpga=1, clock=0, firstbit=4 ),
+        TopoOutput( algoname='NOT-0MATCH-TAU30si1-EMall',                   module=1, fpga=1, clock=0, firstbit=5 ),
+        TopoOutput( algoname='27DPHI32-EMs1-EMs6',                          module=1, fpga=1, clock=0, firstbit=6 ), # says 4 bits originally but not in L1Topo pdf
+        TopoOutput( algoname='0DR28-TAU20abi-TAU12abi',                     module=1, fpga=1, clock=0, firstbit=7 ),
+        TopoOutput( algoname='0DR28-MU10ab-TAU12abi',                       module=1, fpga=1, clock=0, firstbit=8 ),
+        TopoOutput( algoname='LATE-MU10s1',                                 module=1, fpga=1, clock=0, firstbit=9 ),
+        TopoOutput( algoname='0DR15-2MU6ab',                                module=1, fpga=1, clock=0, firstbit=10 ),
+        TopoOutput( algoname='8INVM15-0DR22-2MU6ab',                        module=1, fpga=1, clock=0, firstbit=11 ),
+        TopoOutput( algoname='8INVM15-0DR22-MU6ab-MU4ab',                   module=1, fpga=1, clock=0, firstbit=12 ),
+        TopoOutput( algoname='MULT-CMU4ab',                                 module=1, fpga=1, clock=0, firstbit=13 ),
+        TopoOutput( algoname='MULT-CMU6ab',                                 module=1, fpga=1, clock=0, firstbit=14 ), # says 2bits originally but not in L1Topo pdf
+        TopoOutput( algoname='2INVM9-2DR15-2MU6ab',                         module=1, fpga=1, clock=0, firstbit=15 ),
 
-#        TopoOutput( algoname='1DISAMB-TAU20ab-J20ab',                       module=0, fpga=1, clock=0, firstbit=0 ), 
-#        TopoOutput( algoname='DISAMB-EM15abhi-TAU12abi',                    module=0, fpga=1, clock=0, firstbit=1 ),
-#        TopoOutput( algoname='4INVM8-2MU6ab',                               module=0, fpga=1, clock=0, firstbit=4 ),
-#        TopoOutput( algoname='2INVM999-ONEBARREL-MU6ab-MU4ab',              module=0, fpga=1, clock=0, firstbit=5 ), 
-#        TopoOutput( algoname='4INVM8-ONEBARREL-MU6ab-MU4ab',                module=0, fpga=1, clock=0, firstbit=6 ),
-#ATR-19510
-#        TopoOutput( algoname='DISAMB-EM15abhi-TAU40ab',                     module=0, fpga=1, clock=0, firstbit=13 ),
-        TopoOutput( algoname='CEP-CJ60s6',                                  module=0, fpga=1, clock=0, firstbit=0 ),
-        TopoOutput( algoname='CEP-CJ50s6',                                  module=0, fpga=1, clock=0, firstbit=1 ),        
-        TopoOutput( algoname='1DISAMB-EM15his2-TAU12abi-J25ab',             module=0, fpga=1, clock=0, firstbit=2 ), 
-        TopoOutput( algoname='1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',       module=0, fpga=1, clock=0, firstbit=3 ),
-        TopoOutput( algoname='2INVM9-2MU6ab',                               module=0, fpga=1, clock=0, firstbit=4 ),#v6
-        TopoOutput( algoname='CEP-CJ50s6ETA21',                             module=0, fpga=1, clock=0, firstbit=5 ),
-        TopoOutput( algoname='2INVM8-ONEBARREL-MU6ab-MU4ab',                module=0, fpga=1, clock=0, firstbit=6 ),#v6
-        TopoOutput( algoname='5DETA99-5DPHI99-2MU4ab',                      module=0, fpga=1, clock=0, firstbit=7 ),
-        TopoOutput( algoname='5DETA99-5DPHI99-MU6ab-MU4ab',                 module=0, fpga=1, clock=0, firstbit=8 ), 
-        TopoOutput( algoname='5DETA99-5DPHI99-2MU6ab',                      module=0, fpga=1, clock=0, firstbit=9 ), 
-        TopoOutput( algoname='1DISAMB-TAU20abi-TAU12abi-J25ab',             module=0, fpga=1, clock=0, firstbit=10 ),
-        TopoOutput( algoname='0DR28-MU10ab-TAU12abi',                       module=0, fpga=1, clock=0, firstbit=11 ),
-        TopoOutput( algoname='0DETA20-0DPHI20-TAU20abi-TAU12abi',           module=0, fpga=1, clock=0, firstbit=12 ),
-        TopoOutput( algoname='2INVM9-0DR15-2MU4ab',                         module=0, fpga=1, clock=0, firstbit=13 ),
-        TopoOutput( algoname='DISAMB-0DR28-EM15his2-TAU12abi',              module=0, fpga=1, clock=0, firstbit=15 ),#v6n
+        TopoOutput( algoname='2INVM9-0DR15-MU6ab-MU4ab',                    module=1, fpga=1, clock=1, firstbit=0 ),
+        TopoOutput( algoname='2INVM9-0DR15-2MU4ab',                         module=1, fpga=1, clock=1, firstbit=1 ),
+        TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=1, fpga=1, clock=1, firstbit=2 ),
+        TopoOutput( algoname='5DETA99-5DPHI99-2MU4ab',                      module=1, fpga=1, clock=1, firstbit=3 ),
+        TopoOutput( algoname='5DETA99-5DPHI99-MU6ab-MU4ab',                 module=1, fpga=1, clock=1, firstbit=4 ),
+        TopoOutput( algoname='5DETA99-5DPHI99-2MU6ab',                      module=1, fpga=1, clock=1, firstbit=5 ),
+        TopoOutput( algoname='0DETA04-EM8abi-MU10ab',                       module=1, fpga=1, clock=1, firstbit=6 ),
+        TopoOutput( algoname='0DPHI03-EM8abi-MU10ab',                       module=1, fpga=1, clock=1, firstbit=7 ),
+#maybe for combination part next two can be useful
+        TopoOutput( algoname='0DETA04-EM15abi-MUab',                        module=1, fpga=1, clock=1, firstbit=8 ),
+        TopoOutput( algoname='0DPHI03-EM15abi-MUab',                        module=1, fpga=1, clock=1, firstbit=9 ),
+        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM10his6',          module=1, fpga=1, clock=1, firstbit=10 ),
+        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM12his6',          module=1, fpga=1, clock=1, firstbit=11 ),
+        TopoOutput( algoname='0INVM10-0DR15-EM8abi-MU10ab',                 module=1, fpga=1, clock=1, firstbit=12 ),
+        TopoOutput( algoname='0INVM10-0DR15-EM12abi-MU6ab',                 module=1, fpga=1, clock=1, firstbit=13 ),
+        TopoOutput( algoname='0INVM10-3MU4ab',                              module=1, fpga=1, clock=1, firstbit=14 ),
 
-        TopoOutput( algoname='DISAMB-30INVM-EM20his2-TAU12ab',              module=0, fpga=1, clock=1, firstbit=0 ),  #v6 new
-        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM10his6',          module=0, fpga=1, clock=1, firstbit=1 ),#ATR-19302: giving compilation issues, add later
-        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM12his6',          module=0, fpga=1, clock=1, firstbit=2 ),
-        TopoOutput( algoname='8INVM15-0DR22-2MU6ab',                        module=0, fpga=1, clock=1, firstbit=3 ),#ATR-19720
-        TopoOutput( algoname='0DR22-2MU6ab',                                module=0, fpga=1, clock=1, firstbit=4 ),#v6
-        TopoOutput( algoname='7INVM15-2MU4ab',                              module=0, fpga=1, clock=1, firstbit=5 ),#v6
-        TopoOutput( algoname='0DR22-MU6ab-MU4ab',                           module=0, fpga=1, clock=1, firstbit=6 ),#v6
-        TopoOutput( algoname='0DR15-2MU4ab',                                module=0, fpga=1, clock=1, firstbit=7 ),#v6
-        TopoOutput( algoname='0DR24-2MU4ab',                                module=0, fpga=1, clock=1, firstbit=8 ),#v6
-        TopoOutput( algoname='0DR15-2MU6ab',                                module=0, fpga=1, clock=1, firstbit=9 ), #v6 new
-        TopoOutput( algoname='2INVM9-2MU4ab',                               module=0, fpga=1, clock=1, firstbit=10 ),  #v6 new
-        TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=11 ),  #v6 new       
-        TopoOutput( algoname='INVM_NFF',                                    module=0, fpga=1, clock=1, firstbit=12 ), # 4 bits
- 
-        # module: 1, FPGA: 0        
 
+#
+#pdf says 2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi but doesn't show that bit canges from 0 to whatever. there is only 1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi
+
+
+
+#below not checked for 19221
 ###### free
 ###### free
-###### free
-        TopoOutput( algoname='0DR04-MU4ab-CJ15ab',                          module=1, fpga=0, clock=0, firstbit=3 ), 
-        TopoOutput( algoname='0DR04-MU4ab-CJ20ab',                          module=1, fpga=0, clock=0, firstbit=4 ),
-        TopoOutput( algoname='0DR04-MU4ab-CJ30ab',                          module=1, fpga=0, clock=0, firstbit=5 ),
-        TopoOutput( algoname='0DR04-MU6ab-CJ20ab',                          module=1, fpga=0, clock=0, firstbit=6 ),
-        TopoOutput( algoname='0DR04-MU6ab-CJ25ab',                          module=1, fpga=0, clock=0, firstbit=7 ),
-        TopoOutput( algoname='10MINDPHI-CJ20ab-XE50',                       module=1, fpga=0, clock=0, firstbit=8 ),
-        TopoOutput( algoname='0DR24-2CMU4ab',                               module=1, fpga=0, clock=0, firstbit=9 ),#v6
-        TopoOutput( algoname='FTK-J100s1',                                  module=1, fpga=0, clock=0, firstbit=10 ),
-        TopoOutput( algoname='MULT-CMU4ab',                                 module=1, fpga=0, clock=0, firstbit=11 ), # 2bits
-        TopoOutput( algoname='MULT-CMU6ab',                                 module=1, fpga=0, clock=0, firstbit=13 ), # 2bits
-        TopoOutput( algoname='FTK-MU10s1',                                  module=1, fpga=0, clock=0, firstbit=15 ),
 
-
-
-
-#        TopoOutput( algoname='2DR15-2CMU4ab',                               module=1, fpga=0, clock=0, firstbit=9 ),
-#        TopoOutput( algoname='2DR15-CMU6ab-CMU4ab',                         module=1, fpga=0, clock=0, firstbit=10 ),
-#        TopoOutput( algoname='2INVM999-2CMU4ab',                            module=1, fpga=0, clock=0, firstbit=15 ), 
-#        TopoOutput( algoname='1INVM19-2CMU4ab',                             module=1, fpga=0, clock=0, firstbit=15 ),#v6
-
-#        TopoOutput( algoname='2INVM999-CMU6ab-CMU4ab',                      module=1, fpga=0, clock=1, firstbit=0 ), 
-#        TopoOutput( algoname='4INVM8-2CMU4ab',                              module=1, fpga=0, clock=1, firstbit=1 ),
-#        TopoOutput( algoname='2INVM8-2CMU4ab',                              module=1, fpga=0, clock=1, firstbit=1 ),#v6
-#        TopoOutput( algoname='4INVM8-CMU6ab-CMU4ab',                        module=1, fpga=0, clock=1, firstbit=2 ),
-#        TopoOutput( algoname='0DETA04-0DPHI03-EM8abi-MU10ab',               module=1, fpga=0, clock=1, firstbit=3 ),
-#        TopoOutput( algoname='0DETA04-0DPHI03-EM15abi-MUab',                module=1, fpga=0, clock=1, firstbit=4 ),
-#        TopoOutput( algoname='2DR15-CMU4ab-MU4ab',                          module=1, fpga=0, clock=1, firstbit=5 ),
-#        TopoOutput( algoname='2INVM999-CMU4ab-MU4ab',                       module=1, fpga=0, clock=1, firstbit=6 ), 
-#        TopoOutput( algoname='1INVM19-CMU4ab-MU4ab',                        module=1, fpga=0, clock=1, firstbit=6 ),#v6
-#        TopoOutput( algoname='4INVM8-CMU4ab-MU4ab',                         module=1, fpga=0, clock=1, firstbit=7 ), 
-#        TopoOutput( algoname='0DR15-2MU6ab',                                module=1, fpga=0, clock=1, firstbit=11 ), #v6 new
-#ATR-18815
-        TopoOutput( algoname='60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=1, firstbit=0 ),
-        TopoOutput( algoname='0INVM10-0DR15-EM8abi-MU10ab',                 module=1, fpga=0, clock=1, firstbit=1 ),
-        TopoOutput( algoname='0INVM10-0DR15-EM12abi-MU6ab',                 module=1, fpga=0, clock=1, firstbit=2 ),
-        TopoOutput( algoname='0DETA04-EM8abi-MU10ab',                       module=1, fpga=0, clock=1, firstbit=3 ), #ATR-14282
-        TopoOutput( algoname='0DETA04-EM15abi-MUab',                        module=1, fpga=0, clock=1, firstbit=4 ), #ATR-14282
-        TopoOutput( algoname='0DR24-CMU4ab-MU4ab',                          module=1, fpga=0, clock=1, firstbit=5 ),#v6
-        TopoOutput( algoname='0DPHI03-EM8abi-MU10ab',                       module=1, fpga=0, clock=1, firstbit=6 ),
-        TopoOutput( algoname='2INVM8-CMU4ab-MU4ab',                         module=1, fpga=0, clock=1, firstbit=7 ),#v6
-        TopoOutput( algoname='0DPHI03-EM15abi-MUab',                        module=1, fpga=0, clock=1, firstbit=8 ),
-        TopoOutput( algoname='10MINDPHI-AJ20s2-XE50',                       module=1, fpga=0, clock=1, firstbit=9 ),#v6n
-        TopoOutput( algoname='LATE-MU10s1',                                 module=1, fpga=0, clock=1, firstbit=10 ),#v6n
-        TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=0, clock=1, firstbit=11 ),#v6n
-        TopoOutput( algoname='SC85-CJ15ab.ETA26',                           module=1, fpga=0, clock=1, firstbit=12 ),#v6n
-        TopoOutput( algoname='FTK-EM20s1',                                  module=1, fpga=0, clock=1, firstbit=13 ),
-        TopoOutput( algoname='60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=1, firstbit=14 ),
-        TopoOutput( algoname='2INVM9-2DR15-2MU6ab',                         module=1, fpga=0, clock=1, firstbit=15 ),
-
-#ATR-18824
-
-        # module: 1, FPGA: 1        
-#        TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=1, clock=0, firstbit=0 ), # 6 bits
-#        TopoOutput( algoname='08RATIO-XE0-HT0-AJj15all.ETA49',              module=1, fpga=1, clock=0, firstbit=14 ),
-        TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # v8 new
-        TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # v8 new
-        TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # v8 new
-        TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # v8 new
-        TopoOutput( algoname='0INVM10-3MU4ab',                              module=1, fpga=1, clock=0, firstbit=4 ), #ATR-19355
-        TopoOutput( algoname='2INVM9-0DR15-MU6ab-MU4ab',                    module=1, fpga=1, clock=0, firstbit=5 ),
-        TopoOutput( algoname='0MATCH-4AJ20.ETA31-4AJj15.ETA31',             module=1, fpga=1, clock=0, firstbit=6 ),
-        TopoOutput( algoname='HT190-AJ15all.ETA21',                         module=1, fpga=1, clock=0, firstbit=7 ),
-        TopoOutput( algoname='HT150-AJ20all.ETA31',                         module=1, fpga=1, clock=0, firstbit=8 ),
-        TopoOutput( algoname='HT150-AJj15all.ETA49',                        module=1, fpga=1, clock=0, firstbit=9 ),
-        TopoOutput( algoname='HT20-AJj15all.ETA49',                         module=1, fpga=1, clock=0, firstbit=10 ),
-        TopoOutput( algoname='8INVM15-0DR22-MU6ab-MU4ab',                   module=1, fpga=1, clock=0, firstbit=11 ),        
-        TopoOutput( algoname='0DETA20-J50s1-Js2',                           module=1, fpga=1, clock=0, firstbit=12 ), # 4 bits
-        TopoOutput( algoname='05RATIO-XE0-HT0-AJj15all.ETA49',              module=1, fpga=1, clock=0, firstbit=13 ), 
-        TopoOutput( algoname='63DETA127-FJ20s1-FJ20s2',                     module=1, fpga=1, clock=0, firstbit=14 ), # 4 bits 
-        TopoOutput( algoname='90RATIO2-XE0-HT0-AJj15all.ETA49',             module=1, fpga=1, clock=0, firstbit=15 ),
-
-#        TopoOutput( algoname='2DR15-2MU4ab',                                module=1, fpga=1, clock=1, firstbit=7 ),
-#        TopoOutput( algoname='2DR15-MU6ab-MU4ab',                           module=1, fpga=1, clock=1, firstbit=9 ),
-#        TopoOutput( algoname='2DR15-ONEBARREL-MU6ab-MU4ab',                 module=1, fpga=1, clock=1, firstbit=10 ),
-#        TopoOutput( algoname='2INVM999-2MU4ab',                             module=1, fpga=1, clock=1, firstbit=11 ),
-#        TopoOutput( algoname='1INVM19-2MU4ab',                              module=1, fpga=1, clock=1, firstbit=11 ), #v6
-#        TopoOutput( algoname='2INVM999-MU6ab-MU4ab',                        module=1, fpga=1, clock=1, firstbit=12 ),
-#        TopoOutput( algoname='2INVM999-2MU6ab',                             module=1, fpga=1, clock=1, firstbit=13 ),
-#        TopoOutput( algoname='4INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), 
-# ATR-15197        TopoOutput( algoname='2INVM9-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
-#        TopoOutput( algoname='4INVM8-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), 
-# ATR-15197        TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), #v6
-
-        TopoOutput( algoname='250RATIO2-XE0-HT0-AJj15all.ETA49',            module=1, fpga=1, clock=1, firstbit=0 ),
-        TopoOutput( algoname='10MINDPHI-J20ab-XE50',                        module=1, fpga=1, clock=1, firstbit=1 ), 
-        TopoOutput( algoname='0DR28-TAU20abi-TAU12abi',                     module=1, fpga=1, clock=1, firstbit=2 ),
-        TopoOutput( algoname='2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',       module=1, fpga=1, clock=1, firstbit=3 ), 
-        TopoOutput( algoname='1DISAMB-TAU12abi-J25ab',                      module=1, fpga=1, clock=1, firstbit=4 ), 
-        TopoOutput( algoname='0DR10-MU10ab-MU6ab',                          module=1, fpga=1, clock=1, firstbit=5 ),  
-        TopoOutput( algoname='2DR99-2MU4ab',                                module=1, fpga=1, clock=1, firstbit=6 ), 
-        TopoOutput( algoname='0DR34-2MU4ab',                                module=1, fpga=1, clock=1, firstbit=7 ), #v6
-        TopoOutput( algoname='2DR15-2MU6ab',                                module=1, fpga=1, clock=1, firstbit=8 ), 
-        TopoOutput( algoname='0DR15-MU6ab-MU4ab',                           module=1, fpga=1, clock=1, firstbit=9 ), #v6
-        TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=1, fpga=1, clock=1, firstbit=10 ), #v6 new
-        TopoOutput( algoname='1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=1, clock=1, firstbit=11 ), #v6 new 
-        TopoOutput( algoname='8INVM15-MU6ab-MU4ab',                         module=1, fpga=1, clock=1, firstbit=12 ), #v6
-        TopoOutput( algoname='8INVM15-2MU6ab',                              module=1, fpga=1, clock=1, firstbit=13 ), #v6
-        TopoOutput( algoname='2INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
-        TopoOutput( algoname='2INVM8-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), #v6
     ]      
         
 

@@ -342,6 +342,7 @@ def defineMenu():
         '0DR28-TAU20abi-TAU12abi',
         '0DETA20-0DPHI20-TAU20abi-TAU12abi',
         '1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
+        '2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
         '2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',
         'DISAMB-30INVM-EM20his2-TAU12ab',
         '400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',
