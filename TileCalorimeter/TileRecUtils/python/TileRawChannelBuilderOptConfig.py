@@ -4,8 +4,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-_runTypes = {'PHY' : 1, 'LAS' : 2, 'BILAS' : 2, 'PED' : 4, 'CIS' : 8, 'MONOCIS' : 8}
-
 def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile raw channel builder tool (Opt2)
 
@@ -14,28 +12,18 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
         Method -- flavour of Tile Optimal Filtering method. Defaults to Opt2. Possible values: Opt2, OptATLAS, OF1
     """
 
-    acc = ComponentAccumulator()
-
     method = kwargs.get('Method', 'Opt2')
     if method not in ['Opt2', 'OptATLAS', 'OF1']:
         raise(Exception("Invalid Tile Optimal Filtering method: %s" % method))
 
     name = 'TileRawChannelBuilder' + method
 
-    runType = flags.Tile.RunType
-    runType = runType.upper()
-
-    if runType not in _runTypes.keys():
-        raise(Exception("Invalid Tile run type: %s" % runType))
-
-    from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
-    acc.merge( TileDQstatusAlgCfg(flags) )
-
-    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
-    acc.merge( TileInfoLoaderCfg(flags) )
-
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
-    tileRawChannelBuilderOpt = TileRawChannelBuilderOpt2Filter(name)
+    from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    acc = TileRawChannelBuilderCfg(flags, TileRawChannelBuilderOpt2Filter, name)
+    tileRawChannelBuilderOpt = acc.getPrimary()
+
+    useIterations = (method == 'Opt2')
 
     if flags.Tile.OfcFromCOOL:
         ofcType = 'OF2' if method != 'OF1' else 'OF1'
@@ -47,27 +35,22 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
 
     tileRawChannelBuilderOpt.TileCondToolOfc = ofcTool
 
-    outputContainer = 'TileRawChannel' + {'OptATLAS':flags.Tile.RawChannelContainer}.get(method, method)
+    outputContainer = flags.Tile.RawChannelContainer if method == 'OptATLAS' else 'TileRawChannel' + method
 
     tileRawChannelBuilderOpt.TileRawChannelContainer = outputContainer
-    tileRawChannelBuilderOpt.RunType = _runTypes[runType]
-    tileRawChannelBuilderOpt.calibrateEnergy = False
-    tileRawChannelBuilderOpt.BestPhase = False if method == 'Opt2' else flags.Tile.BestPhaseFromCOOL
+    tileRawChannelBuilderOpt.BestPhase = False if useIterations else flags.Tile.BestPhaseFromCOOL
     tileRawChannelBuilderOpt.OF2 = True if method != 'OF1' else False
-    tileRawChannelBuilderOpt.MaxIterations = 5 if method == 'Opt2' else 1
-    tileRawChannelBuilderOpt.Minus1Iteration = True if method == 'Opt2' else False
-    tileRawChannelBuilderOpt.AmplitudeCorrection = False if method == 'Opt2' else flags.Tile.correctAmplitude
+    tileRawChannelBuilderOpt.MaxIterations = 5 if useIterations else 1
+    tileRawChannelBuilderOpt.Minus1Iteration = True if useIterations else False
+    tileRawChannelBuilderOpt.AmplitudeCorrection = False if useIterations else flags.Tile.correctAmplitude
     tileRawChannelBuilderOpt.TimeCorrection = False if method != 'OptATLAS' else flags.Tile.correctTimeNI
-    tileRawChannelBuilderOpt.AmpMinForAmpCorrection = flags.Tile.AmpMinForAmpCorrection
-    tileRawChannelBuilderOpt.TimeMinForAmpCorrection = flags.Tile.TimeMinForAmpCorrection
-    tileRawChannelBuilderOpt.TimeMaxForAmpCorrection = flags.Tile.TimeMaxForAmpCorrection
 
-    if (flags.Tile.BestPhaseFromCOOL and method != 'Opt2') or flags.Tile.correctTime:
+    if (flags.Tile.BestPhaseFromCOOL and not useIterations) or flags.Tile.correctTime:
         from TileConditions.TileTimingConfig import TileCondToolTimingCfg
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
         tileRawChannelBuilderOpt.TileCondToolTiming = timingTool
 
-    if flags.Tile.BestPhaseFromCOOL and method != 'Opt2':
+    if flags.Tile.BestPhaseFromCOOL and not useIterations:
         # Can't correct time and use best phase at the same time without iteration
         tileRawChannelBuilderOpt.correctTime = False
     else:
@@ -75,19 +58,6 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
 
     if method == 'OF1':
         tileRawChannelBuilderOpt.PedestalMode = -1
-
-    tileRawChannelContainerDSP = ""
-    if flags.Tile.NoiseFilter == 1:
-        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
-        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        tileRawChannelBuilderOpt.NoiseFilterTools = correctionTools
-
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay):
-            tileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
-            from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
-            acc.merge( TileRawChannelCorrectionAlgCfg(flags) )
-
-    tileRawChannelBuilderOpt.DSPContainer = tileRawChannelContainerDSP
 
     acc.setPrivateTools( tileRawChannelBuilderOpt )
 

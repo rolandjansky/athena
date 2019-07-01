@@ -81,10 +81,13 @@ if __name__ == "__main__":
     ConfigFlags.Tile.doOpt2 = True
     ConfigFlags.Tile.doOptATLAS = True
     ConfigFlags.Tile.NoiseFilter = 1
+
+    ConfigFlags.fillFromArgs()
+
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    acc = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    acc = MainServicesThreadedCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     acc.merge( TrigBSReadCfg(ConfigFlags) )
