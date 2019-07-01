@@ -6,6 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 import DerivationFrameworkJetEtMiss.ExtendedJetCommon
@@ -406,7 +407,8 @@ EXOT13SlimmingHelper.ExtraVariables.append('LCOriginTopoClusters.e_sampl.calM.ca
 EXOT13SlimmingHelper.AppendToDictionary["EMOriginTopoClusters"]='xAOD::CaloClusterContainer'
 EXOT13SlimmingHelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
 EXOT13SlimmingHelper.ExtraVariables.append('EMOriginTopoClusters.e_sampl.calM.calE.calEta.calPhi')
-
+EXOT13SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent 
+EXOT13SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent 
 
 EXOT13SlimmingHelper.AppendContentToStream(EXOT13Stream)
 
