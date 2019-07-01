@@ -80,7 +80,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'Physics_pp_v7_primaries')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_newJO')
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
