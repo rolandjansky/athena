@@ -7,6 +7,7 @@
 
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TTree.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -24,6 +25,10 @@
 #include "G4Types.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
+
+
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 
 // System includes
 #include <mutex>
@@ -62,6 +67,34 @@ namespace
       throw GaudiException("Failed to regHist", "RegHistErr", StatusCode::FAILURE);
     }
   }
+
+  template<class HistType>
+  void regTree(const ServiceHandle<ITHistSvc>& hSvc,
+                const std::string& treeName, HistType*& ptr)
+  {
+    if(hSvc->regTree(treeName,ptr).isFailure()){
+      delete ptr; //pie?
+      throw GaudiException("Failed to register Tree", "RegTreeErr", StatusCode::FAILURE);
+    }
+  }
+
+
+  template<class HistType>
+  bool getTree(const ServiceHandle<ITHistSvc>& hSvc,
+               const std::string& treeName, HistType*& ptr)
+  {
+    TTree* t = nullptr;
+    if(hSvc->exists(treeName) && hSvc->getTree(treeName, t).isSuccess() &&
+       (ptr = dynamic_cast<HistType*>(t)))
+    {
+      return true;
+    }
+    else throw GaudiException("Failed to getHist", "GetHistErr", StatusCode::FAILURE);
+
+    return false;
+    
+  }
+
 }
 
 namespace G4UA
@@ -78,7 +111,7 @@ namespace G4UA
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_etaPrimary(0), m_phiPrimary(0),
       m_zPrimary(0),m_rPrimary(0),m_nActiveSensorHits(0),m_PreviousActiveSensorHit(0),m_totalX0(0),m_totalN0(0),
-      m_rzProfRL(nullptr), m_rzProfIL(nullptr)
+      m_rzProfRL(nullptr), m_rzProfIL(nullptr),m_isITk(false),m_geoModelSvc("GeoModelSvc","LengthIntegrator")
   {
     
     m_doRL = true;        // make radiation length (X0) plots
@@ -106,7 +139,23 @@ namespace G4UA
     m_rz_rmin =  0.;
     m_rz_rmax =  1200.;
 
+    if (m_geoModelSvc.retrieve().isFailure()) {
+      G4cout<<"ERROR could not get geoModelSvc "<<G4endl;
+      m_isITk = false;
+    }
+    else {
+      if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4) { m_isITk = true; }
+      G4cout<<"INFO is ITk!" <<G4endl;
+    }
+/*  }
+    if(m_doRL) m_lengthTypes.push_back("RL");
+    if(m_doIL) m_lenghtTypes.push_back("IL");
 
+    if(m_doEta) m_histoTypes.push_back("Eta");
+    if(m_doPhi) m_histoTypes.push_back("Phi");
+    if(m_doZ)   m_histoTypes.push_back("Z");
+    if(m_doR)   m_histoTypes.push_back("R");
+*/
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
@@ -124,6 +173,37 @@ namespace G4UA
       regHist(m_hSvc, intName, m_rzProfIL);
     }
 
+    //Try to add a nice little tree
+    m_tree = new TTree( "TheLarch", "And now, the Larch" );
+    //Add Braches to the tree
+    //Particle properties
+    m_tree->Branch("genNPart",                  &m_genNPart,      "genNPart/I");
+    m_tree->Branch("genEta",                    &m_genEta,        "genEta/F");
+    m_tree->Branch("genPhi",                    &m_genPhi,        "genPhi/F");
+    m_tree->Branch("genZ",                      &m_genZ,          "genZ/F");
+    m_tree->Branch("genR",                      &m_genR,          "genR/F");
+    m_tree->Branch("total_X0",                  &m_total_X0,      "total_X0/F");
+    m_tree->Branch("total_L0",                  &m_total_L0,      "total_L0/F");
+
+//    m_tree->Branch("collected_sensitivehit",    &m_collected_sensitivehit); //Vector    
+
+    m_tree->Branch("collected_X0",              &m_collected_X0); //Vector
+    m_tree->Branch("collected_L0",              &m_collected_L0); //Vector
+   
+    m_tree->Branch("collected_hitr",            &m_collected_hitr); //Vector
+    m_tree->Branch("collected_hitz",            &m_collected_hitz); //Vector
+
+    m_tree->Branch("collected_material",        &m_collected_material); //Vector
+    m_tree->Branch("collected_density",         &m_collected_density); //Vector
+    m_tree->Branch("collected_volume",          &m_collected_volume); //Vector
+    m_tree->Branch("collected_groupedmaterial", &m_collected_groupedmaterial); //Vector
+    m_tree->Branch("collected_volumetype",      &m_collected_volumetype); //Vector
+
+    regTree(m_hSvc, "/lengths/TheLarch", m_tree );
+    //TTree *Tpie;
+    //getTree(m_hSvc, "/lengths/TheLarch", Tpie);
+    //std::cout << "THIS IS A GREEEEEN TREE" << std::endl;
+    //Tpie->ls();
     m_g4pow = G4Pow::GetInstance();
 
   }
@@ -149,14 +229,349 @@ namespace G4UA
     m_totalN0 = 0;
     
     m_PreviousActiveSensorHit = false;
+
+    m_genEta = std::isfinite(mom.eta()) ? mom.eta() : -999;
+    m_genPhi = mom.phi();
+    m_genZ = vert->GetZ0();
+    m_genR = sqrt((vert->GetX0()*vert->GetX0())+(vert->GetY0()*vert->GetY0()));
+    m_genNPart++;
+
+    m_total_X0 = 0;
+    m_total_L0 = 0;
+
   }
 
+/*
+  void LengthIntegrator::registerAndFill(const std::string& detName, const std::pair<double, double>& thicks){
+
+     for(auto lT : m_lengthTypes){
+      for(auto hT : m_histoTypes){
+          std::string detHistName = detName + "_" + hT + "_" + lT;
+          //Try to register
+          registerHist(detHistName);
+          //Fill histo
+          fillHist(detHistName);
+      }  
+    }   
+
+  }
+*/
+/*
+  void LengthIntegrator::registerHist(const std::string& histName){
+ 
+    std::string path = "/lengths/";
+    std::string xaxis = "";
+    std::string yaxis = "";
+    int nbins = 1000; float xmin = -6.0; float xmax = 6.0;
+
+    if(histName.find("RL") != std::npos){
+      path+="radLen/";
+      yaxis = "X^0";
+    }
+    else if(histName.find("IL") != std::npos){
+      path+="intLen/";
+      yaxis = "#Lambda^0";
+    }
+    else {
+      //TODO: Warning
+      path+= "pieLen/";
+      yaxis = "Pies";
+    }
+
+
+    if(existHist(m_hSvc,path+histName)) return;
+
+
+    if(histName.find("Eta") != std::npos){
+      xaxis = "#eta";
+    }
+    else if(histName.find("Phi") != std::npos){
+      xaxis = "#phi [rad]";
+      nbins = 500; xmin = -M_PI; xmax = M_PI;
+    }
+    else if(histName.find("R") != std::npos){
+      xaxis = "R [mm]";
+      nbins = 1150; xmin = 0; xmax = 1150;
+    }
+    else if(histName.find("Z") != std::npos){
+      xaxis = "Z [mm]";
+      nbins = 704; xmin = 0; xmax = 3520;
+    }
+
+    TProfile *prof = new TProfile(histName.c_str(), (histName+";"+xaxis+";"+yaxis).c_str(), nbins, xmin, xmax);
+	  regHist(m_hSvc, path, prof);
+    m_profMap[detVolume] = prof;
+
+  }
+*/
   //---------------------------------------------------------------------------
   // Setup hists for one detector
   //---------------------------------------------------------------------------
+  std::string LengthIntegrator::getMaterialClassification(std::string name)
+  {
+
+/*
+    if(pixelonly){
+      if(name.find("SCT") != std::string::npos ) continue;
+      if(name.find("PP1_Mat") != std::string::npos ) continue;
+      if(name.find("BeamPipe") != std::string::npos ) continue;
+    }
+*/    
+    //if(name.find("PST") == std::string::npos ) continue;
+
+    if((name.find("DM_Atlas_Air") != std::string::npos) || (name.find("DM_Atlas") != std::string::npos) ||
+       (name.find("pix::HEX") != std::string::npos)){
+      return "NONE";
+    }
+
+    if((name.find("Silicon") != std::string::npos) || (name.find("SiMetal") != std::string::npos)){
+      return "ActiveSensors";
+    }
+
+    //For ATLAS run-2 detector
+    if(!m_isITk){
+      if(name.find("Cooling") != std::string::npos) return "Cooling";
+      if(name.find("Cool") != std::string::npos) return "Cooling";
+      if(name.find("CO2") != std::string::npos) return "Cooling";
+      if(name.find("Cryo") != std::string::npos) return "Cooling";
+      if(name.find("Pipe") != std::string::npos) return "Cooling";
+      if(name.find("Flange") != std::string::npos) return "SupportStructure";
+      if(name.find("Fixation") != std::string::npos) return "SupportStructure";
+      if(name.find("Clamp") != std::string::npos) return "SupportStructure";
+      if(name.find("Cable") != std::string::npos) return "Services";
+      if(name.find("Connector") != std::string::npos) return "Services";
+      if(name.find("Srv") != std::string::npos) return "Services";
+      if(name.find("Flex") != std::string::npos) return "Services";
+      if(name.find("Stave") != std::string::npos) return "SupportStructure";
+      if(name.find("Wire") != std::string::npos) return "Services";
+      if(name.find("Tape") != std::string::npos) return "Services";
+      if(name.find("PPF0") != std::string::npos) return "PP0";
+      if(name.find("PPB1") != std::string::npos) return "PP1";
+      if(name.find("IBL") != std::string::npos) return "OtherIBL";
+      if(name.find("BL") != std::string::npos) return "OtherIBL";
+      if(name.find("PST") != std::string::npos) return "PST";
+      if(name.find("IST") != std::string::npos) return "IST";
+      if(name.find("Disk") != std::string::npos) return "SupportStructure";
+      //if(name.find("L0") != std::string::npos) return "SupportStructure";
+      //if(name.find("L1") != std::string::npos) return "SupportStructure";
+      //if(name.find("L2") != std::string::npos) return "SupportStructure";
+      if(name.find("Panel") != std::string::npos) return "Services";
+      if(name.find("Radiator") != std::string::npos) return "Radiators";
+      //if(name.find("Spine") != std::string::npos) return "ThermalSpine";
+      if(name.find("Spine") != std::string::npos) return "Cooling";
+      if(name.find("Fibre") != std::string::npos) return "Services";
+      if(name.find("Chip") != std::string::npos) return "PixelChips";
+      if(name.find("Shell") != std::string::npos) return "SupportStructure";
+      if(name.find("Heat") != std::string::npos) return "Cooling";
+      if(name.find("Dogleg") != std::string::npos) return "Cooling";
+      if(name.find("PigTail") != std::string::npos) return "Cooling";
+      if(name.find("Pigtail") != std::string::npos) return "Cooling";
+      if(name.find("Aerogel") != std::string::npos) return "Aerogel";
+      if(name.find("Faraday") != std::string::npos) return "FaradayCage";
+      if(name.find("Prepreg") != std::string::npos) return "SupportStructure";
+      if(name.find("Harness") != std::string::npos) return "SupportStructure";
+      if(name.find("Spider") != std::string::npos) return "SupportStructure";
+      if(name.find("Finger") != std::string::npos) return "SupportStructure";
+      if(name.find("Serv") != std::string::npos) return "Services";
+      if(name.find("Bulkhead") != std::string::npos) return "SupportStructure";
+      if(name.find("EndPlate") != std::string::npos) return "SupportStructure";
+      if(name.find("Tray") != std::string::npos) return "SupportStructure";
+      if(name.find("Trolley") != std::string::npos) return "SupportStructure";
+      if(name.find("Cap") != std::string::npos) return "SupportStructure";
+      if(name.find("K13C_16") != std::string::npos) return "SupportStructure";
+      if(name.find("AlNitride") != std::string::npos) return "Cooling";
+      if(name.find("Copper") != std::string::npos) return "Services";
+      if(name.find("G10") != std::string::npos) return "Services";
+      if(name.find("DBMRod") != std::string::npos) return "Services";
+      if(name.find("Twister") != std::string::npos) return "SupportStructure";
+      if(name.find("Wolfram") != std::string::npos) return "SupportStructure";
+      if(name.find("Aluminium") != std::string::npos) return "SupportStructure";
+    }else{
+      //ITk I guess?
+      if(name.find("SCT_TiMetal_heat") != std::string::npos) return "HeatExchangers";
+      if(name.find("pix::HEX") != std::string::npos) return "HeatExchangers";
+      if(name.find("HeatExchangers") != std::string::npos) return "PP1"; // comment out this line to see the Heat Exchangers separately in the final plot
+      
+      // New Step 3.0 items from Helen
+      //----HYBRID----:
+      if(name.find("matEC_Hybrid") != std::string::npos) return "StripChips"; //"Hybrid";
+      else if(name.find("matB_HybridPCB") != std::string::npos) return "StripChips"; //"Hybrid";
+      //----SERVICES----:
+      else if(name.find("matSV_Endcap") != std::string::npos) return "Services";
+      else if(name.find("matSV_Barrel") != std::string::npos) return "Services";
+      //----ADHESIVE----
+      else if(name.find("BoronNitrideEpoxy") != std::string::npos) return "SupportStructure"; //"Adhesive";
+      else if(name.find("SE4445") != std::string::npos) return "SupportStructure"; //"Adhesive";
+      //----SUPPORT STRUCTURE----
+      else if(name.find("Peek") != std::string::npos) return "SupportStructure";
+      else if(name.find("CFRP") != std::string::npos) return "SupportStructure";
+      else if(name.find("CFoam") != std::string::npos) return "SupportStructure";
+      else if(name.find("K13C2U") != std::string::npos) return "SupportStructure";
+      else if(name.find("K13D2U") != std::string::npos) return "SupportStructure";
+      else if(name.find("Rohacell110A") != std::string::npos) return "SupportStructure";
+      //----SUPPORT HONEYCOMB----
+      else if(name.find("Honeycomb10pcf") != std::string::npos) return "SupportStructure"; //"HoneyComb";
+      else if(name.find("Honeycomb2pcf") != std::string::npos) return "SupportStructure"; //"HoneyComb";
+      else if(name.find("Honeycomb3pcf") != std::string::npos) return "SupportStructure"; //"HoneyComb";
+      //----Copper----
+      else if(name.find("CuMetal") != std::string::npos) return "Services"; //"Copper";
+      else if(name.find("Copper") != std::string::npos) return "Services"; //"Copper";
+      //----Active Sensors---- (includes sensors, ABC and HCC chips)
+      else if(name.find("SiMetal") != std::string::npos) return "ActiveSensors";
+      //----Air----
+      else if(name.find("Air") != std::string::npos) return "Air";
+      else if(name.find("N2") != std::string::npos) return "Air";
+      //----Cooling----
+      else if(name.find("CO2Liquid") != std::string::npos) return "Cooling";
+      else if(name.find("k9Allcomp") != std::string::npos) return "Cooling";
+      else if(name.find("TiMetal") != std::string::npos) return "Cooling";
+      //----BusTape----
+      else if(name.find("Kapton") != std::string::npos) return "Services"; //"BusTape";
+      else if(name.find("matPetalBusKapton") != std::string::npos) return "Services"; //"BusTape";
+      //----closeouts and connectors----
+      else if(name.find("T300CF") != std::string::npos) return "Cooling"; //"CloseoutsAndConnectors";
+      else if(name.find("Torlon") != std::string::npos) return "Cooling"; //"CloseoutsAndConnectors";
+      //----strip chips----
+      else if(name.find("matDCDC") != std::string::npos) return "StripChips";
+      else if(name.find("matEOS") != std::string::npos) return "StripChips";
+      //else return "OtherSCT";
+
+      // Older stuff
+      if(name.find("CO2") != std::string::npos) return "Cooling";
+      //if(name.find("BoronNitrideEpoxy") != std::string::npos) return "Cooling";
+      if(name.find("BoronNitrideEpoxy") != std::string::npos) return "SupportStructure";
+      if(name.find("FwdSpineOutBase") != std::string::npos) return "SupportStructure";
+      if(name.find("Rohacell") != std::string::npos) return "SupportStructure";
+      if(name.find("Honeycomb") != std::string::npos) return "SupportStructure";
+      if(name.find("matSV") != std::string::npos) return "Services";
+      if(name.find("matEOS") != std::string::npos) return "Services";
+      if(name.find("matDCDC") != std::string::npos) return "Services";
+      if(name.find("PCB") != std::string::npos) return "Services";
+
+      if(name.find("N2") != std::string::npos) return "DryNitrogen";
+      if(name.find("TiMetal") != std::string::npos) return "Services";
+      if(name.find("CuMetal") != std::string::npos) return "Services";
+      if(name.find("Aluminium") != std::string::npos) return "BeamPipe";
+    } //End of ITk loop
+
+    // Do you want to split cooling and services where possible?
+    if(name.find("Cooling") != std::string::npos) return "Services";
+
+    if(name.find("Inconel") != std::string::npos) return "BeamPipe";
+    if(name.find("Aerogel") != std::string::npos) return "BeamPipe";
+    if(name.find("Beryllium") != std::string::npos) return "BeamPipe";
+    if(name.find("Getter") != std::string::npos) return "BeamPipe";
+    if(name.find("Vacuum") != std::string::npos) return "BeamPipe";
+    
+    /*
+    if(searchstring=="M_"){
+      if(name.find("Kapton") != std::string::npos) return "BeamPipe";
+    }else{
+      if(name.find("Kapton") != std::string::npos) return "Services";
+    }
+    */
+    //if(name.find("Iron") != std::string::npos) return "BeamPipe";
+    
+    if(name.find("Iron") != std::string::npos) return "SupportStructure";
+    if(name.find("Peek") != std::string::npos) return "SupportStructure";
+    if(name.find("CFRP") != std::string::npos) return "SupportStructure";
+    if(name.find("CFoam") != std::string::npos) return "SupportStructure";
+    if(name.find("K13D2U") != std::string::npos) return "SupportStructure";
+    if(name.find("BoratedPolyethylene") != std::string::npos) return "Moderator";
+
+
+    if(name.find("TiMetal") != std::string::npos) return "Titanium";
+    if(name.find("CuMetal") != std::string::npos) return "Copper";
+      
+    if(name.find("Alpine") != std::string::npos) return "SupportStructure";
+    
+    if(name.find("Support") != std::string::npos) return "SupportStructure";
+    if(name.find("Carbon") != std::string::npos) return "SupportStructure";
+    if(name.find("Default") != std::string::npos) return "SupportStructure";
+    if(name.find("Moderator") != std::string::npos) return "Moderator";
+    if(name.find("Steel") != std::string::npos) return "Steel";
+    if(name.find("BarrelStrip") != std::string::npos) return "Services";
+    if(name.find("Brl") != std::string::npos) return "Services";
+    if(name.find("Svc") != std::string::npos) return "Services";
+    if(name.find("InnerIST") != std::string::npos) return "Services";
+    if(name.find("InnerPST") != std::string::npos) return "Services";
+    if(name.find("BarrelPixel") != std::string::npos) return "Services";
+    if(name.find("EndcapPixel") != std::string::npos) return "Services";
+    if(name.find("InnerPixel") != std::string::npos) return "Services";
+    if(name.find("OuterPixel") != std::string::npos) return "Services";
+    if(name.find("pix::Chip") != std::string::npos) return "PixelChips";
+    if(name.find("pix::Hybrid") != std::string::npos) return "PixelChips";
+    if(name.find("PP0") != std::string::npos) return "PP0";
+    if(name.find("PP1") != std::string::npos) return "PP1";
+
+    //I don't know what these are.... TRT?
+    if(!m_isITk){
+      if(name.find("pix::") != std::string::npos) return "OtherPixel";
+      //if(name.find("Titanium") != std::string::npos) return "OtherPixel";
+      if(name.find("sct::") != std::string::npos) return "OtherSCT";
+      if(name.find("Glass") != std::string::npos) return "OtherSCT";
+      if(name.find("Other") != std::string::npos) return "SupportStructure";
+      if(name.find("PP0") != std::string::npos) return "PP1";
+      if(name.find("FaradayCage") != std::string::npos) return "SupportStructure";
+      if(name.find("Radiators") != std::string::npos) return "SupportStructure";
+      if(name.find("Titanium") != std::string::npos) return "Services";
+     // if(name.find("ArCO2O2") != std::string::npos) return "ActiveSensors"; //Overwritten by some other statement...
+     // if(name.find("XeCO2O2") != std::string::npos) return "ActiveSensors";  //Overwritten by some other statement...
+    }else{
+      if(name.find("PP0") != std::string::npos) return "PP1"; //Grouping PP0 and PP1
+    }
+      
+    if(name.find("PST") != std::string::npos) return "SupportStructure";
+    if(name.find("IST") != std::string::npos) return "SupportStructure";
+    if(name.find("Silicon") != std::string::npos) return "ActiveSensors";
+    if(name.find("Straw") != std::string::npos) return "ActiveSensors";
+    if(name.find("Diamond") != std::string::npos) return "ActiveSensors";
+    if(name.find("SiMetal") != std::string::npos) return "ActiveSensors";
+    if(name.find("Air") != std::string::npos) return "Air";
+    
+    //FIXME hack while we fix the air->nitrogen issue
+    if(name.find("DryNitrogen") != std::string::npos) return "Air";
+
+    if(name.find("CurlyPipeMountain") != std::string::npos) return "SupportStructure";
+    if(name.find("Flange") != std::string::npos) return "SupportStructure";
+    //if(name2.find("DM_BeamPipe") != std::string::npos) return "BeamPipe"; //Overwritten by some other statement...
+
+    if(name.find("Pigtail") != std::string::npos) return "Services"; //Overwritten by some other statement...
+   
+    return "NONE";
+
+  }
+//521
+
+  void LengthIntegrator::fillNtuple(){
+
+//      for(auto v: m_collected_volume) std::cout << v << std::endl;
+
+      //TTree *larch = nullptr;
+      //getTree(m_hSvc, "/lengths/TheLarch/", larch);
+      m_tree->Fill();
+
+      
+      //Clean vectors and such
+      m_collected_X0.clear();
+      m_collected_L0.clear();
+      
+      m_collected_hitr.clear();
+      m_collected_hitz.clear();
+
+      m_collected_material.clear();
+      m_collected_density.clear();
+      m_collected_volume.clear();
+      
+      m_collected_groupedmaterial.clear();
+
+  }
+
   void LengthIntegrator::regAndFillHist(const std::string& detName,
                                         const std::pair<double, double>& thicks)
   {
+
+/*
     TProfile* profEtaRL = nullptr;
     TProfile* profEtaIL = nullptr;
     TProfile* profPhiRL = nullptr;
@@ -174,6 +589,11 @@ namespace G4UA
     auto pathZIL = "/lengths/intLen/" + detName + "_Z_IL";
     auto pathRRL = "/lengths/radLen/" + detName + "_R_RL";
     auto pathRIL = "/lengths/intLen/" + detName + "_R_IL";
+
+
+
+
+
 
     // Eta
     if(m_doEta){
@@ -311,6 +731,7 @@ namespace G4UA
       }
     }
     //
+    */
   }
 
   //---------------------------------------------------------------------------
@@ -527,7 +948,8 @@ namespace G4UA
 	}
       }
     }
-
+    //m_tree->Fill();
+    fillNtuple();
   }
 //UserSteppingAction(const G4Step* aStep)
 
@@ -535,6 +957,56 @@ namespace G4UA
   // Accumulate results from one step
   //---------------------------------------------------------------------------
   void LengthIntegrator::UserSteppingAction(const G4Step* aStep)
+  {
+
+    G4TouchableHistory* touchHist = (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();
+    G4LogicalVolume* lv = touchHist->GetVolume()->GetLogicalVolume();
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
+    G4Material* mat = lv->GetMaterial();
+
+    std::string volName = lv->GetName();
+    std::string matName = mat->GetName();
+
+    double radl = mat->GetRadlen();
+    double intl = mat->GetNuclearInterLength();
+    double stepl = aStep->GetStepLength();
+    double density = mat->GetDensity()*CLHEP::cm3/CLHEP::gram;
+
+    // FIXME: using DBL_MAX just ensures double overflow below.
+    double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
+    double thickstepIL = intl != 0 ? stepl/intl : DBL_MAX;
+
+    //std::cout << "x0: " << thickstepRL << std::endl;
+    //Fill information for the step
+    m_collected_X0.push_back(thickstepRL);
+    m_collected_L0.push_back(thickstepIL);
+    
+    m_collected_material.push_back(matName);
+    m_collected_density.push_back(density);
+    m_collected_volume.push_back(volName);
+
+    m_total_X0+=thickstepRL;
+    m_total_L0+=thickstepIL;
+
+    m_collected_hitr.push_back(hitPoint.perp());
+    m_collected_hitz.push_back(hitPoint.z());
+
+    m_collected_hitr.push_back(endPoint.perp());
+    m_collected_hitz.push_back(endPoint.z());
+
+    std::string groupmaterial = getMaterialClassification(matName);
+    //std::cout << "NORA: " << groupmaterial << " " << matName << std::endl;
+
+    std::string volumetype = getVolumeType(matName);
+    //std::cout << "NORA: " << volumetype << "  " << matName << std::endl;
+
+    m_collected_groupedmaterial.push_back(groupmaterial);
+    m_collected_volumetype.push_back(volumetype);
+  
+  }
+
+   void LengthIntegrator::UserSteppingActionOld(const G4Step* aStep)
   {
     G4TouchableHistory* touchHist = (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();
     G4LogicalVolume* lv = touchHist->GetVolume()->GetLogicalVolume();
@@ -549,9 +1021,12 @@ namespace G4UA
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
     double thickstepIL = intl != 0 ? stepl/intl : DBL_MAX;
 
+
     m_totalX0 += thickstepRL;
     m_totalN0 += thickstepIL;
-    
+   
+
+  
     bool activeSensorHit = false;
     if( lv->GetMaterial()->GetName().find("Silicon") != std::string::npos || lv->GetMaterial()->GetName().find("SiMetal") != std::string::npos ||
         lv->GetMaterial()->GetName().find("ArCO2O2") != std::string::npos || lv->GetMaterial()->GetName().find("XeCO2O2") != std::string::npos) activeSensorHit = true;
@@ -1237,5 +1712,6 @@ namespace G4UA
   }
 
 */
+
 
 } // namespace G4UA

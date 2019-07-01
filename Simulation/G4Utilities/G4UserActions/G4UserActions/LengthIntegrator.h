@@ -16,11 +16,14 @@
 
 #include <string>
 #include <map>
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Forward declarations
 class TProfile;
 class TProfile2D;
+class TTree;
 
+//class IGeoModelSvc;
 
 namespace G4UA
 {
@@ -56,12 +59,16 @@ namespace G4UA
 
       /// Called at every particle step to accumulate thickness.
       virtual void UserSteppingAction(const G4Step*) override;
+      void UserSteppingActionOld(const G4Step*);
+
       std::string getVolumeType(std::string s);
       std::string getLayerName(double r, double z);
     private:
 
       // Holder for G4 math tools
       G4Pow* m_g4pow;
+
+      TTree* m_tree;
 
       bool m_doRL;
       bool m_doIL;
@@ -74,6 +81,8 @@ namespace G4UA
       bool m_doZ;
       bool m_doR;
 
+      std::string m_lengthTypes;
+      std::string m_histoTypes;
       // ITk Step number
       float m_step;
 
@@ -129,6 +138,8 @@ namespace G4UA
       /// Rad-length profile hist in r
       std::map<std::string, TProfile*> m_rMapRL;
 
+      std::map<std::string, TProfile*> m_profMap;
+
       /// Int-length profile hist in R-Z
       TProfile2D* m_rzProfIL;
       /// Int-length profile hist in eta
@@ -149,6 +160,35 @@ namespace G4UA
 
       std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapDensity;
 
+      //Tree Branches
+      int   m_genNPart;
+      float m_genEta;
+      float m_genPhi;
+      float m_genZ;
+      float m_genR;
+      
+      //X0 Branches
+      float m_total_X0;
+      float m_total_L0;
+
+      std::vector<double> m_collected_X0;
+      std::vector<double> m_collected_L0;
+
+      std::vector<float> m_collected_hitr;
+      std::vector<float> m_collected_hitz;
+
+      std::vector<float> m_collected_density;
+      std::vector<std::string> m_collected_material;
+      std::vector<std::string> m_collected_volume;
+      
+      std::vector<std::string> m_collected_groupedmaterial;
+      std::vector<std::string> m_collected_volumetype;
+
+      ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+      bool m_isITk;
+
+      void fillNtuple();
+      std::string getMaterialClassification(std::string name);
   }; // class LengthIntegrator
 
 } // namespace G4UA
