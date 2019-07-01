@@ -1957,7 +1957,8 @@ class ItemDef:
                     LVL1MenuItem('L1_30M-EM20ITAU12').setLogic( TOPO_DISAMB_30INVM_EM20his2_TAU12ab & physcond)    # noqa: F821
                     LVL1MenuItem('L1_MJJ-400-CF').setLogic( TOPO_400INVM9999_AJ30s6ETA31_AJ20s631ETA49 & physcond)    # noqa: F821
                     LVL1MenuItem('L1_DR-TAU20ITAU12I').setLogic( TOPO_0DR28_TAU20abi_TAU12abi & physcond)    # noqa: F821
-                    LVL1MenuItem('L1_BOX-TAU20ITAU12I').setLogic( TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)    # noqa: F821
+                    if not '_v8' in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BOX-TAU20ITAU12I').setLogic( TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)    # noqa: F821
                     if '_v8' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( TOPO_2DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)    # noqa: F821
                     else:
