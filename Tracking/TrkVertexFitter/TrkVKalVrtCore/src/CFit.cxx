@@ -273,9 +273,9 @@ int fitVertex(VKVertex * vk)
             myPropagator.Propagate(vk->TrackList[tk].get(), vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get());
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
- 	    if(eig5<1.e-15 ){ 
+            if(eig5>0 && eig5<1.e-15 ){
                 tmpCov[0]+=1.e-15; tmpCov[2]+=1.e-15; tmpCov[5]+=1.e-15;  tmpCov[9]+=1.e-15;  tmpCov[14]+=1.e-15; 
-	    }else if(tmpCov[0]>1.e9) {  //Bad propagation with material. Try without it.
+	    }else if(tmpCov[0]>1.e9 || eig5<0.) {  //Bad propagation with material. Try without it.
                myPropagator.Propagate(-999, vk->TrackList[tk]->Charge, vk->TrackList[tk]->refPerig,vk->TrackList[tk]->refCovar,
 	              	                vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get()); 
 
