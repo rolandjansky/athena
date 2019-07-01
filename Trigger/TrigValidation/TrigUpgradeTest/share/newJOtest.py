@@ -8,7 +8,7 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
-from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu
+
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
@@ -24,7 +24,7 @@ flags.Detector.GeometryCSC   = True
 flags.Detector.GeometryRPC   = True     
 flags.Trigger.writeBS=True # switches on HLTResultMT creation
 
-
+exec("from TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup +" import setupMenu")
 flags.needFlagsCategory('Trigger')
 setupMenu(flags)
 
