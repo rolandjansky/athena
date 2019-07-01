@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/CoWTools
+   Control/AthenaKernel
    Control/CxxUtils
    GaudiKernel )
 
