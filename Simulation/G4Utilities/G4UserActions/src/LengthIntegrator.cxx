@@ -564,6 +564,7 @@ namespace G4UA
       m_collected_volume.clear();
       
       m_collected_groupedmaterial.clear();
+      m_collected_volumetype.clear();
 
   }
 
