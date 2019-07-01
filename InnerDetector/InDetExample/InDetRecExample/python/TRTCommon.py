@@ -12,6 +12,7 @@ def getInDetTRT_dEdxTool(**kwargs) :
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.GlobalFlags           import globalflags
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
         from AthenaCommon.AppMgr import ToolSvc
         the_name=kwargs.pop('name','InDetTRT_dEdxTool')
@@ -27,7 +28,8 @@ def getInDetTRT_dEdxTool(**kwargs) :
                                                  TRT_dEdx_applyMimicToXeCorrection=False, # default is False
                                                  TRT_dEdx_trackConfig_maxRtrack=1.9, # default is 1.9
                                                  TRT_dEdx_trackConfig_minRtrack=0.01, # default is 0.01
-                                                 TRT_dEdx_useZeroRHitCut=True)  # default is True
+                                                 TRT_dEdx_useZeroRHitCut=True,
+                                                 TRT_dEdx_isData=globalflags.DataSource != 'geant4')  # default is True
                                          )
         ToolSvc += InDetTRT_dEdxTool
 
