@@ -104,14 +104,14 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     mglog.info('Finished process generation at '+str(time.asctime()))
 
     thedir = None
-    for adir in glob( os.getcwd()+'/*PROC*~ ).sort(reverse=True):
+    for adir in glob( os.getcwd()+'/*PROC*~' ).sort(reverse=True):
         if os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
             if thedir==None: thedir=adir
             else:
                 mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
                 mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
     if thedir==None:
-        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+glob( os.getcwd()+'/*PROC*~ ).sort(reverse=True))
+        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+glob( os.getcwd()+'/*PROC*~' ).sort(reverse=True))
 
     # Special catch related to path setting and using afs
     import os
