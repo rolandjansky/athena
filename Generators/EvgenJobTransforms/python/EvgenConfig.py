@@ -7,7 +7,7 @@ lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep","Geneva",
                   "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2", "BCVEGPY", "Dire4Pythia8", 
                   "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF",
-                  "BCVEGPY"]
+                  "BCVEGPY", "STRINGS"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones
 inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
