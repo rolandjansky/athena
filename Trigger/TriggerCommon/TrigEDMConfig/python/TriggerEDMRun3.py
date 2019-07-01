@@ -77,14 +77,14 @@ TriggerHLTList = [
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.', 'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
-    ('xAOD::CaloClusterAuxContainer#HLT_CaloEMClustersAux.',        'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
 
     # This varient needed by TrigUpgradeTest/egammaRinger.py
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClusters',             'BS ESD AODFULL', 'Egamma' 'inViews:EMCaloViews'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersAux.',      'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersAux.',  'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI',          'BS ESD AODFULL', 'Egamma' 'inViews:precisionCaloViews'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersRoIAux.',   'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersRoIAux.', 'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 
@@ -156,7 +156,7 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersFSAux.',           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
@@ -167,10 +167,7 @@ TriggerHLTList = [
 
     # tau calo clusters
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCAux.',         'BS ESD AODFULL', 'Tau'),
-
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TopoCaloClustersLCLCAux.',         'BS ESD AODFULL', 'Tau'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.',     'BS ESD AODFULL', 'Tau'),
 
     # tau tracks
     ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
