@@ -99,7 +99,14 @@ if 'DetFlags' in dir():
 else:
     from AthenaCommon.DetFlags import DetFlags
 
-    DetFlags.SCT_setOn() 
+    DetFlags.pixel_setOn()
+    DetFlags.SCT_setOn()
+    DetFlags.TRT_setOn()
+    DetFlags.Tile_setOn()
+    DetFlags.CSC_setOn()
+    DetFlags.MDT_setOn()
+    DetFlags.RPC_setOn()
+    DetFlags.TGC_setOn()
 
     DetFlags.Truth_setOn()
 
