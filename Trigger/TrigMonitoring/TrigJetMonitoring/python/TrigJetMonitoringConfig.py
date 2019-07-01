@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_physics.py
@@ -965,12 +965,6 @@ def TrigJetMonitoringTool():
         );
   from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
-
- # from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
- # ToolSvc+=LuminosityToolDefault()
-  
- # from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
- # ToolSvc+=TrigLivefractionToolDefault()
 
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)
