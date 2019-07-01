@@ -106,19 +106,14 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
   }
-
+  caloextensions.reserve(numparticles);
   /* Either create a proper CaloExtension or otherwise a dummy one
    * i.e one with no intersections
    */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
       std::unique_ptr<Trk::CaloExtension> extension=caloExtension(*(particles[i]));
-      if(extension!=nullptr){
-        caloextensions.push_back(std::move(extension));
-      }
-      else {
-        caloextensions.push_back(nullptr);
-      }
+      caloextensions.push_back(std::move(extension));
     }
     else{
       caloextensions.push_back(nullptr);
