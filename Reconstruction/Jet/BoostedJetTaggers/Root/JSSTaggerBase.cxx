@@ -165,16 +165,6 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
 
 StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet) const {
   
-  std::cout << "check " << m_truthLabelDecorationName << " " 
-	    << m_dR_truthJet << " " 
-	    << m_dR_truthPart << " " 
-	    << m_mLowTop << " " 
-	    << m_mHighTop << " " 
-	    << m_mLowW << " " 
-	    << m_mHighW << " " 
-	    << m_mLowZ << " " 
-	    << m_mHighZ << std::endl;
-
   const xAOD::JetContainer* truthJet=nullptr;
   if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
     // TRUTH3
