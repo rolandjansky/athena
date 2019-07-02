@@ -197,7 +197,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     if (sMode == "")
     {
       ATH_MSG_WARNING("Found tau with unknown decay mode. Skip efficiency correction.");
-      return CP::CorrectionCode::Ok;
+      return CP::CorrectionCode::OutOfValidityRange;
     }
   }
   else
