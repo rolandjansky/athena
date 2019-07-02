@@ -111,6 +111,11 @@ atlas_add_test( TileRawChannelBuilderOptConfig_test
                  PROPERTIES TIMEOUT 300
                  POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileDQstatusConfig_test
+                 SCRIPT python -m TileRecUtils.TileDQstatusConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileRawChannelCorrectionConfig_test
                  SCRIPT python -m TileRecUtils.TileRawChannelCorrectionConfig
                  PROPERTIES TIMEOUT 300

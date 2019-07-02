@@ -4,9 +4,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-_runTypes = {'PHY' : 1, 'LAS' : 2, 'BILAS' : 2, 'PED' : 4, 'CIS' : 8, 'MONOCIS' : 8}
-
-
 def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile Fit raw channel builder tool
 
@@ -14,29 +11,17 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
-    acc = ComponentAccumulator()
-
-    runType = flags.Tile.RunType
-    runType = runType.upper()
-
-    if runType not in _runTypes.keys():
-        raise(Exception("Invalid Tile run type: %s" % runType))
-
-    from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
-    acc.merge( TileDQstatusAlgCfg(flags) )
-
-    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
-    acc.merge( TileInfoLoaderCfg(flags) )
-
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
-    tileRawChannelBuilderFit = TileRawChannelBuilderFitFilter()
+    from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+
+    name = 'TileRawChannelBuilderFitFilter'
+    acc = TileRawChannelBuilderCfg(flags, TileRawChannelBuilderFitFilter, name)
+    tileRawChannelBuilderFit = acc.getPrimary()
 
     from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
     sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
     tileRawChannelBuilderFit.TileCondToolNoiseSample = sampleNoiseTool
 
-    tileRawChannelBuilderFit.RunType = _runTypes[runType]
-    tileRawChannelBuilderFit.calibrateEnergy = flags.Tile.calibrateEnergy
     tileRawChannelBuilderFit.correctTime = flags.Tile.correctTime
     tileRawChannelBuilderFit.FrameLength = 7
     tileRawChannelBuilderFit.TileRawChannelContainer = 'TileRawChannelFit'
@@ -45,19 +30,6 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
         from TileConditions.TileTimingConfig import TileCondToolTimingCfg
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
         tileRawChannelBuilderFit.TileCondToolTiming = timingTool
-
-    tileRawChannelContainerDSP = ""
-    if flags.Tile.NoiseFilter == 1:
-        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
-        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        tileRawChannelBuilderFit.NoiseFilterTools = correctionTools
-
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay):
-            tileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
-            from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
-            acc.merge( TileRawChannelCorrectionAlgCfg(flags) )
-
-    tileRawChannelBuilderFit.DSPContainer = tileRawChannelContainerDSP
 
     acc.setPrivateTools( tileRawChannelBuilderFit )
 
