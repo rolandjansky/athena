@@ -51,10 +51,13 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools ( const ToolHandle<IMultiStateExtrapolator> &, const ToolHandle<IMultiStateMeasurementUpdator> &);
+  virtual StatusCode configureTools ( const ToolHandle<IMultiStateExtrapolator> &, 
+                                      const ToolHandle<IMultiStateMeasurementUpdator> &);
 
   /** Gsf smoother method */
-  virtual SmoothedTrajectory* fit (const ForwardTrajectory&, const ParticleHypothesis particleHypothesis = nonInteracting, const CaloCluster_OnTrack* ccot = 0  ) const;
+  virtual SmoothedTrajectory* fit (const ForwardTrajectory&, 
+                                   const ParticleHypothesis particleHypothesis = nonInteracting, 
+                                   const CaloCluster_OnTrack* ccot = 0  ) const;
 
  private:
 
@@ -68,15 +71,17 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
 
 
  private:
-  int                                       m_outputlevel;       //!< to cache current output level
-
   bool                                      m_combineWithFitter;
+ ToolHandle<IMultiComponentStateMerger>    m_merger{this,
+    "ComponentMerger", "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",""};
+  ToolHandle<IMultiComponentStateCombiner>  m_combiner{this,    
+    "MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfSmootherCombiner",""};
+  /*
+   * Special Tool Handles set by the configureTools
+   */
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
-  ToolHandle<IMultiComponentStateMerger>    m_merger;
-  ToolHandle<IMultiComponentStateCombiner>  m_combiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfSmootherCombiner",""};
-
+ 
 
 };
 

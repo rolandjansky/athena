@@ -157,12 +157,10 @@ def getGSFTrackFitter():
 
     from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator
     egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
-    ToolSvc += egTrkUpdator
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
     GsfMeasurementUpdator = Trk__GsfMeasurementUpdator(name='GsfMeasurementUpdator',
                                                        Updator=egTrkUpdator)
-    ToolSvc += GsfMeasurementUpdator
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
     GSFTrackFitter = Trk__GaussianSumFitter(name='GSFTrackFitter',
@@ -174,5 +172,4 @@ def getGSFTrackFitter():
                                             DoHitSorting=True,
                                             ToolForROTCreation=egRotCreator)
     # --- end of fitter loading
-    ToolSvc += GSFTrackFitter
     return GSFTrackFitter
