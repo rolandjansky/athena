@@ -6,6 +6,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TROOT.h"
 
 #include "HistogramException.h"
 #include "HistogramFactory.h"
@@ -128,6 +129,7 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Otherwise, create the efficiency and register it
   e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
   TGraph* g = reinterpret_cast<TGraph*>(e);
+  e->SetDirectory(gROOT);
   if ( !m_histSvc->regGraph(fullName,g) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
