@@ -34,6 +34,8 @@ public:
   }
 
   void FillAdditionalITkPlots(bool fill=false);
+  // we need a custom book method here to avoid having to hardcode identical histos for 28 layers in the XML
+  void bookProfileForLayer(TProfile*& pHisto, const std::string& histoIdentifier, int index,const std::string& folder = "default");
 
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
@@ -44,7 +46,7 @@ private:
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
   };
   
-  const static int N_LAYERS = 5;
+  const static int N_LAYERS = 33;
   const static int N_SCTLAYERS = 4;
     
   void initializePlots();
