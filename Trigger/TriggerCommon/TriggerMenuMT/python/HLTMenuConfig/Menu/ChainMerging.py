@@ -80,6 +80,7 @@ def makeChainSteps(steps):
     stepMult = 0
     stepNumber = ''
     log.debug(" steps %s ", steps)
+    stepName = "merged"
     for step in steps:
         if step is None:
             continue
@@ -96,7 +97,7 @@ def makeChainSteps(steps):
             stepNumber = stepNameParts[0]
 
         # the step naming for combined chains needs to be revisted!!
-        stepName = stepNumber + '_' + stepNameParts[1]
+        stepName += '_' +step.name #stepNumber + '_' + stepNameParts[1]
         stepSeq.append(seq)
         stepMult += step.multiplicity
         
