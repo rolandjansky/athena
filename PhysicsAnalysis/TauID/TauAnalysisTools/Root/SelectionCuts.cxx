@@ -459,7 +459,6 @@ void SelectionCutBDTEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHis
     throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
       "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
       "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str() );
-    return;
   }
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   hHist.Fill(accEleBDT(xTau));
@@ -476,7 +475,6 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
     throw std::runtime_error (("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
       "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
       "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str());
-    return false;
   }
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
 
@@ -540,7 +538,6 @@ void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
     throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
       "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
       "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str());
-    return;
   }
 
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
@@ -562,7 +559,6 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
       "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
       "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst").c_str());
-    return false;
   }
 
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
