@@ -7,7 +7,6 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "IPixelClusterCacheTool.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -46,7 +45,6 @@ private:
   std::string m_containerName;
   FastPixelClusterization m_clusterization;
   //PixelIdMapping *m_IdMapping; 
-  ServiceHandle<IPixelCablingSvc> m_IdMapping;
   const InDetDD::PixelDetectorManager* p_indet_mgr;
   const PixelID* m_pixel_id;
   IdContext m_cntx_pix;   

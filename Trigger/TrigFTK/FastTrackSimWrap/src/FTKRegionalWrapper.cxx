@@ -11,7 +11,6 @@
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -42,7 +41,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     AthAlgorithm(name, pSvcLocator),
     m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),
     m_clusterConverterTool("TrigFTKClusterConverterTool"),
-    m_pix_cabling_svc("PixelCablingSvc", name),
     m_sct_cablingToolInc("SCT_CablingToolInc"),
     m_storeGate(0),
     m_detStore( 0 ),
@@ -133,7 +131,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     m_offline_phi(nullptr),
     m_offline_cluster_tree(nullptr)
 {
-
     declareProperty("TrigFTKClusterConverterTool", m_clusterConverterTool);
     declareProperty("RMapPath",m_rmap_path);
     declareProperty("PMapPath",m_pmap_path);
@@ -142,7 +139,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     declareProperty("IBLMode",m_IBLMode);
     declareProperty("FixEndcapL0", m_fixEndcapL0);
     declareProperty("ITkMode",m_ITkMode);
-    declareProperty("PixelCablingSvc", m_pix_cabling_svc);
     declareProperty("SCT_CablingTool",m_sct_cablingToolInc);
 
     // hit type options
@@ -241,11 +237,6 @@ StatusCode FTKRegionalWrapper::initialize()
       ATH_MSG_FATAL("PixelCabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!");
       return StatusCode::FAILURE;
     }
-  } else if (m_pix_cabling_svc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_pix_cabling_svc);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("Retrieved tool " << m_pix_cabling_svc);
   }
 
   // Retrieve sct cabling service
@@ -300,6 +291,7 @@ StatusCode FTKRegionalWrapper::initialize()
   if (m_getOffline) {
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
   }
+  ATH_CHECK(m_condCablingKey.initialize());
 
 
   // Write clusters in InDetCluster format to ESD for use in Pseudotracking
@@ -380,8 +372,8 @@ StatusCode FTKRegionalWrapper::initialize()
   //Dump to the log output the RODs used in the emulation
   if(m_EmulateDF){
 
-    ATH_MSG_DEBUG("Printing full map via  m_pix_cabling_svc->get_idMap_offrob(); ");
-    std::map< Identifier, uint32_t> offmap = m_pix_cabling_svc->get_idMap_offrob();
+    // Shouldn't access conditions in the initilization step (in athenaMT).
+    std::map< Identifier, uint32_t> offmap;
     for (auto mit = offmap.begin(); mit != offmap.end(); mit++){
       //uint id = mit->first;
       ATH_MSG_DEBUG("Pixel offline map hashID to RobId "<<MSG::dec<<mit->first<<" "<<MSG::hex<<mit->second<<MSG::dec);
@@ -391,14 +383,14 @@ StatusCode FTKRegionalWrapper::initialize()
 
     m_sct_cablingToolInc->getAllRods(sctVector);
     ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cablingToolInc->getAllRods() "<<sctVector.size()<<" rods ");
-    
-    for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
-	// Retrive hashlist
-	m_sct_cablingToolInc->getHashesForRod(m_identifierHashList,*mit );
-	ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
 
-	for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
-	  ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
+    for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
+      // Retrive hashlist
+      m_sct_cablingToolInc->getHashesForRod(m_identifierHashList,*mit );
+      ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
+
+      for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
+        ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
     }
 
     m_pix_rodIdlist.clear();
@@ -411,24 +403,27 @@ StatusCode FTKRegionalWrapper::initialize()
 
       m_pix_rodIdlist.push_back(val);
 
-      ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
-		    << val <<MSG::dec);
-
-      std::vector<IdentifierHash> offlineIdHashList;
-      m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(val));
-      ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<val<<MSG::dec<<"));");
-      for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
-
-	Identifier id = m_pixelId->wafer_id( *oit );
-	int barrel_ec      = m_pixelId->barrel_ec(id);
-	int layer_disk     = m_pixelId->layer_disk(id);
-	int phi_module     = m_pixelId->phi_module(id);
-	int eta_module     = m_pixelId->eta_module(id);
-
-	ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<val<<MSG::dec
-		      << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
-		      << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
-      }
+      // Shouldn't access conditions in the initilization step (in athenaMT).
+      // The following logic breaks the conditions access.
+      // Since this is just for debugging purpose, just comment.
+//       ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
+//           << val <<MSG::dec);
+// 
+//       std::vector<IdentifierHash> offlineIdHashList;
+//       m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(val));
+//       ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<val<<MSG::dec<<"));");
+//       for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
+// 
+//         Identifier id = m_pixelId->wafer_id( *oit );
+//         int barrel_ec      = m_pixelId->barrel_ec(id);
+//         int layer_disk     = m_pixelId->layer_disk(id);
+//         int phi_module     = m_pixelId->phi_module(id);
+//         int eta_module     = m_pixelId->eta_module(id);
+// 
+//         ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<val<<MSG::dec
+//             << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
+//             << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
+//       }
     }
 
     m_sct_rodIdlist.clear();
@@ -440,7 +435,7 @@ StatusCode FTKRegionalWrapper::initialize()
       m_sct_rodIdlist.push_back(val);
 
       ATH_MSG_DEBUG("Going to test against the following SCT RODIDs "<< MSG::hex
-		    << val <<MSG::dec);
+          << val <<MSG::dec);
     }
 
   }
@@ -578,8 +573,8 @@ StatusCode FTKRegionalWrapper::execute()
 
     if (m_SavePerPlane) {
       for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-	if (m_SaveRawHits) m_original_hits_per_plane[ireg][iplane].clear();
-	if (m_SaveHits) m_logical_hits_per_plane[ireg][iplane].clear();
+        if (m_SaveRawHits) m_original_hits_per_plane[ireg][iplane].clear();
+        if (m_SaveHits) m_logical_hits_per_plane[ireg][iplane].clear();
       }
     }
   }
@@ -631,6 +626,8 @@ StatusCode FTKRegionalWrapper::execute()
     vector<FTKRawHit>::const_iterator ihit = templist.begin();
     vector<FTKRawHit>::const_iterator ihitE = templist.end();
 
+    SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+
     for (;ihit!=ihitE;++ihit) { // hit loop
       const FTKRawHit &currawhit = *ihit;
 
@@ -672,7 +669,7 @@ StatusCode FTKRegionalWrapper::execute()
 	Identifier dehashedId = m_pixelId->wafer_id(modHash);
 
 	//then get the corresponding RobId
-	uint32_t robid = m_pix_cabling_svc->getRobId(dehashedId);
+  uint32_t robid = pixCabling->find_entry_offrob(dehashedId);
 
 	//then try to find in rob list
 	auto it = find(m_pix_rodIdlist.begin(), m_pix_rodIdlist.end(), robid);
@@ -688,9 +685,9 @@ StatusCode FTKRegionalWrapper::execute()
 	}
 
       }else{
-	//this shouldn't happen, so throw error
-	ATH_MSG_ERROR("Hit is neither Pixel or SCT!!");
-	return StatusCode::FAILURE;
+        //this shouldn't happen, so throw error
+        ATH_MSG_ERROR("Hit is neither Pixel or SCT!!");
+        return StatusCode::FAILURE;
       }
       //save the hit if it has the correct RodID
       ATH_MSG_DEBUG("Found hit to keep");
@@ -988,6 +985,9 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRe
   // Note PIXEL RODs are input
   vector<uint32_t>::iterator rodit = m_pix_rodIdlist.begin();
   vector<uint32_t>::iterator rodit_e = m_pix_rodIdlist.end();
+
+  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+
   hitTyp = 1; // pixel
 
   for (; rodit!=rodit_e; rodit++){
@@ -1003,43 +1003,44 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRe
 
     if ( myfile.is_open() ) {
       for (int link = 0; link < 128;link++){   // Loop over all modules
-	// Retrieve onlineId = link+ROD
-	onlineId  = m_pix_cabling_svc->getOnlineIdFromRobId((*rodit),link) ;
-	hashId   = m_pix_cabling_svc->getOfflineIdHash(onlineId);
+        // Retrieve onlineId = link+ROD
+        onlineId = pixCabling->getOnlineIdFromRobId((*rodit),link) ;
+        hashId   = m_pixelId->wafer_hash(pixCabling->find_entry_onoff(onlineId));
 
-	if (hashId <=999999){ // Adjust for correct output format incase of invalid hashId // TODO: add a proper cutoff!
 
-	  id = m_pixelId->wafer_id( hashId );
-	  int barrel_ec      = m_pixelId->barrel_ec(id);
-	  int layer_disk     = m_pixelId->layer_disk(id);
-	  int phi_module     = m_pixelId->phi_module(id);
-	  int eta_module     = m_pixelId->eta_module(id);
-	  int eta_module_min = m_pixelId->eta_module_min(id);
-	  int eta_module_max = m_pixelId->eta_module_max(id);
-	  int eta_index      = m_pixelId->eta_index(id);
-	  int eta_index_max  = m_pixelId->eta_index_max(id);
+        if (hashId <=999999){ // Adjust for correct output format incase of invalid hashId // TODO: add a proper cutoff!
 
-	  // Get Plane information
-	  FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
+          id = m_pixelId->wafer_id( hashId );
+          int barrel_ec      = m_pixelId->barrel_ec(id);
+          int layer_disk     = m_pixelId->layer_disk(id);
+          int phi_module     = m_pixelId->phi_module(id);
+          int eta_module     = m_pixelId->eta_module(id);
+          int eta_module_min = m_pixelId->eta_module_min(id);
+          int eta_module_max = m_pixelId->eta_module_max(id);
+          int eta_index      = m_pixelId->eta_index(id);
+          int eta_index_max  = m_pixelId->eta_index_max(id);
 
-	  // Get tower information
-	  FTKRawHit dummy;
+          // Get Plane information
+          FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
 
-	  dummy.setBarrelEC(barrel_ec);
-	  dummy.setLayer(layer_disk);
-	  dummy.setPhiModule(phi_module);
-	  dummy.setEtaModule(eta_module);
+          // Get tower information
+          FTKRawHit dummy;
 
-	  stringstream towerList;
-	  FTKHit hitref = dummy.getFTKHit(pmap);
-	  int nTowers = 0;
-	  int towerId;
-	  for (towerId = 0; towerId<64;towerId++){ // Loop over all 64 eta-phi towers
-	    if (rmap->isHitInRegion(hitref,towerId)){
-	      towerList << towerId << ", ";
-	      nTowers++;
-	    }
-	  }
+          dummy.setBarrelEC(barrel_ec);
+          dummy.setLayer(layer_disk);
+          dummy.setPhiModule(phi_module);
+          dummy.setEtaModule(eta_module);
+
+          stringstream towerList;
+          FTKHit hitref = dummy.getFTKHit(pmap);
+          int nTowers = 0;
+          int towerId;
+          for (towerId = 0; towerId<64;towerId++){ // Loop over all 64 eta-phi towers
+            if (rmap->isHitInRegion(hitref,towerId)){
+              towerList << towerId << ", ";
+              nTowers++;
+            }
+          }
 
 
 	  // Dump data to file:
