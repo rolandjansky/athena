@@ -85,6 +85,12 @@ class PixelConditionsSummaryToolSetup:
                                               ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                               UseCalibConditions=True)
 
+#            if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+#                conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+#            if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+#                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+#                condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+
         if self.tool is None:
             from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
             self.tool = PixelConditionsSummaryTool(name=self.toolName, 
