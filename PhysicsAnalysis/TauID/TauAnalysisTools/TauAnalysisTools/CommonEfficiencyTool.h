@@ -92,6 +92,7 @@ protected:
   std::string ConvertProngToString(const int& iProngness);
   std::string ConvertMuToString(const int& iMu);
   std::string GetMcCampaignString(const int& iMu);
+  std::string ConvertDecayModeToString(const int& iDecayMode);
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
@@ -146,6 +147,7 @@ protected:
   bool m_bUseHighPtUncert;
   bool m_bNoMultiprong;
   bool m_bUseInclusiveEta;
+  bool m_bUseTauSubstructure;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
