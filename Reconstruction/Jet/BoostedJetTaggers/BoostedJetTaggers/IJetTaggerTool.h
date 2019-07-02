@@ -1,23 +1,23 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IJETTAGGER_H
-#define IJETTAGGER_H
+#ifndef IJETTAGGERTOOL_H
+#define IJETTAGGERTOOL_H
 
 #include "PATInterfaces/CorrectionCode.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "xAODJet/JetContainer.h"
 
-class IJetTagger : public virtual IJetSelectorTool {
+class IJetTaggerTool : public virtual IJetSelectorTool {
 
-  ASG_TOOL_INTERFACE( CP::IJetTagger )
+  ASG_TOOL_INTERFACE( CP::IJetTaggerTool )
 
   public:
 
-  virtual ~IJetTagger() {}
+  virtual ~IJetTaggerTool() {}
   
   virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
   

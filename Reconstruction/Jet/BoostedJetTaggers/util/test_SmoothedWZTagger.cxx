@@ -34,7 +34,7 @@
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-#include "BoostedJetTaggers/IJetTagger.h"
+#include "BoostedJetTaggers/IJetTaggerTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
@@ -195,7 +195,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing WZ Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetTagger> m_Tagger; //!
+  asg::AnaToolHandle<IJetTaggerTool> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
