@@ -11,6 +11,7 @@ metaMultivariateTagManager = { 'IsATagger'          : True,
                                       'IP2DTag',
                                       'IP3DTag',                                      
                                       'NewJetFitterVxFinder',
+                                      'SoftMuonTag',
                                       'SV1Tag'],
               'ToolCollection'     : 'MultivariateTagManager' }
 

@@ -270,10 +270,13 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        ]
 if BTaggingFlags.Do2019Retraining:
-    FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMPFlowJets_BTagging201810",
+    FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets_BTagging201810",
+                                             "AntiKt4EMPFlowJets_BTagging201810",
                                              "AntiKt4EMPFlowJets_BTagging201903"]
     FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903"]
 
