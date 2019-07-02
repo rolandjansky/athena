@@ -10,7 +10,17 @@ JSSTaggerBase::JSSTaggerBase(const std::string &name) :
   m_jetPtMax(3000000.),
   m_jetEtaMax(2.0),
   m_decorate(true),
-  m_calibarea(""){}
+  m_calibarea(""),
+  m_truthLabelDecorationName("FatjetTruthLabel"),
+  m_dR_truthJet(0.75),
+  m_dR_truthPart(0.75),
+  m_mLowTop(140.),
+  m_mHighTop(-1),
+  m_mLowW(50.),
+  m_mHighW(100.),
+  m_mLowZ(60.),
+  m_mHighZ(110.){}
+
 
 void JSSTaggerBase::showCuts() const{
   int nCuts = m_accept.getNCuts();
@@ -153,7 +163,17 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
   return 0;
 }
 
-StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
+StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet) const {
+  
+  std::cout << "check " << m_truthLabelDecorationName << " " 
+	    << m_dR_truthJet << " " 
+	    << m_dR_truthPart << " " 
+	    << m_mLowTop << " " 
+	    << m_mHighTop << " " 
+	    << m_mLowW << " " 
+	    << m_mHighW << " " 
+	    << m_mLowZ << " " 
+	    << m_mHighZ << std::endl;
 
   const xAOD::JetContainer* truthJet=nullptr;
   if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
@@ -165,15 +185,15 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, std::string d
     ATH_CHECK(evtStore()->retrieve(truthPartsZ, m_truthZBosonContainerName));
     const xAOD::TruthParticleContainer* truthPartsTop=nullptr;
     ATH_CHECK(evtStore()->retrieve(truthPartsTop, m_truthTopQuarkContainerName));
-    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthJet, decorName,
-			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthJet, m_truthLabelDecorationName,
+			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ);
   }else if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthParticleContainerName ) ){    
     // TRUTH1
     ATH_CHECK( evtStore()->retrieve(truthJet, m_truthJetContainerName) );
     const xAOD::TruthParticleContainer* truthParts=nullptr;
     ATH_CHECK(evtStore()->retrieve(truthParts, m_truthParticleContainerName));
-    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, decorName,
-			      dR_truthJet, dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, m_truthLabelDecorationName,
+			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ);
   }
   
   return StatusCode::FAILURE;
