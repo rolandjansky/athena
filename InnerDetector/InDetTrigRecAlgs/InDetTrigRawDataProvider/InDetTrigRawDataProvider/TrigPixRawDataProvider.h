@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,6 @@
 class StoreGateSvc;
 class IRoiDescriptor;
 class PixelID;
-class IPixelCablingSvc;
 class IROBDataProviderSvc;
 class IRegSelSvc;
 class IPixelRawDataProviderTool;
@@ -62,7 +61,6 @@ namespace InDet {
     ToolHandle<IPixelRawDataProviderTool>  m_rawDataTool;
     ServiceHandle<StoreGateSvc>           m_storeGate;
     ServiceHandle<StoreGateSvc>           m_detStore; 
-    ServiceHandle<IPixelCablingSvc>       m_IdMapping;
     const PixelID*                        m_id; 
 
     PixelRDO_Container*                   m_container;

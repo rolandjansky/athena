@@ -33,7 +33,6 @@ PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
-    m_IdMapping("PixelCablingSvc",name), 
     m_offlineDecoder("PixelRodDecoder",this), 
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::MergedPixelsTool/InDetTrigMergedPixelsTool") 
@@ -85,12 +84,6 @@ StatusCode PixelClusterCacheTool::initialize()  {
   } 
 
   if(m_doBS) {
-
-    sc = m_IdMapping.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("cannot retrieve PixelCablingService ");  
-      return sc;
-    }   
 
     if(StatusCode::SUCCESS !=m_offlineDecoder.retrieve()) {
       ATH_MSG_ERROR("initialize(): Can't get PixelRodDecoder ");
