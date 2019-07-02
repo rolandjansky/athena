@@ -44,6 +44,8 @@ if DetFlags.haveRIO.pixel_on():
     #################
     # Module status #
     #################
+    useNewConditionsFormat = False
+
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
             conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
@@ -61,6 +63,13 @@ if DetFlags.haveRIO.pixel_on():
                                     UseDeadMap=True,
                                     ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                     UseCalibConditions=True)
+
+    if useNewConditionsFormat:
+        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
     #####################
     # Calibration Setup #
