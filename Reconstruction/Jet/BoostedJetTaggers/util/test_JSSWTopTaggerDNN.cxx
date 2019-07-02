@@ -269,7 +269,7 @@ int main( int argc, char* argv[] ) {
 	      m_Tagger->tag( *jetSC );
 	      m_jetUncToolSF->applySystematicVariation(sysSet);
 	      m_jetUncToolSF->applyCorrection(*jetSC);
-	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF");
+	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
 	    }
 	  }
 	}
