@@ -48,6 +48,8 @@
 #include "PileUpTools/PileUpMergeSvc.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "LArSimEvent/LArHitFloatContainer.h"
 
 class StoreGateSvc;
 class ITriggerTime;
@@ -147,8 +149,12 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::WriteHandleKey<LArHitEMap> m_hitMapKey_DigiHSTruth{this,"LArHitEMapKey","LArHitEMap_DigiHSTruth"};
   SG::WriteHandle<LArHitEMap> m_hitmap_DigiHSTruth; //Set in perpareEvent, used in subsequent methods (mergeEvent, fillMapFromHit)
 
-  std::vector <std::string> m_HitContainer; // hit container name list
-  std::vector<int> m_CaloType;
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKeyArray<LArHitContainer> m_hitContainerKeys{this, "LArHitContainers", {"LArHitEMB", "LArHitEMEC", "LArHitHEC", "LArHitFCAL"},
+      "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitContainers to use
+  SG::ReadHandleKeyArray<LArHitFloatContainer> m_hitFloatContainerKeys{this, "LArHitFloatContainers", {"LArHitEMB", "LArHitEMEC", "LArHitHEC", "LArHitFCAL"},
+      "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitFloatContainers to use
+  std::vector <std::string> m_hitContainerNames; // hit container name list
 
 //
 // ........ Algorithm properties
@@ -160,14 +166,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::WriteHandle<LArDigitContainer> m_DigitContainer;
   SG::WriteHandle<LArDigitContainer> m_DigitContainer_DigiHSTruth;
 
-   Gaudi::Property< std::vector<std::string> > m_EmBarrelHitContainerName{this, "EmBarrelHitContainerName", {"LArHitEMB"},
-      "Hit container name for EMB"};
-  Gaudi::Property< std::vector<std::string> > m_EmEndCapHitContainerName{this, "EmEndCapHitContainerName", {"LArHitEMEC"},
-      "Hit container name for EMEC"};
-  Gaudi::Property< std::vector<std::string> > m_HecHitContainerName{this, "HecHitContainerName", {"LArHitHEC"},
-      "Hit container name for HEC"};
-  Gaudi::Property< std::vector<std::string> > m_ForWardHitContainerName{this, "ForWardHitContainerName", {"LArHitFCAL"},
-      "Hit container name for FCAL"};
   Gaudi::Property<bool> m_NoiseOnOff{this, "NoiseOnOff", true,
       "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
   Gaudi::Property<bool> m_PileUp{this, "PileUp", false,
