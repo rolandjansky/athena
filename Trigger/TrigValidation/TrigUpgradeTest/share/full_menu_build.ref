@@ -22,7 +22,6 @@ TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j45_L1J20 ID#12
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -36,7 +35,6 @@ TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -100,9 +98,7 @@ TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_mu6_msonly_L1MU
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep4                     5   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -114,7 +110,6 @@ TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_xe30_cell_L1XE1
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu20_ivar_L1MU6 ID#2083734526
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6fast_L1MU6 ID#3518031697
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_msonly_L1MU6 ID#3895421032
@@ -144,12 +139,10 @@ TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
-TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
@@ -161,7 +154,6 @@ TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -177,7 +169,6 @@ TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut_L1EM3 
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j45_L1J20 ID#1247336154
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -203,7 +194,6 @@ TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut_L1EM3 
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -242,7 +232,6 @@ TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_ivarmedium_
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu20_ivar_L1MU6 ID#2083734526
-TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6fast_L1MU6 ID#3518031697
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_msonly_L1MU6 ID#3895421032
@@ -260,7 +249,6 @@ TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut_L1EM3 
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -284,7 +272,6 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut1step_L
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j45_L1J20 ID#1247336154
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 ID#2086577378
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -313,8 +300,8 @@ TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20  
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        0         0         0         0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU1020        20        10        0         0         0         0         3         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    15        0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU1020        20        10        0         0         0         0         1         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    17        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        17        0         0         17        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        315       81        0         0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        16        16        0         0         16        
@@ -347,8 +334,8 @@ TrigSignatureMoniMT                                INFO HLT_mu6_ivarmedium_L1MU6
 TrigSignatureMoniMT                                INFO HLT_mu6_ivarmedium_L1MU6 decisions                    3         2         1         1         0         
 TrigSignatureMoniMT                                INFO HLT_mu6_msonly_L1MU6          20        20        3         0         2         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6_msonly_L1MU6 decisions                    3         0         2         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4            20        20        4         3         2         2         0         2         
-TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      7         5         3         3         0         
+TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4            20        20        4         2         2         1         0         1         
+TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      10        6         4         3         0         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             20        20        3         0         0         0         0         3         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         0         0         0         0         0         

@@ -93,78 +93,58 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "noL2Comb" : [[self.getmuFast()], [self.getmuEFSA(), self.getmuEFCB()]],
             "ivar":[[self.getmuFast(), self.getmuComb(), self.getmuIso()]],
             "noL1":[[],[self.getFSmuEFSA(), self.getFSmuEFCB()]],
-            "msonly":[[self.getmuFast(), self.getmuMSEmpty()], [self.getmuEFMS()]],
+            "msonly":[[self.getmuFast(), self.getmuMSEmpty(1)], [self.getmuEFMS()]],
             "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
         }
+       
         return stepDictionary
 
-    # --------------------
-    def getmuFast(self):
-        stepName = 'Step1_mufast'
+    def getStep(self, stepID, stepPartName, sequenceCfgArray):
+        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
         log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muFastSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        seqArray = []
+        for sequenceCfg in sequenceCfgArray:
+            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
+        return ChainStep(stepName, seqArray, self.mult)
         
     # --------------------
+    def getmuFast(self):
+        return self.getStep(1,"mufast", [muFastSequenceCfg] )
+         
+    # --------------------
     def getmuComb(self):
-        stepName = 'Step2_muComb'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muCombSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(2, 'muComb', [muCombSequenceCfg] )
 
     # --------------------
     def getmuEFSA(self):
-        stepName = 'Step3_muEFSA'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muEFSASequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
 
     # --------------------
     def getmuEFMS(self):
-        stepName = 'Step3_muEFMS'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(3,'muEFMS', [muEFMSSequenceCfg])
 
     # --------------------
     def getmuIso(self):
-        stepName = 'Step3_muIso'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muIsoSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(3,'muIso', [muIsoSequenceCfg])
 
     # --------------------
     def getmuEFCB(self):
-        stepName = 'Step4_muEFCB'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muEFCBSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
-
+        return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
+ 
     # --------------------
     def getFSmuEFSA(self):
-        stepName = 'Step1_FSmuEFSA'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( FSmuEFSASequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(1,'FSmuEFSA', [FSmuEFSASequenceCfg])
 
     # --------------------
     def getFSmuEFCB(self):
-        stepName = 'Step2_FSmuEFCB'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):
-        stepName = 'Step5_muEFIso'
-        log.debug("Configuring step " + stepName)
-        muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
-        return ChainStep(stepName, [muSeq], self.mult)
+        return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg])
 
     #--------------------
-    def getmuMSEmpty(self):
-        stepName = 'Step_muMS_empty'
-        log.debug("Configuring empty step")
-        return ChainStep(stepName)
+    def getmuMSEmpty(self, stepID):
+        return self.getStep(stepID,'muMS_empty',[])
 
 
