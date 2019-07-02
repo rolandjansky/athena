@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to instantiate InDet tools for egamma with default configuration"
 __author__ = "Bruno Lenzi"
@@ -67,7 +67,12 @@ egammaInDetHoleSearchTool = ToolFactory( InDet__InDetTrackHoleSearchTool,
 # Load the InDetTrackSummaryHelperTool
 #
 from AthenaCommon.DetFlags import DetFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+
+isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+
 egammaInDetTrackSummaryHelperTool = ToolFactory( InDet__InDetTrackSummaryHelperTool,
                                                  name         = "egammaInDetSummaryHelper",
                                                  AssoTool     = egammaInDetPrdAssociationTool,
@@ -75,7 +80,8 @@ egammaInDetTrackSummaryHelperTool = ToolFactory( InDet__InDetTrackSummaryHelperT
                                                  HoleSearch   = egammaInDetHoleSearchTool,
                                                  usePixel     = DetFlags.haveRIO.pixel_on(),
                                                  useSCT       = DetFlags.haveRIO.SCT_on(),
-                                                 useTRT       = DetFlags.haveRIO.TRT_on() )
+                                                 useTRT       = DetFlags.haveRIO.TRT_on(),
+                                                 ITkGeometry  = isUpgrade)
 
 #
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
