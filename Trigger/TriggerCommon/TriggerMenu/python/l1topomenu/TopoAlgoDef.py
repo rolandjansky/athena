@@ -24,7 +24,7 @@ class TopoAlgoDef:
 
         if '_v8' in TriggerFlags.triggerMenuSetup():
             usev8 = True
-        if '_v8' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
+        if '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() : #'_v8' in TriggerFlags.triggerMenuSetup() or 
             usev7 = True
         if '_PhaseII' in TriggerFlags.triggerMenuSetup():
             usev7 = True
@@ -40,8 +40,7 @@ class TopoAlgoDef:
         alg.addgeneric('OutputWidth', HW.InputWidthEM)
         alg.addvariable('IsoMask', 0)
         tm.registerAlgo(alg)  
-        print "Aparajita"
-        print currentAlgoId-1
+
                                 
         alg = AlgConf.ClusterSelect( name = 'TAUabi', inputs = 'ClusterTobArray', outputs = 'TAUabi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
@@ -53,8 +52,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.ClusterSelect( name = 'EMabi', inputs = 'ClusterTobArray', outputs = 'EMabi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
@@ -66,8 +64,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.ClusterSelect( name = 'EMabhi', inputs = 'ClusterTobArray', outputs = 'EMabhi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
@@ -79,8 +76,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
         
         alg = AlgConf.ClusterSelect( name = 'TAUab', inputs = 'ClusterTobArray', outputs = 'TAUab', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
@@ -92,8 +88,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoIsoCut', 0)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthEM)
@@ -105,8 +100,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', '0')
         #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
         
         alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthEM)
@@ -118,8 +112,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', '1')
         #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
@@ -131,24 +124,21 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', '1')
         #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
         
         alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall', algoId = currentAlgoId ) ; currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
         alg.addgeneric('JetSize', HW.DefaultJetSize)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.JetNoSort( name = 'AJjall', inputs = 'JetTobArray', outputs = 'AJjall', algoId = currentAlgoId ) ; currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
         alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         # for 0MATCH-4AJ20-4AJj15
         #if not usev8:
@@ -159,8 +149,6 @@ class TopoAlgoDef:
         alg.addvariable('MinET1', 15) # 4x4       
         alg.addvariable('MinET2', 20) # 8x8
         tm.registerAlgo(alg)        
-        print "Aparajita"
-        print currentAlgoId-1
 
         # ab J lists:
         for jet_type in ['J', 'CJ', 'FJ']:
@@ -189,8 +177,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', jetabseta)
             alg.addgeneric('DoEtaCut', 1)
             tm.registerAlgo(alg) 
-            print "Aparajita"
-            print currentAlgoId-1
 
         alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs', algoId = currentAlgoId); currentAlgoId += 1
 
@@ -202,8 +188,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoEtaCut', 0)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         #input list needed for ATR-18824
         if usev8:
@@ -218,6 +203,7 @@ class TopoAlgoDef:
             alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg)
             
+        
             alg = AlgConf.JetSort( name = 'CJs.ETA21', inputs = 'JetTobArray', outputs = 'CJs.ETA21', algoId = currentAlgoId); currentAlgoId += 1
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
@@ -226,8 +212,6 @@ class TopoAlgoDef:
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', 21)
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # Sorted J lists:
         for jet_type in ['AJ', 'FJ']:
@@ -257,8 +241,6 @@ class TopoAlgoDef:
             else:
                 alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
-            print "Aparajita"
-            print currentAlgoId-1
 
         for jet_type in ['J','CJ']:
             jetabseta = _etamax
@@ -280,8 +262,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', jetabseta)
             alg.addgeneric('DoEtaCut', 1)
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
 
         alg = AlgConf.METNoSort( name = 'XENoSort', inputs = 'MetTobArray', outputs = 'XENoSort', algoId = currentAlgoId ); currentAlgoId += 1
@@ -289,15 +269,13 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
                 
         alg = AlgConf.MetSort( name = 'XE', inputs = 'MetTobArray', outputs = 'XE', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
         
         alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab', algoId = currentAlgoId ); currentAlgoId += 1
 
@@ -308,8 +286,7 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
         tm.registerAlgo(alg)            
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs', algoId = currentAlgoId ); currentAlgoId += 1
 
@@ -320,8 +297,7 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab', algoId = currentAlgoId ); currentAlgoId += 1                                     
 
@@ -332,8 +308,7 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 10)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
         #alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'MuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
@@ -345,8 +320,7 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
         
         # Abbreviated lists:
         alg = AlgConf.ClusterSelect( name = 'EMab', inputs = 'ClusterTobArray', outputs = 'EMab', algoId = currentAlgoId ); currentAlgoId += 1
@@ -360,8 +334,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoIsoCut', 0)
         tm.registerAlgo(alg) 
-        print "Aparajita"
-        print currentAlgoId-1        
+        
 
         # All lists:
 
@@ -371,16 +344,14 @@ class TopoAlgoDef:
         alg.addgeneric('OutputWidth', HW.InputWidthTAU)
         alg.addvariable('IsoMask', 0)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
 
         alg = AlgConf.MuonNoSort( name = 'MUall', inputs = 'MuonTobArray', outputs = 'MUall',algoId = currentAlgoId) ; currentAlgoId += 1                                      
 
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('OutputWidth', HW.InputWidthMU)
         tm.registerAlgo(alg)
-        print "Aparajita"
-        print currentAlgoId-1
+
                 
         # Decision algorithms
         currentAlgoId = 0
@@ -424,8 +395,6 @@ class TopoAlgoDef:
                 alg.addvariable('MaxMSqr', maxInvm * maxInvm, bitid)  # noqa: F821
 
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # dimu INVM items
 
@@ -583,7 +552,7 @@ class TopoAlgoDef:
             
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
 
 
         algolist=[
@@ -674,7 +643,7 @@ class TopoAlgoDef:
             alg.addvariable('MinHt', minHT)    # noqa: F821
             tm.registerAlgo(alg)  
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
 
         # INVM_EM for Jpsi
         if usev8:    
@@ -714,7 +683,7 @@ class TopoAlgoDef:
                 
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, algoname
 
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
 
@@ -785,7 +754,7 @@ class TopoAlgoDef:
             alg.addvariable('MinMTSqr', minMT*minMT) # noqa: F821                  
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
             
         # VBF deta    
 
@@ -825,7 +794,7 @@ class TopoAlgoDef:
             alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
             
         # ZH Trigger
 
@@ -865,7 +834,7 @@ class TopoAlgoDef:
             alg.addvariable('DeltaPhiMin', minDPhi, 0)# noqa: F821
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
             
         # added for muon-jet:
         if not usev8:
@@ -1015,10 +984,10 @@ class TopoAlgoDef:
                {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
             ]
         elif usev8:
-            algoList = [
-               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-            ]
+            algoList = []
+#               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+#               {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+#            ]
         else:
             algoList = [
                {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
@@ -1066,7 +1035,7 @@ class TopoAlgoDef:
             
             tm.registerAlgo(alg)
             print "Aparajita"
-            print currentAlgoId-1
+            print currentAlgoId-1, toponame
 
         # LFV DETA ATR-14282
         if usev7 or usev8:
@@ -2261,3 +2230,6 @@ class TopoAlgoDef:
           alg.addvariable('MinXi', 0.02)
           alg.addvariable('MaxXi', 0.05)
           tm.registerAlgo(alg)
+          print "Aparajita"
+          print currentAlgoId-1, toponame
+        
