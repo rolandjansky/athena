@@ -13,7 +13,7 @@ The files should define all the variables expected by the Find<Bla> modules,
 which normally boil down to variables:
 
 `EXTNAME_LCGROOT`
-`EXTNAME_VERSION`
+`EXTNAME_LCGVERSION`
 
 But some modules may require other variables. In which case the `_LCGROOT`
 variable should still be set, to get a nice printout from the AtlasExternals
