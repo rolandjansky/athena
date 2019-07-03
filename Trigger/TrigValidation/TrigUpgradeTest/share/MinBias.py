@@ -35,3 +35,6 @@ from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
 SpCount=TrigCountSpacePointsMT()
 SpCount.OutputLevel= DEBUG
 topSequence += SpCount
+
+from TrigT2MinBias.TrigT2MinBiasMonitoringMT import SpCountMonitoring
+SpCount.MonTool = SpCountMonitoring()
