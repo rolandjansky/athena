@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 #Content included in addition to the Smart Slimming Content
@@ -93,7 +93,9 @@ ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
                           "egammaClusters",
                           "CaloCalTopoClusters",
-                          "NewSwElectrons" # only if DoCellReweighting is ON
+                          "NewSwElectrons",    # only if DoCellReweighting is ON
+                          "MaxVarSwElectrons", # if variations are ON
+                          "MinVarSwElectrons"  # if variations are ON
                           ]
 
 # for trigger studies
