@@ -84,3 +84,45 @@ def getTgcTruthOverlay(name="TgcTruthOverlay", **kwargs):
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TGC_SDO");
 
     return CfgMgr.MuonSimDataOverlay(name, **kwargs)
+
+
+def getSTGC_TruthOverlay(name="STGC_TruthOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isDataOverlay():
+        kwargs.setdefault("BkgInputKey", "")
+    else:
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "sTGC_SDO");
+        else:
+            kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+sTGC_SDO");
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "sTGC_SDO");
+        kwargs.setdefault("OutputKey", "sTGC_SDO");
+    else:
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+sTGC_SDO");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+sTGC_SDO");
+
+    return CfgMgr.MuonSimDataOverlay(name, **kwargs)
+
+
+def getMM_TruthOverlay(name="MM_TruthOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isDataOverlay():
+        kwargs.setdefault("BkgInputKey", "")
+    else:
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "MM_SDO");
+        else:
+            kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+MM_SDO");
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "MM_SDO");
+        kwargs.setdefault("OutputKey", "MM_SDO");
+    else:
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+MM_SDO");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+MM_SDO");
+
+    return CfgMgr.MuonSimDataOverlay(name, **kwargs)
