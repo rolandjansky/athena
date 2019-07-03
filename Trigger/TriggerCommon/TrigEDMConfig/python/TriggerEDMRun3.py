@@ -159,8 +159,8 @@ TriggerHLTList = [
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'), 
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
@@ -170,8 +170,8 @@ TriggerHLTList = [
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.',     'BS ESD AODFULL', 'Tau'),
 
     # tau tracks
-    ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
-    ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLYM', 'MET'),
+    ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #bjet
 
@@ -193,7 +193,7 @@ TriggerHLTList = [
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
 
     ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),    
+    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
 
 EDMDetails = {}
