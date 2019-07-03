@@ -84,6 +84,11 @@ fi
 
 ######################################
 
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+art.py createpoolfile
+
+######################################
+
 if [[ ${FROMPICKLE} == "1" ]]; then
   echo "Running athena from pickle file ${JOBOPTION} with the command:"
   (set -x
