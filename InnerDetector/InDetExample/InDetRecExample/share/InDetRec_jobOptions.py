@@ -791,8 +791,8 @@ else:
       if InDetFlags.useExistingTracksAsInput():
           InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
       InDetDisplacedSoftPionSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                                       InDetKeys.ResolvedLargeD0Tracks(),
-                                                                       InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                                       InDetKeys.ResolvedDSPTracks(), #ResolvedLargeD0Tracks(),
+                                                                       InDetKeys.SiSpSeededDSPTracks(), #SiSpSeededLargeD0Tracks(),
                                                                        InDetNewTrackingCutsDisplacedSoftPion,
                                                                        TrackCollectionKeys,
                                                                        TrackCollectionTruthKeys)    
@@ -802,8 +802,8 @@ else:
       include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
       InDetDisplacedSoftPionTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisplacedSoftPion,
                                                                              InDetDisplacedSoftPionSiPattern.SiTrackCollection(),
-                                                                             InDetKeys.ExtendedLargeD0Tracks(),
-                                                                             InDetKeys.ExtendedTracksMapLargeD0(),
+                                                                             InDetKeys.ExtendedDSPTracks(), #ExtendedLargeD0Tracks(),
+                                                                             InDetKeys.ExtendedTracksMapDSP(), #ExtendedTracksMapLargeD0(),
                                                                              TrackCollectionKeys,
                                                                              TrackCollectionTruthKeys,
                                                                              False)
