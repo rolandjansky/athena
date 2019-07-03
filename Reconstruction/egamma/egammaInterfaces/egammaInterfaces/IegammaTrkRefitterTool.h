@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_IEGAMMATRKREFITTERTOOL_H
@@ -9,19 +9,14 @@
           Iterface for track refitter
   @author A. Morley
 */
-
 /********************************************************************
-
 NAME:     IxAODEgammaTrkRefitterTool.h
 PACKAGE:  offline/Reconstruction/xAODEgamma/xAODEgammaInterfaces
-
 CREATED:  Jul 2008
-
 ********************************************************************/
 
 #include "GaudiKernel/IAlgTool.h"
-
-static const InterfaceID IID_egammaTrkRefitterTool("IegammaTrkRefitterTool", 1, 0);
+#include "GaudiKernel/EventContext.h"
 
 #include "TrkParameters/TrackParameters.h"
 // Forward declarations
@@ -30,6 +25,8 @@ static const InterfaceID IID_egammaTrkRefitterTool("IegammaTrkRefitterTool", 1, 
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include <memory>
+
+static const InterfaceID IID_egammaTrkRefitterTool("IegammaTrkRefitterTool", 1, 0);
 
 class IegammaTrkRefitterTool : virtual public IAlgTool 
 {
@@ -60,13 +57,19 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
     };
 
     /** Refit the track associated with an xAODEgamma object*/
-    virtual StatusCode  refitElectronTrack(const xAOD::Electron* eg ,Cache& result) const = 0;
+    virtual StatusCode  refitElectronTrack(const EventContext& ctx,
+                                           const xAOD::Electron* eg ,
+                                           Cache& result) const = 0;
     
     /** Refit the track associated with a track particle  object*/
-    virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& result) const = 0;
+    virtual StatusCode  refitTrackParticle(const EventContext& ctx,
+                                           const xAOD::TrackParticle*, 
+                                           Cache& result) const = 0;
     
     /** Refit the track*/
-		virtual StatusCode  refitTrack(const Trk::Track*, Cache& result) const = 0;
+		virtual StatusCode  refitTrack(const EventContext& ctx,
+                                   const Trk::Track*, 
+                                   Cache& result) const = 0;
 
 };
 #endif

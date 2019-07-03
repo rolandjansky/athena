@@ -30,21 +30,22 @@ MODIFIED:
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 
-class IBeamCondSvc;
+#include <memory>
+
 class AtlasDetectorID ;
 namespace Trk{
 class VertexOnTrack;
 }
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
-#include <memory>
 
 class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthAlgTool 
 {
@@ -65,13 +66,19 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
   typedef IegammaTrkRefitterTool::Cache Cache;
   /** @brief Refit the track associated with an egamma object*/
-  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Cache& cache) const override final;
+  virtual StatusCode  refitElectronTrack(const EventContext& ctx,
+                                         const xAOD::Electron*, 
+                                         Cache& cache) const override final;
   
   /** @brief Refit a track assoicated to a TrackParticle*/  
-  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& cache) const override final;  
+  virtual StatusCode  refitTrackParticle(const EventContext& ctx,
+                                         const xAOD::TrackParticle*, 
+                                         Cache& cache) const override final;  
   
   /** @brief Refit a track*/
-  virtual StatusCode  refitTrack(const Trk::Track*, Cache& cache) const override final;
+  virtual StatusCode  refitTrack(const EventContext& ctx,
+                                 const Trk::Track*, 
+                                 Cache& cache) const override final;
 
   
  private:
@@ -85,6 +92,10 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   /** @brief Returns the amount of material transversed by the track (using X0)*/
   double getMaterialTraversed(Trk::Track* track) const;
 
+  /** Provide Vertex on track from the beam spot*/
+  const Trk::VertexOnTrack*  provideVotFromBeamspot(const EventContext& ctx,
+                                                    const Trk::Track* track) const;
+  
   struct MeasurementsAndTrash{
         /* 
          * we need to take care of returning all the relevant measurements
@@ -95,25 +106,33 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
         std::vector<std::unique_ptr<const Trk::MeasurementBase>>  m_trash;
   };
   /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
-  MeasurementsAndTrash addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ) const; 
+  MeasurementsAndTrash addPointsToTrack(const EventContext& ctx,
+                                        const Trk::Track* track, 
+                                        const xAOD::Electron* eg = 0 ) const; 
   
-  const Trk::VertexOnTrack*  provideVotFromBeamspot(const Trk::Track* track) const;
 
-   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
-  Gaudi::Property<bool> m_fitRIO_OnTrack {this, 
-      "Fit_RIO_OnTrack", false, 
-      "Switch if refit should be made on PRD or ROT level"};
+  /** @brief Handle for BeamSpotData*/ 
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, 
+    "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
   
+  /** @brief The track refitter */
+  ToolHandle<Trk::ITrackFitter> m_ITrackFitter {this,  
+      "FitterTool", "Trk__GaussianSumFitter/GSFTrackFitter",
+      "ToolHandle for track fitter implementation"};
+
+  /** @brief track extrapolator */
+  ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
+      "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
+      "Track extrapolator"};
+
+  ToolHandle<ICaloCluster_OnTrackBuilder> m_CCOTBuilder {this,
+      "CCOTBuilder", "CaloCluster_OnTrackBuilder",""};
+ 
   /** @brief Run outlier removal when doing the track refit*/
   Gaudi::Property<Trk::RunOutlierRemoval> m_runOutlier {this,
       "runOutlier", false,
       "Switch to control outlier finding in track fit"};
-  
-  /** @brief Add outlier to track hits into vector of hits*/
-  Gaudi::Property<bool> m_reintegrateOutliers {this,
-      "ReintegrateOutliers", false,
-      "Switch to control addition of  outliers back for track fit"};
-  
+ 
   /** @brief type of material interaction in extrapolation*/
   Gaudi::Property<int> m_matEffects {this, "matEffects", 1,
       "Type of material interaction in extrapolation (Default Electron)"};         
@@ -124,19 +143,14 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
   /** @brief Particle Hypothesis*/
   Trk::ParticleHypothesis m_ParticleHypothesis; 
-
-  /** @brief The track refitter */
-  ToolHandle<Trk::ITrackFitter> m_ITrackFitter {this,  
-      "FitterTool", "Trk__GaussianSumFitter/GSFTrackFitter",
-      "ToolHandle for track fitter implementation"};
-
-  /** @brief track extrapolator */
-  ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
-      "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
-      "Track extrapolator"};
+ 
+  const AtlasDetectorID*  m_idHelper  ;
   
-  ServiceHandle<IBeamCondSvc> m_beamCondSvc;     //!< condition service for beam-spot retrieval
-  
+  /** @brief Add outlier to track hits into vector of hits*/
+  Gaudi::Property<bool> m_reintegrateOutliers {this,
+      "ReintegrateOutliers", false,
+      "Switch to control addition of  outliers back for track fit"};
+
   /** @brief Option to use very simplistic beam spot constraint*/ 
   Gaudi::Property<bool> m_useBeamSpot {this, "useBeamSpot", false, 
       "Switch to control use of Beam Spot Measurement"};
@@ -144,15 +158,11 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   Gaudi::Property<bool> m_useClusterPosition {this, 
       "useClusterPosition", false, 
       "Switch to control use of Cluster position measurement"};
-
-  ToolHandle<ICaloCluster_OnTrackBuilder> m_CCOTBuilder {this,
-      "CCOTBuilder", "CaloCluster_OnTrackBuilder"};
-  
+ 
   /** @brief Option to remove TRT hits from track*/
   Gaudi::Property<bool> m_RemoveTRT {this, "RemoveTRTHits", false,
       "RemoveTRT Hits"};
 
-  const AtlasDetectorID*  m_idHelper  ;
 
 };
   

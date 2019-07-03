@@ -222,7 +222,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   std::unique_ptr<Trk::Track> trk_refit; 
   if( isSilicon ) {
     IegammaTrkRefitterTool::Cache cache{};
-    StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart,cache);
+    StatusCode status = m_trkRefitTool->refitTrackParticle(Gaudi::Hive::currentContext(),
+                                                           tmpTrkPart,
+                                                           cache);
     if (status == StatusCode::SUCCESS){
       ATH_MSG_DEBUG("FIT SUCCESS ");
       ++(counter.refittedTracks); 
@@ -245,7 +247,10 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   //Refit Trk::Track has been created
 
   // Create TrackParticle from the refitted Trk::Track
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, finalTrkPartContainer, nullptr, xAOD::electron );
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, 
+                                                                          finalTrkPartContainer, 
+                                                                          nullptr, 
+                                                                          xAOD::electron );
   if (!aParticle){
     ATH_MSG_ERROR("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
@@ -269,8 +274,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
         perigeeTrackParams = (*tsos)->trackParameters();
 
         const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
-        std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), 
-                                                                                            perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+        std::unique_ptr<const Trk::TrackParameters> pTrkPar(
+          pSurface.createTrackParameters( perigeeTrackParams->position(), 
+                                          perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
         //Do the straight-line extrapolation.	  
         bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
         if (hitEM2) {
@@ -294,9 +300,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();
   for (;rtsos != trk_refit->trackStateOnSurfaces()->rend(); ++rtsos){
     if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
-        && (*rtsos)->trackParameters()!=0 
-        &&(*rtsos)->measurementOnTrack()!=0 
-        && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rtsos)->measurementOnTrack())) {
+        && (*rtsos)->trackParameters()!=nullptr
+        &&(*rtsos)->measurementOnTrack()!=nullptr
+        && !(*rtsos)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
       QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
       break;
     }
