@@ -13,7 +13,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
-#include "CxxUtils/make_unique.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include <string>
 class PixelID;
@@ -52,6 +52,9 @@ private:
   SG::ReadHandleKey<SCT_ID> m_sctHelperKey{this,"sctHelperKey", "DetectorStore+SCT_ID"," "};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_spacePointsKey{this,"SpacePointsKey","Undefined",""};
   SG::WriteHandleKey<xAOD::TrigCompositeAuxContainer> m_spacePointsAuxKey{this,"SpacePointsAuxKey","Undefined",""};
+
+
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
 
 #endif // TRIGT2MINBIAS_TRIGCOUNTSPACEPOINTSMT_H
