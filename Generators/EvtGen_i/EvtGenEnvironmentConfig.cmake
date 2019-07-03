@@ -9,7 +9,7 @@ find_package( EvtGen )
 
 if( EVTGEN_FOUND )
   set( EVTGENENVIRONMENT_ENVIRONMENT 
-        FORCESET EVTGENVER ${EVTGEN_VERSION} )
+        FORCESET EVTGENVER ${EVTGEN_LCGVERSION} )
 endif()
 
 # Silently declare the module found:

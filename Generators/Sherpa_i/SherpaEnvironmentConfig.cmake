@@ -9,7 +9,7 @@ find_package( Sherpa )
 
 if( SHERPA_FOUND )
   set( SHERPAENVIRONMENT_ENVIRONMENT 
-        FORCESET SHERPAVER ${SHERPA_VERSION} )
+        FORCESET SHERPAVER ${SHERPA_LCGVERSION} )
 endif()
 
 # Silently declare the module found:
