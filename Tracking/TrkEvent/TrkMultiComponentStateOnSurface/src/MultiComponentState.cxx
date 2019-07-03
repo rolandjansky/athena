@@ -21,12 +21,12 @@ decription           : Implementation code for MultiComponentState class
 
 Trk::MultiComponentState::MultiComponentState()
   :
-  std::list< Trk::ComponentParameters >()
+  std::vector< Trk::ComponentParameters >()
 {}
 
 Trk::MultiComponentState::MultiComponentState( const Trk::ComponentParameters& componentParameters )
   :
-  std::list< Trk::ComponentParameters >()
+  std::vector< Trk::ComponentParameters >()
 {
   this->push_back( componentParameters );
 }
@@ -34,7 +34,9 @@ Trk::MultiComponentState::MultiComponentState( const Trk::ComponentParameters& c
 Trk::MultiComponentState::~MultiComponentState()
 {
   Trk::MultiComponentState::const_iterator component = this->begin();
-  for ( ; component != this->end(); ++component ) delete component->first;
+  for ( ; component != this->end(); ++component ) {
+    delete component->first;
+  }
   this->clear(); 
 }
 
@@ -50,7 +52,6 @@ Trk::MultiComponentState* Trk::MultiComponentState::clone() const
   return clonedState;
 }
 
-
 Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling( double scalingFactor ) const
 {
   Trk::MultiComponentState* clonedState = new Trk::MultiComponentState();
@@ -61,12 +62,14 @@ Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling( doub
     clonedState->push_back( componentParameters );
   }
   return clonedState;
-
 }
 
 
-Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScaleLocX,double errorScaleLocY, double errorScalePhi,
-                                                                          double errorScaleTheta,double errorScaleQoverP ) const
+Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScaleLocX,
+                                                                          double errorScaleLocY, 
+                                                                          double errorScalePhi,
+                                                                          double errorScaleTheta,
+                                                                          double errorScaleQoverP ) const
 {
   Trk::MultiComponentState* stateWithScaledErrors = new Trk::MultiComponentState();
   Trk::MultiComponentState::const_iterator component = this->begin();
@@ -119,10 +122,8 @@ Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double
  
     // Recalling of error does not change weighting
     const Trk::ComponentParameters componentParameters( newTrackParameters, component->second );
-    
     // Push back new component
     stateWithScaledErrors->push_back( componentParameters );
-
   }
 
   return stateWithScaledErrors;
@@ -206,10 +207,8 @@ bool Trk::MultiComponentState::isMeasured() const
 
     const AmgSymMatrix(5)* originalMatrix = component->first->covariance();
     if (!originalMatrix)    
-      isNotMeasured = true;
-    
+      isNotMeasured = true;   
   }
-
   return !isNotMeasured;
 
 }
