@@ -30,7 +30,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // Two variables (value and passed) needed for TEfficiency
     auto pT = Monitored::Scalar<float>("pT",0.0);
-    auto pT_passed = Monitored::Scalar<float>("pT_passed",false);
+    auto pT_passed = Monitored::Scalar<bool>("pT_passed",false);
 
     // Set the values of the monitored variables for the event
     lumiPerBCID = lbAverageInteractionsPerCrossing (ctx);
