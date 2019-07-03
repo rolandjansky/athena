@@ -3,12 +3,8 @@
 # art-description: Test running HITS->RDO in master, then RDO->RDO_TRIG in 21.0, then RDO_TRIG->AOD in master
 # art-type: build
 # art-include: master/Athena
-# art-output: log.*
-# art-output: *.log
-# art-output: *.txt
-# art-output: *.root
-# art-output: runargs.*
-# art-output: runwrapper.*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="trigAna_HITtoAOD_trigRel21_build"
 export TEST="TrigAnalysisTest"

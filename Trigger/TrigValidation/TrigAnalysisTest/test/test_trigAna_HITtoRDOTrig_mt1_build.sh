@@ -3,12 +3,8 @@
 # art-description: Test of transform HITS->RDO with serial athena followed by RDO->RDO_TRIG with threads=1
 # art-type: build
 # art-include: master/Athena
-# art-output: log.*
-# art-output: *.log
-# art-output: *.txt
-# art-output: *.root
-# art-output: runargs.*
-# art-output: runwrapper.*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="trigAna_HITtoRDOTrig_mt1_build"
 export TEST="TrigAnalysisTest"

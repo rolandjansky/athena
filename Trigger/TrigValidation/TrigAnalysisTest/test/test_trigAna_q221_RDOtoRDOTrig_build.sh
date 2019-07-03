@@ -3,12 +3,8 @@
 # art-description: Test of the RDOtoRDOTrigger transform with serial athena (legacy trigger)
 # art-type: build
 # art-include: master/Athena
-# art-output: log.*
-# art-output: *.log
-# art-output: *.txt
-# art-output: *.root
-# art-output: runargs.*
-# art-output: runwrapper.*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="trigAna_q221_RDOtoRDOTrig_build"
 export TEST="TrigAnalysisTest"
