@@ -369,6 +369,10 @@ class SlimmingHelper:
                         from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         items.extend(AntiKt4EMTopoJetsCPContent)
+                elif collectionName=="AntiKt4EMTopoJets_BTagging201810":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMTopoJets_BTagging201810"):
+                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
                 elif collectionName=="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
                         #from DerivationFrameworkCore.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
@@ -448,6 +452,9 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4EMTopo":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMTopoJets"))
+                elif collectionName=="BTagging_AntiKt4EMTopo_201810":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))
                 elif collectionName=="BTagging_AntiKt4EMPFlow":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))

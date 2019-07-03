@@ -328,10 +328,13 @@ for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
     FTAG1SlimmingHelper.ExtraVariables.append(FT1_bjetTriggerTracks)
 
 if BTaggingFlags.Do2019Retraining:
-    FTAG1SlimmingHelper.SmartCollections += ["AntiKt4EMPFlowJets_BTagging201810",
+    FTAG1SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets_BTagging201810",
+                                             "AntiKt4EMPFlowJets_BTagging201810",
                                              "AntiKt4EMPFlowJets_BTagging201903"]
     FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903"]
 

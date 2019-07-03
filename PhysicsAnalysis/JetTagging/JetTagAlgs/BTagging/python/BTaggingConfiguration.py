@@ -553,6 +553,7 @@ class Configuration:
           options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
           options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
           options.setdefault('BTagSVName', self._OutputFilesSVname)
+          options.setdefault('Do2019Retraining', BTaggingFlags.Do2019Retraining)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
           jetbtaggertool = JetBTaggerTool(**options)
           # Setup the associator tool
@@ -1385,10 +1386,12 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              if (JetCollection == "AntiKt4EMPFlow"):
-                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
-                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
-                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              if BTaggingFlags.Do2019Retraining:
+                if (JetCollection == "AntiKt4EMTopo"):
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                if (JetCollection == "AntiKt4EMPFlow"):
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
               else:
                 self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
               
