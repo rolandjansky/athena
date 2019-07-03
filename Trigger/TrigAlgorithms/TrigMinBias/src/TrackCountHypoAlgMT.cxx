@@ -18,48 +18,42 @@ TrackCountHypoAlgMT::TrackCountHypoAlgMT(const std::string& name, ISvcLocator* p
 {
 }
 
-TrackCountHypoAlgMT::~TrackCountHypoAlgMT()
-{
-}
 StatusCode TrackCountHypoAlgMT::initialize()
 {
 
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_trackCountKey.initialize());
 
-  if (m_tracksKey.key() == "Undefined")
-  {
-    ATH_MSG_ERROR("track Key name undefined " );
-    return StatusCode::FAILURE;
+  ATH_CHECK(m_min_pt.size()==m_min_z0.size());
 
+  if (m_tracksKey.key() == "Undefined" || m_trackCountKey.key() == "Undefined") {
+    ATH_MSG_ERROR("either track Key name or track count key name is undefined " );
+    return StatusCode::FAILURE;
   }
   ATH_CHECK(m_hypoTools.retrieve());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackCountHypoAlgMT::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
 {
   SG::ReadHandle<xAOD::TrackParticleContainer> TrkHandle (m_tracksKey, context );
   int ntrks=TrkHandle->size();
   ATH_MSG_DEBUG ("Successfully retrieved track container of size" <<ntrks);
 
-  float pT{};
+  float pT{},z0{};
   std::vector<int> count(m_min_pt.size());
   for (const auto  trackPtr: *TrkHandle){
     const Trk::Perigee& aMeasPer = (trackPtr)->perigeeParameters();
-    pT = aMeasPer.pT()*1e-3;
+    pT = aMeasPer.pT();
+    z0 = aMeasPer.parameters()[Trk::z0];
 
     for (long unsigned int i=0;i<m_min_pt.size();i++){
-      if(pT >= m_min_pt[i] ) count[i]++;
+      if(pT >= m_min_pt[i] && std::fabs(z0) < m_min_z0[i]) count[i]++;
     }
   }
   for (long unsigned int i=0;i<m_min_pt.size();i++){
-    ATH_MSG_DEBUG( "Number of tracks found with cut= "<<m_min_pt[i] << " GeV =" << count[i] );
+    ATH_MSG_DEBUG( "Number of tracks found with pT cut= "<<m_min_pt[i] << " MeV =" <<"and z0 cut= "<<m_min_z0[i] <<  count[i] );
   }
 
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
@@ -99,6 +93,7 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
   tracks->push_back(trackCounts);
   trackCounts->setDetail("ntrks", ntrks);
   trackCounts->setDetail("pTcuts", static_cast<std::vector<float>>(m_min_pt));
+  trackCounts->setDetail("z0cuts", static_cast<std::vector<float>>(m_min_z0));
   trackCounts->setDetail("counts", count);
 
 
@@ -111,8 +106,8 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
 
   SG::WriteHandle<xAOD::TrigCompositeContainer> TrackCountHandle(m_trackCountKey, context);
   ATH_CHECK(TrackCountHandle.record( std::move( tracks), std::move( tracksAux ) ) );
-  //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   d->setObjectLink<xAOD::TrigCompositeContainer>(featureString(), ElementLink<xAOD::TrigCompositeContainer>(m_trackCountKey.key(), 0) );
 
+  //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
   return StatusCode::SUCCESS;
 }

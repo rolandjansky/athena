@@ -28,13 +28,16 @@ StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 	}
 
 	std::vector<int> counts;
+
 	std::vector<float> pTcuts;
+	std::vector<float> z0cuts;
 	trkinfo.counts->getDetail<std::vector<int>>("counts", counts);
 	trkinfo.counts->getDetail<std::vector<float>>("pTcuts", pTcuts);
+	trkinfo.counts->getDetail<std::vector<float>>("z0cuts", z0cuts);
 	float countForConfiguredPtThreshold{};
 	bool found{false};
 	for ( size_t i = 0; i < counts.size(); ++i ) {
-		if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 ) {
+		if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 && std::abs( z0cuts[i] - m_min_z0 ) < 0.001 ) {
 			found = true;
 			countForConfiguredPtThreshold = counts[i];
 
