@@ -91,6 +91,7 @@ public:
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
+  virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 private:
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online

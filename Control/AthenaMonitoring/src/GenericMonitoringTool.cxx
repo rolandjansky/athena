@@ -133,6 +133,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
   return result;
 }
 
+uint32_t GenericMonitoringTool::runNumber() {
+  return Gaudi::Hive::currentContext().eventID().run_number();
+}
+
 uint32_t GenericMonitoringTool::lumiBlock() {
   return Gaudi::Hive::currentContext().eventID().lumi_block();
 }

@@ -136,7 +136,8 @@ namespace Monitored {
     std::string getFullName(const HistogramDef& def);
 
     ServiceHandle<ITHistSvc> m_histSvc;
-    std::string m_groupName; //!< defines location of histograms
+    std::string m_streamName; //!< defines the stream for THistSvc
+    std::string m_groupName;  //!< defines location of group of histograms
   };
 }
 

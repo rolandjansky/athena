@@ -16,7 +16,7 @@ using namespace Monitored;
 
 
 bool parsing1DWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, , Eta, #eta of Clusters; #eta; number of RoIs, 50, -2.500000, 2.500000");
+  auto def = HistogramDef::parse("EXPERT, TH1F, , , Eta, #eta of Clusters; #eta; number of RoIs, 50, -2.500000, 2.500000");
   VALUE ( def.ok )          EXPECTED ( true );  
   VALUE ( def.path )        EXPECTED ( "EXPERT" );
   VALUE ( def.type )        EXPECTED ( "TH1F" );
@@ -30,7 +30,7 @@ bool parsing1DWorks() {
 }
 
 bool parsing2DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH2F, , Eta,Phi, #eta vs #phi of Clusters; #eta; #phi, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000");
+  auto def = HistogramDef::parse("SHIFT, TH2F, , , Eta,Phi, #eta vs #phi of Clusters; #eta; #phi, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TH2F" );
@@ -50,7 +50,7 @@ bool parsing2DWorks() {
 }
 
 bool parsing3DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TProfile2D, , Eta,Phi,pt, title, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000, -1.000000, 1.000000");
+  auto def = HistogramDef::parse("SHIFT, TProfile2D, , , Eta,Phi,pt, title, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000, -1.000000, 1.000000");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TProfile2D" );
@@ -72,7 +72,7 @@ bool parsing3DWorks() {
 }
 
 bool parsingLabeledWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH1D, , Cut, Cut counter, 5, 0, 5, Cut1:Cut2:Eta:Pt:R");
+  auto def = HistogramDef::parse("SHIFT, TH1D, , , Cut, Cut counter, 5, 0, 5, Cut1:Cut2:Eta:Pt:R");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TH1D" );
@@ -89,7 +89,7 @@ bool parsingLabeledWorks() {
 }
 
 bool parsingWeightedWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, var, title, 5, 0, 5");
+  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, , var, title, 5, 0, 5");
   VALUE ( def.ok )                   EXPECTED ( true );
   VALUE ( def.path )                 EXPECTED ( "EXPERT" );
   VALUE ( def.type )                 EXPECTED ( "TH1F" );
@@ -101,7 +101,7 @@ bool parsingWeightedWorks() {
 }
 
 bool parsing1DArrayWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, , var, title, 0:1:2:4:8");
+  auto def = HistogramDef::parse("EXPERT, TH1F, , , var, title, 0:1:2:4:8");
   VALUE ( def.ok )    EXPECTED ( true );
   VALUE ( def.xbins ) EXPECTED ( 4 );
   VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );
@@ -109,7 +109,7 @@ bool parsing1DArrayWorks() {
 }
 
 bool parsing2DArrayWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH2F, , var1,var2, title, 0:1:2:4:8, 0:4:6:7");
+  auto def = HistogramDef::parse("EXPERT, TH2F, , , var1,var2, title, 0:1:2:4:8, 0:4:6:7");
   VALUE ( def.ok )    EXPECTED ( true );
   VALUE ( def.xbins ) EXPECTED ( 4 );
   VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );

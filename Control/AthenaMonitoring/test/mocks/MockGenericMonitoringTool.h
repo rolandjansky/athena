@@ -18,6 +18,11 @@ class MockGenericMonitoringTool : public GenericMonitoringTool {
       return mock_lumiBlock ? mock_lumiBlock() : 0;
     }
 
+    std::function<uint32_t()> mock_runNumber;
+    uint32_t runNumber() override {
+      return mock_runNumber ? mock_runNumber() : 0;
+    }
+
     const ServiceHandle<ITHistSvc>& histogramService() override {
       m_serviceHandle.retrieve();
       
