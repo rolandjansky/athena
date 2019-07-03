@@ -78,7 +78,7 @@ timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} 2>&1 | tee warnings.log
+timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
@@ -91,7 +91,7 @@ fi
 
 if [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running histSizes"
-  timeout 5m histSizes.py -t expert-monitoring.root 2>&1 | tee histSizes.log
+  timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
 fi
 
 ### MAKE LOG TAIL FILE
@@ -119,7 +119,7 @@ mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
+  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
