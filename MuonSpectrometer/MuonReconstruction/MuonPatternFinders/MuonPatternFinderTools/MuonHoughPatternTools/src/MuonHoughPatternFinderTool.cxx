@@ -156,7 +156,7 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<std::vector<HoughDataPerSec>>>
+std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>>
   MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
                                     const std::vector<const CscPrepDataCollection*>& cscCols,  
                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,  

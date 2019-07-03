@@ -31,7 +31,7 @@ namespace Muon
     struct Output {
       MuonPatternCombinationCollection* patternCombinations;
       Trk::SegmentCollection*           segmentCollection;
-      std::unique_ptr<std::vector<HoughDataPerSec>> houghDataPerSectorVec;
+      std::unique_ptr<Muon::HoughDataPerSectorVec> houghDataPerSectorVec;
 
     Output() : patternCombinations(0),segmentCollection(0) {}
     };

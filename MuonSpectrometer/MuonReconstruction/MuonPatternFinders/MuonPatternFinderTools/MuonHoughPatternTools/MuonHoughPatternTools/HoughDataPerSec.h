@@ -8,6 +8,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonPhiLayerHough.h"
+#include "MuonLayerHough/MuonRegionHough.h"
 #include <map>
 #include <set>
 #include <vector>
@@ -54,9 +55,14 @@ namespace Muon {
       return std::max( nmaxHitsInRegion[0], std::max( nmaxHitsInRegion[1], nmaxHitsInRegion[2] ) );
     }
   };
+
+  struct HoughDataPerSectorVec : public std::vector<HoughDataPerSec>
+  {
+    MuonHough::MuonDetectorHough detectorHoughTransforms;
+  };
 }
 
 CLASS_DEF(Muon::HoughDataPerSec, 163257499, 1)
-CLASS_DEF(std::vector<Muon::HoughDataPerSec>, 118215228, 1)
+CLASS_DEF(Muon::HoughDataPerSectorVec, 61014906, 1)
 
 #endif
