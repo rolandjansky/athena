@@ -445,8 +445,9 @@ class useOnlineLumi(_modifier):
     """
     def preSetup(self):
         from AthenaCommon.AppMgr import ToolSvc
-        from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-        ToolSvc += LuminosityToolOnline()
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+        LuminosityCondAlgOnlineDefault()
+
 
 ###############################################################
 # Algorithm modifiers 
