@@ -87,7 +87,7 @@ namespace FlavorTagDiscriminants {
 
       // Note, you can hack in more variables to `cleaned` here.
 
-    // put the cleaned inputs into the node structure
+      // put the cleaned inputs into the node structure
       nodes[m_input_node_name] =  cleaned;
     }
 

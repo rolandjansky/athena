@@ -511,6 +511,9 @@ class Configuration:
               FlavorTagDiscriminants__BTagMuonAugmenterTool as MuonTool,
               FlavorTagDiscriminants__BTagAugmenterTool as AugTool)
           from os.path import splitext, basename
+
+          do_flip = any(x.endswith('Flip') for x in TaggerList)
+
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
@@ -522,6 +525,13 @@ class Configuration:
                       nnFile=nn_file, schema='FEB_2019')
                   ToolSvc += rnn
                   options['preBtagToolModifiers'].append(rnn)
+                  if do_flip:
+                      rnn = DL2Tool(
+                          name=get_training_name(nn_file + '_flip'),
+                          nnFile=nn_file, schema='FEB_2019',
+                          flipTagConfig='NEGATIVE_IP_ONLY')
+                      ToolSvc += rnn
+                      options['preBtagToolModifiers'].append(rnn)
 
           # add dl1 tools
           options.setdefault("postBtagToolModifiers", [])
@@ -532,12 +542,25 @@ class Configuration:
                   schema='FEB_2019')
               ToolSvc += aug
               modifiers.append(aug)
+              if do_flip:
+                  aug = AugTool(
+                      name=get_training_name('BTagAugmenterToolFlip'),
+                      schema='FEB_2019', flipTagConfig='NEGATIVE_IP_ONLY')
+                  ToolSvc += aug
+                  modifiers.append(aug)
               for nn_file in postTagDL2JetToTrainingMap[jetcol]:
                   dl1 = DL2Tool(
                       name=get_training_name(nn_file),
                       nnFile=nn_file, schema='FEB_2019')
                   ToolSvc += dl1
                   modifiers.append(dl1)
+                  if do_flip:
+                      dl1 = DL2Tool(
+                          name=get_training_name(nn_file + '_flip'),
+                          nnFile=nn_file, schema='FEB_2019',
+                          flipTagConfig='NEGATIVE_IP_ONLY')
+                      ToolSvc += dl1
+                      modifiers.append(dl1)
 
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
