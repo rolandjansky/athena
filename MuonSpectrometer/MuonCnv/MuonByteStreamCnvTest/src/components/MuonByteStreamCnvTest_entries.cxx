@@ -20,6 +20,8 @@
 #include "../MdtRdoToMdtDigit.h"
 #include "../RpcRdoToRpcDigit.h"
 #include "../TgcRdoToTgcDigit.h"
+#include "../STGC_RdoToDigit.h"
+#include "../MM_RdoToDigit.h"
 
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigit.h"
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigitTool.h"
@@ -44,6 +46,8 @@ DECLARE_COMPONENT( CscRdoToCscDigit )
 DECLARE_COMPONENT( MdtRdoToMdtDigit )
 DECLARE_COMPONENT( RpcRdoToRpcDigit )
 DECLARE_COMPONENT( TgcRdoToTgcDigit )
+DECLARE_COMPONENT( STGC_RdoToDigit )
+DECLARE_COMPONENT( MM_RdoToDigit )
 DECLARE_COMPONENT( MuonRdoToMuonDigit )
 DECLARE_COMPONENT( MuonRdoToMuonDigitTool )
 
