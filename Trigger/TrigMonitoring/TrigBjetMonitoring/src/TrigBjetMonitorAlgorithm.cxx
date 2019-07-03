@@ -76,37 +76,91 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   /* Verifiy if the trigger chain was fired and if yes, fill the corresponding histogram*/
 
-  std::string trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"; // for FTK chains should be revised !
+  /* Define keys of retrival */
 
-  /* using AllChains */
+  std::string trackKey  = "";
+  std::string jetKey  = "";
+  std::string priVtxKey  = "EFHistoPrmVtx";
+  bool FTKChain = false;
+  bool mujetChain = false;
+  bool bjetChain = true;
+  bool splitChain = false;
+
   for ( auto& trigName : m_AllChains ) {
+
     if ( m_trigDecTool->isPassed(trigName) ) {
       std::cout << " Trigger chain from AllChains list: " << trigName << " has fired !!! " << std::endl;
-      std::string NameH = "d0_"+trigName;
-      std::cout << " NameH: " << NameH << std::endl;
-      auto d0 = Monitored::Scalar<float>(NameH,0.0);
-      // here should come the retrival of d0 from the Trigger Track Container
+
+      // Trigger type
+      // split vs unsplit
+      std::size_t found = trigName.find("split");
+      if (found!=std::string::npos) {
+	splitChain = true;
+	jetKey = "SplitJet";
+	priVtxKey = "xPrimVx";
+	trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+      }// found
+      // FTK vs non FTK
+      std::size_t found1 = trigName.find("FTK");
+      if (found1!=std::string::npos) {
+	priVtxKey = "PrimVertexFTK";
+	trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+	std::size_t found2 = trigName.find("FTKRefit");
+	if (found2!=std::string::npos) {
+	  trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
+	}// found2
+	std::size_t found3 = trigName.find("FTKVtx");
+	if (found3!=std::string::npos) {
+	  trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+	}// found3
+      }// found1
+      // gsc vs non-gsc chain
+      std::size_t found4 = trigName.find("gsc");
+      if (found4!=std::string::npos) {
+	jetKey = "GSCJet";
+      }// found4
+      // bjet vs mujet
+      found = trigName.find("HLT_mu");
+      if (found!=std::string::npos) {
+	mujetChain = true;
+	bjetChain = false;
+      }// found
+
+      std::cout << " Trigger type: bjetChain " << bjetChain << " mujetChain " << mujetChain << " FTKChain " << FTKChain << " splitChain " << splitChain << std::endl;
+      std::cout << " Keys -- priVtxKey:  " << priVtxKey << " jetKey: " << jetKey << " trackKey: " << trackKey << std::endl;
+
       // Read the TrigFeature contener
       Trig::FeatureContainer fc = m_trigDec->features(trigName);
-      const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
-      ATH_MSG_INFO("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigName);
-      std::cout << " Size of bjetCombs : " << bjetCombs.size() << std::endl;
+      const std::vector< Trig::Combination >& triggerCombs = fc.getCombinations();
+      ATH_MSG_INFO("RETRIEVED " << triggerCombs.size() << " COMBINATIONS FOR "  << trigName);
+      std::cout << " Size of triggerCombs : " << triggerCombs.size() << std::endl;
       // Take all combinations for this b-jet trigger
-      std::vector< Trig::Combination >::const_iterator bjetComb;
-      for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
-	const Trig::Combination& comb = *bjetComb;
+      std::vector< Trig::Combination >::const_iterator triggerComb;
+      for( triggerComb = triggerCombs.begin(); triggerComb != triggerCombs.end(); ++triggerComb ) {
+	const Trig::Combination& comb = *triggerComb;
+	
+	if (bjetChain) {
+	/* Tracks */
 	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
 	ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
 	if ( not onlinetracks.empty() ) { 
 	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
 	  ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
 	  for(const auto* trk : *onlinetrack) {
+	    /* d0 */
+	    std::string NameH = "d0_"+trigName;
+	    std::cout << " NameH: " << NameH << std::endl;
+	    auto d0 = Monitored::Scalar<float>(NameH,0.0);
 	    d0 = trk->d0();
 	    ATH_MSG_INFO("        d0: " << d0);
 	    fill(tool,d0);
 	  }// onlinetrack
 	}// onlinetracks
-      }// bjet combinations
+
+	}//bjetChain
+
+      }// trigger combinations
+
     } else {
       std::cout << " Trigger chain from expert folder: " << trigName << " has not fired " << std::endl;
     }

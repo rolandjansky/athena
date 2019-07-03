@@ -115,13 +115,56 @@ def TrigBjetMonConfig(inputFlags):
     AllChains = []
     for chain in bjet_triglist :
         AllChains.append(chain[2:])
-        HistName = 'd0_' + chain[2:]
-        if chain[0:1] == "E" :
-            myGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
-                                    path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
-        if chain[0:1] == "S" :
-            shifterGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
-                                         path=chain[2:],xbins=10,xmin=-1.0,xmax=1.0)
+        #print " inside bjet_triglist chain[2:8] : " , chain[2:8]
+        if chain[2:8] == 'HLT_mu' : # mu-jets
+            #print "        mu-jet histogram is defined for ", chain[2:]
+
+            HistName = 'jetPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                        path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+            if chain[0:1] == "S" :
+                shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                             path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+
+            continue
+        else :                      # b-jets
+            #print "        b-jet histogram is defined for ", chain[2:]
+
+            HistName = 'PVz_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                myGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
+                                        path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+            if chain[0:1] == "S" :
+                shifterGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
+                                             path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+
+            HistName = 'd0_' + chain[2:]
+            if chain[0:1] == "E" :
+                myGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
+                                        path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+            if chain[0:1] == "S" :
+                shifterGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
+                                             path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+            HistName = 'jetPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                        path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+            if chain[0:1] == "S" :
+                shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                             path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+
+            HistName = 'wMV2c20_' + chain[2:]
+            if chain[0:1] == "E" :
+                myGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
+                                        path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                shifterGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
+                                             path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+
+            continue
+
+
     print " ==> AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
 
@@ -152,14 +195,14 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
-    #file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    #ConfigFlags.Input.Files = [nightly+file]
-    #ConfigFlags.Input.isMC = False
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
-    file = 'mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
+    file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.isMC = True
+    ConfigFlags.Input.isMC = False
+    #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
+    #file = 'mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
+    #ConfigFlags.Input.Files = [nightly+file]
+    #ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigBjetMonitorOutput.root'
     
     ConfigFlags.lock()
@@ -177,7 +220,7 @@ if __name__=='__main__':
     #trigBjetMonitorAcc.getEventAlgo('TrigBjetMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    Nevents = 10
+    Nevents = 25
     #cfg.run(Nevents)
     cfg.run() #use cfg.run(20) to only run on first 20 events
 
