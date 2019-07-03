@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -47,7 +47,11 @@ def buildJetAlgName(finder, mainParam, variableRMassScale=None, variableRMinRadi
 # Normally defaults to standard offline input containers, but
 # can be overridden.
 class JetConstit(object):
-    def __init__(self, objtype, modifiers=[], rawname=None, inputname=None):
+    def __init__(self,
+                 objtype,         # The type of xAOD object from which to build the jets
+                 modifiers=[],    # Modifications to be applied to constituents prior to jet finding
+                 rawname=None,    # Override the default input collection
+                 inputname=None): # Override the default output collection (not to be used with modifiers)
         self.__basetype = objtype
         self.__modifiers = modifiers
         # Override for unmodified container name
@@ -193,12 +197,18 @@ class JetGhost(object):
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
 
+from AthenaCommon.SystemOfUnits import MeV
 
 class JetDefinition(object):
-    def __init__(self, algorithm, radius, inputdef,
-                 ptmin=5000., ptminfilter=5000.,
-                 ghostdefs=[], modifiers=[],
-                 extrainputs=[]):
+    def __init__(self,
+                 algorithm,           # The fastjet clustering algorithm
+                 radius,              # The jet radius specifier (clustering cutoff)
+                 inputdef,            # The input JetConstit
+                 ptmin=5e3*MeV,       # The pt cutoff for fastjet in MeV
+                 ptminfilter=5e3*MeV, # The minimum pt to retain xAOD jets after calibration in MeV
+                 ghostdefs=[],        # The list of JetGhosts to ghost-associate
+                 modifiers=[],        # The list of JetModifiers to execute after jet finding
+                 extrainputs=[]):     # The list of additional input types needed for jet finding
 
         # Should add some type checking here
         # Could use JetContainerInfo conversion
@@ -209,7 +219,7 @@ class JetDefinition(object):
 
         self.__radius = radius
         self.__inputdef = inputdef
-        self.defineName()
+        self.__defineName()
 
         self.ptmin = ptmin # The pt down to which FastJet is run
         self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept, may include calibration
@@ -219,9 +229,6 @@ class JetDefinition(object):
         self.ghostdefs = ghostdefs     # Objects to ghost-associate
         self.modifiers = modifiers     # Tools to modify the jet
         self.extrainputs = extrainputs # Any extra input dependencies
-
-        # Should this be a derived class?
-        self.grooming = None
 
         # These should probably go in a derived class
         self.VRMinRadius = None
@@ -247,7 +254,7 @@ class JetDefinition(object):
     @algorithm.setter
     def algorithm(self,algorithm):
         self.__algorithm = algorithm
-        self.defineName()
+        self.__defineName()
 
     @property
     def radius(self):
@@ -255,7 +262,7 @@ class JetDefinition(object):
     @radius.setter
     def radius(self,radius):
         self.__radius = radius
-        self.defineName()
+        self.__defineName()
 
     @property
     def inputdef(self):
@@ -263,9 +270,9 @@ class JetDefinition(object):
     @inputdef.setter
     def inputdef(self,inputdef):
         self.__inputdef = inputdef
-        self.defineName()
+        self.__defineName()
 
-    def defineName(self):
+    def __defineName(self):
         self.basename = buildJetAlgName(self.__algorithm,self.__radius)+self.__inputdef.label
         if self.inputdef.basetype == xAODType.CaloCluster:
             # Omit cluster origin correction from jet name
@@ -279,6 +286,7 @@ class JetDefinition(object):
         return "JetDefinition({0}, ptmin: {1} MeV)".format(self.basename,self.ptmin)
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
+
 
 ########################################################################
 # Helper to instantiate a generic jet modifier
