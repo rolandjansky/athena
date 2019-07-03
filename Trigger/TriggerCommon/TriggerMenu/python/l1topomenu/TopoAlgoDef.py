@@ -446,8 +446,6 @@ class TopoAlgoDef:
             alg.addvariable('MinMSqr', minInvm * minInvm)              # noqa: F821
             alg.addvariable('MaxMSqr', maxInvm * maxInvm)              # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # dimu DR items
         if usev8:
@@ -499,8 +497,6 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', minDr*minDr)   # noqa: F821
             alg.addvariable('DeltaRMax', maxDr*maxDr)   # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1        
 
             
         # deta-dphi with ab+ab
@@ -551,8 +547,6 @@ class TopoAlgoDef:
                 alg.addvariable('MinET2', ocut2)         # noqa: F821
             
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, toponame
 
 
         algolist=[
@@ -601,8 +595,6 @@ class TopoAlgoDef:
                 alg.addvariable('DeltaRMax', maxDr*maxDr, 0) # noqa: F821
                 
             tm.registerAlgo(alg)        
-            print "Aparajita"
-            print currentAlgoId-1
             
         # (ATR-8194) L1Topo HT Trigger
         if usev8:
@@ -642,8 +634,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', oeta)    # noqa: F821
             alg.addvariable('MinHt', minHT)    # noqa: F821
             tm.registerAlgo(alg)  
-            print "Aparajita"
-            print currentAlgoId-1, toponame
 
         # INVM_EM for Jpsi
         if usev8:    
@@ -682,8 +672,6 @@ class TopoAlgoDef:
                 alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision), bitid)        # noqa: F821
                 
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, algoname
 
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
 
@@ -721,8 +709,6 @@ class TopoAlgoDef:
             alg.addvariable('MinET2', 0)
             alg.addvariable('DeltaPhiMin', minDPhi, 0) # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # W T&P MT
 
@@ -753,8 +739,6 @@ class TopoAlgoDef:
             alg.addvariable('MinET2', 0)
             alg.addvariable('MinMTSqr', minMT*minMT) # noqa: F821                  
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, toponame
             
         # VBF deta    
 
@@ -793,8 +777,6 @@ class TopoAlgoDef:
             alg.addvariable('MinDeltaEta', minDeta, 0) # noqa: F821
             alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, toponame
             
         # ZH Trigger
 
@@ -833,8 +815,6 @@ class TopoAlgoDef:
             alg.addvariable('MinET2', ocut2)          # noqa: F821
             alg.addvariable('DeltaPhiMin', minDPhi, 0)# noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, toponame
             
         # added for muon-jet:
         if not usev8:
@@ -870,8 +850,6 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', minDr*minDr, 0) # noqa: F821
             alg.addvariable('DeltaRMax', maxDr*maxDr, 0) # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
             
         # dimu INVM items
 
@@ -928,8 +906,6 @@ class TopoAlgoDef:
             alg.addvariable('MinMSqr', minInvm * minInvm)          # noqa: F821
             alg.addvariable('MaxMSqr', maxInvm * maxInvm)          # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # dimu DR items
         if not usev8:
@@ -975,8 +951,6 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', minDr*minDr) # noqa: F821
             alg.addvariable('DeltaRMax', maxDr*maxDr) # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # deta-dphi with ab+ab
         if usev7:
@@ -1034,8 +1008,6 @@ class TopoAlgoDef:
 
             
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1, toponame
 
         # LFV DETA ATR-14282
         if usev7 or usev8:
@@ -1069,8 +1041,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
 
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         if usev7 or usev8:
             algoList = [
@@ -1103,8 +1073,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
 
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
             
         # JetMatch
         if not usev8:
@@ -1117,8 +1085,6 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', 31)
             alg.addvariable('MinMultiplicity', 4)
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
         
         # NoMatch for W T&P
         if not usev8:        
@@ -1137,8 +1103,6 @@ class TopoAlgoDef:
             alg.addvariable('EtaMax2', 49)
             alg.addvariable('DRCut', 4)
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
 
         # RATIO SUM for W T&P 
         #toponame = "05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49"
@@ -1196,8 +1160,6 @@ class TopoAlgoDef:
             alg.addvariable('HT', 0)
             alg.addvariable('Ratio', str(minRatio)) # noqa: F821
             tm.registerAlgo(alg)
-            print "Aparajita"
-            print currentAlgoId-1
             
         # RATIO MATCH dedicated to Exotic 
         toponame = '100RATIO-0MATCH-TAU30si2-EMall'
@@ -1211,8 +1173,6 @@ class TopoAlgoDef:
         alg.addvariable('MinET2',  0)
         alg.addvariable('Ratio', 100, 0)
         tm.registerAlgo(alg)        
-        print "Aparajita"
-        print currentAlgoId-1
 
         # NOT MATCH dedicated to Exotic
         toponame = 'NOT-0MATCH-TAU30si1-EMall'
@@ -1230,8 +1190,6 @@ class TopoAlgoDef:
         alg.addvariable('EtaMax2', 49)
         alg.addvariable('DRCut', 0)
         tm.registerAlgo(alg)        
-        print "Aparajita"
-        print currentAlgoId-1
 
         # MULT-BIT
         for x in [
@@ -1401,10 +1359,7 @@ class TopoAlgoDef:
 
 
 
-        if usev8:
-            xemap = []
-        else:    
-            xemap = [{"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}]
+        xemap = [{"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}]
         for x in xemap:
                 
             for k in x:
@@ -1868,48 +1823,40 @@ class TopoAlgoDef:
 
 
         # VBF items INVM_NFF + DPHI
-        #if usev8:
-            #algolist = [
-                #{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                #{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                #{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                #{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                #Remove NFF
-                ##{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 20, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                ##{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 22, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                ##{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 24, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                ##{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphi": 26, "otype1" : "AJ", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
-                ##]
-        ##else: 
-        algolist = []
+        if usev8:    
+            NFFDphimap = [{"minInvm": 400 , "maxInvm": 9999, "minDphi": 0, "maxDphiList": [26, 24, 22, 20], "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 }]
 
-        for x in algolist:
-            
+        else:
+            NFFDphimap = []
+
+        for x in NFFDphimap:
+
             for k in x:
                 exec("%s = x[k]" % k)
-		
+
             inputList = [otype1 + olist1, otype2 + olist1]      # noqa: F821       
+            toponames=[]
 
-            toponame = "%iINVM%i-%iDPHI%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
+            for maxDphi in maxDphiList:  # noqa: F821
+                toponames.append ("%iINVM%i-%iDPHI%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
                                                                  otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
-                                                                 otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else "")     # noqa: F821 
+                                                                 otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else ""))     # noqa: F821 
 
-            log.info("Define %s" % toponame)
-                
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'INVM-DPHI-NFF', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
 
 
             alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
             alg.addgeneric('InputWidth2', inputwidth) # noqa: F821
             alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
             alg.addgeneric('MaxTob2', nleading2)# noqa: F821
-            alg.addgeneric('NumResultBits', 1)
+            alg.addgeneric('NumResultBits',  len(toponames))
             alg.addvariable('MinET1', ocut1, 0)# noqa: F821
             alg.addvariable('MinET2', ocut2, 0)# noqa: F821
             alg.addvariable('MinMSqr', minInvm*minInvm , 0)        # noqa: F821         
             alg.addvariable('MaxMSqr', maxInvm*maxInvm , 0)        # noqa: F821
             alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
-            alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
+            for bitid,maxDphi in enumerate(maxDphiList):  # noqa: F821
+                alg.addvariable('MaxDeltaPhi', str(maxDphi), bitid) # noqa: F821
 
             tm.registerAlgo(alg)
 
@@ -1986,66 +1933,50 @@ class TopoAlgoDef:
 
 
 
-        #ATR-18824
-        if usev8:
-            toponame = "60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49"
-            log.info("Define %s" % toponame)
+        #ATR-18824 ZAFB-DPHI
 
-            inputList = ['EMabhi','FJjs']
+        if usev8:    
+            ZAFBDphimap = [{"minInvm": 60 , "maxInvm": 9999, "minDphiList": [04, 25], "maxDphi": 32, "minEta2": 23, "maxEta2": 49, "inputwidth1": HW.OutputWidthSortEM, "otype1" : "EM", "ocut1" : 15, "olist1" : "abhi", "nleading1" : HW.OutputWidthSortEM, "inputwidth2": HW.OutputWidthSortJET,  "otype2" : "FJ", "ocut2" : 15, "olist2" : "js", "nleading2" : 6 }]
 
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+        else:
+            ZAFBDphimap = []
+
+        for x in ZAFBDphimap:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            inputList = [otype1 + olist1, otype2 + olist2]      # noqa: F821       
+            toponames=[]
+
+            for minDphi in minDphiList:  # noqa: F821
+                toponames.append ("%iINVM%i-%02dDPHI%i-%s%s%s%s-%s%s%s%s%iETA%i"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
+                                                                 otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
+                                                                 otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else "", minEta2, maxEta2))     # noqa: F821 
+            
+
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'ZAFB-DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
 
 
-            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
-            alg.addgeneric('InputWidth2', HW.OutputWidthSortJET)
-            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob2', 6)
-            alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinMSqr', 60*60)
-            alg.addvariable('MaxMSqr', 9999)
-            alg.addvariable('MinET1', 15)
-            alg.addvariable('MinET2', 15)
+            alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2)# noqa: F821
+            alg.addgeneric('NumResultBits',  len(toponames))
+            alg.addvariable('MinET1', ocut1, 0)# noqa: F821
+            alg.addvariable('MinET2', ocut2, 0)# noqa: F821
+            alg.addvariable('MinMSqr', minInvm*minInvm , 0)        # noqa: F821         
+            alg.addvariable('MaxMSqr', maxInvm*maxInvm , 0)        # noqa: F821
             alg.addgeneric('ApplyEtaCut', 1)
             alg.addvariable('MinEta1', 0)
             alg.addvariable('MaxEta1', 9999)
             alg.addvariable('MinEta2', 23)
             alg.addvariable('MaxEta2', 49)
-            alg.addvariable('MinDeltaPhi', 04)
-            alg.addvariable('MaxDeltaPhi', 32)
+            for bitid,minDphi in enumerate(minDphiList):  # noqa: F821
+                alg.addvariable('MinDeltaPhi', str(minDphi), bitid) # noqa: F821
+            alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
 
             tm.registerAlgo(alg)
-
-
-        #ATR-18824
-        if usev8:
-            toponame = "60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49"
-            log.info("Define %s" % toponame)
-
-            inputList = ['EMabhi','FJjs']
-
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-
-
-            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
-            alg.addgeneric('InputWidth2', HW.OutputWidthSortJET)
-            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob2', 6)
-            alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinMSqr', 60*60)
-            alg.addvariable('MaxMSqr', 9999)
-            alg.addvariable('MinET1', 15)
-            alg.addvariable('MinET2', 15)
-            alg.addgeneric('ApplyEtaCut', 1)
-            alg.addvariable('MinEta1', 0)
-            alg.addvariable('MaxEta1', 9999)
-            alg.addvariable('MinEta2', 23)
-            alg.addvariable('MaxEta2', 49)
-            alg.addvariable('MinDeltaPhi', 25)
-            alg.addvariable('MaxDeltaPhi', 32)
-
-            tm.registerAlgo(alg)
-
-
 
         #ATR-19302: giving compilation issues, add later
         ##if usev8:
@@ -2230,6 +2161,4 @@ class TopoAlgoDef:
           alg.addvariable('MinXi', 0.02)
           alg.addvariable('MaxXi', 0.05)
           tm.registerAlgo(alg)
-          print "Aparajita"
-          print currentAlgoId-1, toponame
         

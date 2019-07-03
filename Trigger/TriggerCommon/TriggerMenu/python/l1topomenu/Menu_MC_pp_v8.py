@@ -32,9 +32,8 @@ def defineMenu():
         TopoOutput( algoname='1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',       module=1, fpga=0, clock=0, firstbit=11 ),
         TopoOutput( algoname='2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',       module=1, fpga=0, clock=0, firstbit=12 ),
         TopoOutput( algoname='1DISAMB-TAU12abi-J25ab',                      module=1, fpga=0, clock=0, firstbit=13 ),
-        #combine below into 2 o/p bits: ZAFB_DPHI
-        TopoOutput( algoname='60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=0, firstbit=14 ),
-        TopoOutput( algoname='60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49', module=1, fpga=0, clock=0, firstbit=15 ),
+        TopoOutput( algoname='ZAFB-DPHI',                                   module=1, fpga=0, clock=0, firstbit=14 ), # 2 bits
+
        
         #Combine 4 VBF triggers
 
@@ -42,16 +41,9 @@ def defineMenu():
         TopoOutput( algoname='CEP-CJ60s6',                                  module=1, fpga=0, clock=1, firstbit=1 ),
         TopoOutput( algoname='CEP-CJ50s6',                                  module=1, fpga=0, clock=1, firstbit=2 ),
         TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=3 ),
+        TopoOutput( algoname='INVM-DPHI-NFF',                               module=1, fpga=0, clock=1, firstbit=4 ), # 4 bits
+        TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=0, clock=1, firstbit=8 ), # 6 bits
 
-        #TopoOutput( algoname='400INVM9999-0DPHI20-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=0 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI22-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=1 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI24-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=14 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI26-AJ30s6-AJ20s6',            module=0, fpga=0, clock=1, firstbit=15 ), # v8 new
-
-        #TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # v8 new
-        #TopoOutput( algoname='400INVM9999-0DPHI26-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=3 ), # v8 new
 
 #tackle next, prolly needs combination, CHECK
    
