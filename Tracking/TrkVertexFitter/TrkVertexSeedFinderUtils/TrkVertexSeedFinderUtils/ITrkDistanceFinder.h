@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include <optional>
 
 //Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -20,8 +21,6 @@ namespace Trk
 
   class Track;
   class TrackParticleBase;
-
-  static const InterfaceID IID_ITRKDISTANCEFINDER("ITrkDistanceFinder", 1, 1);
 
   /**
    @class ITrkDistanceFinder
@@ -37,21 +36,25 @@ namespace Trk
   class ITrkDistanceFinder : virtual public IAlgTool {
 
      public:
+       typedef std::pair<Amg::Vector3D,Amg::Vector3D> TwoPoints;
+
+       DeclareInterfaceID( ITrkDistanceFinder, 1, 0 );
+
        /** Virtual destructor */
        virtual ~ITrkDistanceFinder(){};
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_ITRKDISTANCEFINDER; };
-       
        /** method to do the calculation starting from two MeasuredPerigees*/
-       /** return value is true if calculation is successfull */
-       virtual bool CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) = 0;
+       /** If successful, returns the points on the two tracks at minimum distance. */
+       virtual std::optional<TwoPoints>
+       CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) = 0;
 
        /** method to do the calculation starting from two tracks */
-       virtual bool CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) = 0;
+       virtual std::optional<TwoPoints>
+       CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) = 0;
        
        /** method to do the calculation starting from two track particles */
-       virtual bool CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) = 0;
+       virtual std::optional<TwoPoints>
+       CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) = 0;
 
        /**method to obtain the distance (call CalculateMinimumDistance before) **/
        virtual double GetDistance() const =0;
