@@ -5,6 +5,14 @@
 #include "TrigBjetMonitorAlgorithm.h"
 
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTagging.h"
+
+#include "JetEvent/JetCollection.h"
+#include "muonEvent/Muon.h"
+#include "muonEvent/MuonContainer.h"
 
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -138,26 +146,119 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       std::vector< Trig::Combination >::const_iterator triggerComb;
       for( triggerComb = triggerCombs.begin(); triggerComb != triggerCombs.end(); ++triggerComb ) {
 	const Trig::Combination& comb = *triggerComb;
-	
+
+	// bjet chains
 	if (bjetChain) {
-	/* Tracks */
-	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
-	ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
-	if ( not onlinetracks.empty() ) { 
-	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
-	  ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
-	  for(const auto* trk : *onlinetrack) {
-	    /* d0 */
-	    std::string NameH = "d0_"+trigName;
-	    std::cout << " NameH: " << NameH << std::endl;
-	    auto d0 = Monitored::Scalar<float>(NameH,0.0);
-	    d0 = trk->d0();
-	    ATH_MSG_INFO("        d0: " << d0);
-	    fill(tool,d0);
-	  }// onlinetrack
-	}// onlinetracks
+
+	  /* online PV */
+	  const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(priVtxKey);
+	  ATH_MSG_INFO("RETRIEVED PV  -   size: " << onlinepvs.size());
+	  if ( not onlinepvs.empty() ) {
+	    const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
+	    ATH_MSG_INFO("   for VertexContainer: " << priVtxKey << " nVert: " << onlinepv->size());
+	    if( not onlinepv->empty()) {
+	      /* PVz_tr */
+	      std::string NameH = "PVz_tr_"+trigName;
+	      std::cout << " NameH: " << NameH << std::endl;
+	      auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_tr = (*(onlinepv))[0]->z();
+	      ATH_MSG_INFO("        PVz_tr: " << PVz_tr);
+	      fill(tool,PVz_tr);
+	    }// onlinepv
+	  }// onlinepvs
+
+	  /* Tracks */
+	  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
+	  ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
+	  if ( not onlinetracks.empty() ) { 
+	    const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
+	    ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
+	    for(const auto* trk : *onlinetrack) {
+	      /* d0 */
+	      std::string NameH = "d0_"+trigName;
+	      std::cout << " NameH: " << NameH << std::endl;
+	      auto d0 = Monitored::Scalar<float>(NameH,0.0);
+	      d0 = trk->d0();
+	      ATH_MSG_INFO("        d0: " << d0);
+	      fill(tool,d0);
+	    }// onlinetrack
+	  }// onlinetracks
+
+	  /* b-tagged jets */
+	  const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
+	  ATH_MSG_INFO("RETRIEVED BJETS  from xAOD BTaggingContainer -   size: " << onlinebjets.size());
+	  if(not onlinebjets.empty()) { 
+	    const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
+	    ATH_MSG_INFO("                 -   nBjet: " << onlinebjet->size());
+	    for(const auto* bjet : *onlinebjet) {
+	      /* wMV2c20 */
+	      std::string NameH = "wMV2c20_"+trigName;
+	      std::cout << " NameH: " << NameH << std::endl;
+	      auto wMV2c20 = Monitored::Scalar<double>(NameH,0.0);
+	      wMV2c20 = bjet->auxdata<double>("MV2c20_discriminant");
+	      ATH_MSG_INFO("        wMV2c20: " << wMV2c20);
+	      fill(tool,wMV2c20);
+	    }// onlinebjet
+	  }// onlinebjets
 
 	}//bjetChain
+
+	//bjet or mujet chains
+	if (bjetChain || mujetChain) {
+
+	  /* Jets */
+	  const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(jetKey);
+	  ATH_MSG_INFO("RETRIEVED JETS   -   size: " << onlinejets.size());
+	  if( not onlinejets.empty()) { 
+	    const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+	    ATH_MSG_INFO("                 -   nJet: " << onlinejet->size());
+	    for(const auto* jet : *onlinejet) {
+	      /* jetPt */
+	      std::string NameH = "jetPt_"+trigName;
+	      std::cout << " NameH: " << NameH << std::endl;
+	      auto jetPt = Monitored::Scalar<float>(NameH,0.0);
+	      jetPt = (jet->pt())*1.e-3;
+	      ATH_MSG_INFO("        jetPt: " << jetPt);
+	      fill(tool,jetPt);
+	    }// onlinejet
+	  }// onlinejets
+
+	}//bjet or mujet
+
+	// mujet chains
+
+	if (mujetChain) {
+
+	  /* muons  and jets  */
+	  const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(jetKey);
+	  ATH_MSG_INFO("RETRIEVED JETS   -   size: " << onlinejets.size());
+	  const std::vector< Trig::Feature<xAOD::MuonContainer> > onlinemuons = comb.get<xAOD::MuonContainer>();
+	  ATH_MSG_INFO("RETRIEVED MUONS   -   size: " << onlinemuons.size());
+	  if( not onlinemuons.empty()) { 
+	    const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
+	    ATH_MSG_INFO("                 -   nMuon: " << onlinemuon->size());
+	    for(const auto* muon : *onlinemuon) {
+	      // plot muon attributes: pT, eta, phi, etc .... independently of the muon type
+	      const xAOD::Muon::MuonType muontype = muon->muonType();
+	      if( muontype != xAOD::Muon::MuonType::Combined ) continue;
+	      /* if muon type is "Combined" and jet container is not empty loop on jets and plot muon-jet combined quantitites
+		 see Run2 code: https://gitlab.cern.ch/atlas/athena/blob/21.3/Trigger/TrigMonitoring/TrigBjetMonitoring/src/HLTBjetMonTool.cxx */
+	      if( not onlinejets.empty()) { 
+		const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+		for(const auto* jet : *onlinejet) {
+		  /* jetPt */
+		  std::string NameH = "jetPt_"+trigName;
+		  std::cout << " NameH: " << NameH << std::endl;
+		  auto jetPt = Monitored::Scalar<float>(NameH,0.0);
+		  jetPt = (jet->pt())*1.e-3;
+		  ATH_MSG_INFO("        jetPt: " << jetPt);
+		  fill(tool,jetPt);
+		}// onlinejet
+	      }// onlinejets
+	    }// onlinemuon
+	  }// onlinemuons
+
+	}//mujetChain
 
       }// trigger combinations
 
