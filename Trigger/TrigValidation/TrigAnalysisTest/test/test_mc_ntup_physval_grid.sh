@@ -2,15 +2,21 @@
 
 # art-description: Test of Trigger NTUP_PHYSVAL 
 # art-type: grid
-# art-include: 21.3/Athena
 # art-include: 21.0/Athena
+# art-include: 21.3/Athena
 # art-include: master/Athena
-# art-output: *check*
+# art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.new
+# art-output: *.json
 # art-output: *.root
 # art-output: *.pmon.gz
-# art-output: TotalEventsProcessed.txt
+# art-output: *perfmon*
+# art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
 # art-output: PHYSVAL_WEB
 
 export NAME="mc_ntup_physval_grid"

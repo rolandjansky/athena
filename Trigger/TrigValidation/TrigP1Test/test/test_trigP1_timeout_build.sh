@@ -2,11 +2,6 @@
 # art-description: athenaHLT test of timeout handling
 # art-type: build
 # art-include: master/Athena
-# art-output: *.log
-# art-output: *.out
-# art-output: *.err
-# art-output: *.data
-# art-output: *.root
 
 outputBaseName="output.test_trigP1_timeout.data"
 nEvents=20
