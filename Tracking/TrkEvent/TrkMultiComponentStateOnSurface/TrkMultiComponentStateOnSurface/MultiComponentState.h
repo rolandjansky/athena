@@ -9,9 +9,9 @@ begin                : Friday 31st December 2004
 author               : atkinson, amorley
 email                : Anthony.Morley@cern.ch
 decription           : Basic definitions for a track state described by more
-		       than one set of Track Parameters. The resulting state is
-		       a mixture of components. Each component is described by
-		       a ComponentParameters object which is of the type
+                        than one set of Track Parameters. The resulting state is
+		                    a mixture of components. Each component is described by
+		                   a ComponentParameters object which is of the type
                        std::pair< const TrackParameters*, double> 
                        The double describes the weighting of the component - 
                        or its relative importance in the mixture.			
@@ -21,13 +21,13 @@ decription           : Basic definitions for a track state described by more
 #define TrkMultiComponentState
 
 #include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
-#include <list>
+#include <vector>
 
 class MsgStream;
 
 namespace Trk{
 
-class MultiComponentState : public std::list<ComponentParameters>{
+class MultiComponentState : public std::vector<ComponentParameters>{
  public:
 
   /** Default constructor */
