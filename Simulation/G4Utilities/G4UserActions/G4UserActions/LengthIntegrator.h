@@ -174,8 +174,11 @@ namespace G4UA
       std::vector<double> m_collected_X0;
       std::vector<double> m_collected_L0;
 
-      std::vector<float> m_collected_hitr;
-      std::vector<float> m_collected_hitz;
+      std::vector<float> m_collected_inhitr;
+      std::vector<float> m_collected_inhitz;
+
+      std::vector<float> m_collected_outhitr;
+      std::vector<float> m_collected_outhitz;
 
       std::vector<float> m_collected_density;
       std::vector<std::string> m_collected_material;
