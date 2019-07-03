@@ -110,9 +110,9 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
   }
 
   SG::WriteHandle<xAOD::TrigCompositeContainer> TrackCountHandle(m_trackCountKey, context);
-  d->setObjectLink<xAOD::TrigCompositeContainer>(featureString(), ElementLink<xAOD::TrigCompositeContainer>(m_trackCountKey.key(), 0) );
   ATH_CHECK(TrackCountHandle.record( std::move( tracks), std::move( tracksAux ) ) );
   //ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
+  d->setObjectLink<xAOD::TrigCompositeContainer>(featureString(), ElementLink<xAOD::TrigCompositeContainer>(m_trackCountKey.key(), 0) );
 
   return StatusCode::SUCCESS;
 }

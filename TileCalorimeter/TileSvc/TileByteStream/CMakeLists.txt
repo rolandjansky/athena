@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    GaudiKernel
    TileCalorimeter/TileEvent
    TileCalorimeter/TileIdentifier
+   TileCalorimeter/TileL2Algs
    PRIVATE
    Tools/PathResolver
    AtlasTest/TestTools
@@ -27,7 +28,6 @@ atlas_depends_on_subdirs(
    TileCalorimeter/TileCalib/TileCalibBlobObjs
    TileCalorimeter/TileConditions
    TileCalorimeter/TileDetDescr
-   TileCalorimeter/TileL2Algs
    TileCalorimeter/TileRecUtils )
 
 # External dependencies:

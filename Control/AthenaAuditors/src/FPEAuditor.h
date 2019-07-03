@@ -19,9 +19,9 @@
 
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthCommonMsg.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 
 #include <signal.h>
 #include <fenv.h>
@@ -30,11 +30,10 @@
 class INamedInterface;
 
 
-class FPEAuditor : virtual public Auditor, public AthMessaging
+class FPEAuditor : public AthCommonMsg<Auditor>
 { 
   using Auditor::before;
   using Auditor::after;
-  using AthMessaging::msg;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -48,9 +47,9 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   virtual ~FPEAuditor();
 
   /// Gaudi hooks
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -60,24 +59,24 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  virtual void beforeInitialize(INamedInterface* alg);
-  virtual void afterInitialize(INamedInterface* alg);
-  virtual void beforeReinitialize(INamedInterface* alg);
-  virtual void afterReinitialize(INamedInterface* alg);
-  virtual void beforeExecute(INamedInterface* alg);
-  virtual void afterExecute(INamedInterface* alg, const StatusCode&);
-  virtual void beforeBeginRun(INamedInterface* alg);
-  virtual void afterBeginRun(INamedInterface *alg);
-  virtual void beforeEndRun(INamedInterface* alg);
-  virtual void afterEndRun(INamedInterface *alg);
-  virtual void beforeFinalize(INamedInterface* alg);
-  virtual void afterFinalize(INamedInterface* alg);
+  virtual void beforeInitialize(INamedInterface* alg) override;
+  virtual void afterInitialize(INamedInterface* alg) override;
+  virtual void beforeReinitialize(INamedInterface* alg) override;
+  virtual void afterReinitialize(INamedInterface* alg) override;
+  virtual void beforeExecute(INamedInterface* alg) override;
+  virtual void afterExecute(INamedInterface* alg, const StatusCode&) override;
+  virtual void beforeBeginRun(INamedInterface* alg) override;
+  virtual void afterBeginRun(INamedInterface *alg) override;
+  virtual void beforeEndRun(INamedInterface* alg) override;
+  virtual void afterEndRun(INamedInterface *alg) override;
+  virtual void beforeFinalize(INamedInterface* alg) override;
+  virtual void afterFinalize(INamedInterface* alg) override;
 
   // custom event auditing...
 
   /// Audit the start of a custom "event".
   virtual void before(IAuditor::CustomEventTypeRef evt, 
-		      INamedInterface* caller)
+		      INamedInterface* caller) override
   { return this->before (evt, caller->name()); }
 
   /**
@@ -85,12 +84,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void before (IAuditor::CustomEventTypeRef evt, 
-		       const std::string& caller);
+		       const std::string& caller) override;
   
   /// Audit the end of a custom "event".
   virtual void after (IAuditor::CustomEventTypeRef evt, 
 		      INamedInterface* caller, 
-		      const StatusCode& sc)
+		      const StatusCode& sc) override
   { return this->after (evt, caller->name(), sc); }
   
   /**
@@ -98,7 +97,7 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void after  (CustomEventTypeRef evt, const std::string& caller,
-		       const StatusCode& sc);
+		       const StatusCode& sc) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
@@ -126,6 +125,7 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   enum { FPEAUDITOR_OVERFLOW=0, FPEAUDITOR_INVALID=1, FPEAUDITOR_DIVBYZERO=2, FPEAUDITOR_ARRAYSIZE=3 };
   
   std::atomic<unsigned int> m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
+  std::atomic<bool> m_triedCDS;
   
   unsigned int m_NstacktracesOnFPE;
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -9,8 +9,6 @@
 // PixelConditions
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h" 
-#include "PixelConditionsData/SpecialPixelMap.h"
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h"
@@ -43,7 +41,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_tHistSvc("THistSvc", name),
   m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
   m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
-  m_specialPixelMapSvc("SpecialPixelMapSvc", name), 
   m_pixman(0), 
   m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
@@ -179,13 +176,6 @@ StatusCode NoiseMapBuilder::initialize(){
   sc = m_BSErrorsSvc.retrieve();
   if(!sc.isSuccess()){
     ATH_MSG_FATAL("Unable to retrieve bytestream errors service");
-    return StatusCode::FAILURE;
-  }
-
-  // retrieve SpecialPixelMapSvc
-  sc = m_specialPixelMapSvc.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve SpecialPixelMapSvc");
     return StatusCode::FAILURE;
   }
 

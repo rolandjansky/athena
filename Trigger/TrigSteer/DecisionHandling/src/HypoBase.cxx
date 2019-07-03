@@ -24,9 +24,6 @@ const SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer>& HypoBase::decis
 StatusCode HypoBase::sysInitialize() {
   CHECK( AthReentrantAlgorithm::sysInitialize() ); // initialise base class
   CHECK( m_input.initialize() );
-  // TODO - remove this renounce once https://gitlab.cern.ch/gaudi/Gaudi/merge_requests/863 is in Athena,master
-  // m_input should always be valid if hypo runs
-  renounce(m_input);
   ATH_MSG_DEBUG("HypoBase::sysInitialize() Will consume decision: " << m_input.key() );
   CHECK( m_output.initialize() );
   ATH_MSG_DEBUG("HypoBase::sysInitialize() And produce decision: " << m_output.key() );

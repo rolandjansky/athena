@@ -73,7 +73,7 @@ private:
   bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
 
   int  m_whichToTEstimatorAlgo;     // If true - use getToTNewApproach(), else - use getToTlargerIsland()
-  mutable int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
+  int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
   int  m_toolScenario;              // Algorithm type for dEdX estimator calculation:
   // kAlgStandard               - old dEdX estimator calculation algorithm;
   // kAlgScalingToXe            - mimicToXe other gastype hits and apply Xenon calibrations;
@@ -83,7 +83,7 @@ private:
 
 
   // Event info
-  mutable bool m_isData;                  // Is Data?
+  bool m_isData;                  // Is Data?
 
   // Track info
   float m_trackConfig_maxRtrack;  // maximum track radius
@@ -91,9 +91,6 @@ private:
 
   bool m_useZeroRHitCut;  // skip tracks with where RHit=0
 
-  // Hit info
-  //    mutable EGasType m_gasTypeInStraw;                  // Starw gas type. 0:Xenon, 1:Argon, 2:Krypton
-  mutable double m_L; // Length in straw
 
 public:
   /** AlgTool like constructor */
@@ -149,7 +146,7 @@ public:
    * @return decision
    */
   bool isGood_Hit(const Trk::TrackStateOnSurface *itr) const;
-  bool isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideByL, bool useHThits) const;
+  bool isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideByL, bool useHThits, double& length) const;
 
   /**
    * @brief correct overall dEdx normalization on track level
@@ -215,9 +212,10 @@ public:
    * @param bool to set data or MC
    * @return corrected ToT/L (returns 0 if hit criteria are not fulfilled)
    */
+  double strawLength(const Trk::TrackParameters* trkP) const;
   double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const;
 
-  double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData, bool useHThits) const;
+  double correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData, bool useHThits, double length) const;
 
 
   double correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer,bool isData) const;
@@ -233,7 +231,7 @@ public:
    * @return corrected value for ToT
    */
   double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const;
-  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected) const;
+  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected, double length) const;
 
   /**
    * @brief compute ToT time for largest island
@@ -442,10 +440,6 @@ public:
 
 
   void  ShowDEDXSetup() const;
-
-private:
-  bool isData() const;
-  mutable bool m_isDataSet;
 
   
 };

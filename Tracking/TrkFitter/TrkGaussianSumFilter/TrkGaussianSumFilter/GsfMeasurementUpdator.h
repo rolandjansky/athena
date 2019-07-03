@@ -35,7 +35,10 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
 
  private:
   /** Private typedef for calling the correct updator member function depending of direction of fitting */
-  typedef const Trk::TrackParameters* (Trk::IUpdator::*Updator)( const Trk::TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+  typedef const Trk::TrackParameters* (Trk::IUpdator::*Updator)( const Trk::TrackParameters&, 
+                                                                 const LocalParameters&, 
+                                                                 const Amg::MatrixX&, 
+                                                                 FitQualityOnSurface*& ) const;
 
  public:
   /** Constructor with parameters to be passed to AlgTool */
@@ -60,7 +63,8 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
 
 
   /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
-  virtual const MultiComponentState* getUnbiasedTrackParameters (const MultiComponentState&, const MeasurementBase&) const;
+  virtual const MultiComponentState* getUnbiasedTrackParameters (const MultiComponentState&, 
+                                                                 const MeasurementBase&) const;
 
   /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
   virtual const FitQualityOnSurface* fitQuality (const MultiComponentState&, const MeasurementBase&) const;
@@ -80,18 +84,13 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
                                                   
 
  private:
-  int                                      m_outputlevel;                      //!< to cache current output level
-  ToolHandle<IUpdator>                     m_updator;                          //!< Linear (Kalman) updator
-  ToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator
-     {this,"PosteriorWeightsCalculator","Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",""};       //!< GSF Weights updator
-
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler
-     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",""};                   //!< State assembler
-
-  ServiceHandle<IChronoStatSvc>            m_chronoSvc;                        //!< Timing: The Gaudi time auditing service
-
+  ToolHandle<IUpdator>                     m_updator{this,
+    "Updator","Trk::KalmanUpdator/KalmanUpdator",""};
+  ToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator{this,
+    "PosteriorWeightsCalculator","Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",""};     
+  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{this,
+    "MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",""};
 };
-
 }
 
 #endif

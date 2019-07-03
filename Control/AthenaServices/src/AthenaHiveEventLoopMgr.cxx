@@ -768,6 +768,16 @@ StatusCode AthenaHiveEventLoopMgr::stop()
   // Need to be sure we have a valid EventContext during stop()))).
   Gaudi::Hive::setCurrentContext( m_lastEventContext );
   StatusCode sc = MinimalEventLoopMgr::stop();
+
+  // If we exit the event loop early due to an error, some event stores
+  // may not have been cleared.  This can lead to segfaults later,
+  // as DetectorStore will usually get finalized before HiveSvcMgr.
+  // So make sure that all stores have been cleared at this point.
+  size_t nslot = m_whiteboard->getNumberOfStores();
+  for (size_t islot = 0; islot < nslot; islot++) {
+    clearWBSlot (islot);
+  }
+
   Gaudi::Hive::setCurrentContext( EventContext() );
   return sc;
 }

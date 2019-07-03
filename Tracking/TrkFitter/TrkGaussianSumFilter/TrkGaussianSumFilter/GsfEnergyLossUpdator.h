@@ -41,17 +41,17 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
   virtual ~GsfEnergyLossUpdator();
 
   /** AlgTool initialise method */
-  StatusCode initialize() override;
+  StatusCode initialize() override final;
   
   /** AlgTool finalise method */
-  StatusCode finalize() override;
+  StatusCode finalize() override final;
 
   /** Layer based material effects update - track parameters given by pointer */
   virtual const TrackParameters* update( const TrackParameters* parameters,
                                  const Layer& layer,
                                  PropDirection direction = anyDirection,
                                  ParticleHypothesis particleHypothesis = nonInteracting,
-                                 MaterialUpdateMode matmode = Trk::addNoise ) const override;
+                                 MaterialUpdateMode matmode = Trk::addNoise ) const override final;
 
   /** Material properties based effects update - track parameters are given by reference */
   virtual const TrackParameters* update( const TrackParameters&,
@@ -59,7 +59,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                  double,
                                  PropDirection direction = anyDirection,
                                  ParticleHypothesis particleHypothesis = nonInteracting,
-                                 MaterialUpdateMode matmode = Trk::addNoise) const override;
+                                 MaterialUpdateMode matmode = Trk::addNoise) const override final;
 
   /** User updator interface (full update for a layer):
   The parmeters are given as a pointer, they are deleted inside the update method.
@@ -68,7 +68,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
   virtual const TrackParameters*      update( const TrackParameters* parm,
                                       const MaterialEffectsOnTrack&,
                                       ParticleHypothesis particle=pion,
-                                      MaterialUpdateMode matupmode=addNoise) const override{ 
+                                      MaterialUpdateMode matupmode=addNoise) const override final{ 
       (void)particle; 
       (void)matupmode;
 			 return parm; 
@@ -79,7 +79,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                     const Layer&,
                                     PropDirection,
                                     ParticleHypothesis,
-                                    MaterialUpdateMode ) const override{ 
+                                    MaterialUpdateMode ) const override final{ 
       return nullptr; 
     };
 
@@ -88,13 +88,13 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                      const Layer&,
                                      PropDirection,
                                      ParticleHypothesis,
-                                     MaterialUpdateMode ) const override{ 
+                                     MaterialUpdateMode ) const override final{ 
       return nullptr; 
     };
   
-  virtual void validationAction() const override {};
+  virtual void validationAction() const override final {};
 
-  virtual void modelAction(const TrackParameters* parm=0) const override{ 
+  virtual void modelAction(const TrackParameters* parm=0) const override final{ 
     if(parm) return; 
   } 
 
@@ -103,7 +103,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
   class Cache : public ICache{
   };
 
-  virtual std::unique_ptr<ICache> getCache() const override{
+  virtual std::unique_ptr<ICache> getCache() const override final{
     return std::make_unique<Cache>();
   }
 
@@ -111,7 +111,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                          const Layer& sf,
                                          PropDirection dir=alongMomentum,
                                          ParticleHypothesis particle=pion,
-                                         MaterialUpdateMode matupmode=addNoise) const override {
+                                         MaterialUpdateMode matupmode=addNoise) const override final {
 
     (void)icache;
     return update(parm,sf,dir,particle,matupmode);
@@ -120,7 +120,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
   virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
                                          const MaterialEffectsOnTrack& meff,
                                          Trk::ParticleHypothesis particle=pion,
-                                         MaterialUpdateMode matupmode=addNoise) const override{
+                                         MaterialUpdateMode matupmode=addNoise) const override final{
 
     (void)icache;
     return update(parm,meff,particle,matupmode);
@@ -130,7 +130,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                              const Layer& sf,
                                              PropDirection dir=alongMomentum,
                                              ParticleHypothesis particle=pion,
-                                             MaterialUpdateMode matupmode=addNoise) const override{
+                                             MaterialUpdateMode matupmode=addNoise) const override final{
 
     (void)icache;
     return preUpdate(parm,sf,dir,particle,matupmode);
@@ -140,7 +140,7 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                               const Layer& sf,
                                               PropDirection dir=alongMomentum,
                                               ParticleHypothesis particle=pion,
-                                              MaterialUpdateMode matupmode=addNoise) const override{
+                                              MaterialUpdateMode matupmode=addNoise) const override final{
 
     (void)icache;
     return postUpdate(parm,sf,dir,particle,matupmode);
@@ -151,19 +151,19 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
                                      double pathcorrection,
                                      PropDirection dir=alongMomentum,
                                      ParticleHypothesis particle=pion,
-                                     MaterialUpdateMode matupmode=addNoise) const override{
+                                     MaterialUpdateMode matupmode=addNoise) const override final{
     (void) icache;
     return update(parm,mprop,pathcorrection,dir,particle,matupmode);
   }
 
   /** Validation Action: */
-  virtual void validationAction(ICache& icache) const override { 
+  virtual void validationAction(ICache& icache) const override final { 
     (void) icache;
     validationAction(); 
   }
 
   /** Model Action:*/
-  virtual void modelAction(ICache& icache,const TrackParameters* parm=0) const override{     
+  virtual void modelAction(ICache& icache,const TrackParameters* parm=0) const override final{     
     (void) icache;
     modelAction(parm); 
   }   
@@ -171,8 +171,8 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
 
  private:
   int   m_outputlevel;       //!< to cache current output level
-  ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator
-     {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
+  ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{this,
+    "EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
   
 
 };

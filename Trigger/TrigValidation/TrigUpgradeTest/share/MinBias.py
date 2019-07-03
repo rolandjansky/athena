@@ -24,24 +24,23 @@ theFTF.isRoI_Seeded = True
 theFTF.RoIs         = "FSRoI"
 topSequence += theFTF
 
-topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
 TrackCountHypoTool1=TrackCountHypoTool("HLT_mbsptrk")
 TrackCountHypoTool1.OutputLevel=DEBUG
-
 TrackCountHypo.OutputLevel= DEBUG
 TrackCountHypo.HypoTools+=[TrackCountHypoTool1]
 TrackCountHypo.HypoInputDecisions="FSDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
+TrackCountHypo.trackCountKey="HLT_TrackCount"
 topSequence += TrackCountHypo
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-monTool = GenericMonitoringTool('MonTool')
-monTool.defineHistogram('ntrks', path='EXPERT', type='TH1F', title='ntrks',xbins=100, xmin=-0, xmax=2000)
-monTool.defineHistogram('pTcuts', path='EXPERT', type='TH1F', title='pTcuts',xbins=0.2, xmin=-0, xmax=10)
-monTool.defineHistogram('counts', path='EXPERT', type='TH1F', title='counts',xbins=100, xmin=-0, xmax=2000)
-SpCount.MonTool = monTool
+
+from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
+SpCount=TrigCountSpacePointsMT()
+SpCount.OutputLevel= DEBUG
+topSequence += SpCount

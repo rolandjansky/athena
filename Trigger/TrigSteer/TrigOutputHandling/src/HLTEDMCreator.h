@@ -45,7 +45,7 @@
 #include "xAODTau/TauJetAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing

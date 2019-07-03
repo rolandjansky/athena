@@ -62,21 +62,12 @@ thread_local FPEAuditor::FpeStack_t FPEAuditor::s_fpe_stack;
 ////////////////
 FPEAuditor::FPEAuditor( const std::string& name, 
 			ISvcLocator* pSvcLocator ) : 
-  Auditor     ( name, pSvcLocator  ),
-  AthMessaging(msgSvc(), name),
+  AthCommonMsg<Auditor>     ( name, pSvcLocator  ),
   m_CountFPEs(),
   m_NstacktracesOnFPE(0),
-  //m_flagp(),
   m_env(),
   m_nexceptions(0)
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty, "descr" );
-
-  // for AuditorHandle ? someday ?
-  //declareInterface<IAuditor>(this);
   declareProperty("NStacktracesOnFPE", m_NstacktracesOnFPE,
                   "Flag to configure, how many stack traces in case of FPE are printed. "
                   "Default: Zero, just report that FPE has happened. "
@@ -174,6 +165,14 @@ void FPEAuditor::afterInitialize(INamedInterface* comp)
   report_fpe(step, comp->name());
   pop_fpe_node();
 
+  FPEAudit::lock_t lock (FPEAudit::s_mutex);
+  // CoreDumpSvc can also install a FPE handler, grrr.
+  if (comp->name() == "CoreDumpSvc") FPEAudit::s_handlerInstalled = false;
+  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled )
+    {
+      InstallHandler();
+      m_nexceptions = m_NstacktracesOnFPE;
+    }
 
 }
 
@@ -192,6 +191,14 @@ void FPEAuditor::afterReinitialize( INamedInterface* comp)
 void FPEAuditor::beforeExecute(INamedInterface* /*comp*/)
 {
   add_fpe_node();
+
+  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
+    FPEAudit::lock_t lock (FPEAudit::s_mutex);
+    if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
+      InstallHandler();
+      m_nexceptions = m_NstacktracesOnFPE;
+    }
+  }
 }
 
 void FPEAuditor::afterExecute( INamedInterface* comp, 
@@ -269,6 +276,7 @@ FPEAuditor::report_fpe(const std::string& step,
   // store current list of FPE flags which were raised before
   int raised = fetestexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO);
   if (raised) {
+    // FIXME: Gaudi should pass context to the auditors.
     std::stringstream evStr;
     const EventContext& ctx = Gaudi::Hive::currentContext();
     if (ctx.valid()) {
@@ -276,12 +284,15 @@ FPEAuditor::report_fpe(const std::string& step,
     }
 
     if (raised & FE_OVERFLOW) {
-      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str());
+      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str() << 
+                      " " << m_NstacktracesOnFPE << " " << FPEAudit::s_tlsdata.s_array_O[0]
+                      );
       ++m_CountFPEs[FPEAUDITOR_OVERFLOW];
       if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_O[0] != NULL )
 	{
 	  for (unsigned int j = 0; j < 100; j++)
 	    {
+              FPEAudit::lock_t lock (FPEAudit::s_mutex);
 	      if (FPEAudit::s_tlsdata.s_array_O[j]==NULL) break;
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	      FPEAudit::resolve(FPEAudit::s_tlsdata.s_array_O[j],this->msg());
@@ -291,14 +302,17 @@ FPEAuditor::report_fpe(const std::string& step,
 	}
     }
     if (raised & FE_INVALID) {
-      ATH_MSG_WARNING("FPE INVALID in [" << step << "] of [" << caller << "]" << evStr.str());
+      ATH_MSG_WARNING("FPE INVALID in [" << step << "] of [" << caller << "]" << evStr.str()
+                      << " " << m_NstacktracesOnFPE << " " << FPEAudit::s_tlsdata.s_array_I[0]
+                      );
       ++m_CountFPEs[FPEAUDITOR_INVALID];
     }
     if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_I[0] != NULL )
       {
 	for (unsigned int j = 0; j < 100; j++)
 	  {
-	    if (FPEAudit::s_tlsdata.s_array_I[j]==NULL) break;
+            FPEAudit::lock_t lock (FPEAudit::s_mutex);
+            if (FPEAudit::s_tlsdata.s_array_I[j]==NULL) break;
 	    this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	    FPEAudit::resolve(FPEAudit::s_tlsdata.s_array_I[j],this->msg());
 	    FPEAudit::s_tlsdata.s_array_I[j]=NULL;
@@ -306,10 +320,13 @@ FPEAuditor::report_fpe(const std::string& step,
 	  }
       }
     if (raised & FE_DIVBYZERO) {
-      ATH_MSG_WARNING("FPE DIVBYZERO in [" << step << "] of [" << caller << "]" << evStr.str());
+      ATH_MSG_WARNING("FPE DIVBYZERO in [" << step << "] of [" << caller << "]" << evStr.str()
+                      << " " << m_NstacktracesOnFPE << " " << FPEAudit::s_tlsdata.s_array_D[0]
+                      );
       ++m_CountFPEs[FPEAUDITOR_DIVBYZERO];
       if ( m_NstacktracesOnFPE && FPEAudit::s_tlsdata.s_array_D[0] != NULL )
 	{
+          FPEAudit::lock_t lock (FPEAudit::s_mutex);
 	  for (unsigned int j = 0; j < 100; j++)
 	    {
 	      if (FPEAudit::s_tlsdata.s_array_D[j]==NULL) break;
@@ -342,6 +359,16 @@ FPEAuditor::add_fpe_node()
 
   // clear FPE status word
   feclearexcept(FE_ALL_EXCEPT);
+
+  if (FPEAudit::s_handlerDisabled) {
+    // Make sure exceptions have been masked off if the handler has been
+    // disabled.  Yes, this is already done in the signal handler.
+    // But when TBB starts a new task, it resets the FPU control words
+    // to values that were copied when the thread pool was initialized.
+    // FIXME: Do it properly with TBB?  Not sure that the current
+    // interfaces allow it.
+    FPEAudit::mask_fpe();
+  }
 }
 
 void
@@ -360,6 +387,7 @@ FPEAuditor::pop_fpe_node()
   if (!s_fpe_stack.empty()) {
     s_fpe_stack.back().second |= raised;
   }
-  if ( FPEAudit::s_handlerInstalled && !FPEAudit::s_handlerDisabled)
+  if ( FPEAudit::s_handlerInstalled && !FPEAudit::s_handlerDisabled) {
     FPEAudit::unmask_fpe();
+  }
 }

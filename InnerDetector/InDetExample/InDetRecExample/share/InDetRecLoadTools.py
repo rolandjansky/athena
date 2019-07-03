@@ -872,22 +872,29 @@ if InDetFlags.loadSummaryTool():
     AtlasTrackSummaryTool = AtlasTrackSummaryTool()
     ToolSvc += AtlasTrackSummaryTool
 
-    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseConditions(True)
-        pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-        pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-        pixelConditionsSummaryToolSetup.setup()
+    from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+    pixelConditionsSummaryToolSetup.setUseConditions(True)
+    pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+    pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+    pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
+    pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
+    pixelConditionsSummaryToolSetup.setup()
+    InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
+
+    if InDetFlags.usePixelDCS():
+        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetPixelConditionsSummaryTool
 
     #
     # Loading Pixel test tool
     #
     from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
     InDetTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
-                                                             PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+                                                             PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                              CheckActiveAreas=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDeadRegions=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDisabledFEs=InDetFlags.checkDeadElementsOnTrack())
@@ -901,7 +908,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
     InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
-                                                          PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                           usePixel      = DetFlags.haveRIO.pixel_on(),
                                                           useSCT        = DetFlags.haveRIO.SCT_on(),                                                          
                                                           CountDeadModulesAfterLastHit = True,
@@ -926,7 +933,7 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.pixel_on() :
         from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
         InDetRecTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetRecTestBLayerTool",
-                                                            PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+                                                            PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                             Extrapolator    = InDetExtrapolator)
         ToolSvc += InDetRecTestBLayerTool
         if (InDetFlags.doPrintConfigurables()):

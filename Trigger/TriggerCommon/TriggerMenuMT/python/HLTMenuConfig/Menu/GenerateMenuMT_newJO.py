@@ -94,6 +94,11 @@ def generateMenu( flags ):
 
     _log.info('CF is built')
 
+
+    # # generate JOSON representation of the config
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
+    generateJSON_newJO( None )
+
     return menuAcc
 
 

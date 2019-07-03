@@ -11,6 +11,11 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.DetFlags import DetFlags
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
+CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
+CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
+ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
+ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
+MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
 
 class muonNames(object):
   def __init__(self):
@@ -22,19 +27,19 @@ class muonNames(object):
     self.L2CBName = "MuonL2CBInfo"
     self.EFSAName = "Muons"
     self.EFCBName = "MuonsCB"
-    self.EFCBOutInName = "MuonsCBOutsideIn"
-    self.EFCBInOutName = "MuonsCBInsideOut"
+    self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
+    self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = "MuonsL2ISInfo"
     self.EFIsoMuonName = "MuonsIso"
 
   def getNames(self, name):
 
     if "FS" in name:
-      self.EFSAName = "Muons_FS"
-      self.EFCBName = "MuonsCB_FS"
+      self.EFSAName = recordable("HLT_Muons_FS")
+      self.EFCBName = recordable("HLT_MuonsCB_FS")
     if "RoI" in name:
-      self.EFSAName = "Muons_RoI"
-      self.EFCBName = "MuonsCB_RoI"
+      self.EFSAName = recordable("HLT_Muons_RoI")
+      self.EFCBName = recordable("HLT_MuonsCB_RoI")
     return self
 
 
@@ -61,9 +66,9 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                        IsOldCosmics 	= False )
   ToolSvc += CSCRodDecoder
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "CSC_RawDataProviderTool",
-                                                             Decoder     = CSCRodDecoder )
+  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
+  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
+                                                               Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
@@ -545,7 +550,7 @@ def muEFSARecoSequence( RoIs, name ):
   msMuonName = muNames.EFSAName
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
-  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName )
+  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -718,7 +723,7 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.SegmentContainerName = "CBSegments"
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
-  themuoncbcreatoralg.CombinedLocation = "CBCombinedMuon"
+  themuoncbcreatoralg.CombinedLocation = "HLT_CBCombinedMuon_"+name
 
   #Add all algorithms
   efAlgs.append(theIndetCandidateAlg)
@@ -753,10 +758,11 @@ def muEFInsideOutRecoSequence(RoIs, name):
   #Need PRD containers for inside-out reco
   ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
   ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                              ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                              ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                              ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                              ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+                                     ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                     ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                     ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                     ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                     ('std::vector<Muon::HoughDataPerSec>' , 'StoreGateSvc+HoughDataPerSectorVec')]
   efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 
@@ -784,7 +790,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
     trkSummaryTool.InDetSummaryHelperTool=InDetTrigTrackSummaryHelperTool
     trkSummaryTool.doHolesInDet=True
   ToolSvc += Trk__TrackSummaryTool('TrigMuonTrackSummary')
-  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=trkSummaryTool, Cleaner=theTrackCleaner)
+  theTrackQueryNoFit = getPublicToolClone("TrigMuonInsideOutTrackQueryNoFit", "MuonTrackQuery", Fitter="")
+  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=trkSummaryTool, Cleaner=theTrackCleaner,TrackQuery=theTrackQueryNoFit)
 
 
   #Inside-out reconstruction
@@ -798,17 +805,16 @@ def muEFInsideOutRecoSequence(RoIs, name):
   cbMuonName = muNames.EFCBInOutName
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreatorInsideOut", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
-  theTrackQueryNoFit = getPublicToolClone("TrigMuonInsideOutTrackQueryNoFit", "MuonTrackQuery", Fitter="")
   thecreatortool= getPublicToolClone("MuonCreatorTool_triggerInsideOut", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False,TrackQuery=theTrackQueryNoFit,TrackParticleCreator=muonparticlecreator)
-  insideoutcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgInsideOut",BuildSlowMuon=True, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_RoI_"+name)
+  insideoutcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgInsideOut",BuildSlowMuon=True, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name)
   insideoutcreatoralg.MuonCreatorTool=thecreatortool
   insideoutcreatoralg.MakeClusters=False
   insideoutcreatoralg.ClusterContainerName=""
   insideoutcreatoralg.MuonContainerLocation = cbMuonName
-  insideoutcreatoralg.SegmentContainerName = "CBSegments_"+name
-  insideoutcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons_"+name
-  insideoutcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons_"+name
-  insideoutcreatoralg.CombinedLocation = "CBCombinedMuon_"+name
+  insideoutcreatoralg.SegmentContainerName = "InsideOutCBSegments"
+  insideoutcreatoralg.ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons"
+  insideoutcreatoralg.MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons"
+  insideoutcreatoralg.CombinedLocation = "InsideOutCBCombinedMuon"
 
   efAlgs.append(theInsideOutRecoAlg)
   efAlgs.append(insideoutcreatoralg)

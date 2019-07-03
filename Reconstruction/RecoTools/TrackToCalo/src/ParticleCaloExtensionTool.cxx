@@ -106,30 +106,17 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
   }
-
+  caloextensions.reserve(numparticles);
   /* Either create a proper CaloExtension or otherwise a dummy one
    * i.e one with no intersections
    */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
       std::unique_ptr<Trk::CaloExtension> extension=caloExtension(*(particles[i]));
-      if(extension!=nullptr){
-        caloextensions.push_back(std::move(extension));
-      }
-      else {
-        std::vector<const CurvilinearParameters*> dummyPar{};
-        std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,
-                                                                                          nullptr,
-                                                                                          std::move(dummyPar));
-        caloextensions.push_back(std::move (dummyExt));
-      }
+      caloextensions.push_back(std::move(extension));
     }
     else{
-      std::vector<const CurvilinearParameters*> dummyPar{};
-      std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,
-                                                                                   nullptr,
-                                                                                   std::move(dummyPar));
-      caloextensions.push_back(std::move (dummyExt));
+      caloextensions.push_back(nullptr);
     }
   }
   return StatusCode::SUCCESS;
@@ -178,39 +165,23 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle 
 
 std::unique_ptr<Trk::CaloExtension> 
 ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
+
   /* 
-   * The electrons are done separately here.
-   *
-   * Here we have also the Gaussian Sum Filter having out back
-   * as a main case to consider. In which case 
-   *
    * In principle we will extrapolate either from the perigee or 
-   * from the last measurement of the trackParticle
-   * The extrapolation will be done as a muon since this
+   * from the last measurement of the trackParticle.
+   *
+   * For electrons the extrapolation will be done as a muon since this
    * is the closest to non-interacting in the calorimeter
    * while still providing intersections.
    */
-  if(m_particleType == electron ||
-     particle.particleHypothesis() ==  xAOD::electron){  
-    ParticleHypothesis particleTypeForElectron = muon;//nonInteracting; 
-    if (!m_startFromPerigee){
-      unsigned int index(0);
-      if(particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)){    
-        return caloExtension(particle.curvilinearParameters(index),alongMomentum,particleTypeForElectron);
-      } else {
-        ATH_MSG_DEBUG("No last measurement:"
-                      <<" Perhaps you try to run the extrapolator after slimming."
-                      <<" Fallling through to perigee");
-      }
-    } 
-    return caloExtension(particle.perigeeParameters(),alongMomentum,particleTypeForElectron);
-  }
 
-  /* 
-   * This is the case for muons 
-   * Extra logic for the muon spectrometer entry and exit
-   */
   ParticleHypothesis particleType = m_particleType;
+  
+  if(m_particleType == electron || 
+     particle.particleHypothesis() ==  xAOD::electron ){  
+    ATH_MSG_DEBUG("Extrapolating electrons with muon hypothesis");
+    particleType = muon;//closest to nonInteracting;
+  }
 
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
@@ -222,16 +193,19 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) 
   }
 
   const Track& track = *particle.track();
-  // look-up the parameters closest to the calorimeter in ID and muon system
+  /*
+   * Look-up the parameters closest to the calorimeter in 
+   * ID and muon system
+   */
   ATH_MSG_DEBUG("trying to add calo layers" );
   const TrackParameters* idExitParamers = 0;
   const TrackParameters* muonEntryParamers = 0;
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = track.trackStateOnSurfaces()->begin();
   for ( ; itTSoS != track.trackStateOnSurfaces()->end(); ++itTSoS) {
     // select state with track parameters on a measurement
-    if ( !(**itTSoS).trackParameters() || 
-         !(**itTSoS).type(TrackStateOnSurface::Measurement) || 
-         (**itTSoS).type(TrackStateOnSurface::Outlier) ) {continue;}
+    if ( !(**itTSoS).trackParameters() || !(**itTSoS).type(TrackStateOnSurface::Measurement) 
+         || (**itTSoS).type(TrackStateOnSurface::Outlier) ) {continue;}
+    
     const Identifier& id = (**itTSoS).trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
     if( m_detID->is_indet(id) ) idExitParamers = (**itTSoS).trackParameters();
     if( m_detID->is_muon(id) && !muonEntryParamers ) muonEntryParamers = (**itTSoS).trackParameters();
@@ -242,6 +216,7 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) 
   }
   // pick start parameters, start in ID if possible
   const TrackParameters* startPars = idExitParamers ? idExitParamers : muonEntryParamers;
+ 
   if( !startPars ){
     ATH_MSG_WARNING("Failed to find  start parameters");
     return nullptr;

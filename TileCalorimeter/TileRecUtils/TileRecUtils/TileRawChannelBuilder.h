@@ -28,11 +28,12 @@
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondIdTransforms.h"
-#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -194,6 +195,11 @@ class TileRawChannelBuilder: public AthAlgTool {
         "TileCondIdTransforms", "TileCondIdTransforms",
         "Tile tool to tranlate hardware identifier to the drawerIdx, channel, and adc"};
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     int m_trigType;
     bool m_idophys;   // Phys fitting

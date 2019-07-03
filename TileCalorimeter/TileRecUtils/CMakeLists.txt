@@ -29,7 +29,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileDetDescr
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -99,3 +100,28 @@ atlas_add_test( TileDQstatusTool_test
 atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TileRawChannelBuilderFitConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderFitConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelBuilderOptConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderOptConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDQstatusConfig_test
+                 SCRIPT python -m TileRecUtils.TileDQstatusConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelCorrectionConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelCorrectionConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelMakerConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelMakerConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)

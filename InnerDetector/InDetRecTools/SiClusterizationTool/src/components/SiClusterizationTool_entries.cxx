@@ -13,8 +13,6 @@
 
 #include "../TTrainedNetworkCondAlg.h"
 
-using namespace InDet;
-
 DECLARE_COMPONENT( InDet::MergedPixelsTool )
 DECLARE_COMPONENT( InDet::SCT_ClusteringTool )
 DECLARE_COMPONENT( InDet::PixelGangedAmbiguitiesFinder )

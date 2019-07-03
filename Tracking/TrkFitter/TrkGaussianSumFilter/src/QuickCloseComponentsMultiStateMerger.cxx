@@ -13,14 +13,12 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/IComponentSeparationDistance.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/Chrono.h"
 #include <limits>
-#include <map>
 
 
 #if !defined(__GNUC__)
@@ -59,12 +57,6 @@ StatusCode Trk::QuickCloseComponentsMultiStateMerger::initialize()
     return StatusCode::FAILURE;
   } else
      ATH_MSG_INFO( "Retrieved service " << m_chronoSvc );
-
-  // Retrieve the distance tool
-  if ( m_distance.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not retrieve component distance AlgTool ... Exiting!" );
-    return StatusCode::FAILURE;
-  }
 
   // Request an instance of the MultiComponentStateCombiner
   if ( m_stateCombiner.retrieve().isFailure() ){

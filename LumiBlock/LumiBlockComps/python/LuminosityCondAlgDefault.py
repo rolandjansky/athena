@@ -12,18 +12,25 @@ from AthenaCommon.AlgSequence import AthSequencer
 _isOnline = False
 
 
-def LuminosityCondAlgDefault (name = 'LuminosityCondAlg', isOnline = None):
+def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
+                              suffix = '',
+                              isOnline = None):
+    if name == None:
+        name = 'LuminosityCondAlg' + suffix
+
     mlog = logging.getLogger(name)
     condSeq = AthSequencer ('AthCondSeq')
 
     global _isOnline
     if hasattr (condSeq, name):
-        if isOnline and not _isOnline:
+        if isOnline and not _isOnline and suffix == '':
             mlog.error ('Inconsistent isOnline setting')
             return None
         return getattr (condSeq, name)
 
-    if isOnline:
+    if suffix != '':
+        pass
+    elif isOnline:
         _isOnline = True
     else:
         isOnline = _isOnline
@@ -52,15 +59,17 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg', isOnline = None):
         LuminosityCondAlg
 
     alg = LuminosityCondAlg (name,
-                             LuminosityOutputKey = 'LuminosityCondData',
+                             LuminosityOutputKey = 'LuminosityCondData' + suffix,
                              **kwargs)
     condSeq += alg
 
     return alg
 
 
-def LuminosityCondAlgOnlineDefault (name = 'LuminosityCondAlg'):
-    return LuminosityCondAlgDefault (name, isOnline = True)
+def LuminosityCondAlgOnlineDefault (name = None,
+                                    suffix = ''):
+    return LuminosityCondAlgDefault (name = name, suffix = suffix,
+                                     isOnline = True)
 
 
 def configureLuminosityCondAlgMC (name):
@@ -177,14 +186,15 @@ def configureOnlineLuminosityCondAlg (name):
         conddb.addFolder('TRIGGER_ONL', folder,
                          className = 'CondAttrListCollection')
       
-    else: #  Run 2
-        if conddb.dbdata != "CONDBR2":
-            mlog.warning("LuminosityToolOnline can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
-            mlog.info("Using Run 2 configuration")
-
+    elif conddb.dbdata == "CONDBR2": # Run2
         folder  = "/TRIGGER/LUMI/HLTPrefLumi"
         conddb.addFolder('TRIGGER_ONL', folder,
                          className = 'CondAttrListCollection')
+
+    else: #  Run 2
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        mlog.info("Using dummy Run 2 configuration")
+        folder = ''
 
 
     kwargs['LuminosityFolderInputKey'] = folder
@@ -194,7 +204,7 @@ def configureOnlineLuminosityCondAlg (name):
     from CoolLumiUtilities.OnlineLumiCalibrationCondAlgDefault \
         import OnlineLumiCalibrationCondAlgDefault
     calibAlg = OnlineLumiCalibrationCondAlgDefault()
-    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey
+    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey if calibAlg else ''
     
     # Other folder names should be blank.
     kwargs['BunchLumisInputKey'] = ''

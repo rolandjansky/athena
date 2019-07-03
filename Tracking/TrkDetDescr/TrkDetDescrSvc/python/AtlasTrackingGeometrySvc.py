@@ -44,10 +44,8 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
         AtlasGeometryBuilder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder')
-        # switcht the building outputlevel on 
+        # switch the building outputlevel on 
         AtlasGeometryBuilder.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
-        # register it to tool svc
-        ToolSvc += AtlasGeometryBuilder
         
         # the envelope definition service
         from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
@@ -74,8 +72,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
-          # make a public tool out of it
-          ToolSvc += InDetTrackingGeometryBuilder
           # and give it to the Geometry Builder
           AtlasGeometryBuilder.InDetTrackingGeometryBuilder = InDetTrackingGeometryBuilder
           # 
@@ -92,8 +88,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
            CaloTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            CaloTrackingGeometryBuilder.OutputLevel           = TrkDetFlags.CaloBuildingOutputLevel()
            CaloTrackingGeometryBuilder.GeometryName          = 'Calo'
-           # make a public tool out of it
-           ToolSvc += CaloTrackingGeometryBuilder
            # and give it to the Geometry Builder
            AtlasGeometryBuilder.CaloTrackingGeometryBuilder = CaloTrackingGeometryBuilder
         
@@ -101,7 +95,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         if DetFlags.Muon_on() :
            from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
            MuonTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
-           ToolSvc += MuonTrackingGeometryBuilder
            # and give it to the Geometry Builder
            AtlasGeometryBuilder.MuonTrackingGeometryBuilder = MuonTrackingGeometryBuilder      
            
@@ -115,7 +108,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
             AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
-            ToolSvc += AtlasMaterialProvider
         
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]
         
@@ -158,7 +150,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__InputLayerMaterialProvider
             AtlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
-            ToolSvc += AtlasMaterialProvider
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]            
 
         # material validation
@@ -167,7 +158,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__LayerMaterialInspector
             AtlasLayerMaterialInspector = Trk__LayerMaterialInspector('AtlasLayerMaterialInspector')
             AtlasLayerMaterialInspector.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
-            ToolSvc += AtlasLayerMaterialInspector
             
             AtlasGeometryProcessors += [ AtlasLayerMaterialInspector ]
 

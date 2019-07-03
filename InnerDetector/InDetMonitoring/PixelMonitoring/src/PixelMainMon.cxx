@@ -36,7 +36,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
@@ -53,7 +52,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-    m_lumiTool("LuminosityTool"),
     m_moduleTemperature(new dcsDataHolder()),
     m_coolingPipeTemperatureInlet(new dcsDataHolder()),
     m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
@@ -69,7 +67,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
-  declareProperty("LuminosityTool", m_lumiTool);
 
   declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
   declareProperty("RODErrorName", m_detector_error_name = "pixel_error_summary");
@@ -444,13 +441,6 @@ StatusCode PixelMainMon::initialize() {
     m_trackSelTool.disable();
   }
 
-  if (m_lumiTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
-  }
-  
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));

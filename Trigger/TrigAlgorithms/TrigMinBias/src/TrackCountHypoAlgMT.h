@@ -25,7 +25,7 @@ private:
   TrackCountHypoAlgMT();
   ToolHandleArray< TrackCountHypoTool > m_hypoTools {this, "HypoTools", {},"Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{this,"tracksKey","Undefined",""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trackCountKey{this,"tracksKey","Undefined",""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trackCountKey{this,"trackCountKey","Undefined",""};
   Gaudi::Property<std::vector<float>> m_min_pt{this, "min_pt",{0.1,0.2,4.0}, "Accept events with momentum higher than this limit"};
 
 };

@@ -17,11 +17,12 @@ atlas_depends_on_subdirs(
    DetectorDescription/Identifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/InDetIdentifier
+   InnerDetector/InDetConditions/PixelConditionsData
    Tools/PathResolver )
 
 # External dependencies:
 find_package( Boost )
-find_package( CORAL COMPONENTS CoralBase )
+find_package( COMPONENTS )
 find_package( tdaq-common )
 
 # Component(s) in the package:
@@ -33,11 +34,11 @@ atlas_add_library( PixelCablingLib
 
 atlas_add_component( PixelCabling
    src/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    ${TDAQ-COMMON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES}
-   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib
-   AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PathResolver PixelCablingLib )
+   LINK_LIBRARIES ${Boost_LIBRARIES}
+   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
+   AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelConditionsData PathResolver PixelCablingLib )
 
 atlas_add_test( PixelCablingConfigNew_test
                 SCRIPT test/PixelCablingConfigNew_test.py
