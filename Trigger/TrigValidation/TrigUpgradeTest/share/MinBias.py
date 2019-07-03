@@ -38,3 +38,10 @@ TrackCountHypo.HypoInputDecisions="FSDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 topSequence += TrackCountHypo
+
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+monTool = GenericMonitoringTool('MonTool')
+monTool.defineHistogram('ntrks', path='EXPERT', type='TH1F', title='ntrks',xbins=100, xmin=-0, xmax=2000)
+monTool.defineHistogram('pTcuts', path='EXPERT', type='TH1F', title='pTcuts',xbins=0.2, xmin=-0, xmax=10)
+monTool.defineHistogram('counts', path='EXPERT', type='TH1F', title='counts',xbins=100, xmin=-0, xmax=2000)
+SpCount.MonTool = monTool
