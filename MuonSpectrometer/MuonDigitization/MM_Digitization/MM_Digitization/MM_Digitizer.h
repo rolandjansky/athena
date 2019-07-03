@@ -25,7 +25,7 @@ class MM_Digitizer : public AthAlgorithm {
 
  private:
 
-  ToolHandle<IMuonDigitizationTool> m_digTool;
+  ToolHandle<IMuonDigitizationTool> m_digTool{this, "DigitizationTool", "MM_DigitizationTool", "MMDigitizationTool name"};
 
 };
 /*******************************************************************************/
