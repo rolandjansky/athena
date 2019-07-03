@@ -54,8 +54,8 @@ def make_simple_label(chain_dict):
             #                                  smcstr,)
             condition_str = '(%set,%s' % (str(cp['threshold']),
                                               str(cp['etaRange']),)
-            if smcstr:
-                condition_str += ',%s)'
+            if smcstr: # Run 2 chains have "INF" in the SMC substring
+                condition_str += ',%s)' % smcstr.replace('INF','')
             else:
                 condition_str += ')'
             label += condition_str
