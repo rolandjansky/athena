@@ -34,42 +34,43 @@ namespace Trk
 
 
 
-  class Trk2DDistanceFinder : public AthAlgTool, virtual public ITrkDistanceFinder
+  class Trk2DDistanceFinder : public extends<AthAlgTool, ITrkDistanceFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-
     //default constructor due to Athena interface
     Trk2DDistanceFinder(const std::string& t, const std::string& n, const IInterface*  p);
     
     //destructor
     virtual ~Trk2DDistanceFinder();
 
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+
     /** method to do the calculation starting from two MeasuredPerigees*/
-    /** return value is true if calculation is successfull */
-    virtual bool CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &);
+    /** If successful, returns the points on the two tracks at minimum distance. */
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) override;
     
     /** method to do the calculation starting from two tracks */
-    virtual bool CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &);
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) override;
 
     /** method to do the calculation starting from two track particles */
-    virtual bool CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &);
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const  Trk::TrackParticleBase &,
+                             const  Trk::TrackParticleBase &) override;
     
     /**method to obtain the distance (call CalculateMinimumDistance before) **/
-    virtual double GetDistance() const;
+    virtual double GetDistance() const override;
     
     /** method to obtain the points on the two tracks at minimum distance **/
-    virtual const std::pair<Amg::Vector3D,Amg::Vector3D> GetPoints() const;
+    virtual const std::pair<Amg::Vector3D,Amg::Vector3D> GetPoints() const override;
     
     
-        
   private:
-
     ToolHandle<Trk2dDistanceSeeder> m_2ddistanceseeder;
     int m_numberOfMinimizationFailures;
     Trk::TwoPoints m_points;
-
   };
 }
 #endif
