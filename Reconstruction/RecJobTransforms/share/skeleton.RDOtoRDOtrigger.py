@@ -236,6 +236,9 @@ for i in outSequence.getAllChildren():
         ServiceMgr += TrigConfigSvc("TrigConfigSvc")
         ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
 
+        # Still need to produce Run-2 style L1 xAOD output
+        topSequence += RoIBResultToAOD("RoIBResultToxAOD")
+
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
