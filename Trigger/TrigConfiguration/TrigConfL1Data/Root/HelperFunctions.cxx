@@ -74,13 +74,13 @@ namespace {
    parseToken(const std::string& givenlogic,
               std::string::size_type& pos,
               const std::vector<std::string>& conditions,
-              const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error);
+              const std::vector<TrigConf::TriggerThreshold*>& thrs);
 
 
    TrigConf::TriggerItemNode *
    parseExpr(const std::string& expr,
              const std::vector<std::string>& conditions,
-             const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error) {
+             const std::vector<TrigConf::TriggerThreshold*>& thrs) {
 
 
       std::string::size_type pos  = 0;
@@ -156,7 +156,7 @@ namespace {
    parseToken(const std::string& logic,
               std::string::size_type& pos,
               const std::vector<std::string>& conditions,
-              const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error) {
+              const std::vector<TrigConf::TriggerThreshold*>& thrs) {
 
       // logic should be the definition of a node
       //
@@ -221,7 +221,7 @@ namespace {
 TrigConf::TriggerItemNode *
 TrigConf::buildObjNode(uint32_t condIdx,
                        const vector<string>& conditions, 
-                       const vector<TrigConf::TriggerThreshold*>& thrs) throw (logic_error) {
+                       const vector<TrigConf::TriggerThreshold*>& thrs) {
 
    TriggerItemNode* newNode = new TriggerItemNode(TriggerItemNode::OBJ);
    
@@ -261,7 +261,7 @@ TrigConf::buildObjNode(uint32_t condIdx,
 TrigConf::TriggerItemNode *
 TrigConf::parse(const std::string& givenlogic,
                 const std::vector<std::string>& conditions,
-                const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error) {
+                const std::vector<TrigConf::TriggerThreshold*>& thrs) {
 
    // balance expression
    std::string expr = insertParenthesis(givenlogic);
@@ -287,7 +287,7 @@ TrigConf::parse(const std::string& givenlogic,
 // pos: position of the current opening bracket
 std::string::size_type
 TrigConf::findClosingBracket(std::string::size_type pos,
-                             const std::string& logic) throw (std::logic_error) {
+                             const std::string& logic) {
 
    pos++;
    uint32_t openBrackets = 1;
