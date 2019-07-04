@@ -13,7 +13,7 @@
 #include "JetInterface/IJetSelector.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "BoostedJetTaggers/IJetTaggerTool.h"
+#include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 #include "PATCore/TAccept.h"
@@ -23,8 +23,8 @@
 
 class JSSTaggerBase :   public asg::AsgTool ,
 			virtual public IJetSelector,
-                        virtual public IJetTaggerTool {
-  ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelector, IJetTaggerTool )
+                        virtual public IJetSelectorLabelTool {
+  ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelector, IJetSelectorLabelTool )
   
   protected:
   
