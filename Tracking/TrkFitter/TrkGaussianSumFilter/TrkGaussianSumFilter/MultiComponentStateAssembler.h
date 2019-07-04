@@ -79,8 +79,6 @@ class MultiComponentStateAssembler : public AthAlgTool, virtual public IMultiCom
   /** Method to check the validity of of the cashed state */
   bool isStateValid (Cache& cache) const;
   
-  /** Method to Remove components with insignificantly small weightings */
-  void removeSmallWeights (Cache& cache) const;
 
   /** Method for the actual addition of a multi-component state to the cashed state */
   void addComponentsList (Cache& cache, const MultiComponentState*) const;

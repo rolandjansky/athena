@@ -137,7 +137,6 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
   
   // Check for minimum fraction of valid states
   double validWeightFraction = cache.validWeightSum / ( cache.validWeightSum + cache.invalidWeightSum );
-
   if (cache.invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
     ATH_MSG_DEBUG( "Insufficient valid states in the state... returning false \n");
     return false;
@@ -147,41 +146,57 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
      ATH_MSG_DEBUG("Assembly of state already complete... returning true \n");
     return true;
   }
-
-  // Remove components with negligable weights
-  removeSmallWeights (cache);
   
+  /*
+   * Sort Multi-Component State by weights
+   */
+  std::sort(cache.multiComponentState->begin(),
+            cache.multiComponentState->end(), 
+            SortByLargerComponentWeight() );
+ 
+  double totalWeight( cache.validWeightSum + cache.invalidWeightSum );
+  if ( totalWeight != 0. ) {
+  /*                                                                                                                    
+   * All elements where !comp->!(value>element) ->(element>=value) is true  
+   * are before the value (i.e ordered descending).                                 
+   * return the 1st element where (element<value)
+   */
+   ComponentParameters dummySmallestWeight(nullptr, m_minimumFractionalWeight*totalWeight);
+   auto lower_than=std::upper_bound(cache.multiComponentState->begin(),
+                                    cache.multiComponentState->end(),
+                                    dummySmallestWeight,
+                                    SortByLargerComponentWeight());
+   /*
+    * reverse iterate , so as to delete remove always the last
+    */
+   auto lower_than_reverse = std::make_reverse_iterator(lower_than);
+   for (auto itr=cache.multiComponentState->rbegin();itr!=lower_than_reverse; ++itr){ 
+     delete itr->first;
+     cache.multiComponentState->erase(itr.base()-1);
+   }
+  }
+
   // Now recheck to make sure the state is now still valid
   if ( !isStateValid (cache) ){
      ATH_MSG_DEBUG("After removal of small weights, state is invalid... returning false \n");
     return false;
   }
-  
-  // Sort Multi-Component State by weights
-  std::sort(cache.multiComponentState->begin(),
-            cache.multiComponentState->end(), 
-            SortByLargerComponentWeight() );
-  
   // Set assembly flag
   cache.assemblyDone = true;
-
   return true;
 }
 
 const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState (Cache& cache)  const{
   
-  ATH_MSG_VERBOSE( "Finalising assembly... no specified reweighting \n");
+  ATH_MSG_DEBUG( "Finalising assembly... no specified reweighting \n");
 
   if ( !prepareStateForAssembly(cache) ) {
     ATH_MSG_DEBUG ("Unable to prepare state for assembly... returning 0 \n");
     return 0;
   }
 
-  ATH_MSG_VERBOSE("Successful preparation for assembly \n");
-  
   if ( cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
-    ATH_MSG_VERBOSE("Assembling state with invalid weight components \n");
     double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
     const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache,totalWeight);
     return stateAssembly;
@@ -197,7 +212,7 @@ Trk::MultiComponentStateAssembler::assembledState (Cache& cache)  const{
 const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState (Cache& cache, const double newWeight) const{
   
-  ATH_MSG_VERBOSE( "Finalising assembly with reweighting of components \n");
+  ATH_MSG_DEBUG( "Finalising assembly with reweighting of components \n");
 
   if ( !prepareStateForAssembly(cache) ) {
      ATH_MSG_DEBUG("Unable to prepare state for assembly... returing nullptr \n");
@@ -233,36 +248,7 @@ Trk::MultiComponentStateAssembler::doStateAssembly (Cache& cache, const double n
   const Trk::MultiComponentState* assembledState = cache.multiComponentState->cloneWithWeightScaling( scalingFactor );
   // Reset the cashe before leaving
   this->reset(cache);
-
+  
   return assembledState;
 }
 
-void Trk::MultiComponentStateAssembler::removeSmallWeights (Cache& cache) const{
-  
-  double totalWeight( cache.validWeightSum + cache.invalidWeightSum );
-  
-  if ( totalWeight == 0. ) {
-    ATH_MSG_DEBUG("Total weight of state is zero... exiting \n");
-    return;
-  }
-
-  //Loop over states and remove those with insiginificant weights fractions
-    bool continueToRemoveComponents;
-     do {
-       continueToRemoveComponents = false;
-       MultiComponentState::iterator component;
-       for ( component  = cache.multiComponentState->begin() ;
-        component != cache.multiComponentState->end();/*Nothing*/ ) {
-         if ( (*component).second / totalWeight < m_minimumFractionalWeight ) {
-           delete component->first;
-           /* Get the iterator position after erase*/
-           component=cache.multiComponentState->erase(component);
-           ATH_MSG_DEBUG("State with weight " << (*component).second << " has been removed from mixture");
-           continueToRemoveComponents = true;
-           break;
-           } // end if
-           /* increment the iterator normally*/
-           ++component;
-       } // end for
-     } while ( continueToRemoveComponents );
- }
