@@ -61,6 +61,11 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Internal.PhotonSuperRecs", 'PhotonSuperRecCollection')
     egcf.addFlag("Egamma.Keys.Internal.ElectronSuperRecs", 'ElectronSuperRecCollection')
 
+    # These are the clusters that are used to determine which cells to write out to AOD
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClusters", 'egamma711Clusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClustersSuppESD", '')
+    # don't define SuppAOD because the whole container is suppressed
+
     egcf.addFlag("Egamma.Keys.Output.ConversionVertices", 'GSFConversionVertices')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppESD", '-vxTrackAtVertex')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppAOD", '-vxTrackAtVertex')
