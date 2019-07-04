@@ -250,7 +250,7 @@ class SLHC_Setup :
                 "STAVESUPPORT":"InclBrl4_StaveSupport",
                 "PIXELDISCSUPPORT":"InclBrl4_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
-                #"PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
+                "PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
                 }
 
 
