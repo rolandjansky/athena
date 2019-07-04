@@ -15,6 +15,7 @@ namespace FlavorTagDiscriminants{
   FlipTagConfig flipTagConfigFromString(const std::string& name) {
     RETURN_CONFIG(STANDARD);
     RETURN_CONFIG(NEGATIVE_IP_ONLY);
+    RETURN_CONFIG(FLIP_SIGN);
     throw std::logic_error("b-tagging flip config '" + name + "' unknown");
   }
 

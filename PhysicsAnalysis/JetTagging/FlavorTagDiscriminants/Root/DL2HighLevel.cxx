@@ -71,7 +71,7 @@ namespace FlavorTagDiscriminants {
     // changing the input scaling and normalizations
     std::regex flip_sequences(".*signed_[dz]0.*");
 
-    if (flip_config == FlipTagConfig::NEGATIVE_IP_ONLY) {
+    if (flip_config != FlipTagConfig::STANDARD) {
       rewriteFlipConfig(config, flip_converters);
       flipSequenceSigns(config, flip_sequences);
     }
