@@ -127,25 +127,28 @@ StatusCode topoEgammaBuilder::execute(){
         unsigned int author = xAOD::EgammaParameters::AuthorElectron;
         xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
 
+	// get the hottest cell
+	const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
+	const auto elEta0 = elClus->eta0();
+	const auto elPhi0 = elClus->phi0();
+
         for (const auto& photonRec : *photonSuperRecs) {
 
-            //See if the same seed (0 element in the constituents) seed also a photon
-            if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
-                    caloClusterLinks(*(photonRec->caloCluster())).at(0)){
-                ATH_MSG_DEBUG("Running AmbiguityTool for electron");
+	  const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
+	  //See if they have the same hottest cell
+	  if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
+	    ATH_MSG_DEBUG("Running AmbiguityTool for electron");
 
-                author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
-                        photonRec->vertex(),
-                        electronRec->trackParticle(),
-                        type);
-
-
-                break;
-            }
+	    author = m_ambiguityTool->ambiguityResolve(elClus,
+						       photonRec->vertex(),
+						       electronRec->trackParticle(),
+						       type);
+	    break;
+	  }
         }
         //Fill each electron
         if (author == xAOD::EgammaParameters::AuthorElectron || 
-                author == xAOD::EgammaParameters::AuthorAmbiguous){
+	    author == xAOD::EgammaParameters::AuthorAmbiguous){
             ATH_MSG_DEBUG("getElectron");
             if ( !getElectron(electronRec, electronContainer.ptr(), author,type) ){
                 return StatusCode::FAILURE;
@@ -159,23 +162,29 @@ StatusCode topoEgammaBuilder::execute(){
         unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
         xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
 
+	// get the hottest cell
+	const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
+	const auto phEta0 = phClus->eta0();
+	const auto phPhi0 = phClus->phi0();
+
         //See if the same seed (0 element in the constituents) seed also an electron
         for (const auto& electronRec : *electronSuperRecs) {
 
-            if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
-                    caloClusterLinks(*(electronRec->caloCluster())).at(0)){
-                ATH_MSG_DEBUG("Running AmbiguityTool for photon");
+	  const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
+	  //See if they have the same hottest cell
+	  if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
+	    ATH_MSG_DEBUG("Running AmbiguityTool for photon");
 
-                author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
-                        photonRec->vertex(),
-                        electronRec->trackParticle(),
-                        type);
-                break;
-            }
+	    author = m_ambiguityTool->ambiguityResolve(elClus,
+						       photonRec->vertex(),
+						       electronRec->trackParticle(),
+						       type);
+	    break;
+	  }
         }
         //Fill each photon
         if (author == xAOD::EgammaParameters::AuthorPhoton || 
-                author == xAOD::EgammaParameters::AuthorAmbiguous){
+	    author == xAOD::EgammaParameters::AuthorAmbiguous){
             ATH_MSG_DEBUG("getPhoton");
             if ( !getPhoton(photonRec, photonContainer.ptr(), author,type) ){
                 return StatusCode::FAILURE;
