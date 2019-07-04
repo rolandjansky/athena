@@ -1638,8 +1638,8 @@ class ItemDef:
 
         #ATR-18824                                                                                                                                      
         if '_v8' in TriggerFlags.triggerMenuSetup():
-            LVL1MenuItem('L1_ZAFB-04DPHI-EM15I' ).setLogic( TOPO_60INVM9999_04DPHI32_EM15abhi_FJj15s623ETA49 & physcond) # noqa: F821
-            LVL1MenuItem('L1_ZAFB-25DPHI-EM15I' ).setLogic( TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & physcond) # noqa: F821
+            LVL1MenuItem('L1_ZAFB-04DPHI-EM15I' ).setLogic( TOPO_60INVM9999_04DPHI32_EM15abhi_FJj15s623ETA49 & EM15VHI & physcond) # noqa: F821
+            LVL1MenuItem('L1_ZAFB-25DPHI-EM15I' ).setLogic( TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & EM15VHI & physcond) # noqa: F821
             LVL1MenuItem('L1_ZAFB-25DPHI-EM18I' ).setLogic( TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & EM18VHI & physcond) # noqa: F821
 
         #ATR-19302: 
