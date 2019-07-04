@@ -141,7 +141,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
   int hitDiscCnfg = 2;
 
   SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
-  SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
+  //SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
+  std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
 
   // ordering of the elements of the RDOs vector by offlineId, n5
   if (rdo_it != rdo_it_end) {
@@ -295,11 +296,14 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         n5 = ((sLink & 0x3)<<3) | (FE & 0x7); // this variable contains the 5 "nnnnn" bits, the 2 MSB ones representing the copy of the S-Link number (0 to 3) and the 2 LSBs representing the FE number over the S-Link
         ATH_MSG_DEBUG("FE (w.r.t. SLink) = 0x" << std::hex << FE << " sLink: 0x" << sLink << " => n5: 0x" << n5 << std::dec);
 
+        if (!pixHitDiscCnfg) {
+          pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> >(m_condHitDiscCnfgKey);
+        }
         if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::DBM) {
-          hitDiscCnfg = pixHitDiscCnfg->getHitDiscCnfgPL();
+          hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
         }
         else if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_3D) {
-          hitDiscCnfg = pixHitDiscCnfg->getHitDiscCnfg3D();
+          hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
         }
 
         //----------------------------------------------------------------------------------------------
