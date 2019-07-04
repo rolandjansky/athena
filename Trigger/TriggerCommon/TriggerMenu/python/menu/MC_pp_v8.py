@@ -546,16 +546,16 @@ def setupMenu():
         #ATR-18824
         ['e17_lhvloose_nod0_L1ZAFB-04DPHI-EM15I',       'L1_ZAFB-04DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhvloose_nod0_L1ZAFB-25DPHI-EM15I',       'L1_ZAFB-25DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e20_lhvloose_nod0_L1ZAFB-25DPHI-EM18I',       'L1_ZAFB-25DPHI-EM18I', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e20_lhvloose_nod0_L1ZAFB-25DPHI-EM18I',       'L1_ZAFB-25DPHI-EM18I', ['L1_EM18VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhloose_nod0_L1ZAFB-04DPHI-EM15I',        'L1_ZAFB-04DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhloose_nod0_L1ZAFB-25DPHI-EM15I',        'L1_ZAFB-25DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e20_lhloose_nod0_L1ZAFB-25DPHI-EM18I',        'L1_ZAFB-25DPHI-EM18I', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e20_lhloose_nod0_L1ZAFB-25DPHI-EM18I',        'L1_ZAFB-25DPHI-EM18I', ['L1_EM18VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhmedium_nod0_L1ZAFB-04DPHI-EM15I',       'L1_ZAFB-04DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhmedium_nod0_L1ZAFB-25DPHI-EM15I',       'L1_ZAFB-25DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e20_lhmedium_nod0_L1ZAFB-25DPHI-EM18I',       'L1_ZAFB-25DPHI-EM18I', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e20_lhmedium_nod0_L1ZAFB-25DPHI-EM18I',       'L1_ZAFB-25DPHI-EM18I', ['L1_EM18VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhtight_nod0_L1ZAFB-04DPHI-EM15I',        'L1_ZAFB-04DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhtight_nod0_L1ZAFB-25DPHI-EM15I',        'L1_ZAFB-25DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e20_lhtight_nod0_L1ZAFB-25DPHI-EM18I',        'L1_ZAFB-25DPHI-EM18I', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e20_lhtight_nod0_L1ZAFB-25DPHI-EM18I',        'L1_ZAFB-25DPHI-EM18I', ['L1_EM18VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ]
 
 
