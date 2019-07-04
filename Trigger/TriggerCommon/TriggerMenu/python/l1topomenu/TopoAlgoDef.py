@@ -2143,7 +2143,7 @@ class TopoAlgoDef:
             alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
             alg.addvariable('MinET1', x)
             alg.addvariable('MinXi', 13000.0*0.02)
-            alg.addvariable('MaxXi', 13000*0.05)
+            alg.addvariable('MaxXi', 13000.0*0.05)
             tm.registerAlgo(alg)
 
         if usev8:            
