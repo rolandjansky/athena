@@ -276,8 +276,8 @@ namespace G4UA
       
       // New Step 3.0 items from Helen
       //----HYBRID----:
-      if(name.find("matEC_Hybrid") != std::string::npos) return "StripChips"; //"Hybrid";
-      else if(name.find("matB_HybridPCB") != std::string::npos) return "StripChips"; //"Hybrid";
+      if(name.find("matEC_Hybrid") != std::string::npos) return "StripHybrids"; //"Hybrid";
+      else if(name.find("matB_HybridPCB") != std::string::npos) return "StripHybrids"; //"Hybrid";
       //----SERVICES----:
       else if(name.find("matSV_Endcap") != std::string::npos) return "Services";
       else if(name.find("matSV_Barrel") != std::string::npos) return "Services";
@@ -382,7 +382,7 @@ namespace G4UA
     if(name.find("InnerPixel") != std::string::npos) return "Services";
     if(name.find("OuterPixel") != std::string::npos) return "Services";
     if(name.find("pix::Chip") != std::string::npos) return "PixelChips";
-    if(name.find("pix::Hybrid") != std::string::npos) return "PixelChips";
+    if(name.find("pix::Hybrid") != std::string::npos) return "PixelHybrids";
     if(name.find("PP0") != std::string::npos) return "PP0";
     if(name.find("PP1") != std::string::npos) return "PP1";
 
@@ -423,11 +423,8 @@ namespace G4UA
     return "NONE";
 
   }
-//521
 
   void LengthIntegrator::fillNtuple(){
-
-//      for(auto v: m_collected_volume) std::cout << v << std::endl;
 
       //TTree *larch = nullptr;
       //getTree(m_hSvc, "/lengths/TheLarch/", larch);
@@ -484,6 +481,7 @@ namespace G4UA
     std::string volName = lv->GetName();
     std::string matName = mat->GetName();
     std::string groupmaterial = getMaterialClassification(matName); //Groups material into "general" categories, supports/sensors/pixels/cooling/etc
+    std::cout << matName << "       " << groupmaterial << std::endl;
     std::string volumetype = getVolumeType(matName);
 
     double radl = mat->GetRadlen();
