@@ -60,6 +60,11 @@ fi
 
 ######################################
 
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+art.py createpoolfile
+
+######################################
+
 echo "Running athena command:"
 if [[ $INPUT == 'data' ]]; then
   (set -x
