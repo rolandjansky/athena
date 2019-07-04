@@ -292,7 +292,8 @@ namespace TrigCompositeUtils {
     const std::string& featureName = featureString());
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively).
+   * For the case of multiple links, this function only returns the first one found. @see findLinks
    * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
    * @return pair of link and TC with which it was associated, 
@@ -300,6 +301,17 @@ namespace TrigCompositeUtils {
   template<typename T>
   LinkInfo<T>
   findLink(const xAOD::TrigComposite* start, const std::string& linkName);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * Populates provided vector with all located links to T of the corresponding name. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @arg links Reference to vector, this will be populated with the found links. 
+   */
+  template<typename T>
+  void
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links);
 
   /**
    * Prints the TC including the linked seeds

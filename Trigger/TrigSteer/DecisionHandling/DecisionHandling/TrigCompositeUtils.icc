@@ -41,22 +41,34 @@ namespace TrigCompositeUtils {
   }
 
   template<typename T>
+  void
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links) {
+    if (start->hasObjectLink(linkName, ClassID_traits<T>::ID())) {
+      links.emplace_back(start, start->objectLink<T>(linkName));
+    }
+    if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
+      for (const ElementLink<T> link : start->objectCollectionLinks<T>(linkName)) {
+        links.emplace_back(start, link);
+      }
+    }
+    // Recursive
+    for (const auto& seed : getLinkToPrevious(start)) {
+      findLinks<T>(*seed, linkName, links);
+    }
+  }
+
+  template<typename T>
   LinkInfo<T>
   findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
-    auto source = find(start, HasObject(linkName) );
-    //
-    if ( not source ){
-      auto seeds = getLinkToPrevious(start);
-      for (auto seed: seeds){
-        const xAOD::TrigComposite* dec = *seed;//deference
-        LinkInfo<T> link= findLink<T>( dec, linkName );
-        // return the first found
-        if (link.isValid()) return link;
-      }
-      return LinkInfo<T>(); // invalid link
+    std::vector<LinkInfo<T>> links;
+    findLinks<T>(start, linkName, links);
+    if (links.size() > 1) {
+      std::cout << "WARNING: " << links.size() << " links found for " << linkName << " returning the first, consider using findLinks." << std::endl;
     }
-
-    return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
+    if (links.size() > 0) {
+      return links.at(0);
+    }
+    return LinkInfo<T>(); // invalid link
   }
 
   template<class CONTAINER>
