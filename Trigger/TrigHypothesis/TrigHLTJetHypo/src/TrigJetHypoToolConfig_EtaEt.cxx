@@ -20,6 +20,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
+#include "./groupsMatcherFactoryMT.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 
@@ -54,7 +55,10 @@ ConditionsMT TrigJetHypoToolConfig_EtaEt::getConditions() const {
   return conditions;
 }
 
- 
+std::unique_ptr<IGroupsMatcherMT>
+TrigJetHypoToolConfig_EtaEt::getMatcher () const {
+  return groupsMatcherFactoryMT_MaxBipartite(getConditions());
+} 
 std::unique_ptr<IJetGrouper> TrigJetHypoToolConfig_EtaEt::getJetGrouper() const {
   return std::make_unique<SingleJetGrouper>();
 }

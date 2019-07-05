@@ -3,6 +3,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_simple,
+    TrigJetHypoToolConfig_simple_partition,
     TrigJetHypoToolConfig_dijet,
     NotHelperTool,
     AndHelperTool,
@@ -19,6 +20,7 @@ class ToolSetter(object):
 
         self.tool_factories = {
             'simple': [TrigJetHypoToolConfig_simple, 0],
+            'simplepartition': [TrigJetHypoToolConfig_simple_partition, 0],
             'not': [NotHelperTool, 0],
             'and': [AndHelperTool, 0],
             'or': [OrHelperTool, 0],
@@ -31,6 +33,7 @@ class ToolSetter(object):
             'and': self.mod_logical_binary,
             'or': self.mod_logical_binary,
             'simple': self.mod_simple,
+            'simplepartition': self.mod_simple,
             'combgen': self.mod_combgen,
             'dijet': self.mod_dijet,
         }
