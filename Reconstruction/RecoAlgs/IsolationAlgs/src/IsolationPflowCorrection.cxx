@@ -43,7 +43,8 @@ template< class CONTAINER, class AUXSTORE > StatusCode IsolationPflowCorrection:
 
   std::unique_ptr<CONTAINER> copy(new CONTAINER());
   std::unique_ptr<AUXSTORE> copyAux(new AUXSTORE());
-  
+  copy->setStore( copyAux.get() );
+
   // Do the deep copy:
   ATH_MSG_VERBOSE( "Will copy the object" );
   for( const auto &oldObj : *c ) {
