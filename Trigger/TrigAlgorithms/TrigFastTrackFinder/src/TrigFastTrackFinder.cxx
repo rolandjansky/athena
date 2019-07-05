@@ -501,13 +501,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
     return HLT::ERROR;
   }
-  if (outputTracks->empty()) {
-    delete outputTracks;
-    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
-  }
-  else {
-    code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
-  }
+
+  code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
   
   return code;
 }
@@ -821,7 +816,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     }
     qualityTracks.clear();
 
-    ATH_MSG_DEBUG("After clone removal "<<initialTracks->size()<<" tracks left");
+    ATH_MSG_DEBUG("After clone removal "<<initialTracks.size()<<" tracks left");
 
 
     if ( timerSvc() ) {
