@@ -19,8 +19,6 @@ StatusCode TrackCountHypoTool::initialize()  {
 	return StatusCode::SUCCESS;
 }
 
-TrackCountHypoTool::~TrackCountHypoTool() {}
-
 StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 	if ( trkinfo.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) {
 		ATH_MSG_DEBUG("Already rejected");
@@ -37,10 +35,9 @@ StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 	float countForConfiguredPtThreshold{};
 	bool found{false};
 	for ( size_t i = 0; i < counts.size(); ++i ) {
-		if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 && std::abs( z0cuts[i] - m_min_z0 ) < 0.001 ) {
+		if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 && std::abs( z0cuts[i] - m_max_z0 ) < 0.001 ) {
 			found = true;
 			countForConfiguredPtThreshold = counts[i];
-
 		}
 	}
 	if (!found ) {
