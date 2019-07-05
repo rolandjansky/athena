@@ -681,7 +681,7 @@ void TrigInDetTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
 	}
 }
 
-TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& recoTracks, const Trk::ParticleHypothesis& matEffects)
+TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, const Trk::ParticleHypothesis& matEffects, TrackCollection& fittedTracks)
 {
 	if(m_timers)
 	{
@@ -696,11 +696,11 @@ TrackCollection* TrigInDetTrackFitter::fit(const TrackCollection& recoTracks, co
 		m_timer[4]->start();
 		m_timer[4]->pause();
 	}
-	TrackCollection* fittedTracks = new TrackCollection();	
+  fittedTracks.reserve(inputTracks.size();
   for(auto trIt = recoTracks.begin(); trIt != recoTracks.end(); ++trIt) {
 		Trk::Track* fittedTrack = fitTrack(**trIt, matEffects);
 		if (fittedTrack!=nullptr) {
-			fittedTracks->push_back(fittedTrack);
+			fittedTracks.push_back(fittedTrack);
 		}
 	}
 	if(m_timers) 
