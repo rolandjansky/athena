@@ -4030,7 +4030,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
-          ATH_MSG_INFO("      IParticle Feature pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
         }
       }
       std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
@@ -4039,7 +4039,7 @@ StatusCode TrigEDMChecker::dumpTDT() {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
-          ATH_MSG_INFO("      IParticle Feature pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
         }
       }
     }
