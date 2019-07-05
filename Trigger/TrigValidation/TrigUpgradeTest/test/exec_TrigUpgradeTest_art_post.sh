@@ -74,11 +74,11 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
 fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 

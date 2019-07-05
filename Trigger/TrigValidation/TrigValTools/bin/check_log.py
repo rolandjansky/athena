@@ -9,7 +9,7 @@ import os
 
 desc = 'Tool to check for error messages in a log file. By default ERROR, FATAL \
   and CRITICAL messages are considered. The config file may be used to \
-provide patterns of lines to exclude from this check - known false positives. \
+provide patterns of lines to exclude from this check - known problems or false positives. \
 If no config file is provided, all errors will be shown.'
 
 epilogue = 'Note that at least one of errors and warnings must be true, otherwise there is nothing to search for.\
@@ -47,14 +47,14 @@ def parseOptions():
     default = False,
     help ='check in addition for WARNING messages (default False)'
     )
-    parser.add_argument('--errors', 
+    parser.add_argument('--errors',
     action = 'store_false',
     default = True,
     help = 'check errors (default true)'
     )
     global args
     args = parser.parse_args()
-    if not (args.errors or args.warnings): 
+    if not (args.errors or args.warnings):
         print('error: at least one of errors and warnings must be enabled')
         sys.exit(4)
 
@@ -110,31 +110,32 @@ def scanLogfile():
     except:
         sys.exit(2)
     if args.showexcludestats and not noConfig:
-        seperateIgnoreRegex = [re.compile(line) for line in ignorePattern]
+        separateIgnoreRegex = [re.compile(line) for line in ignorePattern]
         global ignoreDict
-        ignoreDict = {line:False for line in ignorePattern} # stores ignored errors/warnings       
+        ignoreDict = {line:0 for line in ignorePattern} # stores counts of ignored errors/warnings
     global results
     results = []
+    print resultsA
     if noConfig:
         results = resultsA
         return
-    for i in range(len(resultsA)):
-        if not re.search(igLevels,resultsA[i]):
-            results.append(resultsA[i])
+    for res in resultsA:
+        if not re.search(igLevels,res):
+            results.append(res)
         elif args.showexcludestats:
-            for i in range(len(seperateIgnoreRegex)):
-                if re.search(seperateIgnoreRegex[i],line):
-                    ignoreDict[ignorePattern[i]] = True
+            for i in range(len(separateIgnoreRegex)):
+                if re.search(separateIgnoreRegex[i],res):
+                    ignoreDict[ignorePattern[i]] += 1
 
-  
+
 def printResults():
     global pattern
     print('Checking for: '+ str(pattern) +' in log.\n')
     if args.showexcludestats and not noConfig:
         print('Ignored:')
-        for i in ignoreDict:
-            if ignoreDict[i]:
-                print(i)
+        for s in ignoreDict:
+            if ignoreDict[s] > 0:
+                print(str(ignoreDict[s]) + "x " + s)
         print('\n')
     print('Found ' + str(len(results)) + ' messages in ' + logFileAddress)
     if len(results) > 0:
