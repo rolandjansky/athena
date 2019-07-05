@@ -99,6 +99,10 @@ def get_parser():
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='Increase output verbosity')
+    parser.add_argument('-l', '--listTests',
+                        action='store_true',
+                        help='List available tests')
+
     return parser
 
 
@@ -188,10 +192,14 @@ def main():
                         format='%(levelname)-8s %(message)s',
                         level=logging.DEBUG if args.verbose else logging.INFO)
 
+
     scripts = find_scripts(get_patterns(args))
     logging.info("The following %d tests will be executed: ", len(scripts))
     for filename in scripts:
         logging.info("    %s", os.path.basename(filename))
+
+    if args.listTests:
+        return 0
 
     topdir = 'runTrigART'
     success = True
