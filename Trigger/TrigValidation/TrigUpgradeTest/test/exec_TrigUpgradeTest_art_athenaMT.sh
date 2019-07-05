@@ -43,7 +43,7 @@ if [ -z ${SLOTS} ]; then
   export SLOTS="1"
 fi
 
-if [ ${DOPERFMON} -eq 0 ]; then
+if [ -z ${DOPERFMON} ] || [ ${DOPERFMON} -eq 0 ]; then
   export PERFMONFLAG=""
 else # Run with PerfMon by default
   export PERFMONFLAG="--perfmon"
