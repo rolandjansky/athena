@@ -1,3 +1,5 @@
+TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J2019        19        0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J20 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           10        10        4         3         0         0         0         3
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     16        12        0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               10        10        4         3         2         2         0         2
@@ -24,6 +26,8 @@ TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20                19        19        0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20 decisions                          0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j420_a10t_lcw_jes_30smcINF_L1J2019        19        0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j420_a10t_lcw_jes_30smcINF_L1J20 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j45_L1J20                 19        19        18        0         0         0         0         18
 TrigSignatureMoniMT                                INFO HLT_j45_L1J20 decisions                           18        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 19        19        0         0         0         0         0         0
