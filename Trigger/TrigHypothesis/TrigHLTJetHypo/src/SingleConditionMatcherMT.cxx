@@ -14,6 +14,7 @@
 
 #include "./SingleConditionMatcherMT.h"
 #include "./xAODJetCollector.h"
+#include "./DebugInfoCollector.h"
 #include <sstream>
 #include <algorithm>
 
@@ -24,11 +25,11 @@ SingleConditionMatcherMT::SingleConditionMatcherMT(const ConditionBridgeMT& cb):
 std::optional<bool>
 SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
                                 const HypoJetGroupCIter& jets_e,
-				xAODJetCollector& jetCollector,
+                                xAODJetCollector& jetCollector,
                                 const std::unique_ptr<ITrigJetHypoInfoCollector>& v,
 				bool ) const {
 
-  
+
   for(auto i=jets_b; i != jets_e; ++i){
     if (m_condition.isSatisfied(*i, v)){
       jetCollector.addJets((*i).cbegin(), (*i).cend());

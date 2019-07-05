@@ -9,12 +9,6 @@
 
 FlowNetworkBuilderBase::FlowNetworkBuilderBase(const ConditionsMT& conditions):
 m_conditions(conditions){
-  std::vector<std::shared_ptr<FlowEdge>> initialEdges;
-  auto icond{0};
-  for(const auto& cond : conditions){
-    initialEdges.push_back(std::make_shared<FlowEdge>(0, ++icond, cond.capacity()));
-  }
-  m_initialEdges.swap(initialEdges);
 }
 
 
@@ -24,8 +18,6 @@ FlowNetworkBuilderBase::create(const HypoJetGroupCIter& groups_b,
 			       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 			       std::map<int, pHypoJet>& nodeToJet) const {
 
-  std::vector<std::shared_ptr<FlowEdge>> initialEdges(m_initialEdges.begin(), 
-						      m_initialEdges.end());
   int V{0};
 
   auto edges = make_flowEdges(groups_b, groups_e, collector, V, nodeToJet);
@@ -87,4 +79,15 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
   return std::make_optional<std::vector<std::vector<int>>>(result);
 }
 
+std::vector<std::shared_ptr<FlowEdge>>
+FlowNetworkBuilderBase::getSourceToConditionsEdges() const {
+  std::vector<std::shared_ptr<FlowEdge>> initialEdges;
+  auto icond{0};
+  for(const auto& cond : m_conditions){
+    initialEdges.push_back(std::make_shared<FlowEdge>(0,
+						      ++icond,
+						      cond.capacity()));
+  }
+  return initialEdges;
+}
 

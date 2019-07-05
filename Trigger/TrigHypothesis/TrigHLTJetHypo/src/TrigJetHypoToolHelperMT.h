@@ -25,7 +25,7 @@
 #include "./IGroupsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 
 class ITrigJetHypoInfoCollector;

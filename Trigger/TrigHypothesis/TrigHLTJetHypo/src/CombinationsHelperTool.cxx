@@ -58,6 +58,9 @@ struct HypoJetSelector{
   }
   
   bool operator()(pHypoJet j){
+
+    if(m_conditions.empty()){return true;}
+    
     std::vector<pHypoJet> v{j};
     for(const auto& c : m_conditions)
       {
@@ -86,35 +89,42 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   JetTrigTimer setupTimer;
   
   setupTimer.start();
+
+  auto end_iter = jets.end();
+
+  if(!m_conditions.empty()){
   
+    HypoJetSelector selector(m_conditions, collector);
   
-  HypoJetSelector selector(m_conditions, collector);
+    // use conditions objects to select jets
+    end_iter = std::partition(jets.begin(),
+			      jets.end(),
+			      selector);
+  }
   
-  // use conditions objects to select jets
-  auto end_iter = std::partition(jets.begin(),
-				 jets.end(),
-				 selector);
-  
-  // auto grouper = CombinationsGrouper(m_size);
   auto begin = jets.begin();
-  auto jetGroups = m_grouper->group(begin, end_iter);
-  
-  ATH_MSG_DEBUG("No of groups" << jetGroups.size());
-  
+  std::vector<HypoJetGroupVector> jetGroupsVec =
+    m_grouper->group(begin, end_iter);
+
   bool pass = true;
   setupTimer.stop();
   exeTimer.start();
+    
+  for(auto& jetGroupVec : jetGroupsVec){
+    ATH_MSG_DEBUG("No of groups" << jetGroupVec.size());
+
   
-  for(auto& gjets : jetGroups){
-    if (testGroup(gjets, jetCollector, collector)){
-      pass = true;
-      exeTimer.stop();
-      collectData(setupTimer.readAndReset(),
-                  exeTimer.readAndReset(),
-                  collector,
-                  pass);
+    for(auto& gjets : jetGroupVec){
+      if (testGroup(gjets, jetCollector, collector)){
+	pass = true;
+	exeTimer.stop();
+	collectData(setupTimer.readAndReset(),
+		    exeTimer.readAndReset(),
+		    collector,
+		    pass);
       
-      return pass;
+	return pass;
+      }
     }
   }
   
@@ -135,8 +145,7 @@ CombinationsHelperTool::testGroup(HypoJetVector& jets,
 				  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   for(auto child : m_children){
     auto childPass =  child->pass(jets, jetCollector, collector);
-    if (!childPass){
-      return false;}
+    if (!childPass){return false;}
   }
 
   return true;
@@ -146,7 +155,10 @@ CombinationsHelperTool::testGroup(HypoJetVector& jets,
 std::string CombinationsHelperTool::toString() const{
   std::stringstream ss;
   std::string msg =  nodeIDPrinter(name(), m_nodeID, m_parentNodeID) + "\n";
+  msg += "No. of conditions " +std::to_string(m_conditions.size()) + '\n';
   for(const auto& cond : m_conditions){ msg += cond.toString() + "\n";}
+  msg += "No. of chldren: " +std::to_string(m_children.size()) + "\n";
+  msg += m_grouper -> toString() + '\n';
   return msg;
 }
 
