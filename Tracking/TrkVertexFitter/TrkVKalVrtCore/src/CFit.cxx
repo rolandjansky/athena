@@ -113,7 +113,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
     for (int tk=0; tk<NTRK ; tk++) {
        long int TrkID=tk;
        vk->TrackList[tk]= std::make_unique< VKTrack >(TrkID, &inp_Trk5[tk][0], &inp_CovTrk5[tk][0], vk, vrtForCFT.wm[tk]);
-     //printT(&inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , "Input track:");
+     //printT(&inp_Trk5[tk][0], &inp_CovTrk5[tk][0] , "Input track:");
      //std::cout<<(*vk->TrackList[tk]);
        vk->tmpArr[tk]= std::make_unique< TWRK > ();
        vk->TrackList[tk]->Charge = ich[tk];           // Charge coinsides with sign of curvature
@@ -198,16 +198,12 @@ int fitVertex(VKVertex * vk)
            vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
         }
       }
-      //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
     }
     if( vrtForCFT.usePointingCnst==1 ){  //3Dpointing
       vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, false));
-      //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
     }
     if( vrtForCFT.usePointingCnst==2 ){  //Z pointing
-      VKPointConstraint *temp = new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, true);
-      vk->ConstraintList.emplace_back(temp);
-      //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
+      vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, true));
     }
     if ( vrtForCFT.useAprioriVrt ) {
         cfdcopy(vrtForCFT.covvrt, tmpd,   6);
@@ -223,6 +219,11 @@ int fitVertex(VKVertex * vk)
         vk->ConstraintList.emplace_back(new VKPlaneConstraint( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
       }
     }
+//-----Debug printout
+//    for(auto & cnst : vk->ConstraintList) {
+//       VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( cnst.get() );   if(ctmp) std::cout<<(*ctmp)<<'\n'; 
+//       VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( cnst.get() );    if(ptmp) std::cout<<(*ptmp)<<'\n';
+//    }
 //
 // Needed for track close to vertex constraint
     for(i=0; i<2*6; i++)vk->FVC.cvder[i]=0.;
@@ -497,7 +498,7 @@ int fitVertex(VKVertex * vk)
             FitCONTROL->getFullCovariance()[out] = ARR2D_FS(MainVRT->ader, 3*vkalNTrkM+3, ti, tj);
             out++;
         } }
-        int activeTrk[vkalNTrkM]={1};
+        int activeTrk[vkalNTrkM]={0};  std::fill_n(activeTrk,NTRK,1);
         double vrtMass=0., vrtMassError=0.;
         cfmasserr(MainVRT.get(), activeTrk,MainVRT->vk_fitterControl->vk_forcft.localbmag, &vrtMass, &vrtMassError);
         FitCONTROL->setVertexMass(vrtMass);

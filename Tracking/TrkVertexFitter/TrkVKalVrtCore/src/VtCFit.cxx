@@ -762,11 +762,11 @@ namespace Trk {
 	if (NCNST) {         //VK 25.10.2006 new mechanism for constraint treatment
             applyConstraints(vk);
 	    double dCnstContrib=getCnstValues2(vk);
-	    if(j == 1 ) { dScale = std::max(chi2t[0],10.) / (dCnstContrib + 1/dScaleMax);
+	    if(j == 1 ) { dScale = std::max(chi2t[0],5.*NTRK) / (dCnstContrib + 1/dScaleMax);
 	                  if(dScale > dScaleMax)  dScale=dScaleMax;
 	                  if(dScale < 0.01)       dScale=0.01;
 	    }
-	    ContribC[jm1] = 25.*dCnstContrib*dScale;
+	    ContribC[jm1] = dCnstContrib*dScale;
 	    if ( j != PostFitIteration) {  chi2t[jm1] += 25.*ContribC[jm1]; }  // Last cycle is ALWAYS without constraints
 	}
 //Having 3 points (0,0.5,1.) find a pabolic minimum
