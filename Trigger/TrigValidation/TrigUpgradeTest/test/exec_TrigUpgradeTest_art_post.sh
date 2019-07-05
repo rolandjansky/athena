@@ -102,7 +102,11 @@ tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 ### REGTEST
 
 REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
-grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+if [ -z "${REGTESTEXP_EXCLUDE}" ]; then
+  grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+else
+  grep -E "${REGTESTEXP}" ${JOB_LOG} | grep -v -E "${REGTESTEXP_EXCLUDE}" > "${REGTESTREF_BASENAME}"
+fi
 
 if [ -f ${REGTESTREF} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"

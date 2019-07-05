@@ -53,19 +53,8 @@ Reco_tf.py \
 export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%.*}"
 
-# merge transform logs for post-processing
-echo "### ${JOB_LOG} ###" >> athena.merged.log
-cat ${JOB_LOG} >> athena.merged.log
-trfNames="RDOtoRDOTrigger RAWtoESD ESDtoAOD PhysicsValidation"
-for trf in ${trfNames}; do
-  if [ -f log.${trf} ]; then
-    echo "### log.${trf} ###" >> athena.merged.log
-    cat log.${trf} >> athena.merged.log
-  else
-    echo "### WARNING: log.${trf} MISSING ###" >> athena.merged.log
-  fi
-done
-export JOB_LOG="athena.merged.log"
+# merge transform logs for post-processing and prepare for RegTest comparison
+source exec_art_triganalysistest_merge_trf_logs.sh "RDOtoRDOTrigger RAWtoESD ESDtoAOD PhysicsValidation"
 
 # use TrigUpgradeTest post-processing script
 source exec_TrigUpgradeTest_art_post.sh
