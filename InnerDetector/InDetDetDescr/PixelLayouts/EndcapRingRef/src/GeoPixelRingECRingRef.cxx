@@ -110,8 +110,11 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   
   m_ringZShift = (thickChip-m_halfLength);
 
-  m_ringId = 2*m_ring;
-  if(m_front_back==-1) m_ringId++;
+  // coding scheme 300
+  //m_ringId = 2*m_ring;
+  //if(m_front_back==-1) m_ringId++;
+  // coding scheme 600
+  m_ringId = m_ring;
 
   m_bPrebuild = true;  
 }
@@ -195,9 +198,12 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
 
       // synchronize the sim/reco identification
       if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
-      m_ringId = 2*m_readoutEta;
-      if(m_front_back==-1) m_ringId++;
-      
+      // coding scheme 300 
+      //m_ringId = 2*m_readoutEta;
+      //if(m_front_back==-1) m_ringId++;
+      // coding scheme 600
+      m_ringId = m_readoutEta;      
+
       HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
       HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;
      
@@ -348,9 +354,13 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
     
       // synchronize the sim/reco identification
       if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
-      m_ringId = 2*m_readoutEta;
-      if(m_front_back==-1) m_ringId++;
-  
+      // coding scheme 300
+      //m_ringId = 2*m_readoutEta;
+      //if(m_front_back==-1) m_ringId++;
+
+      // coding scheme 600
+      m_ringId = m_readoutEta;  
+
       // Build and place the module - 600 is the new geoTagId for ITk endcap ring sensors
       std::ostringstream modName; 
       modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_readoutEta;
