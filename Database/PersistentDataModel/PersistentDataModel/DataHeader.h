@@ -75,6 +75,8 @@ public: // Non-static members
    /// Add new entry to hash map
    void addHash(IStringPool* pool);
 
+   void dump(std::ostream& ostr) const;
+  
 private:
    friend class DataHeaderElementCnv_p3;
    friend class DataHeaderElementCnv_p4;
@@ -165,6 +167,8 @@ public: // Non-static members
    void setEvtRefTokenStr(const std::string& tokenStr);
    const std::string& getEvtRefTokenStr();
 
+   void dump(std::ostream& ostr) const;
+  
 private:
    friend class DataHeaderCnv_p3;
    friend class DataHeaderCnv_p4;
