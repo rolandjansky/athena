@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODELTPCNV_DATAHEADER_P6_H
 #define PERSISTENTDATAMODELTPCNV_DATAHEADER_P6_H
 
 /** @file DataHeader_p6.h
- *  @brief This file contains the class definition for the DataHeader_p6,
- *  DataHeaderForm_p6 and DataHeaderElement_p6 classes.
- *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: DataHeader_p6.h,v 1.1 2009-04-21 21:48:34 gemmeren Exp $
+ *  @brief This file contains the class definitions for the
+ *  DataHeader_p6 and DataHeaderForm_p6 
+ *  @author Peter van Gemmeren <gemmeren@anl.gov>, Marcin Nowak
  **/
 
 #include "PersistentDataModel/Guid.h"
@@ -18,46 +17,32 @@
 #include <set>
 #include <string>
 
-/** @class DataHeaderElement_p6
- *  @brief This class provides a persistent representation for the DataHeaderElement class.
- **/
-class DataHeaderElement_p6 {
-public: // Constructor and Destructor
-   DataHeaderElement_p6();
-   DataHeaderElement_p6(const DataHeaderElement_p6& rhs);
-   virtual ~DataHeaderElement_p6();
-
-   DataHeaderElement_p6& operator=(const DataHeaderElement_p6& rhs);
-
-friend class DataHeaderCnv_p6;
-friend class DataHeaderElementCnv_p6;
-
-   const std::string& token() const;
-   unsigned long long oid1() const;
-   unsigned long long oid2() const;
-   void overwriteOid2(unsigned long long oid2);
-
-private:
-   std::string m_token;
-   unsigned long long m_oid1;
-   unsigned long long m_oid2;
-
-   unsigned int m_dbIdx; // entry with GUID & technology
-   unsigned int m_objIdx; // Will get entry with ClassId and transient CLID/key, direct clid for now...
-};
+class Token;
 
 /** @class DataHeaderForm_p6
  *  @brief This class provides storage for the constant fields of the persistent DataHeader class.
  **/
 class  DataHeaderForm_p6 {
 public:
-   typedef std::pair<Guid, unsigned int> DbRecord;
-   typedef std::pair<std::string, unsigned int> SgRecord;
-   typedef std::pair<Guid, SgRecord> ObjRecord;
+  struct DbRecord {
+    Guid fid; unsigned tech;
+    DbRecord() {}
+    DbRecord( const Guid& f, unsigned t) : fid(f), tech(t) {}
+    bool operator==(const DbRecord& rhs) const { return fid==rhs.fid && tech==rhs.tech; }
+  };
+  struct ObjRecord {
+    Guid guid; std::string key; unsigned clid; long long oid1;
+    ObjRecord() {}
+    ObjRecord( const Guid& g, const std::string& k, unsigned id, long long o)
+      : guid(g), key(k), clid(id), oid1(o) {}
+    bool operator==(const ObjRecord& rhs) const
+      { return clid == rhs.clid && key == rhs.key && oid1 == rhs.oid1; }
+  };
+
 public: // Constructor and Destructor
-   DataHeaderForm_p6();
+   DataHeaderForm_p6() {}
    DataHeaderForm_p6(const DataHeaderForm_p6& rhs);
-   virtual ~DataHeaderForm_p6();
+   ~DataHeaderForm_p6();
 
    DataHeaderForm_p6& operator=(const DataHeaderForm_p6& rhs);
 
@@ -76,56 +61,72 @@ friend class DataHeaderCnv_p6;
    std::string getObjKey(unsigned int index) const;
    unsigned int getObjType(unsigned int index) const;
    Guid getObjClassId(unsigned int index) const;
+   long long getObjOid1(unsigned int index) const { return m_objRecords[index].oid1; }
    std::set<std::string> getObjAlias(unsigned int index) const;
    std::set<unsigned int> getObjSymLinks(unsigned int index) const;
    std::vector<unsigned int> getObjHashes(unsigned int index) const;
-
-   const std::vector<unsigned int>& params() const;
-   void insertParam(unsigned int param);
-
-   unsigned int entry() const;
-   void start() const;
-   void next() const;
-   unsigned int size() const;
+   std::string calculateMdx();
+   bool wasModified() const;
+   void clearModified();
+   void setToken(Token *tok);
+   Token* getToken() const;
    void resize(unsigned int size);
 
 private:
-   std::vector<std::vector<unsigned int> > m_uints;
    std::vector<DbRecord> m_dbRecords;
    std::vector<ObjRecord> m_objRecords;
    std::vector<std::vector<std::string> > m_objAlias;
    std::vector<std::vector<unsigned int> > m_objSymLinks;
    std::vector<std::vector<unsigned int> > m_objHashes;
-   mutable unsigned int m_entry;
+
+   /// In case we need ot handle encoding changes later
+   unsigned             m_version { 600 };
+  
+   // transient members
+   /// indicates that the last event was somehow different and a new DHForm needs to be written
+   bool                 m_modified { true };
+   /// Reference to self in the persistent storage
+   Token*               m_token { nullptr };
 };
+
 
 /** @class DataHeader_p6
  *  @brief This class provides a persistent representation for the DataHeader class.
+
+    Version P6 optimized FOR references pointing to the same OID2 in the same Database
  **/
-class  DataHeader_p6 {
-public: // Constructor and Destructor
-   DataHeader_p6();
-   DataHeader_p6(const DataHeader_p6& rhs);
-   virtual ~DataHeader_p6();
+class  DataHeader_p6
+{
+  friend class DataHeaderCnv_p6;
 
-   DataHeader_p6& operator=(const DataHeader_p6& rhs);
+public: 
+  struct FullElement {
+    FullElement() : oid2(0), dbIdx(0), objIdx(0) {}
+    FullElement(unsigned long long o2, unsigned db, unsigned obj) : oid2(o2), dbIdx(db), objIdx(obj) {}
+    unsigned long long oid2;
+    unsigned int dbIdx;  // index to DHForm entry with DB GUID & technology
+    unsigned int objIdx; // index to DHForm entry with object data
+  };
 
-friend class DataHeaderCnv_p6;
-
-   const std::vector<DataHeaderElement_p6>& elements() const;
-   const DataHeaderForm_p6& dhForm() const;
-   void setDhForm(const DataHeaderForm_p6& form);
+   DataHeader_p6() {};
    const std::string& dhFormToken() const;
    void setDhFormToken(const std::string& formToken);
-   void calculateDhFormMdx();
-   const std::string& dhFormMdx() const;
-
+  
 private:
-   std::vector<DataHeaderElement_p6> m_dataHeader;
-   unsigned int m_provenanceSize;
-   DataHeaderForm_p6 m_dhForm;
-   std::string m_dhFormToken;
-   std::string m_dhFormMdx;
+   /// common DB entry index used by all short DH elements
+   unsigned                     m_commonDbIndex;
+   unsigned long long           m_commonOID2;
+  
+   std::vector<int>             m_shortElements;
+   std::vector<FullElement>     m_fullElements;
+   unsigned int                 m_provenanceSize;
+
+   std::string                  m_dhFormToken;
 };
 
 #endif
+
+
+
+
+
