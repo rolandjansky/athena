@@ -1644,7 +1644,7 @@ class ItemDef:
 
         #ATR-19302: 
         if '_v8' in TriggerFlags.triggerMenuSetup():                                                                                                   
-            LVL1MenuItem('L1_DPHI-M70-2EM10I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM10his6 & physcond)  # noqa: F821
+#            LVL1MenuItem('L1_DPHI-M70-2EM10I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM10his6 & physcond)  # noqa: F821
             LVL1MenuItem('L1_DPHI-M70-2EM12I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM12his6 & physcond)  # noqa: F821
 
         #ATR-19510

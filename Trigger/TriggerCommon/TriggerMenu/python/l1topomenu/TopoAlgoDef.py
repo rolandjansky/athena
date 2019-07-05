@@ -1840,7 +1840,7 @@ class TopoAlgoDef:
                                                                  otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
                                                                  otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else ""))     # noqa: F821 
 
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'INVM-DPHI-NFF', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'INVM_DPHI_NFF', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
 
 
             alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
@@ -1953,7 +1953,7 @@ class TopoAlgoDef:
                                                                  otype2, str(ocut2) , str(nleading2) , minEta2, maxEta2))     # noqa: F821 
             
 
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'ZAFB-DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'ZAFB_DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
 
 
             alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
@@ -1976,29 +1976,29 @@ class TopoAlgoDef:
 
             tm.registerAlgo(alg)
 
-        #ATR-19302: giving compilation issues, add later
-        if usev8:
-            toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
-            log.info("Define %s" % toponame)
-            inputList = ['EMshi','EMshi']
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
-            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob1', 1)
-            alg.addgeneric('MaxTob2', 6)
-            alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinMSqr', 0)
-            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
-            alg.addvariable('MinET1', 10)
-            alg.addvariable('MinET2', 10)
-            alg.addgeneric('ApplyEtaCut', 1)
-            alg.addvariable('MinEta1', 0)
-            alg.addvariable('MaxEta1', 9999)
-            alg.addvariable('MinEta2', 0)
-            alg.addvariable('MaxEta2', 9999)
-            alg.addvariable('MinDeltaPhi', 27)
-            alg.addvariable('MaxDeltaPhi', 32)
-            tm.registerAlgo(alg)
+        #ATR-19302: not included for now
+#        if usev8:
+#            toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
+#            log.info("Define %s" % toponame)
+#            inputList = ['EMshi','EMshi']
+#            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+#            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+#            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
+#            alg.addgeneric('MaxTob1', 1)
+#            alg.addgeneric('MaxTob2', 6)
+#            alg.addgeneric('NumResultBits', 1)
+#            alg.addvariable('MinMSqr', 0)
+#            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
+#            alg.addvariable('MinET1', 10)
+#            alg.addvariable('MinET2', 10)
+#            alg.addgeneric('ApplyEtaCut', 1)
+#            alg.addvariable('MinEta1', 0)
+#            alg.addvariable('MaxEta1', 9999)
+#            alg.addvariable('MinEta2', 0)
+#            alg.addvariable('MaxEta2', 9999)
+#            alg.addvariable('MinDeltaPhi', 27)
+#            alg.addvariable('MaxDeltaPhi', 32)
+#            tm.registerAlgo(alg)
 
         if usev8:
             toponame = "0INVM70-27DPHI32-EM10his1-EM12his6"

@@ -32,7 +32,7 @@ def defineMenu():
         TopoOutput( algoname='1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',       module=1, fpga=0, clock=0, firstbit=11 ),
         TopoOutput( algoname='2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',       module=1, fpga=0, clock=0, firstbit=12 ),
         TopoOutput( algoname='1DISAMB-TAU12abi-J25ab',                      module=1, fpga=0, clock=0, firstbit=13 ),
-        TopoOutput( algoname='ZAFB-DPHI',                                   module=1, fpga=0, clock=0, firstbit=14 ), # 2 bits
+        TopoOutput( algoname='ZAFB_DPHI',                                   module=1, fpga=0, clock=0, firstbit=14 ), # 2 bits
 
        
 
@@ -40,10 +40,8 @@ def defineMenu():
         TopoOutput( algoname='CEP-CJ60s6',                                  module=1, fpga=0, clock=1, firstbit=1 ),
         TopoOutput( algoname='CEP-CJ50s6',                                  module=1, fpga=0, clock=1, firstbit=2 ),
         TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=3 ),
-        TopoOutput( algoname='INVM-DPHI-NFF',                               module=1, fpga=0, clock=1, firstbit=4 ), # 4 bits
+        TopoOutput( algoname='INVM_DPHI_NFF',                               module=1, fpga=0, clock=1, firstbit=4 ), # 4 bits
         TopoOutput( algoname='KF-XE-AJall',                                 module=1, fpga=0, clock=1, firstbit=8 ), # 6 bits
-        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM10his6',          module=1, fpga=0, clock=1, firstbit=14 ),
-        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM12his6',          module=1, fpga=0, clock=1, firstbit=15 ),
 
 
         # module: 0, FPGA: 1
@@ -78,6 +76,8 @@ def defineMenu():
         TopoOutput( algoname='0INVM10-0DR15-EM8abi-MU10ab',                 module=1, fpga=1, clock=1, firstbit=12 ),
         TopoOutput( algoname='0INVM10-0DR15-EM12abi-MU6ab',                 module=1, fpga=1, clock=1, firstbit=13 ),
         TopoOutput( algoname='0INVM10-3MU4ab',                              module=1, fpga=1, clock=1, firstbit=14 ),
+#        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM10his6',          module=1, fpga=1, clock=1, firstbit=14 ),
+        TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM12his6',          module=1, fpga=1, clock=1, firstbit=15 ),
 
 
 #

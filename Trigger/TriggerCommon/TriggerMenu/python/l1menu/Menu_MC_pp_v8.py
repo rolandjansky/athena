@@ -413,7 +413,7 @@ def defineMenu():
         '60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49',
         '60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49',
         #ATR-19302
-        '0INVM70-27DPHI32-EM10his1-EM10his6',
+#        '0INVM70-27DPHI32-EM10his1-EM10his6',
         '0INVM70-27DPHI32-EM10his1-EM12his6',
 
         #ATR-19720
@@ -932,7 +932,7 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM18I',
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM10I',
+#        'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
 
         #ATR-19510
@@ -1448,7 +1448,7 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM18I' : 194,
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM10I' : 195,
+#        'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
 
         #ATR-19720
