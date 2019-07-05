@@ -762,7 +762,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                      ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                      ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                      ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                     ('std::vector<Muon::HoughDataPerSec>' , 'StoreGateSvc+HoughDataPerSectorVec')]
+                                     ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
   efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 
