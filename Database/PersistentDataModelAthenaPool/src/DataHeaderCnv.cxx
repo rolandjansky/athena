@@ -186,6 +186,8 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    this->m_o_poolToken = dh_token; // return to converter
    return(StatusCode::SUCCESS);
 }
+#include <sstream>
+using namespace std;
 //______________________________________________________________________________
 DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
    DataHeader_p5* pObj = 0;
@@ -290,6 +292,7 @@ DataHeader* DataHeaderCnv::createTransient() {
       DataHeaderForm_p6* dh_form = nullptr;
       std::auto_ptr<DataHeader_p6> obj( poolReadObject_p6( dh_form ) );
       auto dh = m_tpInConverter_p6.createTransient( obj.get(), *dh_form );
+      // To dump DH:   ostringstream ss; dh->dump(ss); cout << ss.str() << endl;
       return dh;
    } else if (this->compareClassGuid(p5_guid)) {
       std::auto_ptr<DataHeader_p5> obj_p5(this->poolReadObject_p5());
