@@ -296,11 +296,12 @@ namespace TrigCompositeUtils {
    * For the case of multiple links, this function only returns the first one found. @see findLinks
    * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
+   * @arg suppressMultipleLinksWarning findLink will print a warning if more than one link is found, this can be silenced here
    * @return pair of link and TC with which it was associated, 
    */
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName);
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning = false);
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
@@ -312,6 +313,18 @@ namespace TrigCompositeUtils {
   template<typename T>
   void
   findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * This version returns a vector rather than requiring that one be passed to it. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @return Vector with the found links. 
+   */
+  template<typename T>
+  std::vector<LinkInfo<T>>
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName);
+
 
   /**
    * Prints the TC including the linked seeds

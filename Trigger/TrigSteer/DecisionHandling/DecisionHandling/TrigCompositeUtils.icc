@@ -1,9 +1,9 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-/*
- *
- */
+
+#include "AthenaKernel/getMessageSvc.h"
+
 namespace TrigCompositeUtils {
 
   /**
@@ -43,12 +43,18 @@ namespace TrigCompositeUtils {
   template<typename T>
   void
   findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links) {
-    if (start->hasObjectLink(linkName, ClassID_traits<T>::ID())) {
-      links.emplace_back(start, start->objectLink<T>(linkName));
-    }
+    ElementLinkVector<T> featureLinks;
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
-      for (const ElementLink<T> link : start->objectCollectionLinks<T>(linkName)) {
-        links.emplace_back(start, link);
+      featureLinks = start->objectCollectionLinks<T>(linkName);
+    }
+    if (start->hasObjectLink(linkName, ClassID_traits<T>::ID())) {
+      featureLinks.push_back(start->objectLink<T>(linkName));
+    }
+    for (const ElementLink<T>& featureLink : featureLinks) {
+      // Check for duplicates
+      if (std::none_of(links.begin(), links.end(), [&](const auto& li) { return (li.link == featureLink); } ))
+      {
+        links.emplace_back(start, featureLink);
       }
     }
     // Recursive
@@ -58,12 +64,21 @@ namespace TrigCompositeUtils {
   }
 
   template<typename T>
-  LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
+  std::vector<LinkInfo<T>>
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName) {
     std::vector<LinkInfo<T>> links;
-    findLinks<T>(start, linkName, links);
-    if (links.size() > 1) {
-      std::cout << "WARNING: " << links.size() << " links found for " << linkName << " returning the first, consider using findLinks." << std::endl;
+    findLinks(start, linkName, links);
+    return links;
+  }
+
+  template<typename T>
+  LinkInfo<T>
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning) {
+    std::vector<LinkInfo<T>> links = findLinks<T>(start, linkName);
+    if (links.size() > 1 && !suppressMultipleLinksWarning) {
+      MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::findLink") << MSG::WARNING
+        << links.size() << " links found for " << linkName
+        << " returning the first link, consider using findLinks." << endmsg;
     }
     if (links.size() > 0) {
       return links.at(0);
@@ -84,50 +99,32 @@ namespace TrigCompositeUtils {
       for (const ElementLink<DecisionContainer>& decisionLink : decisionPath) {
         const Decision* decision = (*decisionLink);
 
+        ElementLinkVector<CONTAINER> featureLinks;
+        // Slices may have added link collections
+        if (decision->hasObjectCollectionLinks(featureName, ClassID_traits< CONTAINER >::ID())) {
+          featureLinks = decision->objectCollectionLinks<CONTAINER>( featureName );
+        }
         // Framework specified "feature" is always a single link
         if (decision->hasObjectLink(featureName, ClassID_traits< CONTAINER >::ID())) {
+          featureLinks.push_back( decision->objectLink<CONTAINER>( featureName ) );
+        }
 
-          // This try block protects against ExcCLIDMismatch throws from 
-          // features which do not derive from IParticle, when an IParticle interface is requested.
-          try {
-            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureName );
+        // This try block protects against ExcCLIDMismatch throws from 
+        // features which do not derive from IParticle, when an IParticle interface is requested.
+        try {
+          for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
             if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
               // Don't duplicate up returned features (may have entries from many chains in the linkVector)
               features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
             }
-            if (oneFeaturePerLeg) {
-              break;
-            }
-          } catch (SG::ExcCLIDMismatch&) {
-            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
-            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
           }
-
-        } // End if decision->hasObjectLink
-
-        // Slices may have added link collections
-        if (decision->hasObjectCollectionLinks(featureName, ClassID_traits< CONTAINER >::ID())) {
-
-          // This try block protects against ExcCLIDMismatch throws from 
-          // features which do not derive from IParticle, when an IParticle interface is requested.
-          try {
-            const ElementLinkVector<CONTAINER> featureLinks = decision->objectCollectionLinks<CONTAINER>( featureName );
-
-            for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
-              if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
-                // Don't duplicate up returned features (may have entries from many chains in the linkVector)
-                features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
-              }
-            }
-            if (oneFeaturePerLeg) {
-              break;
-            }
-          } catch (SG::ExcCLIDMismatch&) {
-            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
-            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+          if (oneFeaturePerLeg) {
+            break;
           }
-
-        } // End if decision->hasObjectCollectionLinks
+        } catch (SG::ExcCLIDMismatch&) {
+          // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+          // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+        }
 
       } // for (decisionLink : decisionPath)
     } // for (decisionPath : linkVector)
