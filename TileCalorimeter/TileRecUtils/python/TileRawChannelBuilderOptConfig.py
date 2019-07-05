@@ -56,8 +56,17 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
     else:
         tileRawChannelBuilderOpt.correctTime = flags.Tile.correctTime
 
-    if method == 'OF1':
-        tileRawChannelBuilderOpt.PedestalMode = -1
+    if method == 'OptATLAS':
+        pedestalMode = 17
+    else:
+        pedestalMode = -1 if method == 'OF1' else 1
+
+    tileRawChannelBuilderOpt.PedestalMode = pedestalMode
+
+    if pedestalMode == -1: # Use pedestal from conditions DB
+        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+        sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
+        tileRawChannelBuilderOpt.TileCondToolNoiseSample = sampleNoiseTool
 
     acc.setPrivateTools( tileRawChannelBuilderOpt )
 
