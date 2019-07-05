@@ -19,14 +19,6 @@
 #include <vector>
 #include <bitset>
 
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-class MdtIdHelper;
-// New Small Wheel
-class MmIdHelper;
-class sTgcIdHelper;
-
 class Identifier;
 
 namespace Trk {
@@ -83,15 +75,6 @@ private:
 	void calculateRoadHits(Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary, const Trk::TrackParameters& pars) const;
 	bool isFirstProjection( const Identifier& id ) const;
 	void updateHoleContent( Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary ) const;
-
-        // muon IdHelpers
-        const RpcIdHelper* m_rpcId;
-        const TgcIdHelper* m_tgcId;
-        const CscIdHelper* m_cscId;
-        const MdtIdHelper* m_mdtId;
-        //New Small Wheel
-        const sTgcIdHelper* m_stgcId;
-        const MmIdHelper* m_mmId;
         
         /** tool used to do hole search */
         ToolHandle<Trk::ITrackHoleSearchTool> m_muonTgTool;
@@ -127,8 +110,6 @@ private:
         mutable const Trk::TrackingGeometry* m_trackingGeometry;
         std::string  m_trackingGeometryName;
 	const MuonGM::MuonDetectorManager*  m_detMgr;
-
-    bool m_useCSC;
 
     };
     
