@@ -69,6 +69,10 @@ def TileCondToolsTestCfg(flags):
         pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
         msg.info(pulseShapeTool)
 
+        from TilePulseShapeConfig import TileCondToolMuRcvPulseShapeCfg
+        muRcvPulseShapeTool = acc.popToolsAndMerge( TileCondToolMuRcvPulseShapeCfg(flags) )
+        msg.info(muRcvPulseShapeTool)
+
         from TileAutoCorrelationConfig import TileCondToolAutoCrCfg
         autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
         msg.info(autoCorrelationTool)
