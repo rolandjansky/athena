@@ -21,7 +21,7 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    Event/xAOD/xAODEventInfo
    MagneticField/MagFieldInterfaces
-   LumiBlock/LumiBlockComps
+   LumiBlock/LumiBlockData
    Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigConfiguration/TrigConfL1Data
    Trigger/TrigEvent/TrigNavigation
@@ -43,7 +43,7 @@ atlas_add_component( TrigSteerMonitor
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    ${TDAQ-COMMON_LIBRARIES} AthenaKernel AthenaMonitoringLib EventInfo
    GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib
-   StoreGateLib MagFieldInterfaces LumiBlockCompsLib TrigConfHLTData
+   StoreGateLib MagFieldInterfaces LumiBlockData TrigConfHLTData
    TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib
    TrigT1Interfaces TrigT1Result DecisionHandlingLib )
 
