@@ -92,139 +92,139 @@
 
 using namespace LArGeo;
 
-EMECSupportConstruction::EMECSupportConstruction
-	(int t, bool m, std::string basename, double position)
-	: m_Type(t), m_isModule(m), m_BaseName(basename), m_Position(position)
+EMECSupportConstruction::EMECSupportConstruction(
+    type_t type, bool pos_zside, bool is_module,
+    std::string basename, double position
+) : m_Type(type), m_pos_zside(pos_zside), m_isModule(is_module),
+    m_BaseName(basename), m_Position(position)
 {
-
 //	std::cout << "Experimental EMECSupportConstruction" << std::endl;
 
-	ISvcLocator *svcLocator = Gaudi::svcLocator();
-	StoreGateSvc *detStore;
-	if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
-		throw std::runtime_error("Error in EMECSupportConstruction, cannot access DetectorStore");
-	}
-	const StoredMaterialManager* materialManager = nullptr;
-	if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
-          throw std::runtime_error("Error in EMECSupportConstruction, cannot access MATERIALS");
-        }
+    ISvcLocator *svcLocator = Gaudi::svcLocator();
+    StoreGateSvc *detStore;
+    if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
+        throw std::runtime_error("Error in EMECSupportConstruction, cannot access DetectorStore");
+    }
+    const StoredMaterialManager* materialManager = nullptr;
+    if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
+        throw std::runtime_error("Error in EMECSupportConstruction, cannot access MATERIALS");
+    }
 
-	m_PhiStart = 0.;
-	m_PhiSize = Gaudi::Units::twopi*Gaudi::Units::rad;
+    m_PhiStart = 0.;
+    m_PhiSize = Gaudi::Units::twopi*Gaudi::Units::rad;
 
-	if(m_isModule){
-		m_PhiStart = m_Position - M_PI*Gaudi::Units::rad / 8.;
-		m_PhiSize = M_PI*Gaudi::Units::rad / 4.;
-	}
+    if(m_isModule){
+        m_PhiStart = m_Position - M_PI*Gaudi::Units::rad / 8.;
+        m_PhiSize = M_PI*Gaudi::Units::rad / 4.;
+    }
 
-  // Get the materials from the manager 
+  // Get the materials from the manager
 
-        m_Lead = materialManager->getMaterial("std::Lead");
-        if(!m_Lead) throw std::runtime_error("Error in EMECSupportConstruction, std::Lead is not found.");
+    m_Lead = materialManager->getMaterial("std::Lead");
+    if(!m_Lead) throw std::runtime_error("Error in EMECSupportConstruction, std::Lead is not found.");
 
-	m_Alu = materialManager->getMaterial("std::Aluminium");
-	if(!m_Alu) throw std::runtime_error("Error in EMECSupportConstruction, std::Aluminium is not found.");
+    m_Alu = materialManager->getMaterial("std::Aluminium");
+    if(!m_Alu) throw std::runtime_error("Error in EMECSupportConstruction, std::Aluminium is not found.");
 
-	m_Copper = materialManager->getMaterial("std::Copper");
-	if(!m_Copper) throw std::runtime_error("Error in EMECSupportConstruction, std::Copper is not found.");
+    m_Copper = materialManager->getMaterial("std::Copper");
+    if(!m_Copper) throw std::runtime_error("Error in EMECSupportConstruction, std::Copper is not found.");
 
-	m_LAr = materialManager->getMaterial("std::LiquidArgon");
-	if(!m_LAr) throw std::runtime_error("Error in EMECSupportConstruction, std::LiquidArgon is not found.");
+    m_LAr = materialManager->getMaterial("std::LiquidArgon");
+    if(!m_LAr) throw std::runtime_error("Error in EMECSupportConstruction, std::LiquidArgon is not found.");
 
-	m_Gten = materialManager->getMaterial("LAr::G10");
-	if(!m_Gten) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10 is not found.");
+    m_Gten = materialManager->getMaterial("LAr::G10");
+    if(!m_Gten) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10 is not found.");
 
-	m_PermaliE730 = materialManager->getMaterial("LAr::Glue");
-	if(!m_PermaliE730) throw std::runtime_error("Error in EMECSupportConstruction, LAr::Glue is not found.");
+    m_PermaliE730 = materialManager->getMaterial("LAr::Glue");
+    if(!m_PermaliE730) throw std::runtime_error("Error in EMECSupportConstruction, LAr::Glue is not found.");
 
-	m_G10FeOuter = materialManager->getMaterial("LAr::G10FeOuter");
-	if(!m_G10FeOuter) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10FeOuter is not found.");
+    m_G10FeOuter = materialManager->getMaterial("LAr::G10FeOuter");
+    if(!m_G10FeOuter) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10FeOuter is not found.");
 
-	m_G10FeInner  = materialManager->getMaterial("LAr::G10FeInner");
-	if(!m_G10FeInner) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10FeInner is not found.");
+    m_G10FeInner  = materialManager->getMaterial("LAr::G10FeInner");
+    if(!m_G10FeInner) throw std::runtime_error("Error in EMECSupportConstruction, LAr::G10FeInner is not found.");
 
-	m_Kapton_Cu  = materialManager->getMaterial("LAr::KaptonC");
-	if(!m_Kapton_Cu) throw std::runtime_error("Error in EMECSupportConstruction, LAr::KaptonC is not found.");
+    m_Kapton_Cu  = materialManager->getMaterial("LAr::KaptonC");
+    if(!m_Kapton_Cu) throw std::runtime_error("Error in EMECSupportConstruction, LAr::KaptonC is not found.");
 
-	m_Cable  = materialManager->getMaterial("LAr::Cables");
-	if(!m_Cable) throw std::runtime_error("Error in EMECSupportConstruction, LAr::Cables is not found.");
+    m_Cable  = materialManager->getMaterial("LAr::Cables");
+    if(!m_Cable) throw std::runtime_error("Error in EMECSupportConstruction, LAr::Cables is not found.");
 
-	IGeoModelSvc *geoModel;
-	IRDBAccessSvc* rdbAccess;
+    IGeoModelSvc *geoModel;
+    IRDBAccessSvc* rdbAccess;
 
-	if(svcLocator->service("GeoModelSvc", geoModel) == StatusCode::FAILURE)
-		throw std::runtime_error("Error cannot access GeoModelSvc");
-	if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
-		throw std::runtime_error("Error cannot access RDBAccessSvc");
+    if(svcLocator->service("GeoModelSvc", geoModel) == StatusCode::FAILURE)
+        throw std::runtime_error("Error cannot access GeoModelSvc");
+    if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
+        throw std::runtime_error("Error cannot access RDBAccessSvc");
 
-        //emecExtraCyl, add extra material after PS
-        std::string AtlasVersion = geoModel->atlasVersion();
-        std::string LArVersion   = geoModel->LAr_VersionOverride();
-        std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-        std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-        m_DB_emecExtraCyl = rdbAccess->getRecordsetPtr("LArCones",detectorKey, detectorNode);
-        //--
+  //emecExtraCyl, add extra material after PS
+    std::string AtlasVersion = geoModel->atlasVersion();
+    std::string LArVersion   = geoModel->LAr_VersionOverride();
+    std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+    std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+    m_DB_emecExtraCyl = rdbAccess->getRecordsetPtr("LArCones",detectorKey, detectorNode);
+  //--
 
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
 
-	DecodeVersionKey larVersionKey(geoModel, "LAr");
+    m_DB_EmecGeometry =
+        rdbAccess->getRecordsetPtr("EmecGeometry", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_EmecGeometry->size() == 0){
+        m_DB_EmecGeometry = rdbAccess->getRecordsetPtr("EmecGeometry", "EmecGeometry-00");
+    }
 
-	m_DB_EmecGeometry =
-		rdbAccess->getRecordsetPtr("EmecGeometry", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_EmecGeometry->size() == 0){
-		m_DB_EmecGeometry = rdbAccess->getRecordsetPtr("EmecGeometry", "EmecGeometry-00");
-	}
+    m_DB_EmecWheelParameters =
+        rdbAccess->getRecordsetPtr("EmecWheelParameters", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_EmecWheelParameters->size() == 0){
+        m_DB_EmecWheelParameters = rdbAccess->getRecordsetPtr("EmecWheelParameters", "EmecWheelParameters-00");
+    }
 
-	m_DB_EmecWheelParameters =
-		rdbAccess->getRecordsetPtr("EmecWheelParameters", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_EmecWheelParameters->size() == 0){
-		m_DB_EmecWheelParameters = rdbAccess->getRecordsetPtr("EmecWheelParameters", "EmecWheelParameters-00");
-	}
+    m_DB_boxes = rdbAccess->getRecordsetPtr("EmecDMBoxes", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_boxes->size() == 0){
+        m_DB_boxes = rdbAccess->getRecordsetPtr("EmecDMBoxes", "EmecDMBoxes-00");
+    }
+    m_DB_numbers = rdbAccess->getRecordsetPtr("EmecDMNumbers", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_numbers->size() == 0){
+        m_DB_numbers = rdbAccess->getRecordsetPtr("EmecDMNumbers", "EmecDMNumbers-00");
+    }
+    m_DB_tubes = rdbAccess->getRecordsetPtr("EmecDMTubes", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_tubes->size() == 0){
+        m_DB_tubes = rdbAccess->getRecordsetPtr("EmecDMTubes", "EmecDMTubes-00");
+    }
+    m_DB_pcons = rdbAccess->getRecordsetPtr("EmecDMPCons", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_pcons->size() == 0){
+        m_DB_pcons = rdbAccess->getRecordsetPtr("EmecDMPCons", "EmecDMPCons-00");
+    }
 
-	m_DB_boxes = rdbAccess->getRecordsetPtr("EmecDMBoxes", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_boxes->size() == 0){
-		m_DB_boxes = rdbAccess->getRecordsetPtr("EmecDMBoxes", "EmecDMBoxes-00");
-	}
-	m_DB_numbers = rdbAccess->getRecordsetPtr("EmecDMNumbers", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_numbers->size() == 0){
-		m_DB_numbers = rdbAccess->getRecordsetPtr("EmecDMNumbers", "EmecDMNumbers-00");
-	}
-	m_DB_tubes = rdbAccess->getRecordsetPtr("EmecDMTubes", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_tubes->size() == 0){
-		m_DB_tubes = rdbAccess->getRecordsetPtr("EmecDMTubes", "EmecDMTubes-00");
-	}
-	m_DB_pcons = rdbAccess->getRecordsetPtr("EmecDMPCons", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_pcons->size() == 0){
-		m_DB_pcons = rdbAccess->getRecordsetPtr("EmecDMPCons", "EmecDMPCons-00");
-	}
-
-	m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
-	if(m_DB_mn->size() == 0){
-		m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", "EmecMagicNumbers-00");
-	}
+    m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
+    if(m_DB_mn->size() == 0){
+        m_DB_mn = rdbAccess->getRecordsetPtr("EmecMagicNumbers", "EmecMagicNumbers-00");
+    }
 }
 
 static void printWarning(const std::ostringstream &message)
 {
-		ISvcLocator* svcLocator = Gaudi::svcLocator();
-		IMessageSvc* msgSvc;
-		StatusCode status = svcLocator->service("MessageSvc", msgSvc);
-		if(status.isFailure()){
-			throw std::runtime_error("EMECSupportConstruction: cannot initialze message service");
-		}
-		MsgStream msg(msgSvc, "EMECSupportConstruction");
-		msg << MSG::WARNING << message.str() << endmsg;
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
+    IMessageSvc* msgSvc;
+    StatusCode status = svcLocator->service("MessageSvc", msgSvc);
+    if(status.isFailure()){
+        throw std::runtime_error("EMECSupportConstruction: cannot initialze message service");
+    }
+    MsgStream msg(msgSvc, "EMECSupportConstruction");
+    msg << MSG::WARNING << message.str() << endmsg;
 }
 
 #include<map>
 typedef std::map<std::string, unsigned int> map_t;
 static map_t getMap(IRDBRecordset_ptr db, std::string s)
 {
-	map_t result;
-	for(unsigned int i = 0; i < db->size(); ++ i){
-		std::string key = (*db)[i]->getString(s);
-		result[key] = i;
-	}
-	return result;
+    map_t result;
+    for(unsigned int i = 0; i < db->size(); ++ i){
+        std::string key = (*db)[i]->getString(s);
+        result[key] = i;
+    }
+    return result;
 }
 
 static map_t getNumbersMap(IRDBRecordset_ptr db, std::string s)
@@ -285,15 +285,15 @@ EMECSupportConstruction::~EMECSupportConstruction() {}
 GeoPhysVol* EMECSupportConstruction::GetEnvelope(void) const
 {
 	switch(m_Type){
-	case 0: return front_envelope();
-	case 1: return back_envelope();
-	case 2: return outer_envelope();
-	case 3: return inner_envelope();
-	case 4: return middle_envelope();
-	case 10: return front_inner_envelope();
-	case 11: return back_inner_envelope();
-	case 12: return front_outer_envelope();
-	case 13: return back_outer_envelope();
+	case Front: return front_envelope();
+	case Back: return back_envelope();
+	case Outer: return outer_envelope();
+	case Inner: return inner_envelope();
+	case Middle: return middle_envelope();
+	case FrontInner: return front_inner_envelope();
+	case BackInner: return back_inner_envelope();
+	case FrontOuter: return front_outer_envelope();
+	case BackOuter: return back_outer_envelope();
 	default:
 		std::ostringstream tmp;
 		tmp << "Unknown Type " << m_Type << " in GetEnvelope,"
@@ -885,14 +885,17 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	}
 }
 
+// It seems we need to accout for z side for BOB only at the moment
 void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical) const
 {
-	std::string id = "BackOuterBarrettes";
+	const std::string id = "BackOuterBarrettes";
 
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
 
-	std::string name = m_BaseName + id;
+	std::string name = m_BaseName;
+    if(!m_isModule) name += m_pos_zside? "Pos::" : "Neg::";
+    name += id;
 
 	double rminBOB = getNumber(m_DB_tubes, tubes, id, "RMIN", 699.-2.5+40.);    //RMiddle+40. // -2.5 for cold
 	double rmaxBOB = getNumber(m_DB_tubes, tubes, id, "RMAX", 1961.-7.+62.);    //ROuter+62. // -7 for cold
