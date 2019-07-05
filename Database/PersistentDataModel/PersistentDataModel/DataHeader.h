@@ -79,7 +79,7 @@ private:
    friend class DataHeaderElementCnv_p3;
    friend class DataHeaderElementCnv_p4;
    friend class DataHeaderElementCnv_p5;
-   friend class DataHeaderElementCnv_p6;
+   friend class DataHeaderCnv_p6;
 
    /// primary ClassID.
    CLID m_pClid;

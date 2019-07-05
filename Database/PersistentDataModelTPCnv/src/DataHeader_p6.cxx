@@ -1,70 +1,42 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p6.h"
+#include "PersistentDataModel/Token.h"
 
 #include "CxxUtils/MD5.h"
 
 #include <uuid/uuid.h>
-#include <sstream>
 
-DataHeaderElement_p6::DataHeaderElement_p6() :
-  m_token(),
-  m_oid1(0ULL),
-  m_oid2(0ULL),
-  m_dbIdx(0),
-  m_objIdx(0) {}
-DataHeaderElement_p6::DataHeaderElement_p6(const DataHeaderElement_p6& rhs) : m_token(rhs.m_token),
-	m_oid1(rhs.m_oid1),
-	m_oid2(rhs.m_oid2),
-	m_dbIdx(rhs.m_dbIdx),
-	m_objIdx(rhs.m_objIdx) {}
-DataHeaderElement_p6::~DataHeaderElement_p6() {}
-
-DataHeaderElement_p6& DataHeaderElement_p6::operator=(const DataHeaderElement_p6& rhs) {
-   if (this != &rhs) {
-      m_token = rhs.m_token;
-      m_oid1 = rhs.m_oid1;
-      m_oid2 = rhs.m_oid2;
-      m_dbIdx = rhs.m_dbIdx;
-      m_objIdx = rhs.m_objIdx;
-   }
-   return(*this);
+DataHeaderForm_p6::DataHeaderForm_p6(const DataHeaderForm_p6& rhs) :
+      m_dbRecords(rhs.m_dbRecords), m_objRecords(rhs.m_objRecords),
+      m_objAlias(rhs.m_objAlias), m_objSymLinks(rhs.m_objSymLinks),
+      m_objHashes(rhs.m_objHashes), m_version(rhs.m_version),
+      m_modified(rhs.m_modified), m_token(nullptr)
+{
+   setToken(rhs.m_token);
 }
 
-const std::string& DataHeaderElement_p6::token() const {
-   return(m_token);
-}
-
-unsigned long long DataHeaderElement_p6::oid1() const {
-   return(m_oid1);
-}
-
-unsigned long long DataHeaderElement_p6::oid2() const {
-   return(m_oid2);
-}
-
-void DataHeaderElement_p6::overwriteOid2(unsigned long long oid2) {
-   m_oid2 = oid2;
-}
-
-
-DataHeaderForm_p6::DataHeaderForm_p6() : m_uints(), m_dbRecords(), m_objRecords(), m_objAlias(), m_objSymLinks(), m_objHashes(), m_entry(0U) {}
-DataHeaderForm_p6::DataHeaderForm_p6(const DataHeaderForm_p6& rhs) : m_uints(rhs.m_uints), m_dbRecords(rhs.m_dbRecords), m_objRecords(rhs.m_objRecords), m_objAlias(rhs.m_objAlias), m_objSymLinks(rhs.m_objSymLinks), m_objHashes(rhs.m_objHashes), m_entry(0U) {}
-DataHeaderForm_p6::~DataHeaderForm_p6() {}
 DataHeaderForm_p6& DataHeaderForm_p6::operator=(const DataHeaderForm_p6& rhs) {
    if (&rhs != this) {
-      m_uints = rhs.m_uints;
       m_dbRecords = rhs.m_dbRecords;
       m_objRecords = rhs.m_objRecords;
       m_objAlias = rhs.m_objAlias;
       m_objSymLinks = rhs.m_objSymLinks;
       m_objHashes = rhs.m_objHashes;
-      m_entry = 0U;
+      m_version = rhs.m_version;
+      m_modified = rhs.m_modified;
+      setToken(rhs.m_token);
    }
    return(*this);
 }
+
+DataHeaderForm_p6::~DataHeaderForm_p6()
+{
+   if( m_token ) m_token->release();
+}
+
 
 unsigned int DataHeaderForm_p6::insertDb(const DbRecord& rec) {
    unsigned int index = 0U;
@@ -74,6 +46,7 @@ unsigned int DataHeaderForm_p6::insertDb(const DbRecord& rec) {
    }
    if (index == m_dbRecords.size()) {
       m_dbRecords.push_back(rec);
+      m_modified = true;
    }
    return(index);
 }
@@ -83,29 +56,48 @@ std::size_t DataHeaderForm_p6::sizeDb() const {
 }
 
 Guid DataHeaderForm_p6::getDbGuid(unsigned int index) const {
-   return(m_dbRecords[index].first);
+   return m_dbRecords[index].fid;
 }
 
 unsigned int DataHeaderForm_p6::getDbTech(unsigned int index) const {
-   return(m_dbRecords[index].second);
+   return m_dbRecords[index].tech;
 }
 
 unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
 	const std::set<std::string>& alias,
 	const std::set<unsigned int>& symLinks,
-	const std::vector<unsigned int>& hashes) {
+	const std::vector<unsigned int>& hashes)
+{
    unsigned int index = 0U;
    for (std::vector<ObjRecord>::const_iterator iter = m_objRecords.begin(), last = m_objRecords.end();
            iter != last; iter++, index++) {
       if (*iter == rec) break;
    }
-   if (index == m_objRecords.size()) {
-      m_objRecords.push_back(rec);
-      m_objAlias.push_back(std::vector<std::string>(alias.begin(), alias.end()));
-      m_objSymLinks.push_back(std::vector<unsigned int>(symLinks.begin(), symLinks.end()));
-      m_objHashes.push_back(hashes);
+   std::vector<std::string>     aliases( alias.begin(), alias.end() );
+   std::vector<unsigned int>    symlinks( symLinks.begin(), symLinks.end() );
+   if (index != m_objRecords.size()) {
+      // found matching object record, check if all the info is the same
+      if( m_objAlias[index] != aliases ) {
+         m_objAlias[index] = std::move(aliases);
+         m_modified = true;
+      }
+      if( m_objSymLinks[index] != symlinks ) {
+         m_objSymLinks[index] = std::move(symlinks);
+         m_modified = true;
+      }
+      if( m_objHashes[index] != hashes ) {
+         m_objHashes[index] = hashes;
+         m_modified = true;
+      }
+      return index;
    }
-   return(index);
+   // enter a new record
+   m_objRecords.push_back( rec );
+   m_objAlias.push_back( std::move(aliases) );
+   m_objSymLinks.push_back( std::move(symlinks) );
+   m_objHashes.push_back( hashes );
+   m_modified = true;
+   return m_objRecords.size() - 1;
 }
 
 std::size_t DataHeaderForm_p6::sizeObj() const {
@@ -113,15 +105,15 @@ std::size_t DataHeaderForm_p6::sizeObj() const {
 }
 
 std::string DataHeaderForm_p6::getObjKey(unsigned int index) const {
-   return(m_objRecords[index].second.first);
+   return m_objRecords[index].key;
 }
 
 unsigned int DataHeaderForm_p6::getObjType(unsigned int index) const {
-   return(m_objRecords[index].second.second);
+   return m_objRecords[index].clid;
 }
 
 Guid DataHeaderForm_p6::getObjClassId(unsigned int index) const {
-   return(m_objRecords[index].first);
+   return m_objRecords[index].guid;
 }
 
 std::set<std::string> DataHeaderForm_p6::getObjAlias(unsigned int index) const {
@@ -137,67 +129,35 @@ std::vector<unsigned int> DataHeaderForm_p6::getObjHashes(unsigned int index) co
 }
 
 
-
-const std::vector<unsigned int>& DataHeaderForm_p6::params() const {
-   return(m_uints[m_entry]);
+bool DataHeaderForm_p6::wasModified() const {
+   return m_modified;
 }
 
-void DataHeaderForm_p6::insertParam(unsigned int param) {
-   m_uints[m_entry].push_back(param);
+void DataHeaderForm_p6::clearModified() {
+   m_modified = false;
 }
 
-unsigned int DataHeaderForm_p6::entry() const {
-   return(m_entry);
+void DataHeaderForm_p6::setToken( Token *tok )
+{
+   if( tok ) tok->addRef(); 
+   if( m_token ) m_token->release();
+   m_token = tok;
 }
 
-void DataHeaderForm_p6::start() const {
-   m_entry = 0;
-}
-
-void DataHeaderForm_p6::next() const {
-   m_entry++;
-}
-
-unsigned int DataHeaderForm_p6::size() const {
-   return(m_uints.size());
+Token* DataHeaderForm_p6::getToken() const {
+   return m_token;
 }
 
 void DataHeaderForm_p6::resize(unsigned int size) {
-   m_uints.resize(size);
+   m_objRecords.reserve( size );
+   m_objAlias.reserve( size );
+   m_objSymLinks.reserve( size );
+   m_objHashes.reserve( size );
 }
 
 
-DataHeader_p6::DataHeader_p6() : m_dataHeader(), m_provenanceSize(0U), m_dhForm(), m_dhFormToken(), m_dhFormMdx() {}
-DataHeader_p6::DataHeader_p6(const DataHeader_p6& rhs) :
-  m_dataHeader(rhs.m_dataHeader),
-  m_provenanceSize(rhs.m_provenanceSize),
-  m_dhForm(rhs.m_dhForm),
-  m_dhFormToken(rhs.m_dhFormToken),
-  m_dhFormMdx(rhs.m_dhFormMdx) {}
-DataHeader_p6::~DataHeader_p6() {}
 
-DataHeader_p6& DataHeader_p6::operator=(const DataHeader_p6& rhs) {
-   if (this != &rhs) {
-      m_dataHeader = rhs.m_dataHeader;
-      m_provenanceSize = rhs.m_provenanceSize;
-      m_dhForm = rhs.m_dhForm;
-      m_dhFormToken = rhs.m_dhFormToken;
-      m_dhFormMdx = rhs.m_dhFormMdx;
-   }
-   return(*this);
-}
-
-const std::vector<DataHeaderElement_p6>& DataHeader_p6::elements() const {
-   return(m_dataHeader);
-}
-
-const DataHeaderForm_p6& DataHeader_p6::dhForm() const {
-   return(m_dhForm);
-}
-
-void DataHeader_p6::setDhForm(const DataHeaderForm_p6& form) {
-   m_dhForm = form;
-}
+//---------------------------------------------------------------------
 
 const std::string& DataHeader_p6::dhFormToken() const {
    return(m_dhFormToken);
@@ -207,22 +167,3 @@ void DataHeader_p6::setDhFormToken(const std::string& formToken) {
    m_dhFormToken = formToken;
 }
 
-void DataHeader_p6::calculateDhFormMdx() {
-   std::ostringstream stream;
-   for (std::size_t iter = 0, last = m_dhForm.sizeDb(); iter != last; iter++) {
-	stream << m_dhForm.getDbGuid(iter) << "," << m_dhForm.getDbTech(iter) << "\n";
-   }
-   for (std::size_t iter = 0, last = m_dhForm.sizeObj(); iter != last; iter++) {
-	stream << m_dhForm.getObjKey(iter) << "," << m_dhForm.getObjType(iter) << "," << m_dhForm.getObjClassId(iter) << "\n";
-   }
-   MD5 checkSum((unsigned char*)stream.str().c_str(), stream.str().size());
-   uuid_t checkSumUuid;
-   checkSum.raw_digest((unsigned char*)(&checkSumUuid));
-   char text[37];
-   uuid_unparse_upper(checkSumUuid, text);
-   m_dhFormMdx = text;
-}
-
-const std::string& DataHeader_p6::dhFormMdx() const {
-   return(m_dhFormMdx);
-}

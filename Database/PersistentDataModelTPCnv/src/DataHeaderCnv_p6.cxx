@@ -1,106 +1,136 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p6.cxx
  *  @brief This file contains the implementation for the DataHeaderCnv_p6 class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: DataHeaderCnv_p6.cxx,v 1.3.2.2 2009-05-22 19:26:54 gemmeren Exp $
  **/
 
 #include "PersistentDataModel/DataHeader.h"
+#include "PersistentDataModelTPCnv/DataHeader_p6.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p6.h"
+#include <climits>
 
-DataHeaderElementCnv_p6::DataHeaderElementCnv_p6() {}
-DataHeaderElementCnv_p6::~DataHeaderElementCnv_p6() {}
+using FullElement  = DataHeader_p6::FullElement;
 
 //______________________________________________________________________________
-void DataHeaderElementCnv_p6::persToTrans(const DataHeaderElement_p6* pers,
-	DataHeaderElement* trans,
-	const DataHeaderForm_p6& form) {
-   delete trans->m_token; trans->m_token = new Token;
-   Token* token = const_cast<Token*>(trans->m_token);
-// Append DbGuid
-   token->setDb(form.getDbGuid(pers->m_dbIdx));
-   token->setTechnology(form.getDbTech(pers->m_dbIdx));
-// Append ClassId
-   token->setClassID(form.getObjClassId(pers->m_objIdx));
-   token->setOid(Token::OID_t(pers->m_oid1, pers->m_oid2));
-// StoreGate
-   trans->m_key = form.getObjKey(pers->m_objIdx);
-   trans->m_alias = form.getObjAlias(pers->m_objIdx);
-   trans->m_pClid = form.getObjType(pers->m_objIdx);
-   trans->m_clids = form.getObjSymLinks(pers->m_objIdx);
-   trans->m_hashes = form.getObjHashes(pers->m_objIdx);
-}
-//______________________________________________________________________________
-void DataHeaderElementCnv_p6::transToPers(const DataHeaderElement* trans,
-	DataHeaderElement_p6* pers,
-	DataHeaderForm_p6& form) {
-// Translate PoolToken
-   if (trans->getToken() != 0) {
-// Database GUID & Technology
-      DataHeaderForm_p6::DbRecord transDb(trans->getToken()->dbID(), trans->getToken()->technology());
-      pers->m_dbIdx = form.insertDb(transDb);
-// StoreGate Type/Key & persistent Class GUID
-      DataHeaderForm_p6::SgRecord transSg(trans->m_key, trans->m_pClid);
-      DataHeaderForm_p6::ObjRecord transObj(trans->getToken()->classID(), transSg);
-      pers->m_objIdx = form.insertObj(transObj, trans->m_alias, trans->m_clids, trans->m_hashes);
-      pers->m_oid1 = trans->getToken()->oid().first;
-      pers->m_oid2 = trans->getToken()->oid().second;
+void DataHeaderCnv_p6::persToElem( const DataHeader_p6* pers, unsigned p_idx,
+                                    DataHeaderElement* trans, const DataHeaderForm_p6& form )
+{
+   delete trans->m_token;  trans->m_token = nullptr;
+   int obj_idx = pers->m_shortElements[p_idx];
+   if( obj_idx != INT32_MIN ) {
+      Token* token = new Token;
+      trans->m_token = token;
+      unsigned db_idx = 0;
+      unsigned long long oid2 = 0;
+      if( obj_idx >= 0 ) {
+         db_idx = pers->m_commonDbIndex;
+         oid2   = pers->m_commonOID2;
+      } else {
+         const FullElement &full_el = pers->m_fullElements[ -1 - obj_idx ];
+         db_idx = full_el.dbIdx;
+         obj_idx = full_el.objIdx;
+         oid2 = full_el.oid2;
+      }
+      // Append DbGuid
+      token->setDb(         form.getDbGuid(db_idx ) );
+      token->setTechnology( form.getDbTech(db_idx ) );
+      // Append ClassId
+      token->setClassID(    form.getObjClassId(obj_idx) );
+      token->setOid( Token::OID_t( form.getObjOid1(obj_idx), oid2) );
+      // StoreGate
+      trans->m_key = form.getObjKey( obj_idx );
+      trans->m_alias = form.getObjAlias( obj_idx );
+      trans->m_pClid = form.getObjType( obj_idx );
+      trans->m_clids = form.getObjSymLinks( obj_idx );
+      trans->m_hashes = form.getObjHashes( obj_idx );
    }
 }
+
 //______________________________________________________________________________
-//______________________________________________________________________________
-DataHeaderCnv_p6::DataHeaderCnv_p6() {}
-DataHeaderCnv_p6::~DataHeaderCnv_p6() {}
-//______________________________________________________________________________
-void DataHeaderCnv_p6::persToTrans(const DataHeader_p6* pers, DataHeader* trans) {
-   pers->m_dhForm.start();
+DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const DataHeaderForm_p6& form)
+{
+   DataHeader* trans = new DataHeader();
    const unsigned int provSize = pers->m_provenanceSize;
    trans->m_inputDataHeader.resize(provSize);
-   std::vector<DataHeaderElement>::iterator it = trans->m_inputDataHeader.begin();
-   std::vector<DataHeaderElement_p6>::const_iterator pit = pers->m_dataHeader.begin();
-   for (unsigned int i = 0U; i < provSize; i++, it++, pit++) {
-      m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_dhForm);
-      pers->m_dhForm.next();
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize);
+
+   unsigned i = 0;
+   for( auto& elem : trans->m_dataHeader ) {
+      persToElem( pers, i++, &elem, form );
    }
-   trans->m_dataHeader.resize(pers->m_dataHeader.size() - provSize);
-   it = trans->m_dataHeader.begin();
-   for (std::vector<DataHeaderElement_p6>::const_iterator last = pers->m_dataHeader.end();
-		   pit != last; it++, pit++) {
-      m_elemCnv.persToTrans(&(*pit), &(*it), pers->m_dhForm);
-      pers->m_dhForm.next();
+   for( auto& elem : trans->m_inputDataHeader ) {
+      persToElem( pers, i++, &elem, form );
+   }
+   trans->setStatus(DataHeader::Input);
+   return trans;
+}
+
+
+//______________________________________________________________________________
+void DataHeaderCnv_p6::elemToPers(const DataHeaderElement* trans,
+                                  DataHeader_p6* pers,
+                                  DataHeaderForm_p6& form)
+{
+   // Translate PoolToken
+   const Token *token =  trans->getToken();
+   if( !token ) {
+      // store marker for NO Token
+      pers->m_shortElements.push_back( INT32_MIN );
+   } else {
+      // Database GUID & Technology
+      DataHeaderForm_p6::DbRecord  db_rec( token->dbID(), token->technology() );
+      unsigned db_idx = form.insertDb( db_rec );
+      // StoreGate Type/Key & persistent Class GUID
+      DataHeaderForm_p6::ObjRecord transObj( token->classID(), trans->m_key, trans->m_pClid, token->oid().first );
+      unsigned obj_idx = form.insertObj(transObj, trans->m_alias, trans->m_clids, trans->m_hashes);
+      unsigned long long oid2 = token->oid().second;
+
+      // first element sets the common DB
+      if( pers->m_shortElements.empty() ) {
+         // first element - set the common DB and OID2 values
+         pers->m_commonDbIndex = db_idx;
+         pers->m_commonOID2 = oid2;
+      }
+      if( db_idx == pers->m_commonDbIndex && oid2 == pers->m_commonOID2 ) {
+         // Can use short DH element
+         pers->m_shortElements.push_back( obj_idx );
+      } else {
+         // need to use full DH element
+         // store the index (as negative) to the full element in the short vector
+         pers->m_shortElements.push_back( -1 - pers->m_fullElements.size() );
+         pers->m_fullElements.push_back( FullElement(oid2, db_idx, obj_idx) );
+      }
    }
 }
+
 //______________________________________________________________________________
-void DataHeaderCnv_p6::transToPers(const DataHeader* trans, DataHeader_p6* pers) {
+DataHeader_p6* DataHeaderCnv_p6::createPersistent(const DataHeader* trans, DataHeaderForm_p6& form)
+{
+   DataHeader_p6* pers = new DataHeader_p6();
    const unsigned int provSize = trans->m_inputDataHeader.size();
-   pers->m_dataHeader.resize(provSize + trans->m_dataHeader.size());
    pers->m_provenanceSize = provSize;
-   pers->m_dhForm.resize(provSize + trans->m_dataHeader.size() + 1);
-   pers->m_dhForm.start();
-   std::vector<DataHeaderElement_p6>::iterator pit = pers->m_dataHeader.begin();
-   for (std::vector<DataHeaderElement>::const_iterator it = trans->m_inputDataHeader.begin(),
-		   last = trans->m_inputDataHeader.end(); it != last; it++, pit++) {
-      m_elemCnv.transToPers(&(*it), &(*pit), pers->m_dhForm);
-      pers->m_dhForm.next();
+
+   pers->m_shortElements.reserve( provSize + trans->m_dataHeader.size() );
+   form.resize(provSize + trans->m_dataHeader.size() + 1);
+   for( const auto& transElem: trans->m_dataHeader ) {
+      elemToPers( &transElem, pers, form );
    }
-   for (std::vector<DataHeaderElement>::const_iterator it = trans->m_dataHeader.begin(),
-		   last = trans->m_dataHeader.end(); it != last; it++, pit++) {
-      m_elemCnv.transToPers(&(*it), &(*pit), pers->m_dhForm);
-      pers->m_dhForm.next();
+   for( const auto& transElem: trans->m_inputDataHeader ) {
+      elemToPers( &transElem, pers, form );
    }
+   return pers;
 }
+
 //______________________________________________________________________________
-void DataHeaderCnv_p6::insertDHRef(DataHeader_p6* pers,
-	const std::string& key,
-	const std::string& strToken) {
+void DataHeaderCnv_p6::insertDHRef( DataHeader_p6* pers,
+                                    const std::string& key, const std::string& strToken,
+                                    DataHeaderForm_p6& form )
+{
    Token* token = new Token;
    token->fromString(strToken);
    DataHeaderElement tEle(ClassID_traits<DataHeader>::ID(), key, token);
-   DataHeaderElement_p6 pEle;
-   pers->m_dhForm.next();
-   m_elemCnv.transToPers(&tEle, &pEle, pers->m_dhForm);
-   pers->m_dataHeader.push_back(pEle);
+   elemToPers( &tEle, pers, form );
 }
