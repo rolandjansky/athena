@@ -73,7 +73,7 @@ addTool("MuonRecExample.MuonRecTools.MuonEDMPrinterTool", "MuonEDMPrinterTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonKalmanTrackFitter","MuonKalmanTrackFitter")
 
-addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelperTool","MuonTrackSummaryHelperTool",UseCSC=muonRecFlags.doCSCs())
+addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelperTool","MuonTrackSummaryHelperTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryTool","MuonTrackSummaryTool")
 
