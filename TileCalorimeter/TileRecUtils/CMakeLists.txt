@@ -135,3 +135,8 @@ atlas_add_test( TileRawChannelMakerConfig_test
                  SCRIPT python -m TileRecUtils.TileRawChannelMakerConfig
                  PROPERTIES TIMEOUT 300
                  POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellMakerConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellMakerConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
