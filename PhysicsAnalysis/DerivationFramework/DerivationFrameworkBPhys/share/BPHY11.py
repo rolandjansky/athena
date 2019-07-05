@@ -202,9 +202,8 @@ ToolSvc += BPHY11_Select_Lb2JpsiKp
 print      BPHY11_Select_Lb2JpsiKp
 
 #-------------------------------------------------------
-
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__ReVertex
-BPHY11_LbPlusTrk           = DerivationFramework__ReVertex(
+BPHY11_LbPlusTrk             = DerivationFramework__ReVertex(
   name                       = "BPHY11_LbPlusTrk",
   InputVtxContainerName      = "LbJpsipKCandidates",
   HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName, BPHY11_Select_Lb2JpsiKp.HypothesisName ],
@@ -226,7 +225,7 @@ BPHY11_LbPlusTrk           = DerivationFramework__ReVertex(
 ToolSvc += BPHY11_LbPlusTrk
 print      BPHY11_LbPlusTrk
 
-BPHY11_Select_LbPlusTrk    = DerivationFramework__Select_onia2mumu(
+BPHY11_Select_LbPlusTrk     = DerivationFramework__Select_onia2mumu(
   name                      = "BPHY11_Select_LbPlusTrk",
   HypothesisName            = "LbPlusTrk",
   InputVtxContainerName     = "LbJpsipKTrkCandidates",
@@ -411,7 +410,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
                          BPHY11_Lb_Kp_ReFit, BPHY11_Select_Lb_Kp_ReFit,
                          BPHY11_AugOriginalCounts],
     #Only skim if not MC
-    SkimmingTools     = [BPHY11_SkimmingOR,BPHY11_SelectX2Jpsi3piEvent] if not isSimulation else [],
+    SkimmingTools     = [BPHY11_SkimmingOR] if not isSimulation else [],
     ThinningTools     = BPHY11_ThiningCollection
 )
 
