@@ -115,7 +115,6 @@ def scanLogfile():
         ignoreDict = {line:0 for line in ignorePattern} # stores counts of ignored errors/warnings
     global results
     results = []
-    print resultsA
     if noConfig:
         results = resultsA
         return
