@@ -1053,6 +1053,7 @@ class triggerMenuSetup(JobProperty):
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
         'LS2_emu_v1', # emulation test menu for AthenaMT
+        'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         ]
 
     _default_menu='Physics_pp_v7_primaries'
