@@ -51,7 +51,6 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
 
   const InDet::PixelCluster* pixClust;
 
-
   for (const auto  pixSPointColl: *pixelSP){
     if( pixSPointColl == nullptr ) continue;
 
@@ -132,7 +131,6 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
     int SPSctBarr{};
     int SPSctECA{};
     int SPSctECC{};
-
     nSctSP = (SctSPointColl)->size();
     Identifier Sctid = (SctSPointColl)->identify();
     int bec = (int)SctHelper->barrel_ec(Sctid);
@@ -188,8 +186,8 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
   // Recording Data
   SG::WriteHandle<xAOD::TrigCompositeContainer> spacePointHandle (m_spacePointsKey, context);
 
-  auto spacePoints = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  auto spacePointsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
+  auto spacePoints = std::make_unique< xAOD::TrigCompositeContainer >();
+  auto spacePointsAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
   spacePoints->setStore(spacePointsAux.get());
 
 
