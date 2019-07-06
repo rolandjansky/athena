@@ -108,8 +108,7 @@ namespace NSWL1 {
   StatusCode NSWL1Simulation::start() {
     ATH_MSG_INFO("start " << name() );
 
-    ToolHandleArray<IMonitorToolBase>::iterator it;
-    for ( const auto& mon : m_monitors ) {
+    for ( auto& mon : m_monitors ) {
       ATH_CHECK(mon->bookHists());
     }
 
@@ -147,7 +146,7 @@ namespace NSWL1 {
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger() );
     }
-    for ( const auto& mon : m_monitors) {
+    for ( auto& mon : m_monitors) {
       ATH_CHECK(mon->fillHists());
     }
     if (m_tree) m_tree->Fill();
@@ -158,7 +157,7 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::finalize() {
     ATH_MSG_INFO( "finalize" << name() );
-    for ( const auto& mon :  m_monitors ) {
+    for ( auto& mon :  m_monitors ) {
       ATH_CHECK(mon->finalHists());
     }
     return StatusCode::SUCCESS;
