@@ -2,8 +2,6 @@
 
    <class name="ILumiCalcSvc"/>
    <class name="ILumiBlockMetaDataTool"/>
-   <class name="ILuminosityTool"/>
    <class name="ILumiBlockMuTool"/>
-   <class name="ITrigLivefractionTool"/>
 
 </lcgdict>
