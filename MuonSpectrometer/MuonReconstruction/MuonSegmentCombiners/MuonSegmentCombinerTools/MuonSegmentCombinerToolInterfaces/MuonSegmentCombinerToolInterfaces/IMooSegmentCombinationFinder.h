@@ -17,7 +17,7 @@
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 namespace Muon 
 {
