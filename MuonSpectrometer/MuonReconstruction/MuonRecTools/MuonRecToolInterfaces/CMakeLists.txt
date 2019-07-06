@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
 			  Generators/GeneratorObjects
                           GaudiKernel
                           MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonPatternFinders/MuonPatternFinderTools/MuonHoughPatternTools
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData

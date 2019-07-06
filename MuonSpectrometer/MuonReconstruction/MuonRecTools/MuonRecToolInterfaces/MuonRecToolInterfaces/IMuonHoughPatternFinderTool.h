@@ -15,7 +15,7 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 #include <vector>
 

@@ -19,7 +19,7 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 class MsgStream;
 class StoreGateSvc;
