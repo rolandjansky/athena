@@ -1,0 +1,24 @@
+ToDo list
+=========
+
+Rename parameter run to legacy for thresholds
+
+Fix eFEX isolation
+ 
+Remove thresholdValue from Threshold (only for specific types)
+
+Change how to deal with default values in thresholdDef
+
+Add L1Topo board input signals
+
+Implement CTPIN MonCounters
+
+Fix updateItemPrescales()
+
+Implement menu.checkL1
+
+Implement a l1MenuInfo.txt output containing stats on items, thresholds, etc., free item counters, ...
+
+Investigate calo energy scale setting for run 3
+
+Fix currentAlgoDef in TopoAlgoDef

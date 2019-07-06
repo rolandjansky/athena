@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Thresholds import ThresholdValue
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import CaloLimits as CL
 
