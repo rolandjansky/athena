@@ -8,7 +8,8 @@ if opts.trace_pattern:
 
 
 ### debugging helper, hooks debugger to running interpreter process ----------
-from AthenaCommon.Debugging import hookDebugger
+from AthenaCommon.Debugging import hookDebugger, allowPtrace
+allowPtrace()
 
 ### athena/gaudi -------------------------------------------------------------
 from AthenaCommon.Configurable import *
