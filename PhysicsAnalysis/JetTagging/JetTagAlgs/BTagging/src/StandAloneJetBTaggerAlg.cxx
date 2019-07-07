@@ -71,7 +71,7 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       }
       //Check if Jet collection already not tagged
       if (!evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName)) {
-        if ((m_JetCollectionName == "AntiKt4EMPFlowJets") && !m_dupPFlow) {
+        if ((((m_JetCollectionName == "AntiKt4EMPFlowJets") || m_JetCollectionName == "DFAntiKt4HIJets") && !m_dupPFlow)  || (m_dupPFlow && m_JetCollectionName == "DFAntiKt4HIJets")) {
           ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName );
 	  if (evtStore()->contains<xAOD::JetAuxContainer>(m_JetCollectionName+"Aux.")) {
 	    if (overwrite<xAOD::JetContainer, xAOD::JetAuxContainer>(m_JetCollectionName).isFailure()) {
