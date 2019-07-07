@@ -46,22 +46,15 @@ namespace Trk
        /** method to do the calculation starting from two MeasuredPerigees*/
        /** If successful, returns the points on the two tracks at minimum distance. */
        virtual std::optional<TwoPoints>
-       CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) = 0;
+       CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) const = 0;
 
        /** method to do the calculation starting from two tracks */
        virtual std::optional<TwoPoints>
-       CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) = 0;
+       CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) const = 0;
        
        /** method to do the calculation starting from two track particles */
        virtual std::optional<TwoPoints>
-       CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) = 0;
-
-       /**method to obtain the distance (call CalculateMinimumDistance before) **/
-       virtual double GetDistance() const =0;
-
-       /** method to obtain the points on the two tracks at minimum distance **/
-       virtual const std::pair<Amg::Vector3D,Amg::Vector3D> GetPoints() const =0;
-       
+       CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) const = 0;
 
   };
 }

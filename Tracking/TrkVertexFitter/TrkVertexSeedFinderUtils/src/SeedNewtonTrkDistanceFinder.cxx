@@ -27,11 +27,6 @@ namespace {
   inline double square(const double tosquare) {
     return std::pow(tosquare,2);
   }
-  double dist(std::pair<const Amg::Vector3D,const Amg::Vector3D> pairofpos) {
-    Amg::Vector3D diff(pairofpos.first-pairofpos.second);
-    return std::sqrt(square(diff.x())+square(diff.y())+square(diff.z()));
-  }
-
 }
 
   
@@ -76,22 +71,20 @@ namespace Trk
   /** return value is true if calculation is successfull */
   std::optional<ITrkDistanceFinder::TwoPoints>
   SeedNewtonTrkDistanceFinder::CalculateMinimumDistance(const Trk::Perigee & a,
-                                                        const Trk::Perigee & b) 
+                                                        const Trk::Perigee & b)  const
   {
     //defragmenting the meory: local variable instead of private data member    
     std::pair<PointOnTrack,PointOnTrack> minpoints;
    
     //try first to get the minimum directly with the Newton method
     try {
-      m_points = m_distancefinder->GetClosestPoints(a,b);
-      return m_points;
+      return m_distancefinder->GetClosestPoints(a,b);
     }
     catch (Error::NewtonProblem e) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder: " << e.p << endmsg;
       try {
         minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b));
-        m_points = m_distancefinder->GetClosestPoints(minpoints);
-        return m_points;
+        return m_distancefinder->GetClosestPoints(minpoints);
       }
       catch (Error::NewtonProblem e) {
 	ATH_MSG_DEBUG( "Problem with Newton finder, even after 2d seeder: no minimum between tracks found" << e.p);
@@ -108,7 +101,7 @@ namespace Trk
   /** method to do the calculation starting from two tracks */
   std::optional<ITrkDistanceFinder::TwoPoints>
   SeedNewtonTrkDistanceFinder::CalculateMinimumDistance(const Trk::Track & a,
-                                                        const Trk::Track & b)
+                                                        const Trk::Track & b) const
   {
     if (std::isnan(a.perigeeParameters()->parameters()[Trk::d0])||std::isnan(b.perigeeParameters()->parameters()[Trk::d0])) {
       ATH_MSG_ERROR( "Nan parameters in tracks. Cannot use them" );
@@ -122,7 +115,7 @@ namespace Trk
   /** method to do the calculation starting from two track particles */
   std::optional<ITrkDistanceFinder::TwoPoints>
   SeedNewtonTrkDistanceFinder::CalculateMinimumDistance(const  Trk::TrackParticleBase & a,
-                                                        const Trk::TrackParticleBase & b)
+                                                        const Trk::TrackParticleBase & b) const
   {
     const Trk::TrackParameters& para=a.definingParameters();
     const Trk::TrackParameters& parb=b.definingParameters();
@@ -144,16 +137,4 @@ namespace Trk
     
   }
   
-  /**method to obtain the distance (call CalculateMinimumDistance before) **/
-  double  SeedNewtonTrkDistanceFinder::GetDistance() const {
-    return dist(m_points);//GetSeedPoint has to be implemented
-  }
-    
-  /** method to obtain the points on the two tracks at minimum distance **/
-  const std::pair<Amg::Vector3D,Amg::Vector3D>  SeedNewtonTrkDistanceFinder::GetPoints() const {
-    return m_points;
-  }
-
-  
-  
-}
+} // namespace Trk
