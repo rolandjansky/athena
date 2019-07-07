@@ -44,8 +44,26 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     virtual void stopAud ( const std::string& stepName,
                            const std::string& compName ) override;
 
+    
+    /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
+    void startSnapshotAud ( const std::string& stepName,
+                            const std::string& compName );
+
+    void stopSnapshotAud ( const std::string& stepName,
+                           const std::string& compName );
+
+    /// Component Level Auditing ( just for serial parts for now) 
+    void startCompLevelAud ( const std::string& stepName,
+                             const std::string& compName );
+
+    void stopCompLevelAud ( const std::string& stepName,
+                            const std::string& compName );
+
     // Report the results
     void report();
+
+    void report2Stdout();
+    void report2JsonFile();
 
     // Get the IncidentSvc
     //virtual void handle ( const Incident& incident  ) override;
@@ -56,6 +74,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::Measurement m_measurement;
 
     /// Data to hold the measurement
+    /// We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
+    //std::unordered_map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
+    std::map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
+    
+    // Clear!
     PMonMT::MeasurementData m_data[3];
 
 }; // class PerfMonMTSvc

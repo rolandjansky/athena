@@ -25,6 +25,7 @@ find_package( Boost )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core PyROOT )
 find_package( pytools )
+find_package( nlohmann_json )
 
 # Component(s) in the package:
 atlas_add_component( PerfMonComps
@@ -34,7 +35,7 @@ atlas_add_component( PerfMonComps
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES}
    ${CMAKE_DL_LIBS} AthenaBaseComps AthenaKernel RootUtils CxxUtils
    PerfMonEvent PerfMonKernel SGTools StoreGateLib GaudiKernel
-   AthDSoCallBacks )
+   AthDSoCallBacks nlohmann_json::nlohmann_json)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
