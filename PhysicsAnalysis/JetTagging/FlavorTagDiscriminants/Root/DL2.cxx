@@ -297,6 +297,7 @@ namespace FlavorTagDiscriminants {
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
           return std::bind(&negativeIpOnly, aug, ph::_1, ph::_2);
+        case FlipTagConfig::FLIP_SIGN: // intentional fall-through
         case FlipTagConfig::STANDARD:
           return [](const Tracks& tr, const xAOD::Jet& ) { return tr; };
         default: {

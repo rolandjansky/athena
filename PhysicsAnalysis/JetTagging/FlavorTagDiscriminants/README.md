@@ -42,6 +42,16 @@ There are several user-level tools here:
 
    - `DL2Tool`: ASG Tool interface around `DL2HighLevel`.
 
+   - `FlipTagEnums`: List of enums to keep track of the tag flip
+     configuration. These change some selection and inputs in in
+     DL2. Specifically:
+
+       - `NEGATIVE_IP_ONLY`: Save only the negative IP tracks and flip
+         the sign of z0 and d0. Also use the standard Flip/Neg version
+         of the other taggers.
+
+       - `FLIP_SIGN`: Save all IP, flip sign of z0 and d0. Use
+         Flip/Neg versions of other taggers (as above).
 
 ### Other Files ###
 
