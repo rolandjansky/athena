@@ -11,11 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( Oracle )
-find_package( pytools )
-
-# tag NEEDS_PYCOOL was not recognized in automatic conversion in cmt2cmake
-
-# tag NEEDS_COOL_FACTORY was not recognized in automatic conversion in cmt2cmake
+find_package( pyyaml )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/tests python/data )
