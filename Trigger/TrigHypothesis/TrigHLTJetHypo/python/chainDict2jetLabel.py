@@ -36,7 +36,6 @@ def _make_simple_label(chain_parts):
     if not _select_simple_chainparts(chain_parts):
         msg = 'Jet Configuration error: '\
               'chain fails substring selection: not "simple" '
-        msg +=  chain_dict['chainName']
 
         raise NotImplementedError(msg)
     
@@ -65,7 +64,7 @@ def _make_simple_partition_label(chain_dict):
     'simple' label.
     """
     
-    cps = select_simple_chains(chain_dict)
+    cps = _select_simple_chains(chain_dict)
     if not cps:
         raise NotImplementedError(
             'chain fails substring selection: not "simple": %s' % (
@@ -98,7 +97,7 @@ def _make_simple_comb_label(chain_dict):
     It has n^2 behaviour rather than n obtained using _make_simple_label.
     """
     
-    cps = select_simple_chains(chain_dict)
+    cps = _select_simple_chains(chain_dict)
     if not cps:
         raise NotImplementedError(
             'chain fails substring selection: not "simple": %s' % (
@@ -323,7 +322,6 @@ def _tests():
     print '\n--------- _tests() starts _______'
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
 
     from ChainLabelParser import ChainLabelParser
 
