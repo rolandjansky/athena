@@ -30,7 +30,7 @@ def _select_simple_chainparts(chain_parts):
 def _make_simple_label(chain_parts):
     """Marshal information deom the selected chainParts to create a
     'simple' label. NOTE: THIS IS A SPECIAL CASE - IT DOES NOT DEPEND
-    SOLELY ON THE HYP SCENARIO.
+    SOLELY ON THE HYPO SCENARIO.
     """
     
     if not _select_simple_chainparts(chain_parts):
@@ -60,7 +60,7 @@ def _make_simple_label(chain_parts):
     return label
 
 
-def make_simple_partition_label(chain_dict):
+def _make_simple_partition_label(chain_dict):
     """Marshal information deom the selected chainParts to create a
     'simple' label.
     """
@@ -91,11 +91,11 @@ def make_simple_partition_label(chain_dict):
     return label
 
 
-def make_simple_comb_label(chain_dict):
+def _make_simple_comb_label(chain_dict):
     """Marshal information deom the selected chainParts to create a
     'simple' label NOTE: DO NOT USE this method.
     THIS CHAINLABEL IS FOR TIMING STUDIES ONLY.
-    IT has n^2 behaviour rather than n obtined usinbg make_simple_label.
+    It has n^2 behaviour rather than n obtained using _make_simple_label.
     """
     
     cps = select_simple_chains(chain_dict)
@@ -108,7 +108,7 @@ def make_simple_comb_label(chain_dict):
 
     for cp in cps:
         chain_dict['chainParts'] = [cp]
-        simple_strs.append(make_simple_label(chain_dict))
+        simple_strs.append(_make_simple_label(chain_dict))
 
         label = 'combgen([(%d)]' % len(cps)
         for s in simple_strs:
@@ -178,27 +178,28 @@ def _make_vbenf_label(chain_parts):
     assert len(args) == len(arg_res)
     assert len(args) == 0
 
-    # return """
-    # and
-    # (
-    #   []
-    #   simple
-    #   (
-    #     [(%(etlo).0fet)(%(etlo).0fet)]
-    #   )
-    #   combgen
-    #   (
-    #     [(2)]
-    #     dijet
-    #     (
-    #       [(%(masslo).0fmass, 26dphi)]
-    #     ) 
-    #     simple
-    #     (
-    #       [(10et)(20et)]
-    #     )
-    #   )
-    # )""" % argvals
+    return """
+    and
+    (
+      []
+      simple
+      (
+        [(%(etlo).0fet)(%(etlo).0fet)]
+      )
+      combgen
+      (
+        [(2)(10et)]
+        dijet
+        (
+          [(%(masslo).0fmass, 26dphi)]
+        ) 
+        simple
+        (
+          [(10et)(20et)]
+        )
+      )
+    )""" % argvals
+
 
 def _make_dijet_label(chain_parts):
     """dijet label. supports dijet cuts, and cuts on particpating jets
@@ -317,17 +318,27 @@ and([]
     # more than 2 labels is not expected
     assert False
 
-def tests():
+def _tests():
+
+    print '\n--------- _tests() starts _______'
+
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
 
+    from ChainLabelParser import ChainLabelParser
+
     chain_names = (
-        'j80_0eta240_2j60_320eta490',
-        'j0_vbenfSEP30etSEP34mass35SEP50fbet',
-        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+        'HLT_j85',
+        'HLT_j80_0eta240_2j60_320eta490',
+        'HLT_j85_j70',
+        'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet',
+        'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+        
+        
     )
     
     decodeChainName = DictFromChainName.DictFromChainName()
+
     for cn in chain_names:
         chain_dict = decodeChainName.getChainDict(cn)
         label = chainDict2jetLabel(chain_dict)
@@ -336,97 +347,11 @@ def tests():
         print '  ', label
         print '\n'
 
+        parser = ChainLabelParser(label, debug=False)
+        parser.parse()
 
-def _test0():
-    """Read chainDicts from files, cread simple label if possible"""
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-    chainNameDecoder = DictFromChainName.DictFromChainName()
-    chain_name = 'HLT_j85'
-    cd = chainNameDecoder.getChainDict(chain_name)
-    
-    f = cd['chainName']
-    print '\n---------'
-    print f
-    try:
-        label = make_simple_label(cd)
-    except Exception, e:
-        print e
-        
-    print 'chain label', label
-    print '-----------\n'
-
-    
-def _test1():
-    scenario = 'vbenfSEP81etSEP34mass35SEP503fbet'
-    print 'scenario: ', scenario
-    print 'label: ', _make_vbenf_label(scenario)
-    print
-    scenario = 'vbenf'
-    print 'scenario: ',scenario, ' - note: no arguments'
-    print  'label: ', _make_vbenf_label(scenario)
-
-def _test2():
-    scenario = 'j80_0eta240_2j60_320eta490_j0_dijetSEP80etSEP0eta240SEP80etSEP0eta240SEP700massdj'
-    print 'scenario: ', scenario
-
-    print 'label: ',  _make_multijetInvmLegacy_label(scenario)
-
-    
-
-
-def _test2():
-    """Read chainDicts from files, cread simple label if possible"""
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-    chainNameDecoder = DictFromChainName.DictFromChainName()
-    chain_name = 'HLT_j85_j70'
-    cd = chainNameDecoder.getChainDict(chain_name)
-    
-    f = cd['chainName']
-    print '\n---------'
-    print f
-    try:
-        label = make_simple_label(cd)
-    except Exception, e:
-        print e
-        
-    print 'chain label', label
-    print '-----------\n'
-
-    
-def _test3():
-    """Read chainDicts from files, create a simple label if possible"""
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-    chainNameDecoder = DictFromChainName.DictFromChainName()
-    chain_name = 'HLT_j85_j70'
-    cd = chainNameDecoder.getChainDict(chain_name)
-    
-    f = cd['chainName']
-    print '\n---------'
-    print f
-    try:
-        # label = make_simple_comb_label(cd)
-        label = make_simple_label(cd)
-    except Exception, e:
-        print e
-        
-    print 'chain label', label
-
-    from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-
-    parser = ChainLabelParser(label, debug=True)
-    parser.parse()
-
-    print '-----------\n'
-
-    
-
+    print '\n--------- _tests() ends _______'
 
 
 if __name__ == '__main__':
-    _test3()
+    _tests()

@@ -5,10 +5,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 
-from  TrigHLTJetHypo.chainDict2jetLabel import (
-    make_simple_label,
-    make_simple_partition_label,
-    make_vbenf_label)
+from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 # from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
 
@@ -24,37 +21,19 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
-    # chain_label = ''
-
-    # hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
-    # if 'vbenf' in hypo_scenario_0:
-    #     assert len(chain_dict['chainParts']) == 1
-    #     chain_label = make_vbenf_label(hypo_scenario_0)
-    # if hypo_scenario_0.startswith('multijetInvmLegacy'):
-    #     assert len(chain_dict['chainParts']) == 1
-    #     chain_label = make_multijetInvmLegacy_label(hypo_scenario_0)
-    # else:
-    #     chain_label = make_simple_label(chain_dict)
-
-    chain_label = chainDict2jetLabel(chain_dict)
-
-    hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
-    if 'vbenf' in hypo_scenario_0:
-        assert len(chain_dict['chainParts']) == 1
-        chain_label = make_vbenf_label(hypo_scenario_0)
-    elif 'simple_partition' == hypo_scenario_0:
-        chain_label = make_simple_partition_label(chain_dict)
-    elif 'simple' == hypo_scenario_0:
-        chain_label = make_simple_label(chain_dict)
-    else:
-        m = 'trigJetHypoToolFromDict chain_name %s unknown hypoScenario %s' % (
-            chain_dict['chainName'], hypo_scenario_0)
+    try:
+        chain_label = chainDict2jetLabel(chain_dict)
+    except Exception, e:
+        m = 'TrigJetHypoToolConfig: Error obtaining jet label for %s' % (
+            chain_dict['chainName'],)
+        m ++ '  jet hypo scenario: %s' % (
+            chain_dict['chainParts'][0]['hypoScenario'],)
 
         log.info(m)
         
+        raise e
                                                   
-                                                  
-    parser = ChainLabelParser(chain_label, debug=True)
+    parser = ChainLabelParser(chain_label, debug=False)
 
     tree = parser.parse()
     
@@ -151,7 +130,7 @@ def _tests():
         
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
     
     # run _tests outide untit tests so as to see stdout
-    # _tests()
+    _tests()
