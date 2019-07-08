@@ -169,7 +169,7 @@ def tauPrecisionSequence():
     #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
-    trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=False, doTrackBDT=False, doRNN=False)
+    trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
     trigTauMVA.RoIInputKey = "RoiForID2"
     trigTauMVA.L1RoIKey    = "TAUCaloRoIs"
     trigTauMVA.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged_MVA")

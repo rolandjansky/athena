@@ -21,6 +21,7 @@
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
+#include "AthenaKernel/IMetadataTransition.h"
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
@@ -463,9 +464,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                }
                std::ostringstream oss2;
                oss2 << std::dec << num;
-               // For Metadata fire incident to read object into store
-               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss2.str() + "]");
-               incSvc->fireIncident(proxyIncident); // Object will be pulled out of shared memory by setObjPtr()
+	       // Retrieve MetaDataSvc
+	       ServiceHandle<IMetadataTransition> metadataTransition("MetaDataSvc", name());
+	       ATH_CHECK(metadataTransition.retrieve());
+	       if(!metadataTransition->shmProxy(std::string(placementStr) + "[NUM=" + oss2.str() + "]").isSuccess()) {
+		 ATH_MSG_FATAL("IMetadataTransition::shmProxy() failed!");
+		 return StatusCode::FAILURE;
+	       }
             } else {
                Token readToken;
                readToken.setOid(Token::OID_t(num, 0));

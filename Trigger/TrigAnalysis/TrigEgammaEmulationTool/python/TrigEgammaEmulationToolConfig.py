@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************************
 #
@@ -39,19 +39,6 @@ ToolSvc += mvatool
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
 ToolSvc.TrigDecisionTool.TrigDecisionKey='xTrigDecision'
-
-#*****************************************************************************
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-#LumiTool = LuminosityToolDefault()
-#ToolSvc += LumiTool
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-#LumiOnlineTool = LuminosityToolOnline("LuminosityToolOnline")
-#ToolSvc += LumiOnlineTool
-
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-LumiOnlineTool = LuminosityToolOnline("OnlLuminosityTool")
-if not hasattr(ToolSvc,LumiOnlineTool.getName()):
-  ToolSvc += LumiOnlineTool
 
 #*****************************************************************************
 # L1Calo

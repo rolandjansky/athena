@@ -338,6 +338,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
       ATH_CHECK( tool->decide(hypoToolInput) );
     }
     
+    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
     ATH_MSG_DEBUG("StatusCode TrigMultiTrkHypoMT::execute_r success");
     return StatusCode::SUCCESS;
 }

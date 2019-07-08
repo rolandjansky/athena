@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
    */
 
 #include <cmath>
@@ -54,7 +54,7 @@ LArOFCCondAlg::LArOFCCondAlg(const std::string &name,
         declareProperty("UseDelta",
                 m_useDelta,
                 "0 = not use Delta, 1 = only EMECIW/HEC/FCAL, 2 = all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3");
-        declareProperty("deltaBunch", m_deltaBunch,
+        declareProperty("DeltaBunch", m_deltaBunch,
                 "Delta between filled bunches in 25 ns units");
         declareProperty("useHighestGainAutoCorr",m_useHighestGainAutoCorr);
         declareProperty("DumpOFCCondAlg",m_Dump);

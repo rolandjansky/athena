@@ -29,7 +29,8 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
-   Tools/PathResolver)
+   Tools/PathResolver
+   Tracking/TrkDetDescr/TrkGeometry )
 
 # External dependencies:
 find_package( CLHEP )
@@ -43,7 +44,7 @@ atlas_add_library( PixelConditionsAlgorithmsLib
    INTERFACE
    PUBLIC_HEADERS PixelConditionsAlgorithms
    LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData DetDescrConditions
-   AthenaPoolUtilities PathResolver )
+   AthenaPoolUtilities PathResolver TrkGeometry)
 
 atlas_add_component( PixelConditionsAlgorithms
    src/*.h src/*.cxx src/components/*.cxx

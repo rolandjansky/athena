@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef METADATASVC_H
-#define METADATASVC_H
+#ifndef ATHENASERVICES_METADATASVC_H
+#define ATHENASERVICES_METADATASVC_H
 
 /** @file MetaDataSvc.h
  *  @brief This file contains the class definition for the MetaDataSvc class.
@@ -76,8 +76,9 @@ public: // Non-static members
    /// Function called when the current state of metadata must be made 
    /// ready for output
    StatusCode prepareOutput();
-   StatusCode proxyIncident(const Incident&);
-              
+
+   virtual StatusCode shmProxy(const std::string& filename) override;
+
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Get all addresses from provider. Called before begin event.

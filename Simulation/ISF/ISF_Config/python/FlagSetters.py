@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -40,6 +40,7 @@ def configureFlagsBase():
         # Short-cut: if G4 is in the simulator name, then it's a pretty
         # safe assumption that the configuration uses Geant4.
         ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_ParticleBrokerSvc"
     return
 
 ## methods for Geant4 only simulators
@@ -48,10 +49,13 @@ def configureFlagsFullG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4"
     ISF_Flags.HITSMergingRequired = False
+    ISF_Flags.ParticleBroker = "ISF_ParticleBrokerSvcNoOrdering"
     return
 
 def configureFlagsFullG4MT():
-    return configureFlagsFullG4()
+    configureFlagsFullG4()
+    ISF_Flags.ParticleBroker = ""
+    return
 
 def configureFlagsFullG4_LongLived():
     configureFlagsFullG4()
@@ -60,7 +64,9 @@ def configureFlagsFullG4_LongLived():
     return
 
 def configureFlagsFullG4MT_LongLived():
-    return configureFlagsFullG4_LongLived()
+    configureFlagsFullG4_LongLived()
+    ISF_Flags.ParticleBroker = ""
+    return
 
 def configureFlagsFullG4_IDOnly():
     configureFlagsFullG4()
@@ -81,7 +87,9 @@ def configureFlagsPassBackG4():
     return
 
 def configureFlagsPassBackG4MT():
-    return configureFlagsPassBackG4()
+    configureFlagsPassBackG4()
+    ISF_Flags.ParticleBroker = ""
+    return
 
 def configureFlagsCosmicsG4():
     configureFlagsFullG4()
@@ -120,10 +128,19 @@ def configureFlagsATLFASTII():
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
+    return
+
+def configureFlagsATLFASTII_QS():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII_QS"
     return
 
 def configureFlagsATLFASTIIMT():
-    return configureFlagsATLFASTII()
+    configureFlagsATLFASTII()
+    ISF_Flags.ParticleBroker = ""
+    return
 
 def configureFlagsATLFASTII_PileUp():
     configureFlagsATLFASTII()
@@ -167,7 +184,9 @@ def configureFlagsATLFASTIIF():
     return
 
 def configureFlagsATLFASTIIFMT():
-    return configureFlagsATLFASTIIF()
+    configureFlagsATLFASTIIF()
+    ISF_Flags.ParticleBroker = ""
+    return
 
 def configureFlagsFatras_newExtrapolation():
     configureFlagsATLFASTIIF()

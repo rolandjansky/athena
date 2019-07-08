@@ -140,6 +140,7 @@ namespace MuonCombined {
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -1463,15 +1464,22 @@ namespace MuonCombined {
     Muon::MuonStationIndex::DetectorRegionIndex regionIndex = intersection.layerSurface.regionIndex;
     Muon::MuonStationIndex::LayerIndex  layerIndex  = intersection.layerSurface.layerIndex;
 
+    // get hough data
+    SG::ReadHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> houghDataPerSectorVec {m_houghDataPerSectorVecKey};
+    if (!houghDataPerSectorVec.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return;
+    }
+
     // sanity check
-    if( static_cast<int>(m_layerHoughTool->houghData().size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << m_layerHoughTool->houghData().size() );
+    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = m_layerHoughTool->houghData()[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

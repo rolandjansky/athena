@@ -131,12 +131,16 @@ protected:
           if (m_measurements) {
             return *m_measurements;
           } else {
-            throw std::runtime_error("no measurement exist");
+            throw std::runtime_error("no measurements exist");
           }
         }
 
         const std::vector<FitMeasurement*>& getMeasurements() const {
-          return getMeasurements();
+          if (m_measurements) {
+            return *m_measurements;
+          } else {
+            throw std::runtime_error("no measurements exist");
+          }
         }
 
         bool hasMeasurements() const {

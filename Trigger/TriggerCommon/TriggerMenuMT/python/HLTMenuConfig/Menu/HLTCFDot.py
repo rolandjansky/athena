@@ -131,15 +131,15 @@ def all_DataFlow_to_dot(name, step_list):
 
                     #combo
                 if cfseq.step.isCombo:
-                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
-                    cfseq_algs.append(cfseq.step.combo)
-                    last_step_hypoNodes.append(cfseq.step.combo)
+                    if cfseq.step.combo is not None:
+                        file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                        cfseq_algs.append(cfseq.step.combo)
+                        last_step_hypoNodes.append(cfseq.step.combo)
                 file.write('  }\n')              
-
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
-
-            file.write(findConnections(step_connections))            
+           
+            file.write(findConnections(step_connections))
             nstep+=1
 
         file.write( '}')
@@ -158,7 +158,6 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
 
         for cfseq in cfseq_list:
-#            print cfseq.name
             file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
             for inp in cfseq.filter.getInputList():
                 file.write(addConnection(name, cfseq.filter.Alg.name(), inp))
@@ -192,8 +191,9 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
                 #combo
             if cfseq.step.isCombo:
-                file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
-                cfseq_algs.append(cfseq.step.combo)
+                if cfseq.step.combo is not None:
+                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                    cfseq_algs.append(cfseq.step.combo)
             file.write('  }\n')              
 
             file.write(findConnections(cfseq_algs))
@@ -206,7 +206,8 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 def findConnections(alg_list):
     lineconnect=''
 
-    for nodeA, nodeB in itertools.combinations(alg_list, 2):
+    alg_set = set(alg_list) # make them unique
+    for nodeA, nodeB in itertools.permutations(alg_set, 2):
         ins=nodeB.getInputList()
         outs=nodeA.getOutputList()
         dataIntersection = list(set(outs) & set(ins))
@@ -214,6 +215,7 @@ def findConnections(alg_list):
             for line in dataIntersection:
                 lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
 #                print "Data connections between %s and %s: %s"%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+
     return lineconnect
 
 

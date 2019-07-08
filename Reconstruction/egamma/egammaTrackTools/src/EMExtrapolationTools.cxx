@@ -190,6 +190,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
   double atPerigeePhi(-999);
   double PerigeeTrkParPhi(-999); 
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  
   if(fromPerigeeRescaled == extrapFrom){
     const Trk::TrackParameters*  trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
@@ -272,11 +273,13 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     }
   }
   if(!didExtension){
-    ATH_MSG_INFO("Could not create an extension from " << extrapFrom <<  " for a track with : "<< " Track Pt "
-                 <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " << trkPB->trackFitter() << " isTRT " << isTRT); 
+    ATH_MSG_INFO("Could not create an extension from " << extrapFrom 
+                 <<  " for a track with : "<< " Track Pt "
+                 <<trkPB->pt()<< " Track Eta " 
+                 << trkPB->eta()<<" Track Fitter " 
+                 << trkPB->trackFitter() << " isTRT " << isTRT); 
     return StatusCode::SUCCESS; 
   }
-  std::vector<bool> hasBeenHit(4,false); 
   // Should we flip the sign for deltaPhi? 
   bool flipSign = false; 
   if(trkPB->charge() > 0) {
@@ -287,16 +290,12 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     auto sample = std::get<0>(p);
     if (sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB  ){
       i = 0;
-      hasBeenHit[i] =true;
     } else if (  sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 ){
       i = 1;
-      hasBeenHit[i] =true;
     } else if ( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 ){
       i = 2;
-      hasBeenHit[i] =true;
     } else if (  sample == CaloSampling::EME3 || sample == CaloSampling::EMB3) {
       i = 3;
-      hasBeenHit[i] =true;
     } else {
       continue;
     }
@@ -322,12 +321,6 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
         deltaPhi[4] = fabs(P4Helpers::deltaPhi(perToSamp2, PerigeeTrkParPhi)); 
         ATH_MSG_DEBUG("getMatchAtCalo: phi-rot: " << deltaPhi[4]); 
       }
-    }
-  }
-  int max = deltaEta.size(); 
-  for( int i(0); i<  max; ++i){
-    if(!hasBeenHit[i]){
-      ATH_MSG_DEBUG("Here : Surface " <<i<< " has not been  hit ! "<<" Track Pt "<<trkPB->pt()<< " Track Eta " << trkPB->eta()); 
     }
   }
   return StatusCode::SUCCESS;   
@@ -586,9 +579,12 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
       return 0;
     }   
     //Loop over the TrkStateOnSurfaces search last valid TSOS first
-    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS){
-      if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier)) && (*rItTSoS)->measurementOnTrack()!=0 
-           && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
+    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); 
+          rItTSoS != trackStates->rend(); ++rItTSoS){
+      if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && 
+           !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier))  && 
+           (*rItTSoS)->measurementOnTrack()!=nullptr && 
+           !((*rItTSoS)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack))){
         trkPar = (*rItTSoS)->measurementOnTrack();
         break;
       }

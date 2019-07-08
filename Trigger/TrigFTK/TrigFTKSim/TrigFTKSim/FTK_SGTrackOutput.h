@@ -25,12 +25,17 @@ private:
   int m_nbanks;
 
   FTKAthTrackContainer **m_tracks; // arrays of tracks
+  FTKAthTrackContainer **m_tracks_pre_hw; // arrays of tracks
   FTKTrackFitterStats **m_TFstats; // TF informations
 
   bool m_storeIncomplete;
 
   FTKAthTrackContainer **m_tracksI; // arrays of tracks
+  FTKAthTrackContainer **m_tracksI_pre_hw; // arrays of tracks
   FTKTrackFitterStats **m_TFstatsI; // TF informations
+
+  FTKAthTrackContainer **m_tracks_pattern; // arrays of tracks
+  FTKAthTrackContainer **m_tracks_hits; // arrays of tracks
 
   StoreGateSvc*  m_storeGate;
 
@@ -72,6 +77,7 @@ public:
 
 
   virtual void addTrack(int, const FTKTrack&);
+  virtual void addTrack_pre_hw(int, const FTKTrack&);
   virtual void addNCombs(int ib, int v);
   virtual void addNFits(int ib, int v);
   virtual void addNFitsMajority(int ib, int v);
@@ -87,6 +93,7 @@ public:
   virtual void addNExtrapolatedTracks(int ib, int v);
 
   virtual void addTrackI(int, const FTKTrack&);
+  virtual void addTrackI_pre_hw(int, const FTKTrack&);
   virtual void addNCombsI(int ib, int v);
   virtual void addNFitsI(int ib, int v);
   virtual void addNFitsMajorityI(int ib, int v);
@@ -98,6 +105,9 @@ public:
   virtual void addNFitsHWRejectedI(int ib, int v);
   virtual void addNFitsBadMajorityI(int ib, int v);
   virtual void addNFitsHWRejectedMajorityI(int ib, int v);
+
+  virtual void addTrack_pattern(int, const FTKTrack&);
+  virtual void addTrack_hits(int, const FTKTrack&);
 
 
 };

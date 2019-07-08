@@ -9,6 +9,10 @@
 #include "./ConditionsDefsMT.h"
 #include <memory>
 
-std::unique_ptr<IGroupsMatcherMT> groupsMatcherFactoryMT(const ConditionsMT&);
+std::unique_ptr<IGroupsMatcherMT>
+groupsMatcherFactoryMT_MaxBipartite(const ConditionsMT&);
+
+std::unique_ptr<IGroupsMatcherMT>
+groupsMatcherFactoryMT_Partitions(const ConditionsMT&);
 
 #endif

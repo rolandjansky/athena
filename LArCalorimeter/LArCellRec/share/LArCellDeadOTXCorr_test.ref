@@ -69,7 +69,7 @@ IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 ClassIDSvc           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
@@ -304,12 +304,12 @@ ClassIDSvc           INFO  getRegistryEntries: read 186 CLIDRegistry entries for
 ClassIDSvc           INFO  getRegistryEntries: read 4041 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO Initializing LArCellDeadOTXCorr
 ClassIDSvc           INFO  getRegistryEntries: read 99 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for Blob2ToolConstants[0x3d2ac900]+7fb4da898e70 bound to CondAttrListCollection[/LAR/CellCorrOfl/deadOTX]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for Blob2ToolConstants[0x3d2ac900]+7fb4da898e70 bound to CondAttrListCollection[/LAR/CellCorrOfl/deadOTX]
 ToolSvc.Blob2To...   INFO Successfully registered callback for CondAttributeListCollection object with key /LAR/CellCorrOfl/deadOTX
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x3cbec820]+89 bound to /LAR/CellCorrOfl/deadOTX
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x3cbec820]+89 bound to /LAR/CellCorrOfl/deadOTX
 ToolSvc.tool1        INFO L1Calo database won't be used. Pedestal values will be constant and equal to 32.
 ClassIDSvc           INFO  getRegistryEntries: read 64 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x2cb71200]+7fb4ded5e650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCablingService[0x2cb71200]+7fb4ded5e650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
@@ -339,7 +339,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 59 CLIDRegistry entries for 
 ToolSvc.CaloTri...   INFO  ====> ...CaloTriggerTowerService::init() OK 
 ToolSvc.deadotx...   INFO Read 0 lines in total (for all COOL channels and missing FEBs together) 
 ToolSvc.tool2        INFO Initializing LArCellDeadOTXCorr
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x6d3e820]+89 bound to /LAR/CellCorrOfl/deadOTX
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCellDeadOTXCorr[0x6d3e820]+89 bound to /LAR/CellCorrOfl/deadOTX
 ToolSvc.tool2        INFO L1Calo database won't be used. Pedestal values will be constant and equal to 32.
 ToolSvc.deadotx...   INFO Decoded 3 lines from FEB file deadotx_badchan2.badfebs
 ToolSvc.deadotx...   INFO Read 3 lines in total (for all COOL channels and missing FEBs together) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_SEEDNEWTONTRKDISTANCEFINDER_H
@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h" // For TwoPoints
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -39,11 +40,11 @@ namespace Trk
 
 
 
-  class SeedNewtonTrkDistanceFinder : public AthAlgTool, virtual public ITrkDistanceFinder
+  class SeedNewtonTrkDistanceFinder : public extends<AthAlgTool, ITrkDistanceFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     //default constructor due to Athena interface
     SeedNewtonTrkDistanceFinder(const std::string& t, const std::string& n, const IInterface*  p);
@@ -52,29 +53,31 @@ namespace Trk
     virtual ~SeedNewtonTrkDistanceFinder();
 
     /** method to do the calculation starting from two Perigees*/
-    /** return value is true if calculation is successfull */
-    virtual bool CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &);
+    /** If successful, returns the points on the two tracks at minimum distance. */
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) override;
     
     /** method to do the calculation starting from two tracks */
-    virtual bool CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &);
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) override;
 
     /** method to do the calculation starting from two track particles */
-    virtual bool CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &);
+    virtual std::optional<TwoPoints>
+    CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) override;
     
     /**method to obtain the distance (call CalculateMinimumDistance before) **/
-    virtual double GetDistance() const;
+    virtual double GetDistance() const override;
     
     /** method to obtain the points on the two tracks at minimum distance **/
-    virtual const std::pair<Amg::Vector3D,Amg::Vector3D> GetPoints() const;
+    virtual const std::pair<Amg::Vector3D,Amg::Vector3D> GetPoints() const override;
     
     
         
   private:
-
     ToolHandle<Trk2dDistanceSeeder> m_2ddistanceseeder;
     ToolHandle<NewtonTrkDistanceFinder> m_distancefinder;
+    TwoPoints m_points;
     int m_numberOfMinimizationFailures;
-
   };
 }
 #endif

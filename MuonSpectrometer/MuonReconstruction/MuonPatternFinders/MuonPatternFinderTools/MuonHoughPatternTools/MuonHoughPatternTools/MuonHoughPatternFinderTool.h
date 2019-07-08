@@ -58,11 +58,12 @@ namespace Muon {
     virtual StatusCode finalize();
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
-    MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-					    const std::vector<const CscPrepDataCollection*>& cscCols,  
-					    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-					    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-					    const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
+    std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec> >
+    find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+          const std::vector<const CscPrepDataCollection*>& cscCols,  
+          const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+          const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+          const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
 
   private:
 

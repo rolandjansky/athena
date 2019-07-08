@@ -97,8 +97,11 @@ class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
       "OutputClusterContainerName", "", 
       "Name of the output cluster container"};
 
-  /** @brief Key of the output cluster container cell links: name taken from containter name **/
-  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputClusterContainerCellLinkKey;
+  /** @brief Key of the output cluster container cell links: 
+      name taken from containter name; only dummy configurable **/
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputClusterContainerCellLinkKey {this,
+      "DoNotSet_OutputClusterContainerLinks", "",
+      "Key of the output cluster container cell links; Do not set! Name taken from associated container"};      
 
   /** @brief Key of the output cluster container for topo-seeded clusters **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputTopoSeededClusterContainerKey {this,
@@ -106,8 +109,10 @@ class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
       "Name of the output cluster container for topo-seeded clusters (can be the same as the other clusters)"};
 
   /** @brief Key of the output cluster container cell links for topo-seeded clusters: 
-    * name taken from containter name */
-  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey;
+    * name taken from containter name; only dummy configurable */
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey {this,
+      "DoNotSet_OutputTopoSeededClusterContainerLinks", "",
+      "Key of the output cluster container cell links for topo-seeded clusters; Do not set! Name taken from associated container"};
 
   /** Handle to the MVA calibration service **/
   ServiceHandle<IegammaMVASvc> m_MVACalibSvc {this,

@@ -17,11 +17,26 @@
 #include "TrkTrack/Track.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include <math.h>
+
+
+// Would be nice to use something like Amg::distance instead.
+// But that rounds slightly differently.
+// Do it like this so that results are identical with the pre-MT version.
+namespace {
+  inline double square(const double tosquare) {
+    return std::pow(tosquare,2);
+  }
+  double dist(const std::pair<Amg::Vector3D,Amg::Vector3D>& pairofpos) {
+    Amg::Vector3D diff(pairofpos.first-pairofpos.second);
+    return std::sqrt(square(diff.x())+square(diff.y())+square(diff.z()));
+  }
+}
 
 
 namespace Trk
@@ -112,8 +127,6 @@ namespace Trk
     
     //now implement the code you already had in the standalone code...
 
-    //Variable to temporary store the points at minimum distance between the two tracks
-    std::pair<Amg::Vector3D,Amg::Vector3D> PointsAtMinDistance;
 
     //Calculate and cache the covariance matrix for the constraint
     AmgSymMatrix(3) weightMatrixPositionConstraint;
@@ -153,32 +166,33 @@ namespace Trk
 #endif
 	
 	try {
-	  
-	  bool result=m_distancefinder->CalculateMinimumDistance(*MyI,*MyJ);
+
+          std::optional<ITrkDistanceFinder::TwoPoints> result
+            = m_distancefinder->CalculateMinimumDistance(*MyI,*MyJ);
 	  if (!result) { if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Problem with distance finder: THIS POINT WILL BE SKIPPED!" << endmsg; 
           } 
           else 
           {
 	    //Get the points which connect the minimum distance between the two tracks
-	    PointsAtMinDistance=m_distancefinder->GetPoints();
+            double distance = dist (result.value());
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 1 x: " << PointsAtMinDistance.first.x() << 
-	      " y: " << PointsAtMinDistance.first.y() << 
-	      " z: " << PointsAtMinDistance.first.z() << endmsg;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 2 x: " << PointsAtMinDistance.second.x() << 
-	      " y: " << PointsAtMinDistance.second.y() << 
-	      " z: " << PointsAtMinDistance.second.z() << endmsg;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "distance is: " << m_distancefinder->GetDistance() << endmsg;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 1 x: " << result->first.x() << 
+	      " y: " << result->first.y() << 
+	      " z: " << result->first.z() << endmsg;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 2 x: " << result->second.x() << 
+	      " y: " << result->second.y() << 
+	      " z: " << result->second.z() << endmsg;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "distance is: " << distance << endmsg;
 #endif
 	    
-	    Amg::Vector3D thepoint((PointsAtMinDistance.first+PointsAtMinDistance.second)/2.);
+	    Amg::Vector3D thepoint((result->first+result->second)/2.);
 
             if (m_useweights)
             {
               PositionAndWeight thispoint(thepoint,
-                                          1./pow(m_trackdistcutoff+m_distancefinder->GetDistance(),m_trackdistexppower));
+                                          1./pow(m_trackdistcutoff+distance,m_trackdistexppower));
               
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::DEBUG) << "distance weight: " << 1./pow(m_trackdistcutoff+m_distancefinder->GetDistance(),m_trackdistexppower) << endmsg;
+              if(msgLvl(MSG::VERBOSE)) msg(MSG::DEBUG) << "distance weight: " << 1./pow(m_trackdistcutoff+distance,m_trackdistexppower) << endmsg;
               
               if (constraint!=0) {
                 
@@ -198,7 +212,7 @@ namespace Trk
                 thispoint.second=thispoint.second*1./(1.+exp((chi2-m_constraintcutoff)/m_constrainttemp));
                 
               }
-              if ((useCutOnDistance==false || m_distancefinder->GetDistance()<m_maximumDistanceCut) && thispoint.second > 1e-10)
+              if ((useCutOnDistance==false || distance<m_maximumDistanceCut) && thispoint.second > 1e-10)
               {
                 CrossingPointsAndWeights.push_back(thispoint);
               }
@@ -206,7 +220,7 @@ namespace Trk
             else
             {
 	      Amg::Vector3D thispoint(thepoint);
-              if (useCutOnDistance==false || m_distancefinder->GetDistance()<m_maximumDistanceCut)
+              if (useCutOnDistance==false || distance<m_maximumDistanceCut)
               {
                 CrossingPoints.push_back(thispoint);
               }

@@ -9,13 +9,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 
-#include "TFile.h"
-
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include <PathResolver/PathResolver.h>
 
 #include "AthenaMonitoring/Monitored.h"
 
@@ -33,81 +29,48 @@ TrigEFTauMVHypoTool::TrigEFTauMVHypoTool( const std::string& type,
 
 TrigEFTauMVHypoTool::~TrigEFTauMVHypoTool()
 {  
-  //delete m_OneProngGraph;
-  //delete m_MultiProngGraph;
 }
 
 StatusCode TrigEFTauMVHypoTool::initialize()
 {
   
-  msg() << MSG::INFO << "in initialize()" << endmsg;
+  ATH_MSG_INFO( "in initialize()" );
   
-  msg() << MSG::INFO << " REGTEST: TrigEFTauMVHypoTool will cut on "<<endmsg;
-  msg() << MSG::INFO << " REGTEST: param NTrackMin " << m_numTrackMin <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param NTrackMax " << m_numTrackMax <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param NWideTrackMax " << m_numWideTrackMax <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param EtCalib " << m_EtCalibMin <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endmsg;
-  msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
-  msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
-  
+  ATH_MSG_INFO( " REGTEST: TrigEFTauMVHypoTool will cut on ");
+  ATH_MSG_INFO( " REGTEST: param NTrackMin " << m_numTrackMin );
+  ATH_MSG_INFO( " REGTEST: param NTrackMax " << m_numTrackMax );
+  ATH_MSG_INFO( " REGTEST: param NWideTrackMax " << m_numWideTrackMax );
+  ATH_MSG_INFO( " REGTEST: param EtCalib " << m_EtCalibMin );
+  ATH_MSG_INFO( " REGTEST: param Level " << m_level );
+  ATH_MSG_INFO( " REGTEST: param Method " << m_method );
+  ATH_MSG_INFO( " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr );
+  ATH_MSG_INFO( " REGTEST: param ApplyIDon0p " << m_applyIDon0p );
+  ATH_MSG_INFO( " REGTEST: ------ ");
+
   if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
     {
-      msg() << MSG::ERROR << "TrigEFTauMVHypoTool is uninitialized! " << endmsg;
+      ATH_MSG_ERROR( "TrigEFTauMVHypoTool is uninitialized! " );
       return StatusCode::FAILURE;
     }
   
-  std::string s_llh_cuts_file = PathResolverFindCalibFile("TrigTauRec/00-11-01/LMTCutsLLHTrigger.root");  
-  msg() << MSG::DEBUG << "Try to open root file containing cuts: " << s_llh_cuts_file << endmsg;
- 
-  TFile* llhcuts = TFile::Open(s_llh_cuts_file.c_str());
-
-  if(!llhcuts)
+  // Likelihood ID no longer supported
+  if( m_method == 1)
     {
-      msg() << MSG::ERROR << "Could not find file containing cut values. TrigEFTauMVHypoTool is uninitialized! " << endmsg;
+      ATH_MSG_ERROR( "Likelihood identification discontinued!" );
       return StatusCode::FAILURE;
     }
-
-  if (m_level == 1)
+  else if( m_method == 0 && m_level != -1111)
     {
-      m_cut_level      = "medium";
-      m_OneProngGraph    = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("1prong/medium"))->Clone())};
-      m_MultiProngGraph  = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("3prong/medium"))->Clone())};
-    }
-  else if (m_level == 2)
-    {
-      m_cut_level      = "medium1";
-      m_OneProngGraph    = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("1prong/medium1"))->Clone())};
-      m_MultiProngGraph  = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("3prong/medium1"))->Clone())};
-
-    }
-  else if (m_level == 3)
-    {
-      m_cut_level      = "tight";
-      m_OneProngGraph    = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("1prong/tight"))->Clone())};
-      m_MultiProngGraph  = std::unique_ptr<TGraph>{static_cast<TGraph*>((llhcuts->Get("3prong/tight"))->Clone())};
-    }
-  else if (m_level == -1111)
-    {
-      m_cut_level = "none";
-    }
-  else
-    {
-      msg() << MSG::ERROR << "Did not configure valid level. TrigEFTauMVHypoTool is uninitialized! " << endmsg;
+      ATH_MSG_ERROR( "Incorrect combination of Method and Level." );
       return StatusCode::FAILURE;
-    }
-  
-  msg() << MSG::INFO
-	<< "Initialization of TrigEFTauMVHypoTool completed successfully"
-	<< endmsg;
-  
-  if (llhcuts) 
+    }else if((m_level<0 && m_level!=-1111) || m_level>3 )
     {
-      llhcuts->Close();
-      delete llhcuts;
-    }
+      ATH_MSG_ERROR( "Incorrect Level value provided.");
+      return StatusCode::FAILURE;
+   }
+
+  ATH_MSG_INFO( "Initialization of EFTauMVHypo completed successfully." );
+
   return StatusCode::SUCCESS;
 }
 
@@ -115,7 +78,7 @@ StatusCode TrigEFTauMVHypoTool::initialize()
 bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input ) const
 {
 
-  if(msgLvl(MSG::DEBUG))  msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in execute()" << endmsg;
+  ATH_MSG_DEBUG("REGTEST:"<< name() << ": in execute()" );
   // general reset
   bool pass=false;
 
@@ -136,70 +99,19 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   float roIPhi = roiDescriptor->phi();
 
   ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi );
-  
-  
-  /*const TrigRoiDescriptor* roiDescriptor = 0;
-  HLT::ErrorCode status = getFeature(outputTE, roiDescriptor);
-  
-  if ( roiDescriptor ) 
-    {
-      if( msgLvl(MSG::DEBUG) ) 
-	msg() << MSG::DEBUG << "REGTEST: RoI id " << roiDescriptor->roiId()
-	      << " located at   phi = " <<  roiDescriptor->phi()
-	      << ", eta = " << roiDescriptor->eta() << endmsg;
-    } 
-  else 
-    {
-      if( msgLvl(MSG::DEBUG) ) 
-	msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
-    }*/
-  
-  // get tau objects from the trigger element:
-  //--------------------------------------------------
-  
-  //std::vector<const xAOD::TauJetContainer*> vectorTauContainers;
-  /*
-  status = getFeatures(outputTE, vectorTauContainers);
- 
-  if(status!=HLT::OK) 
-    {
-      msg() << MSG::INFO
-	    << " REGTEST: Failed to get tauContainer's from the trigger element" 
-	    << endmsg;
-      return HLT::OK;
-    } 
-  
-  if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " Got " << vectorTauContainers.size() 
-	  << " tauContainers's associated to the TE " << endmsg;
-  
-  if(vectorTauContainers.size() == 0)
-    {
-      if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
-	      << "This algorithm is designed to work with  one tau container per TE."
-	      << endmsg;
-      return HLT::OK;
-    }
-  */
-  //const xAOD::TauJetContainer *TauContainer = vectorTauContainers.back();
-  
-  //msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endmsg;
 
   auto TauContainer = input.taujetcontainer;
   ninputTaus = TauContainer->size();
  
   for(auto Tau: *TauContainer){
     
-    if( msgLvl(MSG::DEBUG) )
-      msg() << MSG::DEBUG << " tauRec candidate "<<endmsg;
+    ATH_MSG_DEBUG( " tauRec candidate ");
     
     PassedCuts++;
     
     double EFet = Tau->pt()*1e-3;
 
-    if( msgLvl(MSG::DEBUG) )
-      msg() << MSG::DEBUG << " REGTEST: Et Calib "<<EFet<<endmsg;
+    ATH_MSG_DEBUG( " REGTEST: Et Calib "<<EFet);
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
     PassedCuts++;
@@ -210,17 +122,11 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
     numTrack = Tau->nTracks();
 
-    //#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-    //numWideTrack = (*tauIt)->nTracksIsolation();
-    //#else
     numWideTrack = Tau->nTracksIsolation();
-    //#endif
 
     
-    if( msgLvl(MSG::DEBUG) ){
-      msg() << MSG::DEBUG << " REGTEST: Track size "<<numTrack <<endmsg;	
-      msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<numWideTrack <<endmsg;
-    }    
+    ATH_MSG_DEBUG( " REGTEST: Track size "<<numTrack );	
+    ATH_MSG_DEBUG( " REGTEST: Wide Track size "<<numWideTrack );
 
     // turn off track selection at highpt
     bool applyTrkSel(true);
@@ -230,66 +136,38 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
     if(applyMaxTrkSel) if( !(numTrack <= m_numTrackMax) ) continue;
     if(applyTrkSel)    if( !(numTrack >= m_numTrackMin) ) continue;
-    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    if(applyTrkSel)    if( !(numWideTrack <= m_numWideTrackMax)  ) continue;
    
     PassedCuts++;
     nTrackAccepted = numTrack;
-    nWideTrackAccepted = m_numWideTrack;  
+    nWideTrackAccepted = numWideTrack;  
 
     auto local_level = m_level;
     //loosen and turn off ID cut at highpt
     if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
     if(!m_applyIDon0p && numTrack==0) local_level = -1111;
+
+    ATH_MSG_DEBUG( " REGTEST: Local level " << local_level );
  
-    if(m_method == 1 || m_method == 0)
+    //No tau ID
+    if(m_method == 0)
       {
-	double llh_cut = 11111.;     
-	std::string prong;
-	numTrack==1 ?  prong = "1P" : prong = "3P";
-	
-	if(local_level == -1111){ //noCut, accept this TE
 	  pass = true;
 	  PassedCuts++;
-	  continue;
+	  break;
 	}
-	
-	std::string s_cut_llh = "llh_" + m_cut_level +"_" + prong;
-	msg() << MSG::DEBUG << "REGTEST: cut string: " << s_cut_llh << endmsg;
-	
-	if(numTrack == 1)
-	  {
-	    llh_cut=m_OneProngGraph->Eval(EFet);
-	  }
-	else
-	  {
-	    llh_cut=m_MultiProngGraph->Eval(EFet);	  
-	  }
-	
-	msg() << MSG::DEBUG<<" REGTEST: will cut on llh score at "<< llh_cut <<endmsg;
-	double llhscore = Tau->discriminant(xAOD::TauJetParameters::Likelihood);
-
-   //Override this vale for now to get some events passing the hypo
-   llhscore = 0.5;
-	
-	msg() << MSG::DEBUG<<" REGTEST: LLHScore "<<llhscore<<endmsg;
-	
-	if (llhscore < llh_cut) continue;
-	
-	PassedCuts++;
-      }
-    
-    else if(m_method == 2 || m_method == 0)
+    else if(m_method == 2)
       {
 	double bdtscore = Tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
 	
-	msg() << MSG::DEBUG<<" REGTEST: BDTScore "<<bdtscore<<endmsg;
+	ATH_MSG_DEBUG( " REGTEST: BDTScore "<<bdtscore);
 	
 	if(local_level == -1111)
 	  { //noCut, accept this TE
 	    pass = true;
 	    PassedCuts++;
-	    continue;
+	    break;
 	  }
 	
 	if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
@@ -300,10 +178,34 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 	  continue;
 	
 	PassedCuts++;
+      }    // RNN
+    else if(m_method == 3)
+      {
+   if(!Tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
+     ATH_MSG_WARNING( "RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run for RNN!" );
+    
+   ATH_MSG_DEBUG( "REGTEST: RNNJetScoreSigTrans "<< Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) );
+    
+   if(local_level == -1111)
+     { //noCut, accept this TE
+       pass = true;
+       PassedCuts++;
+       break;
+     }
+   if (local_level == 0 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0)  
+     continue;
+   else if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
+     continue;
+   else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
+     continue;
+   else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
+     continue;
+   
+   PassedCuts++;
       }
     else
       {
-	msg() << MSG::ERROR << " no valid method defined "<<endmsg;	
+	ATH_MSG_ERROR( " no valid method defined ");	
 	continue;
       }
     
@@ -314,25 +216,18 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     
     pass=true;
     
-    if( msgLvl(MSG::DEBUG) )
-      msg() << MSG::DEBUG << " REGTEST: pass taurec is "<<pass<<endmsg;
+    ATH_MSG_DEBUG( " REGTEST: pass taurec is "<<pass);
     
   } // end of loop in tau objects.
   
   if(pass)
     {
-      if( msgLvl(MSG::DEBUG) )
-	msg() << MSG::DEBUG
-	      << " REGTEST: TE accepted !! "
-	      << endmsg;
+	   ATH_MSG_DEBUG( " REGTEST: TE accepted !! ");
       // activate Trigger Element.
     }
   else
     {
-      if( msgLvl(MSG::DEBUG) )
-	msg() << MSG::DEBUG
-	      << " REGTEST: No good tau found !! TE rejected "
-	      << endmsg;
+	   ATH_MSG_DEBUG( " REGTEST: No good tau found !! TE rejected ");
     }
   
   return pass;

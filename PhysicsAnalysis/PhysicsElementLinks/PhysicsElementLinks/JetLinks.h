@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************************
@@ -17,7 +17,7 @@ JetLinks.h is needed to be able to add ParticleLinks<JetContainer>
 
 #include "JetEvent/JetCollection.h"
 #include "ParticleEvent/ParticleLinks.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef  ParticleLinks<JetCollection> JetLinks ;
 typedef  ElementLink<JetCollection> JetLink ;

@@ -190,8 +190,8 @@ if doPixel:
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
     # Takne from InDetRecExample/share/InDetRecLoadTools.py
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelNnClusterNnCondAlg",          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelNnClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
 
 # Set up SCT conditions
 SCT_ConditionsSummaryTool = None

@@ -30,7 +30,7 @@ def generateL1DecoderAndChains():
     #data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_e5v22 HLT_g5',
     data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
                     'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5 HLT_e5_v3',
-                    'HLT_mu6 HLT_mu8 HLT_mu10 HLT_mu8_1step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5 HLT_2mu6',
+                    'HLT_mu6 HLT_mu8 HLT_mu10 HLT_mu8_1step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5 HLT_2mu6 HLT_2mu6Comb HLT_2mu4_bDimu_L12MU4',
                     'HLT_mu20 HLT_mu10 HLT_mu8 HLT_mu8_1step HLT_2mu8 HLT_e8' ]
 
 
@@ -41,7 +41,7 @@ def generateL1DecoderAndChains():
 
     data['l1muroi'] = [';',
                        '0,0,0,MU0;',
-                       '-1,0.5,0,MU6,MU8,2MU6; -1,0.5,0,MU6,MU8,MU10,2MU6',
+                       '-1,0.5,0,MU6,MU8,2MU6; 1,0.5,0,MU6,MU8,MU10,2MU6',
                        '-1.5,-0.1,0,MU6,MU8,MU10']
 
     data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
@@ -156,17 +156,40 @@ def generateL1DecoderAndChains():
             el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
             
         if not doMuon:
-            from TrigUpgradeTest.HLTSignatureConfig import muMenuSequence        
+            from TrigUpgradeTest.HLTSignatureConfig import muMenuSequence
+            #step1
             mu11 = muMenuSequence(step="1",reconame="v1", hyponame="v1")
+            #step2
             mu21 = muMenuSequence(step="2",reconame="v1", hyponame="v1")
+            mu22 = muMenuSequence(step="2",reconame="v2", hyponame="v2")
+            #step3
+            mu31 = muMenuSequence(step="3",reconame="v1", hyponame="v1")
+            mu32 = muMenuSequence(step="3",reconame="v2", hyponame="v2")
+            #step4
+            mu41 = muMenuSequence(step="4",reconame="v1", hyponame="v1")
 
+           
+            step_mu22  = ChainStep("Step_mu22", [mu22] )
+           
+
+            
+           
         # multiplicity here indicates the number of objects to be combined:
         # for the chain dictionary, get the sum of the multiplicity in the multiplicy array
+        # in symmetric chains, multiplicity=2 but only one sequence is used
         
         CombChains =[
-            Chain(name='HLT_mu8_e8',  Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [mu11, el11], multiplicity=2), ChainStep("Step2_mu_em",  [mu21, el21],multiplicity=2)] ),
-            Chain(name='HLT_e5_e8',   Seed="L1_2EM3",    ChainSteps=[ ChainStep("Step1_2em",    [el11, el11], multiplicity=2) ]),
-            Chain(name='HLT_2mu6',    Seed="L1_MU6",     ChainSteps=[ ChainStep("Step1_2mu",    [mu11], multiplicity=2) ]) ## L1 seed to be set correctly
+            Chain(name='HLT_mu8_e8',  Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [mu11, el11], multiplicity=2),
+                                                                      ChainStep("Step2_mu_em",  [mu21, el21], multiplicity=2)] ),
+            Chain(name='HLT_e5_e8',   Seed="L1_2EM3",    ChainSteps=[ ChainStep("Step1_2em",    [el11, el11], multiplicity=2),
+                                                                      ChainStep("Step2_2em",    [el21, el21], multiplicity=2) ]),
+            Chain(name='HLT_2mu6',    Seed="L1_MU6",     ChainSteps=[ ChainStep("Step1_2mu",    [mu11], multiplicity=2),
+                                                                      ChainStep("Step2_2mu",    [mu21], multiplicity=2) ]), ## L1 seed to be set correctly
+            Chain(name='HLT_2mu6Comb',Seed="L1_MU6",     ChainSteps=[  ChainStep("Step1_2mu_empty", multiplicity=2),
+                                                                       ChainStep("Step2_2mu",  [mu21], multiplicity=2) ]), ## L1 seed to be set correctly
+            Chain(name='HLT_2mu4_bDimu_L12MU4', Seed="L1_MU4", ChainSteps=[ ChainStep("Step1_2mu",         [mu11], multiplicity=2),\
+                                                                            step_mu22,\
+                                                                            ChainStep("Step3_2mu",         [mu31], multiplicity=2)] ) ## L1 seed to be set correctly
             ]
 
 

@@ -29,8 +29,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   auto icond{0};
   const auto jg_offset = m_conditions.size() + 1;
   
-  std::vector<std::shared_ptr<FlowEdge>> edges(m_initialEdges.begin(),
-                                               m_initialEdges.end());
+  auto edges = getSourceToConditionsEdges();
   
   // matches: std::optional<std::vector<std::vector<int>>>
   for(const auto& jg_nodes : *matches){

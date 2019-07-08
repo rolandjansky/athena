@@ -307,7 +307,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( MuonContainer, MuonAuxContainer );
   CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
 
-  CREATE_XAOD( CaloClusterContainer, CaloClusterAuxContainer );
+  CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );
   

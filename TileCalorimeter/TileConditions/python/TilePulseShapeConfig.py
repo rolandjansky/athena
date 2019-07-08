@@ -14,7 +14,7 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
         TilePulseShape -- name of Tile pulse shape conditions object. Defaults to TilePulseShape.
         PulseType -- type of Tile pulse shape. Defaults to run type (PED->PHY, BILAS->LAS).
                      Possible Tile pulse shape types:
-                        PHY, LAS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2.
+                        PHY, LAS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2, MURCV.
     """
 
     acc = ComponentAccumulator()
@@ -34,13 +34,16 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
 
     pulse = actualPulseType.get(pulseType, pulseType)
 
-    if pulse not in ['PHY', 'LAS', 'CIS/PULSE100', 'CIS/PULSE5P2', 'CIS/LEAK100', 'CIS/LEAK5P2']:
+    if pulse not in ['PHY', 'LAS', 'CIS/PULSE100', 'CIS/PULSE5P2', 'CIS/LEAK100', 'CIS/LEAK5P2', 'MURCV']:
         raise(Exception("Invalid Tile pulse shape type: %s" % pulse))
 
     name = pulseShape + 'CondAlg'
 
     if source == 'COOL':
         # Connect COOL Tile conditions proxies to the algorithm (default)
+
+        if pulse in ['MURCV']:
+            raise(Exception('No Tile pulse shape [%s] in source: %s' % (pulse, source)))
 
         from TileConditions.TileFolders import TileFolders
         folders = TileFolders(isMC = flags.Input.isMC, isOnline = flags.Common.isOnline)
@@ -61,7 +64,7 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        fileExtention = {'PHY' : 'plsPhy', 'LAS' : 'plsLas',
+        fileExtention = {'PHY' : 'plsPhy', 'LAS' : 'plsLas', 'MURCV' : 'plsMuRcv',
                          'CIS/PULSE100' : 'plsCisPulse100', 'CIS/PULSE5P2' : 'plsCisPulse5p2',
                          'CIS/LEAK100' : 'plsCisLeak100', 'CIS/LEAK5P2' : 'plsCisLeak5p2'}
 
@@ -91,7 +94,7 @@ def TileCondToolPulseShapeCfg(flags, **kwargs):
         TilePulseShape -- name of Tile pulse shape conditions object. Defaults to TilePulseShape.
         PulseType -- type of Tile pulse shape. Defaults to run type (PED->PHY, BILAS->LAS).
                      Possible Tile pulse shape types:
-                        PHY, LAS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2.
+                        PHY, LAS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2, MURCV.
     """
 
     acc = ComponentAccumulator()
@@ -103,6 +106,23 @@ def TileCondToolPulseShapeCfg(flags, **kwargs):
     name = 'TileCondToolPulseShape'
 
     acc.merge( TilePulseShapeCondAlgCfg(flags, **kwargs) )
+
+    from TileConditions.TileConditionsConf import TileCondToolPulseShape
+    acc.setPrivateTools( TileCondToolPulseShape(name, TilePulseShape = pulseShape) )
+
+    return acc
+
+
+def TileCondToolMuRcvPulseShapeCfg(flags, **kwargs):
+
+    kwargs.setdefault('Source', 'FILE')
+    kwargs.setdefault('TilePulseShape', 'TileMuRcvPulseShape')
+    kwargs['PulseType'] = 'MURCV'
+
+    pulseShape = kwargs['TilePulseShape']
+    name = 'TileCondToolPulseShape'
+
+    acc = TilePulseShapeCondAlgCfg(flags, **kwargs)
 
     from TileConditions.TileConditionsConf import TileCondToolPulseShape
     acc.setPrivateTools( TileCondToolPulseShape(name, TilePulseShape = pulseShape) )
@@ -130,6 +150,9 @@ if __name__ == "__main__":
 
     pulseShapeTool =  acc.popToolsAndMerge( TileCondToolPulseShapeCfg(ConfigFlags) )
     print(pulseShapeTool)
+
+    muRcvPulseShapeTool =  acc.popToolsAndMerge( TileCondToolMuRcvPulseShapeCfg(ConfigFlags) )
+    print(muRcvPulseShapeTool)
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))

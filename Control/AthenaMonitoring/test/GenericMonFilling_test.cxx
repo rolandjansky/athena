@@ -340,7 +340,10 @@ int main() {
     log << MSG::ERROR << "THistSvc not available " << endmsg;
     return -1;
   }
-  
+
+  ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( pSvcLoc );
+  svcmgr->startServices().ignore();
+
   // we need to test what happens to the monitoring when tool is not valid
   ToolHandle<GenericMonitoringTool> emptyMon("");
   VALUE( emptyMon.isEnabled() ) EXPECTED( false ); // self test
@@ -367,8 +370,8 @@ int main() {
   // Make sure that THistSvc gets finalized.
   // Otherwise, the output file will get closed while global dtors are running,
   // which can lead to crashes.
-  if (ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( pSvcLoc )) {
-    svcmgr->finalizeServices().ignore();
-  }
+  svcmgr->stopServices().ignore();
+  svcmgr->finalizeServices().ignore();
+
   return 0;
 }

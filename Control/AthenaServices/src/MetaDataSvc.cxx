@@ -128,7 +128,6 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "BeginInputFile", 80);
    m_incSvc->addListener(this, "EndInputFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
-   m_incSvc->addListener(this, "ShmProxy", 90);
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
@@ -220,6 +219,8 @@ StatusCode MetaDataSvc::stop() {
 StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
    if (riid == this->interfaceID()) {
       *ppvInterface = this;
+   } else if (riid == IMetadataTransition::interfaceID()) {
+     *ppvInterface = dynamic_cast<IMetadataTransition*>(this);
    } else {
       // Interface is not directly available: try out a base class
       return(::AthService::queryInterface(riid, ppvInterface));
@@ -342,24 +343,19 @@ StatusCode MetaDataSvc::prepareOutput()
    return rc;
 }
 
-StatusCode MetaDataSvc::proxyIncident(const Incident& inc)
+StatusCode MetaDataSvc::shmProxy(const std::string& filename)
 {
-   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc == nullptr) {
-      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
-      return StatusCode::FAILURE;
-   }
-   const std::string fileName = fileInc->fileName();
    if (!m_clearedInputDataStore) {
       if (!m_inputDataStore->clearStore().isSuccess()) {
-         ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+         ATH_MSG_ERROR("Unable to clear input MetaData Proxies");
+	 return StatusCode::FAILURE;
       }
       m_clearedInputDataStore = true;
    }
-   if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
-      ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
+   if (!addProxyToInputMetaDataStore(filename).isSuccess()) {
+      ATH_MSG_ERROR("Unable to add proxy to InputMetaDataStore");
+      return StatusCode::FAILURE;
    }
-
    return StatusCode::SUCCESS;
 }
 
@@ -393,10 +389,6 @@ void MetaDataSvc::handle(const Incident& inc) {
    } else if (inc.type() == "LastInputFile") {
       if (m_metaDataTools.release().isFailure()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-      }
-   } else if (inc.type() == "ShmProxy") {
-      if(proxyIncident(inc).isFailure()) {
-         ATH_MSG_ERROR("Could not process proxy incident for " << fileName);
       }
    }
 }

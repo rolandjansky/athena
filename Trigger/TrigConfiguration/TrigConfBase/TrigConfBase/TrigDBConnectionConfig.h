@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -111,6 +111,7 @@ TrigDBConnectionConfig::TrigDBConnectionConfig(DBType type,
                                                const PSKeys& hltPsKeys)
   : TrigDBConnectionConfig(type, server, smKey)
 {
+  // cppcheck-suppress useInitializationList  --- false positive
   m_hltkeys = hltPsKeys;
 }
 

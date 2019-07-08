@@ -15,6 +15,7 @@
 #include "../TrigJetHypoAlgMT.h"
 #include "../TrigJetHypoToolConfig_EtaEt.h"
 #include "../TrigJetHypoToolConfig_simple.h"
+#include "../TrigJetHypoToolConfig_simple_partition.h"
 #include "../TrigJetHypoToolConfig_dijet.h"
 #include "../TrigJetHypoToolConfig_combgen.h"
 #include "../NotHelperTool.h"
@@ -40,6 +41,7 @@ DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEta )
 DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEtaDPhi )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_EtaEt )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_simple )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_simple_partition )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_dijet )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_combgen )
 DECLARE_COMPONENT( NotHelperTool)

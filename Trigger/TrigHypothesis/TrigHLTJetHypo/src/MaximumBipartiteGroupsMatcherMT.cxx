@@ -78,6 +78,14 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 				       "Network construction early return");}
     return std::make_optional<bool> (false);
   }
+
+  
+  if(collector){
+    std::stringstream ss;
+    ss << **G;
+    collector->collect("MaximumBipartiteGroupsMatcher - before", ss.str());
+  }
+
   
   auto V = (*G)->V();
   FordFulkerson ff (**G, 0, V-1);

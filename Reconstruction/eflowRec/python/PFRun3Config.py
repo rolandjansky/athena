@@ -157,7 +157,7 @@ def PFCfg(inputFlags,**kwargs):
     #Alias calibrated topoclusters, if they exist already, such that overwrite won't fial
     from SGComps.AddressRemappingConfig import InputRenameCfg
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
-
+    
     #Setup up general geometry
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge(GeoModelCfg(inputFlags))
@@ -221,7 +221,7 @@ def PFCfg(inputFlags,**kwargs):
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(inputFlags))
-
+    
     from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
     result.merge(caloTopoCoolFolderCfg(inputFlags))
 
@@ -240,7 +240,7 @@ def PFCfg(inputFlags,**kwargs):
     PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm = getPFOCreators(inputFlags)
     result.addEventAlgo(PFOChargedCreatorAlgorithm)
     result.addEventAlgo(PFONeutralCreatorAlgorithm)
-    
+
     return result
 
 if __name__=="__main__":

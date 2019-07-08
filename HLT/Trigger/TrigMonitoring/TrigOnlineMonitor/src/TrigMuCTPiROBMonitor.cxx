@@ -11,7 +11,7 @@
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -305,7 +305,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
       if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiL1_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiL1_Problem_Barrel_Hash->LabelsDeflate("X");
 	  }
@@ -318,7 +318,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
 	  if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiDaq_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiDaq_Problem_Barrel_Hash->LabelsDeflate("X");
 	  }
@@ -353,7 +353,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
 	  if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiL1_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiL1_Problem_Endcap_Hash->LabelsDeflate("X");
 	  }
@@ -366,7 +366,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
 	  if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiDaq_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiDaq_Problem_Endcap_Hash->LabelsDeflate("X");
 	  }
@@ -401,7 +401,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
 	  if (m_hist_muCTPiL1_Problem_Forward_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiL1_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiL1_Problem_Forward_Hash->LabelsDeflate("X");
 	  }
@@ -414,7 +414,7 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
 	  std::ostringstream ost;
 	  ost << *it;
 	  if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
-	    scoped_lock_histogram lock;
+	    oh_scoped_lock_histogram lock;
 	    m_hist_muCTPiDaq_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
 	    m_hist_muCTPiDaq_Problem_Forward_Hash->LabelsDeflate("X");
 	  }
@@ -930,7 +930,7 @@ bool TrigMuCTPiROBMonitor::verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFra
     std::ostringstream ost;
     ost << "0x" << std::hex << robFrag.source_id();
     if (m_hist_failedChecksumForROB) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_failedChecksumForROB->Fill((ost.str()).c_str(), 1.);
       m_hist_failedChecksumForROB->LabelsDeflate("X");
     }

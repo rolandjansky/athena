@@ -56,7 +56,7 @@ public:
   
   HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
     CombinationsGrouper g(2);  // dijet groups
-    return g.group(b, e);
+    return g.group(b, e)[0];
   }
 
   void makeConditions(const std::vector<double>& detaMins,

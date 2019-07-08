@@ -58,10 +58,10 @@ public:
   int m_nconditions;
   bool m_debug{false};
 };
-
-HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
+HypoJetGroupVector
+makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
   CombinationsGrouper g(1);  // single jet groups
-  return g.group(b, e);
+  return g.group(b, e)[0];
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest, debugFlagIsFalse){

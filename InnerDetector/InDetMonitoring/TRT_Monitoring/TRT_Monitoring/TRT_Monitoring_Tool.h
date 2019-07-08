@@ -19,7 +19,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
 // Tool interfaces
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
@@ -163,7 +162,6 @@ private:
 	// Tools
 	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrkSummaryTool", "Trk::TrackSummaryTool/InDetTrackSummaryTool", "Track summary tool name"};
 	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder{this, "trt_hole_search", "TRTTrackHoleSearchTool", "Track hole search tool name"};
-	ToolHandle<ILuminosityTool> m_lumiTool{this, "LuminosityTool", "LuminosityTool", "Luminosity tool name"};
 	ToolHandle<ITRT_DriftFunctionTool> m_drifttool; // keep this public for now
 
 	const TRT_ID* m_pTRTHelper;

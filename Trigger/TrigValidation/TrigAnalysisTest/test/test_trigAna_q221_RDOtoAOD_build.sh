@@ -3,12 +3,8 @@
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with serial athena (legacy trigger)
 # art-type: build
 # art-include: master/Athena
-# art-output: log.*
-# art-output: *.log
-# art-output: *.txt
-# art-output: *.root
-# art-output: runargs.*
-# art-output: runwrapper.*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="trigAna_q221_RDOtoAOD_build"
 export TEST="TrigAnalysisTest"
@@ -32,19 +28,8 @@ Reco_tf.py \
 export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%.*}"
 
-# merge transform logs for post-processing
-echo "### ${JOB_LOG} ###" > athena.merged.log
-cat ${JOB_LOG} >> athena.merged.log
-trfNames="RDOtoRDOTrigger RAWtoESD ESDtoAOD"
-for trf in ${trfNames}; do
-  if [ -f log.${trf} ]; then
-    echo "### log.${trf} ###" >> athena.merged.log
-    cat log.${trf} >> athena.merged.log
-  else
-    echo "### WARNING: log.${trf} MISSING ###" >> athena.merged.log
-  fi
-done
-export JOB_LOG="athena.merged.log"
+# merge transform logs for post-processing and prepare for RegTest comparison
+source exec_art_triganalysistest_merge_trf_logs.sh "RDOtoRDOTrigger RAWtoESD ESDtoAOD"
 
 # use TrigUpgradeTest post-processing script
 source exec_TrigUpgradeTest_art_post.sh

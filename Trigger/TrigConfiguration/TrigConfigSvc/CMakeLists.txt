@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Control/AthAnalysisBaseComps
+                          Control/AthenaMonitoring
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/IOVDbDataModel
                           Event/EventInfo

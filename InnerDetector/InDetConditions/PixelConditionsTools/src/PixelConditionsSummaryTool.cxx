@@ -99,6 +99,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash) con
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -121,6 +122,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash, con
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -162,6 +164,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier & elementId, const InDe
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -189,6 +192,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash) const
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -218,6 +222,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -248,6 +253,7 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHas
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return 1.0; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
 
   // TODO!!!  Calculate active fraction from dead map.
 

@@ -68,14 +68,12 @@ class GsfMaterialMixtureConvolution : public AthAlgTool, virtual public IMateria
 
  private:
  
-  int                                m_outputlevel;                      //!< to cache current output level
-  
-  ToolHandle<IMultiStateMaterialEffectsUpdator>  m_updator;            //!< Material effects updator
-
-  ToolHandle<IMultiComponentStateCombiner>       m_stateCombiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",""};      //!< State combiner
-  ToolHandle<IMultiComponentStateAssembler>      m_stateAssembler
-     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",""};     //!< State assembler
+  ToolHandle<IMultiStateMaterialEffectsUpdator>  m_updator{this,
+   "MaterialEffectsUpdator","Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",""};
+  ToolHandle<IMultiComponentStateCombiner>       m_stateCombiner{this,
+    "MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",""};      
+  ToolHandle<IMultiComponentStateAssembler>      m_stateAssembler{this,
+    "MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",""};
 
 };
 

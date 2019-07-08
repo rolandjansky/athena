@@ -272,8 +272,10 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'PileUpMergeSvc', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
-        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4', 'EmBarrelHitContainerName': '["LArHitEMB"]', 'EmEndCapHitContainerName': '["LArHitEMEC"]', 'ForWardHitContainerName': '["LArHitFCAL"]', 'HecHitContainerName': '["LArHitHEC"]'}
+        expected_property_list = ['DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'LArHitContainers', 'LArHitFloatContainers', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'PileUpMergeSvc', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+
+        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
+                                         'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}
         expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,

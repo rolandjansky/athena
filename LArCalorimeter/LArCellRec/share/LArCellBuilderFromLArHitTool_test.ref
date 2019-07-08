@@ -83,7 +83,7 @@ IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 ClassIDSvc           INFO  getRegistryEntries: read 2159 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_CALO/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
@@ -304,7 +304,7 @@ LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in 
 LArOnlineID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 ClassIDSvc           INFO  getRegistryEntries: read 2292 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingLegacyService[0x3cb93400]+7f4b9daee660 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArCablingLegacyService[0x3cb93400]+7f4b9daee660 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
@@ -314,7 +314,7 @@ ToolSvc.LArADC2...   INFO Registered callback for key: LArDAC2uA
 ToolSvc.LArADC2...   INFO Registered callback for key: LAruA2MeV
 ToolSvc.LArADC2...   INFO Registered callback for key: LArMphysOverMcal
 ToolSvc.LArADC2...   INFO Registered callback for key: LArHVScaleCorr
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArMCSymTool[0x3cb92a00]+189 bound to /LAR/Identifier/CalibIdMap
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for LArMCSymTool[0x3cb92a00]+189 bound to /LAR/Identifier/CalibIdMap
 ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
 ToolSvc.LArAuto...   INFO Registered callback for key: LArShape
 ToolSvc.LArAuto...   INFO Registered callback for key: LArAutoCorr
@@ -322,19 +322,19 @@ ToolSvc.LArOFCT...   INFO Registered callback for key: LArShape
 ToolSvc.LArOFCT...   INFO Registered callback for key: LArNoise
 ToolSvc.LArOFCT...   INFO Registered callback for LArOFCTool/LArAutoCorrTotalTool
 ToolSvc.CaloNoi...   INFO Will cache electronic noise
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArNoiseMC[LArNoise]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArNoiseMC[LArNoise]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArNoise
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArAutoCorrMC[LArAutoCorr]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArAutoCorrMC[LArAutoCorr]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArAutoCorr
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArShape32MC[LArShape]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArShape32MC[LArShape]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArShape
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArfSamplMC[LArfSampl]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArfSamplMC[LArfSampl]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArfSampl
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArMinBiasMC[LArMinBias]
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArMinBiasMC[LArMinBias]
 ToolSvc.CaloNoi...   INFO Registered callback for key: LArMinBias
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArDAC2uA
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArDAC2uA
 ToolSvc.CaloNoi...   INFO Registered callbacks for LArADC2MeVTool -> CaloNoiseTool
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArAutoCorr
+IOVSvc.IOVSvcTool    INFO Still in initialize phase, not tiggering callback for CaloNoiseTool[0x3d05c388]+191 bound to LArAutoCorr
 ToolSvc.CaloNoi...   INFO Registered callbacks for LArOFCTool -> CaloNoiseTool
 ToolSvc.CaloNoi...   INFO CaloNoiseTool initialize() end
 ToolSvc.tool1em      INFO  no noise selected 

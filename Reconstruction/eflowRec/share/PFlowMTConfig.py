@@ -2,6 +2,9 @@ from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
 topSequence += PFLeptonSelector
 
+PFLeptonSelector.electronID = "LHMedium"
+PFLeptonSelector.selectElectrons = False
+
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
@@ -236,10 +239,10 @@ from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
 PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
 if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
-
+   
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
-   
+
 topSequence += PFONeutralCreatorAlgorithm
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:

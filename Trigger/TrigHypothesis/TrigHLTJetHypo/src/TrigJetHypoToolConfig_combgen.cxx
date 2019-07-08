@@ -88,3 +88,8 @@ TrigJetHypoToolConfig_combgen::getCleaners() const {
 }
 
 
+std::unique_ptr<IGroupsMatcherMT>
+TrigJetHypoToolConfig_combgen::getMatcher () const {
+  // method needed for interface. Combgen nneds no matcher
+  return std::unique_ptr<IGroupsMatcherMT> (nullptr);
+}

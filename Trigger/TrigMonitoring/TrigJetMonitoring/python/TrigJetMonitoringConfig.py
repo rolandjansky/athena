@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_physics.py
@@ -179,12 +179,12 @@ if (pp) or (mc):
   
   
 # HLT items
-  hlt_hltEtThresholds            = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_hltEtThresholds            = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'j35':20.,
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
@@ -224,12 +224,12 @@ if (pp) or (mc):
                                      '6j55_0eta240_L14J15':20.}
 
     
-  hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
-                                     'j0_perf_ftk_L1RD0FILLED': 2.5,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 2.5,
+  hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0_FILLED': 2.5,
+                                     'j0_perf_ftk_L1RD0_FILLED': 2.5,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 2.5,
                                      'j35':3.2,
                                      'j35_jes':3.2,
                                      'j35_lcw':3.2,
@@ -270,12 +270,12 @@ if (pp) or (mc):
 
 
   
-  hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'j35':0.0,
                                      'j35_jes':0.0,
                                      'j35_lcw':0.0,
@@ -318,12 +318,12 @@ if (pp) or (mc):
 
   
   
-  hlt_hltJetn                    = { 'j0_perf_L1RD0FILLED': 1,
-                                     'j0_perf_ftk_L1RD0FILLED': 1,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 1,
+  hlt_hltJetn                    = { 'j0_perf_L1RD0_FILLED': 1,
+                                     'j0_perf_ftk_L1RD0_FILLED': 1,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 1,
                                      'j35':1,
                                      'j35_jes':1,
                                      'j35_lcw':1,
@@ -363,12 +363,12 @@ if (pp) or (mc):
 
   
   
-  hlt_hltContainers              = { 'j0_perf_L1RD0FILLED':'a4tcemsubjesISFS',
-                                     'j0_perf_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
-                                     'j0_perf_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED':'a4tcemsubjesISFS',
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
+  hlt_hltContainers              = { 'j0_perf_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                     'j0_perf_ftk_L1RD0_FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_perf_ftkrefit_L1RD0_FILLED':'a4tcemsubjesISFSftkrefit',
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED':'a4tcemsubjesISFSftkrefit',
                                      'j35':'a4tcemsubjesISFS',
                                      'j35_sub':'a4tcemsubFS',
                                      'j35_jes':'a4tcemjesFS',
@@ -412,12 +412,12 @@ if (pp) or (mc):
 
                 
 # Offline 
-  hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_offlineEtThresholds        = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'L1_J15':0., 
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
@@ -965,12 +965,6 @@ def TrigJetMonitoringTool():
         );
   from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
-
- # from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
- # ToolSvc+=LuminosityToolDefault()
-  
- # from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
- # ToolSvc+=TrigLivefractionToolDefault()
 
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)

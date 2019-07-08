@@ -96,8 +96,8 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
-    MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "TGC_RawDataProviderTool",
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderToolMT
+    MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
                                                                Decoder = TGCRodDecoder )
 
     if forTrigger:
@@ -178,8 +178,8 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-    MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
+    MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
                                                                Decoder = CSCRodDecoder)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache

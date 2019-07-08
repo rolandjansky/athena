@@ -131,6 +131,8 @@ class MdtCalibDbAlg: public AthAlgorithm {
   SG::WriteCondHandleKey<MdtRtRelationCollection> m_writeKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::WriteCondHandleKey<MdtTubeCalibContainerCollection> m_writeKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};
   SG::WriteCondHandleKey<MdtCorFuncSetCollection> m_writeKeyCor{this,"MdtCorFuncSetCollection","MdtCorFuncSetCollection","MDT cor Funcs"};
+
+  unsigned int m_regionIdThreshold;
    
 };
 

@@ -39,6 +39,8 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
+  virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
+
   virtual ConditionsMT getConditions() const override;
 
  private:

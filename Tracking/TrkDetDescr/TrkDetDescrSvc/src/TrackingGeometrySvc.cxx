@@ -30,36 +30,10 @@
 /** Constructor **/
 Trk::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name,ISvcLocator* svc) : 
     AthService(name,svc),
-    m_pSvcLocator(0),
-    m_pDetStore(0),
-    m_trackingGeometryBuilder(""),
-    m_trackingGeometry(0),
-    m_trackingGeometryName("AtlasTrackingGeometry"),
-    m_geometryProcessors(),
-#ifdef TRKDETDESCR_MEMUSAGE   
-    m_memoryLogger(),
-    m_changeVsize(0.),
-    m_changeRss(0.),
-#endif        
-    m_callbackStringForced(false),
-    m_callbackString(""),
-    m_callbackStringCheck(true),
-    m_rerunOnCallback(false),
-    m_buildGeometryFromTagInfo(true)
+    m_geometryProcessors(this)
 { 
-  // the geometry builder --------------------------------------------------------
-  declareProperty( "GeometryBuilder",              m_trackingGeometryBuilder);
-  // the name of the TrackingGeometry to be built --------------------------------
-  declareProperty( "TrackingGeometryName",         m_trackingGeometryName);
   // geometry processors to validation / distort the TrackingGeometry ------------
   declareProperty( "GeometryProcessors",           m_geometryProcessors);
-  // steering && configuration ---------------------------------------------------
-  declareProperty( "BuildGeometryFromTagInfo",     m_buildGeometryFromTagInfo);
-  // callback string steering -----------------------------------------------------
-  declareProperty( "CallbackStringForced",         m_callbackStringForced);
-  declareProperty( "CallbackString",               m_callbackString);
-  declareProperty( "CallbackStringCheck",          m_callbackStringCheck);
-  declareProperty( "RerunOnCallback",              m_rerunOnCallback);  
 }
 
 

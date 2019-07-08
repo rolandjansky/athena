@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@
 
 #include "GaudiKernel/Counters.h"
 
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
   class ITrackingGeometrySvc;
@@ -59,7 +59,7 @@ namespace Trk {
      @author Andreas.Salzburger@cern.ch
      */
 
-  class Navigator : public AthAlgTool,
+  class ATLAS_NOT_THREAD_SAFE Navigator : public AthAlgTool,
                     virtual public INavigator {
     public:
       /** Constructor */
@@ -123,59 +123,50 @@ namespace Trk {
     
      /** Validation Action:
         Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const override{
-
-      }
+      virtual void validationAction() const override{}
       
     private:
       /* 
       * Methods to be overriden by the NavigatorValidation
       */
-      virtual void validationInitialize() {
-      }
+      virtual void validationInitialize() {}
       virtual void validationFill(const Trk::TrackParameters* trackPar) const{
-        static int numPrint{0};
-        if (m_validationMode && numPrint<10&&trackPar){
-         ATH_MSG_INFO("No Validation implemented. Use an instance of NavigatorValidation");
-         ++numPrint;
-       }
+         (void)trackPar;
       } 
     
+      StatusCode                               updateTrackingGeometry() const; 
+      
+      
       bool                                               m_validationMode; //!<This becomes a dummy option for now    
       /* 
        ****************************************************************
        * According to Goetz Gaycken this needs special attention marking as
        * @TODO replace by conditions handle.
        */
-      StatusCode                               updateTrackingGeometry() const; 
       mutable const TrackingGeometry*           m_trackingGeometry;          //!< the tracking geometry owned by the navigator
       ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;       //!< ToolHandle to the TrackingGeometrySvc
       std::string                               m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
-      /******************************************************************/
-      
+      /******************************************************************/ 
       double                                    m_insideVolumeTolerance;     //!< Tolerance for inside() method of Volumes
       double                                    m_isOnSurfaceTolerance;      //!< Tolerance for isOnSurface() method of BoundarySurfaces 
       bool                                      m_useStraightLineApproximation; //!< use the straight line approximation for the next boundary sf
       bool                                      m_searchWithDistance;        //!< search with new distanceToSurface() method
-      
       //------------ Magnetic field properties
       bool                                      m_fastField;
       Trk::MagneticFieldProperties              m_fieldProperties;
 
       // ------ PERFORMANCE STATISTICS -------------------------------- //
       /* All performance stat counters are atomic (the simplest solution perhaps not the most performant one)*/
-      mutable Gaudi::Accumulators::Counter<int>                               m_forwardCalls;              //!< counter for forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
-                                                
-      mutable Gaudi::Accumulators::Counter<int>                               m_backwardCalls;             //!< counter for backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>                               m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
-                                                
-      mutable Gaudi::Accumulators::Counter<int>                               m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
-      mutable Gaudi::Accumulators::Counter<int>                               m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
+      mutable Gaudi::Accumulators::Counter<int>       m_forwardCalls;              //!< counter for forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_backwardCalls;             //!< counter for backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<int>       m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
+      mutable Gaudi::Accumulators::Counter<int>       m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
       
     };
 

@@ -15,7 +15,7 @@ void DebugInfoCollector::collect(const std::string& key,
 
 std::string DebugInfoCollector::toString() const {
   std::stringstream ss;
-  ss << "DEBUGInfoCollector: " << m_name << '\n';
+  ss << "DEBUGInfoCollector: " << m_name << " [" << m_info.size() << "]\n";
   for(const auto& i: m_info){
     ss << "  " << i.first << '\n';
     for(const auto& m : i.second){

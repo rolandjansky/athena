@@ -86,3 +86,35 @@ atlas_add_test( Trk2DDistanceFinder_test
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
                 EXTRA_PATTERNS "reading the map|field map" )
+
+
+atlas_add_test( GaussianTrackDensity_test
+                SOURCES test/GaussianTrackDensity_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+
+atlas_add_test( SimpleVertexClusterFinder_test
+                SOURCES test/SimpleVertexClusterFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+
+atlas_add_test( Mode3dFromFsmw1dFinder_test
+                SOURCES test/Mode3dFromFsmw1dFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+
+atlas_add_test( Mode3dTo1dFinder_test
+                SOURCES test/Mode3dTo1dFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )

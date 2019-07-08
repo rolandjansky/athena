@@ -2,10 +2,8 @@
 # art-description: athenaMT trigger test using the full menu from TrigUpgradeTest job options
 # art-type: build
 # art-include: master/Athena
-# art-output: *.log
-# art-output: *.new
-# art-output: *.txt
-# art-output: *.root
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export SKIPEVENTS=10
 export EVENTS=20

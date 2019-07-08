@@ -45,7 +45,7 @@ from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
 import os
 import sys
 
-FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=VERBOSE)
+FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=INFO)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']

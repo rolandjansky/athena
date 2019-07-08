@@ -208,7 +208,21 @@ StatusCode FTKMergerAlgo::initialize(){
   }
 
 
-  if (m_useStandalone && !m_doMerging) {
+  if (m_useStandalone) {
+    ATH_MSG_INFO("useStandalone: True - Using tracks produced from the standalone version");
+  } 
+  if (m_doMerging) {
+    ATH_MSG_INFO("doMerging: True - Merging enabled"); 
+  }
+
+  bool doTrackConversion=m_useStandalone && !m_doMerging;
+  if (!doTrackConversion) {
+    m_trackConverterTool.disable();
+    m_uncertiantyTool.disable();
+    m_trackSumTool.disable();
+  }
+  if (doTrackConversion) {
+    ATH_MSG_INFO("Performing conversion of tracks from standalone simulation, doMerging: False");
     // prepare the input from the FTK tracks, merged in an external simulation
     m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
     // add the file to the chain
@@ -278,32 +292,27 @@ StatusCode FTKMergerAlgo::initialize(){
       return StatusCode::FAILURE;
     }
 
-    // Get the Track Converter Tool
+
+    // Get the required tools and create the required collections only if track conversion is being performed
     if (m_trackConverterTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_trackConverterTool << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Get the Uncertianty Tool
     if (m_uncertiantyTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_uncertiantyTool << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Get the Track Sum Tool
     if (m_trackSumTool.retrieve().isFailure() ) {
       log << MSG::ERROR << "Failed to retrieve tool " << m_trackSumTool << endmsg;
       return StatusCode::FAILURE;
     }
-
-
+    
     // ID helpers
     m_idHelper = new AtlasDetectorID;
-    const IdDictManager* idDictMgr( 0 );
-    if(m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
-      log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
-      return StatusCode::FAILURE;
-    }
     if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
       log << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
@@ -312,9 +321,9 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     /* Creating the SG entry points fro the FTK clusters */
-
+    
     // Creating collection for pixel clusters
     m_FTKPxlCluContainer = new InDet::PixelClusterContainer(m_pixel_id->wafer_hash_max());
     m_FTKPxlCluContainer->addRef();
@@ -330,7 +339,7 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endmsg;
       return StatusCode::FAILURE;
     }
-
+    
     // Creating collection for the SCT clusters
     m_FTKSCTCluContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
     m_FTKSCTCluContainer->addRef();
@@ -346,6 +355,7 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endmsg;
       return StatusCode::FAILURE;
     }
+    
 
   } // preparation for standalone track conversion block done
   else if (m_useStandalone && m_doMerging) {
@@ -1420,17 +1430,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
       << "entered execution for run " << eventID->run_number()
       << "   event " << eventNumber
       << endmsg;
-  
-  //
-  //  Get the primary vertex container
-  //
-  //   const VxContainer* primcontainer(0);
-  //   bool primVtxExists = evtStore()->contains<VxContainer>(m_vxCandidatesPrimaryName);
-  //   if(!primVtxExists){
-  //     log << MSG::INFO << "No VxContainer with key " << m_vxCandidatesPrimaryName << " found!" << endmsg;
-  //     cout << evtStore()->dump() << endl;
-  //   }
-  
+    
   // Extract the vector of tracks found by the FTK for the current event
   std::map<int, Long64_t >::iterator mapIt = m_trackVectorMap.find(eventNumber);
   if(mapIt == m_trackVectorMap.end()) {
@@ -2187,6 +2187,7 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       if(!reg_tracks[ireg][isub]) continue;
       
       unsigned int ntracks = reg_tracks[ireg][isub]->getNTracks();
+      unsigned int ntracks_pre_hw = reg_tracks[ireg][isub]->getNTracks_pre_hw();
 
       merged_tracks->addNExtrapolatedTracks(reg_tracks[ireg][isub]->getNExtrapolatedTracks());
       merged_tracks->addNConnections(reg_tracks[ireg][isub]->getNConn());
@@ -2204,6 +2205,7 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
 
 
       unsigned int ntracksI = reg_tracks[ireg][isub]->getNTracksI();
+      unsigned int ntracksI_pre_hw = reg_tracks[ireg][isub]->getNTracksI_pre_hw();
       merged_tracks->addNCombsI(reg_tracks[ireg][isub]->getNCombsI());
       merged_tracks->addNFitsI(reg_tracks[ireg][isub]->getNFitsI());
       merged_tracks->addNFitsMajorityI(reg_tracks[ireg][isub]->getNFitsMajorityI());
@@ -2215,6 +2217,9 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNFitsHWRejectedI(reg_tracks[ireg][isub]->getNFitsHWRejectedI());
       merged_tracks->addNFitsBadMajorityI(reg_tracks[ireg][isub]->getNFitsBadMajorityI());
       merged_tracks->addNFitsHWRejectedMajorityI(reg_tracks[ireg][isub]->getNFitsHWRejectedMajorityI());
+
+      unsigned int ntracks_pattern = reg_tracks[ireg][isub]->getNTracks_pattern();
+      unsigned int ntracks_hits = reg_tracks[ireg][isub]->getNTracks_hits();
       
       for (unsigned int itr=0;itr!=ntracks;++itr) { // track loop
 
@@ -2266,14 +2271,35 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
 	}
       } // end track loop
 
+  for (unsigned int itr=0;itr!=ntracks_pre_hw;++itr) { // track loop (before Hit Warrior)
+    // get the track from the bank
+    FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pre_hw(itr));
+    merged_tracks->addTrack_pre_hw(newtrack);    
+  } // end loop over tracks of this bank (before Hit Warrior)
 
+  for (unsigned int itrI=0;itrI!=ntracksI;++itrI) { // intermediate track loop
+	  // get the track from the bank
+    FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI(itrI));
+        // the intermediate tracks are not filtered by HW
+        merged_tracks->addTrackI(newtrack);
+      } // end intermediate track loop
 
-      for (unsigned int itrI=0;itrI!=ntracksI;++itrI) { // intermediate track loop
-	// get the track from the bank
-	FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI(itrI));
-	
-	// the intermediate tracks are not filtered by HW
-	merged_tracks->addTrackI(newtrack);
+      for (unsigned int itrI=0;itrI!=ntracksI_pre_hw;++itrI) { // intermediate track loop (before Hit Warrior)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI_pre_hw(itrI));
+        merged_tracks->addTrackI_pre_hw(newtrack);
+      } // end intermediate track loop
+
+      for (unsigned int itrI=0;itrI!=ntracks_pattern;++itrI) { // intermediate track loop (tracks with patterns)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pattern(itrI));
+        merged_tracks->addTrack_pattern(newtrack);
+      } // end intermediate track loop
+
+      for (unsigned int itrI=0;itrI!=ntracks_hits;++itrI) { // intermediate track loop (tracks that pass hits requirements)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_hits(itrI));
+        merged_tracks->addTrack_hits(newtrack);
       } // end intermediate track loop
 
     } // end subregion loop

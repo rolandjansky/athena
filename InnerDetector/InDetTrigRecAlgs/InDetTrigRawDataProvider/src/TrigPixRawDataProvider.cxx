@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigPixRawDataProvider.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -33,7 +32,6 @@ namespace InDet {
     m_rawDataTool     ("PixelRawDataProviderTool"),
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
-    m_IdMapping       ("PixelCablingSvc",name),
     m_id(0),
     m_container(0)
   {
@@ -93,13 +91,6 @@ namespace InDet {
     } else
       msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
   
-    // Retrieve id mapping 
-    if (m_IdMapping.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_IdMapping << endmsg;
-      return StatusCode::FAILURE;
-    } else 
-      msg(MSG::INFO) << "Retrieved tool " << m_IdMapping << endmsg;
-
     //RDO container
     m_container = new PixelRDO_Container(m_id->wafer_hash_max()); 
     m_container ->addRef();       // make sure it is never deleted
@@ -155,7 +146,6 @@ namespace InDet {
     } else {
       msg(MSG::ERROR) << name() << " invoked without an RoI data " << endmsg;
       return StatusCode::FAILURE;
-      //robIDlist = m_IdMapping->getAllRods();
     }
 
     StatusCode sg = initContainer();

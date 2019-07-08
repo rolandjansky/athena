@@ -73,10 +73,6 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
       continue;
     }
 
-    ATH_MSG_DEBUG( name() << " running with store " << context.getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
-
-    ATH_MSG_DEBUG("Event store dump: " << evtStore()->dump() );
-
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
@@ -99,18 +95,7 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
     ATH_CHECK( tool->decide( toolInput ) );
   }
  
-  {// make output handle and debug
-    ATH_MSG_DEBUG ( "Exit with " << outputHandle->size() << " decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

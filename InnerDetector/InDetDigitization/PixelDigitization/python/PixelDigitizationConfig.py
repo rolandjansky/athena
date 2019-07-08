@@ -57,7 +57,7 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("PixelConditionsSummaryTool", ToolSvc.PixelConditionsSummaryTool)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup.getTool())
     return CfgMgr.FrontEndSimTool(name, **kwargs)
 
 def BarrelRD53SimTool(name="BarrelRD53SimTool", **kwargs):

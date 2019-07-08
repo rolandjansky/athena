@@ -20,7 +20,6 @@ StatusCode ComboHypo::initialize() {
   //ATH_MSG_DEBUG("Use macros for logging!");
   ATH_CHECK( m_outputs.initialize() );
   ATH_CHECK( m_inputs.initialize() );
-  renounceArray( m_inputs ); // do we need it?
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
   ATH_MSG_INFO( "with these inputs: ");
   for (auto inp:m_inputs){

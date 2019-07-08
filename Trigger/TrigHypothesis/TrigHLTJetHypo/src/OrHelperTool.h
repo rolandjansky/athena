@@ -14,7 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 

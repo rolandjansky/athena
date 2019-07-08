@@ -68,17 +68,17 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
   virtual ~GsfBetheHeitlerEffects() {};
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override final;
 
   virtual void compute ( Cache&,
        const ComponentParameters&,
        const MaterialProperties&,
        double,
        PropDirection direction = anyDirection,
-       ParticleHypothesis particleHypothesis = nonInteracting ) const;
+       ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
 
  private:

@@ -9,3 +9,4 @@ atlas_subdir( TrigEDMConfig )
 atlas_install_python_modules( python/*.py )
 
 atlas_add_test( UnitTest SCRIPT python/testEDM.py )
+atlas_add_test( UnitTestRun3 SCRIPT python/testEDMRun3.py )

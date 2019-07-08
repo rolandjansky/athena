@@ -391,6 +391,7 @@ class TreeParameterExpander(object):
     
     router = {
         'simple': TreeParameterExpander_simple,
+        'simplepartition': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'not': TreeParameterExpander_null,
         'and': TreeParameterExpander_null,

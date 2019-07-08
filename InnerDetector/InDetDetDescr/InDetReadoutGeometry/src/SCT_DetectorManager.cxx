@@ -393,5 +393,16 @@ namespace InDetDD {
     return alignmentChange;
   }
 
+bool SCT_DetectorManager::processSpecialAlignment(
+    const std::string &, InDetDD::AlignFolderType) const {
+  return false;
+}
+
+bool SCT_DetectorManager::processSpecialAlignment(const std::string& /*key*/,
+                                                  const CondAttrListCollection* /*obj*/,
+                                                  GeoVAlignmentStore* /*alignStore*/) const {
+  return false;
+
+}
 
 } // namespace InDetDD

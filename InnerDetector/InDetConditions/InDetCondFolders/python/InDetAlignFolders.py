@@ -80,8 +80,8 @@ if DetFlags.TRT_on() and ((not DetFlags.simulate.TRT_on()) or DetFlags.overlay.T
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
             condSeq += TRTAlignCondAlg
-if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
 
+if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
@@ -91,4 +91,15 @@ if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.S
             if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
                 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
                 condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+
+if DetFlags.pixel_on() and ((not DetFlags.simulate.pixel_on()) or DetFlags.overlay.pixel_on()):
+    if not hasattr(condSeq, "PixelAlignCondAlg"):
+        import os
+        if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+            condSeq += PixelAlignCondAlg(name = "PixelAlignCondAlg",
+                                         UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+            if not hasattr(condSeq, "PixelDetectorElementCondAlg"):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+                condSeq += PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
 

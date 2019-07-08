@@ -14,7 +14,9 @@ decription           : Implementation code for LargestWeightsMultiStateMerger cl
 #include "TrkGaussianSumFilter/LargestWeightsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
 
-Trk::LargestWeightsMultiStateMerger::LargestWeightsMultiStateMerger(const std::string& type, const std::string& name, const IInterface* parent)
+Trk::LargestWeightsMultiStateMerger::LargestWeightsMultiStateMerger(const std::string& type, 
+                                                                    const std::string& name, 
+                                                                    const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
@@ -100,24 +102,22 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
   Trk::MultiComponentState* componentsForCollapse = new Trk::MultiComponentState;
 
   // Sort all components of unmerged state according to weight
-  unmergedState->sort( SortByLargerComponentWeight() );
+  std::sort(unmergedState->begin(),
+            unmergedState->end(), 
+            SortByLargerComponentWeight() );
 
   unsigned int numberOfComponents = 0;
   Trk::MultiComponentState::const_iterator component = unmergedState->begin();
 
-  for ( ; component != unmergedState->end(); ++component, ++numberOfComponents )
-    {
+  for ( ; component != unmergedState->end(); ++component, ++numberOfComponents ){
       
       if (numberOfComponents < m_maximumNumberOfComponents){
-
         // Add component to state being prepared for assembly and check that it is valid
         bool componentAdded = m_stateAssembler->addComponent(cache,*component);
-      
-        if ( !componentAdded )
-          msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
-
+        if ( !componentAdded ){
+          ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+        }
       }
-
       else{
         Trk::ComponentParameters clonedComponent( component->first->clone(), component->second );
         componentsForCollapse->push_back( clonedComponent );
@@ -138,11 +138,10 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
    delete collapsedComponent->first;
    delete collapsedComponent;
 
-   if ( !componentAdded )
-	  msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
-
+   if ( !componentAdded ){
+	  ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+   }
    const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache,1.);
    delete unmergedState;
-
    return assembledState;
 }

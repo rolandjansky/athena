@@ -10,6 +10,7 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexContainer.h"
@@ -59,6 +60,8 @@ namespace CP {
       virtual xAOD::TrackVertexAssociationMap getUniqueMatchMap( const xAOD::TrackParticleContainer &trkCont , const xAOD::VertexContainer &vxCont) const override;
 
     private:
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo key" };
+
       /// Checks if a track-vertex pair passes the cuts.  Returns
       /// Δz * sin θ of the pair in `dzSinTheta` if successful.
       MatchStatus isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,

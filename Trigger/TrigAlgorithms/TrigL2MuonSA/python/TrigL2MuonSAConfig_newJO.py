@@ -56,7 +56,8 @@ def TgcDataPreparatorCfg( flags, roisKey ):
 
     # Set Tgc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = acc.getPublicTool( "TgcRdoToTgcPrepDataTool" ) )
+    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = acc.getPublicTool( "TgcRdoToTgcPrepDataTool" ) ,
+                                                         TgcRawDataProvider   = acc.getPublicTool( "TGC_RawDataProviderToolMT" ) )
                                                          #DecodeBS = DetFlags.readRDOBS.TGC_on() ) # This should be used flags
  
     return acc, TgcDataPreparator
@@ -112,7 +113,8 @@ def CscDataPreparatorCfg( flags, roisKey ):
     # Set Csc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
     CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = acc.getPublicTool( "CscRdoToCscPrepDataTool" ),
-                                                         CscClusterProvider   = acc.getPublicTool( "CscThesholdClusterBuilderTool" ) )
+                                                         CscClusterProvider   = acc.getPublicTool( "CscThesholdClusterBuilderTool" ),
+                                                         CscRawDataProvider   = acc.getPublicTool( "CSC_RawDataProviderToolMT" ) )
                                                          #DecodeBS = DetFlags.readRDOBS.CSC_on() ) # This should be used flags
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
  

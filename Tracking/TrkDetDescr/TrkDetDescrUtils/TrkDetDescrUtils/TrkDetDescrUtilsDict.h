@@ -5,10 +5,7 @@
 #ifndef TRKDETDESCRUTILS_TRKDETDESCRUTILSDICT_H
 #define TRKDETDESCRUTILS_TRKDETDESCRUTILSDICT_H
 
+#include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
-#include "TrkDetDescrUtils/BinUtility.h"
-#include "TrkDetDescrUtils/BinUtility.h"
-
 
 #endif
-

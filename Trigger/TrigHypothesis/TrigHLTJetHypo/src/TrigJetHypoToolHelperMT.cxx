@@ -5,7 +5,6 @@
 #include "./TrigJetHypoToolHelperMT.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./xAODJetCollector.h"
-#include "./groupsMatcherFactoryMT.h"
 #include "./JetTrigTimer.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
@@ -24,7 +23,8 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
 
   auto conditions = m_config->getConditions();
   m_grouper  = std::move(m_config->getJetGrouper());
-  m_matcher = std::move(groupsMatcherFactoryMT(conditions));
+  m_matcher = std::move(m_config->getMatcher());
+  // m_matcher = std::move(groupsMatcherFactoryMT(conditions));
 
   return StatusCode::SUCCESS;
 }
@@ -71,18 +71,22 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
                          );
   }
 
-  auto jetGroups = m_grouper->group(begin, end);
-  auto pass = m_matcher->match(jetGroups.begin(),
-			       jetGroups.end(),
-			       jetCollector,
-			       collector);
-  
-  timer.stop();
+  auto jetGroupsVector = m_grouper->group(begin, end);
+  for(const auto& jetGroups : jetGroupsVector){
+    auto pass = m_matcher->match(jetGroups.begin(),
+				 jetGroups.end(),
+				 jetCollector,
+				 collector);
+    
+    timer.stop();
 
-  collectData(timer.readAndReset(), collector, pass);
-  if(pass.has_value()){
-    return *pass;
+    collectData(timer.readAndReset(), collector, pass);
+    if(pass.has_value()){
+      if(*pass){return true;}
+    }
+    timer.start();
   }
+  timer.stop();
   return false;
 }
   
@@ -102,12 +106,13 @@ std::string TrigJetHypoToolHelperMT::toString() const {
     ss << cleaner->toString() 
        << '\n';
   }
-    
+
   ss << "\n Grouper: " << m_grouper->toString() << '\n';
 
+  /*
   ss << "\n Matcher: \n";
   ss << m_matcher -> toString();
-
+  */
   return ss.str();
 }
 
