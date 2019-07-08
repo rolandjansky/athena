@@ -84,6 +84,10 @@ private:
 	StatusCode doJetPlots(const xAOD::TrackParticleContainer * pTracks, 
 	                      IDPVM::CachedGetAssocTruth & association,
 	                      const  xAOD::Vertex * primaryVtx);
+    // check the "selected by PU switch" decoration on a truth particle
+    bool isSelectedByPileupSwitch (const xAOD::TruthParticle & TP) const;
+    // set the "selected by PU switch" decoration for all particles in the passed vector
+    void markSelectedByPileupSwitch (const std::vector<const xAOD::TruthParticle*> & truthParticlesToMark) const;
 	///TrackParticle container's name
 	std::string m_trkParticleName;
 	///TruthParticle container's name
@@ -127,6 +131,13 @@ private:
         bool m_fillAdditionalITkPlots;
 
 	std::string m_folder;
+    // accessor to check if a truth particle origin matches the HS switch (if we request PU or HS)
+    SG::AuxElement::Accessor<bool> m_acc_selectedByPileupSwitch;
+    // decorator to set the decoration above
+    SG::AuxElement::Decorator<bool> m_dec_selectedByPileupSwitch;
+    // remember whether we are running with a setup requiring HS matching decoration
+    // use this to avoid string comparisons at runtime
+    bool m_usingSpecialPileupSwitch;
 };
 
 template<class T>
