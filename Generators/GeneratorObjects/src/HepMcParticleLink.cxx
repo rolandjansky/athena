@@ -51,6 +51,17 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
 #endif
       return nullptr;
     }
+    // Attempt to force HepMcParticleLink to look in the main
+    // StoreGate instance.
+#if 0
+    const std::string oldStoreName(m_ptrs.m_dict->name());
+#endif
+    m_ptrs.m_dict = SG::CurrentEventStore::store();
+#if 0
+      mlog() << MSG::DEBUG
+             << "cptr: Switched from looking in " << oldStore
+             << " to looking in " << m_ptrs.m_dict->name() << endmsg;
+#endif
     CLID clid = ClassID_traits<McEventCollection>::ID();
     const McEventCollection* pEvtColl(0);
     if(s_HOSTKEY.empty() ) {
