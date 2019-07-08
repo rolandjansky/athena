@@ -17,7 +17,7 @@ find_package( six )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/AthFile )
+atlas_install_python_modules( python/*.py python/scripts python/AthFile )
 atlas_install_scripts( bin/acmd.py bin/atl-gen-athena-d3pd-reader bin/checkFile.py bin/checkPlugins.py bin/checkSG.py bin/checkMetaSG.py bin/checkTP.py bin/checkxAOD.py bin/diff-athfile bin/diff-jobo-cfg.py bin/diffConfigs.py bin/diffPoolFiles.py bin/diffTAGTree.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py bin/get-tag-diff.py bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py bin/pep8.py bin/pool_extractFileIdentifier.py bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py bin/vmem-sz.py bin/meta-reader.py bin/lstags bin/tree-orderer.py )
 
 # Aliases:
