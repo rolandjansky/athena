@@ -26,7 +26,7 @@ def setupMenu():
     #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    #SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
     #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
     SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
@@ -103,8 +103,8 @@ def setupMenu():
 
     ]
     TriggerFlags.BjetSlice.signatures = [
-        #ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
-        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
         #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
