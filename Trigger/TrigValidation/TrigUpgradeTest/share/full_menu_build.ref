@@ -324,8 +324,6 @@ TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20           20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20 decisions                     0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J2020        20        1         0         0         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20 decisions                    1         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 20        20        1         0         0         0         0         1         
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           1         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6           20        20        3         2         2         0         0         2         
