@@ -88,15 +88,7 @@ namespace PMonMT {
     }     
 
   };
-  
-  // Name of the step whose snapshot is taken by the service
-  struct SnapshotStep {
  
-    // Initialize - Event Loop - Finalize
-    std::string snapshotStep;
-
-  };
-
 }
 
 
