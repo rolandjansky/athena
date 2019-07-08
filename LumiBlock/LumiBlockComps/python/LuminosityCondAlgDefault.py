@@ -52,7 +52,7 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
         kwargs = configureLuminosityCondAlgRun2 (name)
 
     else:
-        mlog.warning("LuminosityToolDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
         kwargs = configureLuminosityCondAlgRun2 (name)
     
     from LumiBlockComps.LumiBlockCompsConf import \
