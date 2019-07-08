@@ -2,20 +2,17 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
-#include "TrigBjetHypoAlgMT.h"
+#include "TrigBjetBtagHypoAlgMT.h"
 
-using namespace TrigCompositeUtils;
 
-TrigBjetHypoAlgMT::TrigBjetHypoAlgMT( const std::string& name, 
-				      ISvcLocator* pSvcLocator ) : 
-  ::HypoBase( name, pSvcLocator ) {}
+TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name, 
+						ISvcLocator* pSvcLocator ) : 
+  TrigBjetHypoAlgBaseMT( name, pSvcLocator ) {}
 
-TrigBjetHypoAlgMT::~TrigBjetHypoAlgMT()
-{}
+TrigBjetBtagHypoAlgMT::~TrigBjetBtagHypoAlgMT() {}
 
-StatusCode TrigBjetHypoAlgMT::initialize()
-{
+
+StatusCode TrigBjetBtagHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
@@ -38,18 +35,19 @@ StatusCode TrigBjetHypoAlgMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlgMT::finalize() {
+StatusCode TrigBjetBtagHypoAlgMT::finalize() {
+  ATH_MSG_INFO( "Finalizing " << name() <<" ... " );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-
+  
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
   CHECK( prevDecisionHandle.isValid() );
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = prevDecisionHandle.get();
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
-
+  
   return StatusCode::SUCCESS;
 }
 

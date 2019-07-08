@@ -1,8 +1,12 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGBJETHYPO_TRIGBJETHYPOALGMT_H
-#define TRIGBJETHYPO_TRIGBJETHYPOALGMT_H 1
+
+#ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H
+#define TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H 1
+
+#include "TrigBjetHypoAlgBaseMT.h"
+#include "TrigBjetHypoTool.h"
 
 #include <string>
 
@@ -15,30 +19,20 @@
 
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
-#include "xAODBTagging/BTagging.h"
 
+class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
+ public:
+  TrigBjetBtagHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  
+  virtual ~TrigBjetBtagHypoAlgMT();
+  
+  virtual StatusCode  initialize();
+  virtual StatusCode  execute( const EventContext& context ) const;
+  virtual StatusCode  finalize();
 
-#include "TrigBjetHypoTool.h"
-#include "DecisionHandling/HypoBase.h"
-
-/**
- * @class Implements b-jet selection for the new HLT framework
- * @brief 
- **/
-
-class TrigBjetHypoAlgMT : public ::HypoBase { 
- public: 
-
-  TrigBjetHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
-
-  virtual ~TrigBjetHypoAlgMT(); 
-
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
  private: 
-  TrigBjetHypoAlgMT();
+  TrigBjetBtagHypoAlgMT();
+
   ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
  private:

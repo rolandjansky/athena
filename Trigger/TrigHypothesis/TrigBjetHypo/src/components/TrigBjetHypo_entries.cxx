@@ -1,3 +1,4 @@
+
 #include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
@@ -11,9 +12,11 @@
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
 #include "TrigBjetHypo/TrigFarawayJetFinderAllTE.h"
 
-#include "../TrigBjetHypoAlgMT.h"
-#include "../TrigBjetHypoTool.h"
 #include "../TrigBjetEtHypoAlgMT.h"
+#include "../TrigBjetEtHypoAlgEVMT.h"
+#include "../TrigBjetBtagHypoAlgMT.h"
+
+#include "../TrigBjetHypoTool.h"
 #include "../TrigBjetEtHypoTool.h"
 #include "../TrigGSCFexMT.h"
 #include "../TrigBtagFexMT.h"
@@ -34,10 +37,14 @@ DECLARE_COMPONENT( TrigSuperRoiBuilderAllTE )
 DECLARE_COMPONENT( TrigBjetEtHypo )
 DECLARE_COMPONENT( TrigFarawayJetFinderAllTE )
 
-DECLARE_COMPONENT( TrigBjetHypoAlgMT )
-DECLARE_COMPONENT( TrigBjetHypoTool )
+
 DECLARE_COMPONENT( TrigBjetEtHypoAlgMT )
+DECLARE_COMPONENT( TrigBjetEtHypoAlgEVMT )
+DECLARE_COMPONENT( TrigBjetBtagHypoAlgMT )
+
+DECLARE_COMPONENT( TrigBjetHypoTool )
 DECLARE_COMPONENT( TrigBjetEtHypoTool )
+
 DECLARE_COMPONENT( TrigGSCFexMT )
 DECLARE_COMPONENT( TrigBtagFexMT )
 DECLARE_COMPONENT( TrigRoiBuilderMT )
