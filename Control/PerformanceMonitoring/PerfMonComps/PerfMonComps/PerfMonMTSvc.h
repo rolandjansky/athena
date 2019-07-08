@@ -2,6 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+ * @authors: Alaettin Serhan Mete, Hasan Ozturk - alaettin.serhan.mete@cern.ch, haozturk@cern.ch 
+ */
+
 #ifndef PERFMONCOMPS_PERFMONMTSVC_H
 #define PERFMONCOMPS_PERFMONMTSVC_H
 
@@ -65,21 +69,20 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Stdout();
     void report2JsonFile();
 
-    // Get the IncidentSvc
-    //virtual void handle ( const Incident& incident  ) override;
     
   private:
 
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
-    /// Data to hold the measurement
-    /// We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
-    //std::unordered_map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
+    /* Data structure  to store component level measurements
+     * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
+     */
     std::map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
     
     // Clear!
     PMonMT::MeasurementData m_data[3];
+    //PMonMT::MeasurementData m_data[PMonMT::SnapshotStep];
 
 }; // class PerfMonMTSvc
 

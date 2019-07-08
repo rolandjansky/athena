@@ -2,6 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+ * @authors: Alaettin Serhan Mete, Hasan Ozturk - alaettin.serhan.mete@cern.ch, haozturk@cern.ch
+ */
+
 // Framework includes
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -9,8 +13,8 @@
 #include "PerfMonComps/PerfMonMTSvc.h"
 #include "PerfMonUtils.h" // borrow from existing code
 
+// Input/Output includes
 #include <fstream>
-
 #include <nlohmann/json.hpp> 
 
 using json = nlohmann::json; // for convenience
@@ -22,15 +26,13 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
                             ISvcLocator* pSvcLocator )
   : AthService( name, pSvcLocator ) {
 
-  ATH_MSG_INFO(" Pre initialization is captured!  ");
+  //ATH_MSG_INFO(" Pre initialization is captured!  ");
   m_measurement.capture();
   m_data[0].addPointStart(m_measurement);
  
 }
 
 PerfMonMTSvc::~PerfMonMTSvc(){
-
-  ATH_MSG_INFO("Destructor!!!");
 
 }
 
@@ -57,26 +59,11 @@ StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
 StatusCode PerfMonMTSvc::initialize() {
   ATH_MSG_INFO("Initialize");
 
-  // Trying to start our service as soon as possible
-  startAud ( "Initialize", "PerfMonMTSlice" );
-
   /// Configure the auditor
   if( !PerfMon::makeAuditor("PerfMonMTAuditor", auditorSvc(), msg()).isSuccess()) {
     ATH_MSG_ERROR("Could not register auditor [PerfMonMTAuditor]!");
     return StatusCode::FAILURE;
   }
-  /*
-  // Get the IncidentSvc to capture the the moment when all components halt
-  ServiceHandle < IIncidentSvc  > incSvc( "IncidentSvc", this->name() );
-  if( !incSvc.retrieve().isSuccess() ){
-
-    ATH_MSG_ERROR("Could not retrieve the IncidentSvc!");
-    return StatusCode::FAILURE;
-
-  }
- 
-  incSvc->addListener( this, IncidentType::SvcPostFinalize );  
-  */
   return StatusCode::SUCCESS;
 }
 
@@ -84,8 +71,9 @@ StatusCode PerfMonMTSvc::initialize() {
  * Finalize the Service
  */
 StatusCode PerfMonMTSvc::finalize(){ 
-  ATH_MSG_INFO("Finalize");
-  ATH_MSG_INFO("Post Finalization is captured!");
+ 
+  //ATH_MSG_INFO("Finalize");
+  //ATH_MSG_INFO("Post Finalization is captured!");
   m_measurement.capture();
   m_data[2].addPointStop(m_measurement);
 
@@ -98,9 +86,15 @@ StatusCode PerfMonMTSvc::finalize(){
  */
 void PerfMonMTSvc::startAud( const std::string& stepName,
                              const std::string& compName ) {
+  /*
+   * This if statement is temporary. It will be removed.
+   * In current implementation the very first thing called is stopAud function
+   * for PerfMonMTSvc. There are some components before it. We miss them.
+   * It should be fixed.
+   */
   if( compName != "PerfMonMTSvc" ){  
-  startSnapshotAud(stepName, compName);
-  startCompLevelAud(stepName, compName); 
+    startSnapshotAud(stepName, compName);
+    startCompLevelAud(stepName, compName); 
   }
 }
 
@@ -110,16 +104,15 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
   if( compName != "PerfMonMTSvc" ){
-  stopCompLevelAud(stepName, compName);
-  stopSnapshotAud(stepName, compName);
+    stopCompLevelAud(stepName, compName);
+    stopSnapshotAud(stepName, compName);
   }
 }
 
 void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
                                      const std::string& compName ) {
 
-  ATH_MSG_INFO("PerfMonMTSvc::startAud: stepName: " << stepName << ", compName: " << compName);
-  m_measurement.capture(); // just to debug 
+  //ATH_MSG_INFO("PerfMonMTSvc::startAud: stepName: " << stepName << ", compName: " << compName);
 
   // Last thing to be called before the event loop begins
   if( compName == "AthRegSeq" && stepName == "Start") {
@@ -135,20 +128,18 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
     m_data[2].addPointStart(m_measurement);
   }
 
-  // Just to debug: Understand how much time we miss (AuditorSvc finalizes last)
+  /* Later we may need this
   if ( compName == "AuditorSvc" && stepName == "Finalize"){
-    //ATH_MSG_INFO("AUDITOR SERVICE IS CAPTURED!");
     m_measurement.capture();
   } 
-
+  */
 
 }
 
 void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
                                     const std::string& compName ) {
 
-  ATH_MSG_INFO("PerfMonMTSvc::stopAud: stepName: " << stepName << ", compName: " << compName);
-  m_measurement.capture(); // just to debug 
+  //ATH_MSG_INFO("PerfMonMTSvc::stopAud: stepName: " << stepName << ", compName: " << compName);
 
   // First thing to be called after the initialize step ends
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
@@ -165,27 +156,23 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
     m_data[1].addPointStop(m_measurement);
   }
 
-  // Just to debug: How much time passes in PerfMonMTSvc configuration
-  if ( compName == "PerfMonMTSvc" && stepName == "Initialize"){
-    //ATH_MSG_INFO("PerfMonMTSvc IS CAPTURED!");
-    m_measurement.capture();
-  }
-
 }
 
 
 void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
                                       const std::string& compName) {
-
+   
+  // Current step - component pair. Ex: Initialize-StoreGateSvc 
   PMonMT::StepCompPair currentState;
   currentState.stepName = stepName;
   currentState.compName = compName;
 
-  m_measurement.capture();
+  // Capture the time
+  m_measurement.capture(); 
 
   /*
    *  Dynamically create a MeasurementData instance for the current step-component pair
-   *  Do not forget to delete the dynamically allocated space!
+   *  This space will be freed after results are reported.
    */   
   m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
   m_compLevelDataMap[currentState]->addPointStart(m_measurement);
@@ -194,9 +181,11 @@ void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
 
 void PerfMonMTSvc::stopCompLevelAud( const std::string& stepName,
                                      const std::string& compName) {
-
+  
+  // Capture the time
   m_measurement.capture();
 
+  // Current step - component pair. Ex: Initialize-StoreGateSvc
   PMonMT::StepCompPair currentState;
   currentState.stepName = stepName;
   currentState.compName = compName;
@@ -208,63 +197,33 @@ void PerfMonMTSvc::stopCompLevelAud( const std::string& stepName,
 }
 
 
-/*
-void PerfMonMTSvc::handle( const  Incident& incident ){
-
-  // When all finalize steps of all components end, create report
-  if(incident.type() == IncidentType::SvcPostFinalize ){
-    ATH_MSG_INFO("POST FINALIZATION IS CAPTURED!");
-    m_measurement.capture();
-    m_data[2].addPointStop(m_measurement);
-    report();
-  }
-
-} 
-*/
 // Report the results
 void PerfMonMTSvc::report(){
 
   report2Stdout();
   report2JsonFile();
 
-  /*
-  ATH_MSG_INFO("=========================================================");
-  ATH_MSG_INFO("                PerfMonMT Results Summary                ");
-  ATH_MSG_INFO("=========================================================");
-
-  ATH_MSG_INFO("Total Wall time in the Initialization is " << m_data[0].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Initialization is " << m_data[0].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the Initialization is " <<
-                m_data[0].m_delta_cpu/m_data[0].m_delta_wall );
-  ATH_MSG_INFO("");
-
-  ATH_MSG_INFO("Total Wall time in the event loop is " << m_data[1].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_data[1].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the event loop is " <<
-                m_data[1].m_delta_cpu/m_data[1].m_delta_wall );
-  ATH_MSG_INFO("");
-
-  ATH_MSG_INFO("Total Wall time in the Finalize is " << m_data[2].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_data[2].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the Finalize is " <<
-                m_data[2].m_delta_cpu/m_data[2].m_delta_wall );
-  ATH_MSG_INFO("");
-
-  ATH_MSG_INFO("=========================================================");
-
-  ATH_MSG_INFO("=========================================================");
-  ATH_MSG_INFO("                Component Level Monitoring                ");
-  ATH_MSG_INFO("=========================================================");
-
-  // Clear! ->
-  ATH_MSG_INFO( "Step  CPU  Wall  Component"  );
-  for(auto& it : m_compLevelDataMap)
-    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second->m_delta_cpu << "  -  "  << it.second->m_delta_wall <<   "     "  <<  it.first.compName  );
-
-  for(auto& it : m_compLevelDataMap)
-    delete it.second;
-  */
 }
+
+/*
+ * JSON Format:
+ *
+ * {
+ *   "Initialize" : {
+ *     "comp1" : {
+ *       "cpu_time" : cpu_measurement
+ *       "wall_time": wall_measurement
+ *     },
+ *     "comp2": ...
+ *   },
+ *
+ *   "Start": {...},
+ *   "Stop" : {...},
+ *   "Finalize": {...}
+ * }
+ *
+ * Output Filename: PerfMonMTSvc_result.json
+ */
 
 void PerfMonMTSvc::report2JsonFile(){
 
@@ -282,12 +241,12 @@ void PerfMonMTSvc::report2JsonFile(){
 
   }
 
-  std::ofstream o("pretty.json");
+  std::ofstream o("PerfMonMTSvc_result.json");
   o << std::setw(4) << j << std::endl;
 
 }
 
-void PerfMonMTSvc::report2Stdout(){
+void PerfMonMTSvc::report2Stdout(){ 
 
   ATH_MSG_INFO("=========================================================");
   ATH_MSG_INFO("                PerfMonMT Results Summary                ");
@@ -309,7 +268,7 @@ void PerfMonMTSvc::report2Stdout(){
   ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_data[2].m_delta_cpu  << " ms ");
   ATH_MSG_INFO("Average CPU utilization in the Finalize is " <<
                 m_data[2].m_delta_cpu/m_data[2].m_delta_wall );
-  ATH_MSG_INFO("");
+
 
   ATH_MSG_INFO("=========================================================");
 
@@ -319,11 +278,10 @@ void PerfMonMTSvc::report2Stdout(){
 
   // Clear! ->
   ATH_MSG_INFO( "Step  CPU  Wall  Component"  );
-  for(auto& it : m_compLevelDataMap)
+  for(auto& it : m_compLevelDataMap){
     ATH_MSG_INFO( it.first.stepName << ": " <<  it.second->m_delta_cpu << "  -  "  << it.second->m_delta_wall <<   "     "  <<  it.first.compName  );
-  
-  for(auto& it : m_compLevelDataMap)
     delete it.second;
+  }  
 
 }
 
