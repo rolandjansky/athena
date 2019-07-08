@@ -138,17 +138,17 @@ private:
   TH1* m_h_disabled_brl;  
   TH1* m_h_disabled_ec;
   
-  TH1* m_h_brlinclPhiIndex_perLayer[5];
-  TH1* m_h_brlinclEtaIndex_perLayer[5];
+  TH1* m_h_brlinclPhiIndex_perLayer[32];
+  TH1* m_h_brlinclEtaIndex_perLayer[32];
    
-  TH1* m_h_brlflatPhiIndex_perLayer[5];
-  TH1* m_h_brlflatEtaIndex_perLayer[5];
+  TH1* m_h_brlflatPhiIndex_perLayer[32];
+  TH1* m_h_brlflatEtaIndex_perLayer[32];
    
-  TH1* m_h_brlPhiIndex_perLayer[5];
-  TH1* m_h_brlEtaIndex_perLayer[5];
+  TH1* m_h_brlPhiIndex_perLayer[32];
+  TH1* m_h_brlEtaIndex_perLayer[32];
    
-  TH1* m_h_ecPhiIndex_perLayer[5];
-  TH1* m_h_ecEtaIndex_perLayer[5];
+  TH1* m_h_ecPhiIndex_perLayer[32];
+  TH1* m_h_ecEtaIndex_perLayer[32];
 
   TTree* m_tree;
   std::string m_ntupleFileName;
