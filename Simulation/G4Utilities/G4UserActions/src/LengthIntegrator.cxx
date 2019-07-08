@@ -27,9 +27,6 @@
 #include "G4SystemOfUnits.hh"
 
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
 // System includes
 #include <mutex>
 
@@ -105,7 +102,6 @@ namespace G4UA
   LengthIntegrator::LengthIntegrator(const std::string& histSvcName, const Config& config)
     : m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
-      m_geoModelSvc("GeoModelSvc","LengthIntegrator"),
       m_tree(nullptr),
       m_doElements(false),
       m_isITk(false),

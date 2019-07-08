@@ -16,14 +16,12 @@
 
 #include <string>
 #include <map>
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Forward declarations
 class TProfile;
 class TProfile2D;
 class TTree;
 
-//class IGeoModelSvc;
 
 namespace G4UA
 {
@@ -76,7 +74,6 @@ namespace G4UA
       // Holder for G4 math tools
       G4Pow* m_g4pow;
       ServiceHandle<ITHistSvc> m_hSvc;
-      ServiceHandle< IGeoModelSvc > m_geoModelSvc;
       TTree* m_tree;
       bool m_doElements;
       bool m_isITk;
