@@ -17,9 +17,11 @@ using json = nlohmann::json;
 using namespace cool;
 using namespace IOVDbNamespace;
 
-namespace IOVDbNamespace{
 
-const std::map<std::string, cool::StorageType::TypeId> Json2Cool::m_typeCorrespondance={ 
+namespace {
+
+
+const std::map<std::string, cool::StorageType::TypeId> typeCorrespondance={ 
     //http://cool-doxygen.web.cern.ch/COOL-doxygen/classcool_1_1_storage_type.html
       {"Bool", StorageType::Bool},
       {"UChar",StorageType::UChar},
@@ -38,9 +40,15 @@ const std::map<std::string, cool::StorageType::TypeId> Json2Cool::m_typeCorrespo
       {"Blob64k", StorageType::Blob64k},
       {"Blob16M", StorageType::Blob16M}
     };
+
+
+} // anonymous namespace
   
   
-  Json2Cool::Json2Cool(std::istream & stream, BasicFolder & b):m_basicFolder(b){
+namespace IOVDbNamespace{
+
+
+Json2Cool::Json2Cool(std::istream & stream, BasicFolder & b):m_basicFolder(b){
    init(stream);
   }
   
@@ -116,7 +124,7 @@ const std::map<std::string, cool::StorageType::TypeId> Json2Cool::m_typeCorrespo
       std::string n(what[1]);
       std::string t(what[2]);
       //todo: need to catch error if type not found, also
-      spec->extend(n, m_typeCorrespondance.find(t)->second);
+      spec->extend(n, typeCorrespondance.find(t)->second);
       input = what.suffix();
       match=boost::regex_search(input, what, expression);
     }

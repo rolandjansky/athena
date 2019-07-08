@@ -33,7 +33,6 @@ namespace IOVDbNamespace {
     
   private:
     void init(std::istream & stream);
-    static const std::map<std::string, cool::StorageType::TypeId> m_typeCorrespondance;
     cool::RecordSpecification * m_sharedSpec;
     //
     bool m_isVectorPayload;
