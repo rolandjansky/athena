@@ -528,7 +528,7 @@ class Configuration:
                   options['preBtagToolModifiers'].append(rnn)
                   if do_flip:
                       rnn = DL2Tool(
-                          name=get_training_name(nn_file + '_flip'),
+                          name=(get_training_name(nn_file)  + '_flip'),
                           nnFile=nn_file, schema='FEB_2019',
                           flipTagConfig=flip_tag_config)
                       ToolSvc += rnn
@@ -557,7 +557,7 @@ class Configuration:
                   modifiers.append(dl1)
                   if do_flip:
                       dl1 = DL2Tool(
-                          name=get_training_name(nn_file + '_flip'),
+                          name=(get_training_name(nn_file)  + '_flip'),
                           nnFile=nn_file, schema='FEB_2019',
                           flipTagConfig=flip_tag_config)
                       ToolSvc += dl1

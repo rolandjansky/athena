@@ -402,6 +402,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       }
     }
     if (run_augmenters) {
+      ATH_MSG_DEBUG("running pretag augmenters for "<< jetName);
       for (const auto& tool: m_preBtagToolModifiers) {
         tool->modifyJet(jetToTag);
       }
@@ -411,6 +412,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       ATH_MSG_WARNING("#BTAG# Failed in taggers call for "<< jetName);
     }
     if (run_augmenters) {
+      ATH_MSG_DEBUG("running posttag augmenters for "<< jetName);
       for (const auto& tool: m_postBtagToolModifiers) {
         tool->modifyJet(jetToTag);
       }
