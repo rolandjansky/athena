@@ -130,7 +130,7 @@ def _tests():
         
 
 if __name__ == '__main__':
-    # unittest.main()
+    unittest.main()
     
     # run _tests outide untit tests so as to see stdout
-    _tests()
+    # _tests()
