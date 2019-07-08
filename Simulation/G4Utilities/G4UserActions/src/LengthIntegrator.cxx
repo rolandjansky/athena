@@ -73,7 +73,7 @@ namespace
                 const std::string& treeName, HistType*& ptr)
   {
     if(hSvc->regTree(treeName,ptr).isFailure()){
-      delete ptr; //pie?
+      delete ptr; 
       throw GaudiException("Failed to register Tree", "RegTreeErr", StatusCode::FAILURE);
     }
   }
@@ -199,9 +199,8 @@ namespace G4UA
       if(name.find("BeamPipe") != std::string::npos ) continue;
     }
 */    
-    //if(name.find("PST") == std::string::npos ) continue;
 
-    if((name.find("DM_Atlas_Air") != std::string::npos) || (name.find("DM_Atlas") != std::string::npos) ||
+    if((name.find("Atlas_Air") != std::string::npos) || (name.find("Atlas") != std::string::npos) ||
        (name.find("pix::HEX") != std::string::npos)){
       return "NONE";
     }
@@ -269,11 +268,10 @@ namespace G4UA
       if(name.find("Wolfram") != std::string::npos) return "SupportStructure";
       if(name.find("Aluminium") != std::string::npos) return "SupportStructure";
     }else{
-      //ITk I guess?
+      //ITk
       if(name.find("SCT_TiMetal_heat") != std::string::npos) return "HeatExchangers";
       if(name.find("pix::HEX") != std::string::npos) return "HeatExchangers";
-      if(name.find("HeatExchangers") != std::string::npos) return "PP1"; // comment out this line to see the Heat Exchangers separately in the final plot
-      
+      if(name.find("HeatExchangers") != std::string::npos) return "PP1"; // comment out this line to see the Heat Exchangers separately in the final plot 
       // New Step 3.0 items from Helen
       //----HYBRID----:
       if(name.find("matEC_Hybrid") != std::string::npos) return "StripHybrids"; //"Hybrid";
@@ -320,19 +318,22 @@ namespace G4UA
 
       // Older stuff
       if(name.find("CO2") != std::string::npos) return "Cooling";
-      //if(name.find("BoronNitrideEpoxy") != std::string::npos) return "Cooling";
+      //if(name.find("BoronNitrideEpoxy") != std::string::npos) return "Cooling"; <---- ???
+      //
       if(name.find("BoronNitrideEpoxy") != std::string::npos) return "SupportStructure";
       if(name.find("FwdSpineOutBase") != std::string::npos) return "SupportStructure";
       if(name.find("Rohacell") != std::string::npos) return "SupportStructure";
       if(name.find("Honeycomb") != std::string::npos) return "SupportStructure";
+
       if(name.find("matSV") != std::string::npos) return "Services";
       if(name.find("matEOS") != std::string::npos) return "Services";
       if(name.find("matDCDC") != std::string::npos) return "Services";
       if(name.find("PCB") != std::string::npos) return "Services";
+      if(name.find("TiMetal") != std::string::npos) return "Services"; //What is the point of this one
+      if(name.find("CuMetal") != std::string::npos) return "Services";
 
       if(name.find("N2") != std::string::npos) return "DryNitrogen";
-      if(name.find("TiMetal") != std::string::npos) return "Services";
-      if(name.find("CuMetal") != std::string::npos) return "Services";
+
       if(name.find("Aluminium") != std::string::npos) return "BeamPipe";
     } //End of ITk loop
 
@@ -345,33 +346,23 @@ namespace G4UA
     if(name.find("Getter") != std::string::npos) return "BeamPipe";
     if(name.find("Vacuum") != std::string::npos) return "BeamPipe";
     
-    /*
-    if(searchstring=="M_"){
-      if(name.find("Kapton") != std::string::npos) return "BeamPipe";
-    }else{
-      if(name.find("Kapton") != std::string::npos) return "Services";
-    }
-    */
-    //if(name.find("Iron") != std::string::npos) return "BeamPipe";
+    if(name.find("TiMetal") != std::string::npos) return "Titanium";
+    if(name.find("CuMetal") != std::string::npos) return "Copper";
+    if(name.find("Steel") != std::string::npos) return "Steel";
+
+    if(name.find("BoratedPolyethylene") != std::string::npos) return "Moderator";
+    if(name.find("Moderator") != std::string::npos) return "Moderator";
     
     if(name.find("Iron") != std::string::npos) return "SupportStructure";
     if(name.find("Peek") != std::string::npos) return "SupportStructure";
     if(name.find("CFRP") != std::string::npos) return "SupportStructure";
     if(name.find("CFoam") != std::string::npos) return "SupportStructure";
     if(name.find("K13D2U") != std::string::npos) return "SupportStructure";
-    if(name.find("BoratedPolyethylene") != std::string::npos) return "Moderator";
-
-
-    if(name.find("TiMetal") != std::string::npos) return "Titanium";
-    if(name.find("CuMetal") != std::string::npos) return "Copper";
-      
-    if(name.find("Alpine") != std::string::npos) return "SupportStructure";
-    
+    if(name.find("Alpine") != std::string::npos) return "SupportStructure"; 
     if(name.find("Support") != std::string::npos) return "SupportStructure";
     if(name.find("Carbon") != std::string::npos) return "SupportStructure";
     if(name.find("Default") != std::string::npos) return "SupportStructure";
-    if(name.find("Moderator") != std::string::npos) return "Moderator";
-    if(name.find("Steel") != std::string::npos) return "Steel";
+
     if(name.find("BarrelStrip") != std::string::npos) return "Services";
     if(name.find("Brl") != std::string::npos) return "Services";
     if(name.find("Svc") != std::string::npos) return "Services";
@@ -383,6 +374,7 @@ namespace G4UA
     if(name.find("OuterPixel") != std::string::npos) return "Services";
     if(name.find("pix::Chip") != std::string::npos) return "PixelChips";
     if(name.find("pix::Hybrid") != std::string::npos) return "PixelHybrids";
+
     if(name.find("PP0") != std::string::npos) return "PP0";
     if(name.find("PP1") != std::string::npos) return "PP1";
 
@@ -399,7 +391,7 @@ namespace G4UA
       if(name.find("Titanium") != std::string::npos) return "Services";
      // if(name.find("ArCO2O2") != std::string::npos) return "ActiveSensors"; //Overwritten by some other statement...
      // if(name.find("XeCO2O2") != std::string::npos) return "ActiveSensors";  //Overwritten by some other statement...
-    }else{
+    }else{ //Why though
       if(name.find("PP0") != std::string::npos) return "PP1"; //Grouping PP0 and PP1
     }
       
@@ -419,18 +411,26 @@ namespace G4UA
     //if(name2.find("DM_BeamPipe") != std::string::npos) return "BeamPipe"; //Overwritten by some other statement...
 
     if(name.find("Pigtail") != std::string::npos) return "Services"; //Overwritten by some other statement...
-   
+  
+
+    //TODO Are these necessary?
+    /*
+    if(searchstring=="M_"){
+      if(name.find("Kapton") != std::string::npos) return "BeamPipe";
+    }else{
+      if(name.find("Kapton") != std::string::npos) return "Services";
+    }
+    */
+    //if(name.find("Iron") != std::string::npos) return "BeamPipe";
+
     return "NONE";
 
   }
 
   void LengthIntegrator::fillNtuple(){
 
-      //TTree *larch = nullptr;
-      //getTree(m_hSvc, "/lengths/TheLarch/", larch);
       m_tree->Fill();
 
-      
       //Clean vectors and such
       m_collected_X0.clear();
       m_collected_L0.clear();
