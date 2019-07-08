@@ -317,12 +317,12 @@ HLT_CPS_Groups = {
         '6j50_gsc65_boffperf_split',
     ],
 
-    'RATE:CPS:L1_BPH-2M9-2MU4_BPH-0DR15-2MU4' : [
-        '2mu4_bBmumu_Lxy0_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
-        '2mu4_bJpsimumu_Lxy0_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
-        '2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
-        '2mu4_bBmumu_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
-        '2mu4_bBmumux_BpmumuKp_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',
+    'RATE:CPS:L1_BPH-2M9-0DR15-2MU4' : [
+        '2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4',
+        '2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU4',
+        '2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU4',
+        '2mu4_bBmumu_L1BPH-2M9-0DR15-2MU4',
+        '2mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-2MU4',
     ],
 
     'RATE:CPS:L1_J15' : [
@@ -380,10 +380,10 @@ HLT_CPS_Groups = {
     ],
 
 
-    'RATE:CPS:L1_BPH-2M9-2MU6_BPH-2DR15-2MU6' : [
-        '2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-        '2mu6_bDimu_novtx_noos_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-        '2mu6_bBmumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
+    'RATE:CPS:L1_BPH-2M9-2DR15-2MU6' : [
+        '2mu6_bDimu_L1BPH-2M9-2DR15-2MU6',
+        '2mu6_bDimu_novtx_noos_L1BPH-2M9-2DR15-2MU6',
+        '2mu6_bBmumu_L1BPH-2M9-2DR15-2MU6',
     ],
 
     'RATE:CPS:L1_J75.31ETA49' : [
@@ -803,15 +803,15 @@ HLT_CPS_Groups = {
         'e40_etcut_L1EM15',
     ],
 
-    'RATE:CPS:L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4' : [
-        'mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bDimu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bBmumux_BpmumuKp_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bDimu_novtx_noos_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bBmumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'mu6_mu4_bJpsimumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
+    'RATE:CPS:L1_BPH-2M9-0DR15-MU6MU4' : [
+        'mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bDimu_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bDimu_novtx_noos_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bBmumu_L1BPH-2M9-0DR15-MU6MU4',
+        'mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4',
     ],
 
 }
