@@ -75,11 +75,12 @@ def find_scripts(patterns):
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(usage='%(prog)s [options] PackageName')
+    packages=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest']
+    parser = argparse.ArgumentParser(usage='%(prog)s [options] PackageName which is one of: {}'.format(" ".join(packages)))
     parser.add_argument('package',
                         metavar='PackageName',
                         help='Name of the package from which to run ART tests. Options are: %(choices)s',
-                        choices=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest'])
+                        choices=packages)
     parser.add_argument('-m', '--minimal',
                         action='store_true',
                         help='Run a small pre-defined set of tests for basic verification')
@@ -99,6 +100,10 @@ def get_parser():
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='Increase output verbosity')
+    parser.add_argument('-d', '--dryRun',
+                        action='store_true',
+                        help='List tests which would be executed, but don\'t execute them')
+
     return parser
 
 
@@ -188,10 +193,14 @@ def main():
                         format='%(levelname)-8s %(message)s',
                         level=logging.DEBUG if args.verbose else logging.INFO)
 
+
     scripts = find_scripts(get_patterns(args))
     logging.info("The following %d tests will be executed: ", len(scripts))
     for filename in scripts:
         logging.info("    %s", os.path.basename(filename))
+
+    if args.dryRun:
+        return 0
 
     topdir = 'runTrigART'
     success = True
