@@ -6,4 +6,4 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
 test                 INFO Processing 
-HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
+HepMcParticleLink    INFO find_hostkey: Using StoreGateSvc/TruthEvent as McEventCollection key for this job 
