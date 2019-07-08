@@ -9,13 +9,20 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
 
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
+    Keyword arguments:
+        CreateContainer - flag to create output container. Defaults to True.
     """
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
-    from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    kwargs.setdefault('CreateContainer', True)
+    createContainer = kwargs['CreateContainer']
 
-    name = 'TileRawChannelBuilderFitFilter'
-    acc = TileRawChannelBuilderCfg(flags, TileRawChannelBuilderFitFilter, name)
+    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
+    kwargs['TileRawChannelBuilder'] = TileRawChannelBuilderFitFilter
+
+    kwargs.setdefault('Name', 'TileRawChannelBuilderFitFilter')
+
+    from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    acc = TileRawChannelBuilderCfg(flags, **kwargs)
     tileRawChannelBuilderFit = acc.getPrimary()
 
     from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
@@ -24,7 +31,9 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
 
     tileRawChannelBuilderFit.correctTime = flags.Tile.correctTime
     tileRawChannelBuilderFit.FrameLength = 7
-    tileRawChannelBuilderFit.TileRawChannelContainer = 'TileRawChannelFit'
+
+    outputContainer = 'TileRawChannelFit' if createContainer else ""
+    tileRawChannelBuilderFit.TileRawChannelContainer = outputContainer
 
     if flags.Tile.correctTime:
         from TileConditions.TileTimingConfig import TileCondToolTimingCfg
@@ -34,6 +43,12 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
     acc.setPrivateTools( tileRawChannelBuilderFit )
 
     return acc
+
+
+def TileRawChannelBuilderFitOverflowCfg(flags, **kwargs):
+    return TileRawChannelBuilderFitFilterCfg(flags,
+                                             Name = 'TileRawChannelBuilderFitOverflow',
+                                             CreateContainer = False)
 
 
 if __name__ == "__main__":
@@ -58,6 +73,8 @@ if __name__ == "__main__":
     acc = ComponentAccumulator()
 
     print( acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(ConfigFlags) ) )
+
+    print( acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileRawChannelBuilderFit.pkl','w') )

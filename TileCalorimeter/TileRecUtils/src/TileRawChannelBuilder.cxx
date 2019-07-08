@@ -189,8 +189,8 @@ StatusCode TileRawChannelBuilder::initialize() {
     m_tileIdTransforms.disable();
   }
 
-  ATH_CHECK( m_rawChannelContainerKey.initialize() );
-  ATH_CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_DQstatusKey.initialize(SG::AllowEmpty) );
 
   if (m_useDSP && !m_DSPContainerKey.key().empty()) {
     ATH_CHECK( m_DSPContainerKey.initialize() );
