@@ -24,7 +24,8 @@ namespace LArG4
     , m_emepowcalc("EMECPosOuterWheelCalibrationCalculator", name)
     , m_emenowcalc("EMECNegOuterWheelCalibrationCalculator", name)
     , m_emepscalc("EMECPresamplerCalibrationCalculator", name)
-    , m_emeobarcalc("EMECBackOuterBarretteCalibrationCalculator", name)
+    , m_emepobarcalc("EMECPosBackOuterBarretteCalibrationCalculator", name)
+    , m_emenobarcalc("EMECNegBackOuterBarretteCalibrationCalculator", name)
     , m_heccalc("HECCalibrationWheelActiveCalculator", name)
     , m_fcal1calc("FCAL1CalibCalculator", name)
     , m_fcal2calc("FCAL2CalibCalculator", name)
@@ -39,7 +40,8 @@ namespace LArG4
     declareProperty("PosOWVolumes", m_posOWVolumes);
     declareProperty("NegOWVolumes", m_negOWVolumes);
     declareProperty("PresVolumes", m_presECVolumes);
-    declareProperty("BOBarretteVolumes", m_bobVolumes);
+    declareProperty("PosBOBarretteVolumes", m_pBOBVolumes);
+    declareProperty("NegBOBarretteVolumes", m_nBOBVolumes);
     declareProperty("FCAL1Volumes", m_fcal1Volumes);
     declareProperty("FCAL2Volumes", m_fcal2Volumes);
     declareProperty("FCAL3Volumes", m_fcal3Volumes);
@@ -53,7 +55,8 @@ namespace LArG4
     declareProperty("EMECPosOWCalibrationCalculator",m_emepowcalc);
     declareProperty("EMECNegOWCalibrationCalculator",m_emenowcalc);
     declareProperty("EMECPSCalibrationCalculator",m_emepscalc);
-    declareProperty("EMECBOBCalibrationCalculator",m_emeobarcalc);
+    declareProperty("EMECPosBOBCalibrationCalculator",m_emepobarcalc);
+    declareProperty("EMECNegBOBCalibrationCalculator",m_emenobarcalc);
     declareProperty("HECWActiveCalculator",m_heccalc);
     declareProperty("FCAL1CalibCalculator",m_fcal1calc);
     declareProperty("FCAL2CalibCalculator",m_fcal2calc);
@@ -74,7 +77,8 @@ namespace LArG4
     ATH_CHECK(m_emepowcalc.retrieve());
     ATH_CHECK(m_emenowcalc.retrieve());
     ATH_CHECK(m_emepscalc.retrieve());
-    ATH_CHECK(m_emeobarcalc.retrieve());
+    ATH_CHECK(m_emepobarcalc.retrieve());
+    ATH_CHECK(m_emenobarcalc.retrieve());
     ATH_CHECK(m_heccalc.retrieve());
     ATH_CHECK(m_fcal1calc.retrieve());
     ATH_CHECK(m_fcal2calc.retrieve());
@@ -101,7 +105,8 @@ namespace LArG4
     sdWrapper->addSD( makeOneSD( "EMEC::Pos::OuterWheel::Calibration", &*m_emepowcalc, m_posOWVolumes ) );
     sdWrapper->addSD( makeOneSD( "EMEC::Neg::OuterWheel::Calibration", &*m_emenowcalc, m_negOWVolumes ) );
     sdWrapper->addSD( makeOneSD( "Endcap::Presampler::LiquidArgon::Calibration", &*m_emepscalc, m_presECVolumes ) );
-    sdWrapper->addSD( makeOneSD( "EMEC::BackOuterBarrette::Calibration", &*m_emeobarcalc, m_bobVolumes ) );
+    sdWrapper->addSD( makeOneSD( "EMEC::Pos::BackOuterBarrette::Calibration", &*m_emepobarcalc, m_pBOBVolumes ) );
+    sdWrapper->addSD( makeOneSD( "EMEC::Neg::BackOuterBarrette::Calibration", &*m_emenobarcalc, m_nBOBVolumes ) );
     sdWrapper->addSD( makeOneSD( "FCAL::Module1::Gap::Calibration", &*m_fcal1calc, m_fcal1Volumes ) );
     sdWrapper->addSD( makeOneSD( "FCAL::Module2::Gap::Calibration", &*m_fcal2calc, m_fcal2Volumes ) );
     sdWrapper->addSD( makeOneSD( "FCAL::Module3::Gap::Calibration", &*m_fcal3calc, m_fcal3Volumes ) );
