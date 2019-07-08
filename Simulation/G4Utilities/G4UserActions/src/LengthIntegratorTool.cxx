@@ -14,11 +14,13 @@ namespace G4UA
                                              const std::string& name,
                                              const IInterface* parent)
     : ActionToolBase<LengthIntegrator>(type, name, parent),
-      m_hSvc("THistSvc", name)
+      m_hSvc("THistSvc", name), m_config()
   {
     declareInterface<IG4EventActionTool>(this);
     declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
+    declareProperty("isITk", m_config.isITk);
+
   }
 
   //---------------------------------------------------------------------------
@@ -40,7 +42,7 @@ namespace G4UA
   LengthIntegratorTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<LengthIntegrator>( m_hSvc.name() );
+    return std::make_unique<LengthIntegrator>( m_hSvc.name(), m_config);
   }
 
 }

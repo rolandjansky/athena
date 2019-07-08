@@ -47,8 +47,13 @@ namespace G4UA
 
     public:
 
+      struct Config
+      {
+        bool isITk=false;
+      };
+
       /// Constructor takes the name of the histogram service as argument.
-      LengthIntegrator(const std::string& histSvcName);
+      LengthIntegrator(const std::string& histSvcName, const Config& config);
 
       /// Called at beginning of G4 event to cache some details about the
       /// current primary vertex and particle. Also resets some measurements.
@@ -75,7 +80,7 @@ namespace G4UA
       TTree* m_tree;
       bool m_doElements;
       bool m_isITk;
-
+      Config m_config;
       /// Handle to the histogram service
       //Tree Branches
       int   m_genNPart;

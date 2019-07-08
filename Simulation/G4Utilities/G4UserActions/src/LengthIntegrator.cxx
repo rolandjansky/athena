@@ -102,24 +102,17 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  LengthIntegrator::LengthIntegrator(const std::string& histSvcName)
+  LengthIntegrator::LengthIntegrator(const std::string& histSvcName, const Config& config)
     : m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_geoModelSvc("GeoModelSvc","LengthIntegrator"),
       m_tree(nullptr),
       m_doElements(false),
-      m_isITk(false)
+      m_isITk(false),
+      m_config(config)
   {
     
-    if (m_geoModelSvc.retrieve().isFailure()) {
-      G4cout<<"ERROR could not get geoModelSvc "<<G4endl;
-      m_isITk = false;
-    }
-    else {
-      if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4) { m_isITk = true; }
-      G4cout<<"INFO is ITk!" <<G4endl;
-    }
-
+    m_isITk = m_config.isITk;
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
@@ -481,7 +474,6 @@ namespace G4UA
     std::string volName = lv->GetName();
     std::string matName = mat->GetName();
     std::string groupmaterial = getMaterialClassification(matName); //Groups material into "general" categories, supports/sensors/pixels/cooling/etc
-    std::cout << matName << "       " << groupmaterial << std::endl;
     std::string volumetype = getVolumeType(matName);
 
     double radl = mat->GetRadlen();
