@@ -788,6 +788,12 @@ class TruthService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ISF_TruthService'
 
+class ParticleSimWhiteList(JobProperty):
+    """Steering of ISF: set the ParticleSimWhiteList tool"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_ParticleSimWhiteList'
+
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
