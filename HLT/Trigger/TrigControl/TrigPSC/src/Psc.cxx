@@ -45,19 +45,16 @@
 
 #include <sstream>
 #include <algorithm>
+#include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
 using namespace boost::property_tree;
-using std::vector;
-using std::string;
-using eformat::ROBFragment;
 
 namespace
 {
   //////////////////////////////////////////////////////////////////////////////
-  string to_string(const ptree& p)
+  std::string to_string(const ptree& p)
   {
     using T = ptree::key_type;
     std::ostringstream oss;
@@ -70,12 +67,7 @@ namespace
 //--------------------------------------------------------------------------------
 // C'tor and D'tor
 //--------------------------------------------------------------------------------
-psc::Psc::Psc () :
-      m_run_number(0),
-      m_pesaAppMgr(0),
-      m_nameEventLoopMgr("EventLoopMgr"),
-      m_interactive(false),
-      m_config(0)
+psc::Psc::Psc ()
 {
 }
 
@@ -84,8 +76,6 @@ psc::Psc::~Psc ()
   if (m_pesaAppMgr) { 
     m_pesaAppMgr->release() ; 
   }
-
-  delete m_config; m_config = 0;
 }
 
 //--------------------------------------------------------------------------------
@@ -99,7 +89,7 @@ bool psc::Psc::configure(const ptree& config)
   ERS_DEBUG(1, "psc::Psc::configure ptree:\n" << to_string(config));
   try
   {
-    m_config = new Config(config);
+    m_config = std::make_unique<Config>(config);
   }
   catch(const std::exception& e)
   {
@@ -578,11 +568,8 @@ bool psc::Psc::doAppMgrFinalize()
   }
 
   // Make sure we get a new instance the next time
-  Gaudi::setInstance(static_cast<IAppMgrUI*>(0));
+  Gaudi::setInstance(static_cast<IAppMgrUI*>(nullptr));
   m_pesaAppMgr = nullptr;
-
-  //this object belongs to the real Psc implementation, so don't delete it!
-  m_config = 0;
 
   return true;
 }
