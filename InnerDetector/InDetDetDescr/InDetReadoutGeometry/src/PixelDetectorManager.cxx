@@ -17,7 +17,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelKernel/GeoVAlignmentStore.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace InDetDD {
 
