@@ -11,8 +11,8 @@ find_package( YODA )
 if( RIVET_FOUND AND YODA_FOUND )
   get_filename_component( _rivetPath "${RIVET_LCGROOT}" DIRECTORY )
   set( RIVETENVIRONMENT_ENVIRONMENT 
-        FORCESET RIVETVER ${RIVET_VERSION} 
-        FORCESET YODAVER ${YODA_VERSION}
+        FORCESET RIVETVER ${RIVET_LCGVERSION} 
+        FORCESET YODAVER ${YODA_LCGVERSION}
         FORCESET RIVET_PATH ${_rivetPath}/${LCG_PLATFORM})
   unset( _rivetPath )
 endif()

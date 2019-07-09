@@ -9,7 +9,7 @@ find_package( Crmc )
 
 if( CRMC_FOUND  )
   set( EPOSENVIRONMENT_ENVIRONMENT 
-        FORCESET EPOSVER ${CRMC_VERSION} )
+        FORCESET EPOSVER ${CRMC_LCGVERSION} )
 endif()
 
 # Silently declare the module found:

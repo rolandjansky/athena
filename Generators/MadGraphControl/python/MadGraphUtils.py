@@ -104,14 +104,15 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     mglog.info('Finished process generation at '+str(time.asctime()))
 
     thedir = None
-    for adir in glob( os.getcwd()+'/*PROC*~' ).sort(reverse=True):
-        if os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
+    for adir in sorted(glob.glob( os.getcwd()+'/*PROC*' ),reverse=True):
+        print 'Testing',adir
+        if os.access('%s/SubProcesses/subproc.mg'%adir,os.R_OK):
             if thedir==None: thedir=adir
             else:
                 mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
                 mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
     if thedir==None:
-        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+glob( os.getcwd()+'/*PROC*~' ).sort(reverse=True))
+        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+str(sorted(glob.glob(os.getcwd()+'/*PROC*'),reverse=True)))
 
     # Special catch related to path setting and using afs
     import os
@@ -132,6 +133,10 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
                     # Patch for stupid naming problem
                     old_path.replace('gosam_contrib','gosam-contrib')
                 option_paths[o] = os.environ['MADPATH'].split('madgraph5amc')[0]+old_path
+            # Check to see if the option has been commented out
+            if o+' =' in l and o+' =' not in l.split('#')[0]:
+                mglog.info('Option '+o+' appears commented out in the config file')
+
     in_config.close()
     for o in needed_options:
         if not o in option_paths: mglog.warning('Path for option '+o+' not found in original config')
@@ -149,7 +154,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         for l in data:
             written = False
             for o in needed_options:
-                if o+' =' in l.split('#')[0]:
+                if o+' =' in l.split('#')[0] and o in option_paths:
                     modified.write( o +' = '+option_paths[o]+'\n' )
                     written = True
                     break

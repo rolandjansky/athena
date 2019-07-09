@@ -9,7 +9,7 @@ find_package( Photospp )
 
 if( PHOTOSPP_FOUND )
   set( PHOTOSPPENVIRONMENT_ENVIRONMENT 
-        FORCESET PHOTOSPPVER ${PHOTOSPP_VERSION})
+        FORCESET PHOTOSPPVER ${PHOTOSPP_LCGVERSION})
 endif()
 
 # Silently declare the module found:
