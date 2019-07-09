@@ -77,8 +77,11 @@ class ggF_HZ(PowhegV2):
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
-        self.add_keyword("lhans1", 262000) # use NNPDF30_lo_as_0118	as this is a LO process
-        self.add_keyword("lhans2", 262000) # use NNPDF30_lo_as_0118 as this is a LO process
+        self.add_keyword("kappa_ghb")
+        self.add_keyword("kappa_ght")
+        self.add_keyword("kappa_ghz")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
