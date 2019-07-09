@@ -28,30 +28,19 @@ SpCount=TrigCountSpacePointsMT()
 SpCount.OutputLevel= DEBUG
 topSequence += SpCount
 
-from TrigT2MinBias.TrigT2MinBiasConf import SPCountHypoAlgMT, SPCountHypoTool
-SpCountHypo=SPCountHypoAlgMT()
-SpCountHypoTool1=SPCountHypoTool("HLT_mbsptrk")
-SpCountHypoTool1.OutputLevel=DEBUG
-
-SpCountHypoTool1.totNumPixSP=20;
-SpCountHypoTool1.totNumSctSP=5;
-
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 
-SpCountHypo.OutputLevel= DEBUG
-SpCountHypo.HypoTools+=[SpCountHypoTool1]
-SpCountHypo.HypoInputDecisions="FSDecisions"
-SpCountHypo.HypoOutputDecisions="SPDecisions"
-SpCountHypo.SpacePointsKey="HLT_SPCounts"
-topSequence += SpCountHypo
 
-from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
-SpCount=TrigCountSpacePointsMT()
-SpCount.OutputLevel= DEBUG
-SpCount.SpacePointsKey="HLT_SPCounts"
-topSequence += SpCount
-
-from TrigT2MinBias.TrigT2MinBiasMonitoringMT import SpCountMonitoring
-SpCount.MonTool = SpCountMonitoring()
+from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
+TrackCountHypo=TrackCountHypoAlgMT()
+TrackCountHypoTool1=TrackCountHypoTool("HLT_mbsptrk")
+TrackCountHypoTool1.OutputLevel=DEBUG
+TrackCountHypo.OutputLevel= DEBUG
+TrackCountHypo.HypoTools+=[TrackCountHypoTool1]
+TrackCountHypo.HypoInputDecisions="FSDecisions"
+TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
+TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
+TrackCountHypo.trackCountKey="HLT_TrackCount"
+topSequence += TrackCountHypo
