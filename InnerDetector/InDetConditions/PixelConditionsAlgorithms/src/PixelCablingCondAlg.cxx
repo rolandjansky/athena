@@ -51,9 +51,10 @@ StatusCode PixelCablingCondAlg::initialize() {
     return StatusCode::SUCCESS; 
   }
   std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  EventIDRange rangeW{start, stop};
+  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+  EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
+                       EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
 
   // Signed values
   int barrel_ec, eta_module;
@@ -136,9 +137,10 @@ StatusCode PixelCablingCondAlg::execute() {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
 
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  EventIDRange rangeW{start, stop};
+  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+  EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
+                       EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
 
   // Signed values
   int barrel_ec, eta_module;

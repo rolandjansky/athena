@@ -146,7 +146,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     }
 
     SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
-    SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
+    //SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
+    std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
 
     // check the ROD status for truncation
     if (robFrag->nstatus() != 0) {
@@ -720,12 +721,15 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                                 ATH_MSG_VERBOSE("Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec );
 #endif
 
+                                if (!pixHitDiscCnfg) {
+                                  pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> > (m_condHitDiscCnfgKey);
+                                }
                                 // Get the hit discrimination configuration setting for this FE
                                 if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::DBM) {
-                                  hitDiscCnfg = pixHitDiscCnfg->getHitDiscCnfgPL();
+                                  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
                                 }
                                 else if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_3D) {
-                                  hitDiscCnfg = pixHitDiscCnfg->getHitDiscCnfg3D();
+                                  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
                                 }
 
                                 // Now do some interpreting of the ToT values

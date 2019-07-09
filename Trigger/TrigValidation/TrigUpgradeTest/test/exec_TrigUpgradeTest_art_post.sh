@@ -78,7 +78,7 @@ timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} 2>&1 | tee warnings.log
+timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
@@ -91,7 +91,7 @@ fi
 
 if [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running histSizes"
-  timeout 5m histSizes.py -t expert-monitoring.root 2>&1 | tee histSizes.log
+  timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
 fi
 
 ### MAKE LOG TAIL FILE
@@ -102,7 +102,11 @@ tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 ### REGTEST
 
 REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
-grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+if [ -z "${REGTESTEXP_EXCLUDE}" ]; then
+  grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+else
+  grep -E "${REGTESTEXP}" ${JOB_LOG} | grep -v -E "${REGTESTEXP_EXCLUDE}" > "${REGTESTREF_BASENAME}"
+fi
 
 if [ -f ${REGTESTREF} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
@@ -119,7 +123,7 @@ mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
+  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"

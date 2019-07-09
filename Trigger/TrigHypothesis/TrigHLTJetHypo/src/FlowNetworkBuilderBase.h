@@ -31,8 +31,9 @@ class FlowNetworkBuilderBase: virtual public IFlowNetworkBuilder{
     conditionGroupMatches(const HypoJetGroupCIter& groups_b,
 			  const HypoJetGroupCIter& groups_e,
 			  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+
+  std::vector<std::shared_ptr<FlowEdge>> getSourceToConditionsEdges() const;
   ConditionsMT m_conditions;
-  std::vector<std::shared_ptr<FlowEdge>> m_initialEdges;
 
 };
 

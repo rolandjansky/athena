@@ -92,17 +92,6 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
 
 StatusCode EMBremCollectionBuilder::execute()
 {
-
-  // Record the final Track Particle container in StoreGate
-  SG::WriteHandle<xAOD::TrackParticleContainer> finalTrkPartContainer(m_OutputTrkPartContainerKey);
-  ATH_CHECK(finalTrkPartContainer.record(std::make_unique<xAOD::TrackParticleContainer>(),
-                                         std::make_unique<xAOD::TrackParticleAuxContainer>()));
-  xAOD::TrackParticleContainer* cPtrTrkPart=finalTrkPartContainer.ptr();
-  //create container for the final slimmed Trk::Tracks
-  SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey);
-  ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>())); 
-  TrackCollection* cPtrTracks=finalTracks.ptr();
-
   //Read input
   SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(m_trackParticleContainerKey);
   if(!trackTES.isValid()) {
@@ -118,17 +107,26 @@ StatusCode EMBremCollectionBuilder::execute()
   }
   ATH_MSG_DEBUG ("Selected Track Particle container  size: "  <<selectedTracks->size() );
 
+
+  // Record the final Track Particle container in StoreGate
+  SG::WriteHandle<xAOD::TrackParticleContainer> finalTrkPartContainer(m_OutputTrkPartContainerKey);
+  ATH_CHECK(finalTrkPartContainer.record(std::make_unique<xAOD::TrackParticleContainer>(),
+                                         std::make_unique<xAOD::TrackParticleAuxContainer>()));
+  xAOD::TrackParticleContainer* cPtrTrkPart=finalTrkPartContainer.ptr();
+  cPtrTrkPart->reserve(selectedTracks->size());
+  //create container for the final slimmed Trk::Tracks
+  SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey);
+  ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>())); 
+  TrackCollection* cPtrTracks=finalTracks.ptr();
+  cPtrTracks->reserve(selectedTracks->size());
   /*
    * Struct of unsigned int, local varibale of this method
    * Initialization of counters is 0
    */
   localCounter locCounter; 
   //Loop over the selected input tracks 
-  xAOD::TrackParticleContainer::const_iterator track_iter=selectedTracks->begin();
-  xAOD::TrackParticleContainer::const_iterator track_iter_end=selectedTracks->end();
-  for(; track_iter !=  track_iter_end; ++track_iter){
+  for(const xAOD::TrackParticle* track : *selectedTracks){
 
-    const xAOD::TrackParticle* track=(*track_iter); 
     ATH_MSG_DEBUG ("Attempt to Refit Track with Eta "<< track->eta()
                    << " Phi " << track->phi()<<" Pt " <<track->pt());
     //Try to refit, if failded move to next one
@@ -222,7 +220,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   std::unique_ptr<Trk::Track> trk_refit; 
   if( isSilicon ) {
     IegammaTrkRefitterTool::Cache cache{};
-    StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart,cache);
+    StatusCode status = m_trkRefitTool->refitTrackParticle(Gaudi::Hive::currentContext(),
+                                                           tmpTrkPart,
+                                                           cache);
     if (status == StatusCode::SUCCESS){
       ATH_MSG_DEBUG("FIT SUCCESS ");
       ++(counter.refittedTracks); 
@@ -245,7 +245,10 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   //Refit Trk::Track has been created
 
   // Create TrackParticle from the refitted Trk::Track
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, finalTrkPartContainer, nullptr, xAOD::electron );
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, 
+                                                                          finalTrkPartContainer, 
+                                                                          nullptr, 
+                                                                          xAOD::electron );
   if (!aParticle){
     ATH_MSG_ERROR("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
@@ -269,8 +272,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
         perigeeTrackParams = (*tsos)->trackParameters();
 
         const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
-        std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), 
-                                                                                            perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+        std::unique_ptr<const Trk::TrackParameters> pTrkPar(
+          pSurface.createTrackParameters( perigeeTrackParams->position(), 
+                                          perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
         //Do the straight-line extrapolation.	  
         bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
         if (hitEM2) {
@@ -284,8 +288,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     }
   }
   pgExtrapEta(*aParticle) = perigeeExtrapEta;    
-  pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
- 
+  pgExtrapPhi(*aParticle) = perigeeExtrapPhi; 
   /*
    * Add qoverP from the last measurement
    */
@@ -294,9 +297,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();
   for (;rtsos != trk_refit->trackStateOnSurfaces()->rend(); ++rtsos){
     if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
-        && (*rtsos)->trackParameters()!=0 
-        &&(*rtsos)->measurementOnTrack()!=0 
-        && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rtsos)->measurementOnTrack())) {
+        && (*rtsos)->trackParameters()!=nullptr
+        &&(*rtsos)->measurementOnTrack()!=nullptr
+        && !(*rtsos)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
       QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
       break;
     }

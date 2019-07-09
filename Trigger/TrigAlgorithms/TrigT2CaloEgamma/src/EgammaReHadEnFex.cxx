@@ -73,7 +73,7 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     } // end of loop over cells
 
   } // End sampling loop
-#ifndef NDEBUG
+#if 0 // Can't call EtaPhiRange from a const method!
   if (msgLvl(MSG::DEBUG)) {
     for (int sampling = 0; sampling < 3; sampling++) {
       if (m_geometryTool->EtaPhiRange(1, sampling, energyEta, energyPhi)) {

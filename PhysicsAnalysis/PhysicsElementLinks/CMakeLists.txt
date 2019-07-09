@@ -7,7 +7,7 @@ atlas_subdir( PhysicsElementLinks )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/SGTools
+                          Control/AthenaKernel
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           Reconstruction/Jet/JetEvent
@@ -25,12 +25,12 @@ atlas_add_library( PhysicsElementLinks
                    src/*.cxx
                    PUBLIC_HEADERS PhysicsElementLinks
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools ParticleEvent McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent
+                   LINK_LIBRARIES AthenaKernel ParticleEvent McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( PhysicsElementLinksDict
                       PhysicsElementLinks/PhysicsElementLinksDict.h
                       PhysicsElementLinks/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools ParticleEvent McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent PhysicsElementLinks )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel ParticleEvent McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent PhysicsElementLinks )
 

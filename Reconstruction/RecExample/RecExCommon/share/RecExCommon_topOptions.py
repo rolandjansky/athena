@@ -1338,8 +1338,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
     if DetFlags.detdescr.Calo_on() and rec.doAODCaloCells():
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
-            if  rec.readESD() or jobproperties.CaloRecFlags.doEmCluster() :
-                addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
+            addClusterToCaloCellAOD("egamma711Clusters")
 
             from egammaRec.egammaRecFlags import jobproperties
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :

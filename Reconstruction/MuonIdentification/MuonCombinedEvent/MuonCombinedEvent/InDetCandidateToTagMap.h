@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_INDETCANDIDATETOTAGMAP_H
@@ -31,7 +31,7 @@ namespace MuonCombined{
   };
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(MuonCombined::InDetCandidateToTagMap,68903047,1)
 
 #endif

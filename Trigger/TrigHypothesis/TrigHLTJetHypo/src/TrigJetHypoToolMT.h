@@ -18,7 +18,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"

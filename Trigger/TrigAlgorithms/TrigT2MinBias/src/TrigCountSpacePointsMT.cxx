@@ -20,7 +20,7 @@ StatusCode TrigCountSpacePointsMT::initialize()
   ATH_CHECK(m_sctSpKey.initialize());
   ATH_CHECK(m_sctHelperKey.initialize());
   ATH_CHECK(m_spacePointsKey.initialize());
-
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
 StatusCode TrigCountSpacePointsMT::finalize()
@@ -38,7 +38,7 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
   ATH_MSG_DEBUG ("Successfully retrieved pixel SP container of size" << pixelSP->size());
 
   //Here monitor
-  int nPixSP{},nPixCL_1{},nPixCL_2{},nPixCLmin3{};
+  int nPixSP{},nPixCL_1{},nPixCL_2{},nPixCLmin3{},totPixBeforeCuts{};
   int totNumPixSP{};
   int totNumPixCL_1{} ;
   int totNumPixCL_2{} ;
@@ -47,16 +47,15 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
   int pixClEndcapA{} ;
   int pixClEndcapC{} ;
 
-
+  totPixBeforeCuts=pixelSP->size();
 
   const InDet::PixelCluster* pixClust;
-
 
   for (const auto  pixSPointColl: *pixelSP){
     if( pixSPointColl == nullptr ) continue;
 
-Identifier pixid = (pixSPointColl)->identify();
-if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
+    Identifier pixid = (pixSPointColl)->identify();
+    if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
     int bec = pixelHelper->barrel_ec(pixid);
 
     int  SPpixBarr{};
@@ -103,7 +102,7 @@ if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
       pixClEndcapC += SPpixECC;
     }
   }
-  ATH_MSG_DEBUG("REGTEST : Formed  " << totNumPixSP << " pixel spacepoints in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " <<totPixBeforeCuts << " pixel spacepoints in total before cuts.");
   ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_1 << " have cl size == 1 in total.");
   ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_2 << " have cl size == 2 in total.");
   ATH_MSG_DEBUG("REGTEST : " << totNumPixCLmin3 << "  have cl size >= 3 in total.");
@@ -132,7 +131,6 @@ if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
     int SPSctBarr{};
     int SPSctECA{};
     int SPSctECC{};
-
     nSctSP = (SctSPointColl)->size();
     Identifier Sctid = (SctSPointColl)->identify();
     int bec = (int)SctHelper->barrel_ec(Sctid);
@@ -151,11 +149,11 @@ if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
     }
     // total
     if(nSctSP > m_sctModuleThreshold){
-    //this is noise
-    ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP << " SCT spacepoints. Ignoring these spacepoints as the maximum allowed spacepoints per module is " << m_sctModuleThreshold);
+      //this is noise
+      ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP << " SCT spacepoints. Ignoring these spacepoints as the maximum allowed spacepoints per module is " << m_sctModuleThreshold);
 
 
-  } else { // Accept the spacepoints
+    } else { // Accept the spacepoints
       SctSpBarrel += SPSctBarr;
       SctSpEndcapA += SPSctECA;
       SctSpEndcapC += SPSctECC;
@@ -163,18 +161,33 @@ if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0) continue;
 
   }
 
-totNumSctSP = SctSpEndcapC + SctSpBarrel + SctSpEndcapA;
+  totNumSctSP = SctSpEndcapC + SctSpBarrel + SctSpEndcapA;
 
   ATH_MSG_DEBUG("REGTEST : Formed  " << totNumSctSP << " sct spacepoints in total.");
   ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpEndcapC << " sct ECC spacepoints in total.");
   ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpBarrel << " sct Barr spacepoints in total.");
   ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpEndcapA << " sct ECA spacepoints in total.");
 
+
+  auto mon_totPixBeforeCuts = Monitored::Scalar<int>("totPixBeforeCuts",totPixBeforeCuts);
+  auto mon_totNumPixCL_1 = Monitored::Scalar<int>("totNumPixCL_1",totNumPixCL_1);
+  auto mon_totNumPixCL_2 = Monitored::Scalar<int>("totNumPixCL_2",totNumPixCL_2);
+  auto mon_totNumPixCLmin3 = Monitored::Scalar<int>("totNumPixCLmin3",totNumPixCLmin3);
+  auto mon_totNumPixSP = Monitored::Scalar<int>("totNumPixSP",totNumPixSP);
+  auto mon_pixClBarrel = Monitored::Scalar<int>("pixClBarrel",pixClBarrel);
+  auto mon_pixClEndcapA = Monitored::Scalar<int>("pixClEndcapA",pixClEndcapA);
+  auto mon_pixClEndcapC = Monitored::Scalar<int>("pixClEndcapC",pixClEndcapC);
+  auto mon_totNumSctSP = Monitored::Scalar("totNumSctSP",totNumSctSP);
+  auto mon_SctSpEndcapC = Monitored::Scalar<int>("SctSpEndcapC",SctSpEndcapC);
+  auto mon_SctSpBarrel = Monitored::Scalar<int>("SctSpBarrel",SctSpBarrel);
+  auto mon_SctSpEndcapA = Monitored::Scalar<int>("SctSpEndcapA",SctSpEndcapA);
+  Monitored::Group(m_monTool,mon_totPixBeforeCuts,mon_totNumPixCL_1,mon_totNumPixCL_2,mon_totNumPixCLmin3,mon_totNumPixSP,mon_pixClBarrel,mon_pixClEndcapA,mon_pixClEndcapC,mon_totNumSctSP,mon_SctSpEndcapC,mon_SctSpBarrel,mon_SctSpEndcapA);
+
   // Recording Data
   SG::WriteHandle<xAOD::TrigCompositeContainer> spacePointHandle (m_spacePointsKey, context);
 
-  auto spacePoints = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  auto spacePointsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
+  auto spacePoints = std::make_unique< xAOD::TrigCompositeContainer >();
+  auto spacePointsAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
   spacePoints->setStore(spacePointsAux.get());
 
 

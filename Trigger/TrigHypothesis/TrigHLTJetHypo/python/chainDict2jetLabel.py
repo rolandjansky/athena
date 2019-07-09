@@ -54,12 +54,69 @@ def make_simple_label(chain_dict):
             #                                  smcstr,)
             condition_str = '(%set,%s' % (str(cp['threshold']),
                                               str(cp['etaRange']),)
+            if smcstr: # Run 2 chains have "INF" in the SMC substring
+                condition_str += ',%s)' % smcstr.replace('INF','')
+            else:
+                condition_str += ')'
+            label += condition_str
+    label += '])'
+    return label
+
+
+def make_simple_partition_label(chain_dict):
+    """Marshal information deom the selected chainParts to create a
+    'simple' label.
+    """
+    
+    cps = select_simple_chains(chain_dict)
+    if not cps:
+        raise NotImplementedError(
+            'chain fails substring selection: not "simple": %s' % (
+                chain_dict['chainName']))
+    
+    label = 'simplepartition(['
+    for cp in cps:
+        smcstr =  str(cp['smc'])
+        if smcstr == 'nosmc':
+            smcstr = ''
+        for i in range(int(cp['multiplicity'])):
+            # condition_str = '(%set,%s,%s)' % (str(cp['threshold']),
+            #                                  str(cp['etaRange']),
+            #                                  smcstr,)
+            condition_str = '(%set,%s' % (str(cp['threshold']),
+                                              str(cp['etaRange']),)
             if smcstr:
                 condition_str += ',%s)'
             else:
                 condition_str += ')'
             label += condition_str
     label += '])'
+    return label
+
+
+def make_simple_comb_label(chain_dict):
+    """Marshal information deom the selected chainParts to create a
+    'simple' label NOTE: DO NOT USE this method.
+    THIS CHAINLABEL IS FOR TIMING STUDIES ONLY.
+    IT has n^2 behaviour rather than n obtined usinbg make_simple_label.
+    """
+    
+    cps = select_simple_chains(chain_dict)
+    if not cps:
+        raise NotImplementedError(
+            'chain fails substring selection: not "simple": %s' % (
+                chain_dict['chainName']))
+
+    simple_strs = []
+
+    for cp in cps:
+        chain_dict['chainParts'] = [cp]
+        simple_strs.append(make_simple_label(chain_dict))
+
+        label = 'combgen([(%d)]' % len(cps)
+        for s in simple_strs:
+            label += ' %s ' % s
+        label += ')'
     return label
 
 
@@ -178,25 +235,25 @@ def make_vbenf_label(scenario):
     # )""" % argvals
 
 
-
-
-
 def _test0():
     """Read chainDicts from files, cread simple label if possible"""
-    from chainDictSource import chainDictSource
 
-    for cd in chainDictSource():
-        f = cd['chainName']
-        print '\n---------'
-        print f
-        try:
-            label = make_simple_label(cd)
-        except Exception, e:
-            print e
-            continue
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+    chainNameDecoder = DictFromChainName.DictFromChainName()
+    chain_name = 'HLT_j85'
+    cd = chainNameDecoder.getChainDict(chain_name)
+    
+    f = cd['chainName']
+    print '\n---------'
+    print f
+    try:
+        label = make_simple_label(cd)
+    except Exception, e:
+        print e
         
-        print 'chain label', label
-        print '-----------\n'
+    print 'chain label', label
+    print '-----------\n'
 
 
 def _test1():
@@ -209,5 +266,60 @@ def _test1():
     print make_vbenf_label(scenario)
 
 
+    
+
+
+def _test2():
+    """Read chainDicts from files, cread simple label if possible"""
+
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+    chainNameDecoder = DictFromChainName.DictFromChainName()
+    chain_name = 'HLT_j85_j70'
+    cd = chainNameDecoder.getChainDict(chain_name)
+    
+    f = cd['chainName']
+    print '\n---------'
+    print f
+    try:
+        label = make_simple_label(cd)
+    except Exception, e:
+        print e
+        
+    print 'chain label', label
+    print '-----------\n'
+
+    
+def _test3():
+    """Read chainDicts from files, create a simple label if possible"""
+
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+    chainNameDecoder = DictFromChainName.DictFromChainName()
+    chain_name = 'HLT_j85_j70'
+    cd = chainNameDecoder.getChainDict(chain_name)
+    
+    f = cd['chainName']
+    print '\n---------'
+    print f
+    try:
+        # label = make_simple_comb_label(cd)
+        label = make_simple_label(cd)
+    except Exception, e:
+        print e
+        
+    print 'chain label', label
+
+    from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
+
+    parser = ChainLabelParser(label, debug=True)
+    parser.parse()
+
+    print '-----------\n'
+
+    
+
+
+
 if __name__ == '__main__':
-    _test1()
+    _test3()

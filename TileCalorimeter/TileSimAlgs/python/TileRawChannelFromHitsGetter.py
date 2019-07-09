@@ -4,8 +4,6 @@
 # TileRawChannel creation from TileHit
 # with TileHitToRawChannel algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -27,9 +25,9 @@ class TileRawChannelFromHitsGetter ( Configured )  :
         try:
             from TileSimAlgs.TileRawChannelFromHitsGetter import TileRawChannelFromHitsGetter
             theTileRawChannelFromHitsGetter=TileRawChannelFromHitsGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileRawChannelFromHitsGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileRawChannelFromHitsGetter.usable():
@@ -42,13 +40,13 @@ class TileRawChannelFromHitsGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileHitToRawChannel                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileHitToRawChannel")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileHitToRawChannel=TileHitToRawChannel()
-        self._TileHitToRawChannelHandle = theTileHitToRawChannel ;
+        self._TileHitToRawChannelHandle = theTileHitToRawChannel
 
         # Configure TileHitToRawChannel here
         # Check TileRawChannel_jobOptions.py for full configurability
@@ -72,7 +70,7 @@ class TileRawChannelFromHitsGetter ( Configured )  :
         # get a handle on topalg
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileHitToRawChannel;
+        topSequence += theTileHitToRawChannel
         
         return True
 

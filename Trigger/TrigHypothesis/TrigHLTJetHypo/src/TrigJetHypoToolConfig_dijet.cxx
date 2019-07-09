@@ -17,6 +17,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "ArgStrToDouble.h"
+#include "./groupsMatcherFactoryMT.h"
+
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 #include <algorithm>
@@ -131,4 +133,8 @@ TrigJetHypoToolConfig_dijet::getCleaners() const {
   return v;
 }
 
+std::unique_ptr<IGroupsMatcherMT>
+TrigJetHypoToolConfig_dijet::getMatcher () const {
+  return groupsMatcherFactoryMT_MaxBipartite(getConditions());
+}
 

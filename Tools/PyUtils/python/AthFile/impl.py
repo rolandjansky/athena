@@ -1024,9 +1024,6 @@ class FilePeeker(object):
         # user-driven (and might need user-customized macros or configurations)
         self._sub_env['ROOTENV_NO_HOME'] = '1'
 
-        # prevent from running athena-mp unadvertantly...
-        self._sub_env['ATHENA_PROC_NUMBER'] ='0'
-
         # prevent from running athena in interactive mode (and freeze)
         if 'PYTHONINSPECT' in self._sub_env:
             del self._sub_env['PYTHONINSPECT']
@@ -1186,9 +1183,6 @@ class FilePeeker(object):
                             """ % str([file_name])
                         app << """
                             import os
-                            # prevent from running athena-mp in child processes
-                            os.putenv('ATHENA_PROC_NUMBER','0')
-    
                             # prevent from running athena in interactive mode (and freeze)
                             if 'PYTHONINSPECT' in os.environ:
                                 del os.environ['PYTHONINSPECT']

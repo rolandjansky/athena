@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
@@ -24,8 +23,15 @@ theFTF.isRoI_Seeded = True
 theFTF.RoIs         = "FSRoI"
 topSequence += theFTF
 
+from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
+SpCount=TrigCountSpacePointsMT()
+SpCount.OutputLevel= DEBUG
+topSequence += SpCount
+
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
+
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
@@ -38,9 +44,3 @@ TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 TrackCountHypo.trackCountKey="HLT_TrackCount"
 topSequence += TrackCountHypo
-
-
-from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT
-SpCount=TrigCountSpacePointsMT()
-SpCount.OutputLevel= DEBUG
-topSequence += SpCount

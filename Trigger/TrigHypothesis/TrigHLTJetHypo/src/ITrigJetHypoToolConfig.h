@@ -7,6 +7,8 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
+#include "./IGroupsMatcherMT.h"
+
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 
 class ITrigJetHypoToolConfig : virtual public ::IAlgTool {
@@ -22,6 +24,7 @@ public:
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const = 0;
   
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const = 0;
+  virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const = 0;
   virtual ConditionsMT getConditions() const = 0;
   
 };

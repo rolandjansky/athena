@@ -26,7 +26,7 @@ def setupMenu():
     #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    #SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
     #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
     SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
@@ -86,23 +86,25 @@ def setupMenu():
     TriggerFlags.JetSlice.signatures = [
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),        
+        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
 
-        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
+        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),        
-        ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),        
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_a10t_lcw_jes_30smcINF_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10t_lcw_jes_30smcINF_L1J20', groups=SingleJetGroup),
         
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
-        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),       
+        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_5j70_0eta240_L1J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
 
     ]
     TriggerFlags.BjetSlice.signatures = [
-        #ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
-        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
         #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 

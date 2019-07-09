@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 import re
 
 _pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
@@ -110,8 +110,8 @@ def createRingerDecisions( name, chains, ClustersKey="CaloClusters",RingerKey="C
     from AthenaCommon.Constants import INFO
     tool = _AlgTool(name) 
     from AthenaCommon.AppMgr import ToolSvc
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-    ToolSvc+=LuminosityToolOnline()
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+    LuminosityCondAlgOnlineDefault()
     
     if not type(chains) is list:
       chains=[chains]

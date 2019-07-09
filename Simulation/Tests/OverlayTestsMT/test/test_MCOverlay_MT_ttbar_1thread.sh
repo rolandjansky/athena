@@ -11,8 +11,6 @@
 # art-output: mem.full.*
 # art-output: runargs.*
 
-unset ATHENA_PROC_NUMBER
-
 Overlay_tf.py \
 --athenaopts '--threads 1' \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \

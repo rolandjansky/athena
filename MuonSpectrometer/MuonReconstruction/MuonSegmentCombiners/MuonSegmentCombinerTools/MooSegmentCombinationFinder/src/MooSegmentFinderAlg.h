@@ -19,7 +19,7 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 class MsgStream;
 class StoreGateSvc;
@@ -74,7 +74,7 @@ class MooSegmentFinderAlg : public AthAlgorithm
   
   SG::WriteHandleKey<MuonPatternCombinationCollection>   m_patternCombiLocation;
   SG::WriteHandleKey<Trk::SegmentCollection>                   m_segmentLocation;
-  SG::WriteHandleKey<std::vector<Muon::HoughDataPerSec>> m_houghDataPerSectorVecKey {this, 
+  SG::WriteHandleKey<Muon::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
     "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
   ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder;     //<! pointer to the segment finder

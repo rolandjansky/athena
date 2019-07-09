@@ -153,7 +153,7 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   ATH_CHECK( m_tileCondToolOfc.retrieve() );
   
   //=== get TileCondToolNoiseSample
-  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve(EnableTool{m_pedestalMode == -1}) );
 
   if (m_bestPhase) {
     //=== get TileToolTiming

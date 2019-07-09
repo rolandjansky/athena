@@ -31,9 +31,6 @@
 #include "VxSecVertex/VxSecVertexInfo.h"
 
 
-
-class MsgStream;
-
 namespace Analysis {
   class IBTagTool;
   class IBTagTrackAssociation;

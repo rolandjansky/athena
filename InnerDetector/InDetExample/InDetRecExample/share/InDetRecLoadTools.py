@@ -60,8 +60,8 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
         do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
         from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
-        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
         if do_runI :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                               = "NnClusterizationFactory",
                                                                       PixelLorentzAngleTool              = ToolSvc.PixelLorentzAngleTool,

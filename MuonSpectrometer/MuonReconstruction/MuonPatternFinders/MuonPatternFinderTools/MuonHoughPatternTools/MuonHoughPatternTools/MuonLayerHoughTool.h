@@ -86,7 +86,8 @@ namespace Muon {
     typedef HoughDataPerSec::RegionPhiMaximumVec RegionPhiMaximumVec;
 
     typedef HoughDataPerSec                       HoughDataPerSector;
-    typedef std::vector<HoughDataPerSector>       HoughDataPerSectorVec;
+
+    typedef Muon::HoughDataPerSectorVec HoughDataPerSectorVec;
     typedef HoughDataPerSectorVec::const_iterator HoughDataPerSectorCit;
 
     
@@ -163,8 +164,8 @@ namespace Muon {
 
     struct State {
       MaximumVec seedMaxima;
-      MuonHough::MuonDetectorHough detectorHoughTransforms;
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
+      MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;

@@ -26,10 +26,11 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
     m_etaMax > abseta and
     m_threshold <= et;
   if(collector){
+    auto result_str = result ? "pass" : "fail";
     collector->collect("EtaEtConditionMT",
 		       std::to_string(abseta) + " " +
 		       std::to_string(et) + " " +
-		       std::to_string(result) + '\n');
+		       result_str + '\n');
   }
   return result;
 }

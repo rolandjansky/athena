@@ -15,6 +15,8 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         super(GenericMonitoringTool, self).__init__(name, **kwargs)
 
     def defineHistogram(self, *args, **kwargs):
+        if 'convention' not in kwargs and hasattr(self,'convention'):
+            kwargs['convention'] = self.convention
         self.Histograms.append(defineHistogram(*args, **kwargs))
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
@@ -32,7 +34,8 @@ def defineHistogram(varname, type='TH1F', path=None,
                     title=None,weight='',
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None,
-                    zmin=None, zmax=None, opt='', labels=None):
+                    zmin=None, zmax=None,
+                    opt='', labels=None, convention=''):
 
     # Assert argument types
     assert path is not None, "path is required"
@@ -47,7 +50,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
         return ""
 
-    coded = "%s, %s, %s, %s, %s, " % (path, type, weight, varname, title) 
+    coded = "%s, %s, %s, %s, %s, %s, " % (path, type, weight, convention, varname, title)
 
     if not isinstance(xbins,list):
         coded += '%d, %f, %f' % (xbins, xmin, xmax)

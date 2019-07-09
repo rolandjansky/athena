@@ -61,6 +61,11 @@ namespace G4UA
 	int nBinslogEo  = 45;   
 	double logEMino = -2.; // min log10(E_kin/MeV) 
 	double logEMaxo =  7.; // max log10(E_kin/MeV) 
+
+	// time dependent TID maps
+	int nBinslogT   =  20;   
+	double logTMin  = -9.; // log10(t_cut/s); first bin for t < 1 ns 
+	double logTMax  = 11.; // log10(t_cut/s); last bin for t < 3169 a
       };
 
 
@@ -177,7 +182,14 @@ namespace G4UA
 	std::vector<double> m_rz_rest_spec;
         /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_rest_spec;
-	
+
+	// time dependent maps
+
+	/// vector of time dependent TID in zoom 2d grid 
+	std::vector<double> m_rz_tid_time;
+	/// vector of time dependent TID in full 2d grid 
+	std::vector<double> m_full_rz_tid_time;
+
 	void merge(const Report& maps);
       };
 

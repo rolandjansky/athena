@@ -17,39 +17,44 @@ namespace G4UA{
     /// Output Filename for the Radiation Maps
     declareProperty("RadMapsFileName", m_radMapsFileName);
     /// Name of the material to make radiation maps for (take all if empty) 
-    declareProperty("Material"  , m_config.material);
+    declareProperty("Material"       , m_config.material);
     /// map granularities 
     /// number of bins in r and z for all 2D maps
-    declareProperty("NBinsR"    , m_config.nBinsr);
-    declareProperty("NBinsZ"    , m_config.nBinsz);
+    declareProperty("NBinsR"         , m_config.nBinsr);
+    declareProperty("NBinsZ"         , m_config.nBinsz);
     /// number of bins in logE for energy spectra of neutrons in 2D grids
-    declareProperty("NBinsLogEn", m_config.nBinslogEn);
+    declareProperty("NBinsLogEn"     , m_config.nBinslogEn);
     /// number of bins in logE for energy spectra of other particles in 2D grids
-    declareProperty("NBinsLogEo", m_config.nBinslogEo);
+    declareProperty("NBinsLogEo"     , m_config.nBinslogEo);
     /// number of bins in r, z and phi for all 3D maps
-    declareProperty("NBinsR3D"  , m_config.nBinsr3d);
-    declareProperty("NBinsZ3D"  , m_config.nBinsz3d);
-    declareProperty("NBinsPhi3D", m_config.nBinsphi3d);
+    declareProperty("NBinsR3D"       , m_config.nBinsr3d);
+    declareProperty("NBinsZ3D"       , m_config.nBinsz3d);
+    declareProperty("NBinsPhi3D"     , m_config.nBinsphi3d);
+    /// number of bins in logTimeCut for time dependent TID 2D maps
+    declareProperty("NBinsLogTimeCut", m_config.nBinslogT);
     /// map ranges
     /// for Zoomed area in 2D and 3D
-    declareProperty("RMinZoom"  , m_config.rMinZoom);
-    declareProperty("RMaxZoom"  , m_config.rMaxZoom);
-    declareProperty("ZMinZoom"  , m_config.zMinZoom);
-    declareProperty("ZMaxZoom"  , m_config.zMaxZoom);
+    declareProperty("RMinZoom"       , m_config.rMinZoom);
+    declareProperty("RMaxZoom"       , m_config.rMaxZoom);
+    declareProperty("ZMinZoom"       , m_config.zMinZoom);
+    declareProperty("ZMaxZoom"       , m_config.zMaxZoom);
     /// for Full detector in 2D
-    declareProperty("RMinFull"  , m_config.rMinFull);
-    declareProperty("RMaxFull"  , m_config.rMaxFull);
-    declareProperty("ZMinFull"  , m_config.zMinFull);
-    declareProperty("ZMaxFull"  , m_config.zMaxFull);
+    declareProperty("RMinFull"       , m_config.rMinFull);
+    declareProperty("RMaxFull"       , m_config.rMaxFull);
+    declareProperty("ZMinFull"       , m_config.zMinFull);
+    declareProperty("ZMaxFull"       , m_config.zMaxFull);
     /// for Zoomed area in 3D 
-    declareProperty("PhiMinZoom", m_config.phiMinZoom);
-    declareProperty("PhiMaxZoom", m_config.phiMaxZoom);
+    declareProperty("PhiMinZoom"     , m_config.phiMinZoom);
+    declareProperty("PhiMaxZoom"     , m_config.phiMaxZoom);
     /// for logE of neutrons in 2D spectra
-    declareProperty("LogEMinn"  , m_config.logEMinn);
-    declareProperty("LogEMaxn"  , m_config.logEMaxn);
+    declareProperty("LogEMinn"       , m_config.logEMinn);
+    declareProperty("LogEMaxn"       , m_config.logEMaxn);
     /// for logE of other particles in 2D spectra
-    declareProperty("LogEMino"  , m_config.logEMino);
-    declareProperty("LogEMaxo"  , m_config.logEMaxo);
+    declareProperty("LogEMino"       , m_config.logEMino);
+    declareProperty("LogEMaxo"       , m_config.logEMaxo);
+    /// for logT in time-dependent TID 2D maps
+    declareProperty("LogTMin"        , m_config.logTMin);
+    declareProperty("LogTMax"        , m_config.logTMax);
   }
 
   //---------------------------------------------------------------------------
@@ -57,25 +62,27 @@ namespace G4UA{
   //---------------------------------------------------------------------------
   StatusCode RadiationMapsMakerTool::initialize()
   {
-    ATH_MSG_INFO( "Initializing     " << name() << "\n" <<
-                  "OutputFile:      " << m_radMapsFileName   << "\n"                 << 
-                  "Material:        " << m_config.material   << "\n"                 << 
-                  "2D Maps:         " << m_config.nBinsz     << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")          << 
-		                         m_config.nBinsr     << " r-bins"            << "\n"                << 
-		  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxZoom     << ", " << 
-                                         m_config.rMinZoom   << " < r/cm < "         << m_config.rMaxZoom   << "\n" << 
-                  "Full:            " << m_config.zMinFull   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxFull     << ", " << 
-                                         m_config.rMinFull   << " < r/cm < "         << m_config.rMaxFull   << "\n" << 
-                  "Neutron Spectra: " << m_config.nBinslogEn << " log10E-bins"       << ", "                <<
-                                         m_config.logEMinn   << " < log10(E/MeV) < " << m_config.logEMaxn   << "\n" << 
-                  "Other Spectra:   " << m_config.nBinslogEo << " log10E-bins"       << ", "                <<
-                                         m_config.logEMino   << " < log10(E/MeV) < " << m_config.logEMaxo   << "\n" << 
-                  "3D Maps:         " << m_config.nBinsz3d   << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")         << 
-                                         m_config.nBinsr3d   << " r-bins, "         << 
-                                         m_config.nBinsphi3d << " phi-bins"         << "\n"                << 
-                  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ")       << m_config.zMaxZoom   << ", " << 
-                                         m_config.rMinZoom   << " < r/cm < "        << m_config.rMaxZoom   << ", " <<
-                                         m_config.phiMinZoom << " < phi/degrees < " << m_config.phiMaxZoom );
+    ATH_MSG_INFO( "Initializing     " << name()              << "\n"                                              <<
+                  "OutputFile:      " << m_radMapsFileName   << "\n"                                              << 
+                  "Material:        " << m_config.material   << "\n"                                              << 
+                  "2D Maps:         " << m_config.nBinsz     << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")   << 
+		                         m_config.nBinsr     << " r-bins"                                         << "\n"                << 
+		  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxZoom   << ", " << 
+                                         m_config.rMinZoom   << " < r/cm < "                                      << m_config.rMaxZoom   << "\n" << 
+                  "Full:            " << m_config.zMinFull   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxFull   << ", " << 
+                                         m_config.rMinFull   << " < r/cm < "                                      << m_config.rMaxFull   << "\n" << 
+                  "Neutron Spectra: " << m_config.nBinslogEn << " log10E-bins"                                    << ", "                <<
+                                         m_config.logEMinn   << " < log10(E/MeV) < "                              << m_config.logEMaxn   << "\n" << 
+                  "Other Spectra:   " << m_config.nBinslogEo << " log10E-bins"                                    << ", "                <<
+                                         m_config.logEMino   << " < log10(E/MeV) < "                              << m_config.logEMaxo   << "\n" << 
+                  "3D Maps:         " << m_config.nBinsz3d   << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")   << 
+                                         m_config.nBinsr3d   << " r-bins, "                                       << 
+                                         m_config.nBinsphi3d << " phi-bins"                                       << "\n"                << 
+                  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxZoom   << ", " << 
+                                         m_config.rMinZoom   << " < r/cm < "                                      << m_config.rMaxZoom   << ", " <<
+                                         m_config.phiMinZoom << " < phi/degrees < "                               << m_config.phiMaxZoom << "\n" <<
+                  "Time TID Maps:   " << m_config.nBinslogT  << " Time-cut bins, "                                <<
+		                         m_config.logTMin    << " < log10(t_cut/s) < "                            << m_config.logTMax );
       
     return StatusCode::SUCCESS;
   }
@@ -127,6 +134,9 @@ namespace G4UA{
     maps.m_rz_rest_spec     .resize(0);
     maps.m_full_rz_rest_spec.resize(0);
 
+    maps.m_rz_tid_time      .resize(0);
+    maps.m_full_rz_tid_time .resize(0);
+
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
       // 2d zoom
@@ -177,6 +187,10 @@ namespace G4UA{
     maps.m_full_rz_prot_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     maps.m_rz_rest_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     maps.m_full_rz_rest_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+
+    maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
       // 2d zoom
@@ -388,6 +402,16 @@ namespace G4UA{
     h_full_rz_rest_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_rest_spec ->SetTitle("FLUX [rest(log_{10}(E/MeV))/cm^{2}]");
 
+    // time dependent TID maps
+    TH3D * h_rz_tid_time       = new TH3D("rz_tid_time" ,"rz_tid_time"           ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    TH3D * h_full_rz_tid_time  = new TH3D("full_rz_tid_time" ,"full_rz_tid_time" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    h_rz_tid_time     ->SetXTitle(xtitle);
+    h_full_rz_tid_time->SetXTitle(xtitle);
+    h_rz_tid_time     ->SetYTitle("r [cm]");
+    h_full_rz_tid_time->SetYTitle("r [cm]");
+    h_rz_tid_time     ->SetZTitle("log_{10}(t_{cut}/s)");
+    h_full_rz_tid_time->SetZTitle("log_{10}(t_{cut}/s)");
+
     TH2D * h_rz_vol  = 0;
     TH2D * h_rz_norm = 0;
     TH2D * h_full_rz_vol  = 0;
@@ -434,7 +458,6 @@ namespace G4UA{
       h_3d_vol  ->SetTitle(hname.data());
       h_3d_norm ->SetTitle("Volume norm");
     }
-
 
     // normalize to volume element per bin
     for(int i=0;i<h_rz_tid->GetNbinsX();i++) { 
@@ -491,6 +514,13 @@ namespace G4UA{
 	  val =maps.m_rz_rest_spec[vBinE];
 	  h_rz_rest_spec->SetBinContent(kBin,val/vol);
 	}
+	// Time dependent TID maps
+	for(int k=0;k<h_rz_tid_time->GetNbinsZ();k++) { 
+	  int kBin = h_rz_tid_time->GetBin(i+1,j+1,k+1); 
+	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  val =maps.m_rz_tid_time[vBinT];
+	  h_rz_tid_time->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -515,6 +545,7 @@ namespace G4UA{
     h_rz_pion_spec->Write();
     h_rz_prot_spec->Write();
     h_rz_rest_spec->Write();
+    h_rz_tid_time->Write();
     
     // normalize to volume element per bin
     for(int i=0;i<h_full_rz_tid->GetNbinsX();i++) { 
@@ -571,6 +602,13 @@ namespace G4UA{
 	  val =maps.m_full_rz_rest_spec[vBinE];
 	  h_full_rz_rest_spec->SetBinContent(kBin,val/vol);
 	}
+	// Time dependent TID maps
+	for(int k=0;k<h_full_rz_tid_time->GetNbinsZ();k++) { 
+	  int kBin = h_full_rz_tid_time->GetBin(i+1,j+1,k+1); 
+	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  val =maps.m_full_rz_tid_time[vBinT];
+	  h_full_rz_tid_time->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -595,6 +633,7 @@ namespace G4UA{
     h_full_rz_pion_spec->Write();
     h_full_rz_prot_spec->Write();
     h_full_rz_rest_spec->Write();
+    h_full_rz_tid_time->Write();
 
     // normalize to volume element per bin
     for(int i=0;i<h_3d_tid->GetNbinsX();i++) { /* |z| */

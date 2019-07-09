@@ -18,6 +18,9 @@
 
 #include "GaudiKernel/MsgStream.h"
 
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+
 class HistoVertexHelper;
 class TrigInDetTrack;
 class TrigInDetTrackCollection;

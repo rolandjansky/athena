@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "EventInfo/TriggerInfo.h"
 #include "TrigSteeringEvent/HLTResult.h"
 #include "EventInfo/EventInfo.h"
@@ -99,8 +100,7 @@ const float TWOPI=2.0*PI;
 HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, const IInterface* parent)
  : IHLTMonTool(type, n, parent),
    m_l1emulationTool(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"), // offline mu
-   m_luminosityToolOnline("LuminosityTool/OnlLuminosityTool")  //online mu?
+   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") // offline mu
   {
     
     ATH_MSG_DEBUG("HLTTauMonTool::HLTTauMonTool()");
@@ -164,12 +164,6 @@ StatusCode HLTTauMonTool::init() {
     //ATH_CHECK(m_hltemulationTool.retrieve());
   }
 
-  if (m_luminosityToolOnline.retrieve().isSuccess()) {
-    ATH_MSG_WARNING("Unable to retrieve LuminosityToolOnline");
-  } else {
-    ATH_MSG_INFO("Successfully retrieved LuminosityToolOnline");
-  }
-
   if (m_lumiBlockMuTool.retrieve().isSuccess()) {                                     
   msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endmsg;     
   } else {                                                                     
@@ -212,6 +206,7 @@ StatusCode HLTTauMonTool::init() {
     if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
     if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
 
+    ATH_CHECK( m_luminosityCondDataKey.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -286,11 +281,10 @@ StatusCode HLTTauMonTool::fill() {
     m_mu_offline = avg_mu;
     ATH_MSG_DEBUG("offline mu "<<avg_mu);
   }
-  if(m_luminosityToolOnline){
-    float avg_mu = (float)m_luminosityToolOnline->lbAverageInteractionsPerCrossing();
-    m_mu_online = avg_mu;
-    ATH_MSG_DEBUG("online mu "<<avg_mu);
-  }
+  SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey);
+  float avg_mu = lumiData->lbAverageInteractionsPerCrossing();
+  m_mu_online = avg_mu;
+  ATH_MSG_DEBUG("online mu "<<avg_mu);
 
   // fill true taus vectors
   m_true_taus.clear(); 

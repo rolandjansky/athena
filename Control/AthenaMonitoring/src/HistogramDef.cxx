@@ -25,6 +25,7 @@ const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
     result.path = nextProperty(propertiesIterator);
     result.type = nextProperty(propertiesIterator);
     result.weight = nextProperty(propertiesIterator);
+    result.convention = nextProperty(propertiesIterator);
     result.name.push_back(nextProperty(propertiesIterator));
 
     if (result.type.compare(0, 3, "TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
