@@ -18,6 +18,12 @@
 // PerfMonComps includes
 #include "PerfMonComps/PerfMonMTUtils.h"
 
+/*
+ * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
+ * Initialize, Event Loop and Finalize
+ */ 
+#define SNAPSHOT_NUM 3
+
 class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                      public AthService
 {
@@ -81,7 +87,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
     
     // An array to store snapshot measurements: Init - EvtLoop - Fin
-    PMonMT::MeasurementData m_snapshotData[3];
+    PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
+
+    // TODO: It gives error when defining this variable as a class member. Fix it.
+    //const static std::string m_snapshotStepNames[3];
+    std::vector< std::string > m_snapshotStepNames;
 
 }; // class PerfMonMTSvc
 

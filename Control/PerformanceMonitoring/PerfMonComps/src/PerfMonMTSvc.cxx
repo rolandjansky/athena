@@ -58,6 +58,13 @@ StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
  */
 StatusCode PerfMonMTSvc::initialize() {
   ATH_MSG_INFO("Initialize");
+  
+  // TODO: Define this array as a class member !
+  // Name the steps whose snapshots will be captured as a whole
+  //const std::string snapshotStepNames[3] = {"Initialize","Event_loop","Finalize"};
+  m_snapshotStepNames.push_back("Initialize");
+  m_snapshotStepNames.push_back("Event_loop");
+  m_snapshotStepNames.push_back("Finalize");
 
   /// Configure the auditor
   if( !PerfMon::makeAuditor("PerfMonMTAuditor", auditorSvc(), msg()).isSuccess()) {
@@ -209,17 +216,26 @@ void PerfMonMTSvc::report(){
  * JSON Format:
  *
  * {
- *   "Initialize" : {
- *     "comp1" : {
+ *   "Snapshot_level" : {
+ *     "Initialize" : {
  *       "cpu_time" : cpu_measurement
  *       "wall_time": wall_measurement
  *     },
- *     "comp2": ...
+ *     "Event_loop" : {...},
+ *     "Finalize" : {... }
  *   },
- *
- *   "Start": {...},
- *   "Stop" : {...},
- *   "Finalize": {...}
+ *   "Component_level" : {
+ *     "Initialize" : {
+ *        "comp1" : {
+ *          "cpu_time" : cpu_measurement
+ *          "wall_time": wall_measurement
+ *        },
+ *        "comp2": ...
+ *     },
+ *      "Start": {...},
+ *      "Stop" : {...},
+ *      "Finalize": {...}  
+ *   }
  * }
  *
  * Output Filename: PerfMonMTSvc_result.json
@@ -229,6 +245,18 @@ void PerfMonMTSvc::report2JsonFile(){
 
   json j;
 
+  // Report snapshot level results
+  for(int i = 0; i < 3; i++ ){
+
+    // Clean this part!
+    double wall_time = m_snapshotData[i].m_delta_wall;
+    double cpu_time =  m_snapshotData[i].m_delta_cpu;
+
+    j["Snapshot_level"][m_snapshotStepNames[i]] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} };
+
+  }
+ 
+  // Report component level results
   for(auto& it : m_compLevelDataMap){
 
     std::string stepName = it.first.stepName;
@@ -238,7 +266,7 @@ void PerfMonMTSvc::report2JsonFile(){
     double cpu_time = it.second->m_delta_cpu;
     
     // nlohmann::json syntax
-    j[stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} }; 
+    j["Component_level"][stepName][compName] = {  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } } ; 
 
   }
 
