@@ -543,7 +543,6 @@ def muEFSARecoSequence( RoIs, name ):
   from MuidCaloScatteringTools.MuidCaloScatteringToolsConf import Rec__MuidMaterialEffectsOnTrackProvider
   Rec__MuidMaterialEffectsOnTrackProvider.TSOSTool=theCaloTSOS
 
-  theErrorOptimiser = getPublicToolClone("TrigMuonErrorOptimiserSA_"+name, "MuonErrorOptimisationTool", PrepareForFit=False, RecreateStartingParameters=False,RefitTool=getPublicToolClone("TrigMuidRefitTool_"+name, "MuonRefitTool", AlignmentErrors = False, Fitter = CfgGetter.getPublicTool("iPatFitter")))
 
   theTrackCleaner = getPublicToolClone("TrigMuonTrackCleanerSA_"+name, "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
 
