@@ -19,7 +19,6 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
         raise(Exception("Invalid Tile Optimal Filtering method: %s" % method))
 
     kwargs.setdefault('CreateContainer', True)
-    createContainer = kwargs['CreateContainer']
 
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
     kwargs['TileRawChannelBuilder'] = TileRawChannelBuilderOpt2Filter
