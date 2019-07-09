@@ -80,9 +80,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
      */
     std::map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
     
-    // Clear!
-    PMonMT::MeasurementData m_data[3];
-    //PMonMT::MeasurementData m_data[PMonMT::SnapshotStep];
+    // An array to store snapshot measurements: Init - EvtLoop - Fin
+    PMonMT::MeasurementData m_snapshotData[3];
 
 }; // class PerfMonMTSvc
 

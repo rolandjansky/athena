@@ -28,7 +28,7 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
 
   //ATH_MSG_INFO(" Pre initialization is captured!  ");
   m_measurement.capture();
-  m_data[0].addPointStart(m_measurement);
+  m_snapshotData[0].addPointStart(m_measurement);
  
 }
 
@@ -75,7 +75,7 @@ StatusCode PerfMonMTSvc::finalize(){
   //ATH_MSG_INFO("Finalize");
   //ATH_MSG_INFO("Post Finalization is captured!");
   m_measurement.capture();
-  m_data[2].addPointStop(m_measurement);
+  m_snapshotData[2].addPointStop(m_measurement);
 
   report();
   return StatusCode::SUCCESS;
@@ -118,14 +118,14 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
   if( compName == "AthRegSeq" && stepName == "Start") {
     //ATH_MSG_INFO("Pre Event Loop is captured!");
     m_measurement.capture();
-    m_data[1].addPointStart(m_measurement);
+    m_snapshotData[1].addPointStart(m_measurement);
   }
 
   // Last thing to be called before finalize step begins
   if ( compName == "AthMasterSeq" && stepName == "Finalize"){
     //ATH_MSG_INFO("Pre Finalization is captured!");
     m_measurement.capture();
-    m_data[2].addPointStart(m_measurement);
+    m_snapshotData[2].addPointStart(m_measurement);
   }
 
   /* Later we may need this
@@ -145,7 +145,7 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
     //ATH_MSG_INFO("Post Initialization is captured!");
     m_measurement.capture();
-    m_data[0].addPointStop(m_measurement);
+    m_snapshotData[0].addPointStop(m_measurement);
   }
 
 
@@ -153,7 +153,7 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
   if( compName == "AthMasterSeq" && stepName == "Stop") {
     //ATH_MSG_INFO("Post Event Loop is captured!");
     m_measurement.capture();
-    m_data[1].addPointStop(m_measurement);
+    m_snapshotData[1].addPointStop(m_measurement);
   }
 
 }
@@ -236,7 +236,8 @@ void PerfMonMTSvc::report2JsonFile(){
     
     double wall_time = it.second->m_delta_wall;
     double cpu_time = it.second->m_delta_cpu;
-
+    
+    // nlohmann::json syntax
     j[stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} }; 
 
   }
@@ -252,22 +253,22 @@ void PerfMonMTSvc::report2Stdout(){
   ATH_MSG_INFO("                PerfMonMT Results Summary                ");
   ATH_MSG_INFO("=========================================================");
 
-  ATH_MSG_INFO("Total Wall time in the Initialization is " << m_data[0].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Initialization is " << m_data[0].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Total Wall time in the Initialization is " << m_snapshotData[0].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the Initialization is " << m_snapshotData[0].m_delta_cpu  << " ms ");
   ATH_MSG_INFO("Average CPU utilization in the Initialization is " <<
-                m_data[0].m_delta_cpu/m_data[0].m_delta_wall );
+               m_snapshotData[0].m_delta_cpu/m_snapshotData[0].m_delta_wall );
   ATH_MSG_INFO("");
 
-  ATH_MSG_INFO("Total Wall time in the event loop is " << m_data[1].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_data[1].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Total Wall time in the event loop is " << m_snapshotData[1].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_snapshotData[1].m_delta_cpu  << " ms ");
   ATH_MSG_INFO("Average CPU utilization in the event loop is " <<
-                m_data[1].m_delta_cpu/m_data[1].m_delta_wall );
+                m_snapshotData[1].m_delta_cpu/m_snapshotData[1].m_delta_wall );
   ATH_MSG_INFO("");
 
-  ATH_MSG_INFO("Total Wall time in the Finalize is " << m_data[2].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_data[2].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Total Wall time in the Finalize is " << m_snapshotData[2].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_snapshotData[2].m_delta_cpu  << " ms ");
   ATH_MSG_INFO("Average CPU utilization in the Finalize is " <<
-                m_data[2].m_delta_cpu/m_data[2].m_delta_wall );
+                m_snapshotData[2].m_delta_cpu/m_snapshotData[2].m_delta_wall );
 
 
   ATH_MSG_INFO("=========================================================");
