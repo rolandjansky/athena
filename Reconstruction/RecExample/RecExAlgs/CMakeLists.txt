@@ -8,6 +8,7 @@ atlas_subdir( RecExAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Control/SGTools
                           GaudiKernel
                           PRIVATE
@@ -17,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( RecExAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps SGTools GaudiKernel StoreGateLib SGtests )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests )
 
 # Install files from the package:
 atlas_install_headers( RecExAlgs )
