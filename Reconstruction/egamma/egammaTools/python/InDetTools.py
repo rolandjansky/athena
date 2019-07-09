@@ -55,6 +55,13 @@ egammaInDetPrdAssociationTool = ToolFactory( InDet__InDetPRD_AssociationToolGang
                                              name                           = "egammaInDetPrdAssociationTool",
                                              PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
 
+from AthenaCommon.DetFlags import DetFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+
+isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+
 # Loading Configurable HoleSearchTool
 #
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -62,16 +69,11 @@ from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleS
 egammaInDetHoleSearchTool = ToolFactory( InDet__InDetTrackHoleSearchTool,
                                          name = "egammaInDetHoleSearchTool",
                                          Extrapolator = egammaExtrapolator,
-                                         checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack())
+                                         checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack(),
+                                         ITkGeometry  = isUpgrade)
 #
 # Load the InDetTrackSummaryHelperTool
 #
-from AthenaCommon.DetFlags import DetFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-
-isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
 
 egammaInDetTrackSummaryHelperTool = ToolFactory( InDet__InDetTrackSummaryHelperTool,
                                                  name         = "egammaInDetSummaryHelper",

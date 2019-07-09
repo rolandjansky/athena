@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the EMBremCollectionBuilder
 from AthenaCommon.Logging import logging
@@ -43,18 +43,24 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name = "GSFBuildInDetPrdAssociationTool",
                                                                                 PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
         ToolSvc += GSFBuildInDetPrdAssociationTool        
+        
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+        isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
         #
         # ----------- Load SummaryTool
         #
         # Loading Configurable HoleSearchTool
         #
+        
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         GSFBuildHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "GSFBuildHoleSearchTool",
                                                                  Extrapolator = GSFBuildInDetExtrapolator,
                                                                  usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                  checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
-                                                                 CountDeadModulesAfterLastHit = True)
+                                                                 CountDeadModulesAfterLastHit = True,
+                                                                 ITkGeometry  = isUpgrade)
 
         from AthenaCommon.AppMgr import ServiceMgr
         if (DetFlags.haveRIO.SCT_on()):
@@ -116,7 +122,8 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                              HoleSearch      = GSFBuildHoleSearchTool,
                                                                              usePixel        = DetFlags.haveRIO.pixel_on(),
                                                                              useSCT          = DetFlags.haveRIO.SCT_on(),
-                                                                             useTRT          = DetFlags.haveRIO.TRT_on())
+                                                                             useTRT          = DetFlags.haveRIO.TRT_on(),
+                                                                             ITkGeometry  = isUpgrade)
         ToolSvc += GSFBuildTrackSummaryHelperTool
         #
         # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)

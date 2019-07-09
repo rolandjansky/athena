@@ -1,12 +1,4 @@
-#####################################################################
-#  ConfiguredInDetAlignTrackSelTool
-#####################################################################
-# Python Setup Class InDetAlignGenTools/InDetAlignTrackSelTool
-#
-# Sergio Gonzalez-Sevilla
-# Date: 21/12/2005
-#
-#####################################################################
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 class ConfiguredInDetAlignTrackSelTool :
     def __init__ (self,
@@ -75,6 +67,11 @@ class ConfiguredInDetAlignTrackSelTool :
                                                                            Extrapolator = InDetAlignTrackSelExtrapolator,
                                                                            AssoTool     = InDetAlignTrackSelAssociationTool,
                                                                            DoSharedHits = True)
+        
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        if InDetFlags.doSLHC():
+           InDetAlignTrackSelSummaryTool.ITkGeometry = True 
+        
         ToolSvc += InDetAlignTrackSelSummaryTool
         print InDetAlignTrackSelSummaryTool          
              
