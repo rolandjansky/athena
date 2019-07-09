@@ -1,5 +1,3 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -12,6 +10,8 @@ import ast
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
+from AthenaCommon.AthenaCommonFlags import jobproperties
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
@@ -30,9 +30,6 @@ topSeq = acas.AlgSequence()
 anaSeq = topSeq
 topSeq += acas.AlgSequence("EvgenPostSeq")
 postSeq = topSeq.EvgenPostSeq
-#topAlg = topSeq #< alias commented out for now, so that accidental use throws an error
-
-
 ##==============================================================
 ## Configure standard Athena services
 ##==============================================================
@@ -54,13 +51,9 @@ svcMgr += AtRanluxGenSvc()
 ## Jobs should stop if an include fails.
 jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
-## Compatibility with jets
-from RecExConfig.RecConfFlags import jobproperties
-jobproperties.RecConfFlags.AllowBackNavigation = True
-
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate')
+evgenLog = logging.getLogger('Generate_lhe')
 
 
 ##==============================================================
@@ -70,29 +63,29 @@ evgenLog = logging.getLogger('Generate')
 ## Announce arg checking
 evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
 evgenLog.debug(str(runArgs))
+print ("****************** CHECKING EVENT GENERATION ARGS *****************")
+
+## Announce start of job configuration
+evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
+print ("****************** CONFIGURING EVENT GENERATION *****************")
+## Functions for operating on generator names
+## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
+from EvgenJobTransforms.EvgenConfig import evgenConfig
+from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
+
 
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
-if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
-    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
-
-## Ensure that mandatory args have been supplied (complain before processing the includes)
-if not hasattr(runArgs, "ecmEnergy"):
-    raise RuntimeError("No center of mass energy provided.")
-if not hasattr(runArgs, "randomSeed"):
-    raise RuntimeError("No random seed provided.")
-#if not hasattr(runArgs, "runNumber"):
-#    raise RuntimeError("No run number provided.")
-    # TODO: or guess it from the JO name??
-if not hasattr(runArgs, "firstEvent"):
-    raise RuntimeError("No first number provided.")
-
+#if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
+#    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
 
 ##==============================================================
 ## Configure standard Athena and evgen services
 ##==============================================================
 
 ## Announce start of job configuration
+evgenLog.debug("****************** CONFIGURING MATRIX ELEMENT GENERATION *****************")
+print ("****************** CONFIGURING MATRIX ELEMENT GENERATION *****************")
 evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
 
 ## Functions for operating on generator names
@@ -100,65 +93,20 @@ evgenLog.debug("****************** CONFIGURING EVENT GENERATION ****************
 from EvgenJobTransforms.EvgenConfig import evgenConfig
 from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
 
-## Fix non-standard event features
-from EvgenProdTools.EvgenProdToolsConf import FixHepMC
-if not hasattr(fixSeq, "FixHepMC"):
-    fixSeq += FixHepMC()
-
-## Sanity check the event record (not appropriate for all generators)
-from EvgenProdTools.EvgenProdToolsConf import TestHepMC
-testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
-if not hasattr(svcMgr, 'THistSvc'):
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    svcMgr += THistSvc()
-svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE'"]
-
-## Copy the event weight from HepMC to the Athena EventInfo class
-# TODO: Rewrite in Python?
-from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-if not hasattr(postSeq, "CopyEventWeight"):
-    postSeq += CopyEventWeight()
-
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
-# This is necessary for athenaMP
-#if hasattr(runArgs, "maxEvents"):
-#  theApp.EvtMax = runArgs.maxEvents
 
+#evgenConfig.minevents = 1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
-#postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = False
 postSeq.CountHepMC.CorrectEventID = False
 
-## Print out the contents of the first 5 events (after filtering)
-# TODO: Allow configurability from command-line/exec/include args
-if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
-    from TruthIO.TruthIOConf import PrintMC
-    postSeq += PrintMC()
-    postSeq.PrintMC.McEventKey = "GEN_EVENT"
-    postSeq.PrintMC.VerboseOutput = True
-    postSeq.PrintMC.PrintStyle = "Barcode"
-    postSeq.PrintMC.FirstEvent = 1
-    postSeq.PrintMC.LastEvent  = runArgs.printEvts
-
-## Estimate time needed for Simulation
-from EvgenProdTools.EvgenProdToolsConf import SimTimeEstimate
-if not hasattr(postSeq, "SimTimeEstimate"):
-    postSeq += SimTimeEstimate()
-
-## Add Rivet_i to the job
-# TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
-if hasattr(runArgs, "rivetAnas"):
-    from Rivet_i.Rivet_iConf import Rivet_i
-    anaSeq += Rivet_i()
-    anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -166,6 +114,7 @@ if hasattr(runArgs, "rivetAnas"):
 
 ## Announce JO loading
 evgenLog.debug("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
+print ("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
 
 ## Pre-include
 if hasattr(runArgs, "preInclude"):
@@ -182,14 +131,18 @@ if hasattr(runArgs, "preExec"):
 def get_immediate_subdirectories(a_dir):
             return [name for name in os.listdir(a_dir)
                     if os.path.isdir(os.path.join(a_dir, name))]
+
         
 # TODO: Explain!!!
 def OutputTXTFile():
     outputTXTFile = None
     if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
     return outputTXTFile
+
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
+print "job config", len(runArgs.jobConfig)
+
 if len(runArgs.jobConfig) != 1:
     print "runArgs.jobConfig ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobConfig file argument")
@@ -214,6 +167,7 @@ jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc16') and f.endsw
 #print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
+    print "runArgs.jobConfig wrong ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobOption file in DSID directory")
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
@@ -235,16 +189,17 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     if len(joparts) != 3:
         evgenLog.error(jofile + " name format is wrong: must be of the form MC<xx>.<physicsShort>.py: please rename.")
         sys.exit(1)
+
     ## Check the DSID part of the name
-    #jo_dsidpart = joparts[1]
-    #try:
-    #    jo_dsidpart = int(jo_dsidpart)
-    #    if runArgs.runNumber != jo_dsidpart:
-    #        raise Exception()
-    #except:
-    #    evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
+#    jo_dsidpart = joparts[1]
+#    try:
+#        jo_dsidpart = int(jo_dsidpart)
+#        if runArgs.runNumber != jo_dsidpart:
+#            raise Exception()
+#    except:
+#        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
 #(str(runArgs.runNumber), jo_dsidpart))
-    #    sys.exit(1)
+#        sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
@@ -259,6 +214,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
 
 ## Include the JO fragment
 include(jofile)
+include("EvgenJobTransforms/LHEonly.py")
 
 ##==============================================================
 ## Config validation and propagation to services, generators, etc.
@@ -266,6 +222,7 @@ include(jofile)
 
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
+print ("****************** CHECKING EVGEN CONFIGURATION *****************")
 
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
@@ -332,7 +289,7 @@ else:
    multiInput = 0
    
 if evgenConfig.minevents < 1:
-    raise RunTimeError("evgenConfig.minevents must be at least 1")
+    raise RunTimeError("evgenConfig.minevents must be at least 0")
 else:
     allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
@@ -371,6 +328,10 @@ else:
     postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
+## Check that the keywords list is not empty:
+if not evgenConfig.keywords:
+    evgenLog.warning("No entries in evgenConfig.keywords: invalid configuration, please check your JO !!")    
+
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
@@ -388,6 +349,19 @@ if evgenConfig.keywords:
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
+#        ## add also categories if in a separate file
+#        kwfile1 = "MC15JobOptions/CategoryList.txt"
+#        kwpath1 = None
+#        for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+#            kwpath1 = os.path.join(p, kwfile1)
+#            if os.path.exists(kwpath1):
+#               break
+#            kwpath1 = None
+#    ## Continue loading the categories to allowed keywords list
+#            if kwpath1:
+#               kwf1 = open(kwpath1, "r")
+#               for l in kwf1:
+#                  allowed_keywords += l.strip().lower().split()        
         #allowed_keywords.sort()
         ## Check the JO keywords against the allowed ones
         evil_keywords = []
@@ -402,6 +376,10 @@ if evgenConfig.keywords:
                 sys.exit(1)
     else:
         evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+
+## Check that the categories list is not empty:
+if not evgenConfig.categories:
+    evgenLog.warning("No entries in evgenConfig.categories: invalid configuration, please check your JO !!")        
 
 ## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
 if evgenConfig.categories:
@@ -448,35 +426,6 @@ if evgenConfig.categories:
     else:
         evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
-## Configure POOL streaming to the output EVNT format file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-#from PoolSvc.PoolSvcConf import PoolSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
-if hasattr(runArgs, "outputEVNTFile"):
-  poolFile = runArgs.outputEVNTFile
-elif hasattr(runArgs, "outputEVNT_PreFile"):
-  poolFile = runArgs.outputEVNT_PreFile
-else:
-  raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
-
-#StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
-
-StreamEVGEN.ForceRead = True
-StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
-StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
-## Used for pile-up (remove dynamic variables except flavour labels)
-if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
-
-# Remove any requested items from the ItemList so as not to write out
-for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
-
-# Allow (re-)addition to the output stream
-for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
-
 ## Set the run numbers
 svcMgr.EventSelector.RunNumber = int(dsid)
 #runArgs.runNumber
@@ -508,11 +457,9 @@ include("EvgenJobTransforms/Generate_randomseeds.py")
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
 
-## Remove TestHepMC if it's inappropriate for this generator combination
-# TODO: replace with direct del statements in the generator common JO fragments?
-if hasattr(testSeq, "TestHepMC") and not gens_testhepmc(evgenConfig.generators):
-    evgenLog.info("Removing TestHepMC sanity checker")
-    del testSeq.TestHepMC
+
+## Process random seed arg and pass to generators
+#include("EvgenJobTransforms/Generate_randomseeds.py")
 
 
 ##==============================================================
@@ -528,8 +475,7 @@ if hasattr(runArgs, "postExec"):
     for cmd in runArgs.postExec:
         evgenLog.info(cmd)
         exec(cmd)
-
-
+        
 ##==============================================================
 ## Show the algorithm sequences and algs now that config is complete
 ##==============================================================
@@ -542,7 +488,7 @@ acas.dumpMasterSequence()
 
 ## Announce start of input file handling
 evgenLog.debug("****************** HANDLING EVGEN INPUT FILES *****************")
-
+print("****************** HANDLING EVGEN INPUT FILES *****************")
 ## Dat files
 datFile = None
 if "McAtNlo" in evgenConfig.generators and "Herwig" in evgenConfig.generators:
@@ -558,6 +504,7 @@ elif "AcerMC" in evgenConfig.generators:
 elif "CompHep" in evgenConfig.generators:
     datFile = "inparmCompHep.dat"
 
+if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
 ## Events files
 eventsFile = None
 if "Alpgen" in evgenConfig.generators:
@@ -571,7 +518,8 @@ elif "BeamHaloGenerator" in evgenConfig.generators:
 elif "HepMCAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
-    eventsFile = "events.lhe"
+    eventsFile = outputTXTFile
+#    eventsFile = "events.lhe"
 
 
 ## Helper functions for input file handling
@@ -586,139 +534,6 @@ def find_unique_file(pattern):
         raise RuntimeError("More than one '%s' file found" % pattern)
     return files[0]
 
-# This function merges a list of input LHE file to make one outputFile.  The header is taken from the first
-# file, but the number of events is updated to equal the total number of events in all the input files
-def merge_lhe_files(listOfFiles,outputFile):
-    if(os.path.exists(outputFile)):
-      print "outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
-      os.rename(outputFile,outputFile+".OLD")
-    output = open(outputFile,'w')
-    holdHeader = ""
-    nevents=0
-    for file in listOfFiles:
-       cmd = "grep /event "+file+" | wc -l"
-       nevents+=int(subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True))
-
-    for file in listOfFiles:
-       inHeader = True
-       header = ""
-       print "*** Starting file ",file
-       for line in open(file,"r"):
-##        Reading first event signals that we are done with all the header information
-##        Using this approach means the script will properly handle any metadata stored
-##        at the beginning of the file.  Note:  aside from the number of events, no metadata
-##        is updated after the first header is read (eg the random number seed recorded will be
-##        that of the first file.
-          if("<event" in line and inHeader):
-             inHeader = False
-             if(len(holdHeader)<1):
-                holdHeader = header
-                output.write(header)
-             output.write(line)
-##        each input file ends with "</LesHouchesEvents>".  We don't want to write this out until all
-##        the files have been read.  The elif below writes out all the events.
-          elif(not inHeader and not ("</LesHouchesEvents>" in line)):
-              output.write(line)
-          if(inHeader):
-##           Format for storing number of events different in MG and Powheg 
-             if("nevents" in line):
-##              MG5 format is "n = nevents"
-                tmp = line.split("=")
-                line = line.replace(tmp[0],str(nevents))
-             elif("numevts" in line):
-##              Powheg format is numevts n
-                tmp = line.split(" ")
-                nnn = str(nevents)
-                line = line.replace(tmp[1],nnn)
-             header+=line
-    output.write("</LesHouchesEvents>\n")
-    output.close()
-
-
-def mk_symlink(srcfile, dstfile):
-    "Make a symlink safely"
-    if dstfile:
-        if os.path.exists(dstfile) and not os.path.samefile(dstfile, srcfile):
-            os.remove(dstfile)
-        if not os.path.exists(dstfile):
-            evgenLog.info("Symlinking %s to %s" % (srcfile, dstfile))
-            print "Symlinking %s to %s" % (srcfile, dstfile)
-            os.symlink(srcfile, dstfile)
-        else:
-            evgenLog.debug("Symlinking: %s is already the same as %s" % (dstfile, srcfile))
-
-## Find and symlink dat and event files, so they are available via the name expected by the generator
-if eventsFile or datFile:
-    if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
-    if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
-        raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
-                           (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
-#    inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
-    if datFile:
-      if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
-        inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
-      else:  
-        inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
-
-      realDatFile = find_unique_file('*%s*.dat' % inputroot)
-      mk_symlink(realDatFile, datFile)
-    if eventsFile:
-#        realEventsFile = find_unique_file('*%s.*.ev*ts' % inputroot)
-#        mk_symlink(realEventsFile, eventsFile)
-        myinputfiles = runArgs.inputGeneratorFile
-        genInputFiles = myinputfiles.split(',')
-        numberOfFiles = len(genInputFiles)
-        # if there is a single file, make a symlink.  If multiple files, merge them into one output eventsFile
-        if(numberOfFiles<2):
-           if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
-             inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
-           else:  
-             inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
-
-           if "events" in inputroot :
-               inputroot = inputroot.replace(".events","")
-           realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
-           mk_symlink(realEventsFile, eventsFile)
-        else:
-           allFiles = []
-           for file in genInputFiles:
-#             Since we can have multiple files from the same task, inputroot must include more of the filename
-#             to make it unique
-              if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
-                inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
-              else:  
-                input0 = os.path.basename(file).split("._")[0]
-                input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
-                inputroot = input0+"._"+input1
-              print "inputroot ",inputroot
-              realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
-#             The only input format where merging is permitted is LHE
-              with open(realEventsFile, 'r') as f:
-                 first_line = f.readline()
-                 if(not ("LesHouche" in first_line)):
-                    raise RuntimeError("%s is NOT a LesHouche file" % realEventsFile)
-                 allFiles.append(realEventsFile)
-           merge_lhe_files(allFiles,eventsFile)
-
-else:
-    if hasattr(runArgs, "inputGeneratorFile") and runArgs.inputGeneratorFile != "NONE":
-        raise RuntimeError("inputGeneratorFile arg specified for %s, but generators %s do not require an input file" %
-                           (runArgs.jobConfig, str(gennames)))
-    if evgenConfig.inputfilecheck:
-        raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
-                           (runArgs.jobConfig, str(gennames)))
-
-## Check conf files, as above but for a different command line arg, and with omission allowed
-if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
-    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
-        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
-                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
-
-## Do the aux-file copying
-if evgenConfig.auxfiles:
-    from PyJobTransformsCore.trfutil import get_files
-    get_files(evgenConfig.auxfiles, keepDir=False, errorIfNotFound=True)
 
 
 ##==============================================================
@@ -759,9 +574,14 @@ if _checkattr("hardPDF"):
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
 if _checkattr("keywords"):
-    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
+    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower() ),
 if _checkattr("categories"):
-    print "MetaData: %s = %s" % ("categories", ", ".join(evgenConfig.categories))
+    print ( ", " + ", ".join(evgenConfig.categories))
+else:
+    print (" ")
+
+#if _checkattr("categories"):
+#    print "MetaData: %s = %s" % ("categories", ", ".join(evgenConfig.categories))
 if _checkattr("specialConfig"):
    print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
 # TODO: Require that a contact / JO author is always set
@@ -796,4 +616,13 @@ with open("config.pickle", 'w') as f:
 ##==============================================================
 ## Get ready to run...
 ##==============================================================
+ 
 evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
+print ("****************** STARTING EVENT GENERATION *****************")
+print ("**************************************************************")
+print ("****************** PLEASE IGNORE THE LOG FROM PYTHIA ************")
+print ("****************** GENERATION OF ONE PYTHIA EVENT ***************")
+print ("******************** IS NEEDED TO MAKE *************")
+print ("****************** THE TRANSFORM WORK ***************************")
+print ("**************************************************************")
+

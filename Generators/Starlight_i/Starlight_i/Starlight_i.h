@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // --------------------------------------------------
 // 
@@ -48,7 +48,8 @@ protected:
     int m_events;
 
     starlight*       m_starlight;         // pointer to starlight instance
-    inputParameters* m_inputParameters;   // pointer to parameter instance
+    inputParameters m_inputParameters;   // pointer to parameter instance
+    randomGenerator m_randomGenerator;
 
     upcEvent *m_event;
 
@@ -71,6 +72,7 @@ protected:
     double       m_minEta;
     double       m_maxEta;
     int          m_productionMode;
+    double       m_axionMass;
     unsigned int m_nmbEventsTot;
     int          m_prodParticleId;
     int          m_randomSeed;
