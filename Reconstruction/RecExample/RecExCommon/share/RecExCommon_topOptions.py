@@ -1338,12 +1338,15 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
     if DetFlags.detdescr.Calo_on() and rec.doAODCaloCells():
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
-            addClusterToCaloCellAOD("egamma711Clusters")
 
             from egammaRec.egammaRecFlags import jobproperties
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
+                if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
+                    addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
+                elif ('xAOD::CaloClusterContainer', 'LArClusterEM7_11Nocorr') in metadata["itemList"]:
+                    addClusterToCaloCellAOD('LArClusterEM7_11Nocorr')
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
