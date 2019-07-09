@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -350,7 +350,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_disabled_ec->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_disabled_ec->GetName(), m_h_disabled_ec));
     
-  for (unsigned int layer=0; layer<5; layer++) {
+  for (unsigned int layer=0; layer<32; layer++) {
     if (m_doITk) {
       m_h_brlflatPhiIndex_perLayer[layer] = new TH1F(("m_h_brlflatPhiIndex_perLayer"+std::to_string(layer)).c_str(), ("Phi index - Barrel Flat - Layer "+std::to_string(layer)).c_str(), 820, 0, 820);
       m_h_brlflatPhiIndex_perLayer[layer]->StatOverflows();
