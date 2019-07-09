@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# block('InDetPhysValMonitoring/InDetPhysValDecoration.py')
-import ConfigUtils
-
 # ---- definitions
 def metaDataKey() :
     '''
@@ -25,7 +22,7 @@ def findAlg(alg_name, search_outputstream_otherwise=True) :
   if not isinstance(alg_name, (list, tuple)) :
       raise Exception('logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name)))
 
-  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
   topSequence = AlgSequence()
   count=0
   mon_man_index=None
@@ -59,16 +56,15 @@ def findMonMan() :
 
 def getMetaData() :
    '''
-   Try to determine from the meta data whether the decoration has been performed already.  
+   Try to determine from the meta data whether the decoration has been performed already.
    '''
    from RecExConfig.RecFlags import rec
    if not rec.readRDO():
-      from RecExConfig.InputFilePeeker import inputFileSummary
-      try:
-          # print 'DEBUG InDetPhysValMonitoring getMetaData %s' % inputFileSummary['metadata']
-          return inputFileSummary['tag_info'][metaDataKey()]
-      except Exception :
-          pass
+      from PyUtils.MetaReaderPeekerFull import metadata
+   try:
+      return metadata['/TagInfo'][metaDataKey()]
+   except Exception:
+      pass
    return ''
 
 def setMetaData() :
@@ -272,7 +268,7 @@ def getGSFTrackDecorators(**kwargs) :
 
 def _addDecorators(decorator_alg_list, add_after=None) :
   '''
-  Add the given decorator algorithms to the top sequence. 
+  Add the given decorator algorithms to the top sequence.
   The algorithm is to be run on RAW/RDO since it depends on full hit information
   which is generally not available at later stages. The decorations added by this
   algorithm are used by InDetPhysValMonitoring tool.
@@ -283,7 +279,7 @@ def _addDecorators(decorator_alg_list, add_after=None) :
       raise Exception(' logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name)))
 
   # Access the algorithm sequence:
-  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+  from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
   topSequence = AlgSequence()
   # print 'DEBUG add _addDecorators add after %s ' % (add_after)
 
@@ -351,7 +347,7 @@ def addGSFTrackDecoratorAlg() :
               ToolSvc.EMBremCollectionBuilder.OutputTrackContainerName=InDetPhysValKeys.GSFTracksUnslimmed
               # ToolSvc.ResidualPullCalculator.OutputLevel = 1
 
-              from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+              from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
               topSequence = AlgSequence()
               topSequence.insert(decor_index+1,slimmer)
       # import sys
@@ -360,7 +356,7 @@ def addGSFTrackDecoratorAlg() :
 
 def addDecorator() :
   '''
-  Add the track particle decoration algorithm to the top sequence. 
+  Add the track particle decoration algorithm to the top sequence.
   The algorithm is to be run on RAW/RDO since it depends on full hit information
   which is generally not available at later stages. The decorations added by this
   algorithm are used by InDetPhysValMonitoring tool.
@@ -391,10 +387,10 @@ def addDecorator() :
     decorators += getDBMTrackDecorators()
 
   _addDecorators( decorators )
- 
+
 def addExtraMonitoring() :
   '''
-  IF monitoring is wished for GSF or DBM TrackParticles find the monitoring manager and 
+  IF monitoring is wished for GSF or DBM TrackParticles find the monitoring manager and
   add the corresponding monitoring tools.
   '''
   # hack to add monitors for DBM and GSF
@@ -445,7 +441,7 @@ def canAddDecorator() :
 
     if rec.readRDO :
       try :
-        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
         topSequence = AlgSequence()
         import re
         pat =re.compile('.*(TrackParticleCnvAlg).*')
@@ -455,7 +451,7 @@ def canAddDecorator() :
 
       except :
         pass
-    
+
     return False
 
 def addDecoratorIfNeeded() :
