@@ -175,7 +175,7 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
 
 ## Include the JO fragment
 include(jo)
-include('~/workarea/AthGeneration/athena/Generators/EvgenJobTransforms/share/LHEonly.py')
+include('EvgenJobTransforms/LHEonly.py')
 
 ##==============================================================
 ## Config validation and propagation to services, generators, etc.
