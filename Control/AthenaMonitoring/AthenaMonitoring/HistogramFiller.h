@@ -60,7 +60,7 @@ namespace Monitored {
      */
     virtual HistogramFiller* clone() = 0;
   
-    void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+    void setMonitoredVariables(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) {
       m_monVariables = monitoredVariables;
     }
 
