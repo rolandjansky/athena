@@ -66,7 +66,7 @@ function( run_seed_test testName )
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/seed_${testName}.sh
                   PROPERTIES TIMEOUT 300
                   EXTRA_PATTERNS " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version" )
-endfunction (datamodel_run_test)
+endfunction (run_seed_test)
 
 
 run_seed_test( DummySeedFinder )
