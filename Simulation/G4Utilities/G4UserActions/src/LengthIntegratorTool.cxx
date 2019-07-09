@@ -20,7 +20,7 @@ namespace G4UA
     declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
     declareProperty("isITk", m_config.isITk);
-
+    declareProperty("doElements", m_config.doElements);
   }
 
   //---------------------------------------------------------------------------

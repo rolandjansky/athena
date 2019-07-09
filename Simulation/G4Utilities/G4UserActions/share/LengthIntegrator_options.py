@@ -3,6 +3,7 @@ from G4AtlasApps.SimFlags import simFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 simFlags.OptionalUserActionList.addAction('G4UA::LengthIntegratorTool',['Event','Step'])
 simFlags.UserActionConfig.addConfig('G4UA::LengthIntegratorTool','isITk',geoFlags.isSLHC())
+#simFlags.UserActionConfig.addConfig('G4UA::LengthIntegratorTool','doElements',True) #Uncomment to split every volume by elements as well - will add more output in the ntuple
 
 
 

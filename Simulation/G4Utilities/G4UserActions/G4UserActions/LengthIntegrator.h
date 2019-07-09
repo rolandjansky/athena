@@ -48,6 +48,7 @@ namespace G4UA
       struct Config
       {
         bool isITk=false;
+        bool doElements=false;
       };
 
       /// Constructor takes the name of the histogram service as argument.
@@ -75,8 +76,6 @@ namespace G4UA
       G4Pow* m_g4pow;
       ServiceHandle<ITHistSvc> m_hSvc;
       TTree* m_tree;
-      bool m_doElements;
-      bool m_isITk;
       Config m_config;
       /// Handle to the histogram service
       //Tree Branches

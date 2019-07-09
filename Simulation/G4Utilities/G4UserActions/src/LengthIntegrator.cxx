@@ -103,12 +103,9 @@ namespace G4UA
     : m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_tree(nullptr),
-      m_doElements(false),
-      m_isITk(false),
       m_config(config)
   {
     
-    m_isITk = m_config.isITk;
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
@@ -139,7 +136,7 @@ namespace G4UA
     m_tree->Branch("collected_groupedmaterial",   &m_collected_groupedmaterial); //Vector
     m_tree->Branch("collected_volumetype",        &m_collected_volumetype); //Vector
    
-    if(m_doElements){
+    if(m_config.doElements){
       m_tree->Branch("collected_material_elements",   &m_collected_material_elements); //Vector 
       m_tree->Branch("collected_material_element_X0", &m_collected_material_element_X0); //Vector
       m_tree->Branch("collected_material_element_L0", &m_collected_material_element_L0); //Vector
@@ -199,7 +196,7 @@ namespace G4UA
     }
 
     //For ATLAS run-2 detector
-    if(!m_isITk){
+    if(!m_config.isITk){
       if(name.find("Cooling") != std::string::npos) return "Cooling";
       if(name.find("Cool") != std::string::npos) return "Cooling";
       if(name.find("CO2") != std::string::npos) return "Cooling";
@@ -368,7 +365,7 @@ namespace G4UA
     if(name.find("PP1") != std::string::npos) return "PP1";
 
     //I don't know what these are.... TRT?
-    if(!m_isITk){
+    if(!m_config.isITk){
       if(name.find("pix::") != std::string::npos) return "OtherPixel";
       //if(name.find("Titanium") != std::string::npos) return "OtherPixel";
       if(name.find("sct::") != std::string::npos) return "OtherSCT";
@@ -482,8 +479,8 @@ namespace G4UA
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
     double thickstepIL = intl != 0 ? stepl/intl : DBL_MAX;
 
-    // Get Elements for the material only do this if m_doElements is set
-    if(m_doElements){
+    // Get Elements for the material only do this if m_config.doElements is set
+    if(m_config.doElements){
 	    G4double lambda0 = 35*g/cm2;	
   	  const G4ElementVector* eVec = mat->GetElementVector();
       std::vector<double> tmp_collected_material_element_X0;
