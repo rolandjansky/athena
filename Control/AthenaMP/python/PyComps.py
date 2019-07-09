@@ -56,10 +56,50 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.configureStrategy(self.Strategy,self.IsPileup,self.EventsBeforeFork)
         
     def configureStrategy(self,strategy,pileup,events_before_fork):
+        # Get name of first input file
+        from RecExConfig.RecoFunctions import InputFileNames 
+        filename = InputFileNames()[0]
+        # Get file metadata
+        import PyUtils.AthFile as AthFile
+        metadata = AthFile.fopen(filename).fileinfos
+
         from AthenaMPFlags import jobproperties as jp
         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
-        chunk_size = jp.AthenaMPFlags.ChunkSize()
+        if (jp.AthenaMPFlags.ChunkSize() > 0):
+            chunk_size = jp.AthenaMPFlags.ChunkSize()
+            msg.info('Chunk size set to %i', chunk_size)
+        #Use auto flush only if file is compressed with LZMA, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -1):
+            if (metadata['file_comp_alg'] == 2):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue
+                msg.info('LZMA algorithm not in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush only if file is compressed with LZMA or ZLIB, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -2):
+            if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                msg.info('LZMA nor ZLIB in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush only if file is compressed with LZMA, ZLIB or LZ4, else use default chunk_size
+        elif (jp.AthenaMPFlags.ChunkSize() == -3):
+            if (metadata['file_comp_alg'] == 1 or metadata['file_comp_alg'] == 2 or metadata['file_comp_alg'] == 4):
+                chunk_size = metadata['auto_flush']
+                msg.info('Chunk size set to auto flush (%i)', chunk_size)
+            else:
+                chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+                msg.info('LZMA, ZLIB nor LZ4 in use, chunk_size set to default (%i)', chunk_size)
+        #Use auto flush value for chunk_size, regarldess of compression algorithm
+        elif (jp.AthenaMPFlags.ChunkSize() <= -4):
+            chunk_size = metadata['auto_flush']
+            msg.info('Chunk size set to auto flush (%i)', chunk_size)
+        else:
+            chunk_size = jp.AthenaMPFlags.ChunkSize.__class__.StoredValue 
+            msg.warning('Invalid ChunkSize, Chunk Size set to default (%i)', chunk_size)
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
