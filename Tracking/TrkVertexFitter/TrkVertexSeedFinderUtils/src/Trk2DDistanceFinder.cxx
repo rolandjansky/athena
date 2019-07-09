@@ -25,11 +25,6 @@ namespace {
   inline double square(const double tosquare) {
     return std::pow(tosquare,2);
   }
-  double dist(std::pair<const Amg::Vector3D,const Amg::Vector3D> pairofpos) {
-    Amg::Vector3D diff(pairofpos.first-pairofpos.second);
-    return std::sqrt(square(diff.x())+square(diff.y())+square(diff.z()));
-  }
-
 }
 
   
@@ -70,12 +65,13 @@ namespace Trk
   /** return value is true if calculation is successfull */
   std::optional<ITrkDistanceFinder::TwoPoints>
   Trk2DDistanceFinder::CalculateMinimumDistance(const Trk::Perigee & a,
-                                                const Trk::Perigee & b) 
+                                                const Trk::Perigee & b) const
   {
     std::pair<PointOnTrack,PointOnTrack> minpoints;
+    Trk::TwoPoints points;
 
     try {
-      minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b), &m_points);
+      minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b), &points);
     } catch (...) {
       ATH_MSG_WARNING( "Problem with 2d analytic minimum distance finder" );
       m_numberOfMinimizationFailures+=1;
@@ -88,14 +84,14 @@ namespace Trk
     ATH_MSG_DEBUG( "Returned b_phi " << minpoints.second.getPhiPoint() );
 #endif
     
-    return m_points;;
+    return points;
     
   }
     
   /** method to do the calculation starting from two tracks */
   std::optional<ITrkDistanceFinder::TwoPoints>
   Trk2DDistanceFinder::CalculateMinimumDistance(const  Trk::Track & a,
-                                                const Trk::Track & b)
+                                                const Trk::Track & b) const
   {
     if (std::isnan(a.perigeeParameters()->parameters()[Trk::d0])||std::isnan(b.perigeeParameters()->parameters()[Trk::d0])) {
       ATH_MSG_ERROR( "Nan parameters in tracks. Cannot use them" );
@@ -109,7 +105,7 @@ namespace Trk
   /** method to do the calculation starting from two track particles */
   std::optional<ITrkDistanceFinder::TwoPoints>
   Trk2DDistanceFinder::CalculateMinimumDistance(const  Trk::TrackParticleBase & a,
-                                                const Trk::TrackParticleBase & b)
+                                                const Trk::TrackParticleBase & b) const
   {
     const Trk::TrackParameters& para=a.definingParameters();
     const Trk::TrackParameters& parb=b.definingParameters();
@@ -131,16 +127,6 @@ namespace Trk
     
   }
   
-  /**method to obtain the distance (call CalculateMinimumDistance before) **/
-  double  Trk2DDistanceFinder::GetDistance() const {
-    return dist(m_points);//GetSeedPoint has to be implemented
-  }
-    
-  /** method to obtain the points on the two tracks at minimum distance **/
-  const std::pair<Amg::Vector3D,Amg::Vector3D>  Trk2DDistanceFinder::GetPoints() const {
-    return m_points;
-  }
 
-  
-  
-}
+} // namespace Trk
+
