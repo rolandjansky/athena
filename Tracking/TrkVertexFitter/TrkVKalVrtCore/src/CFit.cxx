@@ -171,9 +171,9 @@ long int fitVertex(VKVertex * vk, long int iflag)
 {
     long int  i, jerr, tk, it=0;
 
-    double chi2df, dparst[6];
+    double dparst[6];
     double chi2min, dxyzst[3],  chi21s=11., chi22s=10., vShift;
-    double aermd[30],tmpd[30];  // temporary array
+    double aermd[6],tmpd[6]={0.};  // temporary arrays
     double tmpPer[5],tmpCov[15], tmpWgt[15];
     double VrtMomCov[21],PartMom[4];
     double vBx,vBy,vBz;
@@ -189,6 +189,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
     extern void cfsetdiag(long int , double *, double );
     extern int cfInv5(double *cov, double *wgt );
     extern void cfTrkCovarCorr(double *cov);
+    extern void FullMTXfill( VKVertex* , double *);
 
 //
 //    New datastructure
@@ -205,7 +206,6 @@ long int fitVertex(VKVertex * vk, long int iflag)
     VKTrack * trk=0;
 
     chi2min = 1e15;
-    chi2df = 0.;
 
     if( forcft_1.nmcnst && forcft_1.useMassCnst )  {       //mass constraints are present
       std::vector<int> index;
@@ -213,7 +213,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
         if(forcft_.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( forcft_.indtrkmc[ic*NTrkM + tk] )index.push_back(tk);}
-           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, forcft_.wmfit[it], index, vk));
+           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, forcft_.wmfit[ic], index, vk));
         }
       }
       //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
@@ -298,9 +298,9 @@ long int fitVertex(VKVertex * vk, long int iflag)
             myPropagator.Propagate(vk->TrackList[tk], vk->refV,  targV, tmpPer, tmpCov);
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
- 	    if(eig5<1.e-15 ){ 
+ 	    if(eig5>0 && eig5<1.e-15 ){ 
                 tmpCov[0]+=1.e-15; tmpCov[2]+=1.e-15; tmpCov[5]+=1.e-15;  tmpCov[9]+=1.e-15;  tmpCov[14]+=1.e-15; 
-	    }else if(tmpCov[0]>1.e9) {  //Bad propagation with material. Try without it.
+	    }else if(tmpCov[0]>1.e9 || eig5<0.) {  //Bad propagation with material. Try without it.
                myPropagator.Propagate(-999, vk->TrackList[tk]->Charge,
                                        vk->TrackList[tk]->refPerig,vk->TrackList[tk]->refCovar,
 	             	               vk->refV,  targV, tmpPer, tmpCov);
@@ -386,8 +386,9 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	  forcft_1.localbmag = vBz; vkalvrtbmag.bmag  = vBz;
 	  vkalvrtbmag.bmagz = vBz; vkalvrtbmag.bmagy = vBy; vkalvrtbmag.bmagx = vBx;
 
-	  if ( vk->passNearVertex ) {
+	  if ( vk->passNearVertex && it>1 ) {  //No necessary information at first iteration
             jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
 	    cfdcopy( PartMom, &dparst[3], 3);  //vertex part of it is filled above
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
@@ -416,14 +417,15 @@ long int fitVertex(VKVertex * vk, long int iflag)
         }
 //
 // 
-	if (chi22s > 1e8) {  IERR = -1; return IERR; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s > 1e8)     { return  -1; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s != chi22s) { return -14; }      // Chi2 == nan  - BAD FIT
 	for( i=0; i<3; i++) dxyzst[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
 	//std::cout.precision(11);
 	//std::cout<<"NNFIT Iter="<<it<<" Chi2ss="<< chi21s <<", "<<chi22s<<", "<<vShift<<'\n';
 	//std::cout<<"NNVertex="<<dxyzst[0]<<", "<<dxyzst[1]<<", "<<dxyzst[2]<<'\n';
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
-	chi2df = fabs(chi21s - chi22s);
+	double chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = min(chi22s*1.e-4, forcft_1.IterationPrecision);
 	//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
@@ -443,7 +445,9 @@ long int fitVertex(VKVertex * vk, long int iflag)
 
 // Track near vertex constraint recalculation for next fit
 	if ( vk->passNearVertex ) {
-            jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(it==1)jerr = afterFit(vk,                0, vk->FVC.dcv, PartMom, VrtMomCov);
+            else     jerr = afterFit(vk, workarray_1.ader, vk->FVC.dcv, PartMom, VrtMomCov);
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...

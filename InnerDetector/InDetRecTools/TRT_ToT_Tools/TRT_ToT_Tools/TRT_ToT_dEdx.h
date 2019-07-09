@@ -62,6 +62,7 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
     const InDetDD::TRT_DetectorManager* m_trtman;                         // ID TRT detector manager 
 
     // Algorithm switchers
+    bool m_applyBugfix;               // If true - apply bugfixes for r21.0 concerning unused option DivideByL, wrong hit selection and truncation. Will calculate dEdx using recommended settings (DivideByL=true, useHThits=true, m_toolScenario=kAlgReweightTrunkOne)
     bool m_corrected;                 // If true - make correction using rs-distributions
     bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
     bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
@@ -88,6 +89,8 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
     // Hit info
     mutable int m_gasTypeInStraw;                  // Starw gas type. 0:Xenon, 1:Argon, 2:Krypton
     mutable double L; // Length in straw
+
+    static const unsigned int m_mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
 
   public:
     /** AlgTool like constructor */

@@ -105,6 +105,15 @@ namespace G4UA{
       m_3d_chad[i] += maps.m_3d_chad[i];
     }
 
+    // all time 2d vectors have same size 
+    for(unsigned int i=0;i<maps.m_rz_tid_time.size();i++) {
+      // zoom 2d
+      m_rz_tid_time [i] += maps.m_rz_tid_time [i];
+
+      // full 2d
+      m_full_rz_tid_time [i] += maps.m_full_rz_tid_time [i];
+    }
+    
     for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
       // need volume fraction only if particular material is selected
       m_3d_vol [i] += maps.m_3d_vol [i];
@@ -158,6 +167,9 @@ namespace G4UA{
     m_maps.m_3d_neut.resize(0);
     m_maps.m_3d_chad.resize(0);
 
+    m_maps.m_rz_tid_time      .resize(0);
+    m_maps.m_full_rz_tid_time .resize(0);
+
     m_maps.m_rz_neut_spec     .resize(0);
     m_maps.m_full_rz_neut_spec.resize(0);
     m_maps.m_rz_gamm_spec     .resize(0);
@@ -205,6 +217,9 @@ namespace G4UA{
     m_maps.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_neut.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_chad.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+
+    m_maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    m_maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
 
     m_maps.m_rz_neut_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
     m_maps.m_full_rz_neut_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
@@ -338,6 +353,23 @@ namespace G4UA{
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
 
+      // get time of step as average between pre- and post-step point
+      G4StepPoint* pre_step_point = aStep->GetPreStepPoint();
+      G4StepPoint* post_step_point = aStep->GetPostStepPoint();
+      G4ThreeVector startPoint = pre_step_point->GetPosition();
+      G4ThreeVector endPoint   = post_step_point->GetPosition();
+      G4ThreeVector p = (startPoint + endPoint) * 0.5;
+
+      double timeOfFlight = (pre_step_point->GetGlobalTime() +
+			     post_step_point->GetGlobalTime()) * 0.5;
+
+      // then compute time difference to a particle traveling with speed of light until this position
+      double deltatime = (timeOfFlight - p.mag()/CLHEP::c_light)/CLHEP::s;
+
+      // and use the log10 of that time difference in seconds to fill time-dependent histograms
+      // note that the upper bin boundary is the relevant cut. The first bin contains thus all times even shorter than the first lower bin boundary
+      double logt = (deltatime<0?m_config.logTMin-1:log10(deltatime));
+      
       bool goodMaterial(false);
 
       if (m_config.material.empty()) {
@@ -406,7 +438,10 @@ namespace G4UA{
       double dE_ION = dE_TOT-dE_NIEL;
 
       for(unsigned int i=0;i<nStep;i++) {
-	double absz = fabs(z0+dz*(i+0.5));
+	double abszorz = z0+dz*(i+0.5);
+	// if |z| instead of z take abs value
+	if ( m_config.zMinFull >= 0 ) abszorz = fabs(abszorz);
+
 	double rr = sqrt(pow(x0+dx*(i+0.5),2)+
 			 pow(y0+dy*(i+0.5),2));
 	double pphi = atan2(y0+dy*(i+0.5),x0+dx*(i+0.5))*180/M_PI;
@@ -418,15 +453,21 @@ namespace G4UA{
 	int vBinFullSpecn = -1;
 	int vBinZoomSpeco = -1;
 	int vBinFullSpeco = -1;
+	int vBinZoomTime  = -1;
+	int vBinFullTime  = -1;
 	
 	// zoom 2d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr;
 	    vBinZoom = m_config.nBinsr*iz+ir;
+	    if ( m_config.logTMax > logt ){
+	      int ilt = (logt < m_config.logTMin?0:(logt-m_config.logTMin)/(m_config.logTMax-m_config.logTMin)*m_config.nBinslogT);
+	      vBinZoomTime = m_config.nBinsr*m_config.nBinslogT*iz+ir*m_config.nBinslogT+ilt;
+	    }
 	    if ( m_config.logEMinn < logEKin && 
 		 m_config.logEMaxn > logEKin &&
 		 (pdgid == 6 || pdgid == 7)) {
@@ -443,13 +484,17 @@ namespace G4UA{
 	}
 	
 	// full 2d
-	if ( m_config.zMinFull < absz && 
-	     m_config.zMaxFull > absz ) {
-	  int iz = (absz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
+	if ( m_config.zMinFull < abszorz && 
+	     m_config.zMaxFull > abszorz ) {
+	  int iz = (abszorz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
 	  if ( m_config.rMinFull < rr && 
 	       m_config.rMaxFull > rr ) {
 	    int ir = (rr-m_config.rMinFull)/(m_config.rMaxFull-m_config.rMinFull)*m_config.nBinsr;
 	    vBinFull = m_config.nBinsr*iz+ir;
+	    if ( m_config.logTMax > logt ){
+	      int ilt = (logt < m_config.logTMin?0:(logt-m_config.logTMin)/(m_config.logTMax-m_config.logTMin)*m_config.nBinslogT);
+	      vBinFullTime = m_config.nBinsr*m_config.nBinslogT*iz+ir*m_config.nBinslogT+ilt;
+	    }
 	    if ( m_config.logEMinn < logEKin && 
 		 m_config.logEMaxn > logEKin &&
 		 (pdgid == 6 || pdgid == 7)) {
@@ -466,9 +511,9 @@ namespace G4UA{
 	}
 	
 	// zoom 3d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr3d;
@@ -503,6 +548,9 @@ namespace G4UA{
 	    m_maps.m_rz_eion[vBinZoom] += dE_ION;
 	  }
 	}
+	if ( goodMaterial && vBinZoomTime >=0 ) {
+	    m_maps.m_rz_tid_time[vBinZoomTime] += dE_ION/rho;
+	}
 	if ( goodMaterial && vBinFull >=0 ) {
 	  if ( pdgid == 999 ) {
 	    m_maps.m_full_rz_tid [vBinFull] += dl;
@@ -512,6 +560,9 @@ namespace G4UA{
 	    m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
 	    m_maps.m_full_rz_eion[vBinFull] += dE_ION;
 	  }
+	}
+	if ( goodMaterial && vBinFullTime >=0 ) {
+	    m_maps.m_full_rz_tid_time[vBinFullTime] += dE_ION/rho;
 	}
 	if ( goodMaterial && vBin3d >=0 ) {
 	  if ( pdgid == 999 ) {

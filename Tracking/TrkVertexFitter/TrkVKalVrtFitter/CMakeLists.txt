@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           #Tracking/TrkEvent/VxVertex
 
 # External dependencies:
-find_package( CLHEP )
+#find_package( CLHEP )
 find_package( Eigen )
 
 # Component(s) in the package:

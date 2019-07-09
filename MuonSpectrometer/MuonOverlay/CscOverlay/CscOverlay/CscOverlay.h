@@ -92,6 +92,7 @@ private:
   std::string m_mainInputCSC_Name;
   std::string m_overlayInputCSC_Name;
 
+  bool m_isDataOverlay;
   const CscIdHelper   * m_cscHelper;
   ToolHandle<ICscCalibTool> m_cscCalibTool;
   ToolHandle<IMuonDigitizationTool> m_digTool;
