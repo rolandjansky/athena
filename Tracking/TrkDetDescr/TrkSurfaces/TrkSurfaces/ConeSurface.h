@@ -83,63 +83,63 @@ public:
   virtual ConeSurface* clone() const override;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersT<5, Charged, ConeSurface>* createTrackParameters(double l1,
-                                                                            double l2,
-                                                                            double phi,
-                                                                            double theta,
-                                                                            double qop,
-                                                                            AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(double l1,
+                                                                      double l2,
+                                                                      double phi,
+                                                                      double theta,
+                                                                      double qop,
+                                                                      AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersT<5, Charged, ConeSurface>* createTrackParameters(const Amg::Vector3D& position,
-                                                                            const Amg::Vector3D& momentum,
-                                                                            double charge,
-                                                                            AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(const Amg::Vector3D& position,
+                                                                      const Amg::Vector3D& momentum,
+                                                                      double charge,
+                                                                      AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, ConeSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(double l1,
-                                                                              double l2,
-                                                                              double phi,
-                                                                              double theta,
-                                                                              double qop,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+  virtual  ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(double l1,
+                                                                         double l2,
+                                                                         double phi,
+                                                                         double theta,
+                                                                         double qop,
+                                                                         AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(const Amg::Vector3D& position,
-                                                                              const Amg::Vector3D& momentum,
-                                                                              double charge,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(const Amg::Vector3D& position,
+                                                                        const Amg::Vector3D& momentum,
+                                                                        double charge,
+                                                                        AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, ConeSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, ConeSurface>* createParameters(double l1,
-                                                           double l2,
-                                                           double phi,
-                                                           double theta,
-                                                           double qop,
-                                                           AmgSymMatrix(DIM) * cov = 0) const
+   ParametersT<DIM, T, ConeSurface>* createParameters(double l1,
+                                                      double l2,
+                                                      double phi,
+                                                      double theta,
+                                                      double qop,
+                                                      AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, ConeSurface>* createParameters(const Amg::Vector3D& position,
-                                                           const Amg::Vector3D& momentum,
-                                                           double charge,
-                                                           AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, ConeSurface>* createParameters(const Amg::Vector3D& position,
+                                                     const Amg::Vector3D& momentum,
+                                                     double charge,
+                                                     AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, ConeSurface>(position, momentum, charge, *this, cov);
   }
