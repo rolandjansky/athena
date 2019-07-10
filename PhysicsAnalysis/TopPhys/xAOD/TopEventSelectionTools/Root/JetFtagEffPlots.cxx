@@ -29,8 +29,6 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
     m_nominalHashValue(0),
     m_CDIfile("xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"),
     m_fill_total_hists(false),
-    m_apply_jet_isolation(false),
-    m_jet_isolation_cut(0.8),
     m_use_event_weight(false),
     m_histogram_suffix(""),
     // default pT and eta binning
@@ -85,10 +83,6 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
         m_histogram_suffix = s.substr(7,s.size()-7);
       else if ( s=="fill_total_hist")
         m_fill_total_hists = true;
-      else if ( s=="apply_jet_isolation")
-        m_apply_jet_isolation = true;
-      else if (s.substr(0,14)=="isolation_cut:" )
-        m_jet_isolation_cut = std::stof( s.substr(14,s.size()-14) );
       else if ( s=="use_event_weight")
         m_use_event_weight = true;
       else {
@@ -187,35 +181,8 @@ bool JetFtagEffPlots::apply(const top::Event& event) const {
 void JetFtagEffPlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const{
       
 
-      std::vector<float> jet_isolation;
-      if(m_apply_jet_isolation){
-        for (unsigned long jet_i = 0; jet_i < event.m_jets.size(); jet_i++) {
-          const xAOD::Jet* jetPtr = event.m_jets.at(jet_i);
+     
 
-            float min_dr = 10;
-
-            TLorentzVector jetvector;
-            jetvector.SetPtEtaPhiM(jetPtr->pt(), jetPtr->eta(), jetPtr->phi(), jetPtr->m());
-
-            for (unsigned long jet_j = 0; jet_j < event.m_jets.size(); jet_j++) {
-              if(jet_i == jet_j){ continue; }
-
-              const xAOD::Jet* jetPtr_j = event.m_jets.at(jet_j);
-
-              TLorentzVector jetvector_j;
-              jetvector_j.SetPtEtaPhiM(jetPtr_j->pt(), jetPtr_j->eta(), jetPtr_j->phi(), jetPtr_j->m());
-
-              float dr = jetvector.DeltaR(jetvector_j);
-              if(dr < min_dr){ min_dr = dr; }
-
-            }
-
-            jet_isolation.push_back(min_dr);
-
-        }
-      }
-
-   
     for (unsigned long jet_i = 0; jet_i < event.m_jets.size(); jet_i++) {
       const xAOD::Jet* jetPtr = event.m_jets.at(jet_i);
 
@@ -223,15 +190,6 @@ void JetFtagEffPlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr, double 
       bool status = jetPtr->getAttribute<int>("HadronConeExclTruthLabelID", jet_flavor);
       
       if (!status) continue;
-
-      if(m_apply_jet_isolation){
-
-        if(jet_isolation.at(jet_i) < m_jet_isolation_cut){
-          
-          continue;
-        }
-      }
-
 
       std::string flav_name;
           

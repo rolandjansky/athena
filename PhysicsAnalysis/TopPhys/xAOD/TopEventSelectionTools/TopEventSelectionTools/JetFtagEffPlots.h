@@ -75,8 +75,6 @@ class JetFtagEffPlots : public EventSelectorBase {
   
   bool m_fill_total_hists;
 
-  bool m_apply_jet_isolation;
-  float m_jet_isolation_cut;
   bool m_use_event_weight;
   
   //optional suffix you can add to your histogram
