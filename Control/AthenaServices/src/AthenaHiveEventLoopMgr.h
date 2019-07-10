@@ -193,7 +193,7 @@ protected:
   /// Declare the root address of the event
   int declareEventRootAddress(EventContext&);
   /// Create event context
-  EventContext createEventContext();
+  virtual EventContext createEventContext() override;
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler(int& finishedEvents);
   /// Instance of the incident listener waiting for AbortEvent. 
