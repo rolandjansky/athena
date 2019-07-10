@@ -12,7 +12,8 @@
 HLTCaloESD_xAODCaloClusters::HLTCaloESD_xAODCaloClusters(const std::string & type, const std::string & name, const IInterface* parent): 
   IHLTMonTool(type, name, parent) 
 {
-  declareProperty("HLTContainer", m_HLT_cont_name = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
+  declareProperty("HLTContainerRun2", m_HLT_cont_name_run2 = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
+  declareProperty("HLTContainerRun3", m_HLT_cont_name_run3 = "HLT_TopoCaloClustersFS");
   declareProperty("OFFContainer", m_OFF_cont_name = "CaloCalTopoClusters");
   declareProperty("MonGroupName", m_mongroup_name = "");
 
@@ -53,7 +54,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::init()
   for(unsigned int n=0; n<m_HLT_types.size(); n++)
     ATH_MSG_INFO("selected HLT cluster type: = " << m_HLT_types[n]);
   }
-  
+
   return StatusCode::SUCCESS;
   }
 
@@ -61,6 +62,10 @@ StatusCode HLTCaloESD_xAODCaloClusters::init()
 StatusCode HLTCaloESD_xAODCaloClusters::book() 
 {
   ATH_MSG_DEBUG("book()");
+  
+  // Set the HLT cluster collection
+  m_HLT_cont_name = m_HLT_cont_name_run2;
+  if (evtStore()->contains<xAOD::CaloClusterContainer>(m_HLT_cont_name_run3)) m_HLT_cont_name = m_HLT_cont_name_run3;
   
   // prepare folder structure
   if(m_mongroup_name.empty()) m_mongroup_name = m_HLT_cont_name;
@@ -70,7 +75,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addMonGroup(new MonGroup(this, m_mongroup_name, run));
   
   setCurrentMonGroup(m_mongroup_name);
-  
+
   // HLT clusters
   addHistogram(new TH1F     ("HLT_num",     "Number of HLT Clusters; Num Clusters; Entries", 101,  -0.5, 100.5));
   addHistogram(new TH2F     ("HLT_num_map", "Number of HLT Clusters; #eta;         #phi;",    50,  -5.0,   5.0, 64, -M_PI, M_PI));
