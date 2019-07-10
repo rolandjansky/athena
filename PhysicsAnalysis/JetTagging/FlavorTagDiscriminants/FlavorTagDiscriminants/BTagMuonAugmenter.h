@@ -10,15 +10,24 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 
 namespace FlavorTagDiscriminants {
 
+  namespace defaults {
+    const float MUON_MIN_DR = 0.4;
+    const float MUON_MIN_PT = 4e3;
+  }
+
   class BTagMuonAugmenter
   {
   public:
-    // typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
-    BTagMuonAugmenter(std::string muonAssociationName, float muonMinDR, float muonMinpT);
+    BTagMuonAugmenter(std::string muonAssociationName,
+                      float muonMinDR = defaults::MUON_MIN_DR,
+                      float muonMinpT = defaults::MUON_MIN_PT,
+                      EDMSchema = EDMSchema::WINTER_2018,
+                      FlipTagConfig = FlipTagConfig::STANDARD);
     ~BTagMuonAugmenter();
     BTagMuonAugmenter(BTagMuonAugmenter&&);
     void augment(const xAOD::Jet& jet) const;
@@ -28,6 +37,7 @@ namespace FlavorTagDiscriminants {
     std::string m_muonAssociationName;
     float m_muonMinDR;
     float m_muonMinpT;
+    FlipTagConfig m_flip_config;
 
     typedef SG::AuxElement AE;
     AE::Decorator<char>  dec_muon_isDefaults;
