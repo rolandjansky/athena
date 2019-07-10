@@ -119,8 +119,6 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
 void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
                                      const std::string& compName ) {
 
-  //ATH_MSG_INFO("PerfMonMTSvc::startAud: stepName: " << stepName << ", compName: " << compName);
-
   // Last thing to be called before the event loop begins
   if( compName == "AthRegSeq" && stepName == "Start") {
     //ATH_MSG_INFO("Pre Event Loop is captured!");
@@ -146,8 +144,6 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
 void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
                                     const std::string& compName ) {
 
-  //ATH_MSG_INFO("PerfMonMTSvc::stopAud: stepName: " << stepName << ", compName: " << compName);
-
   // First thing to be called after the initialize step ends
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
     //ATH_MSG_INFO("Post Initialization is captured!");
@@ -168,7 +164,9 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
 
 void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
                                       const std::string& compName) {
-   
+
+  //ATH_MSG_INFO("PerfMonMTSvc::startAud: stepName: " << stepName << ", compName: " << compName);  
+ 
   // Current step - component pair. Ex: Initialize-StoreGateSvc 
   PMonMT::StepCompPair currentState;
   currentState.stepName = stepName;
@@ -188,6 +186,8 @@ void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
 
 void PerfMonMTSvc::stopCompLevelAud( const std::string& stepName,
                                      const std::string& compName) {
+
+  //ATH_MSG_INFO("PerfMonMTSvc::stopAud: stepName: " << stepName << ", compName: " << compName);
   
   // Capture the time
   m_measurement.capture();
@@ -266,8 +266,10 @@ void PerfMonMTSvc::report2JsonFile(){
     double cpu_time = it.second->m_delta_cpu;
     
     // nlohmann::json syntax
-    j["Component_level"][stepName][compName] = {  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } } ; 
+    j["Component_level"][stepName][compName] =  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
+    // Free the dynamically allocated space
+    delete it.second;
   }
 
   std::ofstream o("PerfMonMTSvc_result.json");
@@ -309,7 +311,6 @@ void PerfMonMTSvc::report2Stdout(){
   ATH_MSG_INFO( "Step  CPU  Wall  Component"  );
   for(auto& it : m_compLevelDataMap){
     ATH_MSG_INFO( it.first.stepName << ": " <<  it.second->m_delta_cpu << "  -  "  << it.second->m_delta_wall <<   "     "  <<  it.first.compName  );
-    delete it.second;
   }  
 
 }
