@@ -112,6 +112,9 @@ def _create_file_infos():
         'run_type': [],
         'evt_type': [],
         'evt_number': [],
+        'file_comp_alg': 0,
+        'file_comp_level': 0,
+        'auto_flush': 0,
         'lumi_block': [],
         'beam_energy': [],
         'beam_type':   [],
@@ -1050,6 +1053,9 @@ class FilePeeker(object):
         nentries = 0
         runs=[]
         evts=[]
+        file_comp_alg = 0
+        file_comp_level = 0
+        auto_flush = 0
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
@@ -1090,6 +1096,8 @@ class FilePeeker(object):
                 assert key_name == 'POOLCollectionID' 
                 tag_guid = str(ctypes.c_char_p(metadata.Value).value)
             del metadata
+            file_comp_alg = f.GetCompressionAlgorithm()
+            file_comp_level = f.GetCompressionLevel()
             coll_tree = f.Get('POOLCollectionTree') if f else None
             if coll_tree:
                 nentries = coll_tree.GetEntries()
@@ -1109,11 +1117,12 @@ class FilePeeker(object):
                     #evtnbr = coll_tree.EventNumber
                     evtnbr = coll_tree.GetBranch('EventNumber').GetListOfLeaves()[0].GetValueLong64()
                     evts.append(evtnbr)
+                auto_flush = coll_tree.GetAutoFlush()
             del coll_tree
             if f and do_close:
                 f.Close()
                 del f
-        return (is_tag, tag_ref, tag_guid, nentries, runs, evts)
+        return (is_tag, tag_ref, tag_guid, nentries, runs, evts, file_comp_alg, file_comp_level, auto_flush)
 
     def _is_empty_pool_file(self, fname):
         is_empty = False
@@ -1179,13 +1188,16 @@ class FilePeeker(object):
                 #with H.restricted_ldenviron(projects=None):
                 # MN: disabled clean environ to let ROOT6 find headers
                 if True:
-                    is_tag, tag_ref, tag_guid, nentries, runs, evts = self._is_tag_file(f_root, evtmax)
+                    is_tag, tag_ref, tag_guid, nentries, runs, evts, file_comp_alg, file_comp_level, auto_flush = self._is_tag_file(f_root, evtmax)
                     if is_tag:
                         f['stream_names'] = ['TAG']
                         f['file_guid'] = tag_guid
                         f['nentries'] = nentries
                         f['run_number'] = runs
                         f['evt_number'] = evts
+                        f['file_comp_alg'] = file_comp_alg
+                        f['file_comp_level'] = file_comp_level
+                        f['auto_flush'] = auto_flush
                     else:
                         import tempfile
                         fd_pkl,out_pkl_fname = tempfile.mkstemp(suffix='.pkl')
