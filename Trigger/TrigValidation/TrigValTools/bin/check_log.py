@@ -17,7 +17,7 @@ epilogue = 'Note that at least one of errors and warnings must be true, otherwis
 
 errorRegex = ["^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN",
 "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|ImportError|AttributeError|inconsistent use of tabs and spaces in indentation\
-|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|There was a crash"]
+|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|There was a crash|illegal instruction"]
 
 traceback = ['Traceback|Shortened traceback|^Algorithm stack|Thread .*0x']
 
