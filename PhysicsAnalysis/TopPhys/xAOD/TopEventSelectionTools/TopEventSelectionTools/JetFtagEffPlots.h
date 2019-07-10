@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPEVENTSELECTIONTOOLS_JETFTAGEFFPLOTS_H_
@@ -30,34 +30,14 @@ class TopConfig;
  */
 class JetFtagEffPlots : public EventSelectorBase {
  public:
-  /**
-   * @brief Setup some example plots.
-   *
-   * Add a bunch of histograms.
-   *
-   * @param name The name of the directory to store histograms in, in the
-   * output file.  e.g. you might have ee, mumu and emu.
-   * @param outputFile The output file. Needs setting up at the very start
-   * so that we can attach the files.
-   * @param params The arguments, e.g. for the binning of the plots.
-   * @param config Instance of TopConfig
-   * @param wk Only used by EventLoop, ok as nullptr as default.
-   */
+  
   JetFtagEffPlots(const std::string& name, TFile* outputFile, const std::string& params, std::shared_ptr<top::TopConfig> config,
                  EL::Worker* wk = nullptr);
 
-  /**
-   * @brief Fill the histograms.
-   *
-   * @return True because it doesn't select any events.
-   */
+
   bool apply(const top::Event& event) const override;
 
-  /**
-   * @brief Return the name for the cutflow table.
-   *
-   * @return The word JETFLAVORPLOTS.
-   */
+  
   std::string name() const override;
 
  private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopEventSelectionTools/JetFtagEffPlots.h"
@@ -86,8 +86,7 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
       else if ( s=="use_event_weight")
         m_use_event_weight = true;
       else {
-        std::cout << "ERROR: Can't understand argument " << s << " for JETFTAGEFFPLOTS." << std::endl;
-        exit(1);
+        throw std::runtime_error{ "ERROR: Can't understand argument "+s+" for JETFTAGEFFPLOTS."};
       }
     }
 
