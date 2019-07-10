@@ -3,6 +3,7 @@
 */
 
 #include <set>
+#include <vector>
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinderRoI.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -10,6 +11,11 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "CxxUtils/make_unique.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +33,8 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
+  m_vxOutputName ( "LowPtRoIVertices" ),
+  //m_vxOutputNameAuxPostfix ( "Aux." ),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
@@ -46,6 +54,8 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("TrackTool"           ,m_trackmaker          );
   declareProperty("TracksLocation"      ,m_outputTracks        );
+  declareProperty ( "VxOutputName",m_vxOutputName );
+  //declareProperty ( "VxOutputNameAuxPostfix",m_vxOutputNameAuxPostfix );
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
   declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
@@ -66,29 +76,29 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
 
   // Get the ZWindowRoI seed tool
   if( m_ZWindowRoISeedTool.retrieve().isFailure() ){
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_ZWindowRoISeedTool <<endreq;
+    ATH_MSG_FATAL("Failed to retrieve tool "<< m_ZWindowRoISeedTool);
     return StatusCode::FAILURE;
   }
   else{
-    msg(MSG::INFO) << "Retrieved tool " << m_ZWindowRoISeedTool << endreq;
+    ATH_MSG_DEBUG("Retrieved tool " << m_ZWindowRoISeedTool);
   }
 
   // Get tool for space points seed maker
   //
   if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endreq;
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_seedsmaker );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endreq;
+    ATH_MSG_DEBUG( "Retrieved tool " << m_seedsmaker );
   }
 
   // Get track-finding tool
   //
   if ( m_trackmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endreq;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackmaker );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endreq;
+    ATH_MSG_DEBUG("Retrieved tool " << m_trackmaker );
   }
 
   // Get beam condition service and propagator (SP: check if we really need propagator..)
@@ -97,10 +107,10 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
   if(m_beam) {    
     // Get RungeKutta propagator tool
     if ( m_proptool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_proptool );
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+      ATH_MSG_DEBUG("Retrieved tool " << m_proptool );
     }      
     // Setup for magnetic field
     magneticFieldInit();      
@@ -110,7 +120,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; ATH_MSG_DEBUG((*this));
   }
   m_nseedsTotal    = 0;
   m_ntracksTotal   = 0;
@@ -136,17 +146,59 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   bool SCT = true ;
   bool ERR = false;
 
+  //CREATE CONTAINER FOR RoI INFORMATION
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+  xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+  theVertexContainer->setStore( theVertexAuxContainer );
+
+  //xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+  //theVertexContainer->push_back( dummyxAODVertex );
+
   // Find reference point of the event and create z boundary region
   //
   m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
   double ZBoundary[2];
+  //if no RoI found; no need to go further
   if (m_listRoIs.size() == 0) {
-	msg(MSG::INFO) << "no selectedRoIs " << endreq;
-	return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("no selectedRoIs " );
+    if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
+      CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+    }
+    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
+      CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+    }
+    return StatusCode::SUCCESS;
   }
   ZBoundary[0] = m_listRoIs[0].z_window[0];
   ZBoundary[1] = m_listRoIs[0].z_window[1];
-  msg(MSG::INFO) << "selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]<< endreq;
+  //m_listRoIs[0].z_reference is the midpoint
+  ATH_MSG_DEBUG("selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]);
+  
+  //VERTEX
+  std::vector<xAOD::Vertex *> dummyxAODVertices_vector;
+  for( int r = 0; r < m_listRoIs.size(); r++ ){
+
+    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+
+    dummyxAODVertices_vector.push_back(dummyxAODVertex);
+
+    theVertexContainer->push_back( dummyxAODVertices_vector.at(r) );
+
+    dummyxAODVertices_vector.at(r)->setZ( m_listRoIs[r].z_reference );
+    dummyxAODVertices_vector.at(r)->auxdecor<double>("boundary_low") = m_listRoIs[r].z_window[0];
+    dummyxAODVertices_vector.at(r)->auxdecor<double>("boundary_high") = m_listRoIs[r].z_window[1];
+
+  }
+
+  if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
+    CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+  }
+  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
+    CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+  }
+
+  
+
   // Find seeds that point within the RoI region in z
   //  
   m_seedsmaker  ->newEvent(-1); 
@@ -196,7 +248,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
   return StatusCode::SUCCESS;
 
@@ -208,7 +260,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
 StatusCode InDet::SiSPSeededTrackFinderRoI::finalize() 
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; ATH_MSG_DEBUG((*this));
   return StatusCode::SUCCESS;
 }
 

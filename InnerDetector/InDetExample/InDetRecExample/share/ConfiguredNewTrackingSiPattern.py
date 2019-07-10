@@ -340,6 +340,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     TrackTool          = InDetSiTrackMaker,
                                                                     TracksLocation     = self.__SiTrackCollection,
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
+                                                                    VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
                                                                     ZWindowRoISeedTool = ZWindowRoISeedTool)
           #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 

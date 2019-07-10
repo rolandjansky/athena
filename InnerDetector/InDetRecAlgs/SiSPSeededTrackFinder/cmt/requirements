@@ -6,8 +6,10 @@ private
 
 use xAODEventInfo                xAODEventInfo-*          Event/xAOD
 use TrkTrack                     TrkTrack-*               Tracking/TrkEvent
+use VxVertex           VxVertex-*          Tracking/TrkEvent
 use TrkRIO_OnTrack               TrkRIO_OnTrack-*         Tracking/TrkEvent
 use TrkPatternParameters         TrkPatternParameters-*   Tracking/TrkEvent
+use xAODTracking           xAODTracking-*           Event/xAOD
 use CxxUtils           CxxUtils-*               Control
 
 public

@@ -1169,6 +1169,12 @@ class xAODLowPtRoITrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "LowPtRoITrackParticles"
 
+class xAODLowPtRoIVertexContainer(JobProperty):
+    """xAOD Vertex for LowPtRoI"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "LowPtRoIVertexContainer"
+
 class xAODPixelTrackParticleContainer(JobProperty):
     """xAOD PixelTrackParticle"""
     statusOn = True
@@ -1436,6 +1442,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContain
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowPtRoITrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLowPtRoIVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)

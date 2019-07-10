@@ -77,6 +77,8 @@ namespace InDet {
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
       SG::WriteHandle<TrackCollection>    m_outputTracks    ;
 
+      std::string m_vxOutputName;
+
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiTrackMaker           > m_trackmaker    ;  // Track                maker     
     
