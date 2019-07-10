@@ -88,7 +88,9 @@ ExtraContainersTruth=["TruthEvents",
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
                         "egammaClusters",
-                        "NewSwPhotons" # only if DoCellReweighting is ON                        
+                        "NewSwPhotons", # only if DoCellReweighting is ON                        
+                        "MaxVarSwPhotons", # if variations are ON
+                        "MinVarSwPhotons"  # if variations are ON
                         ]
 
 # for trigger studies and for trigger matching

@@ -47,11 +47,13 @@ typedef enum e_JETID
 typedef enum e_ELEID
 {
   ELEIDNONEUNCONFIGURED = 0,
-  ELEIDNONE      = 1,
-  ELEIDBDTLOOSE  = 2,
-  ELEIDBDTMEDIUM = 3,
-  ELEIDBDTTIGHT  = 4,
-  ELEIDOTHER     = 5
+  ELEIDNONE         = 1,
+  ELEIDBDTLOOSE     = 2,
+  ELEIDBDTMEDIUM    = 3,
+  ELEIDBDTTIGHT     = 4,
+  ELEIDBDTOLDLOOSE  = 5,
+  ELEIDBDTOLDMEDIUM = 6,
+  ELEIDOTHER        = 7
 } ELEID;
 
 typedef enum
@@ -117,6 +119,8 @@ enum EfficiencyCorrectionType
   // SFEleIDJet       = 21,
   // SFEleIDElectron  = 22,
   // SFEleIDMuon      = 23,
+
+  SFDecayMode = 24,
 };
 
 enum EfficiencyCorrectionSystematicType

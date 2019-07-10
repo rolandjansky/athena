@@ -95,6 +95,16 @@ SUSY2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += SUSY2TauTPThinningTool
 thinningTools.append(SUSY2TauTPThinningTool)
 
+# TrackParticles associated with SV
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+SUSY2VertexTPThinningTool = DerivationFramework__VertexParticleThinning( name                = "SUSY2VertexTPThinningTool",
+                                                                      ThinningService        = SUSY2ThinningHelper.ThinningSvc(),
+                                                                      VertexKey              = "VrtSecInclusive_SoftBtagCandidateVertices",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles")
+
+ToolSvc += SUSY2VertexTPThinningTool
+thinningTools.append(SUSY2VertexTPThinningTool)
+
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 
@@ -247,6 +257,12 @@ SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel(
   SkimmingTools = [SUSY2SkimmingTool]
   )
 
+#==============================================================================
+# Soft b-tag
+#==============================================================================
+from DerivationFrameworkFlavourTag.SoftBtagCommon import *
+applySoftBtagging("softBtag", SeqSUSY2 )
+
 
 #==============================================================================
 # Jet building
@@ -322,7 +338,8 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
-                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection",
+                                      "PrimaryVertices.covariance"]
 
 # Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
@@ -338,6 +355,12 @@ SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY2SlimmingHelper.IncludeBPhysTriggerContent = True
 #SUSY2SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
+
+SUSY2SlimmingHelper.StaticContent = StaticContent
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py

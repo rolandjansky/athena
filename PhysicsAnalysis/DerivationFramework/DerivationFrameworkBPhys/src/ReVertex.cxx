@@ -1,10 +1,19 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+// ****************************************************************************
+// ----------------------------------------------------------------------------
+// ReVertex
+//
+// Konstantin Beloborodov <Konstantin.Beloborodov@cern.ch>
+//
+// ----------------------------------------------------------------------------
+// ****************************************************************************
 #include "DerivationFrameworkBPhys/ReVertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
+#include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
 
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -12,6 +21,7 @@
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
+#include "xAODBPhys/BPhysHypoHelper.h"
 
 using namespace DerivationFramework;
 
@@ -20,9 +30,15 @@ ReVertex::ReVertex(const std::string& t,
                    const IInterface* p) :
     AthAlgTool(t,n,p), m_vertexEstimator("InDet::VertexPointEstimator"), m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_massConst(0.),
+    m_totalMassConst(0.),
     m_v0Tools("Trk::V0Tools"),
     m_pvRefitter("Analysis::PrimaryVertexRefitter"),
-    m_beamSpotSvc("BeamCondSvc",n)
+    m_beamSpotSvc("BeamCondSvc",n),
+    m_doMassConst(false),
+    m_vertexFittingWithPV(false),
+    m_chi2cut(-1.0),
+    m_trkDeltaZ(-1.0),
+    m_useAdditionalTrack(false)
 {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -33,11 +49,22 @@ ReVertex::ReVertex(const std::string& t,
     declareProperty("OutputVtxContainerName", m_OutputContainerName);
     declareProperty("InputVtxContainerName", m_inputContainerName);
     declareProperty("TrackContainerName", m_trackContainer = "InDetTrackParticles");
+    declareProperty("UseVertexFittingWithPV", m_vertexFittingWithPV);
 
+    declareProperty("HypothesisNames",m_hypoNames);
+   
     declareProperty("V0Tools"               , m_v0Tools);
     declareProperty("PVRefitter"            , m_pvRefitter);
     declareProperty("PVContainerName"       , m_pvContainerName        = "PrimaryVertices");
     declareProperty("RefPVContainerName"    , m_refPVContainerName     = "RefittedPrimaryVertices");
+
+    declareProperty("UseMassConstraint", m_doMassConst);
+    declareProperty("VertexMass", m_totalMassConst);
+    declareProperty("SubVertexMass", m_massConst);
+    declareProperty("MassInputParticles", m_trkMasses);
+    declareProperty("SubVertexTrackIndices", m_indices);
+   
+    declareProperty("UseAdditionalTrack", m_useAdditionalTrack);
 
     declareProperty("RefitPV"               , m_refitPV                = false);
     //This parameter will allow us to optimize the number of PVs under consideration as the probability
@@ -49,6 +76,10 @@ ReVertex::ReVertex(const std::string& t,
     declareProperty("Do3d"        , m_do3d          = false);
     declareProperty("AddPVData"        , m_AddPVData          = true);
     declareProperty("StartingPoint0"        , m_startingpoint0     = false);
+   declareProperty("BMassUpper",m_BMassUpper = std::numeric_limits<double>::max() );
+   declareProperty("BMassLower",m_BMassLower = std::numeric_limits<double>::min() );
+   declareProperty("Chi2Cut",m_chi2cut = std::numeric_limits<double>::max() );
+    declareProperty("TrkDeltaZ",m_trkDeltaZ);
     
     
 }
@@ -81,10 +112,23 @@ StatusCode ReVertex::addBranches() const {
     const xAOD::TrackParticleContainer* importedTrackCollection = nullptr;
     ATH_CHECK(evtStore()->retrieve(importedTrackCollection, m_trackContainer ));
 
-    std::vector<const xAOD::TrackParticle*> fitpair(Ntracks);
+    //----------------------------------------------------
+    // retrieve primary vertices
+    //----------------------------------------------------
+    const xAOD::VertexContainer* pvContainer = nullptr;
+    ATH_CHECK(evtStore()->retrieve(pvContainer, m_pvContainerName));
+
+    std::vector<const xAOD::TrackParticle*> fitpair(Ntracks + m_useAdditionalTrack);
     for(const xAOD::Vertex* v : *InVtxContainer)
     {
 
+      bool passed = false;
+      for(size_t i=0;i<m_hypoNames.size();i++) {
+	 xAOD::BPhysHypoHelper onia(m_hypoNames.at(i), v);
+	 passed |= onia.pass();
+      }
+      if (!passed && m_hypoNames.size()) continue;
+       
         for(size_t i =0; i<Ntracks; i++)
         {
             size_t trackN = m_TrackIndices[i];
@@ -96,40 +140,27 @@ StatusCode ReVertex::addBranches() const {
             fitpair[i] = v->trackParticle(trackN);
         }
 
-        int sflag = 0;
-        int errorcode = 0;
-        Amg::Vector3D startingPoint;
-        m_VKVFitter->setDefault();
+       if (m_useAdditionalTrack) 
+       {
+	  // Loop over ID tracks, call vertexing
+	  for (auto trkItr=importedTrackCollection->cbegin(); trkItr!=importedTrackCollection->cend(); ++trkItr) {
+	     const xAOD::TrackParticle* tp (*trkItr);
+	     fitpair.back() = nullptr;
+	     if (Analysis::JpsiUpsilonCommon::isContainedIn(tp,fitpair)) continue; // remove tracks which were used to build J/psi+2Tracks
+	     fitpair.back() = tp;
 
-        if (m_doMassConst)
-        {
-           m_VKVFitter->setMassInputParticles(m_MassConstraints);
-           m_VKVFitter->setMassForConstraint(m_massConst, m_indices);
-        }
-
-
-        if (!m_startingpoint0) {
-            const Trk::Perigee& aPerigee1 = fitpair[0]->perigeeParameters();
-            const Trk::Perigee& aPerigee2 = fitpair[1]->perigeeParameters();
-            startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1, &aPerigee2, sflag, errorcode);
-        }
-        if (m_startingpoint0 || errorcode!=0 )
-        {
-            startingPoint(0) = 0.0;
-            startingPoint(1) = 0.0;
-            startingPoint(2) = 0.0;
-        }
-        std::unique_ptr<xAOD::Vertex> ptr(m_VKVFitter->fit(fitpair, startingPoint));
-        if(!ptr) continue;
-        
-        DerivationFramework::BPhysPVTools::PrepareVertexLinks( ptr.get(), importedTrackCollection );
-        std::vector<const xAOD::Vertex*> thePreceding;
-        thePreceding.push_back(v);
-        xAOD::BPhysHelper bHelper(ptr.get());
-        bHelper.setRefTrks();
-        bHelper.setPrecedingVertices(thePreceding, InVtxContainer);
-        vtxContainer->push_back(ptr.release());
-
+	      // Daniel Scheirich: remove track too far from the Jpsi+2Tracks vertex (DeltaZ cut)
+	      if(m_trkDeltaZ>0 &&
+		 std::abs((tp)->z0() + (tp)->vz() - v->z()) > m_trkDeltaZ )
+	       continue;
+	     
+	     fitAndStore(vtxContainer,v,InVtxContainer,fitpair,importedTrackCollection,pvContainer);
+	  }
+       }
+       else 
+       {
+	  fitAndStore(vtxContainer,v,InVtxContainer,fitpair,importedTrackCollection,pvContainer);
+       }
     }
 
     if(m_AddPVData){
@@ -137,12 +168,6 @@ StatusCode ReVertex::addBranches() const {
      BPhysPVTools helper(&(*m_v0Tools), &m_beamSpotSvc);
      helper.SetMinNTracksInPV(m_PV_minNTracks);
      helper.SetSave3d(m_do3d);
-
-    //----------------------------------------------------
-    // retrieve primary vertices
-    //----------------------------------------------------
-    const xAOD::VertexContainer* pvContainer = nullptr;
-    ATH_CHECK(evtStore()->retrieve(pvContainer, m_pvContainerName));
 
     if(m_refitPV) {
         //----------------------------------------------------
@@ -174,5 +199,97 @@ StatusCode ReVertex::addBranches() const {
     return StatusCode::SUCCESS;
 }
 
+void ReVertex::fitAndStore(xAOD::VertexContainer* vtxContainer,
+				    const xAOD::Vertex* v,
+				    const xAOD::VertexContainer    *InVtxContainer,
+				    const std::vector<const xAOD::TrackParticle*> &inputTracks,
+				    const xAOD::TrackParticleContainer* importedTrackCollection,
+				    const xAOD::VertexContainer* pvContainer) const
+{
+   std::unique_ptr<xAOD::Vertex> ptr(fit(inputTracks, nullptr));
+   if(!ptr)return;
 
+   double chi2DOF = ptr->chiSquared()/ptr->numberDoF();
+   ATH_MSG_DEBUG("Candidate chi2/DOF is " << chi2DOF);
+   bool chi2CutPassed = (m_chi2cut <= 0.0 || chi2DOF < m_chi2cut);
+   if(!chi2CutPassed) { ATH_MSG_DEBUG("Chi Cut failed!");  return; }
+   xAOD::BPhysHelper bHelper(ptr.get());//"get" does not "release" still automatically deleted
+   bHelper.setRefTrks();
+   if (m_trkMasses.size()==inputTracks.size()) {
+      TLorentzVector bMomentum = bHelper.totalP(m_trkMasses);
+      double bMass = bMomentum.M();
+      bool passesCuts = (m_BMassUpper > bMass && bMass > m_BMassLower);
+      if(!passesCuts)return;
+   }
+	  
+   DerivationFramework::BPhysPVTools::PrepareVertexLinks( ptr.get(), importedTrackCollection );
+   std::vector<const xAOD::Vertex*> thePreceding;
+   thePreceding.push_back(v);
+   if(m_vertexFittingWithPV){
+      const xAOD::Vertex* closestPV = Analysis::JpsiUpsilonCommon::ClosestPV(bHelper, pvContainer);
+      if (!closestPV) return;
+      std::unique_ptr<xAOD::Vertex> ptrPV(fit(inputTracks, closestPV));
+      if(!ptrPV) return;
 
+      double chi2DOFPV = ptrPV->chiSquared()/ptrPV->numberDoF();
+      ATH_MSG_DEBUG("CandidatePV chi2/DOF is " << chi2DOFPV);
+      bool chi2CutPassed = (m_chi2cut <= 0.0 || chi2DOFPV < m_chi2cut);
+      if(!chi2CutPassed) { ATH_MSG_DEBUG("Chi Cut failed!");  return; }
+      xAOD::BPhysHelper bHelperPV(ptrPV.get());//"get" does not "release" still automatically deleted
+      bHelperPV.setRefTrks();
+      if (m_trkMasses.size()==inputTracks.size()) {
+	 TLorentzVector bMomentumPV = bHelperPV.totalP(m_trkMasses);
+	 double bMass = bMomentumPV.M();
+	 bool passesCuts = (m_BMassUpper > bMass && bMass > m_BMassLower);
+	 if(!passesCuts)return;
+      }
+      
+      bHelperPV.setPrecedingVertices(thePreceding, InVtxContainer);
+      vtxContainer->push_back(ptrPV.release());
+      return; //Don't store other vertex
+   }
+   bHelper.setPrecedingVertices(thePreceding, InVtxContainer);
+   vtxContainer->push_back(ptr.release());
+}
+
+    // *********************************************************************************
+    
+    // ---------------------------------------------------------------------------------
+    // fit - does the fit
+    // ---------------------------------------------------------------------------------
+    
+xAOD::Vertex* ReVertex::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
+				     const xAOD::Vertex* pv) const
+{
+   m_VKVFitter->setDefault();
+
+   if (m_doMassConst && (m_trkMasses.size()==inputTracks.size())) {
+      m_VKVFitter->setMassInputParticles(m_trkMasses);
+      if (m_totalMassConst) m_VKVFitter->setMassForConstraint(m_totalMassConst);
+      if (m_massConst) m_VKVFitter->setMassForConstraint(m_massConst, m_indices);
+   }
+   if (pv) {
+      m_VKVFitter->setCnstType(8);
+      m_VKVFitter->setVertexForConstraint(pv->position().x(),
+					  pv->position().y(),
+					  pv->position().z());
+      m_VKVFitter->setCovVrtForConstraint(pv->covariancePosition()(Trk::x,Trk::x),
+					  pv->covariancePosition()(Trk::y,Trk::x),
+					  pv->covariancePosition()(Trk::y,Trk::y),
+					  pv->covariancePosition()(Trk::z,Trk::x),
+					  pv->covariancePosition()(Trk::z,Trk::y),
+					  pv->covariancePosition()(Trk::z,Trk::z) );
+   }
+
+   // Do the fit itself.......
+   // Starting point (use the J/psi position)
+   const Trk::Perigee& aPerigee1 = inputTracks[0]->perigeeParameters();
+   const Trk::Perigee& aPerigee2 = inputTracks[1]->perigeeParameters();
+   int sflag = 0;
+   int errorcode = 0;
+   Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
+   if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
+   xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint);
+
+   return theResult;
+}

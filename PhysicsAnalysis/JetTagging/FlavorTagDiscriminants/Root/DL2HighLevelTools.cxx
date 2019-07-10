@@ -89,6 +89,11 @@ namespace FlavorTagDiscriminants {
       for (auto& var: node.variables) {
         var.name = sub_first(res, var.name);
       }
+      std::map<std::string, double> new_defaults;
+      for (auto& pair: node.defaults) {
+        new_defaults[sub_first(res, pair.first)] = pair.second;
+      }
+      node.defaults = new_defaults;
     }
     std::map<std::string, lwt::OutputNodeConfig> new_outputs;
     for (auto& pair: config.outputs) {

@@ -71,7 +71,7 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       }
       //Check if Jet collection already not tagged
       if (!evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName)) {
-        if ((m_JetCollectionName != "AntiKt4EMPFlowJets") || !m_dupPFlow) {
+        if ((((m_JetCollectionName == "AntiKt4EMPFlowJets") || m_JetCollectionName == "DFAntiKt4HIJets") && !m_dupPFlow)  || (m_dupPFlow && m_JetCollectionName == "DFAntiKt4HIJets")) {
           ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName );
 	  if (evtStore()->contains<xAOD::JetAuxContainer>(m_JetCollectionName+"Aux.")) {
 	    if (overwrite<xAOD::JetContainer, xAOD::JetAuxContainer>(m_JetCollectionName).isFailure()) {
@@ -121,12 +121,27 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       }
       else { //Shallow copy for re-tagging already tagged jet
         const xAOD::JetContainer * jetsAOD = 0;
+        if ((m_dupPFlow) && evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName+"_201810")) {
+          ATH_MSG_DEBUG("#BTAG# 2019 Retraining campaign: Time stamped Jet b-tagged in AODFix. Nothing to do");
+          return 1;
+        }
+
         CHECK( evtStore()->retrieve(jetsAOD, m_JetCollectionName));
         ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " with " << jetsAOD->size() << " jets");
         auto rec = xAOD::shallowCopyContainer (*jetsAOD);
+        if (m_dupPFlow) {
+          std::string suffix = "_BTagging201810";
+          ATH_MSG_DEBUG("#BTAG# 2019 Retraining campaign for " << m_JetCollectionName + suffix);
+          CHECK( evtStore()->record( rec.first, m_JetCollectionName + suffix) );
+          CHECK( evtStore()->record( rec.second, m_JetCollectionName + suffix + "Aux.") );
+        }
+
         int ret = m_JetBTaggerTool->modify(*rec.first);
-        delete rec.first;
-        delete rec.second;
+
+        if (!m_dupPFlow) {
+          delete rec.first;
+          delete rec.second;
+        }
         if (!ret) {
           ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
         }

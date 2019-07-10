@@ -17,6 +17,7 @@ namespace {
     using namespace FlavorTagDiscriminants;
     switch(f) {
     case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
     case FlipTagConfig::NEGATIVE_IP_ONLY: return "Neg";
     default: throw std::logic_error("undefined flip config");
     }
@@ -25,6 +26,7 @@ namespace {
     using namespace FlavorTagDiscriminants;
     switch(f) {
     case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
     case FlipTagConfig::NEGATIVE_IP_ONLY: return "Flip";
     default: throw std::logic_error("undefined flip config");
     }
@@ -41,6 +43,7 @@ namespace {
     using namespace FlavorTagDiscriminants;
     switch(f) {
     case FlipTagConfig::STANDARD: return "rnnip";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
     case FlipTagConfig::NEGATIVE_IP_ONLY: return "rnnipflip";
     default: throw std::logic_error("undefined flip config");
     }

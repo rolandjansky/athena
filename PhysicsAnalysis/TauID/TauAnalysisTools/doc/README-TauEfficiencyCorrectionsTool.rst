@@ -2,8 +2,8 @@
 TauEfficiencyCorrectionsTool
 ============================
 
-:authors: Dirk Duschinger
-:contact: dirk.duschinger@cern.ch
+:authors: Dirk Duschinger, David Kirchmeier
+:contact: david.kirchmeier@cern.ch
 
 .. contents:: Table of contents
 
@@ -107,23 +107,78 @@ The tool can be used to retrieve scale factors for a specific
 
    * - ``RecommendationTag``
      - ``std::string``
-     - ``"mc16-prerec"``
-     - ``"2017-moriond"``, ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
+     - ``"2019-summer"``
+     - ``"2018-summer"``, ``"2017-moriond"``, ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
 
 For the default ``RecommendationTag`` "mc16-prerec" the following properties
 are available for tool steering:
 
 .. list-table::
    :header-rows: 1
-   :widths: 25 10 55
+   :widths: 25 10 45 35
 
    * - property name
      - type
      - default value
+     - other sensible values
  
+   * - ``TauSelectionTool``
+     - ``ToolHandle<TauAnalysisTools::TauSelectionTool>``
+     - empty
+     - 
+
    * - ``EfficiencyCorrectionTypes``
      - ``std::vector<int>``
-     - ``{SFRecoHadTau, SFJetIDHadTau, SFEleOLRHadTau, SFEleOLRElectron}``
+     - ``{SFRecoHadTau, SFJetIDHadTau}``
+     - ``std::vector<int>({SFEleOLRHadTau, SFEleOLRElectron, SFTriggerHadTau, SFDecayMode})``
+
+   * - ``IDLevel``
+     - ``int``
+     - ``JETIDBDTTIGHT``
+     - ``JETIDBDTLOOSE``, ``JETIDBDTMEDIUM``
+
+   * - ``OLRLevel``
+     - ``int``
+     - ``OLRNONE``
+     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTIGHT``,  ``TAUELEOLR``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``
+
+   * - ``UseTauSubstructure``
+     - ``bool``
+     - ``false``
+     - ``true``
+
+   * - ``TriggerName``
+     - ``std::string``
+     - ``""``
+     - ``"HLT_tau125_medium1_tracktwo"``, ``"HLT_tau160_medium1_tracktwo"``, ``"HLT_tau25_medium1_tracktwo"``, ``"HLT_tau35_medium1_tracktwo"``, ``"HLT_tau50_medium1_tracktwo_L1TAU12"``, ``"HLT_tau80_medium1_tracktwo"``, ``"HLT_tau80_medium1_tracktwo_L1TAU60"``
+
+   * - ``TriggerYear``
+     - ``std::string``
+     - ``"2016"``
+     - ``"2015"``, ``"2017"``
+     
+   * - ``TriggerSFMeasurement``
+     - ``std::string``
+     - ``"combined"``
+     - ``"Ztautau"``, ``"ttbar"``, 
+
+In addition the following properties are available for further configurations:
+     
+.. list-table::
+   :header-rows: 1
+   :widths: 25 10 45
+
+   * - property name
+     - type
+     - default value
+     
+   * - ``PileupReweightingTool``
+     - ``ToolHandle<CP::PileupReweightingTool>``
+     - empty
+
+   * - ``MCCampaign``
+     - ``std::string``
+     - ``""``
 
    * - ``InputFilePathRecoHadTau``
      - ``std::string``
@@ -135,7 +190,7 @@ are available for tool steering:
 
    * - ``InputFilePathEleOLRElectron``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2018-summer.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2019-summer.root"``
 
    * - ``InputFilePathEleBDTElectron``
      - ``std::string``
@@ -161,51 +216,11 @@ are available for tool steering:
      - ``std::string``
      - ``"TauScaleFactorJetIDHadTau"``
 
-In addition the following properties are available for further configurations:
-     
-.. list-table::
-   :header-rows: 1
-   :widths: 5 10 5
-
-   * - property name
-     - type
-     - default value
-     
-   * - ``TauSelectionTool``
-     - ``ToolHandle<TauAnalysisTools::TauSelectionTool>``
-     - empty
-
-   * - ``PileupReweightingTool``
-     - ``ToolHandle<CP::PileupReweightingTool>``
-     - empty
-
-   * - ``TriggerName``
+   * - ``VarNameTriggerHadTau``
      - ``std::string``
-     - ``""``
+     - ``"TauScaleFactorTriggerHadTau"``
 
-   * - ``TriggerYear``
-     - ``std::string``
-     - ``"2016"``
-     
-   * - ``TriggerSFMeasurement``
-     - ``std::string``
-     - ``"combined"``
-     
-   * - ``IDLevel``
-     - ``int``
-     - ``JETIDBDTTIGHT``
 
-   * - ``OLRLevel``
-     - ``int``
-     - ``TAUELEOLR``
-
-   * - ``TriggerPeriodBinning``
-     - ``int``
-     - ``PeriodBinningAll``
-
-   * - ``MCCampaign``
-     - ``std::string``
-     - ``""``
 
 Details
 =======
@@ -221,6 +236,7 @@ factors:
 * SFEleOLRHadTau: scale factors for tau electron overlap removal of true hadronic tau decays
 * SFEleOLRElectron: scale factors for tau electron overlap removal of true electrons faking hadronic taus
 * SFJetIDHadTau: scale factors for tau jet identification of true hadronic tau decays
+* SFDecayMode: scale factors for each true hadronic tau decay mode
 
 The InputFilePath* strings are predefined to load the files in
 /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ using PathResolver, but own
@@ -270,17 +286,20 @@ points:
    * - value
      - description
 
-   * - ``TAUELEOLR``
-     - the TauWG eVeto (OLR very loose e)
-
    * - ``ELEBDTLOOSE``
      - electron BDT loose working point
 
-   * - ``ELEBDTLOOSEPLUSVETO``
-     - electron BDT loose working point + TauWG eVeto
-
    * - ``ELEBDTMEDIUM``
      - electron BDT medium working point
+
+   * - ``ELEBDTTIGHT``
+     - electron BDT medium working point
+
+   * - ``TAUELEOLR``
+     - the TauWG eVeto (OLR very loose e)
+
+   * - ``ELEBDTLOOSEPLUSVETO``
+     - electron BDT loose working point + TauWG eVeto
 
    * - ``ELEBDTMEDIUMPLUSVETO``
      - electron BDT medium working point + TauWG eVeto
@@ -289,7 +308,22 @@ These can be accessed, for example via::
 
   TauEffTool.setProperty("OLRLevel", (int)TAUELEOLR);
 
-Since AnalysisBase/AthAnalysis 21.2.55 the BDT related working points (``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM``, ``ELEBDTMEDIUMPLUSVETO``) are provided separately for MC16a (corresponding to 2015-2016 data) and MC16d (corresponding to 2017 data). If you use one of those working points, you will have to provide TauEfficiencyCorrectionsTool with either a ``PileupReweightingTool`` or with the ``MCCampaign`` property. For the ``MCCampaign`` property you can choose between "MC16a", "MC16d" or "MC16e". If the MC campaign is not set explicitly TauEfficiencyCorrectionsTool will use the PileupReweightingTool to retrieve a random run number and apply the corresponding systematic prescriptions. If none of the above properties are provided TauEfficiencyCorrectionsTool will throw the following error message: ``One of these properties has to be set: "MCCampaign" or "PileupReweightingTool"``. 
+Recommendations tag ``2019-summer`` provides recommendations for the re-tuned eleBDT working points (``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``), for the LLH based eVeto (``TAUELEOLR``) and for the LLH based eVeto in combination with the old eleBDT (``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``). 
+
+Recommendations tag ``2018-summer`` provides recommendations for ``TAUELEOLR``, ``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM`` and ``ELEBDTMEDIUMPLUSVETO``.
+The BDT related working points (``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM``, ``ELEBDTMEDIUMPLUSVETO``) are provided separately for MC16a (corresponding to 2015-2016 data) and MC16d (corresponding to 2017 data). If you use one of those working points, you will have to provide TauEfficiencyCorrectionsTool with either a ``PileupReweightingTool`` or with the ``MCCampaign`` property. For the ``MCCampaign`` property you can choose between "MC16a", "MC16d" or "MC16e". If the MC campaign is not set explicitly TauEfficiencyCorrectionsTool will use the PileupReweightingTool to retrieve a random run number and apply the corresponding systematic prescriptions. If none of the above properties are provided TauEfficiencyCorrectionsTool will throw the following error message: ``One of these properties has to be set: "MCCampaign" or "PileupReweightingTool"``. 
+
+
+SFDecayMode
+----------------
+
+Only available since recommendations tag ``"2019-summer"``. ``UseTauSubstructure`` must be set to true. 
+
+--------------------------------------
+Special notes on decay mode recommendations
+--------------------------------------
+
+Set the ``"UseTauSubstructure"`` property to true in order to get the decay mode classification recommendations. This will provide alternative ID scale factors (SFJetIDHadTau), and also additional decay mode scale factors (SFDecayMode).
 
 
 --------------------------------------

@@ -269,6 +269,7 @@ class AODFix_r210(AODFix_base):
         from BTagging.BTaggingConf import Analysis__StandAloneJetBTaggerAlg as StandAloneJetBTaggerAlg
 
         btag = "BTagging_"
+        from BTagging.BTaggingFlags import BTaggingFlags
         AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
         for i, jet in enumerate(JetCollectionList):
             try:
@@ -278,6 +279,7 @@ class AODFix_r210(AODFix_base):
                 SAbtagger = StandAloneJetBTaggerAlg(name=SA + AuthorSubString[i].lower(),
                                           JetBTaggerTool=btagger,
                                           JetCollectionName = jet,
+                                          DuplicatePFlow = BTaggingFlags.Do2019Retraining
                                           )
 
                 topSequence += SAbtagger

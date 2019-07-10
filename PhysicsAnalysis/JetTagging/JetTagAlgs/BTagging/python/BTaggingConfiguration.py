@@ -511,6 +511,10 @@ class Configuration:
               FlavorTagDiscriminants__BTagMuonAugmenterTool as MuonTool,
               FlavorTagDiscriminants__BTagAugmenterTool as AugTool)
           from os.path import splitext, basename
+
+          do_flip = any(x.endswith('Flip') for x in TaggerList)
+          flip_tag_config = 'FLIP_SIGN'
+
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
@@ -522,6 +526,13 @@ class Configuration:
                       nnFile=nn_file, schema='FEB_2019')
                   ToolSvc += rnn
                   options['preBtagToolModifiers'].append(rnn)
+                  if do_flip:
+                      rnn = DL2Tool(
+                          name=(get_training_name(nn_file)  + '_flip'),
+                          nnFile=nn_file, schema='FEB_2019',
+                          flipTagConfig=flip_tag_config)
+                      ToolSvc += rnn
+                      options['preBtagToolModifiers'].append(rnn)
 
           # add dl1 tools
           options.setdefault("postBtagToolModifiers", [])
@@ -532,12 +543,25 @@ class Configuration:
                   schema='FEB_2019')
               ToolSvc += aug
               modifiers.append(aug)
+              if do_flip:
+                  aug = AugTool(
+                      name=get_training_name('BTagAugmenterToolFlip'),
+                      schema='FEB_2019', flipTagConfig=flip_tag_config)
+                  ToolSvc += aug
+                  modifiers.append(aug)
               for nn_file in postTagDL2JetToTrainingMap[jetcol]:
                   dl1 = DL2Tool(
                       name=get_training_name(nn_file),
                       nnFile=nn_file, schema='FEB_2019')
                   ToolSvc += dl1
                   modifiers.append(dl1)
+                  if do_flip:
+                      dl1 = DL2Tool(
+                          name=(get_training_name(nn_file)  + '_flip'),
+                          nnFile=nn_file, schema='FEB_2019',
+                          flipTagConfig=flip_tag_config)
+                      ToolSvc += dl1
+                      modifiers.append(dl1)
 
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
@@ -553,6 +577,7 @@ class Configuration:
           options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
           options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
           options.setdefault('BTagSVName', self._OutputFilesSVname)
+          options.setdefault('Do2019Retraining', BTaggingFlags.Do2019Retraining)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
           jetbtaggertool = JetBTaggerTool(**options)
           # Setup the associator tool
@@ -1385,10 +1410,12 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              if (JetCollection == "AntiKt4EMPFlow"):
-                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
-                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
-                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              if BTaggingFlags.Do2019Retraining:
+                if (JetCollection == "AntiKt4EMTopo"):
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                if (JetCollection == "AntiKt4EMPFlow"):
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                  self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
               else:
                 self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
               

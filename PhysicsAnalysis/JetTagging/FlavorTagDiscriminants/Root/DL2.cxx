@@ -87,7 +87,7 @@ namespace FlavorTagDiscriminants {
 
       // Note, you can hack in more variables to `cleaned` here.
 
-    // put the cleaned inputs into the node structure
+      // put the cleaned inputs into the node structure
       nodes[m_input_node_name] =  cleaned;
     }
 
@@ -284,19 +284,29 @@ namespace FlavorTagDiscriminants {
                             const Tracks& tracks,
                             const xAOD::Jet& j) {
         Tracks filtered;
-        for (const auto* tp: tracks) {
+        // we want to reverse the order of the tracks as part of the
+        // flipping
+        for (auto ti = tracks.crbegin(); ti != tracks.crend(); ti++) {
+          const xAOD::TrackParticle* tp = *ti;
           double sip = aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
           if (sip < 0) filtered.push_back(tp);
         }
         return filtered;
       }
+
       // factory function
       TrackSequenceFilter flipFilter(FlipTagConfig cfg, EDMSchema schema) {
         namespace ph = std::placeholders;  // for _1, _2, _3
         BTagTrackAugmenter aug(schema);
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
+          // flips order and removes tracks with negative IP
           return std::bind(&negativeIpOnly, aug, ph::_1, ph::_2);
+        case FlipTagConfig::FLIP_SIGN:
+          // Just flips the order
+          return [](const Tracks& tr, const xAOD::Jet& ) {
+                   return Tracks(tr.crbegin(), tr.crend());
+                 };
         case FlipTagConfig::STANDARD:
           return [](const Tracks& tr, const xAOD::Jet& ) { return tr; };
         default: {
