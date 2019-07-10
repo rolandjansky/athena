@@ -267,22 +267,39 @@ namespace CP {
 
   Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
+    double jetWeight = -1;
+    int    jetNTrack = -1;
+    // reset the TAccept cut results to false
+    m_accept.clear();
+    
+    // set the jet validity bits to 1 by default
+    m_accept.setCutResult( "ValidPtRangeLow" , true);
+    m_accept.setCutResult( "ValidEtaRange"   , true);
+    m_accept.setCutResult( "ValidJetContent" , true);
+    m_accept.setCutResult( "ValidEventContent" , true);
+
+    // check basic kinematic selection
+    bool isValid = true;
+    if (std::fabs(jet.eta()) > m_jetEtaMax) {
+      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
+      m_accept.setCutResult("ValidEtaRange", false);
+      isValid = false;
+    }
+    if (jet.pt() < m_jetPtMin) {
+      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
+      m_accept.setCutResult("ValidPtRangeLow", false);
+      isValid = false;
+    }
+
+    // If the object isn't valid there's no point applying the remaining cuts
+    if (!isValid)
+      return m_accept;
+
     if(m_mode ==0){ //do tagging assuming relevant track particle, PV, etc containers exist
         if (pv)
           ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
         else
           ATH_MSG_DEBUG( "Obtaining JetQGTagger decision default" );
-
-
-        // reset the TAccept cut results to false
-        m_accept.clear();
-
-        // set the jet validity bits to 1 by default
-        m_accept.setCutResult( "ValidPtRangeLow" , true);
-        m_accept.setCutResult( "ValidEtaRange"   , true);
-        m_accept.setCutResult( "ValidJetContent" , true);
-        m_accept.setCutResult( "ValidEventContent" , true);
-        bool isValid = true;
 
         // if no primary vertex is specified, then the 0th primary vertex is used
         if(! pv){
@@ -315,64 +332,52 @@ namespace CP {
           }
         }
 
-
-        // check basic kinematic selection
-        if (std::fabs(jet.eta()) > m_jetEtaMax) {
-          ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
-          m_accept.setCutResult("ValidEtaRange", false);
-          isValid = false;
-        }
-        if (jet.pt() < m_jetPtMin) {
-          ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
-          m_accept.setCutResult("ValidPtRangeLow", false);
-          isValid = false;
-        }
-
-        // If the object isn't valid there's no point applying the remaining cuts
-        if (!isValid)
-          return m_accept;
-
-
+	// If the object isn't valid there's no point applying the remaining cuts
+	if (!isValid)
+	  return m_accept;
 
         // obtain the relevant information for tagging
         // 1) the number of tracks
         // 2) jet-by-jet event weight
-        double jetWeight = -1;
-        int    jetNTrack = -1;
         checkAndThrow(getNTrack(&jet, pv, jetNTrack) );
         checkAndThrow(getNTrackWeight(&jet, jetWeight) );
-
-        // decorate the cut value if specified
-        if(m_decorate){
-          m_taggerdec(jet) = jetNTrack;
-          m_weightdec(jet) = jetWeight;
-        }
-
-        // fill the TAccept
-        ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
-        ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
-        // JBurr: I've removed the n track < 0 check - it's now impossible for it to ever be satisfied
-        double variable_nTrk = -999.0;
-        if (m_cuttype=="linear_pt"){
-            variable_nTrk=(m_slope*jet.pt())+m_intercept;
-        if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
-        }
-        else if (m_cuttype=="log_pt"){
-         variable_nTrk=(m_slope*TMath::Log10(jet.pt()))+m_intercept;
-             if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
-        }
-        else if(m_cuttype=="threshold" && jetNTrack<m_NTrackCut) m_accept.setCutResult("QuarkJetTag", true);
     }
 
     if(m_mode==1){ //only calculating uncertainty using given jet info (nTrk already calculated, etc)
-        double jetWeight = -1;
         checkAndThrow(simplegetNTrackWeight(&jet, jetWeight) );
+	static SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
+	static SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
+	if(acc_NTracks.isAvailable(jet)) jetNTrack = acc_NTracks(jet);
+	else if(acc_NumTrkPt500PV.isAvailable(jet)) jetNTrack = acc_NumTrkPt500PV(jet);
+	else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running in mode 1 of the JetQGTagger.");
 
         // decorate the cut value if specified
         if(m_decorate){
           m_weightdec(jet) = jetWeight;
         }
      }
+
+    // decorate the cut value if specified
+    if(m_decorate){
+      m_taggerdec(jet) = jetNTrack;
+      m_weightdec(jet) = jetWeight;
+    }
+    
+    // fill the TAccept
+    ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
+    ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
+    // JBurr: I've removed the n track < 0 check - it's now impossible for it to ever be satisfied
+    double variable_nTrk = -999.0;
+    if (m_cuttype=="linear_pt"){
+      variable_nTrk=(m_slope*jet.pt())+m_intercept;
+      if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
+    }
+    else if (m_cuttype=="log_pt"){
+      variable_nTrk=(m_slope*TMath::Log10(jet.pt()))+m_intercept;
+      if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
+    }
+    else if(m_cuttype=="threshold" && jetNTrack<m_NTrackCut) m_accept.setCutResult("QuarkJetTag", true);
+
     // return the m_accept object
     return m_accept;
 
