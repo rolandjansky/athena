@@ -872,12 +872,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r11036")!=string::npos ) mcCampaignMD = "mc16a";
+      else if ( amiTag.find("r11285")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r11037")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r11279")!=string::npos ) mcCampaignMD = "mc16d";
       else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
-      else if ( amiTag.find("r11038")!=string::npos ) mcCampaignMD = "mc16e";
+      else if ( amiTag.find("r11249")!=string::npos ) mcCampaignMD = "mc16e";
       else {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
 	return StatusCode::FAILURE;
