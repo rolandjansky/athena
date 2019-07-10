@@ -513,6 +513,7 @@ class Configuration:
           from os.path import splitext, basename
 
           do_flip = any(x.endswith('Flip') for x in TaggerList)
+          flip_tag_config = 'FLIP_SIGN'
 
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
@@ -527,9 +528,9 @@ class Configuration:
                   options['preBtagToolModifiers'].append(rnn)
                   if do_flip:
                       rnn = DL2Tool(
-                          name=get_training_name(nn_file + '_flip'),
+                          name=(get_training_name(nn_file)  + '_flip'),
                           nnFile=nn_file, schema='FEB_2019',
-                          flipTagConfig='NEGATIVE_IP_ONLY')
+                          flipTagConfig=flip_tag_config)
                       ToolSvc += rnn
                       options['preBtagToolModifiers'].append(rnn)
 
@@ -545,7 +546,7 @@ class Configuration:
               if do_flip:
                   aug = AugTool(
                       name=get_training_name('BTagAugmenterToolFlip'),
-                      schema='FEB_2019', flipTagConfig='NEGATIVE_IP_ONLY')
+                      schema='FEB_2019', flipTagConfig=flip_tag_config)
                   ToolSvc += aug
                   modifiers.append(aug)
               for nn_file in postTagDL2JetToTrainingMap[jetcol]:
@@ -556,9 +557,9 @@ class Configuration:
                   modifiers.append(dl1)
                   if do_flip:
                       dl1 = DL2Tool(
-                          name=get_training_name(nn_file + '_flip'),
+                          name=(get_training_name(nn_file)  + '_flip'),
                           nnFile=nn_file, schema='FEB_2019',
-                          flipTagConfig='NEGATIVE_IP_ONLY')
+                          flipTagConfig=flip_tag_config)
                       ToolSvc += dl1
                       modifiers.append(dl1)
 

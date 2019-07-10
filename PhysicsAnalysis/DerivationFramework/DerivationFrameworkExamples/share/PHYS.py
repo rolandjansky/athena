@@ -105,6 +105,11 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
 addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
 
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
+
+
+
 #updateJVT_xAODColl("AntiKt4EMTopo")
 #addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
 
@@ -137,11 +142,10 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "PrimaryVertices", 
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
-                                       "AntiKt4LCTopoJets", 
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4EMTopo",
-                                       "MET_Reference_AntiKt4LCTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
@@ -196,7 +200,9 @@ PHYSSlimmingHelper.AllVariables = ["MET_Truth",
 
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection",
-                                     "AntiKt2PV0TrackJets.pt.eta.phi.m"]
+                                     "AntiKt2PV0TrackJets.pt.eta.phi.m",
+                                     "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
+                                     "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID"]
 
 # Add trigger matching
 PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)

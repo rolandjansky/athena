@@ -50,7 +50,7 @@ namespace FlavorTagDiscriminants {
       {"rnnip_(.*)"_r, "rnnipflip_$1"},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
       {"rnnip"_r, "rnnipflip"},
-      {"(DL1|DL1r|DL1rmu)"_r, "$1Flip"},
+      {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
       {"pt|abs_eta|(minimum|maximum|average)TrackRelativeEta"_r, "$&"},
       {"softMuon.*|smt.*"_r, "$&"}
     };
@@ -71,7 +71,7 @@ namespace FlavorTagDiscriminants {
     // changing the input scaling and normalizations
     std::regex flip_sequences(".*signed_[dz]0.*");
 
-    if (flip_config == FlipTagConfig::NEGATIVE_IP_ONLY) {
+    if (flip_config != FlipTagConfig::STANDARD) {
       rewriteFlipConfig(config, flip_converters);
       flipSequenceSigns(config, flip_sequences);
     }

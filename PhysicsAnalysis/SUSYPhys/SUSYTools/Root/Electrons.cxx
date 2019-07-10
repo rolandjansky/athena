@@ -435,7 +435,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
-        dec_sfChIDEff(el) = chf_sf;
         sf *= chf_sf;
         break;
       case CP::CorrectionCode::Error:
@@ -454,17 +453,20 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     switch (result) {
     case CP::CorrectionCode::Ok:
       sf *= chf_sf;
+      dec_sfChIDEff(el) = chf_sf;
       break;
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve signal electron charge efficiency correction SF");
       break;
     case CP::CorrectionCode::OutOfValidityRange:
-      ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge efficiency correction SF");
+      // Range determined by bin range in configured correction file (CorrectionFileName)
+      // Run m_elecChargeEffCorrTool with message level VERBOSE to print out range
+      ATH_MSG_DEBUG( "OutOfValidityRange found for signal electron charge efficiency correction SF. Setting SF = 1");
+      dec_sfChIDEff(el) = 1;
       break;
     default:
       ATH_MSG_WARNING( "Don't know what to do for signal electron charge efficiency correction SF");
-    }   
-
+    }
   }
   
   dec_effscalefact(el) = sf;
