@@ -98,26 +98,19 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       float pt = 1. / ptinv;      
       if (pt > 1000.) //1 GeV tracks for printout
 	ATH_MSG_VERBOSE("- pT = " << pt << " MeV");
-      if(pt > 10000.){
-	std::cout<<"track with pt "<<pt<<std::endl;
-	std::cout<<"track with z0 "<<trk->perigeeParameters()->parameters()[Trk::z0]<<std::endl;
-      }
       if ( pt < m_trk_subleading_pt ) continue;
     }
     float eta = -log( tan( theta/2 ) );
     ATH_MSG_VERBOSE("- eta = " << eta);
-    std::cout<<"track with eta "<<eta<<std::endl;
     if ( fabs(eta) > m_trk_eta_max ) continue;
     float d0 = trk->perigeeParameters()->parameters()[Trk::d0];
     ATH_MSG_VERBOSE("- d0 = " << d0 << "mm");
-    std::cout<<"track with d0 "<<d0<<std::endl;
     if ( fabs(d0) > m_trk_d0_max ) continue;
     ATH_MSG_VERBOSE("- Passed all selections");
     selectedTracks.push_back(trk);
   }
   std::sort(selectedTracks.begin(), selectedTracks.end(), tracks_pt_greater_than);
   ATH_MSG_DEBUG("Selected track collection size "<<selectedTracks.size());
-  std::cout<<"Selected track collection size "<<selectedTracks.size()<<std::endl;
   //create all pairs that satisfy leading pT and delta z0 requirements
   typedef std::vector<Trk::Track*>::iterator iterator_tracks;
   for ( iterator_tracks trk_itr_leading = selectedTracks.begin(); trk_itr_leading != selectedTracks.end(); ++trk_itr_leading ) {
@@ -126,11 +119,9 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
     float theta_leading = trk_leading->perigeeParameters()->parameters()[Trk::theta];
     float ptinv_leading = fabs(trk_leading->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta_leading);
     ATH_MSG_VERBOSE("Examining selected track pairs");
-    std::cout<<"Examining selected track pairs"<<std::endl;
     if (ptinv_leading != 0) {
       float pt = 1. / ptinv_leading;
       ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
-      std::cout<<"- pT_leading = " << pt << " MeV"<<std::endl;
       if ( pt < m_trk_leading_pt ) break; //tracks ordered by pT
     }
     //loop over sub-leading track
@@ -149,7 +140,6 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       RoI.z_window[0] = RoI.z_reference - m_z0_window; 
       RoI.z_window[1] = RoI.z_reference + m_z0_window; 
       ATH_MSG_INFO("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
-      std::cout<<"New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")"<<std::endl;
       listRoIs.push_back(RoI);
     }
   }
