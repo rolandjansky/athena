@@ -8,8 +8,6 @@
 # art-output: mc15_2015_ttbar_no_pileup.RDO.pool.root
 # art-output: log.*
 
-unset ATHENA_PROC_NUMBER
-
 Digi_tf.py \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 \
 --conditionsTag default:OFLCOND-RUN12-SDR-25 \

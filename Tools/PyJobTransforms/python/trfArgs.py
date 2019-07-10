@@ -113,6 +113,10 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
     parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         metavar='BOOL', group='Athena',
                         help='Switch AthenaMP to the Event Service configuration')
+    parser.add_argument('--multithreaded', group='Athena', action='store_true',
+                        help='Multithreaded mode active')
+    parser.add_argument('--multiprocess', group='Athena', action='store_true',
+                        help='Multiprocess mode active')
 
     if addValgrind:
         addValgrindArguments(parser)

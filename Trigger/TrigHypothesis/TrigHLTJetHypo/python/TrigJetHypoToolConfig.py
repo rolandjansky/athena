@@ -4,10 +4,8 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.chainDict2jetLabel import (
-    make_simple_label,
-    make_simple_partition_label,
-    make_vbenf_label)
+
+from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 # from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
 
@@ -23,25 +21,20 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
-    chain_label = ''
-
-    hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
-    if 'vbenf' in hypo_scenario_0:
-        assert len(chain_dict['chainParts']) == 1
-        chain_label = make_vbenf_label(hypo_scenario_0)
-    elif 'simple_partition' == hypo_scenario_0:
-        chain_label = make_simple_partition_label(chain_dict)
-    elif 'simple' == hypo_scenario_0:
-        chain_label = make_simple_label(chain_dict)
-    else:
-        m = 'trigJetHypoToolFromDict chain_name %s unknown hypoScenario %s' % (
-            chain_dict['chainName'], hypo_scenario_0)
+    try:
+        chain_label = chainDict2jetLabel(chain_dict)
+    except Exception, e:
+        m = 'TrigJetHypoToolConfig: Error obtaining jet label for %s' % (
+            chain_dict['chainName'],)
+        m ++ '  jet hypo scenario: %s' % (
+            chain_dict['chainParts'][0]['hypoScenario'],)
 
         log.info(m)
         
+        raise e
                                                   
-                                                  
-    parser = ChainLabelParser(chain_label, debug=True)
+    parser = ChainLabelParser(chain_label, debug=False)
+
     tree = parser.parse()
     
     #expand strings of cuts to a cut dictionary
@@ -117,6 +110,27 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         self.assertIsNotNone(tool) 
         self.assertFalse(tool.visit_debug) 
 
+        
+def _tests():
+    print 'hello'
+
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+    chainNameDecoder = DictFromChainName.DictFromChainName()
+        
+    chain_names = (
+        'j80_0eta240_2j60_320eta490',
+        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    )
+    for cn in chain_names:
+        chain_dict = chainNameDecoder.getChainDict(cn)
+        print chain_dict
+        tool = trigJetHypoToolFromDict(chain_dict)
+        print 'tool:\n', tool
+        
 
 if __name__ == '__main__':
     unittest.main()
+    
+    # run _tests outide untit tests so as to see stdout
+    # _tests()

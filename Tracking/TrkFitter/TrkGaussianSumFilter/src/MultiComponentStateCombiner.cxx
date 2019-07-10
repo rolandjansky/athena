@@ -250,7 +250,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
         if ( remainingComponentIterator == component ) continue;
 
         AmgVector(5) parameterDifference = parameters - ((*remainingComponentIterator).first)->parameters();
-        
+
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
         AmgSymMatrix(5) unity;

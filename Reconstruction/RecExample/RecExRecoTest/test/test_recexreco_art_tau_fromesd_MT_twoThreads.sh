@@ -5,8 +5,6 @@
 # art-include: master/Athena
 # art-athena-mt: 4
 
-unset ATHENA_PROC_NUMBER
-
 art.py createpoolfile
 
 athena --threads=2 tauRec/run_tau_standalone.py | tee temp.log

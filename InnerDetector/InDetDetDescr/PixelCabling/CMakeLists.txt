@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Boost )
-find_package( COMPONENTS )
 find_package( tdaq-common )
 
 # Component(s) in the package:

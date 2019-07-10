@@ -9,8 +9,6 @@
 # art-output: log.*
 # art-output: tree-orderer.log
 
-unset ATHENA_PROC_NUMBER
-
 AtlasG4_tf.py \
 --athenaopts '--threads 4' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' \

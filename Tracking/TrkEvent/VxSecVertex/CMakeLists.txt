@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthLinks
                           Control/AthContainers
-			  Constrol/CxxUtils
+			  Control/CxxUtils
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODTracking
                           PRIVATE

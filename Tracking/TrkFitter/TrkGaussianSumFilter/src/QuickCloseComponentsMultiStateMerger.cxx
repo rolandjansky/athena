@@ -223,7 +223,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
   unsigned int numberOfComponents = n;
   int minIndex = -1;
   int nextMinIndex = -1;
-
+  const Trk::ComponentParameters dummyComponent(nullptr,0.0);
+  
   while (numberOfComponents > m_maximumNumberOfComponents){
 
     //Searching for the minimum distances is slowest part of the loop
@@ -307,7 +308,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
 
   // Memory clean up for the state vector
   statesToMerge.clear();
-
+  
   return mergedState;
 }
 

@@ -129,6 +129,16 @@ namespace xAOD {
                                   const uint16_t beginIndex, 
                                   const uint16_t endIndex = 0 );
 
+      /// Look up all links stored to objects of (container) type CONTAINER
+      /// @return Vector of names to all links to objects
+      template< class CONTAINER >
+      std::vector<std::string> getObjectNames() const;
+
+      /// Look up all links stored to collections objects from (container) type CONTAINER
+      /// @return Vector of names to all collections of links to objects
+      template< class CONTAINER >
+      std::vector<std::string> getObjectCollectionNames() const;
+
       /// @}
 
       /// @name Functions for copying links between objects
@@ -158,6 +168,7 @@ namespace xAOD {
       /// @return True on successful copy of at least one link
       bool copyAllLinksFrom(const xAOD::TrigComposite_v1& other);
       bool copyAllLinksFrom(const xAOD::TrigComposite_v1* other);
+
 
       /// @}
 

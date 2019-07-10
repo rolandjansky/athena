@@ -23,13 +23,13 @@ class muonNames(object):
     #for RoI and FS running. Other containers are 
     #produced in RoIs only.
 
-    self.L2SAName = "MuonL2SAInfo"
-    self.L2CBName = "MuonL2CBInfo"
+    self.L2SAName = recordable("HLT_MuonL2SAInfo")
+    self.L2CBName = recordable("HLT_MuonL2CBInfo")
     self.EFSAName = "Muons"
     self.EFCBName = "MuonsCB"
     self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
-    self.L2IsoMuonName = "MuonsL2ISInfo"
+    self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
     self.EFIsoMuonName = "MuonsIso"
 
   def getNames(self, name):

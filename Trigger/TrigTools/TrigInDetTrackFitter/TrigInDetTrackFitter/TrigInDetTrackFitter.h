@@ -12,6 +12,8 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h" 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+
 
 class TrigTimer;
 
@@ -19,7 +21,6 @@ namespace Trk {
   class TrkBaseNode;             
   class TrkTrackState;      
   class TrkPlanarSurface;
-  class IRIO_OnTrackCreator;
   class Track;
   class TrackStateOnSurface;
 }
@@ -48,7 +49,7 @@ class TrigInDetTrackFitter: public AthAlgTool, virtual public ITrigInDetTrackFit
   void fitTrack(TrigInDetTrack&);
   void fit(TrigInDetTrackCollection*);
   Trk::Track* fitTrack(const Trk::Track&, const Trk::ParticleHypothesis& matEffects = Trk::pion);
-  TrackCollection* fit(const TrackCollection&, const Trk::ParticleHypothesis& matEffects = Trk::pion);
+  void fit(const TrackCollection&, TrackCollection&, const Trk::ParticleHypothesis& matEffects = Trk::pion);
 private:
 
   Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 

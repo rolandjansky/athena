@@ -8,7 +8,7 @@
 @brief Based on AthenaMonitoring/ExampleMonitorAlgorithm.py
 '''
 
-from SCTLorentzMonAlg import SCTLorentzMonAlgConfig
+from SCT_Monitoring.SCTLorentzMonAlg import SCTLorentzMonAlgConfig
 
 if __name__=='__main__':
     # Setup the Run III behavior
