@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************************
@@ -14,19 +14,6 @@ decription           : Implementation code for MultiStateMaterialEffectsAdapter 
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
-void Trk::IMultiStateMaterialEffects::Cache::reset()
-{
-  weights.clear();
-  deltaPs.clear();
-
-  if ( !deltaCovariances.empty() ){
-    std::vector<const AmgSymMatrix(5)*>::const_iterator componentDeltaCovariance = deltaCovariances.begin();
-    for ( ; componentDeltaCovariance != deltaCovariances.end(); ++componentDeltaCovariance )
-      delete *componentDeltaCovariance;
-    deltaCovariances.clear();
-  }
-}
-
 void Trk::MultiStateMaterialEffectsAdapter::compute (
                   Trk::IMultiStateMaterialEffects::Cache& cache,
 			            const ToolHandle<IMaterialEffectsUpdator>& tool,
@@ -36,7 +23,6 @@ void Trk::MultiStateMaterialEffectsAdapter::compute (
                   PropDirection direction,
                   ParticleHypothesis particleHypothesis )
 {
-
   // Reset the cache
   cache.reset();
 
@@ -54,14 +40,15 @@ void Trk::MultiStateMaterialEffectsAdapter::compute (
   */
 
   double deltaP = Trk::MultiStateMaterialEffectsAdapter::extractDeltaP( *updatedTrackParameters, *originalTrackParameters );
-	const AmgSymMatrix(5)* deltaErrorMatrix = Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance( *updatedTrackParameters, *originalTrackParameters );
-
+  std::unique_ptr<const AmgSymMatrix(5)> deltaErrorMatrix(
+    Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance(*updatedTrackParameters,*originalTrackParameters )
+    );
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(deltaP);
 
-  if (deltaErrorMatrix)
-    cache.deltaCovariances.push_back(deltaErrorMatrix);
-
+  if (deltaErrorMatrix){
+    cache.deltaCovariances.push_back(std::move(deltaErrorMatrix));
+  }
   // Clean up memory
   delete updatedTrackParameters;
 
