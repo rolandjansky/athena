@@ -19,17 +19,17 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
     tileRawChannelMaker = TileRawChannelMaker("TileRChMaker")
 
-    if flags.Tile.doOverflowFit or flags.Tile.doFit:
-        from TileRecUtils.TileRawChannelBuilderFitConfig import TileRawChannelBuilderFitFilterCfg
-        tileRawChannelBuilderFitFilter = acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(flags) )
-
     if flags.Tile.doOverflowFit:
         tileRawChannelMaker.FitOverflow = True
-        tileRawChannelMaker.TileRawChannelBuilderFitOverflow = tileRawChannelBuilderFitFilter
+        from TileRecUtils.TileRawChannelBuilderFitConfig import TileRawChannelBuilderFitOverflowCfg
+        tileRawChannelBuilderFitOverflow = acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(flags) )
+        tileRawChannelMaker.TileRawChannelBuilderFitOverflow = tileRawChannelBuilderFitOverflow
     else:
         tileRawChannelMaker.FitOverflow = False
 
     if flags.Tile.doFit:
+        from TileRecUtils.TileRawChannelBuilderFitConfig import TileRawChannelBuilderFitFilterCfg
+        tileRawChannelBuilderFitFilter = acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(flags) )
         tileRawChannelMaker.TileRawChannelBuilder += [tileRawChannelBuilderFitFilter]
         mlog.info(" adding now TileRawChannelBuilderFitFilter with name %s to the algorithm: %s",
                   tileRawChannelBuilderFitFilter.name(), tileRawChannelMaker.name())

@@ -15,7 +15,8 @@ HLTCaloESD_xAODTrigEMClusters::HLTCaloESD_xAODTrigEMClusters(const std::string &
   IHLTMonTool(type, name, parent)
 //m_ShowerShapeTool("egammaShowerShape/egammashowershape")
 {
-  declareProperty("HLTContainer", m_HLT_cont_name = "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma");
+  declareProperty("HLTContainerRun2", m_HLT_cont_name_run2 = "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma");
+  declareProperty("HLTContainerRun3", m_HLT_cont_name_run3 = "HLT_L2CaloEMClusters");
   declareProperty("OFFContainer", m_OFF_cont_name = "egammaClusters");
   declareProperty("MonGroupName", m_mongroup_name = "");
 
@@ -55,7 +56,11 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::book()
 {
   ATH_MSG_DEBUG("book()");
   
-  // prepare folder structure
+  // Set HLT container name
+  m_HLT_cont_name = m_HLT_cont_name_run2;
+  if(evtStore()->contains<xAOD::TrigEMClusterContainer>(m_HLT_cont_name_run3)) m_HLT_cont_name = m_HLT_cont_name_run3;
+
+  // Prepare folder structure
   if(m_mongroup_name.empty()) m_mongroup_name = m_HLT_cont_name;
   
   m_mongroup_name.insert(0,"HLT/HLTCaloESD/");
@@ -127,7 +132,6 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::fill()
     return StatusCode::SUCCESS;
   }
   else {
-    
     ATH_MSG_DEBUG("successfully retrieved xAOD::TrigEMClusterContainer: " << m_HLT_cont_name << " (size = " << HLT_cont->size() << ")");
   }
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -18,15 +18,14 @@ decription           : (Non-pure) abstract base class for defining material
 #define Trk_IMultiStateMaterialEffects_H
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include <memory>
 
 namespace Trk {
 
@@ -35,18 +34,29 @@ class MaterialProperties;
 
 static const InterfaceID IID_IMultiStateMaterialEffects("IMultiStateMaterialEffects", 1, 0);
 
-
-
 class IMultiStateMaterialEffects : virtual public IAlgTool{
 
  public:
-
   struct Cache{
+    Cache(){
+      weights.reserve(6);
+      deltaPs.reserve(6);
+      deltaCovariances.reserve(6);
+    }
+    Cache(Cache&&) = default;
+    Cache& operator=(Cache&&) = default;
+    ~Cache()=default;
+    Cache(const Cache&) = delete;
+    Cache& operator=(const Cache&) = delete;
+
     std::vector<double> weights;
     std::vector<double> deltaPs;
-    std::vector<const AmgSymMatrix(5)*> deltaCovariances;
-    ~Cache(){ reset(); };
-    void reset();   
+    std::vector<std::unique_ptr<const AmgSymMatrix(5)>> deltaCovariances;
+    void reset(){
+      weights.clear();
+      deltaPs.clear();
+      deltaCovariances.clear();
+    }
   };
 
   /** Alg tool and IAlgTool interface method */
@@ -54,7 +64,7 @@ class IMultiStateMaterialEffects : virtual public IAlgTool{
 
   /** virtual destructor */
   virtual ~IMultiStateMaterialEffects() {};
-
+  
   virtual void compute( IMultiStateMaterialEffects::Cache&,
                         const ComponentParameters&,
                         const MaterialProperties&,
@@ -63,9 +73,5 @@ class IMultiStateMaterialEffects : virtual public IAlgTool{
                         ParticleHypothesis particleHypothesis = nonInteracting ) const = 0;
 
 };
-
-
-
 }
-
 #endif

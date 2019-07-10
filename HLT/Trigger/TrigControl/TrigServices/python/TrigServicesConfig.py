@@ -33,6 +33,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       
 
 def setupMessageSvc():
+   import os
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING, ERROR
@@ -42,6 +43,10 @@ def setupMessageSvc():
    MessageSvc.OutputLevel = theApp.OutputLevel
 
    MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+   # Add timestamp when running in partition
+   if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
+      MessageSvc.Format = "%t  " + MessageSvc.Format
+
    MessageSvc.ErsFormat    = "%S: %M"
    MessageSvc.printEventIDLevel = WARNING
 
@@ -58,6 +63,9 @@ def setupMessageSvc():
    MessageSvc.warningLimit = MessageSvc.defaultLimit
    MessageSvc.errorLimit   = 0
    MessageSvc.fatalLimit   = 0
+
+   # Message forwarding to ERS
+   MessageSvc.useErsError = ['*']
 
    # set message limit to unlimited when general DEBUG is requested
    if MessageSvc.OutputLevel<=DEBUG :

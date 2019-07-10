@@ -9,18 +9,25 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
 
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
+    Keyword arguments:
         Method -- flavour of Tile Optimal Filtering method. Defaults to Opt2. Possible values: Opt2, OptATLAS, OF1
+        CreateContainer - flag ot create output container. Defaults to True.
     """
 
     method = kwargs.get('Method', 'Opt2')
     if method not in ['Opt2', 'OptATLAS', 'OF1']:
         raise(Exception("Invalid Tile Optimal Filtering method: %s" % method))
 
-    name = 'TileRawChannelBuilder' + method
+    kwargs.setdefault('CreateContainer', True)
 
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
+    kwargs['TileRawChannelBuilder'] = TileRawChannelBuilderOpt2Filter
+
+    name = 'TileRawChannelBuilder' + method
+    kwargs.setdefault('Name', name)
+
     from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
-    acc = TileRawChannelBuilderCfg(flags, TileRawChannelBuilderOpt2Filter, name)
+    acc = TileRawChannelBuilderCfg(flags, **kwargs)
     tileRawChannelBuilderOpt = acc.getPrimary()
 
     useIterations = (method == 'Opt2')
