@@ -129,7 +129,7 @@ def scanLogfile():
 
 def printResults():
     global pattern
-    print('Checking for: '+ str(pattern) +' in log.\n')
+    print('check_log.py - Checking for: '+ str(pattern) +' in log.\n')
     if args.showexcludestats and not noConfig:
         print('Ignored:')
         for s in ignoreDict:
