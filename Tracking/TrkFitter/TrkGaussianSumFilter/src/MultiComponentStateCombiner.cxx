@@ -89,6 +89,79 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::combineWithWei
 
 }
 
+void Trk::MultiComponentStateCombiner::combineWithWeight( std::pair< std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
+                                                          const std::pair< std::unique_ptr<Trk::TrackParameters>, double>& addThis ) const
+{
+
+  const Trk::TrackParameters* firstParameters = mergeTo.first.get();
+  // Check to see if first track parameters are measured or not
+  const AmgSymMatrix(5)* firstMeasuredCov = firstParameters->covariance();
+  double  firstWeight = mergeTo.second;
+
+  const Trk::TrackParameters* secondParameters = addThis.first.get();
+  // Check to see if first track parameters are measured or not
+  const AmgSymMatrix(5)* secondMeasuredCov = secondParameters->covariance();
+  double secondWeight = addThis.second;
+  double totalWeight = firstWeight + secondWeight;
+
+  AmgVector(5) mean; mean.setZero();
+
+  AmgVector(5) parameters = secondParameters->parameters();
+
+  //Ensure that we don't have any problems with the cyclical nature of phi
+  //Use first state as reference poin
+  double deltaPhi = firstParameters->parameters()[2] - parameters[2];
+
+  if( deltaPhi > M_PI ){
+    parameters[2] += 2 * M_PI;
+  } else if ( deltaPhi < -M_PI ){
+    parameters[2] -= 2 * M_PI;
+  }
+
+  mean = firstWeight * firstParameters->parameters() + secondWeight * parameters;
+  mean /= totalWeight;
+
+  //Ensure that phi is between -pi and pi
+  //
+  if(  mean[2] > M_PI ){
+    mean[2] -= 2 * M_PI;
+  } else if (  mean[2] < -M_PI ){
+    mean[2] += 2 * M_PI;
+  }
+
+  // Extract local error matrix: Must make sure track parameters are measured, ie have an associated error matrix.
+  if (firstMeasuredCov &&  secondMeasuredCov){
+    AmgSymMatrix(5)* covariance = new AmgSymMatrix(5);
+    AmgSymMatrix(5) covariancePart1; covariancePart1.setZero();
+    AmgSymMatrix(5) covariancePart2; covariancePart2.setZero();
+
+    covariancePart1 =  firstWeight * (*firstMeasuredCov) +  secondWeight * (*secondMeasuredCov);
+    AmgVector(5) parameterDifference = firstParameters->parameters() - parameters;
+
+    if( parameterDifference[2] > M_PI ){
+      parameterDifference[2] -= 2 * M_PI;
+    } else if ( parameterDifference[2] < -M_PI ){
+      parameterDifference[2] += 2 * M_PI;
+    }
+    AmgSymMatrix(5) unity;
+    for(int i(0); i<5;++i){
+      for(int j(0); j<5;++j){
+        unity(i,j) = parameterDifference(i) * parameterDifference(j) ;
+      }
+    }
+    covariancePart2 = firstWeight *  secondWeight  * unity ;
+    (*covariance) = covariancePart1 / totalWeight + covariancePart2 / (totalWeight * totalWeight);
+
+    mergeTo.first->updateParameters( mean, covariance);
+    mergeTo.second = totalWeight;
+  } else {
+    mergeTo.first->updateParameters( mean, 0);
+    mergeTo.second = totalWeight;
+  }
+
+}
+
+
 const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const Trk::MultiComponentState* uncombinedState, bool useModeTemp  ) const
 {
   if ( uncombinedState->empty() ){
@@ -177,7 +250,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
         if ( remainingComponentIterator == component ) continue;
 
         AmgVector(5) parameterDifference = parameters - ((*remainingComponentIterator).first)->parameters();
-
+        
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
         AmgSymMatrix(5) unity;
@@ -187,6 +260,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
           }
         }
         covariancePart2 += weight * remainingComponentIteratorWeight * unity ;
+
 
       } // end loop over remaining components
 

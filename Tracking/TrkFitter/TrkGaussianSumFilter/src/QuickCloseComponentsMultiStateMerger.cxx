@@ -32,8 +32,8 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 #endif
 
 
-Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type, 
-                                                                                const std::string& name, 
+Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
+                                                                                const std::string& name,
                                                                                 const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -89,7 +89,7 @@ StatusCode Trk::QuickCloseComponentsMultiStateMerger::finalize()
 
 }
 
-const Trk::MultiComponentState* 
+const Trk::MultiComponentState*
 Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState& unmergedState) const
 {
 
@@ -118,7 +118,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
   Trk::MultiComponentState::const_iterator component = unmergedState.begin();
 
-  // Scan all components for covariance matricies. If one or more component 
+  // Scan all components for covariance matricies. If one or more component
   // is missing an error matrix, component reduction is impossible.
   for ( ; component != unmergedState.end(); ++component){
     const AmgSymMatrix(5)* measuredCov = component->first->covariance();
@@ -142,7 +142,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Trk::MultiComponentState* 
+const Trk::MultiComponentState*
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
                                                               const Trk::MultiComponentState& mcs) const
 {
@@ -184,8 +184,9 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
   }
 
   // Create an array of all components to be merged
-  std::vector <const Trk::ComponentParameters*> statesToMerge(n);
+  SimpleMultiComponentState statesToMerge(n);
   Trk::MultiComponentState::const_iterator component = mcs.begin();
+
   int  ii = 0;
   for ( ; component != mcs.end(); ++component ) {
     if (ii >= n ){
@@ -193,8 +194,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
       break;
     }
 
-    const AmgSymMatrix(5)* measuredCov  = (*component).first->covariance();
-    const Amg::VectorX&    parameters   = (*component).first->parameters();
+    const AmgSymMatrix(5)* measuredCov  =  component->first->covariance();
+    const Amg::VectorX&    parameters   =  component->first->parameters();
     //If no covariance matrix we dont use component
     if (!measuredCov){
       qonpG[ii] = 1e10;
@@ -202,7 +203,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     }
 
     //Fill in infomation
-    statesToMerge[ii] = (*component).clone();
+    statesToMerge[ii].first  = std::unique_ptr<Trk::TrackParameters>(component->first->clone());
+    statesToMerge[ii].second = component->second;
     qonp[ii]    =  parameters[Trk::qOverP];
     qonpCov[ii] =  (*measuredCov)(Trk::qOverP,Trk::qOverP);
     qonpG[ii]   =  qonpCov[ii] > 0 ? 1./qonpCov[ii] : 1e10;
@@ -240,43 +242,34 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     int mini = indexToI[minIndex];
     int minj = indexToJ[minIndex];
 
-
     if(mini==minj) {
       ATH_MSG_ERROR(  "Err keys are equal key1 " << mini << " key2 " << minj );
       break;
     }
 
-    //merge componants
-    Trk::MultiComponentState* componentsToBeMerged =  new Trk::MultiComponentState();
+    //merge components
     ATH_MSG_VERBOSE(  "key1 " << mini << " key2 " << minj );
-    componentsToBeMerged->push_back( *statesToMerge[mini] );
-    componentsToBeMerged->push_back( *statesToMerge[minj] );
-
+    /*
+     * The ownership is passed to the componenents to be merged
+     */
     // Combine the closest distance components
-    const Trk::ComponentParameters* combinedComponents = m_stateCombiner->combineWithWeight( *componentsToBeMerged );
-
-    ATH_MSG_VERBOSE( "Weight of new component "<< combinedComponents->second );
-
-    // Erase these components from the unmerged components map. 
-    // These needs to be deleted also as new memory is assigned in the combiner
-    // This will also delete the components in the vector statesToMerge
-    delete componentsToBeMerged;
-    delete statesToMerge[mini]; statesToMerge[mini]=0;
-    delete statesToMerge[minj]; statesToMerge[minj]=0;
-
-
-    //Replace components in vector
-    statesToMerge[mini] = combinedComponents;
-
-    const AmgSymMatrix(5)* measuredCov  = combinedComponents->first->covariance();
-    const Amg::VectorX&    parameters   = combinedComponents->first->parameters();
+    m_stateCombiner->combineWithWeight( statesToMerge[mini], statesToMerge[minj] );
+    ATH_MSG_VERBOSE( "Weight of new component "<< statesToMerge[mini].second );
+    // Combined values stored in the first state
+    // This will also delete the relevant TrackParameters
+    // in the relevant entry of vector statesToMerge As they are shared
+    //Mini becomes the combined
+    //Minij is now dummy
+    statesToMerge[minj].first.reset();
+    statesToMerge[minj].second = 0.;
+    const AmgSymMatrix(5)* measuredCov  = statesToMerge[mini].first->covariance();
+    const AmgVector(5)&  parameters   = statesToMerge[mini].first->parameters();
     qonp[mini]    =  parameters[Trk::qOverP];
     qonpCov[mini] =  (*measuredCov)(Trk::qOverP,Trk::qOverP);
     qonpG[mini]   =  qonpCov[mini] > 0 ? 1./qonpCov[mini] : 1e10;
-    qonp[minj]    = 0;
-    qonpCov[minj] = 0;
+    qonp[minj]    = 0.;
+    qonpCov[minj] = 0.;
     qonpG[minj]   = 1e10;
-
 
     //Reset old weights;
     resetDistances( distances, mini, n);
@@ -294,48 +287,31 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     if( nextMinIndex > 0 && possibleNextMin > 0  && distances[ possibleNextMin ] < distances[ nextMinIndex ]){
       nextMinIndex = possibleNextMin;
     }
-
-
     //Reset old weights;
     resetDistances( distances, minj, n);
-
     // Decrement the number of components
     --numberOfComponents;
-  }
-
+  }//end of merge while
 
   // Build final state containing both merged and unmerged components
-
-  for (auto state: statesToMerge) {
-    if(state == 0) continue;
-
-    // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent( cache,*state );
-
-    if ( !componentAdded )
-      ATH_MSG_WARNING( "Component could not be added to the state in the assembler" );
+  for (auto& state: statesToMerge) {
+    //Avoid merge ones
+    if(!state.first) {
+      continue;
+    }
+    // Add component to state being prepared for assembly
+    cache.multiComponentState.push_back( SimpleComponentParameters(state.first.release(), state.second) );
   }
-
   const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
-
   ATH_MSG_VERBOSE( "Number of components in merged state: " << mergedState->size() );
 
-  // Memory clean up
-  for(auto state:statesToMerge){
-    if(state){
-      delete state->first;
-      delete state;
-    }
-  }
+  // Memory clean up for the state vector
   statesToMerge.clear();
 
   return mergedState;
 }
 
-
-
-
-void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict  distancesIn, 
+void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict  distancesIn,
                                                                 const int mini,
                                                                 const  int  n)const{
 
@@ -354,10 +330,10 @@ void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict
 
 }
 
-void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrRestrict qonpIn,  
-                                                                       floatPtrRestrict  qonpCovIn,  
-                                                                       floatPtrRestrict qonpGIn, 
-                                                                       floatPtrRestrict distancesIn, 
+void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrRestrict qonpIn,
+                                                                       floatPtrRestrict  qonpCovIn,
+                                                                       floatPtrRestrict qonpGIn,
+                                                                       floatPtrRestrict distancesIn,
                                                                        int  n) const
 {
 
@@ -376,18 +352,18 @@ void Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances( floatPtrR
       float covarianceDifference = qonpCovi - qonpCov[j];
       float G_difference = qonpG[j] - qonpGi;
       float G_sum        = qonpGi + qonpG[j];
-      distances[ indexConst + j ] = covarianceDifference * G_difference + 
+      distances[ indexConst + j ] = covarianceDifference * G_difference +
         parametersDifference * G_sum * parametersDifference;
     }
   }
 }
 
 
-int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRestrict qonpIn,  
-                                                                     floatPtrRestrict qonpCovIn,  
-                                                                     floatPtrRestrict qonpGIn, 
-                                                                     floatPtrRestrict distancesIn, 
-                                                                     int mini, 
+int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRestrict qonpIn,
+                                                                     floatPtrRestrict qonpCovIn,
+                                                                     floatPtrRestrict qonpGIn,
+                                                                     floatPtrRestrict distancesIn,
+                                                                     int mini,
                                                                      int n) const
 {
 
@@ -414,7 +390,7 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
     int index = indexConst + i;
     distances[ index ] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
     if(distances[ index ]< minDistance )
-    {  
+    {
       minIndex  = index;
       minDistance = distances[ index ];
     }
@@ -441,15 +417,15 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
 }
 
 
-std::pair<int, int>  
-Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex(const floatPtrRestrict distancesIn, 
+std::pair<int, int>
+Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex(const floatPtrRestrict distancesIn,
                                                             const int n) const
 {
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
   int mini  = 0; // always 1e30
   int mini2 = -1;
-  float minDistance = std::numeric_limits<float>::max(); 
+  float minDistance = std::numeric_limits<float>::max();
 
   for( int i = 0; i < n; ++i ){
     if( distances[ i ] < minDistance ){
@@ -463,9 +439,9 @@ Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex(const floatPtrRestri
 }
 
 
-std::pair<int, int> 
+std::pair<int, int>
 Trk::QuickCloseComponentsMultiStateMerger::findMinimumPair(const floatPtrRestrict distancesIn,
-                                                           const std::vector <const Trk::ComponentParameters*>& comps, 
+                                                           const std::vector <const Trk::ComponentParameters*>& comps,
                                                            const int n) const
 {
 
