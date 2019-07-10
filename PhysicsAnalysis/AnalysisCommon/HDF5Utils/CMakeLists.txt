@@ -12,7 +12,7 @@ find_package( Boost 1.54.0 REQUIRED COMPONENTS program_options)
 
 # Add the hdf tuple library
 atlas_add_library(HDF5Utils
-  Root/HdfTuple.cxx Root/common.cxx Root/H5Traits.cxx
+  Root/HdfTuple.cxx Root/common.cxx Root/H5Traits.cxx Root/CompressedTypes.cxx
   PUBLIC_HEADERS HDF5Utils
   PRIVATE_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES})
