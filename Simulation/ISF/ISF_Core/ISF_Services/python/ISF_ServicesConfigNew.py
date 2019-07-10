@@ -10,8 +10,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BarcodeServices.BarcodeServicesConfigNew import MC15aPlusBarcodeSvcCfg
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cfg, TruthStrategyGroupCaloMuBremCfg, TruthStrategyGroupCaloDecay_MC15Cfg, TruthStrategyGroupIDHadInt_MC15Cfg
 
+from ISF_Services.ISF_ServicesConf import ISF__TruthSvc
 
-from AthenaCommon import CfgMgr
+#from AthenaCommon import CfgMgr
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
@@ -111,12 +112,13 @@ def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
     kwargs.setdefault('SkipIfNoParentBarcode', True)
     kwargs.setdefault('ForceEndVtxInRegions', [])
     long_lived_simulators = ['LongLived', 'longLived', 'QS']
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    is_long_lived_simulation = any(x in ISF_Flags.Simulator() for x in long_lived_simulators) #FIXME this should be set in a nicer way.
+    #from ISF_Config.ISF_jobProperties import ISF_Flags
+    #is_long_lived_simulation = any(x in ISF_Flags.Simulator() for x in long_lived_simulators) #FIXME this should be set in a nicer way.
+    is_long_lived_simulation = True
     if is_long_lived_simulation:
         kwargs.setdefault('QuasiStableParticlesIncluded', True)
 
-    result.addService(CfgMgr.ISF__TruthSvc(name, **kwargs))
+    result.addService(ISF__TruthSvc(name, **kwargs))
     return result
 
 def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):

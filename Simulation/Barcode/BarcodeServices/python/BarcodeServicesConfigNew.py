@@ -7,7 +7,9 @@ Elmar Ritsch, 23/10/2014
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from AthenaCommon import CfgMgr
+from BarcodeServices.BarcodeServicesConf import Barcode__LegacyBarcodeSvc
+
+#from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
 
@@ -29,7 +31,7 @@ def MC12BarcodeSvcCfg(ConfigFlags, name="Barcode_MC12BarcodeSvc", **kwargs):
     kwargs.setdefault("FirstSecondaryBarcode"       , 200001)
     kwargs.setdefault("SecondaryIncrement"          , 1)
     kwargs.setdefault("ParticleGenerationIncrement" , 1000000)
-    result.addService(CfgMgr.Barcode__LegacyBarcodeSvc(name, **kwargs))
+    result.addService(Barcode__LegacyBarcodeSvc(name, **kwargs))
     return result
 
 

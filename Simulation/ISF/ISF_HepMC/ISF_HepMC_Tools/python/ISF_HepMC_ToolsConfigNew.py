@@ -7,7 +7,9 @@ KG Tan, 17/06/2012
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from AthenaCommon import CfgMgr
+from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
+
+#from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import MeV, mm
 
@@ -130,7 +132,7 @@ def TruthStrategyGroupID_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupID_M
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [1,2]) # Could import AtlasDetDescr::AtlasRegion enum as in TruthService CfgGetter methods here
-    result.setPrivateTools(CfgMgr.ISF__GenericTruthStrategy(name, **kwargs))
+    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
 
 
@@ -151,7 +153,7 @@ def TruthStrategyGroupIDHadInt_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGro
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
     kwargs.setdefault('Regions', [1])
-    result.setPrivateTools(CfgMgr.ISF__GenericTruthStrategy(name, **kwargs))
+    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
 
 
@@ -179,7 +181,7 @@ def TruthStrategyGroupCaloMuBremCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupC
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
     kwargs.setdefault('Regions', [3])
-    result.setPrivateTools(CfgMgr.ISF__GenericTruthStrategy(name, **kwargs))
+    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
 
 def TruthStrategyGroupCaloDecay_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
@@ -190,7 +192,7 @@ def TruthStrategyGroupCaloDecay_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGr
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [3])
-    result.setPrivateTools(CfgMgr.ISF__GenericTruthStrategy(name, **kwargs))
+    result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
 
 def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
