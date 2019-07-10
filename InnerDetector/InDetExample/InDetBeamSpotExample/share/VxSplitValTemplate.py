@@ -1,4 +1,4 @@
-# $Id: VxSplitValTemplate.py 216126 2009-09-29 16:12:59Z atlidbs $
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Top-level job options file to produce histograms for vertex validation.
 # Jobs require a collection of vertices and tracks.  This job will take
@@ -6,7 +6,6 @@
 # and then compare return histograms of interesting quantities.  This
 # template is based on InDetRecExample/ReadInDet_jobOptions.py.
 #
-# Written by Peter Loscutoff in March 2009.
 
 #
 # Default values (please put a default for EACH jobConfig parameter
@@ -230,6 +229,9 @@ InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchToo
                                                       usePixel      = DetFlags.haveRIO.pixel_on(),
                                                       useSCT        = DetFlags.haveRIO.SCT_on(),
                                                       checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack())
+
+if InDetFlags.doSLHC():
+  InDetHoleSearchTool.ITkGeometry = True
 InDetHoleSearchTool.SctSummarySvc = None
   
 ToolSvc += InDetHoleSearchTool
@@ -241,9 +243,13 @@ InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name         = 
                                                                  AssoTool     = InDetPrdAssociationTool,
                                                                  DoSharedHits = False,
                                                                  HoleSearch   = InDetHoleSearchTool)
-ToolSvc += InDetTrackSummaryHelperTool
-if InDetFlags.doPrintConfigurables: print      InDetTrackSummaryHelperTool                                                                   
 
+if InDetFlags.doSLHC():
+ InDetTrackSummaryHelperTool.ITkGeometry = True
+
+ToolSvc += InDetTrackSummaryHelperTool
+
+if InDetFlags.doPrintConfigurables: print      InDetTrackSummaryHelperTool
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dEstimator
 InDetImpactPoint3dEstimator = Trk__ImpactPoint3dEstimator(name         = "InDetImpactPoint3dEstimator",
