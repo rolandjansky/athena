@@ -21,10 +21,10 @@
 #include <algorithm>
 // #include <map>
 
-PartitionsGroupsMatcherMT::PartitionsGroupsMatcherMT(const ConditionsMT& cs):
-  m_conditions(cs), m_nConditions(cs.size()){
+PartitionsGroupsMatcherMT::PartitionsGroupsMatcherMT(ConditionsMT&& cs):
+  m_conditions(std::move(cs)), m_nConditions(m_conditions.size()){
   std::size_t minNjets{0};
-  for(const auto& c : m_conditions){minNjets += c.capacity();}
+  for(const auto& c : m_conditions){minNjets += c->capacity();}
   m_minNjets = minNjets;
 }
 
@@ -84,14 +84,10 @@ std::string PartitionsGroupsMatcherMT::toString() const noexcept {
 
   ss << "PartitionsMatcherMT. No of conditions: "
      << m_conditions.size() << '\n';
-  for(auto c : m_conditions){ ss <<"  "<< c.toString() << '\n';}
+  for(const auto& c : m_conditions){ ss <<"  "<< c->toString() << '\n';}
   return ss.str();
 }
 
-
-ConditionsMT PartitionsGroupsMatcherMT::getConditions() const noexcept {
-  return m_conditions;
-}
 
 bool
 PartitionsGroupsMatcherMT::groupsPass(const HypoJetGroupCIter& groups_b,
@@ -112,7 +108,7 @@ PartitionsGroupsMatcherMT::groupsPass(const HypoJetGroupCIter& groups_b,
     const auto& condition = *(m_conditions.begin() + i);
     const auto& group = *(groups_b + i);
 
-    if(!condition.isSatisfied(group, collector)){return false;}
+    if(!condition->isSatisfied(group, collector)){return false;}
   }
   return true;
 } 

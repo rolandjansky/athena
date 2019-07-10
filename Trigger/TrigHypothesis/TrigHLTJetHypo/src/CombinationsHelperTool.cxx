@@ -21,8 +21,8 @@ CombinationsHelperTool::CombinationsHelperTool(const std::string& type,
 StatusCode CombinationsHelperTool::initialize() {
   
   m_conditions = m_config->getConditions();
-
   m_grouper  = std::move(m_config->getJetGrouper());
+  m_matcher = std::move(m_config->getMatcher());
 
   return StatusCode::SUCCESS;
 }
@@ -35,8 +35,8 @@ CombinationsHelperTool::collectData(const std::string& setuptime,
 				    
                                     bool pass) const {
   if(!collector){return;}
-  for(auto c: m_conditions){
-    collector->collect("Condition", c.toString());
+  for(const auto& c: m_conditions){
+    collector->collect("Condition", c->toString());
   }
   auto helperInfo = nodeIDPrinter(name(),
 				  m_nodeID,
@@ -64,7 +64,7 @@ struct HypoJetSelector{
     std::vector<pHypoJet> v{j};
     for(const auto& c : m_conditions)
       {
-        if (c.isSatisfied(v, m_collector))  // there is a satisfied condition
+        if (c->isSatisfied(v, m_collector))  // there is a satisfied condition
           {
             return true;
           }
@@ -72,7 +72,7 @@ struct HypoJetSelector{
     
     return false;   // no condition  satisfied
   }
-  ConditionsMT m_conditions;
+  const ConditionsMT& m_conditions;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
  
@@ -155,19 +155,17 @@ CombinationsHelperTool::testGroup(HypoJetVector& jets,
 std::string CombinationsHelperTool::toString() const{
   std::stringstream ss;
   std::string msg =  nodeIDPrinter(name(), m_nodeID, m_parentNodeID) + "\n";
-  msg += "No. of conditions " +std::to_string(m_conditions.size()) + '\n';
-  for(const auto& cond : m_conditions){ msg += cond.toString() + "\n";}
-  msg += "No. of chldren: " +std::to_string(m_children.size()) + "\n";
-  msg += m_grouper -> toString() + '\n';
+  msg += "Conditions:\nNo. of conditions "
+    + std::to_string(m_conditions.size()) + '\n';
+  for(const auto& cond : m_conditions){ msg += cond->toString() + "\n";}
+  msg += "Grouper:\n" + m_grouper -> toString() + '\n';
+  msg += "Matcher:\n" + m_matcher -> toString() + '\n';
   return msg;
 }
 
 StatusCode
 CombinationsHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  StatusCode sc;
-  for(auto child : m_children){
-    sc = sc & child->getDescription(c);
-  }
-  return sc;
+  return StatusCode::SUCCESS;
+
 }

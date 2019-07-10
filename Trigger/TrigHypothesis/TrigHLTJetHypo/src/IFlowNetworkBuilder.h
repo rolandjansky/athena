@@ -18,6 +18,7 @@
 #include "./ITrigJetHypoInfoCollector.h"
 #include <map>
 #include <optional>
+#include <string>
 
 class IFlowNetworkBuilder{
 
@@ -31,6 +32,8 @@ public:
            const HypoJetGroupCIter&,
            const std::unique_ptr<ITrigJetHypoInfoCollector>&,
            std::map<int, pHypoJet>& nodeToJet) const = 0;
+
+  virtual std::string toString() const = 0;
 };
 
 #endif

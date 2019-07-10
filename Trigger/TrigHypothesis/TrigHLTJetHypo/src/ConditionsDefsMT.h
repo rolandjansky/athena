@@ -14,9 +14,11 @@
 
 #include <string>
 #include <memory>
-#include "./ConditionBridgeMT.h"
+#include "./IConditionMT.h"
+//#include "./ConditionBridgeMT.h"
 
-using ConditionsMT = std::vector<ConditionBridgeMT>;
+//using ConditionsMT = std::vector<ConditionBridgeMT>;
+using ConditionsMT = std::vector<std::unique_ptr<IConditionMT>>;
 using ConditionsMTIter = ConditionsMT::iterator;
 
 #endif

@@ -21,10 +21,8 @@ TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
 
 StatusCode TrigJetHypoToolHelperMT::initialize() {
 
-  auto conditions = m_config->getConditions();
   m_grouper  = std::move(m_config->getJetGrouper());
   m_matcher = std::move(m_config->getMatcher());
-  // m_matcher = std::move(groupsMatcherFactoryMT(conditions));
 
   return StatusCode::SUCCESS;
 }
@@ -100,19 +98,18 @@ std::string TrigJetHypoToolHelperMT::toString() const {
                       m_parentNodeID);
   
   
-  ss << " Cleaners [" << m_cleaners.size() << "]: \n";
+  ss << "Cleaners:\n No of cleaners: "  << m_cleaners.size() << '\n';
 
   for(auto cleaner : m_cleaners) {
     ss << cleaner->toString() 
        << '\n';
   }
 
-  ss << "\n Grouper: " << m_grouper->toString() << '\n';
+  ss << "\nGrouper:\n " << m_grouper->toString() << '\n';
 
-  /*
-  ss << "\n Matcher: \n";
+  ss << "\nMatcher:\n";
   ss << m_matcher -> toString();
-  */
+
   return ss.str();
 }
 

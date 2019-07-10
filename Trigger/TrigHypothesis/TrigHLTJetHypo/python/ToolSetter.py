@@ -92,10 +92,13 @@ class ToolSetter(object):
         self.tool_factories[scen][1] += 1
 
         config_tool = klass(name=name+'_config')
+        config_tool.children = [child.tool for child in node.children]
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
 
         helper_tool = CombinationsHelperTool(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
+
+        # temporary duplicatio of children while  transitioning..FIXME 
         helper_tool.children = [child.tool for child in node.children]
 
         helper_tool.node_id = node.node_id

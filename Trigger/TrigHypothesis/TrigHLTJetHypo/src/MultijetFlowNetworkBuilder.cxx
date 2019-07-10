@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <sstream>
 
-MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(const ConditionsMT& conditions):
-FlowNetworkBuilderBase(conditions){
+MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(ConditionsMT conditions):
+  FlowNetworkBuilderBase(std::move(conditions)){
 }
 
 std::optional<std::vector<std::shared_ptr<FlowEdge>>>
@@ -34,7 +34,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   // matches: std::optional<std::vector<std::vector<int>>>
   for(const auto& jg_nodes : *matches){
     // icond is m_conditons index
-    double cap = m_conditions[icond].capacity();
+    double cap = m_conditions[icond]->capacity();
 
     auto  dest  = std::back_inserter(edges);
     std::transform(jg_nodes.begin(),
@@ -84,7 +84,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   }
 
   auto sourceCapacity = 0.;
-  for(const auto& c : m_conditions){sourceCapacity += c.capacity();}
+  for(const auto& c : m_conditions){sourceCapacity += c->capacity();}
   sinkCapacity = jets.size();
   if(sinkCapacity < sourceCapacity){
     

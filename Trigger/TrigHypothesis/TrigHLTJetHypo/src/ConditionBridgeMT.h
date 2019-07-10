@@ -23,8 +23,8 @@ class ConditionBridgeMT{
   // Bridge object: convert polymorphic pointer to monomorphic class
   // can be passed to STL algs.
  public:
- ConditionBridgeMT(std::shared_ptr<IConditionMT>& condition):
-  m_pCondition(condition){}
+ ConditionBridgeMT(std::unique_ptr<IConditionMT>& condition):
+  m_pCondition(std::move(condition)){}
   
   bool isSatisfied(const HypoJetVector& ips,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>& v) const{
@@ -42,7 +42,7 @@ class ConditionBridgeMT{
 
   unsigned int capacity() const {return m_pCondition->capacity();}
  private:
-  std::shared_ptr<IConditionMT> m_pCondition;
+  std::unique_ptr<IConditionMT> m_pCondition;
 };
 
 #endif

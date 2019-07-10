@@ -127,7 +127,6 @@ class SimpleConditionsDictMaker(object):
             toks = [t.strip() for t in toks]
 
             attributes2 = attributes[:]  # copy...
-
             for t in toks:
                 m = self.window_re.match(t)
                 if m is None:
@@ -148,18 +147,31 @@ class SimpleConditionsDictMaker(object):
                     if attr == 'eta':
                         attr_lo = 'eta_mins'
                         result[attr_lo].append(sf * float(lo))
-                        attributes2.remove(attr_lo)
+                        try:
+                            attributes2.remove(attr_lo)
+                        except ValueError, e:
+                            print attr_lo, 'appears twice in Conditions string?'
+                            raise e
                     elif attr == 'et':
                         attr = 'EtThresholds'
                         result[attr].append(sf * float(lo))
-                        attributes2.remove(attr)
+                        try:
+                            attributes2.remove(attr)
+                        except ValueError, e:
+                            print 'et appears twice in Conditions string?'
+                            raise e
+                            
                 if hi:
                     if attr == 'eta':
                         attr = 'eta_maxs'
 
                         attr_hi = 'eta_maxs'
                         result[attr_hi].append(sf * float(hi))
-                        attributes2.remove(attr_hi)
+                        try:
+                            attributes2.remove(attr_hi)
+                        except ValueError, e:
+                            print attr_hi, 'appears twice in Conditions string?'
+                            raise e
 
             # fill in unmentioned attributes with defaults:
             for a in attributes2:

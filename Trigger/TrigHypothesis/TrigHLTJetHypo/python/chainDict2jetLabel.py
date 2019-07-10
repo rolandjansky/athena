@@ -272,12 +272,35 @@ def _make_dijet_label(chain_parts):
             )""" % argvals
 
 
+def _make_combinationsTest_label(chain_parts):
+    """make test label for  combinations helper with two simple children."""
+
+    assert len(chain_parts) == 1
+    scenario = chain_parts[0]['hypoScenario']
+    
+    assert scenario == 'combinationsTest'
+
+   
+
+    return """
+    combgen(
+            [(2)(20et, 0eta320)]
+    
+            simple([(40et, 0eta320) (50et, 0eta320)])
+            simple([(35et, 0eta240) (55et, 0eta240)])
+            )"""
+
+
 def chainDict2jetLabel(chain_dict):
-    """Examine chain_parts in chain_dict. jet chain parts are used to 
-    calculate chain_labels according to the hypo scenario. There may be
-    more than one chain part used for a single label (only if 
-    hypoScanario is 'simple') and there mabe more than one label per chain
-    = ;'j80..._j0_dijet... will give rise to  'simple' and 'dijet' labels.
+    """Entry point to this Module. Return a chain label according to the
+    value of cp['hypoScenario'], where cp is an element of list/
+    chainDict['chainPart']
+
+    Due to historical reasons, the ;logic is as sollows:
+    hypoScenatio   Action
+    "simple"       examine all chain parts, to greate an EtaEt label.
+    other          if len(chainParts) == 1 create correponding  chain label
+                   if len(chainParts) > 1 create and of simple and other.
     """
 
     # suported scenarios 
@@ -285,6 +308,7 @@ def chainDict2jetLabel(chain_dict):
         'simple': _make_simple_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
+        'combinationsTest': _make_combinationsTest_label,
     }
 
     # chain_part - scenario association

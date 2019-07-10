@@ -61,7 +61,7 @@ TrigJetHypoToolConfig_simple_partition::getJetGrouper() const {
   // required by each condition
   auto conditions = getConditions();
   std::vector<size_t> mults;
-  for(const auto& c : conditions){mults.push_back(c.capacity());}
+  for(const auto& c : conditions){mults.push_back(c->capacity());}
    
   return std::make_unique<PartitionsGrouper>(mults);
 }

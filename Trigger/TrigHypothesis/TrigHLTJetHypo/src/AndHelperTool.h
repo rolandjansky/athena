@@ -35,6 +35,7 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
             const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
+  virtual std::string toString() const override;
 
  private:
 
@@ -51,7 +52,6 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
-  std::string toString() const;
 
 };
 #endif

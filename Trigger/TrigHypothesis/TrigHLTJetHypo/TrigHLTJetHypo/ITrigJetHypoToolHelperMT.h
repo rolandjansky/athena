@@ -27,6 +27,7 @@ public:
                     const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
   
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const = 0;
+  virtual std::string toString() const = 0;
    
 };
 #endif

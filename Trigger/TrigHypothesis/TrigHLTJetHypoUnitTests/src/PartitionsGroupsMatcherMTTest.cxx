@@ -75,7 +75,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, debugFlagIsFalse){
 TEST_F(PartitionsGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   // 
   EXPECT_TRUE(true);
   HypoJetVector jets;
@@ -102,7 +102,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, tooFewSelectedJets){
    if(m_debug){
      visitor.reset(new DebugInfoCollector("toofewselectedjets"));
    }
-   PartitionsGroupsMatcherMT matcher(m_conditions);
+   PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
  
    xAODJetCollector jetCollector;
 
@@ -156,7 +156,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   if(m_debug){
     visitor.reset(new DebugInfoCollector("toofewselectedjetsTest"));
   }
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   xAODJetCollector jetCollector;
   
   for (const auto& groups : groupsVec){
@@ -164,7 +164,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
 			      groups.end(),
 			      jetCollector,
 			      visitor);
-    //f(visitor){visitor->write();}
+    if(visitor){visitor->write();}
     EXPECT_TRUE(pass.has_value());
     EXPECT_TRUE(*pass);
     EXPECT_TRUE(jetCollector.empty());  // test jets not xAOD::Jets
@@ -208,7 +208,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
   if(m_debug){
     visitor.reset(new DebugInfoCollector("Passing3Failing1Test"));
   }
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   xAODJetCollector jetCollector;
 
   std::size_t npass{0};

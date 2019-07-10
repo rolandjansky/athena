@@ -15,12 +15,14 @@ void DebugInfoCollector::collect(const std::string& key,
 
 std::string DebugInfoCollector::toString() const {
   std::stringstream ss;
-  ss << "DEBUGInfoCollector: " << m_name << " [" << m_info.size() << "]\n";
+  ss << "DEBUGInfoCollector: "
+     << m_name << " no of msgs: " << m_info.size() << "\n\n";
+
+  std::size_t msg_i {0};
   for(const auto& i: m_info){
-    ss << "  " << i.first << '\n';
-    for(const auto& m : i.second){
-      ss << "    "  << m <<  '\n';
-    }
+    ss << "msg " << msg_i << ": " << i.first << '\n';
+    ++msg_i;
+    for(const auto& m : i.second){ss << m <<  '\n';}
   }
   return ss.str();
 }

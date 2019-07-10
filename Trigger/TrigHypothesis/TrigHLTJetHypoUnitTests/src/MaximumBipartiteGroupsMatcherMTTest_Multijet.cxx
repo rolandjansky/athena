@@ -144,7 +144,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
 
@@ -165,8 +165,9 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
     for(const auto & j: jets){*out<< j << " " << j->toString() <<'\n';}
   }
   EXPECT_TRUE(m_conditions.size() == 2);
-  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
-  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::unique_ptr<IFlowNetworkBuilder> builder =
+    std::make_unique<MultijetFlowNetworkBuilder>(std::move(m_conditions));
+
   std::map<int, pHypoJet> nodeToJet;
 
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
@@ -198,7 +199,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, -4.9, 3.9, 5.0};
@@ -218,14 +219,15 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
   }
   EXPECT_TRUE(m_conditions.size() == 2);
 
-  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
-  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::unique_ptr<IFlowNetworkBuilder> builder = 
+    std::make_unique<MultijetFlowNetworkBuilder>(std::move(m_conditions));
+
   std::map<int, pHypoJet> nodeToJet;
 
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
-  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
-  collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_1_collector"));
+  std::unique_ptr<ITrigJetHypoInfoCollector> collector =
+    std::make_unique<DebugInfoCollector>("mj_flowNetworkBuilder_1_collector");
 
   auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
   EXPECT_TRUE(G.has_value());
@@ -261,7 +263,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, -4.9, 3.9, 5.0};
@@ -281,8 +283,8 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
   }
   EXPECT_TRUE(m_conditions.size() == 2);
 
-  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
-  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::unique_ptr<IFlowNetworkBuilder> builder =
+    std::make_unique<MultijetFlowNetworkBuilder>(std::move(m_conditions));
   std::map<int, pHypoJet> nodeToJet;
 
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
@@ -320,7 +322,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, 1.0, -1.0, -2.5};
@@ -341,7 +343,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 
   
   EXPECT_TRUE(m_conditions.size() == 2);
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
@@ -379,7 +381,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj1){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, 1.0, -1.0, -2.5};
@@ -398,7 +400,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj1){
     for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
   }
   EXPECT_TRUE(m_conditions.size() == 2);
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
@@ -440,7 +442,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj2){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, -4.9, 5.0, 3.25};
@@ -461,7 +463,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj2){
     for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
   }
   EXPECT_TRUE(m_conditions.size() == 2);
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
@@ -505,7 +507,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj3){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5.0, -4.9, 4.0, 5.0};
@@ -525,7 +527,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj3){
     for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
   }
   EXPECT_TRUE(m_conditions.size() == 2);
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
@@ -565,7 +567,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj4){
 
 
   if(out){
-    for(const auto& c : m_conditions){*out << c.toString();}
+    for(const auto& c : m_conditions){*out << c->toString();}
   }
 
   std::vector<double> etas{-5., -4.9, 4.9, 5.};
@@ -588,7 +590,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj4){
 
   
   EXPECT_TRUE(m_conditions.size() == 2);
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();

@@ -11,22 +11,10 @@
 // ********************************************************************
 
 #include "TrigJetHypoToolConfig_combgen.h"
-
-#include "GaudiKernel/StatusCode.h"
-
 #include "./conditionsFactoryMT.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-
-#include "DecisionHandling/TrigCompositeUtils.h"
-
-using TrigCompositeUtils::DecisionID;
-using TrigCompositeUtils::Decision;
-using TrigCompositeUtils::DecisionContainer;
+#include "./CombinationsGroupsToHelpersMatcherMT.h"
 
 TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& type,
                                                  const std::string& name,
@@ -90,6 +78,8 @@ TrigJetHypoToolConfig_combgen::getCleaners() const {
 
 std::unique_ptr<IGroupsMatcherMT>
 TrigJetHypoToolConfig_combgen::getMatcher () const {
-  // method needed for interface. Combgen nneds no matcher
-  return std::unique_ptr<IGroupsMatcherMT> (nullptr);
+  /* Provides a matcher that matches single HypoJetVectors to
+     multiple ITrigJetHypoToolHelperMT*/
+
+  return std::make_unique<CombinationsGroupsToHelpersMatcherMT>(m_children);
 }

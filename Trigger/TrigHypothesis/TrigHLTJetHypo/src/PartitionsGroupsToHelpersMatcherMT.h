@@ -2,12 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_MAXIMUMBIPARTITEGROUPSMATCHERMT_H
-#define TRIGHLTJETHYPO_MAXIMUMBIPARTITEGROUPSMATCHERMT_H
+#ifndef TRIGHLTJETHYPO_PARTITIONSGROUPSTOHELPERSMATCHERMT_H
+#define TRIGHLTJETHYPO_PARTITIONSGROUPSTOHELPERSMATCHERMT_H
 
 // ********************************************************************
 //
-// NAME:     MaximumBipartiteGroupsMatcherMT.h
+// NAME:     PartitionsGroupsToHelpersMatcherMT.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 // AUTHOR:  P Sherwood
@@ -17,17 +17,20 @@
 
 #include "./IGroupsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
-#include "./IFlowNetworkBuilder.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
+#include "AsgTools/ToolHandleArray.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+
 #include <optional>
 
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
-class MaximumBipartiteGroupsMatcherMT:
-virtual public IGroupsMatcherMT {
+using HelperToolArray = ToolHandleArray<ITrigJetHypoToolHelperMT>;
+
+
+class PartitionsGroupsToHelpersMatcherMT: public IGroupsMatcherMT {
 
   /* Used to find jets pass multithreshold,
      possibly overlapping eta regions
@@ -36,8 +39,8 @@ virtual public IGroupsMatcherMT {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
-  ~MaximumBipartiteGroupsMatcherMT(){}
+  PartitionsGroupsToHelpersMatcherMT(const HelperToolArray&);
+  ~PartitionsGroupsToHelpersMatcherMT(){}
 
   // cannot match if internal problem (eg FlowNetwork error)
   std::optional<bool> match(const HypoJetGroupCIter&,
@@ -45,15 +48,16 @@ public:
 			    xAODJetCollector&,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 			    bool debug=false) const override;
-  std::string toString() const override;
+  std::string toString() const noexcept override;
 
 private:
-  ConditionsMT m_conditions;
-  bool m_compound;  // true if jet group size >1
-  std::size_t m_nConditions{0};
-    
-  std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;
-  double m_totalCapacity{0};  // min number of jets to satisfy  all Conditions
+  HelperToolArray m_helpers;
+
+bool
+  groupsPass(const HypoJetGroupCIter& groups_b,
+	     const HypoJetGroupCIter& groups_e,
+	     xAODJetCollector& jetCollector,
+	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 };
 
 #endif

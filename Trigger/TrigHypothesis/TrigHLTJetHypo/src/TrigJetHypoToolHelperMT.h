@@ -57,7 +57,7 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   // which is, in this case, the incoming jet vector.
   std::unique_ptr<IJetGrouper> m_grouper;
 
-  // Object that matchs jet groups with Conditions
+  // Object that matches jet groups with Conditions
   std::unique_ptr<IGroupsMatcherMT> m_matcher;
 
   // Bridge objects to ICleaner predicate function objects to allow polymorphic
