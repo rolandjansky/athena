@@ -54,6 +54,12 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("l1_rho_key", m_lvl1_rho_key="gXERHO_MET");
   declareProperty("l1_pufit_key", m_lvl1_pufit_key="gXEPUFIT_MET");
   declareProperty("l1_jwoj_key", m_lvl1_jwoj_key="gXEJWOJ_MET");
+  declareProperty("l1_noisecut_key", m_lvl1_noisecut_key="gXENOISECUT_MET");
+  declareProperty("l1_jnoisecut_key", m_lvl1_jnoisecut_key="jNOISECUT_MET");
+  declareProperty("hlt_cell_run3_key", m_hlt_cell_run3_met_key="HLT_MET");
+  declareProperty("hlt_mht_run3_key", m_hlt_mht_run3_met_key="HLT_MET_mht");
+  declareProperty("hlt_topocl_run3_key", m_hlt_topocl_run3_met_key="HLT_MET_tc");
+  declareProperty("hlt_topocl_PUC_run3_key", m_hlt_topocl_PUC_run3_met_key="HLT_MET_tcPufit");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -227,6 +233,18 @@ StatusCode HLTMETMonTool::book() {
   
   // gEXJWOJ L1 histograms
   monFolderName = monGroupName + "/gXEJWOJ";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+  
+  // gEXNOISECUT L1 histograms
+  monFolderName = monGroupName + "/gXENOISECUT";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+  
+  // jNOISECUT L1 histograms
+  monFolderName = monGroupName + "/jNOISECUT";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -507,12 +525,29 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_WARNING("Could not retrieve LVL1_JWOJs with key \"" << m_lvl1_jwoj_key << "\" from TDS"  );
   }
 
+  // retrieve xAOD L1 NOISECUT 
+ const xAOD::EnergySumRoI *l1_noisecut_cont = 0;
+  sc = evtStore()->retrieve(l1_noisecut_cont, m_lvl1_noisecut_key);
+  if(sc.isFailure() || !l1_noisecut_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_NOISECUTs with key \"" << m_lvl1_noisecut_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 JNOISECUT 
+ const xAOD::EnergySumRoI *l1_jnoisecut_cont = 0;
+  sc = evtStore()->retrieve(l1_jnoisecut_cont, m_lvl1_jnoisecut_key);
+  if(sc.isFailure() || !l1_jnoisecut_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_JNOISECUTs with key \"" << m_lvl1_jnoisecut_key << "\" from TDS"  );
+  }
+
   // retrieve HLT containers
   // Get HLT (CELL) container
   const xAOD::TrigMissingETContainer *hlt_cell_met_cont = 0;
   sc = evtStore()->retrieve(hlt_cell_met_cont, m_hlt_cell_met_key);
   if (sc.isFailure() || !hlt_cell_met_cont) {
-    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_cell_met_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_cell_met_cont, m_hlt_cell_run3_met_key);
+    if (sc.isFailure() || !hlt_cell_met_cont) {
+      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_cell_met_key << " from TDS");
+    }
   }
   else 
     ATH_MSG_DEBUG("Accessing met (cell) with " << hlt_cell_met_cont->size() << " elements");
@@ -521,7 +556,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::TrigMissingETContainer *hlt_mht_met_cont = 0;
   sc = evtStore()->retrieve(hlt_mht_met_cont, m_hlt_mht_met_key);
   if (sc.isFailure() || !hlt_mht_met_cont) {
-    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mht_met_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_mht_met_cont, m_hlt_mht_run3_met_key);
+    if (sc.isFailure() || !hlt_mht_met_cont) {
+      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mht_met_key << " from TDS");
+    }
   }
   else {
     ATH_MSG_DEBUG("Accessing met(mht) with " << hlt_mht_met_cont->size() << " elements");
@@ -581,7 +619,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::TrigMissingETContainer *hlt_topocl_met_cont = 0;
   sc = evtStore()->retrieve(hlt_topocl_met_cont, m_hlt_topocl_met_key);
   if (sc.isFailure() || !hlt_topocl_met_cont) {
-    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_met_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_topocl_met_cont, m_hlt_topocl_run3_met_key);
+    if (sc.isFailure() || !hlt_topocl_met_cont) {
+      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_met_key << " from TDS");
+    }
   }
   else 
     ATH_MSG_DEBUG("Accessing met(topcl) with " << hlt_topocl_met_cont->size() << " elements");
@@ -599,7 +640,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::TrigMissingETContainer *hlt_topocl_PUC_met_cont = 0;
   sc = evtStore()->retrieve(hlt_topocl_PUC_met_cont, m_hlt_topocl_PUC_met_key);
   if (sc.isFailure() || !hlt_topocl_PUC_met_cont) {
-    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_PUC_met_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_topocl_PUC_met_cont, m_hlt_topocl_PUC_run3_met_key);
+    if (sc.isFailure() || !hlt_topocl_PUC_met_cont) {
+      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_PUC_met_key << " from TDS");
+    }
   }
   else 
     ATH_MSG_DEBUG("Accessing met(topocl_PUC) with " << hlt_topocl_PUC_met_cont->size() << " elements");
@@ -837,6 +881,66 @@ StatusCode HLTMETMonTool::fillMETHist() {
     }
   }
 
+  // L1 NOISECUT
+  float l1_noisecut_mex = -9e9;
+  float l1_noisecut_mey = -9e9;
+  float l1_noisecut_met = -9e9;
+  float l1_noisecut_sumet = -9e9;
+  float l1_noisecut_phi = -9e9;
+  float l1_noisecut_mex_log = -9e9;
+  float l1_noisecut_mey_log = -9e9;
+  float l1_noisecut_met_log = -9e9;
+  float l1_noisecut_sumet_log = -9e9;
+  float saturated_noisecut = false;
+
+  if (l1_noisecut_cont) {
+    if ((l1_noisecut_cont->energyX())>-9e12 && (l1_noisecut_cont->energyX())<9e12 && (l1_noisecut_cont->energyY())>-9e12 && (l1_noisecut_cont->energyY())<9e12) {
+      l1_noisecut_mex = - (l1_noisecut_cont->energyX())/CLHEP::GeV;
+      l1_noisecut_mey = - (l1_noisecut_cont->energyY())/CLHEP::GeV;
+      l1_noisecut_met = sqrt(l1_noisecut_mex*l1_noisecut_mex + l1_noisecut_mey*l1_noisecut_mey);
+      l1_noisecut_phi = atan2f(l1_noisecut_mey,l1_noisecut_mex);
+      l1_noisecut_sumet = (l1_noisecut_cont->energyT())/CLHEP::GeV;
+
+      l1_noisecut_mex_log = signed_log(l1_noisecut_mex, epsilon);
+      l1_noisecut_mey_log = signed_log(l1_noisecut_mey, epsilon);
+      l1_noisecut_met_log = signed_log(l1_noisecut_met, epsilon);
+      l1_noisecut_sumet_log = signed_log(l1_noisecut_sumet, epsilon);
+      saturated_noisecut = (fabs(l1_noisecut_mex)>16383 || fabs(l1_noisecut_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
+    } else {
+      ATH_MSG_WARNING("L1 NOISECUT enegy too large");
+    }
+  }
+
+  // L1 JNOISECUT
+  float l1_jnoisecut_mex = -9e9;
+  float l1_jnoisecut_mey = -9e9;
+  float l1_jnoisecut_met = -9e9;
+  float l1_jnoisecut_sumet = -9e9;
+  float l1_jnoisecut_phi = -9e9;
+  float l1_jnoisecut_mex_log = -9e9;
+  float l1_jnoisecut_mey_log = -9e9;
+  float l1_jnoisecut_met_log = -9e9;
+  float l1_jnoisecut_sumet_log = -9e9;
+  float saturated_jnoisecut = false;
+
+  if (l1_jnoisecut_cont) {
+    if ((l1_jnoisecut_cont->energyX())>-9e12 && (l1_jnoisecut_cont->energyX())<9e12 && (l1_jnoisecut_cont->energyY())>-9e12 && (l1_jnoisecut_cont->energyY())<9e12) {
+      l1_jnoisecut_mex = - (l1_jnoisecut_cont->energyX())/CLHEP::GeV;
+      l1_jnoisecut_mey = - (l1_jnoisecut_cont->energyY())/CLHEP::GeV;
+      l1_jnoisecut_met = sqrt(l1_jnoisecut_mex*l1_jnoisecut_mex + l1_jnoisecut_mey*l1_jnoisecut_mey);
+      l1_jnoisecut_phi = atan2f(l1_jnoisecut_mey,l1_jnoisecut_mex);
+      l1_jnoisecut_sumet = (l1_jnoisecut_cont->energyT())/CLHEP::GeV;
+
+      l1_jnoisecut_mex_log = signed_log(l1_jnoisecut_mex, epsilon);
+      l1_jnoisecut_mey_log = signed_log(l1_jnoisecut_mey, epsilon);
+      l1_jnoisecut_met_log = signed_log(l1_jnoisecut_met, epsilon);
+      l1_jnoisecut_sumet_log = signed_log(l1_jnoisecut_sumet, epsilon);
+      saturated_jnoisecut = (fabs(l1_jnoisecut_mex)>16383 || fabs(l1_jnoisecut_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
+    } else {
+      ATH_MSG_WARNING("L1 JNOISECUT enegy too large");
+    }
+  }
+
 
 
   //**************
@@ -1004,6 +1108,21 @@ StatusCode HLTMETMonTool::fillMETHist() {
     fillL1BasicHistograms(l1_jwoj_mex,l1_jwoj_mex_log,l1_jwoj_mey,l1_jwoj_mey_log,l1_jwoj_met,l1_jwoj_met_log,l1_jwoj_sumet,l1_jwoj_sumet_log,l1_jwoj_phi,saturated_jwoj);
   }
 
+  // L1 gXENOISECUT
+  monFolderName = monGroupName + "/gXENOISECUT";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_noisecut_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_noisecut_mex,l1_noisecut_mex_log,l1_noisecut_mey,l1_noisecut_mey_log,l1_noisecut_met,l1_noisecut_met_log,l1_noisecut_sumet,l1_noisecut_sumet_log,l1_noisecut_phi,saturated_noisecut);
+  }
+
+  // L1 gXEJNOISECUT
+  monFolderName = monGroupName + "/gXEJNOISECUT";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_jnoisecut_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_jnoisecut_mex,l1_jnoisecut_mex_log,l1_jnoisecut_mey,l1_jnoisecut_mey_log,l1_jnoisecut_met,l1_jnoisecut_met_log,l1_jnoisecut_sumet,l1_jnoisecut_sumet_log,l1_jnoisecut_phi,saturated_jnoisecut);
+  }
 
   // L1 efficiency
   monFolderName = monGroupName + "/Efficiency";
