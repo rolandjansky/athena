@@ -6,7 +6,7 @@ from AthenaCommon.CfgGetter import addTool
 addTool("G4UserActions.G4UserActionsConf.G4UA__G4SimTimerTool", "G4UA::G4SimTimerTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__CosmicPerigeeActionTool", "G4UA::CosmicPerigeeActionTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__G4TrackCounterTool", "G4UA::G4TrackCounterTool")
-addTool("G4UserActions.G4UserActionsConf.G4UA__LengthIntegratorTool", "G4UA::LengthIntegratorTool")
+#addTool("G4UserActions.G4UserActionsConf.G4UA__LengthIntegratorTool", "G4UA::LengthIntegratorTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__PhotonKillerTool", "G4UA::PhotonKillerTool")
 
 addTool("G4UserActions.G4UserActionsConfig.getFastIDKillerTool", "G4UA::FastIDKillerTool")
@@ -26,3 +26,5 @@ addTool("G4UserActions.G4UserActionsConfig.getRadiationMapsMakerTool", "G4UA::Ra
 addTool("G4UserActions.G4UserActionsConfig.getStoppedParticleActionTool", "G4UA::StoppedParticleActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getRadLengthActionTool", "G4UA::RadLengthActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getVolumeDumperTool", "G4UA::VolumeDumperTool")
+
+addTool("G4UserActions.G4UserActionsConfig.getLengthIntegratorTool", "G4UA::LengthIntegratorTool")
