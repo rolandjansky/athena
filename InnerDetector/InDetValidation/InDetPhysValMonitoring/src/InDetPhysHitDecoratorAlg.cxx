@@ -114,6 +114,7 @@ StatusCode
 InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName, ctx);
   if ((not ptracks.isValid())) {
+    ATH_MSG_ERROR("Cannot get ReadHandle " << m_trkParticleName);
     return StatusCode::FAILURE;
   }
 
@@ -123,7 +124,10 @@ InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
     int_decor( IDPVM::createDecorators<xAOD::TrackParticleContainer,std::vector<int> >(m_intDecor, ctx) );
 
   for (const xAOD::TrackParticle *trk_particle : *ptracks) {
-    if (not decorateTrack(*trk_particle, float_decor, int_decor) ) return StatusCode::FAILURE;
+    if (not decorateTrack(*trk_particle, float_decor, int_decor) ) {
+      ATH_MSG_ERROR("Could not decorate track");
+      return StatusCode::FAILURE;
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -352,7 +356,7 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
       }
     }
   } else {
-    ATH_MSG_DEBUG("No valid track link found ");
+    ATH_MSG_ERROR("No valid track link found ");
   }
   return false;
 }
