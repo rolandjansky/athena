@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  InnerDetector/InDetConditions/InDetBeamSpotService	
 			  InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           MuonID/MuonSelectorTools/MuonSelectorTools
+                          MuonID/MuonIDAnalysis/MuonMomentumCorrections	  
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/Jet/JetInterface
                           Reconstruction/RecoTools/ITrackToVertex

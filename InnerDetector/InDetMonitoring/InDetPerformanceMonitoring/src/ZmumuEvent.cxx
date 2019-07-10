@@ -90,18 +90,21 @@ bool ZmumuEvent::Reco()
   this->Clear();
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
   if (pxMuonContainer != NULL) {
-    if(m_doDebug || true ) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " muon in xAOD::MuonContainer " << m_container <<std::endl; }
+    if(m_doDebug) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " muon in xAOD::MuonContainer " << m_container <<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
+    int acceptedMuonCount = 0;
     while ( xMuonItr != xMuonItrE ){ // start loop on muons
       const xAOD::Muon* pxCMuon = *xMuonItr;
       if(m_doDebug){std::cout << " * ZmumuEvent * Reco() ** attempt on xMuonItr "<< *xMuonItr << std::endl; }
       // Apply muon cuts
       if ( m_xMuonID.passSelection( pxCMuon) ) {
 	RecordMuon( pxCMuon );
+	acceptedMuonCount++;
       }
       xMuonItr++;
     } // end loop on muons
+    if(m_doDebug) {std::cout << " * ZmumuEvent * accepted " << acceptedMuonCount << " from the input list of  "<< pxMuonContainer->size() <<std::endl; }
   } // muon container exist
   else {
     std::cout << " * ZmumuEvent * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
@@ -247,7 +250,7 @@ bool ZmumuEvent::EventSelection(ZTYPE eType)
       std::cout << " * ZmumuEvent *  z0_muon1= " << z0_muon1 << "  z0_muon2= " << z0_muon2 << "  delta= " << z0_muon1-z0_muon2 << std::endl;
     }
     if ( fabs(z0_muon1 - z0_muon2) > m_Z0GapCut) {
-      if(m_doDebug || true) {
+      if(m_doDebug) {
 	std::cout << " * ZmumuEvent * Failing common vertex cut. z.vtx1= " << m_pxIDTrack[m_muon1]->vz() << "  z.vtx2= " << m_pxIDTrack[m_muon2]->vz() << std::endl;
 	std::cout << " * ZmumuEvent * Failing common vertex cut. IDTrk.z0_1= " << m_pxIDTrack[m_muon1]->z0() << "  IDTrk.z0_2= " << m_pxIDTrack[m_muon2]->z0() << std::endl;
 	std::cout << " * ZmumuEvent * z0_muon1= " << z0_muon1 << "  z0_muon2= " << z0_muon2 << "  delta= " << z0_muon1-z0_muon2 << " > " << m_Z0GapCut << " (cut)" << std::endl;

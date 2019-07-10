@@ -1,4 +1,6 @@
-//==================================================================================
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 //==================================================================================
 // Include files...
@@ -76,7 +78,7 @@ bool FourMuonEvent::Reco()
 
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
-  if (pxMuonContainer != NULL) {
+  if (pxMuonContainer != nullptr) {
     if (m_doDebug || thisdebug) {std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
 					   << " track list has "<< pxMuonContainer->size() 
 					   << " combined muons in container " << m_container 
@@ -259,7 +261,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
   
   if (eType == ID) {
     bool vertexstatus = true;
-    if (m_pxIDTrack[m_muonpos1]->vertex() != NULL) {
+    if (m_pxIDTrack[m_muonpos1]->vertex() != nullptr) {
       if(m_doDebug) { 
 	std::cout <<" * FourMuonEvent::EventSelection * vertex of the muons -- ID Tracks --" << std::endl; 
 	std::cout << "                 vertex muonpos_1 (x,y,z): (" << m_pxIDTrack[m_muonpos1]->vertex()->x() 
@@ -271,9 +273,9 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
     }
     else {
       vertexstatus = false;
-      if(m_doDebug || true) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonpos_1 (" << m_muonpos1 << ") has no vertex " << std::endl; 
+      if(m_doDebug) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonpos_1 (" << m_muonpos1 << ") has no vertex " << std::endl; 
     }
-    if (m_pxIDTrack[m_muonpos2]->vertex() != NULL) {
+    if (m_pxIDTrack[m_muonpos2]->vertex() != nullptr) {
       if(m_doDebug) { 
 	std::cout << "                 vertex muonpos_2 (x,y,z): (" << m_pxIDTrack[m_muonpos2]->vertex()->x() 
 		  << ", " << m_pxIDTrack[m_muonpos2]->vertex()->y() 
@@ -284,9 +286,9 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
     }
     else{
       vertexstatus = false;
-      if(m_doDebug || true) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonpos_2 (" << m_muonpos2 << ") has no vertex " << std::endl; 
+      if(m_doDebug) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonpos_2 (" << m_muonpos2 << ") has no vertex " << std::endl; 
     }
-    if (m_pxIDTrack[m_muonneg1]->vertex() != NULL) {    
+    if (m_pxIDTrack[m_muonneg1]->vertex() != nullptr) {    
       if(m_doDebug) { 
 	std::cout << "                 vertex muonneg_1 (x,y,z): (" << m_pxIDTrack[m_muonneg1]->vertex()->x() 
 		  << ", " << m_pxIDTrack[m_muonneg1]->vertex()->y() 
@@ -297,10 +299,10 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
     }
     else{
       vertexstatus = false;
-      if(m_doDebug || true) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonneg_1 (" << m_muonneg1 << ") has no vertex " << std::endl; 
+      if(m_doDebug) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonneg_1 (" << m_muonneg1 << ") has no vertex " << std::endl; 
     }
     
-    if (m_pxIDTrack[m_muonneg2]->vertex() != NULL) {
+    if (m_pxIDTrack[m_muonneg2]->vertex() != nullptr) {
       if(m_doDebug) { 
 	std::cout << "                 vertex muonneg_2 (x,y,z): (" << m_pxIDTrack[m_muonneg2]->vertex()->x() 
 		  << ", " << m_pxIDTrack[m_muonneg2]->vertex()->y() 
@@ -311,7 +313,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
     }
     else{
       vertexstatus = false;
-      if(m_doDebug || true) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonneg_2 (" << m_muonneg2 << ") has no vertex " << std::endl; 
+      if(m_doDebug) std::cout <<" * FourMuonEvent::EventSelection * WARNING muonneg_2 (" << m_muonneg2 << ") has no vertex " << std::endl; 
     }
     
     if (vertexstatus) { // this means: all muons have vertex associated. Let's check it is the same.
@@ -325,7 +327,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
       vtxListZ.push_back(m_pxIDTrack[m_muonneg1]->vertex()->z());
       m_nVertex = 1; // for the time being there is just one vertex
       m_muonneg1_vtx = m_nVertex; // and the muonneg1 is in that one
-      if(m_doDebug || true) {
+      if(m_doDebug) {
 	std::cout << " * FourMuonEvent::EventSelection * muonneg1 in vertex: " << m_muonneg1_vtx << std::endl;
       }	
       
@@ -340,7 +342,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	}
       }
       if (thisMuonIsInExistingVertex) {
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * muonneg2 in vertex: " << m_muonneg2_vtx << std::endl;
 	}	
       }
@@ -349,7 +351,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	m_muonneg2_vtx = m_nVertex; 
 	vtxListX.push_back(m_pxIDTrack[m_muonneg2]->vertex()->x());
 	vtxListZ.push_back(m_pxIDTrack[m_muonneg2]->vertex()->z());
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * Add a new vertex to the list. Current size: " << vtxListX.size()
 		    << "  vtx.x= " << m_pxIDTrack[m_muonneg2]->vertex()->x() 
 		    << "  vtx.y= " << m_pxIDTrack[m_muonneg2]->vertex()->y() 
@@ -370,7 +372,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	}
       }
       if (thisMuonIsInExistingVertex) {
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * muonpos1 in vertex: " << m_muonpos1_vtx << std::endl;
 	}	
       }
@@ -379,7 +381,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	m_muonpos1_vtx = m_nVertex; 
 	vtxListX.push_back(m_pxIDTrack[m_muonpos1]->vertex()->x());
 	vtxListZ.push_back(m_pxIDTrack[m_muonpos1]->vertex()->z());
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * Add a new vertex to the list. Current size: " << vtxListX.size()
 		    << "  vtx.x= " << m_pxIDTrack[m_muonpos1]->vertex()->x() 
 		    << "  vtx.y= " << m_pxIDTrack[m_muonpos1]->vertex()->y() 
@@ -400,7 +402,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	}
       }
       if (thisMuonIsInExistingVertex) {
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * muonpos2 in vertex: " << m_muonpos1_vtx << std::endl;
 	}	
       }
@@ -409,7 +411,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 	m_muonpos2_vtx = m_nVertex; 
 	vtxListX.push_back(m_pxIDTrack[m_muonpos2]->vertex()->x());
 	vtxListZ.push_back(m_pxIDTrack[m_muonpos2]->vertex()->z());
-	if(m_doDebug || true) {
+	if(m_doDebug) {
 	  std::cout << " * FourMuonEvent::EventSelection * Add a new vertex to the list. Current size: " << vtxListX.size()
 		    << "  vtx.x= " << m_pxIDTrack[m_muonpos2]->vertex()->x() 
 		    << "  vtx.y= " << m_pxIDTrack[m_muonpos2]->vertex()->y() 
@@ -430,7 +432,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 			      << "                                    Cut passed :) " << std::endl;      
     }
     else { // vertex cut failed
-      if (m_doDebug || true) std::cout <<" * FourMuonEvent::EventSelection ** Failing all muons coming from a primary vertex cut :(" << std::endl;
+      if (m_doDebug) std::cout <<" * FourMuonEvent::EventSelection ** Failing all muons coming from a primary vertex cut :(" << std::endl;
       return false;
     }
   }
@@ -455,10 +457,10 @@ void FourMuonEvent::Clear()
   m_muon2 = MUON2;
 
   for ( unsigned int u = 0; u < NUM_MUONS; ++u ) {
-      m_pxRecMuon[u] = NULL;
-      m_pxMSTrack[u] = NULL;
-      m_pxMETrack[u] = NULL;
-      m_pxIDTrack[u] = NULL;
+      m_pxRecMuon[u] = nullptr;
+      m_pxMSTrack[u] = nullptr;
+      m_pxMETrack[u] = nullptr;
+      m_pxIDTrack[u] = nullptr;
   }
   for ( unsigned int v = 0; v < NUM_TYPES; ++v ) {
     m_fZPt[v]            = -999.9f;
@@ -543,7 +545,7 @@ void FourMuonEvent::ReconstructKinematics()
     m_fZEtaDir[ID]            = EvalEta(         m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
     m_fZPhiDir[ID]            = EvalPhi(         m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
 
-    if(m_doDebug || true){ 
+    if(m_doDebug){ 
       std::cout << " * FourMuonEvent * ReconstructKinematics * -- ID Tracks -- " << std::endl
 		<< "                                           Pt(mu1+)["<< m_muonpos1<<"] = " << m_pxIDTrack[m_muonpos1]->pt() << std::endl
 		<< "                                           Pt(mu2+)["<< m_muonpos2<<"] = " << m_pxIDTrack[m_muonpos2]->pt() << std::endl
@@ -552,7 +554,7 @@ void FourMuonEvent::ReconstructKinematics()
 		<< "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
 		<< std::endl; 
     }
-    if(m_doDebug || true){ 
+    if(m_doDebug){ 
       std::cout << " * FourMuonEvent * ReconstructKinematics * invariant mass (MS) = " << m_fInvariantMass[MS] << std::endl
 		<< "                                           invariant mass (CB) = " << m_fInvariantMass[CB] << std::endl
 		<< "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
@@ -680,7 +682,7 @@ const xAOD::TrackParticle*  FourMuonEvent::getLooseIDTk( unsigned int /*uPart*/ 
 	}
     }
   // if ()
-  return NULL;
+  return nullptr;
 }
 
 //==================================================================================
@@ -695,7 +697,11 @@ void FourMuonEvent::SetLeadingMuonPtCut (double newvalue)
   // this has to be translated to the MuonSelector
   // but there one has to use the minimum momentum --> second muon
   //this->SetMuonPtCut(m_SecondMuonPtCut);
-  if(m_doDebug && false){std::cout <<" * FourMuonEvent * SetLeadingMuonPtCut * new Pt cuts:  " << m_LeadingMuonPtCut << " & " << m_SecondMuonPtCut << "  MuonSelector: " << m_xMuonID.GetPtCut() << std::endl;}
+  if(m_doDebug){ 
+    std::cout <<" * FourMuonEvent * SetLeadingMuonPtCut * new Pt cuts:  " << m_LeadingMuonPtCut << " & " 
+	      << m_SecondMuonPtCut 
+	      << "  MuonSelector: " << m_xMuonID.GetPtCut() << std::endl;
+  }
   return;
 }
 
@@ -710,7 +716,11 @@ void FourMuonEvent::SetSecondMuonPtCut (double newvalue)
   // this has to be translated to the MuonSelector
   this->SetMuonPtCut(m_SecondMuonPtCut);
 
-  if(m_doDebug && false){std::cout <<" * FourMuonEvent * SetSecondMuonPtCut * new Pt cuts:  " << m_LeadingMuonPtCut << " & " << m_SecondMuonPtCut << "  MuonSelector: " << m_xMuonID.GetPtCut() << std::endl;}
+  if(m_doDebug) {
+    std::cout <<" * FourMuonEvent * SetSecondMuonPtCut * new Pt cuts:  " << m_LeadingMuonPtCut 
+	      << " & " << m_SecondMuonPtCut 
+	      << "  MuonSelector: " << m_xMuonID.GetPtCut() << std::endl;
+  }
 
   return;
 }
@@ -742,7 +752,7 @@ void FourMuonEvent::OrderMuonList()
 			       << "   and pt= " << m_pxRecMuon[imuon]->pt()
 			       << std::endl;
       }
-      if (m_pxRecMuon[imuon] != NULL) {
+      if (m_pxRecMuon[imuon] != nullptr) {
 	
 	if (m_pxRecMuon[imuon]->charge()==1) { // positive muon
 	  muposcount++;
@@ -753,16 +763,11 @@ void FourMuonEvent::OrderMuonList()
 	    // now store the new one in 1st place
 	    muPlus1Pt = m_pxRecMuon[imuon]->pt();
 	    muPlus1Id = imuon;	
-	    if(false){ 
-	      std::cout << " -- debug -- * FourMuonEvent::OrderMuonList * new muPlus1Id: " << muPlus1Id << "  pt: " << muPlus1Pt << std::endl;
-	      std::cout << "                                                  muPlus2Id: " << muPlus2Id << "  pt: " << muPlus2Pt << std::endl;
-	    }
 	  } 
 	  else if (m_pxRecMuon[imuon]->pt()> muPlus2Pt) {
 	    // store the new one in 2nd place
 	    muPlus2Pt = m_pxRecMuon[imuon]->pt();
 	    muPlus2Id = imuon;
-	    if(false){ std::cout << " -- debug -- * FourMuonEvent::OrderMuonList * new muPlus2Id: " << muPlus2Id << "  pt: " << muPlus2Pt << std::endl;}
 	  }
 	}
 	// Negative muons
@@ -774,15 +779,10 @@ void FourMuonEvent::OrderMuonList()
 	    muMinus2Id = muMinus1Id;
 	    muMinus1Pt = m_pxRecMuon[imuon]->pt();
 	    muMinus1Id = imuon;
-	    if(false){ 
-	      std::cout << " -- debug -- * FourMuonEvent::OrderMuonList * new muMinus1Id: " << muMinus1Id << "  pt: " << muMinus1Pt << std::endl;
-	      std::cout << "                                                  muMinus2Id: " << muMinus2Id << "  pt: " << muMinus2Pt << std::endl;
-	    }
 	  } 
 	  else if(m_pxRecMuon[imuon]->pt()> muMinus2Pt) {
 	    muMinus2Pt = m_pxRecMuon[imuon]->pt();
 	    muMinus2Id = imuon;
-	    if(false){ std::cout << " -- debug -- * FourMuonEvent::OrderMuonList * new muMinus1Id: " << muMinus2Id << "  pt: " << muMinus2Pt << std::endl;}
 	  }
 	}
       } // muon exist
@@ -808,7 +808,7 @@ void FourMuonEvent::OrderMuonList()
     m_muon2 = m_muonneg1; // to be deleted when no more m_muon is left
     
     m_numberOfFullPassMuons = 4; // keep only 4 muons
-    if (m_doDebug || true){ std::cout << " * FourMuonEvent::OrderMuonList * taking 4 muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl
+    if (m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * taking 4 muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl
 				      << "                                  leading mu-: " << muMinus1Id << "   Pt = " << muMinus1Pt << std::endl
 				      << "                                  second  mu-: " << muMinus2Id << "   Pt = " << muMinus2Pt << std::endl
 				      << "                                  leading mu+: " << muPlus1Id  << "   Pt = " << muPlus1Pt << std::endl

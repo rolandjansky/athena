@@ -26,7 +26,7 @@ class ZmumuEvent : public EventAnalysis
 {
  public:
   ZmumuEvent();
-  ~ZmumuEvent();
+  virtual ~ZmumuEvent();
 
   enum
   {

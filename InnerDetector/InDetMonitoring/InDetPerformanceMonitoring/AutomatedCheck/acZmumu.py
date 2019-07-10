@@ -7,7 +7,8 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "merge" #"%"
+#m_reconmerge = "merge" #"%"
+m_reconmerge = "deriv" #"%"
 m_workDirPlatform = ""
 
 # options
@@ -296,7 +297,6 @@ def submitGridJobsUserDataSet ():
         print (" <acZmumu> m_submitExec = True --> job to be submmited");
         # move to the submission folder
         submissionPath = "%s/run" %(m_testArea)
-        #print " -- DEBUG -- submissionPath = %s" %submissionPath  
         if (not os.path.exists(submissionPath)):
             print (" <acZmumu> \"run\" folder (submission path: %s) does not exist " %submissionPath)
             print ("          making the path available for you ;) ")
@@ -317,9 +317,6 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
-
-    #print " -- DEBUG -- submitGridJobsListOfRuns -- List of new runs: ",len(listOfNewRuns), listOfNewRuns
-    #print " -- DEBUG -- submitGridJobsListOfRuns -- List of pending runs: ",len(listOfPendingRuns), listOfPendingRuns
 
     for runNumber in listOfNewRuns:
         listOfRunsToSubmit.append(runNumber)
@@ -395,25 +392,18 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 def getAthenaBasics ():
     import os
 
-    #print " -- DEBUG -- in getAthenaBasics() -- " 
     testArea = ""
     try:
         testArea = os.getenv("TestArea","")
-        #print " -- DEBUG -- straight TestArea -- %s " %testArea
         # make sure this points to the athena folder
-        #print " -- DEBUG -- last bit of test area:  -- %s " %testArea.split("/")[-1]
         if ("athena" not in testArea.split("/")[-1]):
             tempTestArea = testArea.split("/")
-            #print " -- DEBUG -- tempTestArea = ", tempTestArea
-            #print " -- DEBUG -- old last = ", tempTestArea[-1]
             tempTestArea[-1] = "athena"
             # reform the string
-            #print " -- DEBUG -- new last = ", tempTestArea[-1]
             newTestArea = ""
             for tempword in tempTestArea:
                 if (len(tempword)>0):
                     newTestArea = "%s/%s" %(newTestArea, tempword)
-                    #print " -- DEBUG -- newTestArea: %s" %newTestArea
             testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")

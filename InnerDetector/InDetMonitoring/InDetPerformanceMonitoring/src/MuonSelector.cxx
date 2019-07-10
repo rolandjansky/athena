@@ -168,10 +168,8 @@ void MuonSelector::Init()
     return;
   }
 
-  //CP::MuonSelectionTool m_muonSelectionTool ("MuonSelectionTool");
-  
   // check muon selection tool is available 
-  if (m_muonSelectionTool.retrieve()) {
+  if (m_muonSelectionTool.retrieve().isSuccess()) {
     ( *m_msgStream) << MSG::INFO << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << endreq;
     if(m_doDebug){ std::cout << "  * MuonSelector::Init * m_muonSelectionTool.initialize() success :)" << std::endl;}
   }

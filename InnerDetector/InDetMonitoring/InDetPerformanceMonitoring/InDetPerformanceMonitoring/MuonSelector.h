@@ -21,6 +21,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/ToolHandle.h" 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================

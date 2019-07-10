@@ -26,7 +26,7 @@ class FourMuonEvent : public EventAnalysis
 {
  public:
   FourMuonEvent();
-  ~FourMuonEvent();
+  virtual ~FourMuonEvent();
 
   enum
   {
@@ -63,10 +63,10 @@ class FourMuonEvent : public EventAnalysis
   inline void                        doMCPSelection(bool doMCP) { m_xMuonID.doMCPSelection(doMCP);}
   inline bool                        EventPassed () { return m_passedSelectionCuts; }
   inline const float&                get4MuInvMass (ZTYPE eType)          { return m_fInvariantMass[eType];  } 
-  inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
-  inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
+  inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : nullptr;  }
+  inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : nullptr;  }
   inline double                      GetInvMass() { return m_FourMuonInvMass; }
-  inline const xAOD::TrackParticle*  getMSTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
+  inline const xAOD::TrackParticle*  getMSTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : nullptr;  }
   inline const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart );
   inline const float&                getLeptonOpeningAngle( ZTYPE eType ) { return m_fMuonDispersion[eType]; }
   unsigned int                       getNegMuon( int eType );
