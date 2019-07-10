@@ -71,29 +71,6 @@ void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM
 }
 
 
-//#define ader_ref(a_1,a_2) workarray_.ader[(a_2)*(vkalNTrkM*3+3) + (a_1) - (vkalNTrkM*3+4)]
-/* -------------------------------------------------------------- */
-/*  RETURN FULL ERROR MATRIX AFTER THE FIT                        */
-/*  ERRMTX SHOULD HAVE AT LEAST (3*NTRK+3)*(3*NTRK+4)/2. ELEMENTS */
-/* ------------------------------------------------------- */
-/*  RETURN ERROR OF ANY VARIABLE AFTER THE FIT */
-/*void cferrany_(long int *ntrk, double  *deriv, double  *covar)
-{
-    (*covar) = 0.;
-    if (deriv==0) return;
-    --deriv;
-    int lim, ic, jc;
-    lim = ((*ntrk) + 1) * 3;
-    for (ic = 1; ic <= lim; ++ic) {
-	for (jc = 1; jc <= lim; ++jc) {
-	    (*covar) += deriv[ic] * ader_ref(ic, jc) * deriv[jc];
-	}
-    }
-} 
-#undef ader_ref
-*/
-
-
 void cfmasserrold_(long int *ntrk, long int *list, double *parfs,
         double *ams, double *deriv, double BMAG, double *dm, double *sigm)
 {
