@@ -195,15 +195,15 @@ int fitVertex(VKVertex * vk)
        if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic][tk] )index.push_back(tk); }
-           vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
+           vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKMassConstraint>( NTRK, vrtForCFT.wmfit[ic], index, vk)});
         }
       }
     }
     if( vrtForCFT.usePointingCnst==1 ){  //3Dpointing
-      vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, false));
+      vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKPointConstraint>( NTRK, vrtForCFT.vrt, vk, false)});
     }
     if( vrtForCFT.usePointingCnst==2 ){  //Z pointing
-      vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, true));
+      vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKPointConstraint>( NTRK, vrtForCFT.vrt, vk, true)});
     }
     if ( vrtForCFT.useAprioriVrt ) {
         cfdcopy(vrtForCFT.covvrt, tmpd,   6);
@@ -212,11 +212,11 @@ int fitVertex(VKVertex * vk)
         cfdcopy(vrtForCFT.vrt, vk->apriorV,   3);
         cfdcopy(      aermd, vk->apriorVWGT,6);
     }
-    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.emplace_back(new VKPhiConstraint( NTRK, vk));
-    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.emplace_back(new VKThetaConstraint( NTRK, vk));
+    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKPhiConstraint>( NTRK, vk)});
+    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKThetaConstraint>( NTRK, vk)});
     if ( vrtForCFT.usePlaneCnst ){
       if( vrtForCFT.Ap+vrtForCFT.Bp+vrtForCFT.Cp != 0.){
-        vk->ConstraintList.emplace_back(new VKPlaneConstraint( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
+        vk->ConstraintList.emplace_back(std::unique_ptr<VKConstraintBase>{std::make_unique<VKPlaneConstraint>( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk)});
       }
     }
 //-----Debug printout
