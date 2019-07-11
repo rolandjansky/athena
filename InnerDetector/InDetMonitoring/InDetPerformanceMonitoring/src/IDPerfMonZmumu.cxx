@@ -819,12 +819,11 @@ StatusCode IDPerfMonZmumu::execute()
   }
 
   if (m_doFourMuAnalysis) {
-
     // Four muon event
-    ATH_MSG_INFO("** IDPerfMonZmumu::execute ** Let's try FourMuon...");  
+    ATH_MSG_DEBUG ("** IDPerfMonZmumu::execute ** Let's try FourMuon...");  
     m_4mu.setContainer(PerfMonServices::MUON_COLLECTION);
-    m_4mu.doIsoSelection(m_doIsoSelection);
-    m_4mu.doIPSelection(m_doIPSelection);
+    m_4mu.doIsoSelection (m_doIsoSelection);
+    m_4mu.doIPSelection  (m_doIPSelection);
     m_4mu.doMCPSelection (m_doMCPSelection);
     m_4mu.SetMassWindowLow(m_MassWindowLow);
     m_4mu.SetMassWindowHigh(m_MassWindowHigh);
@@ -835,7 +834,7 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.setDebugMode(m_doDebug);
 
     if(m_4mu.Reco()){
-      ATH_MSG_INFO("Sucessfull 4-muon reconstruction. Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
+      ATH_MSG_INFO ("Sucessfull 4-muon reconstruction. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
 
       if ( m_4mu.EventPassed() ) {
 	ATH_MSG_INFO("Accepted 4-muon event. Going to fill ntuple");
@@ -895,30 +894,30 @@ StatusCode IDPerfMonZmumu::execute()
 	std::string m_metName = "MET_Reference_AntiKt4LCTopo";
 	std::string m_metRefFinalName = "FinalClus";
 	const xAOD::MissingETContainer* final_met = 0;
+
+	m_met = -1; // default value
+	m_metphi = -1;
+
 	if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
 	  ATH_MSG_WARNING ( "No Collection with name " << m_metName << " found in StoreGate");
-	  return StatusCode::SUCCESS;
+	  // return StatusCode::SUCCESS;
 	}
 	else {
 	  StatusCode sc = evtStore()->retrieve(final_met,m_metName);
 	  if (sc.isFailure()) {
 	    ATH_MSG_DEBUG ( "Could not retrieve Collection " << m_metName << " from StoreGate");
-	    return StatusCode::SUCCESS;
+	    // return StatusCode::SUCCESS;
 	  }
 	}
-	const xAOD::MissingET *met;
-	met = (*final_met)[m_metRefFinalName];
-	if (met) {
+	const xAOD::MissingET *met = nullptr;
+	if (final_met) met = (*final_met)[m_metRefFinalName];
+	if (met) { // load MET values
 	  m_met = met->met();
 	  m_metphi = met->phi();
 	}
-	else {
-	  m_met = -1;
-	  m_metphi = -1;
-	}
 	ATH_MSG_DEBUG (" Zmumu event with MET = " << m_met);
 
-	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accept event m_4mu.GetInvMass= " << m_4mu_minv);
+	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accepted event " << m_4mu.getAcceptedEvents() << " with m_4mu.GetInvMass= " << m_4mu_minv);
 	m_FourMuTree->Fill();
       }
     } // succesful 4mu reco

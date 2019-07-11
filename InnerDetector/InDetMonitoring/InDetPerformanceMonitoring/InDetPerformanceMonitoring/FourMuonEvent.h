@@ -63,6 +63,7 @@ class FourMuonEvent : public EventAnalysis
   inline void                        doMCPSelection(bool doMCP) { m_xMuonID.doMCPSelection(doMCP);}
   inline bool                        EventPassed () { return m_passedSelectionCuts; }
   inline const float&                get4MuInvMass (ZTYPE eType)          { return m_fInvariantMass[eType];  } 
+  inline int                         getAcceptedEvents ()                 { return m_acceptedEventCount; }      
   inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : nullptr;  }
   inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : nullptr;  }
   inline double                      GetInvMass() { return m_FourMuonInvMass; }
@@ -105,7 +106,7 @@ class FourMuonEvent : public EventAnalysis
   // Private methods
   void  Clear();
   bool  EventSelection (ZTYPE eType);
-  void  ReconstructKinematics();
+  bool  ReconstructKinematics();
   void  RecordMuon( const xAOD::Muon* pxMuon );
 
   // Active mu-cuts for the analysis
@@ -156,6 +157,7 @@ class FourMuonEvent : public EventAnalysis
 
   // event count
   int m_eventCount;
+  int m_acceptedEventCount;
 
   // selected muon identifiers
   // to be removed

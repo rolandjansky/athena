@@ -49,6 +49,7 @@ FourMuonEvent::FourMuonEvent()
   m_SelectMuonByIso = true;
   m_SelectMuonByIP = true;
   m_eventCount = 0;
+  m_acceptedEventCount = 0;
 }
 
 //==================================================================================
@@ -71,7 +72,7 @@ bool FourMuonEvent::Reco()
 {
   bool thisdebug = false;
   m_eventCount++;
-  if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * starting ** event count " << m_eventCount << std::endl; }
+  if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * starting * event count " << m_eventCount << std::endl; }
 
   // Clear out the previous events record.
   this->Clear();
@@ -102,12 +103,14 @@ bool FourMuonEvent::Reco()
     // ordering of muons
     this->OrderMuonList();
     
+    m_passedSelectionCuts = false;  // unless the event has 4 muons, assume it is not good
     if (m_numberOfFullPassMuons == 4) {
-      m_passedSelectionCuts = true;  // assume the event satisfies the selection cuts
+      m_passedSelectionCuts = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
       if ( m_passedSelectionCuts && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
-      this->ReconstructKinematics();   // Reconstruct the invariant mass ( based on mu-sys pt ).
-      m_passedSelectionCuts = EventSelection(ID);
-      m_FourMuonInvMass = m_fInvariantMass[ID];
+      if (this->ReconstructKinematics()) {   // Reconstruct the invariant mass ( based on mu-sys pt ).
+	m_passedSelectionCuts = EventSelection(ID);
+	m_FourMuonInvMass = m_fInvariantMass[ID];
+      }
       if (!m_passedSelectionCuts && thisdebug) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
     }
     else {
@@ -125,7 +128,12 @@ bool FourMuonEvent::Reco()
     if (!m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Rejected event :( " << std::endl;
   }
   
-  if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount << " * COMPLETED * return " << m_passedSelectionCuts << std::endl; 
+  if ( m_passedSelectionCuts) m_acceptedEventCount++;
+
+  if (m_doDebug || thisdebug || true) std::cout << " * FourMuonEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
+						<< " muons. So far there are " << m_acceptedEventCount 
+						<< " accpeted events out of " << m_eventCount 
+						<< " tested * COMPLETED * return " << m_passedSelectionCuts << std::endl; 
   
   return m_passedSelectionCuts;
 }
@@ -455,6 +463,11 @@ void FourMuonEvent::Clear()
   m_FourMuonInvMass = -1.; // flag as no reconstructed inv mass yet
   m_muon1 = MUON1; // point to the first two
   m_muon2 = MUON2;
+  m_muonneg1 = -1;
+  m_muonneg2 = -1;
+  m_muonpos1 = -1;
+  m_muonpos2 = -1;
+
 
   for ( unsigned int u = 0; u < NUM_MUONS; ++u ) {
       m_pxRecMuon[u] = nullptr;
@@ -517,52 +530,56 @@ void FourMuonEvent::RecordMuon( const xAOD::Muon* pxMuon )
 
 
 //==================================================================================
-void FourMuonEvent::ReconstructKinematics()
+bool FourMuonEvent::ReconstructKinematics()
 {
   if(m_doDebug){ std::cout << " * FourMuonEvent * ReconstructKinematics * -- start -- " << std::endl; }
+  bool kinematicscomputed = false;
 
   // Three ways. No checks here. Thus make sure the pointers are ok before this.
   if ( m_numberOfFullPassMuons == 4 ) {
-    // Note that all the util. functions will check the pointers & return -999.9f on failure.
-    // m_fInvariantMass[MS]      = EvalDiMuInvMass( m_pxMSTrack[m_muonpos1], m_pxMSTrack[m_muonneg1] );
-    m_fInvariantMass[MS]      = EvalFourMuInvMass( m_pxMSTrack[m_muonpos1], m_pxMSTrack[m_muonpos2], m_pxMSTrack[m_muonneg1], m_pxMSTrack[m_muonneg2] );
-    m_fMuonDispersion[MS]     = EvaluateAngle(   m_pxMSTrack[m_muon1], m_pxMSTrack[m_muon2] );
-    m_fZPt[MS]                = EvalPt(          m_pxMSTrack[m_muon1], m_pxMSTrack[m_muon2] );
-    m_fZEtaDir[MS]            = EvalEta(         m_pxMSTrack[m_muon1], m_pxMSTrack[m_muon2] );
-    m_fZPhiDir[MS]            = EvalPhi(         m_pxMSTrack[m_muon1], m_pxMSTrack[m_muon2] );
-    
-    //m_fInvariantMass[CB]      = EvalDiMuInvMass( m_pxRecMuon[m_muonpos1], m_pxRecMuon[m_muonneg1] );
-    m_fInvariantMass[CB]      = EvalFourMuInvMass( m_pxRecMuon[m_muonpos1], m_pxRecMuon[m_muonpos2], m_pxRecMuon[m_muonneg1], m_pxRecMuon[m_muonneg2] );
-    m_fMuonDispersion[CB]     = EvaluateAngle(   m_pxRecMuon[m_muon1], m_pxRecMuon[m_muon2] );
-    m_fZPt[CB]                = EvalPt(          m_pxRecMuon[m_muon1], m_pxRecMuon[m_muon2] );
-    m_fZEtaDir[CB]            = EvalEta(         m_pxRecMuon[m_muon1], m_pxRecMuon[m_muon2] );
-    m_fZPhiDir[CB]            = EvalPhi(         m_pxRecMuon[m_muon1], m_pxRecMuon[m_muon2] );
-    
-    //m_fInvariantMass[ID]      = EvalDiMuInvMass( m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1]);
-    m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonpos2], m_pxIDTrack[m_muonneg1], m_pxIDTrack[m_muonneg2] );
-    m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
-    m_fZPt[ID]                = EvalPt(          m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
-    m_fZEtaDir[ID]            = EvalEta(         m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
-    m_fZPhiDir[ID]            = EvalPhi(         m_pxIDTrack[m_muon1], m_pxIDTrack[m_muon2] );
+    // crosscheck identifiers are good:
+    bool goodidentifiers = true;
+    if (m_muonneg1 < 0) goodidentifiers = false;
+    if (m_muonneg2 < 0) goodidentifiers = false;
+    if (m_muonpos1 < 0) goodidentifiers = false;
+    if (m_muonpos2 < 0) goodidentifiers = false;
 
-    if(m_doDebug){ 
-      std::cout << " * FourMuonEvent * ReconstructKinematics * -- ID Tracks -- " << std::endl
-		<< "                                           Pt(mu1+)["<< m_muonpos1<<"] = " << m_pxIDTrack[m_muonpos1]->pt() << std::endl
-		<< "                                           Pt(mu2+)["<< m_muonpos2<<"] = " << m_pxIDTrack[m_muonpos2]->pt() << std::endl
-		<< "                                           Pt(mu1-)["<< m_muonneg1<<"] = " << m_pxIDTrack[m_muonneg1]->pt() << std::endl
-		<< "                                           Pt(mu2-)["<< m_muonneg2<<"] = " << m_pxIDTrack[m_muonneg2]->pt() << std::endl
-		<< "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
-		<< std::endl; 
-    }
-    if(m_doDebug){ 
-      std::cout << " * FourMuonEvent * ReconstructKinematics * invariant mass (MS) = " << m_fInvariantMass[MS] << std::endl
-		<< "                                           invariant mass (CB) = " << m_fInvariantMass[CB] << std::endl
-		<< "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
-		<< std::endl; 
-    }
+    if (goodidentifiers) {
+      // before computing the kinematic parameters check track particles are ok
+      bool goodtracks = true;
+      if (m_pxIDTrack[m_muonneg1] == nullptr) goodtracks = false;
+      if (m_pxIDTrack[m_muonneg2] == nullptr) goodtracks = false;
+      if (m_pxIDTrack[m_muonpos1] == nullptr) goodtracks = false;
+      if (m_pxIDTrack[m_muonpos2] == nullptr) goodtracks = false;
+      
+      if (goodtracks) { // Everything is ready
+	// For the time being analysis is performed only with ID tracks
+	m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonpos2], m_pxIDTrack[m_muonneg1], m_pxIDTrack[m_muonneg2] );
+	m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
+	m_fZPt[ID]                = EvalPt(          m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
+	m_fZEtaDir[ID]            = EvalEta(         m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
+	m_fZPhiDir[ID]            = EvalPhi(         m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
+	kinematicscomputed = true;
+
+	if(m_doDebug){ 
+	  std::cout << " * FourMuonEvent * ReconstructKinematics * -- ID Tracks -- " << std::endl
+		    << "                                           Pt(mu1+)["<< m_muonpos1<<"] = " << m_pxIDTrack[m_muonpos1]->pt() << std::endl
+		    << "                                           Pt(mu2+)["<< m_muonpos2<<"] = " << m_pxIDTrack[m_muonpos2]->pt() << std::endl
+		    << "                                           Pt(mu1-)["<< m_muonneg1<<"] = " << m_pxIDTrack[m_muonneg1]->pt() << std::endl
+		    << "                                           Pt(mu2-)["<< m_muonneg2<<"] = " << m_pxIDTrack[m_muonneg2]->pt() << std::endl
+		    << "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
+		    << std::endl; 
+	}
+      } // good tracks  
+    } // goodidentifiers
+  } // goodmuons == 4
+  
+  if (!kinematicscomputed) {
+    if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics * -- FAILED -- " << std::endl; }
   }
 
-  if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics * -- completed -- " << std::endl; }
+  if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics * -- completed -- status: " << kinematicscomputed << std::endl; }
+  return kinematicscomputed;
 }
 
 //==================================================================================
@@ -816,7 +833,6 @@ void FourMuonEvent::OrderMuonList()
     }
   }
   else {
-    m_numberOfFullPassMuons = 0; // discard the event
     if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event is No-4-muon event :("  << std::endl;
   }
   
