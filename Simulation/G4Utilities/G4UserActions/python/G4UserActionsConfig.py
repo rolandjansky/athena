@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
 
@@ -7,6 +7,42 @@ from AthenaCommon import CfgMgr,Logging
 # This way, e.g., after the getter is called the tool is automatically added
 # to the ToolSvc and can be assigned to a ToolHandle by the add function.
 # Also, passing arguments to the getter (like "this is a system action") is not straightforward
+
+def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    ## Killing neutrinos
+    if "ATLAS" in simFlags.SimLayout():
+        kwargs.setdefault('KillAllNeutrinos',  True)
+    ## Neutron Russian Roulette
+    if hasattr(simFlags, 'NRRThreshold') and simFlags.NRRThreshold.statusOn and \
+       hasattr(simFlags, 'NRRWeight') and simFlags.NRRWeight.statusOn:
+        if simFlags.CalibrationRun.statusOn:
+            raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
+        kwargs.setdefault('NRRThreshold',  simFlags.NRRThreshold.get_Value())
+        kwargs.setdefault('NRRWeight',  simFlags.NRRWeight.get_Value())
+    ## Photon Russian Roulette
+    if hasattr(simFlags, 'PRRThreshold') and simFlags.PRRThreshold.statusOn and \
+       hasattr(simFlags, 'PRRWeight') and simFlags.PRRWeight.statusOn:
+        if simFlags.CalibrationRun.statusOn:
+            raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
+        kwargs.setdefault('PRRThreshold',  simFlags.PRRThreshold.get_Value())
+        kwargs.setdefault('PRRWeight',  simFlags.PRRWeight.get_Value())
+    kwargs.setdefault('IsISFJob', simFlags.ISFRun())
+    return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
+
+
+def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
+    kwargs.setdefault('SecondarySavingLevel', 2)
+    subDetLevel=1
+    from AthenaCommon.BeamFlags import jobproperties
+    from G4AtlasApps.SimFlags import simFlags
+    if "ATLAS" in simFlags.SimLayout() and \
+    (jobproperties.Beam.beamType() == 'cosmics' or \
+     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
+        subDetLevel=2
+    kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
+    return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
+
 
 def getHitWrapperTool(name="G4UA::HitWrapperTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
