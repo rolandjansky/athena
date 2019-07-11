@@ -350,7 +350,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_disabled_ec->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_disabled_ec->GetName(), m_h_disabled_ec));
     
-  for (unsigned int layer=0; layer<32; layer++) {
+  for (unsigned int layer=0; layer<33; layer++) {
     if (m_doITk) {
       m_h_brlflatPhiIndex_perLayer[layer] = new TH1F(("m_h_brlflatPhiIndex_perLayer"+std::to_string(layer)).c_str(), ("Phi index - Barrel Flat - Layer "+std::to_string(layer)).c_str(), 820, 0, 820);
       m_h_brlflatPhiIndex_perLayer[layer]->StatOverflows();
@@ -509,7 +509,7 @@ StatusCode PixelRDOAnalysis::execute() {
           m_h_ecLVL1A->Fill(pixLVL1A);
           m_h_ecLVL1ID->Fill(pixLVL1ID);
           m_h_ecPhiIndex_perLayer[pixLayerDisk]->Fill(pixPhiIx);
-          m_h_ecEtaIndex_perLayer[pixLayerDisk]->Fill(pixEtaIx);
+	  m_h_ecEtaIndex_perLayer[pixLayerDisk]->Fill(pixEtaIx);
         }
       }
     }
