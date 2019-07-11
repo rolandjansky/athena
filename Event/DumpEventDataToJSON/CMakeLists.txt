@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
+   Event/xAOD/xAODMuon
    Event/xAOD/xAODTracking
    GaudiKernel 
    Tracking/TrkExtrapolation/TrkExInterfaces
@@ -26,7 +27,7 @@ find_package( nlohmann_json )
 atlas_add_component( DumpEventDataToJSON
   src/*.cxx
    src/components/*.cxx
-   LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib xAODEventInfo xAODTracking xAODJet GaudiKernel nlohmann_json::nlohmann_json TrkGeometry)
+   LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib xAODEventInfo xAODJet xAODMuon xAODTracking GaudiKernel nlohmann_json::nlohmann_json TrkGeometry)
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
