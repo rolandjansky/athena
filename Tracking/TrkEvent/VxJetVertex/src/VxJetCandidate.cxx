@@ -62,7 +62,7 @@ namespace Trk {
       
       if ((*vTPIter).first!=0) {
 	ElementLink<TrackParticleBaseCollection> link;
-	link.setElement(const_cast<Trk::TrackParticleBase*>((*vTPIter).first));
+	link.setElement((*vTPIter).first);
 	LinkToTrackParticleBase * linkTT = new LinkToTrackParticleBase(link);
 	linkTT->setStorableObject(*((*vTPIter).second));
 	VxTrackAtVertex* newVxTrack=new VxTrackAtVertex(linkTT);
@@ -96,7 +96,7 @@ namespace Trk {
       
       if (*vTPIter!=0) {
 	ElementLink<TrackParticleBaseCollection> link;
-	link.setElement(const_cast<Trk::TrackParticleBase*>(*vTPIter));
+	link.setElement(*vTPIter);
 	LinkToTrackParticleBase * linkTT = new LinkToTrackParticleBase(link);
 	VxTrackAtVertex* newVxTrack=new VxTrackAtVertex(linkTT);
 	m_vxTrackAtVertex.push_back(newVxTrack);
@@ -131,7 +131,7 @@ namespace Trk {
       
       if ((*vTIter).first!=0) {
 	ElementLink<TrackCollection> link;
-	link.setElement(const_cast<Trk::Track*>((*vTIter).first));
+	link.setElement((*vTIter).first);
 	LinkToTrack * linkTT = new LinkToTrack(link);
 	linkTT->setStorableObject(*(*vTIter).second);
 	VxTrackAtVertex* myPointer=new VxTrackAtVertex(linkTT);
@@ -168,7 +168,7 @@ namespace Trk {
       
       if (*vTIter!=0) {
 	ElementLink<TrackCollection> link;
-	link.setElement(const_cast<Trk::Track*>(*vTIter));
+	link.setElement(*vTIter);
 	LinkToTrack * linkTT = new LinkToTrack(link);
 	VxTrackAtVertex* myPointer=new VxTrackAtVertex(linkTT);
 	m_vxTrackAtVertex.push_back(myPointer);
