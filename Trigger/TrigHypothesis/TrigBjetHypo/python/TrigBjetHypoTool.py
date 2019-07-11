@@ -103,16 +103,16 @@ def getBjetHypoConfiguration( name,conf_dict ):
     tool.BTaggingCut = tb
 
     # Monitoring
-    tool.MonTool = ""
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-        monTool = GenericMonitoringTool("MonTool"+name)
-        monTool.Histograms = []
+#    tool.MonTool = ""
+#    from TriggerJobOpts.TriggerFlags import TriggerFlags
+#    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
+#        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+#        monTool = GenericMonitoringTool("MonTool"+name)
+#        monTool.Histograms = []
 
-        monTool.HistPath = 'BjetHypo/'+tool.name()
-        tool.MonTool = monTool
-        tool += monTool
+#        monTool.HistPath = 'BjetHypo/'+tool.name()
+#        tool.MonTool = monTool
+#        tool += monTool
 
     return tool
 

@@ -116,10 +116,10 @@ namespace psc {
     bool setDFProperties(std::map<std::string, std::string> name_tr_table);
     bool setAthenaProperties();
 
-    /**
-     * Initialize the application manager
-     */
+    /// Initialize the application manager
     bool doAppMgrInit();
+    /// Finalize the application manager
+    bool doAppMgrFinalize();
 
     /**
      * Utility method to call a method on the event loop manager

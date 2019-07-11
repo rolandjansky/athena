@@ -98,57 +98,53 @@ public:
   virtual CylinderSurface* clone() const override;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual  ParametersT<5, Charged, CylinderSurface>* createTrackParameters(double l1,
+                                                                           double l2,
+                                                                           double phi,
+                                                                           double theta,
+                                                                           double qop,
+                                                                           AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(const Amg::Vector3D& position,
+                                                                          const Amg::Vector3D& momentum,
+                                                                          double charge,
+                                                                          AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, CylinderSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
-    double l1,
-    double l2,
-    double phi,
-    double theta,
-    double qop,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual  ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(double l1,
+                                                                             double l2,
+                                                                             double phi,
+                                                                             double theta,
+                                                                             double qop,
+                                                                             AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(
-    const Amg::Vector3D& position,
-    const Amg::Vector3D& momentum,
-    double charge,
-    AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(const Amg::Vector3D& position,
+                                                                            const Amg::Vector3D& momentum,
+                                                                            double charge,
+                                                                            AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, CylinderSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, CylinderSurface>* createParameters(double l1,
-                                                               double l2,
-                                                               double phi,
-                                                               double theta,
-                                                               double qop,
-                                                               AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, CylinderSurface>* createParameters(double l1,
+                                                         double l2,
+                                                         double phi,
+                                                         double theta,
+                                                         double qop,
+                                                         AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
   }

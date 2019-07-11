@@ -61,3 +61,31 @@ def hookStrace(out=None):
     os.waitpid( pid, os.WNOHANG )
     os.kill( pid, 0 )
     return
+
+
+def allowPtrace():
+    """On kernels with Yama enabled, ptrace may not work by default on processes
+which are not decendants of the tracing process.  Among other things, that
+causes the way we attach the debugger to fail.  However, we can disable this
+on a per-process basis.  Do that here.
+
+See https://www.kernel.org/doc/Documentation/security/Yama.txt and prctl(2).
+"""
+
+    # First test to see if ptrace restrictions are enabled.
+    import os
+    # Return if this kernel does not support ptrace restrictions.
+    if not os.path.exists ('/proc/sys/kernel/yama/ptrace_scope'): return
+
+    # Return if ptrace restrictions are disabled.
+    if open('/proc/sys/kernel/yama/ptrace_scope').readline().strip() == '0':
+        return
+
+    # Use prctl to try to enable ptrace.
+    from ctypes import CDLL
+    libc = CDLL("libc.so.6")
+    # Args are PTRACE_SET_PTRACER (4HYama) and
+    # PR_SET_PTRACER_ANY ((unsigned long)-1).
+    libc.prctl (0x59616d61, 0xffffffffffffffff)
+
+    return

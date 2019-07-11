@@ -383,14 +383,7 @@ LVL1CTP::CTPSimulation::bookHists() {
    size_t runNrPos = histstream.find("RUNNR");
    if( runNrPos != string::npos ) {
 
-      string runnr = "0";
-
-      const DataHandle< ::EventInfo> evt;
-      const DataHandle< ::EventInfo> evtEnd;
-      StatusCode sc = evtStore()->retrieve( evt, evtEnd );
-      if( sc.isSuccess() ) {
-         runnr = boost::lexical_cast<string, unsigned int>(evt->event_ID()->run_number());
-      }
+      string runnr = boost::lexical_cast<string, unsigned int>(Gaudi::Hive::currentContext().eventID().run_number());
       histstream.replace(runNrPos, 5, runnr);
    }
 

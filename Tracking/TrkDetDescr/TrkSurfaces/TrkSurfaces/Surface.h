@@ -173,32 +173,32 @@ public:
   virtual const Trk::Surface* baseSurface() const;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(double,
-                                                                       double,
-                                                                       double,
-                                                                       double,
-                                                                       double,
-                                                                       AmgSymMatrix(5) * cov = 0) const = 0;
+  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(double,
+                                                                 double,
+                                                                 double,
+                                                                 double,
+                                                                 double,
+                                                                 AmgSymMatrix(5) * cov = 0) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&,
-                                                                       const Amg::Vector3D&,
-                                                                       double,
-                                                                       AmgSymMatrix(5) * cov = 0) const = 0;
+  virtual ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&,
+                                                                 const Amg::Vector3D&,
+                                                                 double,
+                                                                 AmgSymMatrix(5) * cov = 0) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(double,
-                                                                         double,
-                                                                         double,
-                                                                         double,
-                                                                         double,
-                                                                         AmgSymMatrix(5) * cov = 0) const = 0;
+  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(double,
+                                                                   double,
+                                                                   double,
+                                                                   double,
+                                                                   double,
+                                                                   AmgSymMatrix(5) * cov = 0) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&,
-                                                                         const Amg::Vector3D&,
-                                                                         double charge = 0.,
-                                                                         AmgSymMatrix(5) * cov = 0) const = 0;
+  virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&,
+                                                                   const Amg::Vector3D&,
+                                                                   double charge = 0.,
+                                                                   AmgSymMatrix(5) * cov = 0) const = 0;
 
   /** positionOnSurface() returns a pointer to a LocalPosition on the Surface,<br>
     If BoundaryCheck==false it just returns the value of globalToLocal (including NULL pointer possibility),

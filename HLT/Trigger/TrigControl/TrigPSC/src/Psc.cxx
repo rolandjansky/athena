@@ -553,6 +553,39 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
   return true;
 }
 
+bool psc::Psc::doAppMgrFinalize()
+{
+  if (m_pesaAppMgr==nullptr) return true; // already finalized
+
+  // Finalize the application manager
+  StatusCode sc = m_pesaAppMgr->finalize();
+  ERS_DEBUG(1,"Finalize ApplicationMgr: " << m_pesaAppMgr->FSMState()
+      << ". Status : " << sc.getCode());
+
+  if( sc.isFailure() ) {
+    ERS_PSC_ERROR("Error while finalizing the ApplicationMgr.");
+    return false;
+  }
+
+  // Terminate the application manager
+  sc = m_pesaAppMgr->terminate();
+  ERS_DEBUG(1,"Terminate ApplicationMgr: " << m_pesaAppMgr->FSMState()
+      << ". Status : " << sc.getCode());
+
+  if ( sc.isFailure() ) {
+    ERS_PSC_ERROR("Error while terminating the ApplicationMgr.");
+    return false;
+  }
+
+  // Make sure we get a new instance the next time
+  Gaudi::setInstance(static_cast<IAppMgrUI*>(0));
+  m_pesaAppMgr = nullptr;
+
+  //this object belongs to the real Psc implementation, so don't delete it!
+  m_config = 0;
+
+  return true;
+}
 
 //--------------------------------------------------------------------------------
 // Disconnect transition
@@ -561,8 +594,7 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
 bool psc::Psc::disconnect (const ptree& /*args*/)
 {
   psc::Utils::ScopeTimer timer("Psc disconnect");
-
-  return true;
+  return doAppMgrFinalize();
 }
 
 
@@ -667,34 +699,7 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 bool psc::Psc::finalizeWorker (const boost::property_tree::ptree& /*args*/)
 {
   psc::Utils::ScopeTimer timer("Psc finalizeWorker");
-
-  // Finalize the application manager
-  StatusCode sc = m_pesaAppMgr->finalize();
-  ERS_DEBUG(1,"Finalize ApplicationMgr: " << m_pesaAppMgr->FSMState()
-      << ". Status : " << sc.getCode());
-
-  if( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while finalizing the ApplicationMgr.");
-    return false;
-  }
-
-  // Terminate the application manager
-  sc = m_pesaAppMgr->terminate();
-  ERS_DEBUG(1,"Terminate ApplicationMgr: " << m_pesaAppMgr->FSMState() 
-      << ". Status : " << sc.getCode());
-
-  if ( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while terminating the ApplicationMgr.");
-    return false;
-  }
-
-  // Make sure we get a new instance the next time
-  Gaudi::setInstance(static_cast<IAppMgrUI*>(0));
-
-  //this object belongs to the real Psc implementation, so don't delete it!
-  m_config = 0;
-
-  return true;
+  return doAppMgrFinalize();
 }
 
 bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)

@@ -125,7 +125,6 @@ class FPEAuditor : public AthCommonMsg<Auditor>
   enum { FPEAUDITOR_OVERFLOW=0, FPEAUDITOR_INVALID=1, FPEAUDITOR_DIVBYZERO=2, FPEAUDITOR_ARRAYSIZE=3 };
   
   std::atomic<unsigned int> m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
-  std::atomic<bool> m_triedCDS;
   
   unsigned int m_NstacktracesOnFPE;
   

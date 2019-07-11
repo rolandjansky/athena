@@ -47,7 +47,6 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
 
-
   for (auto outputHandle: outputHandles) {
     if( not outputHandle.isValid() ) {
       ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key() << " because handle not valid");
@@ -65,14 +64,14 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
       // loop over input links as predecessors
       for (auto input: inputLinks){
         const Decision* inputDecision = *input;
+
         // Retrieve jets ...
-        ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
-        TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,m_jetsLink );
+	ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
+	TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,TrigCompositeUtils::featureString() );
         ATH_CHECK( jetELInfo.isValid() );
         const xAOD::Jet *jet = *jetELInfo.link;
         ATH_MSG_DEBUG( "Placing xAOD::JetContainer " );
         ATH_MSG_DEBUG( "   -- pt="<< jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
-
         
         // find the RoI
         auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );

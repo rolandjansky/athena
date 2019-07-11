@@ -1,5 +1,4 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/LargestWeightsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
@@ -16,7 +15,6 @@
 #include "TrkGaussianSumFilter/GsfSmoother.h"
 
 DECLARE_COMPONENT( Trk::QuickCloseComponentsMultiStateMerger )
-DECLARE_COMPONENT( Trk::LargestWeightsMultiStateMerger )
 DECLARE_COMPONENT( Trk::GsfMaterialMixtureConvolution )
 DECLARE_COMPONENT( Trk::MultiComponentStateAssembler )
 DECLARE_COMPONENT( Trk::MultiComponentStateCombiner )

@@ -84,10 +84,11 @@ public:
   // Incident handler
   virtual void handle(const Incident&) override;
 
-  void setStoreName(const std::string& storeName) {
+  virtual
+  void setStoreName(const std::string& storeName) override {
     m_storeName = storeName;    
   }
-  const std::string& getStoreName() const { return m_storeName; }
+  virtual const std::string& getStoreName() const override { return m_storeName; }
 
   // register callback functions
   virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID c,
@@ -148,17 +149,19 @@ public:
   virtual StatusCode getTriggeredTools(const std::string& key,
                                        std::set<std::string>& tools) override;
 
-  bool holdsProxy( const SG::DataProxy* proxy ) const;
-  bool holdsProxy( const CLID& clid, const std::string& key ) const;
-  bool holdsCallback( const CallBackID& ) const;
-  bool holdsAlgTool( const IAlgTool* ia ) const;
+  virtual bool holdsProxy( const SG::DataProxy* proxy ) const override;
+  virtual bool holdsProxy( const CLID& clid, const std::string& key ) const override;
+  virtual bool holdsCallback( const CallBackID& ) const override;
+  virtual bool holdsAlgTool( const IAlgTool* ia ) const override;
 
   virtual void resetAllProxies() override;
 
-  void ignoreProxy( const CLID& clid, const std::string& key ) {
+  virtual
+  void ignoreProxy( const CLID& clid, const std::string& key ) override{
     m_ignoredProxyNames.insert( std::make_pair(clid,key) );
   }
-  void ignoreProxy(const SG::DataProxy* proxy) {
+  virtual
+  void ignoreProxy(const SG::DataProxy* proxy) override {
     m_ignoredProxies.insert(proxy);
   }
 

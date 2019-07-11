@@ -5,7 +5,6 @@
 #ifndef XAOD_ANALYSIS
 //full-athena-only components
 #include "LumiBlockComps/LumiBlockMuTool.h"
-#include "LumiBlockComps/LuminosityTool.h"
 #include "LumiBlockComps/LumiCalcSvc.h"
 #include "LumiBlockComps/LumiBlockTester.h"
 #include "../LBDurationCondAlg.h"
@@ -18,7 +17,6 @@ DECLARE_COMPONENT( CreateLumiBlockCollectionFromFile )
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( LumiBlockTester )
 DECLARE_COMPONENT( LumiBlockMuTool )
-DECLARE_COMPONENT( LuminosityTool )
 DECLARE_COMPONENT( LumiCalcSvc )
 DECLARE_COMPONENT( LBDurationCondAlg )
 DECLARE_COMPONENT( LuminosityCondAlg )

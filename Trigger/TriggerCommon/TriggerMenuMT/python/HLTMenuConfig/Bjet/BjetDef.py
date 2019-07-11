@@ -20,6 +20,9 @@ def bjetSequenceCfg_j( flags ):
 def bjetSequenceCfg_gsc( flags ):    
     return getBJetSequence('gsc')
 
+def bjetSequenceCfg_btag( flag ):
+    return getBJetSequence('btag')
+
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
@@ -38,7 +41,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]
+            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]#, self.getBjetSequence_btag()]
         }
         
         ## This needs to be configured by the Bjet Developer!!
@@ -67,8 +70,15 @@ class BjetChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring step " + stepName)
         bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
         return ChainStep(stepName, [bjetSeq])
-        
-            
+
+    def getBjetSequence_btag(self):
+        stepName = "Step3_bjet"
+        log.debug("Configuring step " + stepName)
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_btag, None ) # the None will be used for flags in future    
+        return ChainStep(stepName, [bjetSeq])
+
+
+
             
 
         

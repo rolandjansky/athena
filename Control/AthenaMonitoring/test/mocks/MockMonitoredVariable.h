@@ -7,7 +7,7 @@
 
 class MockMonitoredVariable : public Monitored::IMonitoredVariable {
   public:
-    MockMonitoredVariable(std::string name) : IMonitoredVariable(name) {}
+    MockMonitoredVariable(const std::string& name) : IMonitoredVariable(name) {}
 
     std::function<std::vector<double>()> mock_getVectorRepresentation;
     const std::vector<double> getVectorRepresentation() const override {

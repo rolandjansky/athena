@@ -275,18 +275,14 @@ void Trk::GsfBetheHeitlerEffects::compute ( Cache& cache,
       else
         varQoverP = varZ / (momentum * momentum);
 
-      AmgSymMatrix(5)* newCovarianceMatrix = new AmgSymMatrix(5);
+      std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
       newCovarianceMatrix->setZero();
       (*newCovarianceMatrix)(Trk::qOverP,Trk::qOverP) = varQoverP;
-
       cache.deltaPs.push_back( deltaP );
       cache.weights.push_back(1.);
-      cache.deltaCovariances.push_back(newCovarianceMatrix);
-
+      cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
       ATH_MSG_VERBOSE( "Weight / deltaP / var (delta q/p) " << 1. << "\t" << deltaP << "\t" << varQoverP );
-
       return;
-
     }
 
     if ( pathlengthInX0 > m_upperRange ) pathlengthInX0 = m_upperRange;
@@ -363,11 +359,11 @@ void Trk::GsfBetheHeitlerEffects::compute ( Cache& cache,
 
       } // end backwards propagation if clause
 
-      AmgSymMatrix(5)* newCovarianceMatrix = new AmgSymMatrix(5);
+      std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
       newCovarianceMatrix->setZero();
       (*newCovarianceMatrix)(Trk::qOverP,Trk::qOverP) = varianceInverseMomentum;
 
-      cache.deltaCovariances.push_back(newCovarianceMatrix);
+      cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
 
       ATH_MSG_VERBOSE(  "Weight / deltaP / var (delta q/p) " << mixture[componentIndex].weight << "\t" << deltaP << "\t" << varianceInverseMomentum );
 
@@ -376,19 +372,18 @@ void Trk::GsfBetheHeitlerEffects::compute ( Cache& cache,
   } // end material limiting if clause
 
   else {
-
     ATH_MSG_DEBUG(  "Trying to apply energy loss to " << pathlengthInX0 << " x/x0. No Bethe-Heitler effects applied" );
-
     cache.weights.push_back(1.);
     cache.deltaPs.push_back(0.);
-    AmgSymMatrix(5)* newCovarianceMatrix = new AmgSymMatrix(5);
+    std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::unique_ptr<AmgSymMatrix(5)>();
     newCovarianceMatrix->setZero();
-    cache.deltaCovariances.push_back( newCovarianceMatrix );
+    cache.deltaCovariances.push_back( std::move(newCovarianceMatrix));
   }
 
 }
 
-void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthInX0, Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
+void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthInX0, 
+                                                       Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
 
   // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endmsg;
@@ -433,14 +428,12 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthIn
 }
 
 
-void Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(const double pathlengthInX0, Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
+void Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(const double pathlengthInX0, 
+                                                             Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
-
-  // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endmsg;
 
   mixture.clear();
   mixture.reserve(m_numberOfComponentsHighX0);
-
   int componentIndex = 0;
 
   for ( ; componentIndex < m_numberOfComponentsHighX0; ++componentIndex )
@@ -501,7 +494,8 @@ void Trk::GsfBetheHeitlerEffects::correctWeights(Trk::GsfBetheHeitlerEffects::Mi
 
 }
 
-double Trk::GsfBetheHeitlerEffects::correctedFirstMean(const double pathlengthInX0, const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
+double Trk::GsfBetheHeitlerEffects::correctedFirstMean(const double pathlengthInX0, 
+                                                       const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
 
   if ( mixture.empty() )
@@ -520,7 +514,8 @@ double Trk::GsfBetheHeitlerEffects::correctedFirstMean(const double pathlengthIn
 
 }
 
-double Trk::GsfBetheHeitlerEffects::correctedFirstVariance(const double pathlengthInX0, const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
+double Trk::GsfBetheHeitlerEffects::correctedFirstVariance(const double pathlengthInX0, 
+                                                           const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
 
   if ( mixture.empty() )

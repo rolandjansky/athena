@@ -44,7 +44,7 @@ StatusCode TrigBjetHypoTool::initialize()  {
  
   // Retrieve Tools
   // =====================================
-  ATH_CHECK( m_monTool.retrieve() );
+  //  ATH_CHECK( m_monTool.retrieve() );
   // =====================================
   if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );
@@ -63,7 +63,7 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
 
   // initialise monitoring variables 
   auto PassedCuts = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto monitorIt = Monitored::Group( m_monTool, PassedCuts );
+  //  auto monitorIt = Monitored::Group( m_monTool, PassedCuts );
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 

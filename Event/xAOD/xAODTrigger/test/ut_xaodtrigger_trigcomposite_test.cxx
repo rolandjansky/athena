@@ -143,6 +143,20 @@ int testLinks(const xAOD::TrigComposite* obj, const size_t expectedSize = 3) {
 
    std::cout << "Basic link functionality OK" << std::endl;
 
+   std::vector<std::string> names = obj->getObjectNames<xAOD::MuonRoIContainer>();
+   if (names.size() == 1) { // Testing initial object
+      SIMPLE_ASSERT( names.at(0) == "MuonRoI" );
+   } else if (names.size() == 2) { // Testing object with copied link
+      SIMPLE_ASSERT( names.at(0) == "MuonRoI" );
+      SIMPLE_ASSERT( names.at(1) == "feature" || names.at(1) == "featureWithNewName");
+   } else {
+      SIMPLE_ASSERT(false /* getObjectNames() should only return 1 or 2 links */);
+   }
+
+   std::vector<std::string> collNames = obj->getObjectCollectionNames<xAOD::MuonRoIContainer>();
+   SIMPLE_ASSERT( collNames.size() == 1 );
+   SIMPLE_ASSERT( collNames.at(0) == "ManyMuonRoIs" );
+
    ElementLink< xAOD::MuonRoIContainer > getMuonRoILink = obj->objectLink<xAOD::MuonRoIContainer>("MuonRoI");
    SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 11 ));
 
