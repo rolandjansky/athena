@@ -9,7 +9,7 @@ find_package( Starlight )
 
 if( STARLIGHT_FOUND )
   set( STARLIGHTENVIRONMENT_ENVIRONMENT 
-        FORCESET STARLIGHTVER ${HERWIG3_VERSION} ) 
+        FORCESET STARLIGHTVER ${STARLIGHT_LCGVERSION} ) 
 endif()
 
 # Silently declare the module found:

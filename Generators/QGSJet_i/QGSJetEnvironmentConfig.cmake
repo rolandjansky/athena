@@ -9,7 +9,7 @@ find_package( Crmc )
 
 if( CRMC_FOUND  )
   set( QGSJETENVIRONMENT_ENVIRONMENT 
-        FORCESET QGSJETVER ${CRMC_VERSION} )
+        FORCESET QGSJETVER ${CRMC_LCGVERSION} )
 endif()
 
 # Silently declare the module found:

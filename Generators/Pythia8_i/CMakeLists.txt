@@ -26,7 +26,7 @@ find_package( CLHEP )
 find_package( Lhapdf )
 find_package( Pythia8 )
 
-add_definitions(-DPY8VERSION=\"${PYTHIA8_VERSION}\")
+add_definitions(-DPY8VERSION=\"${PYTHIA8_LCGVERSION}\")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
