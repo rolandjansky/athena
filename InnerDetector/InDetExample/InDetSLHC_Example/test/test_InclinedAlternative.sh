@@ -102,6 +102,8 @@ if [ $dosim -ne 0 ]; then
     --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];'
   echo "art-result: $? sim"
 
+  mv ./SiHitValid.root ./$dcubemon_sim
+
   # DCube Sim hit plots
   dcube Sim_tf sim-plot "$dcubemon_sim" "$dcubecfg_sim" "$lastref_dir/$dcubemon_sim" "$dcube_sim_lastref"
   dcube Sim_tf ""       "$dcubemon_sim" "$dcubecfg_sim"              "$dcuberef_sim" "$dcube_sim_fixref"
@@ -173,6 +175,8 @@ if [ $dophy -ne 0 ]; then
     inputDAOD_IDTRKVALIDFile="$daod" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
   )
   echo "art-result: $? physval"
+
+  mv ./physval.root ./$dcubemon_rec
 
   # DCube InDetPhysValMonitoring performance plots
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
