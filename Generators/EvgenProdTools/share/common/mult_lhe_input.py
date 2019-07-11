@@ -1,5 +1,5 @@
-include("MC15JobOptions/merge_lhe_files.py")
-include("MC15JobOptions/find_unique_file.py")
+include("EvgenProdTools/merge_lhe_files.py")
+include("EvgenProdTools/find_unique_file.py")
 
 myInputFiles = runArgs.inputGeneratorFile
 genInputFiles = myInputFiles.split(',')
