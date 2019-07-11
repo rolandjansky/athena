@@ -5,7 +5,6 @@
 //class header
 #include "G4UserActions/CosmicPerigeeAction.h"
 //athena headers
-#include "CxxUtils/make_unique.h"
 #include "MCTruth/TrackHelper.h"
 //Geant4 headers
 #include "G4Geantino.hh"
@@ -32,7 +31,7 @@ namespace G4UA
   void CosmicPerigeeAction::BeginOfEventAction(const G4Event*)
   {
     if (!m_trackRecordCollection.isValid()) {
-      m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(
+      m_trackRecordCollection = std::make_unique<TrackRecordCollection>(
           m_trackRecordCollection.name());
     }
 
