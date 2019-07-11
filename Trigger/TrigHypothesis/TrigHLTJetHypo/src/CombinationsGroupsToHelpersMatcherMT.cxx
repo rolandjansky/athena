@@ -29,6 +29,14 @@ CombinationsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
 					    xAODJetCollector& jetCollector,
 					    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 					    bool) const {
+
+  /*
+   * groups_b ... groups_e are iterators that point at HypoJetVectors.
+   * This matcher takes each HypoJetVector in turn, and presents it
+   * to each of the child objects of type ITrigJetHypoToolHelperMT.
+   * The matcher reports pass = true as soon as ot finds a HypoJetVector
+   * that satisfies all the children
+   */
   
   if(m_helpers.empty()){
     if(collector){
