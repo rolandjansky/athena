@@ -7,12 +7,12 @@ atlas_subdir( ISF_Geant4UserActions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          PRIVATE
                           Control/StoreGate
                           GaudiKernel
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           TileCalorimeter/TileG4/TileG4Interfaces
-                          PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
@@ -35,6 +35,5 @@ atlas_add_component( ISF_Geant4UserActions
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CaloDetDescrLib CaloIdentifier GeneratorObjects LArG4Code ISF_FastCaloSimEvent Identifier )
 
 # Install files from the package:
-atlas_install_headers( ISF_Geant4UserActions )
 atlas_install_python_modules( python/*.py )
 

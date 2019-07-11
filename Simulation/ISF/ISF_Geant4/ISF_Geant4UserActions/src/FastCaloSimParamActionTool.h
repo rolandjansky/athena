@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4USERACTIONS_G4UA__FASTCALOSIMPARAMACTIONTOOL_H
@@ -7,7 +7,7 @@
 
 #include "G4AtlasTools/UserActionToolBase.h"
 
-#include "ISF_Geant4UserActions/FastCaloSimParamAction.h"
+#include "FastCaloSimParamAction.h"
 
 class ILArCalculatorSvc;
 class ITileCalculator;
