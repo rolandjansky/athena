@@ -16,12 +16,20 @@ class JetTrigTimer{
   std::string read();
   void reset() noexcept;
   std::string readAndReset();
+  std::string readAndContinue();
+  double elapsed();
+  
  private:
   std::chrono::system_clock::time_point m_start;
   std::chrono::system_clock::time_point m_stop;
   bool m_isRunning{false};
   double m_delta{0.};
+  double m_elapsedDelta{0.};
+
   std::size_t m_nCalls{0};
+
+  void accumulate();
+
 };
 #endif
 
