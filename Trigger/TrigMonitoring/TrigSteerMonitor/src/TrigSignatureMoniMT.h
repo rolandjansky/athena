@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H
 #define TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H 1
@@ -29,17 +29,13 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   TrigSignatureMoniMT( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
+  virtual StatusCode  start() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
- private: 
-  TrigSignatureMoniMT();
+  virtual StatusCode  stop() override;
 
+ private:
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
-
-    
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTSummary", "Final stage of all decisions" };
-
 
   Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
  
@@ -60,10 +56,6 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
-}; 
-
-inline int TrigSignatureMoniMT::nBinsX() const { 
-  return m_allChains.size() +1;
-}
+};
 
 #endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H
