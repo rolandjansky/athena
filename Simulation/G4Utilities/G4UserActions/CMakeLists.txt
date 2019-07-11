@@ -7,6 +7,7 @@ atlas_subdir( G4UserActions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
@@ -14,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/TrackRecord
-                          PRIVATE
                           Event/EventInfo
                           InnerDetector/InDetSimEvent
                           MuonSpectrometer/MuonSimEvent

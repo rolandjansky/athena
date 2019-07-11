@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "G4UserActions/HitWrapper.h"
+#include "HitWrapper.h"
 #include "G4Step.hh"
 
 #include "StoreGate/WriteHandle.h"
