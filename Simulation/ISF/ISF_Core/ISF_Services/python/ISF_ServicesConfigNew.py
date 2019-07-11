@@ -12,11 +12,11 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cf
 
 from ISF_Services.ISF_ServicesConf import ISF__TruthSvc
 
-#from AthenaCommon import CfgMgr
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-
+#Functions yet to be migrated:
+#getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getISFEnvelopeDefSvc, getAFIIEnvelopeDefSvc, getGeoIDSvc, getAFIIGeoIDSvc
+#getGenParticleFilters, getInputConverter, getLongLivedInputConverter, getValidationTruthService, getMC12BeamPipeTruthStrategies, getMC12IDTruthStrategies
+#getMC12CaloTruthStrategies, getMC12MSTruthStrategies, getMC12TruthService, getTruthService, getMC12LLPTruthService, getMC12PlusTruthService,  getMC15IDTruthStrategies
+#getMC15CaloTruthStrategies
 
 def getParticleBrokerSvcNoOrdering(name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
@@ -213,11 +213,6 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     acc2 = TruthStrategyGroupIDHadInt_MC15Cfg(ConfigFlags)
     acc3 = TruthStrategyGroupCaloMuBremCfg(ConfigFlags)
     acc4 = TruthStrategyGroupCaloDecay_MC15Cfg(ConfigFlags)
-    #kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID_MC15',
-    #                                      'ISF_MCTruthStrategyGroupIDHadInt_MC15',
-    #                                      'ISF_MCTruthStrategyGroupCaloMuBrem', #FIXME this should be ISF_MCTruthStrategyGroupCaloMuBrem_MC15!!
-    #                                     'ISF_MCTruthStrategyGroupCaloDecay_MC15'])
-
 
     kwargs.setdefault('TruthStrategies', [result.popToolsAndMerge(acc1),
                                           result.popToolsAndMerge(acc2),
@@ -244,7 +239,7 @@ def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kw
     cppyy.loadDictionary('AtlasDetDescrDict')
     AtlasRegion = ROOT.AtlasDetDescr
     kwargs.setdefault('ForceEndVtxInRegions', [AtlasRegion.fAtlasID])
-    result = MC15TruthServiceCfg(ConfigFlags,name, **kwargs)
+    result = MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
     return result
 
 

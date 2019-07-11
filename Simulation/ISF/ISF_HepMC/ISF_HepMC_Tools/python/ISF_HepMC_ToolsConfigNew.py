@@ -9,9 +9,12 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
 
-#from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import MeV, mm
+
+#Functions yet to be migrated:
+#getParticleFinalStateFilter, getParticleSimWhiteList, getParticlePositionFilter, getParticlePositionFilterID, getParticlePositionFilterCalo, getParticlePositionFilterMS
+#getParticlePositionFilterWorld, getParticlePositionFilter, getParticlePositionFilterDynamic, getGenParticleInteractingFilter, getEtaPhiFilter
+#getTruthStrategyGroupID, getTruthStrategyGroupIDHadInt, getTruthStrategyGroupCaloMuBrem_MC15, getTruthStrategyGroupCaloDecay, getValidationTruthStrategy, getLLPTruthStrategy
 
 #--------------------------------------------------------------------------------------------------
 ## GenParticleFilters

@@ -9,8 +9,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from BarcodeServices.BarcodeServicesConf import Barcode__LegacyBarcodeSvc
 
-#from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
+#Functions yet to be migrated:
+#getMC15BarcodeSvc, getMC18BarcodeSvc, getMC18LLPBarcodeSvc, getPhysicsProcessBarcodeSvc, getMC15BarcodeSvc, getGlobalBarcodeSvc, getValidationBarcodeSvc, barcodeOffsetForTruthStrategy
 
 
 def getMC15BarcodeSvc(name="Barcode_MC15BarcodeSvc", **kwargs):
