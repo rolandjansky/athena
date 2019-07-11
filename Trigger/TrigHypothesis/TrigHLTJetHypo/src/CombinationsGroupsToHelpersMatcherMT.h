@@ -54,10 +54,9 @@ private:
   HelperToolArray m_helpers;
 
 bool
-  groupsPass(const HypoJetGroupCIter& groups_b,
-	     const HypoJetGroupCIter& groups_e,
-	     xAODJetCollector& jetCollector,
-	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+  groupPasses(const HypoJetVector&,
+	      xAODJetCollector& jetCollector,
+	      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 };
 
 #endif

@@ -29,26 +29,28 @@ CombinationsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
 					    xAODJetCollector& jetCollector,
 					    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 					    bool) const {
-
-  if(collector){
-    collector->collect("CombinationsGroupsToHelpersMatcher", toString());
-  }
   
   if(m_helpers.empty()){
     if(collector){
-      collector->collect("CombinationsGroupsToHelpersMatcherMT", "Zero conditions");
+      collector->collect("CombinationsGroupsToHelpersMatcherMT",
+			 "Zero conditions");
     }
     return std::make_optional<bool>(false);
   }
   
- 
-  if (groupsPass(groups_b,
-		 groups_e,
-		 jetCollector,
-		 collector)){
-    std::for_each(groups_b, groups_e, [&jetCollector](auto& jv){
-	jetCollector.addJets(jv.begin(), jv.end());});
-    return std::make_optional<bool>(true);  
+  if(collector){
+    collector->collect("CombinationsGroupsToHelpersMatcherMT",
+		       "number of groups: " +
+		       std::to_string(groups_e - groups_b));
+  }
+
+  for(auto iter = groups_b; iter != groups_e; ++iter){
+    if (groupPasses(*iter,
+		    jetCollector,
+		    collector)){
+      jetCollector.addJets((*iter).begin(), (*iter).end());
+      return std::make_optional<bool>(true);  
+    }
   }
   
   return std::make_optional<bool>(false);  
@@ -74,27 +76,18 @@ std::string CombinationsGroupsToHelpersMatcherMT::toString() const noexcept {
 
 
 bool
-CombinationsGroupsToHelpersMatcherMT::groupsPass(const HypoJetGroupCIter& groups_b,
-						 const HypoJetGroupCIter& groups_e,
-						 xAODJetCollector& jetCollector,
-						 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
+CombinationsGroupsToHelpersMatcherMT::groupPasses(const HypoJetVector& group,
+						  xAODJetCollector& jetCollector,
+						  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
-  auto n_jetgroups = static_cast<std::size_t>(groups_e - groups_b);
+  // test whether this jet vector satisfies the helper chilldren.
+  // the pass method of the children requires a non-constant hypo jet
+  // vector, so make a copy.
 
-  assert(n_jetgroups ==1);
-  // test whether this set of job groups pass the conditions
-  // note - this method may be called more than once with different
-  // collections of job groups.
+  HypoJetVector jv(group.begin(), group.end());
 
-
-  for(long unsigned int i = 0; i != n_jetgroups; ++i){
-    // step through conditions and job groups simulataneously, and
-    // enquire whethwer each conidtion is satisfied by its corresponding
-    // job group.
-    const auto& helper = *(m_helpers.begin() + i);
-    auto group = *(groups_b + i);
-
-    if(!(helper->pass(group, jetCollector, collector))){return false;}
+  for(const auto& h : m_helpers){
+    if(!(h->pass(jv, jetCollector, collector))){return false;}
   }
   return true;
 } 
