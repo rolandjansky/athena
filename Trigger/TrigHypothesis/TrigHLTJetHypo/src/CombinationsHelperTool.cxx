@@ -106,29 +106,30 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   std::vector<HypoJetGroupVector> jetGroupsVec =
     m_grouper->group(begin, end_iter);
 
-  bool pass = true;
+  // bool pass = true;
   setupTimer.stop();
   exeTimer.start();
     
   for(auto& jetGroupVec : jetGroupsVec){
     ATH_MSG_DEBUG("No of groups" << jetGroupVec.size());
 
-  
-    for(auto& gjets : jetGroupVec){
-      if (testGroup(gjets, jetCollector, collector)){
-	pass = true;
-	exeTimer.stop();
-	collectData(setupTimer.readAndReset(),
-		    exeTimer.readAndReset(),
-		    collector,
-		    pass);
-      
-	return pass;
-      }
+    auto pass = m_matcher->match(jetGroupVec.begin(),
+				 jetGroupVec.end(),
+				 jetCollector,
+				 collector);
+
+    if(pass.has_value() and *pass){
+      exeTimer.stop();
+      collectData(setupTimer.readAndReset(),
+		  exeTimer.readAndReset(),
+		  collector,
+		  *pass);
+	
+      return *pass;
     }
   }
   
-  pass = false;
+  bool pass{false};
   exeTimer.stop();
   collectData(setupTimer.readAndReset(),
               exeTimer.readAndReset(),
@@ -138,19 +139,6 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   return pass;
 }
 
-
-bool
-CombinationsHelperTool::testGroup(HypoJetVector& jets,
-				  xAODJetCollector& jetCollector,
-				  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-  for(auto child : m_children){
-    auto childPass =  child->pass(jets, jetCollector, collector);
-    if (!childPass){return false;}
-  }
-
-  return true;
-}
- 
 
 std::string CombinationsHelperTool::toString() const{
   std::stringstream ss;

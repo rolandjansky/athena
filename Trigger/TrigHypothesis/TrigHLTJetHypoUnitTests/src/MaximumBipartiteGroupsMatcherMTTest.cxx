@@ -166,7 +166,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
 
-  m_debug = true;
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   if(m_debug){
     collector.reset(new DebugInfoCollector("oneSelectedjets"));
@@ -292,7 +291,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
   MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
 
-  m_debug=true;
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   if(m_debug){
     visitor.reset(new DebugInfoCollector("threeSelectedjets"));

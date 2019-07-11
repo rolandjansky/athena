@@ -48,9 +48,7 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
  std::unique_ptr<IJetGrouper> m_grouper;
   
  ConditionsMT m_conditions;
- 
- ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
-   this, "children", {}, "list of child jet hypo helpers"};
+
  
  Gaudi::Property<int>
    m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
@@ -60,10 +58,8 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
  
  // Object that matches jet groups with ITrigJetHypoToolHelper objects
   std::unique_ptr<IGroupsMatcherMT> m_matcher;
+
   
-  bool testGroup(HypoJetVector&,
-		 xAODJetCollector&,
-		 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
   void collectData(const std::string& setuptime,
                    const std::string& exetime,
 		   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
