@@ -38,3 +38,6 @@ TrackCountHypo.HypoInputDecisions="FSDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 topSequence += TrackCountHypo
+
+from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
+TrackCountHypo.MonTool = TrackCountMonitoring()

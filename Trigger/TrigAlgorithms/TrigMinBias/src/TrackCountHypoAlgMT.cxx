@@ -34,7 +34,9 @@ StatusCode TrackCountHypoAlgMT::initialize()
 
   }
   ATH_CHECK(m_hypoTools.retrieve());
+  return StatusCode::SUCCESS;
 
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -101,6 +103,13 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
   trackCounts->setDetail("pTcuts", static_cast<std::vector<float>>(m_min_pt));
   trackCounts->setDetail("counts", count);
 
+  auto mon_ntrks = Monitored::Scalar<int>("ntrks",ntrks);
+  Monitored::Group(m_monTool,mon_ntrks);
+
+  for(long unsigned int i=0;i<=m_min_pt.size();i++){
+    auto mon_counts = Monitored::Scalar<int>("counts",count[i]);
+    Monitored::Group(m_monTool,mon_counts);
+  }
 
   TrackCountHypoTool::TrkCountsInfo trkinfo{d, tracks->at(0), prev};
 
