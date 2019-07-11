@@ -48,6 +48,14 @@ StatusCode TrigMonTHistSvc::initialize ATLAS_NOT_THREAD_SAFE()
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigMonTHistSvc::stop()
+{
+  // Clear list of histograms (actual TH is not owned by us)
+  m_hists.clear();
+
+  return StatusCode::SUCCESS;
+}
+
 StatusCode TrigMonTHistSvc::finalize()
 {
   // Reset OH mutex
