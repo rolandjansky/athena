@@ -192,13 +192,13 @@ class TopoAlgoDef:
 
         #input list needed for ATR-18824
         if usev8:
-            alg = AlgConf.JetSort( name = 'FJjs', inputs = 'JetTobArray', outputs = 'FJjs', algoId = currentAlgoId); currentAlgoId += 1
+            alg = AlgConf.JetSort( name = 'FJjs23ETA49', inputs = 'JetTobArray', outputs = 'FJjs23ETA49', algoId = currentAlgoId); currentAlgoId += 1
 
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
             alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
-            alg.addvariable('MinEta', 31)
+            alg.addvariable('MinEta', 23)
             alg.addvariable('MaxEta', _etamax)
             alg.addgeneric('DoEtaCut', 1)
             tm.registerAlgo(alg)
@@ -1934,7 +1934,7 @@ class TopoAlgoDef:
         #ATR-18824 ZAFB-DPHI
 
         if usev8:    
-            ZAFBDphimap = [{"minInvm": 60 , "maxInvm": 9999, "minDphiList": [04, 25], "maxDphi": 32, "minEta2": 23, "maxEta2": 49, "inputwidth1": HW.OutputWidthSortEM, "otype1" : "EM", "ocut1" : 15, "olist1" : "abhi", "nleading1" : HW.OutputWidthSortEM, "inputwidth2": HW.OutputWidthSortJET,  "otype2" : "FJ", "ocut2" : 15, "olist2" : "js", "nleading2" : 6 }]
+            ZAFBDphimap = [{"minInvm": 60 , "maxInvm": 9999, "minDphiList": [04, 25], "maxDphi": 32, "minEta2": 23, "maxEta2": 49, "inputwidth1": HW.OutputWidthSortEM, "otype1" : "EM", "ocut1" : 15, "olist1" : "abhi", "nleading1" : HW.OutputWidthSortEM, "inputwidth2": HW.OutputWidthSortJET,  "ocut2" : 15, "nleading2" : 6 }]
 
         else:
             ZAFBDphimap = []
@@ -1944,13 +1944,13 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            inputList = [otype1 + olist1, otype2 + olist2]      # noqa: F821       
+            inputList = [otype1 + olist1, 'FJjs23ETA49']      # noqa: F821       
             toponames=[]
 
             for minDphi in minDphiList:  # noqa: F821
-                toponames.append ("%iINVM%i-%02dDPHI%i-%s%s%s%s-%sj%ss%s%iETA%i"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
+                toponames.append ("%iINVM%i-%02dDPHI%i-%s%s%s%s-FJj%ss%s%iETA%i"  % (minInvm, maxInvm, minDphi, maxDphi,                            # noqa: F821
                                                                  otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
-                                                                 otype2, str(ocut2) , str(nleading2) , minEta2, maxEta2))     # noqa: F821 
+                                                                 str(ocut2) , str(nleading2) , minEta2, maxEta2))     # noqa: F821 
             
 
             alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'ZAFB_DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
