@@ -19,18 +19,22 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--lheOnly', '--localPath', '--cleanOut', '--saveList']
 
 
-class EvgenScriptExecutor(scriptExecutor):
+class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for matrix element generation jobs"
 
-    def __init__(self, name="generate", inData=["inNULL"], outData=["TXT"], exe='ls'):
-        scriptExecutor.__init__(self, name=name, inData=inData, outData=outData, exe=exe)
+    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
+        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+#    def __init__(self, name="generate", inData=["inNULL"], outData=["TXT"], exe='ls'):
+#        athenaExecutor.__init__(self, name=name, inData=inData, outData=outData, exe=exe)
+        print "jestem w init !!!"
 
     def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
 
         ## First call the base class preExecute
-        super(EvgenScriptExecutor, self).preExecute(input, output)
+        super(EvgenExecutor, self).preExecute(input, output)
 
+        print "jestem w pre !!!"
         def expand_if_archive(filename):
             "Function to expand a file if it is a zip archive or tarball"
             if ".tar" in filename:
@@ -57,12 +61,13 @@ class EvgenScriptExecutor(scriptExecutor):
         dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
          # Adding cvmfs path to JOBOPTSEARCHPATH
         BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
-#        msg.info("!! Base cvmfs path = '%s'" % BaseCvmfsPath)
+        msg.info("!! Base cvmfs path = '%s'" % BaseCvmfsPath)
 
         if len(dsidparam)==6 and dsidparam.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
             Jodir = dsidparam[:3]+'xxx'
             cwdir = os.getcwd()
             cwd_ful = os.path.join(cwdir, dsidparam)
+            msg.info("!! cwd full = '%s'" % cwd_ful)
             if (os.path.isdir(cwd_ful)):
                os.environ["JOBOPTSEARCHPATH"] = cwd_ful+":"+os.environ["JOBOPTSEARCHPATH"]
             else:
@@ -74,10 +79,10 @@ class EvgenScriptExecutor(scriptExecutor):
                   JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
                   JoCvmfsPath_ful = os.path.join(JoCvmfsPath, dsidparam)
                   os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath_ful+":"+os.environ["JOBOPTSEARCHPATH"]
-#                  print '!! JoCvmfsPath_ful ',JoCvmfsPath_ful
+                  print '!! JoCvmfsPath_ful ',JoCvmfsPath_ful
             msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
              #os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
-#            print "!! Jodir ",Jodir
+            print "!! Jodir ",Jodir
 
 
         else:  #Suppose full path of dsid folder is provided(/afs/.../123xxx/123456), add cvmfs floder and local path(/afs/.../123xxx) to JOBOPTSEARCHPATH
@@ -133,105 +138,7 @@ class EvgenScriptExecutor(scriptExecutor):
         if "inputGenConfFile" in self._trf.argdict:
             expand_if_archive(self._trf.argdict["inputGenConfFile"].value)
 
-class EvgenExecutor(athenaExecutor):
-    "Specialised trf executor class for event generation jobs"
 
-    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
-        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
-
-    def preExecute(self, input=set(), output=set()):
-        "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
-
-        ## First call the base class preExecute
-        super(EvgenExecutor, self).preExecute(input, output)
-
-        def expand_if_archive(filename):
-            "Function to expand a file if it is a zip archive or tarball"
-            if ".tar" in filename:
-                import tarfile
-                tf = tarfile.open(filename)
-                tf.extractall()
-                tf.close()
-            elif filename.endswith(".zip"):
-                import zipfile
-                zf = zipfile.ZipFile(filename)
-                zf.extractall()
-                zf.close()
-
-        def get_immediate_subdirectories(a_dir):
-            return [name for name in os.listdir(a_dir)
-                    if os.path.isdir(os.path.join(a_dir, name))]                
-
-        def mk_jo_proxy(targetbasepath, pkgname, proxypath, addtosearch=True):
-            "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
-            if proxypath:
-                if os.path.exists(proxypath):
-                    shutil.rmtree(proxypath)
-                os.mkdir(proxypath)
-            os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-            os.environ['LOCAL_DATA_DIR'] = (os.environ['DATAPATH']).split(":")[0]
-
-            dirlist =  get_immediate_subdirectories(targetbasepath)
-            subdirlist=dirlist;
-            for dd in (dirlist):
-              if (('.svn' not in dd) and ('cmt' not in dd) and ('_joproxy' not in dd)):
-                deepdir = os.path.join(targetbasepath, dd)
-                subdirlist1 = get_immediate_subdirectories(deepdir)
-                subdirlist = subdirlist+["%s" % dd+"/%s" % item for item in subdirlist1]
-            for d in (subdirlist):
-                # TODO: we could _maybe_ add the appropriate share/DSIDxxxx/ dir to the path based on the jobConfig arg... too much magic?
-                if (('.svn' not in d) and ('cmt' not in d) and ('_joproxy' not in d) and ('share/' not in d)):
-                  dpath = os.path.join(proxypath, d)
-                  if proxypath:
-                           os.mkdir(dpath)
-
-                  if ('nonStandard' in dpath):
-                        dpath_ex = os.path.join(dpath,pkgname)
-                        if proxypath:
-                           os.mkdir(dpath_ex)
-                            
-                        os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath_ex, "nonStandard"))
-                  else :      
-                        os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
-                  if addtosearch:
-                    os.environ["JOBOPTSEARCHPATH"] = dpath+":"+os.environ["JOBOPTSEARCHPATH"]
-                    os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
-
-            os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
-            os.environ["DATAPATH"] = os.environ['LOCAL_DATA_DIR']+":"+os.environ["DATAPATH"]
-        
-
-        ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
-        # read the JO used
-        joparam = self._trf.argdict["jobConfig"].value
-        if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball
-            tarball = self._trf.argdict["evgenJobOpts"].value
-            ## Prepend the standard tarball URL prefix if the arg is not a full URL
-            # TODO: also allow a copy from a local filesystem location if it starts with a / (or can be found with os.path)?
-            if tarball.startswith("http"):
-                url = tarball
-                tarball = os.basename(tarball)
-            else:
-                url = "http://cern.ch/atlas-computing/links/kitsDirectory/EvgenJobOpts/" + tarball
-            ## Download the tarball in a Grid-safe way (if it doesn't already exist)
-            if not os.path.exists(tarball):
-                from EvgenJobTransforms.download import downloadUsingProxy
-                status, output = downloadUsingProxy(url)
-                if status != 0:
-                    raise EnvironmentError('Error downloading tarball %s. Downloader reports: %s' % (tarball, output))
-                msg.info('Evgen tarball download success: %s' % output)
-            ## Expand tarball
-            expand_if_archive(tarball)
-
-        ## Expand tarball input event and generator conf files, if provided
-        if "inputGeneratorFile" in self._trf.argdict:
-#            expand_if_archive(self._trf.argdict["inputGeneratorFile"].value)
-            myinputfiles = self._trf.argdict["inputGeneratorFile"].value
-            genInputFiles = myinputfiles.split(',')
-            for file in genInputFiles:
-               expand_if_archive(file)
-        if "inputGenConfFile" in self._trf.argdict:
-            expand_if_archive(self._trf.argdict["inputGenConfFile"].value)
 
 def move_files(main_dir,tmp_dir,whitelist):
     files = os.listdir(tmp_dir)
@@ -269,7 +176,7 @@ def main():
     main_dir = os.getcwd()
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
-#    print("main ",main_dir)
+    print("main ",main_dir)
     if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value != 0)):
       name_tmpdir = "tmprun"
       tmp_dir = os.path.join(main_dir, name_tmpdir)
