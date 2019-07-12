@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
@@ -439,7 +439,8 @@ const Muon::MuonIntersectGeometry* MuonStationIntersectSvc::Imp::createMdtChambe
     return 0;
   }
 
-  return new Muon::MdtIntersectGeometry( chid, m_detMgr, &*m_mdtSummarySvc );
+  return new Muon::MdtIntersectGeometry( chid, m_detMgr, &*m_mdtSummarySvc,
+                                         m_verbose ? m_log : nullptr );
 }
 
 void MuonStationIntersectSvc::handle(const Incident& inc) {
