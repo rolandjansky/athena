@@ -554,6 +554,30 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStop time is {0}'.format(self._exeStop))
 
 
+class dummyExecutor(transformExecutor):
+    def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
+
+        # We are only changing the default name here
+        super(dummyExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData)
+
+
+    def execute(self):
+        self._exeStart = os.times()
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
+        msg.info('Starting execution of %s' % self._name)
+        for type in self._outData:
+            for k, v in iteritems(self.conf.argdict):
+                if type in k:
+                    msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
+                    open(self.conf.argdict[k].value[0], 'a').close()
+        self._hasExecuted = True
+        self._rc = 0
+        self._errMsg = ''
+        msg.info('%s executor returns %d' % (self._name, self._rc))
+        self._exeStop = os.times()
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
+
+
 class scriptExecutor(transformExecutor):
     def __init__(self, name = 'Script', trf = None, conf = None, inData = set(), outData = set(), 
                  exe = None, exeArgs = None, memMonitor = True):
