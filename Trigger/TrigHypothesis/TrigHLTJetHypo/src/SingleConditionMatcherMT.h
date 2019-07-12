@@ -35,7 +35,6 @@ class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 
 public:
   SingleConditionMatcherMT(std::unique_ptr<IConditionMT>&&);
-  // SingleConditionMatcherMT(const ConditionBridgeMT&);
   ~SingleConditionMatcherMT(){}
 
   virtual std::optional<bool>
