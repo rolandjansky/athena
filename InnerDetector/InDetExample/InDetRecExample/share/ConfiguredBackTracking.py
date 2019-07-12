@@ -13,6 +13,8 @@ class ConfiguredBackTracking:
 
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
+
+      import InDetRecExample.TrackingCommon   as TrackingCommon
       #
       # get ToolSvc and topSequence
       #
@@ -23,14 +25,17 @@ class ConfiguredBackTracking:
       #
       # --- decide if use the association tool
       #
+      asso_tool = None
       if len(InputCollections) > 0:
          usePrdAssociationTool = True
+         print 'DEBUG ConfiguredBackTracking extension ? %s ' % NewTrackingCuts.extension()
+         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetSegment',suffix = "")
       else:
          usePrdAssociationTool = False
 
       # --- the PRD association tool is filled by the Segment making
       #     no need to run again
-      
+
       # ------------------------------------------------------------
       #
       # ---------- TRT Seeded Tracking
@@ -78,7 +83,7 @@ class ConfiguredBackTracking:
                                                                                           DirectionPhiCut        = .3,
                                                                                           DirectionEtaCut        = 1.,
                                                                                           MaxHoles               = 2,
-                                                                                          AssociationTool        = InDetPrdAssociationTool,
+                                                                                          AssociationTool        = asso_tool,
                                                                                           RestrictROI            = True)
             #InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
             if not usePrdAssociationTool:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,6 @@
 ///Track events
 #include "TrkSegment/TrackSegment.h"
 
-#include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
@@ -31,25 +30,17 @@ using Gaudi::Units::GeV;
 
 InDet::TRT_StandaloneTrackFinder::TRT_StandaloneTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_segToTrackTool("InDet::TRT_SegmentToTrackTool"),
-    m_Segments("TRTSegments"),
-    m_finalTracks("TRTStandaloneTracks")
+  : AthAlgorithm(name, pSvcLocator)
 {
   
   m_minNumDriftCircles = 15                                   ;       //Minimum number of drift circles for TRT segment tracks
   m_minPt              = 1.0 * GeV                            ;       //pt cut    
   m_matEffects         = 0                                    ;
-  m_resetPRD           = false                                ;       //Reset PRD association tool during sub-detector pattern
 
-  declareProperty("InputSegmentsLocation"      ,m_Segments     ); //Input track collection
-  declareProperty("OutputTracksLocation"       ,m_finalTracks  ); //Output track collection
   declareProperty("MinNumDriftCircles"         ,m_minNumDriftCircles); //Minimum number of drift circles for TRT segment tracks
   declareProperty("MinPt"                      ,m_minPt             ); //Minimum Pt in preselection
   declareProperty("MaterialEffects"            ,m_matEffects        ); //Particle hypothesis during track fitting
-  declareProperty("ResetPRD"                   ,m_resetPRD          ); //Reset PRD association tool during sub-detector pattern
   declareProperty("OldTransitionLogic"         ,m_oldLogic = true   ); //use old transition logic for hits 
-  declareProperty("TRT_SegToTrackTool"         ,m_segToTrackTool    );
 }
 
 InDet::TRT_StandaloneTrackFinder::~TRT_StandaloneTrackFinder()
@@ -67,20 +58,15 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 
   ATH_MSG_DEBUG ("Initializing TRT_StandaloneTrackFinder");
 
-  sc = m_segToTrackTool.retrieve();
-  if (sc.isFailure()) {
-   ATH_MSG_FATAL ("Failed to retrieve tool " << m_segToTrackTool ); 
-    return StatusCode::FAILURE;
-  }else{
-    ATH_MSG_INFO ("Retrieved tool " << m_segToTrackTool );
-  }
+  ATH_CHECK(m_segToTrackTool.retrieve());
 
+  ATH_CHECK(m_Segments.initialize());
+  ATH_CHECK(m_prdToTrackMap.initialize(!m_prdToTrackMap.key().empty()));
+  ATH_CHECK(m_finalTracks.initialize());
 
   // Get output print level
   //
-  
   ATH_MSG_DEBUG ( (*this) );
-  
   return sc;
 
 }
@@ -96,30 +82,33 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   //Clear all caches
   m_segToTrackTool->resetAll();
 
-  // Clear PRD association tool
-  if(m_resetPRD) m_segToTrackTool->resetAssoTool();
 
   ///Retrieve segments from StoreGate
   //
 
-
-  if(!m_Segments.isValid()){
-      ATH_MSG_FATAL ("No segment with name " << m_Segments.name() << " found in StoreGate!");
+  SG::ReadHandle<Trk::SegmentCollection > segments(m_Segments);
+  if(!segments.isValid()){
+      ATH_MSG_FATAL ("No segment with name " << m_Segments.key() << " found in StoreGate!");
       return StatusCode::FAILURE;
   }
 
-  // statistics...
-  counter[kNTrtSeg] = int(m_Segments->size());
-  ATH_MSG_DEBUG ("TRT track container size " << counter[kNTrtSeg]);
+  SG::ReadHandle<Trk::PRDtoTrackMap > prd_to_track_map;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap >(m_prdToTrackMap);
+    if(!prd_to_track_map.isValid()){
+      ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap.key() << ".");
+      return StatusCode::FAILURE;
+    }
+  }
 
-  // loop over segments
+  // statistics...
+  counter[kNTrtSeg] = int(segments->size());
+  ATH_MSG_DEBUG ("TRT track container size " << counter[kNTrtSeg]);
   ATH_MSG_DEBUG ("Begin looping over all TRT segments in the event");
-  Trk::SegmentCollection::const_iterator iseg    = m_Segments->begin();
-  Trk::SegmentCollection::const_iterator isegEnd = m_Segments->end();
-  for(; iseg != isegEnd; ++ iseg) {
+  for(const Trk::Segment *base_segment: *segments) {
 
     // Get the track segment
-    const Trk::TrackSegment *trackTRT = dynamic_cast<const Trk::TrackSegment*>(*iseg);
+    const Trk::TrackSegment *trackTRT = dynamic_cast<const Trk::TrackSegment*>(base_segment);
 
     if(!trackTRT) {
 
@@ -140,7 +129,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
       }
 
       // Check if segment has already been assigned to a BackTrack
-      if(m_segToTrackTool->segIsUsed(*trackTRT)) {
+      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map.cptr())) {
       	// Statistics...
 	counter[kNUsedSeg]++;
 	ATH_MSG_DEBUG ("Segment excluded by BackTrack, drop it !");
@@ -203,8 +192,9 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 
   // now resolve tracks
   ATH_MSG_DEBUG ("Creating track container ");
-  StatusCode sc= m_finalTracks.record(std::unique_ptr<TrackCollection> (m_segToTrackTool->resolveTracks()));
-  if(sc.isFailure() || !m_finalTracks.isValid()){
+  ;
+  std::unique_ptr<TrackCollection> final_tracks(m_segToTrackTool->resolveTracks(prd_to_track_map.cptr()));
+  if (!final_tracks || SG::WriteHandle<TrackCollection>(m_finalTracks).record(std::move(final_tracks)).isFailure()) {
       ATH_MSG_WARNING ("Could not save the reconstructed TRT seeded Si tracks!");
       return StatusCode::FAILURE;      
   }
@@ -267,8 +257,8 @@ MsgStream& InDet::TRT_StandaloneTrackFinder::dumpContainerNames( MsgStream& out 
   out<<std::endl
      <<"|----------------------------------------------------------------------"
      <<"-------------------|"<<std::endl;
-  out<<"| Location of input tracks          | "<<m_Segments.name()       << std::setw( max_width-m_Segments.name().size())<<  " " << "|"    <<std::endl;
-  out<<"| Location of output tracks         | "<<m_finalTracks.name()    << std::setw( max_width-m_finalTracks.name().size()) << " " << "|" <<std::endl;
+  out<<"| Location of input tracks          | "<<m_Segments.key()       << std::setw( max_width-m_Segments.key().size())<<  " " << "|"    <<std::endl;
+  out<<"| Location of output tracks         | "<<m_finalTracks.key()    << std::setw( max_width-m_finalTracks.key().size()) << " " << "|" <<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|";
   return out;

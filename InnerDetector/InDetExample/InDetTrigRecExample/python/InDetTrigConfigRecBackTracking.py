@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ----------- Draft version of TRT Segment finding
 #
@@ -387,18 +387,23 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool, InDetTrigTrackFitterTRT, InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigTRTDriftCircleCut
+
+      import InDetRecExample.TrackingCommon   as TrackingCommon
+
       from AthenaCommon.SystemOfUnits import GeV
       if seqType is "TRTOnly":
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsTRT
          InDetTrigCutValues = EFIDTrackingCutsTRT
          suffixTRT="_TRTOnly"
-         resetPRD=True
+         prd_to_track_map=""  # no external PRD to track association, the PRD to track associations 
+                              # are only computed from TRT standalone tracks
       else:
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
          InDetTrigCutValues = EFIDTrackingCuts
          suffixTRT=""
-         resetPRD=True
-         
+         prd_to_track_map="" # no external PRD to track association, the PRD to track associations 
+                             # are only computed from TRT standalone tracks
+
       #
       # set up special Scoring Tool for standalone TRT tracks
       #
@@ -416,18 +421,18 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_StandaloneScoringTool
 
+      asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels()
       #
       # set up TRT_SegmentToTrackTool
       #
       from TRT_SegmentToTrackTool.TRT_SegmentToTrackToolConf import InDet__TRT_SegmentToTrackTool
       InDetTrigTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTrigTRT_SegmentToTrackTool_'+type+suffixTRT,
-                                                                      RefitterTool         = InDetTrigTrackFitterTRT,
-                                                                      Extrapolator         = InDetTrigExtrapolator,
-                                                                      AssociationTool      = InDetTrigPrdAssociationTool,
-                                                                      ScoringTool          = InDetTrigTRT_StandaloneScoringTool,
-                                                                      FinalRefit           = True,
-                                                                      UseAssociationTool   = True,
-                                                                      SuppressHoleSearch   = True,
+                                                                      RefitterTool          = InDetTrigTrackFitterTRT,
+                                                                      Extrapolator          = InDetTrigExtrapolator,
+                                                                      AssociationTool       = asso_tool,
+                                                                      ScoringTool           = InDetTrigTRT_StandaloneScoringTool,
+                                                                      FinalRefit            = True,
+                                                                      SuppressHoleSearch    = True,
                                                                       MaxSharedHitsFraction = InDetTrigCutValues.maxTRTonlyShared()
                                                                       )
       
@@ -441,7 +446,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       
       self.TRT_SegToTrackTool    = InDetTrigTRT_SegmentToTrackTool
       self.MinNumDriftCircles    = InDetTrigCutValues.minTRTonly()
-      self.ResetPRD              = resetPRD
+      self.PRDtoTrackMap         = prd_to_track_map
       self.MaterialEffects       = 0
       
       #monitoring

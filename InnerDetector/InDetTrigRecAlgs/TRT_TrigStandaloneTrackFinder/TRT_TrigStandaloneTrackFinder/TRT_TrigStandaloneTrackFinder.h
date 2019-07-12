@@ -21,6 +21,8 @@
 
 ///Track Collection to store the tracks
 #include "TrkTrack/TrackCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+#include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 
 #include "TrkSegment/SegmentCollection.h"
 
@@ -81,11 +83,15 @@ namespace InDet {
 
       int                                m_minNumDriftCircles{} ;  //!< Minimum number of drift circles for TRT segment tracks
 
-      bool                               m_resetPRD{}           ;  /** Reset PRD association tool during the sub-detector pattern */
-
       int                                m_matEffects{}         ;  //!< Particle hypothesis for track fitting
 
-      ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
+      //StoreGateSvc*                         m_store_gate    ;  //!< Pointer to store gate 
+
+      ToolHandle< ITRT_SegmentToTrackTool >      m_segToTrackTool
+         {this,"TRT_SegToTrackTool","InDet::TRT_SegmentToTrackTool"}; //!< Segment to track tool
+
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>      m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};                                   //!< map between PRDs and tracks to identify shared hits.
       
       const Trk::SegmentCollection      *m_Segments{}         ;  //!< TRT segments to use
 

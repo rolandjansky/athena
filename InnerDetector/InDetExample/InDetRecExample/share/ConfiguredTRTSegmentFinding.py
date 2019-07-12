@@ -14,6 +14,8 @@ class ConfiguredTRTSegmentFinding:
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys          import InDetKeys
     from AthenaCommon.DetFlags              import DetFlags
+
+    import InDetRecExample.TrackingCommon   as TrackingCommon
     #
     # get ToolSvc and topSequence
     #
@@ -31,11 +33,14 @@ class ConfiguredTRTSegmentFinding:
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
+    asso_tool = None
     if usePrdAssociationTool:
-      from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-      InDetSegmentPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetSegmentPRD_Association'+extension,
-                                                                     AssociationTool = InDetPrdAssociationTool,
-                                                                     TracksName      = list(InputCollections))
+      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDetSegment',
+                                                                                suffix     = extension,
+                                                                                TracksName = list(InputCollections))
+
+      asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetSegment',suffix     = extension)
+
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):
         print InDetSegmentPRD_Association
@@ -98,7 +103,7 @@ class ConfiguredTRTSegmentFinding:
                                                                         PropagatorTool          = InDetPatternPropagator,
                                                                         TrackExtensionTool      = InDetTRTExtensionTool,
                                                                         UseAssosiationTool      = usePrdAssociationTool,
-                                                                        AssosiationTool         = InDetPrdAssociationTool,
+                                                                        AssosiationTool         = asso_tool,
                                                                         RemoveNoiseDriftCircles = InDetFlags.removeTRTNoise(),
                                                                         MinNumberDriftCircles   = MinNumberDCs,
                                                                         NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),

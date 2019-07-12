@@ -306,10 +306,14 @@ else:
         #                                                 TrackCollectionTruthKeys)
 
 
-        from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-        InDetTRTonly_PRD_AssociationPhase = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_AssociationPhase',
-                                                                        AssociationTool = InDetPrdAssociationTool,
-                                                                        TracksName      = copy.copy(TrackCollectionKeys))
+        # @TODO seems unused ??
+        import InDetRecExample.TrackingCommon   as TrackingCommon
+        InDetTRTonly_PRD_AssociationPhase = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDetTRTonly_',
+                                                                                        suffix     = "Phase",
+                                                                                        TracksName = copy.copy(TrackCollectionKeys))
+
+        # asso_tool_phase = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetTRTonly_',suffix     = "Phase")
+
         topSequence += InDetTRTonly_PRD_AssociationPhase
         if (InDetFlags.doPrintConfigurables()):
           print InDetTRTonly_PRD_AssociationPhase
@@ -915,7 +919,7 @@ else:
                                                           PRD_TruthTrajectoryBuilder = InDetPRD_TruthTrajectoryBuilder,
                                                           TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                          AssoTool                   = InDetPrdAssociationTool,
+                                                          AssoTool                   = InDetPrdAssociationTool_setup,
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
@@ -983,7 +987,7 @@ else:
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                              AssoTool                = InDetPrdAssociationTool,
+                                                              AssoTool                = InDetPrdAssociationTool_setup,
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1029,7 +1033,7 @@ else:
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
-                                                                 AssoTool                = InDetPrdAssociationTool,
+                                                                 AssoTool                = InDetPrdAssociationTool_setup,
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
                                                                  SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1089,7 +1093,7 @@ else:
                                          FitterTool     = CfgGetter.getPublicTool('InDetTrackFitter'),
                                          FitterToolTRT  = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                          SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool,
+                                         AssoTool       = InDetPrdAssociationTool_setup,
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          fitRIO_OnTrack = InDetFlags.refitROT(),

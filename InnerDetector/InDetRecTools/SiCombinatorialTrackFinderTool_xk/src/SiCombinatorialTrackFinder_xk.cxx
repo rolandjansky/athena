@@ -20,7 +20,6 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkTrack/TrackInfo.h"
 

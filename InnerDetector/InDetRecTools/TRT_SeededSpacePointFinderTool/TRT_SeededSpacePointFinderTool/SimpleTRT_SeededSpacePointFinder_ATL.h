@@ -33,10 +33,6 @@ class MsgStream;
 class SCT_ID;
 class TRT_ID;
 
-namespace Trk{
-  class IPRD_AssociationTool;
-}
-
 namespace InDet{
 
   class SimpleTRT_SeededSpacePointFinder_ATL : 
