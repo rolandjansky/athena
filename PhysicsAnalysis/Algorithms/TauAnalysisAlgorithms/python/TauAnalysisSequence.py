@@ -52,10 +52,16 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     elif splitWP[0] == 'VeryLoose' :
         inputfile = 'TauAnalysisAlgorithms/tau_selection_veryloose.conf'
         pass
+    elif splitWP[0] == 'NoID' :
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_noid.conf'
+        pass
+    elif splitWP[0] == 'Baseline' :
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_baseline.conf'
+        pass
     else :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +
-                          "VeryLoose")
+                          "VeryLoose, NoID, Baseline")
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "TauAnalysisSequence" + postfix )
