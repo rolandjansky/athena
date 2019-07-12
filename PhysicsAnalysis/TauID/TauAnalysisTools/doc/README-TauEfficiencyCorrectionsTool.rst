@@ -140,7 +140,7 @@ are available for tool steering:
    * - ``OLRLevel``
      - ``int``
      - ``OLRNONE``
-     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTIGHT``,  ``TAUELEOLR``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``
+     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``,  ``TAUELEOLR``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``
 
    * - ``UseTauSubstructure``
      - ``bool``
