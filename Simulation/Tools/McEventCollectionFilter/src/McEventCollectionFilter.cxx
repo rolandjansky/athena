@@ -20,7 +20,6 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <climits>
-#include "CxxUtils/make_unique.h"
 
 McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
@@ -146,7 +145,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
     }
   ATH_MSG_DEBUG( "Found McEventCollection");
 
-  if (!m_outputTruthCollection.isValid()) m_outputTruthCollection = CxxUtils::make_unique<McEventCollection>();
+  if (!m_outputTruthCollection.isValid()) m_outputTruthCollection = std::make_unique<McEventCollection>();
 
   //.......Create new particle (geantino) to link  hits from pileup
   HepMC::GenParticle* genPart=new HepMC::GenParticle();
@@ -242,7 +241,7 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found Pixel SiHitCollection");
 
-  if (!m_outputPixelHits.isValid()) m_outputPixelHits = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_outputPixelHits.isValid()) m_outputPixelHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputPixelHits,m_outputPixelHits));
 
@@ -253,7 +252,7 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found SCT SiHitCollection");
 
-  if (!m_outputSCTHits.isValid()) m_outputSCTHits = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_outputSCTHits.isValid()) m_outputSCTHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputSCTHits,m_outputSCTHits));
 
@@ -264,7 +263,7 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found BCM SiHitCollection");
 
-  if (!m_outputBCMHits.isValid()) m_outputBCMHits = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_outputBCMHits.isValid()) m_outputBCMHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputBCMHits,m_outputBCMHits));
 
@@ -305,7 +304,7 @@ StatusCode McEventCollectionFilter::TRTHitsTruthRelink()
     }
   ATH_MSG_DEBUG( "Found TRTUncompressedHitsCollection");
 
-  if (!m_outputTRTHits.isValid()) m_outputTRTHits = CxxUtils::make_unique<TRTUncompressedHitCollection>();
+  if (!m_outputTRTHits.isValid()) m_outputTRTHits = std::make_unique<TRTUncompressedHitCollection>();
   for (TRTUncompressedHitCollection::const_iterator i = m_inputTRTHits->begin(); i != m_inputTRTHits->end(); ++i)
     {
 
@@ -350,7 +349,7 @@ StatusCode McEventCollectionFilter::MDTHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found MDTSimHitCollection");
 
-  if (!m_outputMDTHits.isValid()) m_outputMDTHits = CxxUtils::make_unique<MDTSimHitCollection>();
+  if (!m_outputMDTHits.isValid()) m_outputMDTHits = std::make_unique<MDTSimHitCollection>();
   for(MDTSimHitConstIterator i=m_inputMDTHits->begin();i!=m_inputMDTHits->end();++i){
 
     const HepMcParticleLink oldLink = (*i).particleLink();
@@ -385,7 +384,7 @@ StatusCode McEventCollectionFilter::CSCHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found CSCSimHitCollection");
 
-  if (!m_outputCSCHits.isValid()) m_outputCSCHits = CxxUtils::make_unique<CSCSimHitCollection>();
+  if (!m_outputCSCHits.isValid()) m_outputCSCHits = std::make_unique<CSCSimHitCollection>();
   for(CSCSimHitConstIterator i=m_inputCSCHits->begin();i!=m_inputCSCHits->end();++i){
 
     const HepMcParticleLink oldLink = (*i).particleLink();
@@ -418,7 +417,7 @@ StatusCode McEventCollectionFilter::RPCHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found RPCSimHitCollection");
 
-  if (!m_outputRPCHits.isValid()) m_outputRPCHits = CxxUtils::make_unique<RPCSimHitCollection>();
+  if (!m_outputRPCHits.isValid()) m_outputRPCHits = std::make_unique<RPCSimHitCollection>();
   for(RPCSimHitConstIterator i=m_inputRPCHits->begin();i!=m_inputRPCHits->end();++i){
 
     const HepMcParticleLink oldLink = (*i).particleLink();
@@ -452,7 +451,7 @@ StatusCode McEventCollectionFilter::TGCHitsTruthRelink(){
     }
   ATH_MSG_DEBUG( "Found TGCSimHitCollection");
 
-  if (!m_outputTGCHits.isValid()) m_outputTGCHits = CxxUtils::make_unique<TGCSimHitCollection>();
+  if (!m_outputTGCHits.isValid()) m_outputTGCHits = std::make_unique<TGCSimHitCollection>();
   for(TGCSimHitConstIterator i=m_inputTGCHits->begin();i!=m_inputTGCHits->end();++i){
 
     const HepMcParticleLink oldLink = (*i).particleLink();

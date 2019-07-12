@@ -19,7 +19,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    AtlasTest/TestTools
    Control/AthenaKernel
-   Control/CxxUtils
    Control/AthAllocators
    Control/StoreGate
    DetectorDescription/GeoPrimitives
@@ -36,7 +35,7 @@ atlas_add_tpcnv_library( ISF_FatrasEventTPCnv
    PUBLIC_HEADERS ISF_FatrasEventTPCnv
    LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier
    InDetEventTPCnv ISF_FatrasDetDescrModel ISF_FatrasEvent TrkEventTPCnv
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils AthAllocators StoreGateLib
+   PRIVATE_LINK_LIBRARIES AthenaKernel AthAllocators StoreGateLib
    EventPrimitives GaudiKernel InDetIdentifier )
 
 atlas_add_dictionary( ISF_FatrasEventTPCnvDict
@@ -48,7 +47,7 @@ atlas_add_dictionary( ISF_FatrasEventTPCnvDict
 macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES TestTools CxxUtils StoreGateLib GeoPrimitives IdDictParser
+      LINK_LIBRARIES TestTools StoreGateLib GeoPrimitives IdDictParser
       GaudiKernel InDetIdentifier TrkGeometry ISF_FatrasEventTPCnv 
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 endmacro( _add_test )

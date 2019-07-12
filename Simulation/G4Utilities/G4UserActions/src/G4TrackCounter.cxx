@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4UserActions/G4TrackCounter.h"
+#include "G4TrackCounter.h"
 #include "MCTruth/TrackHelper.h"
 
 
