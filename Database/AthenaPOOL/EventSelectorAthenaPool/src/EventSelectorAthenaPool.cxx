@@ -81,7 +81,7 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
-   ATH_MSG_INFO("Initializing " << name());
+   ATH_MSG_DEBUG("Initializing " << name());
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
@@ -191,7 +191,7 @@ StatusCode EventSelectorAthenaPool::initialize() {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::reinit() {
-   ATH_MSG_INFO("reinitialization...");
+   ATH_MSG_DEBUG("reinitialization...");
 
    // reset markers
    m_numEvt.resize(m_inputCollectionsProp.value().size(), -1);
