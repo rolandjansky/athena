@@ -22,9 +22,9 @@ TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
 StatusCode TrigJetHypoToolHelperMT::initialize() {
 
   auto conditions = m_config->getConditions();
-  m_grouper  = std::move(m_config->getJetGrouper());
-  m_matcher = std::move(m_config->getMatcher());
-  // m_matcher = std::move(groupsMatcherFactoryMT(conditions));
+  m_grouper  = m_config->getJetGrouper();
+  m_matcher = m_config->getMatcher();
+  // m_matcher = groupsMatcherFactoryMT(conditions);
 
   return StatusCode::SUCCESS;
 }
