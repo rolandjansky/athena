@@ -99,8 +99,7 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
   
 std::string TrigJetHypoToolHelperMT::toString() const {
 
-  
-
+ 
   std::stringstream ss;
   ss << nodeIDPrinter(name(),
                       m_nodeID,
@@ -128,4 +127,11 @@ TrigJetHypoToolHelperMT::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return StatusCode::SUCCESS;
 }
+
+std::size_t TrigJetHypoToolHelperMT::requiresNJets() const {
+  return m_config->requiresNJets();
+}
+
+
+
 

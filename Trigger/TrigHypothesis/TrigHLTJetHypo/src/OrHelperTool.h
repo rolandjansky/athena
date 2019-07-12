@@ -34,6 +34,8 @@ class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
+  virtual std::size_t requiresNJets() const override;
+  
   virtual std::string toString() const override;
   
   

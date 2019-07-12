@@ -27,11 +27,10 @@ class xAODJetCollector;
 class PartitionsGroupsMatcherMT:
 virtual public IGroupsMatcherMT {
 
-  /* Used to find jets pass multithreshold,
-     possibly overlapping eta regions
-     where any particular jet can be assigned to at most
-     one threshold. Uses the Ford Fulkerson Alg.
-     See Algorithms, Sedgewick and Wayne 4th edition */
+  /* Given a two equi-length containers of HypoJetVectors
+     and Conditions , associate the ith elements, and determine if,
+     for each i, the Condition is datisfoied by the HypoJetVector.
+  */
 
 public:
   PartitionsGroupsMatcherMT(ConditionsMT&& cs);

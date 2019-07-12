@@ -169,3 +169,6 @@ CombinationsHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   return StatusCode::SUCCESS;
 
 }
+std::size_t CombinationsHelperTool::requiresNJets() const {
+  return m_config->requiresNJets();
+}

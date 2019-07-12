@@ -12,7 +12,7 @@ from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-class PartitionvsFlowNetworkTests:
+class PartitionvsFlowNetworkTests(object):
 
     def __init__(self,
                  n_conds=6,
@@ -62,7 +62,7 @@ class PartitionvsFlowNetworkTests:
 
         return lfn
 
-class CombinationsTests:
+class CombinationsTests(object):
 
     def __init__(self,
                  n_bkgd=4,
@@ -103,9 +103,31 @@ class CombinationsTests:
     def logfile_name(self, chain_name):
         return  chain_name + '_b' + str(self.n_bkgd) + '_combs.log'
 
+    
+class PartitionsTests(CombinationsTests) :
+
+    def __init__(self,
+                 n_bkgd=4,
+                 bkgd_etmax=50000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_bkgd, bkgd_etmax)
+
+    def make_chain_dict(self):
+        """ChainDict to excercise modifications to CombinationsHelperTool"""
+        
+        chain_dict = CombinationsTests.make_chain_dict(self)
+        chain_dict['chainParts'][0]['hypoScenario'] = 'partitionsTest'
+        
+        return chain_dict
+
+    def logfile_name(self, chain_name):
+        return  chain_name + '_b' + str(self.n_bkgd) + '_parts.log'
+
+
 def JetHypoExerciserCfg():
 
-    test_conditions =  CombinationsTests()
+    test_conditions =  PartitionsTests()
+    # test_conditions =  CombinationsTests()
     chain_dict = test_conditions.make_chain_dict()
     generator = test_conditions.make_event_generator()
     chain_name = chain_dict['chainName']
@@ -113,7 +135,7 @@ def JetHypoExerciserCfg():
 
     ht=trigJetHypoToolHelperFromDict(chain_dict)
 
-
+    print('ht = ', ht)
     
     jetHypoExerciserAlg=JetHypoExerciserAlg("JetHypoExerciser")
     jetHypoExerciserAlg.JetHypoHelperTool = ht

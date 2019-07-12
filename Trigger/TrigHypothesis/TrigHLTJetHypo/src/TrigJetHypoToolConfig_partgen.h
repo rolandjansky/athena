@@ -2,11 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETHYPOTOOLConfig_COMBGEN_H
-#define TRIGJETHYPOTOOLConfig_COMBGEN_H
+#ifndef TRIGJETHYPOTOOLConfig_PARTGEN_H
+#define TRIGJETHYPOTOOLConfig_PARTGEN_H
+
 /********************************************************************
  *
- * NAME:     TrigJetHypoToolConfig_combgen.h
+ * NAME:     TrigJetHypoToolConfig_partgen.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  *
@@ -28,15 +29,15 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
-class TrigJetHypoToolConfig_combgen:
+class TrigJetHypoToolConfig_partgen:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
  public:
   
-  TrigJetHypoToolConfig_combgen(const std::string& type,
+  TrigJetHypoToolConfig_partgen(const std::string& type,
                           const std::string& name,
                           const IInterface* parent);
-  virtual ~TrigJetHypoToolConfig_combgen();
+  virtual ~TrigJetHypoToolConfig_partgen();
 
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
@@ -44,9 +45,8 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
 
   virtual std::optional<ConditionsMT> getConditions() const override;
+  virtual std::size_t requiresNJets() const override {return 0;}
 
-  virtual std::size_t requiresNJets() const override;
-  
  private:
   
   Gaudi::Property<std::vector<double>>

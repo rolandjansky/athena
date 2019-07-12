@@ -11,6 +11,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolHelperMT,
     CombinationsHelperTool,
     TrigJetHypoToolConfig_combgen,
+    TrigJetHypoToolConfig_partgen,
 )
 
 class ToolSetter(object):
@@ -26,6 +27,7 @@ class ToolSetter(object):
             'or': [OrHelperTool, 0],
             'dijet': [TrigJetHypoToolConfig_dijet, 0],
             'combgen': [TrigJetHypoToolConfig_combgen, 0],
+            'partgen': [TrigJetHypoToolConfig_partgen, 0],
             }
 
         self.mod_router = {
@@ -34,7 +36,8 @@ class ToolSetter(object):
             'or': self.mod_logical_binary,
             'simple': self.mod_simple,
             'simplepartition': self.mod_simple,
-            'combgen': self.mod_combgen,
+            'combgen': self.mod_combgen,  #  shared with partgen
+            'partgen': self.mod_combgen,  #  shared with combgen
             'dijet': self.mod_dijet,
         }
 
@@ -102,7 +105,6 @@ class ToolSetter(object):
         helper_tool.parent_id = node.parent_id
 
         node.tool = helper_tool
-
 
     def mod_simple(self, node):
         """Set the HypoConfigTool instance in a hypo tree node"""

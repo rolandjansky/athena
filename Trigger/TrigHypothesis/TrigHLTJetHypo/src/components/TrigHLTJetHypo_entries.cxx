@@ -17,6 +17,7 @@
 #include "../TrigJetHypoToolConfig_simple_partition.h"
 #include "../TrigJetHypoToolConfig_dijet.h"
 #include "../TrigJetHypoToolConfig_combgen.h"
+#include "../TrigJetHypoToolConfig_partgen.h"
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
 #include "../OrHelperTool.h"
@@ -42,6 +43,7 @@ DECLARE_COMPONENT( TrigJetHypoToolConfig_simple )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_simple_partition )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_dijet )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_combgen )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_partgen )
 DECLARE_COMPONENT( NotHelperTool)
 DECLARE_COMPONENT( AndHelperTool)
  DECLARE_COMPONENT( OrHelperTool)

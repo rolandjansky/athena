@@ -341,7 +341,6 @@ class TreeParameterExpander_dijet(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
 
-
 class TreeParameterExpander_combgen(object):
     """Convert parameter string into a dictionary holding low, high window
     cut vals. Specialistaion for the combgen Tool
@@ -368,7 +367,7 @@ class TreeParameterExpander_combgen(object):
         parameters = parameters[len(m.groups()[0])+2:]
 
         cdm = SimpleConditionsDictMaker()
-        d, ok, msgs = cdm.makeDict(parameters)
+        d, error, msgs = cdm.makeDict(parameters)
         self.msgs.extend(msgs)
         node.conf_attrs.update(d)
         
@@ -379,6 +378,39 @@ class TreeParameterExpander_combgen(object):
             self.msgs.append('Error')
 
         
+    def report(self):
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+
+
+class TreeParameterExpander_partgen(object):
+    """Convert parameter string into a dictionary holding low, high window
+    cut vals. Specialistaion for the combgen Tool
+
+    parameter strings look like '40m,100deta200, 50dphi300'
+    """
+    
+    def __init__(self):
+        self.msgs = []
+
+    def mod(self, node):
+
+        parameters = node.parameters[:]
+ 
+        cdm = SimpleConditionsDictMaker()
+
+        d, error, msgs = cdm.makeDict(parameters)
+
+        self.msgs.extend(msgs)
+        node.conf_attrs = d
+        
+
+        if not error:
+            self.msgs = ['All OK']
+        else:
+            self.msgs.append('Error')
+
+        return d, error, msgs
+    
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -409,6 +441,7 @@ class TreeParameterExpander(object):
         'and': TreeParameterExpander_null,
         'or': TreeParameterExpander_null,
         'combgen': TreeParameterExpander_combgen,
+        'partgen': TreeParameterExpander_partgen,
     }
 
     def __init__(self):

@@ -48,6 +48,8 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 	 xAODJetCollector&,
 	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   
+  virtual std::size_t requiresNJets() const override;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:

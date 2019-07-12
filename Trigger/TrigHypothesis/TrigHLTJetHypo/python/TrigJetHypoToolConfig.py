@@ -21,15 +21,19 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
+    print 'trigJetHypoToolHelperFromDict, 0'
+
     try:
         chain_label = chainDict2jetLabel(chain_dict)
     except Exception, e:
-        m = 'TrigJetHypoToolConfig: Error obtaining jet label for %s' % (
+        m = str(e)
+        m += ' - TrigJetHypoToolConfig: Error obtaining jet label for %s' % (
             chain_dict['chainName'],)
-        m ++ '  jet hypo scenario: %s' % (
+        m += '  jet hypo scenario: %s' % (
             chain_dict['chainParts'][0]['hypoScenario'],)
-
-        log.info(m)
+        
+        log.error(m)
+        # print m
         
         raise e
                                                   
@@ -40,6 +44,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
+    print visitor
     log.info(visitor.report())
 
     # tell the child nodes who their parent is.
@@ -59,6 +64,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     # debug flag to be relayed to C++ objects
     visitor = ToolSetter(chain_name)
     tree.accept(visitor)
+
     log.info(visitor.report())
 
     return tree.tool

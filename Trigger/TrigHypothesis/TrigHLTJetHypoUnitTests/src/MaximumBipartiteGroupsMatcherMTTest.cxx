@@ -89,6 +89,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
 
   EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
+
 }
 
 

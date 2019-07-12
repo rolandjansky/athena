@@ -54,6 +54,16 @@ TrigJetHypoToolConfig_simple_partition::getConditions() const {
 							      m_asymmetricEtas));
 }
 
+std::size_t
+TrigJetHypoToolConfig_simple_partition::requiresNJets() const {
+  std::size_t result{0};
+  auto opt_conds = getConditions();
+  if(!opt_conds.has_value()){return result;}
+
+  for(const auto& c : *opt_conds){result += c->capacity();}
+
+  return result;
+}
  
 std::unique_ptr<IJetGrouper>
 TrigJetHypoToolConfig_simple_partition::getJetGrouper() const {

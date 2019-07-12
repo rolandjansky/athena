@@ -56,11 +56,10 @@ PartitionsGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
     return std::optional<bool>();
   }
 
-
   for(std::size_t i = 0;  i != n_conditions; ++i){
     // Pass each job group to its corresposonding child, check if pass.
     // Return false any child does not pass.
-    if (!m_conditions[i]->isSatisfied(*(groups_e +i), collector)){
+    if (!m_conditions[i]->isSatisfied(*(groups_b +i), collector)){
       return std::make_optional<bool>(false);
     }
 
