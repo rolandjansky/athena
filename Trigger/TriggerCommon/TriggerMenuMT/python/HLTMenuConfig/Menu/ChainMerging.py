@@ -33,7 +33,7 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     chainName = ''
     #l1Seed = ''
     l1Seed = chainL1Item
-    combChainSteps =[]
+
 
     for cConfig in chainDefList:
         if chainName == '':
@@ -42,9 +42,9 @@ def mergeParallel(chainDefList, chainL1Item, offset):
             log.error("Something is wrong with the combined chain name: cConfig.name = %s while chainName = %s", cConfig.name, chainName)
             
         if l1Seed == '':
-            l1Seed = cConfig.seed
-        elif l1Seed != cConfig.seed:
-            log.debug("Taking the overall L1 item of the chain (%s) and not the indiv set ones for the chain parts (%s)", l1Seed, cConfig.seed)
+            l1Seed = cConfig.L1Item
+        elif l1Seed != cConfig.L1Item:
+            log.debug("Taking the overall L1 item of the chain (%s) and not the indiv set ones for the chain parts (%s)", l1Seed, cConfig.L1Item)
 
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
@@ -53,6 +53,7 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     orderedSteps = list(izip_longest(*allSteps))
     myOrderedSteps = deepcopy(orderedSteps)
 
+    combChainSteps =[]
     for steps in myOrderedSteps:
         mySteps = list(steps)
         combStep = makeChainSteps(mySteps)

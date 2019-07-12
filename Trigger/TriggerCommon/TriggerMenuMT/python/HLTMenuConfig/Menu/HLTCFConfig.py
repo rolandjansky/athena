@@ -158,7 +158,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
-    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
+    EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in HLTChains])
     l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
@@ -299,7 +299,7 @@ def createDataFlow(chains, allDicts):
 
     # loop over chains
     for chain in chains:
-        log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))   
+        log.info("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))   
 
         lastCFseq = None        
         for nstep in range(0,len(chain.steps)):
