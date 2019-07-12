@@ -460,9 +460,9 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
     }else if( m_weightHistograms.count("V_qq_passMpassD2") ){
       // TCC W/Z 2var tagger
 
-      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::Wqq_From_t || jetContainment==FatjetTruthLabel::other_From_t ){
+      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::other_From_t ){
 	truthLabelStr="t_";
-      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
+      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq || jetContainment==FatjetTruthLabel::Wqq_From_t ){
 	truthLabelStr="V_qq_";
       }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q_";
@@ -482,9 +482,9 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
       // W/Z tagger or inclusive top tagger
       if ( !m_accept ) return 1.0;
 
-      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::Wqq_From_t || jetContainment==FatjetTruthLabel::other_From_t ){
+      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::other_From_t ){
 	truthLabelStr="t";
-      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
+      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq || jetContainment==FatjetTruthLabel::Wqq_From_t ){
 	truthLabelStr="V_qq";
       }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
