@@ -155,7 +155,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   EXPECT_EQ(groupsVec.size(), 6);  
   
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
-  m_debug = true;
+
   if(m_debug){
     visitor.reset(new DebugInfoCollector("PassingJetsTest"));
   }

@@ -21,8 +21,6 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
-    print 'trigJetHypoToolHelperFromDict, 0'
-
     try:
         chain_label = chainDict2jetLabel(chain_dict)
     except Exception, e:
@@ -33,7 +31,6 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
             chain_dict['chainParts'][0]['hypoScenario'],)
         
         log.error(m)
-        # print m
         
         raise e
                                                   
@@ -44,7 +41,6 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
-    print visitor
     log.info(visitor.report())
 
     # tell the child nodes who their parent is.
@@ -99,7 +95,6 @@ class TestStringMethods(unittest.TestCase):
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
             chain_dict = chainNameDecoder.getChainDict(chain_name)
-            print chain_dict
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool) 
             log.info('%s %s', chain_name.rjust(wid), tool)
@@ -118,7 +113,6 @@ class TestDebugFlagIsFalse(unittest.TestCase):
 
         
 def _tests():
-    print 'hello'
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
