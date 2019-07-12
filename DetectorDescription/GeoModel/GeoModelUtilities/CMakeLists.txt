@@ -28,6 +28,15 @@ atlas_add_library( GeoModelUtilities
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps SGTools 
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
+
+atlas_add_test( GeoGetIds_test
+  SOURCES test/GeoGetIds_test.cxx
+  LINK_LIBRARIES GeoModelUtilities )
+
+atlas_add_test( GeoVisitVolumes_test
+  SOURCES test/GeoVisitVolumes_test.cxx
+  LINK_LIBRARIES GeoModelUtilities )
+
 endif()
 if(BUILDVP1LIGHT)
 # Declare the package's dependencies:
