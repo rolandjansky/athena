@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARTTL1MAKER_H
@@ -120,9 +120,6 @@ class LArTTL1Maker : public AthAlgorithm,
   bool m_useTriggerTime;
   /** Alorithm property: name of the TriggerTimeTool*/
   ToolHandle<ITriggerTime> m_triggerTimeTool;
-
-  /** use HitEmap from detector store or no */   
-  bool m_useMapfromStore;
 
   int m_BeginRunPriority;
 
