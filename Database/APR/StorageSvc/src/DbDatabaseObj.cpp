@@ -126,6 +126,7 @@ DbStatus DbDatabaseObj::cleanup()  {
   }
   m_linkMap.clear();
   m_linkVec.clear();
+  m_indexMap.clear();
   m_shapeMap.clear();
   m_paramMap.clear();
   m_classMap.clear();
@@ -194,6 +195,7 @@ DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
         link->setDb(dbn);
         // Update the transient list of links
 	m_linkMap.insert( LinkMap::value_type(link->contKey(), link.get()));
+        m_indexMap.insert( IndexMap::value_type(link->oid().first, m_linkVec.size()));
         m_linkVec.push_back( link.release() );
         return Success;
       }
@@ -336,6 +338,7 @@ DbStatus DbDatabaseObj::open()   {
         l1->setKey(DbToken::TOKEN_CONT_KEY);
         // Update the transient list of links
         m_linkMap.insert( LinkMap::value_type(l1->contKey(), l1.get()));
+        m_indexMap.insert( IndexMap::value_type(l1->oid().first, m_linkVec.size()));
         m_linkVec.push_back( l1.release() );
 
         // Add link to "##Links" container
@@ -350,6 +353,7 @@ DbStatus DbDatabaseObj::open()   {
         l2->setKey(DbToken::TOKEN_CONT_KEY);
         // Update the transient list of links
         m_linkMap.insert( LinkMap::value_type(l2->contKey(), l2.get()));
+        m_indexMap.insert( IndexMap::value_type(l2->oid().first, m_linkVec.size()));
         m_linkVec.push_back( l2.release() );
 
         if ( m_shapes.open(dbH,"##Shapes",m_string_t,type(),mode()).isSuccess() )    {
@@ -402,6 +406,7 @@ DbStatus DbDatabaseObj::open()   {
 	    if ( m_linkMap.find(link->contKey()) == m_linkMap.end() )  {
 	      m_linkMap.insert( LinkMap::value_type(link->contKey(), link.get()));
 	    }
+            m_indexMap.insert( IndexMap::value_type(link->oid().first, m_linkVec.size()));
 	    m_linkVec.push_back(link.release());
             it.object()->~DbString(); m_links.free(it.object());
           }
@@ -728,7 +733,7 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& oid, int merge_section, Toke
 std::string DbDatabaseObj::cntName(const Token& token) {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
-    int lnk = token.oid().first; // Remove leading 32 bit, switch to index later
+    int lnk = m_indexMap[token.oid().first]; // Map link to index
     if ( lnk >= 0 )  {
       Redirections::iterator i=m_redirects.find(token.dbID().toString());
       Sections::const_iterator j=m_sections.find("##Links");
