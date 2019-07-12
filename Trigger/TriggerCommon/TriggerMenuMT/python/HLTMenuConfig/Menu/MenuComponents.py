@@ -1,6 +1,7 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import re, copy
+import copy
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MenuComponents')
 
@@ -362,37 +363,43 @@ def DoMapSeedToL1Decoder(seed):
                             "TE" : "L1MET"}
 
     # remove actual threshold value from L1 seed string
-    stripSeed  = filter(lambda x: x.isalpha(), seed)
-    if stripSeed not in mapSeedToL1Decoder:
-        log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
-    return (mapSeedToL1Decoder[stripSeed])
+    for thresholdType, l1Collection in mapSeedToL1Decoder.iteritems():
+        if seed.startswith( thresholdType ):
+            return l1Collection
+    log.error("Threshold "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
+
 
 #################################################
 
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
+
 class Chain(object):
     """Basic class to define the trigger menu """
-    def __init__(self, name, Seed, ChainSteps=[]):
+    __slots__='name','steps','L1Item','vseeds','group_seed'
+    def __init__(self, name, L1Item, ChainSteps=[], L1Thresholds=[]):
+        """
+        Construct the Chain from the steps
+        Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages, the L1Item will be removed
+        """
         self.name = name
         self.steps=ChainSteps
-        self.seed=Seed
-        self.vseeds=[]
-        vseeds = Seed.strip().split("_")
-        if vseeds[0] == 'L1': 
-            vseeds.pop(0) #remove first L1 string
-        else:
-            log.debug('Threshol(d)s were passed')
-        # split multi seeds
-        for seed in vseeds:
-            split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
-            mult,single = split[0]
-            if not mult: 
-                mult=1
-            else: 
-                mult=int(mult)
-            for m in range(0,mult):
-                self.vseeds.append(single)
+        self.L1Item=L1Item
+        self.vseeds=L1Thresholds
+        assert name.endswith(L1Item.replace("_", "", 1)), "Chain name {} and L1 item {} do not follow the convention".format(name, L1Item)
 
-        # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
+        max_seq= max(len(step.sequences) for step in self.steps)
+
+        if self.vseeds == []: # not configured threshold, what is below is a temporary measure            
+            allThresholds = getAllThresholdsFromItem( self.L1Item )
+            uniqueThresholds = getUniqueThresholdsFromItem( self.L1Item )
+            if max_seq == len( allThresholds ):
+                self.vseeds = allThresholds
+            elif max_seq == len( uniqueThresholds ):
+                self.vseeds = uniqueThresholds
+
+            log.info("Thresholds not provided while configuring {}, extracted them form the L1item {} are {}, please fix it by providing thresholds".format( self.name, self.L1Item, self.vseeds ) )
+
+        # group_seed is used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
         self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
@@ -423,9 +430,8 @@ class Chain(object):
                     seq.seed ="L1"+filter(lambda x: x.isalpha(), seed)
                     log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence %d in step %s", self.name, seq.seed, nseq, step.name )
                     nseq+=1
-
         else:
-            log.error("setSeedsToSequences: found %d sequences in this chain and %d seeds. What to do??", max_seq, tot_seed)
+            log.error("setSeedsToSequences: found %d sequences in the chain %s and %d seeds %s. What to do??", max_seq, self.name, tot_seed, str(self.vseeds))
 
 
             
@@ -456,7 +462,7 @@ class Chain(object):
                 
     def __repr__(self):
         return "--- Chain %s ---\n + Seed: %s \n + Steps: %s \n"%(\
-                    self.name, self.seed, ' '.join(map(str, self.steps)))
+                    self.name, self.L1Item, ' '.join(map(str, self.steps)))
 
 
 

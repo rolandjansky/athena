@@ -28,6 +28,7 @@ def generateInputData(nevents, chain_names):
 
 
 
+
 def generateChains(chain_names):
 
     from TrigUpgradeTest.HLTSignatureConfig import  genMenuSequence
@@ -38,7 +39,6 @@ def generateChains(chain_names):
 
     for chain in chain_names:
         chainSteps=[]
-        
         for step in range(nsteps):
             # same reco, diff hypo
             seq_sameReco = genMenuSequence(step="SSameR"+str(step),
@@ -61,10 +61,10 @@ def generateChains(chain_names):
             step = ChainStep(seq.name, [seq])
             chainSteps.append(step)
        # el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
-        chainObj=Chain(name=chain , Seed=seed, ChainSteps=chainSteps )
+        chainObj=Chain(name=chain , L1Item=seed, ChainSteps=chainSteps )
         log.debug("adding chain %s",chainObj)
         chains.append(chainObj)
-           # Chain(name='HLT_e5'   , Seed="L1_EM7", ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
+           # Chain(name='HLT_e5'   , L1Item="L1_EM7", ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
 
            
     log.debug("Produced menu with %d chains",len(chains))
@@ -81,19 +81,19 @@ def process():
 
     chain_names=[]
     for chain in range(nchains):
-        chain_names+=["HLT_TestChain"+str(chain+1)]
+        chain_names+=["HLT_TestChain"+str(chain+1)+"_L1EM7"]
 
 
 
     data=generateInputData(nevents, chain_names)
     HLTChains=generateChains(chain_names)
-    EnabledChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in HLTChains]
+    EnabledChains= [c.L1Item.strip().split("_")[1] +" : "+ c.name for c in HLTChains]
     
     from TrigUpgradeTest.TestUtils import writeEmulationFiles
     writeEmulationFiles(data)
 
     # this is a temporary hack to include new test chains
-    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
+    EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in HLTChains])
 
     ########################## L1 #################################################
 
