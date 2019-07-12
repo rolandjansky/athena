@@ -66,13 +66,13 @@ using Athena::Units::MeV;
 //
 TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_mergeSvc(0),
-    m_tileID(0),
-    m_tileTBID(0),
-    m_tileHWID(0),
-    m_tileInfo(0),
-    m_cabling(0),
-    m_DQstatus(0),
+    m_mergeSvc(nullptr),
+    m_tileID(nullptr),
+    m_tileTBID(nullptr),
+    m_tileHWID(nullptr),
+    m_tileInfo(nullptr),
+    m_cabling(nullptr),
+    m_DQstatus(nullptr),
     m_nSamples(0),
     m_iTrig(0),
     m_adcMax(0.0),
@@ -157,7 +157,8 @@ StatusCode TileDigitsMaker::initialize() {
   //=== get TileCondToolNoiseSample
   ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
-  m_cabling = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
   /* Get needed parameters from tileInfo. */
   m_nSamples = m_tileInfo->NdigitSamples(); // number of time slices for each chan
