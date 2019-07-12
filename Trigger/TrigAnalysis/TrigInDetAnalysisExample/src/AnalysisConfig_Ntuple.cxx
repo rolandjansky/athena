@@ -124,6 +124,48 @@ void remove_duplicates(std::vector<T>& vec) {
 }
 
 
+/// retrieve the jets  from the Roi
+
+size_t AnalysisConfig_Ntuple::get_jets( Trig::FeatureContainer::combination_const_iterator citr, 
+				      std::vector<TrackTrigObject>& objects, const std::string& key ) {
+
+  objects.clear();
+
+  const std::vector< Trig::Feature<xAOD::JetContainer> >  jetfeatures = citr->get<xAOD::JetContainer>( key, TrigDefs::alsoDeactivateTEs );
+  
+  if ( jetfeatures.empty() ) return 0; 
+
+  for ( size_t ifeature=0 ; ifeature<jetfeatures.size() ; ifeature++ ) { 
+    Trig::Feature<xAOD::JetContainer> jetfeature = jetfeatures.at(ifeature);
+
+    if ( jetfeature.empty() ) continue;
+
+    const xAOD::JetContainer* jets = jetfeature.cptr();
+    
+    if ( jets == 0 ) continue;
+
+    xAOD::JetContainer::const_iterator jitr = jets->begin();
+
+    for ( int j=0 ; jitr!=jets->end() ; jitr++, j++ ) { 
+      
+      const xAOD::Jet* ajet = (*jitr);
+
+      long unsigned jetid  = (unsigned long)ajet;
+
+      TrackTrigObject jet = TrackTrigObject( ajet->eta(), ajet->phi(), ajet->pt(), 0, ajet->type(), jetid );
+
+      objects.push_back( jet );
+ 
+    } 
+  }
+  
+  return objects.size();
+
+}
+
+
+
+
 void AnalysisConfig_Ntuple::loop() {
 
   m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
@@ -1314,6 +1356,7 @@ void AnalysisConfig_Ntuple::loop() {
 			  else { 
 			    m_provider->msg(MSG::WARNING) << "\t\tRequested roi  " << roi_name << " not found" << endmsg; 
 			  }
+
 			}
 			else { 
 			  _rois = comb->get<TrigRoiDescriptor>("forID1"); 
@@ -1364,6 +1407,7 @@ void AnalysisConfig_Ntuple::loop() {
 			      //		if( chainName.find("_FS")!=std::string::npos && roiInfo->eta()==0 && roiInfo->phi()==0 ) {
 			      //		roiInfo->phiHalfWidth(M_PI);
 			      //		roiInfo->etaHalfWidth(3);
+
 			    }
 			  }
  
@@ -1508,6 +1552,15 @@ void AnalysisConfig_Ntuple::loop() {
 #endif
   
  
+
+			// now get the jets if they are present
+
+			std::vector<TrackTrigObject> jets; 
+
+			if ( chainName.find("HLT_j")!=std::string::npos ) { 
+			  if ( get_jets( comb, jets ) == 0 ) m_provider->msg(MSG::WARNING) << "\tjets could not be retrieved " << endmsg; 
+			}			  
+
 			const std::vector<TIDA::Track*>& testTracks = selectorTest.tracks();
 			m_provider->msg(MSG::DEBUG) << "\ttest tracks.size() " << testTracks.size() << endmsg; 
 			for (unsigned int ii=0; ii < testTracks.size(); ii++) {
@@ -1535,6 +1588,7 @@ void AnalysisConfig_Ntuple::loop() {
 			chain.back().addTracks(testTracks);
 			chain.back().addVertices(tidavertices);
 			chain.back().addUserData(beamline_online);
+			if ( chainName.find("HLT_j")!=std::string::npos ) chain.back().addObjects( jets );
 			if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
 			  std::vector<double> _beamline;
 			  _beamline.push_back( selectorTest.getBeamX() );
