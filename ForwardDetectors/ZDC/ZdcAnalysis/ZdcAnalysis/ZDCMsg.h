@@ -3,9 +3,16 @@
 
 namespace ZDCMsg {
 
-  typedef bool (*MessageFunctionPtr)(unsigned int, std::string);
+    typedef bool (*MessageFunctionPtr)(unsigned int, std::string);
 
-  enum MSGLevels {Error=0, Warn, Info, Verbose, Debug, Fatal=9};
+    enum MSGLevels {
+        Verbose=1,
+        Debug,
+        Info,
+        Warn,
+        Error,
+        Fatal
+    };
 }
 
 #endif

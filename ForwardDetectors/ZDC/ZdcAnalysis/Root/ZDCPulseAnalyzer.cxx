@@ -43,7 +43,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
 
   float delayBaselineAdjust = par[0];
 
-  if (s_delayedFitHist->GetNbinsX() != nSamples) throw std::exception();
+  // if (s_delayedFitHist->GetNbinsX() != nSamples) throw std::exception();
 
   // undelayed
   //
@@ -329,7 +329,7 @@ void ZDCPulseAnalyzer::SetupFitFunctions()
     m_prePulseFitWrapper = new ZDCFitExpFermiLinearPrePulse(m_tag, m_tmin, m_tmax, m_nominalTau1, m_nominalTau2);
   }
   else {
-    throw std::exception();
+    (*m_msgFunc_p)(ZDCMsg::Fatal, "Wrong fit function type.");
   }
 
   m_defaultFitWrapper->SetT0Range(m_defaultT0Min, m_defaultT0Max);

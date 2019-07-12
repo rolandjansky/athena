@@ -16,6 +16,8 @@
 
 namespace ZDC
 {
+ZdcAnalysisTool* ZdcAnalysisTool::m_currentInstance = 0;
+
 int ZdcAnalysisTool::_debugLevel = 0;
 ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
     : asg::AsgTool(name), m_name(name), m_init(false),
@@ -63,6 +65,7 @@ ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
 
 ZdcAnalysisTool::~ZdcAnalysisTool()
 {
+    if (m_currentInstance == this) m_currentInstance = 0;
     ATH_MSG_DEBUG("Deleting ZdcAnalysisTool named " << m_name);
 }
 
@@ -630,6 +633,10 @@ void ZdcAnalysisTool::initialize80MHz()
 
 StatusCode ZdcAnalysisTool::initialize()
 {
+    // For messaging, record the current ZdcAnalysisTool instance
+    //
+    m_currentInstance = this;
+
     m_tf1SincInterp.reset (new TF1("SincInterp", ZDC::SincInterp, -5., 160., 8));
     m_tf1SincInterp->SetNpx(300);
 
@@ -786,6 +793,10 @@ StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
 
 StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer)
 {
+    // For messaging, record the current ZdcAnalysisTool instance
+    //
+    m_currentInstance = this;
+
     if (!m_eventReady)
     {
         ATH_MSG_INFO("Event not ready for ZDC reco!");

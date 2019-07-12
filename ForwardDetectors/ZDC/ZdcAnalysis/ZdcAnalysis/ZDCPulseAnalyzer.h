@@ -413,10 +413,10 @@ public:
     return theGraph;
   }
 
-  TH1* GetFitPulls() const
+  std::unique_ptr<TH1> GetFitPulls() const
   {
     int nbins = (m_useDelayed ? 2 * m_Nsample : m_Nsample);
-    TH1* hist = new TH1F((std::string("FitPulls") + m_tag).c_str(), "", nbins, m_tmin, m_tmax);
+    std::unique_ptr<TH1> hist {new TH1F((std::string("FitPulls") + m_tag).c_str(), "", nbins, m_tmin, m_tmax)};
 
     for (size_t ibin = 0; ibin < (size_t) nbins; ibin++) {
       hist->SetBinContent(ibin + 1, m_fitPulls[ibin]);

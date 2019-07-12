@@ -25,6 +25,8 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 
   ASG_TOOL_CLASS(ZdcAnalysisTool, ZDC::IZdcAnalysisTool)
 
+  static ZdcAnalysisTool* m_currentInstance;
+
 public:
   ZdcAnalysisTool(const std::string& name);
   virtual ~ZdcAnalysisTool() override;
@@ -81,16 +83,12 @@ public:
 
   static bool MessageFunc(unsigned int level, std::string message)
   {
-    if (level == ZDCMsg::Fatal) {
-      std::cout << message << std::endl;
-      throw std::exception();
+    MSG::Level theLevel = static_cast<MSG::Level>(level);
+    bool test = m_currentInstance->msg().msgLevel(theLevel);
+    if (test) {
+      m_currentInstance->ATH_MSG_LVL_NOCHK(theLevel, message);
     }
-
-    if (level <= (unsigned int) _debugLevel) {
-      if (message != "") std::cout << message << std::endl;
-      return true;
-    }
-    else return false;
+    return test;
   }
 
   void Dump_setting() {
