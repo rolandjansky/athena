@@ -76,6 +76,17 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     selectionTool.ConfigPath = inputfile
     seq.addPublicTool( selectionTool )
 
+    # Set up the tau truth matching algorithm:
+    if rerunTruthMatching and dataType != 'data':
+        alg = createAlgorithm( 'CP::TauTruthMatchingAlg',
+                               'TauTruthMatchingAlg' + postfix )
+        addPrivateTool( alg, 'matchingTool',
+                        'TauAnalysisTools::TauTruthMatchingTool' )
+        alg.matchingTool.WriteTruthTaus = 1
+        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+                    stageName = 'selection' )
+        pass
+
     # Set up the tau 4-momentum smearing algorithm:
     alg = createAlgorithm( 'CP::TauSmearingAlg', 'TauSmearingAlg' + postfix )
     addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::TauSmearingTool' )
@@ -108,17 +119,6 @@ def makeTauAnalysisSequence( dataType, workingPoint,
         seq.append( alg, inputPropName = 'taus',
                     affectingSystematics = '(^TAUS_TRUEELECTRON_EFF_.*)|(^TAUS_TRUEHADTAU_EFF_.*)',
                     stageName = 'efficiency' )
-
-    # Set up the tau truth matching algorithm:
-    if rerunTruthMatching and dataType != 'data':
-        alg = createAlgorithm( 'CP::TauTruthMatchingAlg',
-                               'TauTruthMatchingAlg' + postfix )
-        addPrivateTool( alg, 'matchingTool',
-                        'TauAnalysisTools::TauTruthMatchingTool' )
-        alg.matchingTool.WriteTruthTaus = 1
-        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                    stageName = 'selection' )
-        pass
 
     # Set up an algorithm used for debugging the tau selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'TauCutFlowDumperAlg' + postfix )
