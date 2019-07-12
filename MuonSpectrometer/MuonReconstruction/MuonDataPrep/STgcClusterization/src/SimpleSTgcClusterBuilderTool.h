@@ -46,7 +46,10 @@ namespace Muon
 			   std::vector<Muon::sTgcPrepData*>& clustersVect);
 
   private: 
-  
+
+    double m_chargeCut;
+    bool m_allowHoles;
+
     /// Muon detector manager and helper
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const sTgcIdHelper* m_stgcIdHelper;
@@ -54,6 +57,10 @@ namespace Muon
     std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
     std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];
 
+    /// private functions
+    void dumpStrips( std::vector<Muon::sTgcPrepData>& stripsVect,
+		     std::vector<Muon::sTgcPrepData*>& clustersVect );
+  
     bool addStrip(Muon::sTgcPrepData& strip);
 
 
