@@ -20,7 +20,13 @@ CombinationsHelperTool::CombinationsHelperTool(const std::string& type,
 
 StatusCode CombinationsHelperTool::initialize() {
   
-  m_conditions = m_config->getConditions();
+  auto opt_conditions = m_config->getConditions();
+  if(!opt_conditions.has_value()){
+    ATH_MSG_ERROR("Error setting conditions");
+    return StatusCode::FAILURE;
+  }  
+  m_conditions = std::move(*opt_conditions);
+  
   m_grouper  = std::move(m_config->getJetGrouper());
   m_matcher = std::move(m_config->getMatcher());
 
@@ -106,37 +112,43 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   std::vector<HypoJetGroupVector> jetGroupsVec =
     m_grouper->group(begin, end_iter);
 
-  // bool pass = true;
   setupTimer.stop();
   exeTimer.start();
-    
+
+  bool passed{false};
+  
   for(auto& jetGroupVec : jetGroupsVec){
     ATH_MSG_DEBUG("No of groups" << jetGroupVec.size());
 
-    auto pass = m_matcher->match(jetGroupVec.begin(),
+    auto passes = m_matcher->match(jetGroupVec.begin(),
 				 jetGroupVec.end(),
 				 jetCollector,
 				 collector);
 
-    if(pass.has_value() and *pass){
+    if(!passes.has_value()){
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
+    }
+
+    passed = *passes;
+    if(passed){
       exeTimer.stop();
       collectData(setupTimer.readAndReset(),
 		  exeTimer.readAndReset(),
 		  collector,
-		  *pass);
+		  passed);
 	
-      return *pass;
+      return passed;
     }
   }
   
-  bool pass{false};
   exeTimer.stop();
   collectData(setupTimer.readAndReset(),
               exeTimer.readAndReset(),
               collector,
-              pass);
+              passed);
   
-  return pass;
+  return passed;
 }
 
 

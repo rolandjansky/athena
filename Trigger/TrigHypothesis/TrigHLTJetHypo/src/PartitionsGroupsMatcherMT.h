@@ -49,10 +49,6 @@ private:
   std::size_t m_nConditions{0};
   std::size_t m_minNjets{0};
 
-bool
-  groupsPass(const HypoJetGroupCIter& groups_b,
-	     const HypoJetGroupCIter& groups_e,
-	     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 };
 
 #endif

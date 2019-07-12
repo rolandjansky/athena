@@ -44,13 +44,14 @@ StatusCode TrigJetHypoToolConfig_simple_partition::initialize() {
 }
 
 
-ConditionsMT TrigJetHypoToolConfig_simple_partition::getConditions() const {
-  auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
-                                             m_etaMaxs,
-                                             m_EtThresholds,
-                                             m_asymmetricEtas);
-
-  return conditions;
+std::optional<ConditionsMT>
+TrigJetHypoToolConfig_simple_partition::getConditions() const {
+  
+  return
+    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(m_etaMins,
+							      m_etaMaxs,
+							      m_EtThresholds,
+							      m_asymmetricEtas));
 }
 
  
@@ -59,9 +60,14 @@ TrigJetHypoToolConfig_simple_partition::getJetGrouper() const {
 
   // set up theP PartitionsGrouper according to the number of jets
   // required by each condition
-  auto conditions = getConditions();
+  auto opt_conds = getConditions();
+  if(!opt_conds.has_value()){
+    ATH_MSG_ERROR("Error obtaining Conditions");
+    return std::unique_ptr<IJetGrouper>(nullptr);
+  }
+
   std::vector<size_t> mults;
-  for(const auto& c : conditions){mults.push_back(c->capacity());}
+  for(const auto& c : *opt_conds){mults.push_back(c->capacity());}
    
   return std::make_unique<PartitionsGrouper>(mults);
 }
@@ -69,7 +75,14 @@ TrigJetHypoToolConfig_simple_partition::getJetGrouper() const {
 
 std::unique_ptr<IGroupsMatcherMT>
 TrigJetHypoToolConfig_simple_partition::getMatcher() const {
-  return groupsMatcherFactoryMT_Partitions(getConditions());
+  
+  auto opt_conds = getConditions();
+
+  if(!opt_conds.has_value()){
+    return std::unique_ptr<IGroupsMatcherMT>(nullptr);
+  }
+  
+  return groupsMatcherFactoryMT_Partitions(std::move(*opt_conds));
 }
 
 
@@ -89,6 +102,12 @@ StatusCode TrigJetHypoToolConfig_simple_partition::checkVals() const {
     
     return StatusCode::FAILURE;
   }
+
+  if (m_EtThresholds.empty()){
+    ATH_MSG_ERROR(name() + " No conditions");
+    return StatusCode::FAILURE;
+  }
+    
   return StatusCode::SUCCESS;
 }
 

@@ -23,7 +23,11 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
 
   m_grouper  = std::move(m_config->getJetGrouper());
   m_matcher = std::move(m_config->getMatcher());
-
+  if(!m_matcher){
+    ATH_MSG_ERROR("Error setting matcher");
+    return StatusCode::FAILURE;
+  }
+		  
   return StatusCode::SUCCESS;
 }
 
@@ -77,13 +81,18 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 				 collector);
     
     timer.stop();
-
+    
     collectData(timer.readAndReset(), collector, pass);
-    if(pass.has_value()){
-      if(*pass){return true;}
+
+    if(!pass.has_value()){
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
     }
+    
+    if(*pass){return true;}
     timer.start();
   }
+  
   timer.stop();
   return false;
 }

@@ -30,65 +30,76 @@ PartitionsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
 					    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 					    bool) const {
 
-  if(collector){
-    collector->collect("PartitionsGroupsToHelpersMatcher", toString());
-  }
-  
-  if(m_helpers.empty()){
-    if(collector){
-      collector->collect("PartitionsGroupsToHelpersMatcherMT", "Zero conditions");
-    }
-    return std::make_optional<bool>(false);
-  }
+  /*
+   * groups_b ... groups_e are iterators that point at HypoJetVectors.
+   * It is required that the number of hypoJetVectors = the number of
+   * ITrigJetHypoToolHelperMT children.
+   * the pass requirement is that,
+   * for  each i in range(0, n_children),  the ith child passes the ith 
+   * HypoJetVector.
+   */
   
  
-  if (groupsPass(groups_b,
-		 groups_e,
-		 jetCollector,
-		 collector)){
-    std::for_each(groups_b, groups_e, [&jetCollector](auto& jv){
-	jetCollector.addJets(jv.begin(), jv.end());});
-    return std::make_optional<bool>(true);  
+  // minimal input correctness checks. More detailed checking
+  // responsibility of the caller.
+
+  auto iter_diff = groups_e - groups_b;
+  if (iter_diff < 0){return std::optional<bool>();}
+  auto n_jetvecs = static_cast<std::size_t>(iter_diff);
+  auto n_helpers = m_helpers.size();
+
+  if(n_helpers != n_jetvecs){
+    if(collector){
+      std::string msg = "Number of HypoJetVectors " +
+	std::to_string(n_jetvecs) + " !=  number of children " +
+	std::to_string(n_helpers);
+      
+      collector->collect("PartitionsGroupsToHelpersMatcherMT", msg);
+    }
+    return std::optional<bool>();
+  }
+
+
+  for(std::size_t i = 0;  i != n_helpers; ++i){
+    // Pass each job group to its corresposonding child, check if pass.
+    // Return false any child does not pass.
+
+    // the IGroupsMatcher species that the input HypoJetVectors are constant,
+    // so make a copy...
+
+    HypoJetVector jv((*(groups_e +i)).begin(), (*(groups_e +i)).end());
+    if (!m_helpers[i]->pass(jv,
+			    jetCollector,
+			    collector)){
+      return std::make_optional<bool>(false);
+    }
+
+    // passed....
+    for(auto iter = groups_b; iter != groups_e; ++iter){
+      jetCollector.addJets((*iter).begin(), (*iter).end());
+    }
   }
   
-  return std::make_optional<bool>(false);  
+  return std::make_optional<bool>(true);  
 } 
 
 
 std::string PartitionsGroupsToHelpersMatcherMT::toString() const noexcept {
   std::stringstream ss;
 
-  ss << "PartitionsGroupsToHelpersMatcherMT. No of helpers: "
-     << m_helpers.size() << '\n';
-  for(auto h : m_helpers){ ss <<"  "<< h->toString() << '\n';}
+  ss << "PartitionsGroupsToHelpersMatcherMT. "
+     << "Passes each hypojet vector to all helpers in turn."
+     << "\n No of helpers: "
+     << m_helpers.size() << "\n\n";
+
+  unsigned short ih{0};
+  for(auto h : m_helpers){
+    ss <<"Helper " << ih <<":\n"<< h->toString() << '\n';
+    ++ih;
+  }
+  
   return ss.str();
 }
 
-
-bool
-PartitionsGroupsToHelpersMatcherMT::groupsPass(const HypoJetGroupCIter& groups_b,
-						 const HypoJetGroupCIter& groups_e,
-						 xAODJetCollector& jetCollector,
-						 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-
-  auto n_jetgroups = static_cast<std::size_t>(groups_e - groups_b);
-
-  // test whether this set of job groups pass the conditions
-  // note - this method may be called more than once with different
-  // collections of job groups.
-
-
-  assert(n_jetgroups == m_helpers.size());
-  for(long unsigned int i = 0; i != n_jetgroups; ++i){
-    // step through conditions and job groups simulataneously, and
-    // enquire whethwer each conidtion is satisfied by its corresponding
-    // job group.
-    const auto& helper = *(m_helpers.begin() + i);
-    auto group = *(groups_b + i);
-
-    if(!(helper->pass(group, jetCollector, collector))){return false;}
-  }
-  return true;
-} 
   
 

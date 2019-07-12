@@ -32,11 +32,8 @@ using HelperToolArray = ToolHandleArray<ITrigJetHypoToolHelperMT>;
 
 class CombinationsGroupsToHelpersMatcherMT: public IGroupsMatcherMT {
 
-  /* Used to find jets pass multithreshold,
-     possibly overlapping eta regions
-     where any particular jet can be assigned to at most
-     one threshold. Uses the Ford Fulkerson Alg.
-     See Algorithms, Sedgewick and Wayne 4th edition */
+  /* Looks for a HypooJet Vector chosen from a list of input HypoJetVectors
+     that satisfies all of the child ITrigJetHypoToolHelperMT objects*/
 
 public:
   CombinationsGroupsToHelpersMatcherMT(const HelperToolArray&);

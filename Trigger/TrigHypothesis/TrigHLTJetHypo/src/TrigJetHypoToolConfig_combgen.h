@@ -43,7 +43,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
   virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
 
-  virtual ConditionsMT getConditions() const override;
+  virtual std::optional<ConditionsMT> getConditions() const override;
 
  private:
   
