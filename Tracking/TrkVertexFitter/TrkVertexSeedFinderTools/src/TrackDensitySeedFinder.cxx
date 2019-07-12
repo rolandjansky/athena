@@ -69,9 +69,7 @@ namespace Trk
     double zResult {0.};
     if ( perigeeList.size()>0 ) 
     {
-      m_densityEstimator->reset();
-      m_densityEstimator->addTracks(perigeeList);
-      zResult = m_densityEstimator->globalMaximum();
+      zResult = m_densityEstimator->globalMaximum (perigeeList);
       ATH_MSG_DEBUG("Highest density Z position found: " << zResult);
     }
     else
