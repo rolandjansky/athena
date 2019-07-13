@@ -13,7 +13,7 @@ class Test( unittest.TestCase ):
 
    def test_1D_label( self ):
       s = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0, labels=['a','b'])
-      self.assertEqual(s, 'EXPERT, TH1F, , , var, title, 10, 0.000000, 10.000000, a:b:')
+      self.assertEqual(s, 'EXPERT, TH1F, , , var, title, 10, 0.000000, 10.000000, a:b')
 
    def test_1D_opt( self ):
       s = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0, opt='myopt')

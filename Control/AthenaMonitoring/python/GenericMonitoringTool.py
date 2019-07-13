@@ -13,10 +13,18 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 
     def __init__(self, name, **kwargs):
         super(GenericMonitoringTool, self).__init__(name, **kwargs)
+        self.convention=''
 
     def defineHistogram(self, *args, **kwargs):
-        if 'convention' not in kwargs and hasattr(self,'convention'):
-            kwargs['convention'] = self.convention
+        if 'convention' in kwargs:
+            # only if someone really knows what they're doing
+            pass
+        else:
+            if 'duration' in kwargs:
+                kwargs['convention'] = self.convention + ':' + kwargs['duration']
+                del kwargs['duration']
+            elif hasattr(self, 'defaultDuration'):
+                kwargs['convention'] = self.convention + ':' + self.defaultDuration
         self.Histograms.append(defineHistogram(*args, **kwargs))
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
@@ -38,6 +46,8 @@ def defineHistogram(varname, type='TH1F', path=None,
                     opt='', labels=None, convention=''):
 
     # Assert argument types
+    if not athenaCommonFlags.isOnline():
+        if path is None: path = ''
     assert path is not None, "path is required"
     assert labels is None or isinstance(labels, list), "labels must be of type list"
     # assert labels is None or !isinstance(labels, list), \
@@ -70,7 +80,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         coded += ", %f, %f" % (ymin, ymax)
 
     if labels is not None and len(labels)>0:
-        coded += ', ' + ':'.join(labels) + ':'    # C++ parser expects at least one ":"
+        coded += ', ' + ':'.join(labels) + (':' if len(labels) == 1 else '')    # C++ parser expects at least one ":"
 
     if len(opt)>0:
         coded += ", %s" % opt
