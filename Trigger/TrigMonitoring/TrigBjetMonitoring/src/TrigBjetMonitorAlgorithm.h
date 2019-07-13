@@ -25,6 +25,7 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
   Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
+  //  const std::vector<std::string> m_AllChains;
   std::vector<std::string> m_AllChains;
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey;
   SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContainerKey;

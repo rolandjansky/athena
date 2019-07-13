@@ -115,9 +115,9 @@ def TrigBjetMonConfig(inputFlags):
     AllChains = []
     for chain in bjet_triglist :
         AllChains.append(chain[2:])
-        #print " inside bjet_triglist chain[2:8] : " , chain[2:8]
+        print " inside bjet_triglist chain[2:8] : " , chain[2:8]
         if chain[2:8] == 'HLT_mu' : # mu-jets
-            #print "        mu-jet histogram is defined for ", chain[2:]
+            print "        mu-jet histogram is defined for ", chain[2:]
 
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
@@ -129,7 +129,7 @@ def TrigBjetMonConfig(inputFlags):
 
             continue
         else :                      # b-jets
-            #print "        b-jet histogram is defined for ", chain[2:]
+            print "        b-jet histogram is defined for ", chain[2:]
 
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -165,7 +165,7 @@ def TrigBjetMonConfig(inputFlags):
             continue
 
 
-    print " ==> AllChains list: ", AllChains
+    print " ==> In TrigBjetMonitorAlgorithm.py: AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
 
 
@@ -195,15 +195,34 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
-    file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.isMC = False
+
+    # Input files
+
+    # Original data input file from P.Onyisi and C.Burton:
+    #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
+    #file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
+    #ConfigFlags.Input.Files = [nightly+file]
+    #ConfigFlags.Input.isMC = False
+
+    # MC file found by me but can be used only w/ asetup Athena,r2019-06-28,master
     #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     #file = 'mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
     #ConfigFlags.Input.Files = [nightly+file]
     #ConfigFlags.Input.isMC = True
+
+    # MC input files proposed by Tim Martin in https://its.cern.ch/jira/browse/ATR-19881 for Run-3
+    # file = '/afs/cern/ch/user/t/tamartin/public/ESD.pool.root'
+    # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
+    file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
+    # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_build/AOD.pool.root'
+    ConfigFlags.Input.Files = [file]
+    ConfigFlags.Input.isMC = True
+
+    # Output file (root)
+
     ConfigFlags.Output.HISTFileName = 'TrigBjetMonitorOutput.root'
+
+    ConfigFlags.Trigger.triggerMenuSetup="Physics_pp_v7_primaries"
     
     ConfigFlags.lock()
 
