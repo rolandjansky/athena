@@ -11,6 +11,7 @@
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 
 namespace Muon{
 
@@ -236,6 +237,10 @@ namespace Muon{
       int nGrandchildren = cv->getNChildVols();
       if(nGrandchildren <= 0) return;
 
+      std::vector<int> tubes;
+      geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+      std::sort (tubes.begin(), tubes.end());
+
       Identifier detElId = mydetEl->identify();
 
       int name = m_mdtIdHelper->stationName(detElId);
@@ -243,30 +248,31 @@ namespace Muon{
       int phi = m_mdtIdHelper->stationPhi(detElId);
       int ml = m_mdtIdHelper->multilayer(detElId);
 
+      std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-            bool tubefound = false;
-            for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-               int tubegeo = cv->getIdOfChildVol(kk) % 100;
-               int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-               if( tubegeo == tube && layergeo == layer ) {
-                 tubefound=true;
-                 break;
+           int want_id = layer*100 + tube;
+           if (it != tubes.end() && *it == want_id) {
+             ++it;
+           }
+           else {
+             it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+             if (it != tubes.end() && *it == want_id) {
+               ++it;
+             }
+             else {
+               Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+               Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
+               m_deadTubes.push_back( deadTubeId );
+               m_deadTubesML.insert( deadTubeMLId );
+               if (msg) {
+                 *msg << MSG::VERBOSE
+                      << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
+                      << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
+                      << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
                }
-               if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
-            }
-            if(!tubefound) {
-              Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
-              Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
-              m_deadTubes.push_back( deadTubeId );
-              m_deadTubesML.insert( deadTubeMLId );
-              if (msg) {
-                *msg << MSG::VERBOSE
-                  << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
-                  << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
-                  << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
-              }
-            }
+             }
+           }
          }
       }
     }
