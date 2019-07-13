@@ -62,7 +62,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
-    m_rSummarySvc("RPCCondSummarySvc", name),
     m_fullEventDone(false)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
@@ -185,14 +184,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
     m_processingData = true;
   }
   
-    
-  if (m_RPCInfoFromDb){
-     StatusCode status = m_rSummarySvc.retrieve();
-     if (status != StatusCode::SUCCESS) {
-       ATH_MSG_WARNING (  "Could not retrieve RPC Info from Db"  );
-       return StatusCode::FAILURE;
-     }
-   }
+
+  ATH_CHECK(m_readKey.initialize());
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
@@ -943,6 +936,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
     return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  const RpcCondDbData* readCdo{*readHandle};
+
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
 		<<" ---# of coll.s with data until now is "<<idWithDataVect.size());
@@ -1335,10 +1331,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 
 	      //correct prd time from cool db
 	      if (m_RPCInfoFromDb){
-		ATH_MSG_DEBUG( " Time correction from COOL " << " size of  RPC_TimeMapforStrip " <<m_rSummarySvc->RPC_TimeMapforStrip().size() );	     
+		ATH_MSG_DEBUG( " Time correction from COOL " << " size of  RPC_TimeMapforStrip " <<readCdo->getStripTimeMap().size() );	     
 		std::vector<double> StripTimeFromCool;
-		if( m_rSummarySvc->RPC_TimeMapforStrip().find(channelId) != m_rSummarySvc->RPC_TimeMapforStrip().end()){
-		  StripTimeFromCool   = m_rSummarySvc->RPC_TimeMapforStrip     ().find(channelId)->second ;		 
+		if( readCdo->getStripTimeMap().find(channelId) != readCdo->getStripTimeMap().end()){
+		  StripTimeFromCool   = readCdo->getStripTimeMap().find(channelId)->second ;		 
 		  ATH_MSG_DEBUG(" Time "<< time << " Time correction from COOL for jstrip " <<StripTimeFromCool.at(0) );		  
 		  time -= StripTimeFromCool.at(0) ;		
 		}

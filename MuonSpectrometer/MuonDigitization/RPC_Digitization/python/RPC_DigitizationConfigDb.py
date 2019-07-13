@@ -2,6 +2,9 @@
 
 from AthenaCommon.CfgGetter import addTool, addAlgorithm
 
+## MT-safe conditions access
+import MuonCondAlg.RpcCondDbAlgConfig
+
 addTool("RPC_Digitization.RPC_DigitizationConfig.RpcDigitizationTool" , "RpcDigitizationTool")
 addTool("RPC_Digitization.RPC_DigitizationConfig.getRpcRange"         , "RpcRange")
 addTool("RPC_Digitization.RPC_DigitizationConfig.Rpc_OverlayDigitizationTool" , "Rpc_OverlayDigitizationTool")

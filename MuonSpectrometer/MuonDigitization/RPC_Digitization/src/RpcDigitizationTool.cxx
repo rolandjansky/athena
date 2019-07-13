@@ -95,7 +95,6 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "ClusterSize1_2uncorr   " <<  m_ClusterSize1_2uncorr     );
   ATH_MSG_DEBUG ( "PrintCalibrationVector " <<  m_PrintCalibrationVector   );
   ATH_MSG_DEBUG ( "BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-  ATH_MSG_DEBUG ( "RPCCondSummarySvc      " <<  m_rSummarySvc              );
   ATH_MSG_DEBUG ( "DumpFromDbFirst        " <<  m_DumpFromDbFirst          );
   ATH_MSG_DEBUG ( "CutMaxClusterSize      " <<  m_CutMaxClusterSize        );
   ATH_MSG_DEBUG ( "CutProjectedTracks     " <<  m_CutProjectedTracks       );
@@ -238,9 +237,7 @@ StatusCode RpcDigitizationTool::initialize() {
   // fill the taginfo information
   ATH_CHECK(fillTagInfo());
 
-  if (m_RPCInfoFromDb) {
-    ATH_CHECK(m_rSummarySvc.retrieve());
-  }
+  ATH_CHECK(m_readKey.initialize());
 
   if(m_PrintCalibrationVector) {
     ATH_CHECK(PrintCalibrationVector());
@@ -460,6 +457,9 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
 
 //--------------------------------------------
 StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
+
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  const RpcCondDbData* readCdo{*readHandle};
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
@@ -688,7 +688,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 	  if (m_Efficiency_fromCOOL) {
 	    if ( !(undefPhiStripStat && imeasphi==1) )
 	      {
-		if(m_rSummarySvc->RPC_DeadStripList().find( newId )  != m_rSummarySvc->RPC_DeadStripList().end()) 
+		if(readCdo->getDeadStripIntMap().find( newId )  != readCdo->getDeadStripIntMap().end()) 
 		  {
 		    ATH_MSG_DEBUG ( "After DetectionEfficiency: strip "<< m_idHelper->show_to_string(newId) <<" in a cluster of size "<< pcs[2]-pcs[1]+1<<" is dead - kill it ");
 		    ++nToBeKilledStrips;
@@ -1717,7 +1717,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   
   int stripetagood = 0 ;
   int stripphigood = 0 ;
-  
+
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  const RpcCondDbData* readCdo{*readHandle};
 
   if(!m_Efficiency_fromCOOL){
     unsigned int index = stationName - 2 ;
@@ -1765,7 +1767,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
     bool noEntryInDb=false;
     
-    if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdEta) == m_rSummarySvc->RPC_FracDeadStripMap()  .end()){
+    if( readCdo->getFracDeadStripMap()  .find(IdEta) == readCdo->getFracDeadStripMap()  .end()){
       ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdEtaRpcStrip :  "  << IdEta << " i.e. "<<m_idHelper->show_to_string(IdEta));
       noEntryInDb=true;      
     }
@@ -1773,7 +1775,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       {
 	ATH_MSG_DEBUG ( "Found In CoolDB the Panel IdEtaRpcStrip :  "  << IdEta << " i.e. "<<m_idHelper->show_to_string(IdEta));
       }
-    if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdPhi) == m_rSummarySvc->RPC_FracDeadStripMap()  .end()) {
+    if( readCdo->getFracDeadStripMap()  .find(IdPhi) == readCdo->getFracDeadStripMap()  .end()) {
       ATH_MSG_DEBUG ( "Not In CoolDB the Panel IdPhiRpcStrip :  "  << IdPhi << " i.e. "<<m_idHelper->show_to_string(IdPhi));
       noEntryInDb=true;
     }
@@ -1781,15 +1783,14 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       {
 	ATH_MSG_DEBUG ( "Found In CoolDB the Panel IdPhiRpcStrip :  "  << IdPhi << " i.e. "<<m_idHelper->show_to_string(IdPhi));
       }
-    
-    if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdEta) != m_rSummarySvc->RPC_FracDeadStripMap()  .end()) FracDeadStripEta        = m_rSummarySvc->RPC_FracDeadStripMap  ().find(IdEta)->second ;
-    if( m_rSummarySvc->RPC_FracDeadStripMap()  .find(IdPhi) != m_rSummarySvc->RPC_FracDeadStripMap()  .end()) FracDeadStripPhi        = m_rSummarySvc->RPC_FracDeadStripMap  ().find(IdPhi)->second ;
-    if( m_rSummarySvc->RPC_ProjectedTracksMap().find(IdEta) != m_rSummarySvc->RPC_ProjectedTracksMap().end()) RPC_ProjectedTracksEta  = m_rSummarySvc->RPC_ProjectedTracksMap().find(IdEta)->second ;
-    
+ 
+    if( readCdo->getFracDeadStripMap()  .find(IdEta) != readCdo->getFracDeadStripMap()  .end()) FracDeadStripEta        = readCdo->getFracDeadStripMap().find(IdEta)->second ;
+    if( readCdo->getFracDeadStripMap()  .find(IdPhi) != readCdo->getFracDeadStripMap()  .end()) FracDeadStripPhi        = readCdo->getFracDeadStripMap().find(IdPhi)->second ;
+    if( readCdo->getProjectedTracksMap().find(IdEta) != readCdo->getProjectedTracksMap().end()) RPC_ProjectedTracksEta  = readCdo->getProjectedTracksMap().find(IdEta)->second ;
 
-    if( m_rSummarySvc->RPC_EfficiencyMap()     .find(IdEta) != m_rSummarySvc->RPC_EfficiencyMap()     .end()) EtaPanelEfficiency      = m_rSummarySvc->RPC_EfficiencyMap     ().find(IdEta)->second ;
-    if( m_rSummarySvc->RPC_EfficiencyMap()     .find(IdPhi) != m_rSummarySvc->RPC_EfficiencyMap()     .end()) PhiPanelEfficiency      = m_rSummarySvc->RPC_EfficiencyMap     ().find(IdPhi)->second ;
-    if( m_rSummarySvc->RPC_EfficiencyGapMap()  .find(IdEta) != m_rSummarySvc->RPC_EfficiencyGapMap()  .end()) GapEfficiency	        = m_rSummarySvc->RPC_EfficiencyGapMap  ().find(IdEta)->second ;
+    if( readCdo->getEfficiencyMap()     .find(IdEta) != readCdo->getEfficiencyMap()     .end()) EtaPanelEfficiency      = readCdo->getEfficiencyMap().find(IdEta)->second ;
+    if( readCdo->getEfficiencyMap()     .find(IdPhi) != readCdo->getEfficiencyMap()     .end()) PhiPanelEfficiency      = readCdo->getEfficiencyMap().find(IdPhi)->second ;
+    if( readCdo->getEfficiencyGapMap()  .find(IdEta) != readCdo->getEfficiencyGapMap()  .end()) GapEfficiency	        = readCdo->getEfficiencyGapMap().find(IdEta)->second ;
 
     if (fabs(FracDeadStripEta-1.)<0.001) 
       {
@@ -1851,8 +1852,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       int stripphigood = 0 ;
     */
 
-    // if(m_rSummarySvc->RPC_DeadStripList().find( *IdEtaRpcStrip)  != m_rSummarySvc->RPC_DeadStripList().end()) stripetadead = m_rSummarySvc->RPC_DeadStripList().find( *IdEtaRpcStrip)->second; // not used
-    // if(m_rSummarySvc->RPC_DeadStripList().find( *IdPhiRpcStrip)  != m_rSummarySvc->RPC_DeadStripList().end()) stripphidead = m_rSummarySvc->RPC_DeadStripList().find( *IdPhiRpcStrip)->second; // not used
+    // if(readCdo->getDeadStripIntMap().find( *IdEtaRpcStrip)  != readCdo->getDeadStripIntMap().end()) stripetadead = readCdo->getDeadStripIntMap().find( *IdEtaRpcStrip)->second; // not used
+    // if(readCdo->getDeadStripIntMap().find( *IdPhiRpcStrip)  != readCdo->getDeadStripIntMap().end()) stripphidead = readCdo->getDeadStripIntMap().find( *IdPhiRpcStrip)->second; // not used
 
     // if( m_PanelId_OFF_fromlist && ( m_DeadPanel_fromlist.find(IdEta) != m_DeadPanel_fromlist.end()) )  stripetadead =  m_DeadPanel_fromlist.find(IdEta)->second; // not used
     // if( m_PanelId_OFF_fromlist && ( m_DeadPanel_fromlist.find(IdPhi) != m_DeadPanel_fromlist.end()) )  stripphidead =  m_DeadPanel_fromlist.find(IdPhi)->second; // not used
@@ -2082,7 +2083,8 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   // float FracClusterSize1norm  = 1  ; // not used
   float FracClusterSize2norm  = 0  ;
 
-
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  const RpcCondDbData* readCdo{*readHandle};
 
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
   int stationName  = m_idHelper->stationName(*IdRpcStrip);
@@ -2127,18 +2129,18 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 
     int    RPC_ProjectedTracks = 0;
 
-    if( m_rSummarySvc->RPC_ProjectedTracksMap().find(Id) != m_rSummarySvc->RPC_ProjectedTracksMap().end()) RPC_ProjectedTracks = m_rSummarySvc->RPC_ProjectedTracksMap().find(Id)->second ;
+    if( readCdo->getProjectedTracksMap().find(Id) != readCdo->getProjectedTracksMap().end()) RPC_ProjectedTracks = readCdo->getProjectedTracksMap().find(Id)->second ;
 
-    if(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize1Map().end()) FracClusterSize1	= float(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id)->second) ;
+    if(readCdo->getFracClusterSize1Map().find(Id) != readCdo->getFracClusterSize1Map().end()) FracClusterSize1	= float(readCdo->getFracClusterSize1Map().find(Id)->second) ;
     else ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
-    if(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize2Map().end()) FracClusterSize2	= float(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id)->second) ;
+    if(readCdo->getFracClusterSize2Map().find(Id) != readCdo->getFracClusterSize2Map().end()) FracClusterSize2	= float(readCdo->getFracClusterSize2Map().find(Id)->second) ;
     else ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
 
     ATH_MSG_DEBUG ( "FracClusterSize1 and 2 "<< FracClusterSize1 << " " << FracClusterSize2  );
 
     FracClusterSizeTail = 1. - FracClusterSize1 - FracClusterSize2 ;
 
-    if(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id) != m_rSummarySvc->RPC_MeanClusterSizeMap().end()) MeanClusterSize     = float(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id)->second)  ;
+    if(readCdo->getMeanClusterSizeMap().find(Id) != readCdo->getMeanClusterSizeMap().end()) MeanClusterSize     = float(readCdo->getMeanClusterSizeMap().find(Id)->second)  ;
     else ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
 
     MeanClusterSizeTail = MeanClusterSize - FracClusterSize1 - 2*FracClusterSize2 ;
@@ -2309,6 +2311,9 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DumpRPCCalibFromCoolDB" );
 
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  const RpcCondDbData* readCdo{*readHandle};
+
   StatusCode sc = StatusCode::SUCCESS;
 
   int NpanelEff0       = 0 ;
@@ -2349,8 +2354,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   std::map   <Identifier,      float>::const_iterator itrf;
   std::map   <Identifier,        int>::const_iterator itri;
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyMap: " << m_rSummarySvc->RPC_EfficiencyMap().size() );
-  for (itr=m_rSummarySvc->RPC_EfficiencyMap().begin(); itr!=m_rSummarySvc->RPC_EfficiencyMap().end(); ++itr) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyMap: " << readCdo->getEfficiencyMap().size() );
+  for (itr=readCdo->getEfficiencyMap().begin(); itr!=readCdo->getEfficiencyMap().end(); ++itr) {
     if( itr->second == 0.   )NpanelEff0++       ;
     if( itr->second  < 0.5  )NpanelEffLess05++  ;
     if( itr->second  < 1.   )NpanelEffLess1++   ;
@@ -2362,8 +2367,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyGapMap: " << m_rSummarySvc->RPC_EfficiencyGapMap().size() );
-  for (itr=m_rSummarySvc->RPC_EfficiencyGapMap().begin(); itr!=m_rSummarySvc->RPC_EfficiencyGapMap().end(); ++itr) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyGapMap: " << readCdo->getEfficiencyGapMap().size() );
+  for (itr=readCdo->getEfficiencyGapMap().begin(); itr!=readCdo->getEfficiencyGapMap().end(); ++itr) {
 
     ATH_MSG_DEBUG ( "Summary Id/RPC_EfficiencyGapMap: " << itr->first <<" i.e. "
 		    <<(itr->first).get_identifier32().get_compact()<<" "
@@ -2371,8 +2376,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_MeanClusterSizeMap: " << m_rSummarySvc->RPC_MeanClusterSizeMap().size() );
-  for (itr=m_rSummarySvc->RPC_MeanClusterSizeMap().begin(); itr!=m_rSummarySvc->RPC_MeanClusterSizeMap().end(); ++itr) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_MeanClusterSizeMap: " << readCdo->getMeanClusterSizeMap().size() );
+  for (itr=readCdo->getMeanClusterSizeMap().begin(); itr!=readCdo->getMeanClusterSizeMap().end(); ++itr) {
     if( itr->second ==  1.0  )NpanelCSEq1++     ;
     if( itr->second  <  1.5  )NpanelCSLess15++  ;
     if( itr->second  <  2.0  )NpanelCSLess20++  ;
@@ -2385,8 +2390,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize1Map: " << m_rSummarySvc->RPC_FracClusterSize1Map().size() );
-  for (itr=m_rSummarySvc->RPC_FracClusterSize1Map().begin(); itr!=m_rSummarySvc->RPC_FracClusterSize1Map().end(); ++itr) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize1Map: " << readCdo->getFracClusterSize1Map().size() );
+  for (itr=readCdo->getFracClusterSize1Map().begin(); itr!=readCdo->getFracClusterSize1Map().end(); ++itr) {
 
     ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize1Map: " << itr->first <<" i.e. "
 		    <<(itr->first).get_identifier32().get_compact()<<" "
@@ -2394,8 +2399,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize2Map: " << m_rSummarySvc->RPC_FracClusterSize2Map().size() );
-  for (itr=m_rSummarySvc->RPC_FracClusterSize2Map().begin(); itr!=m_rSummarySvc->RPC_FracClusterSize2Map().end(); ++itr) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_FracClusterSize2Map: " << readCdo->getFracClusterSize2Map().size() );
+  for (itr=readCdo->getFracClusterSize2Map().begin(); itr!=readCdo->getFracClusterSize2Map().end(); ++itr) {
 
     ATH_MSG_DEBUG ( "Summary Id/RPC_FracClusterSize2Map: " << itr->first <<" i.e. "
 		    <<(itr->first).get_identifier32().get_compact()<<" "
@@ -2403,8 +2408,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_DeadStripListMap: " << m_rSummarySvc->RPC_DeadStripListMap().size() );
-  for (itrs=m_rSummarySvc->RPC_DeadStripListMap().begin(); itrs!=m_rSummarySvc->RPC_DeadStripListMap().end(); ++itrs) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_DeadStripListMap: " << readCdo->getDeadStripMap().size() );
+  for (itrs=readCdo->getDeadStripMap().begin(); itrs!=readCdo->getDeadStripMap().end(); ++itrs) {
     if(itrs->second.size()== 8){  NpanelWith8Strip++; }
     else if(itrs->second.size()==16){ NpanelWith16Strip++; }
     else if(itrs->second.size()==24){ NpanelWith24Strip++; }
@@ -2422,40 +2427,40 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_FracDeadStripMap: " << m_rSummarySvc->RPC_FracDeadStripMap().size() );
-  for (itrf=m_rSummarySvc->RPC_FracDeadStripMap().begin(); itrf!=m_rSummarySvc->RPC_FracDeadStripMap().end(); ++itrf) {
-    if( itrf->second == 0.   )NpanelFracDead0++       ;
-    if( itrf->second  < 0.5  )NpanelFracDeadLess05++  ;
-    if( itrf->second  < 1.   )NpanelFracDeadLess1++   ;
-    if( itrf->second == 1.   )NpanelFracDead1++       ;
+  ATH_MSG_DEBUG ( "Size Summary RPC_FracDeadStripMap: " << readCdo->getFracDeadStripMap().size() );
+  for (itr=readCdo->getFracDeadStripMap().begin(); itr!=readCdo->getFracDeadStripMap().end(); ++itr) {
+    if( itr->second == 0.   )NpanelFracDead0++       ;
+    if( itr->second  < 0.5  )NpanelFracDeadLess05++  ;
+    if( itr->second  < 1.   )NpanelFracDeadLess1++   ;
+    if( itr->second == 1.   )NpanelFracDead1++       ;
 
-    ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: " << itrf->first << " i.e. " 
-		    <<(itrf->first).get_identifier32().get_compact()<<" "
-		    <<m_idHelper->show_to_string(itrf->first)<< " " 
-		    << itrf->second );
-    if (itrf->second > 0.50) {
-      if (itrf->second <= 0.75)
-	ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >50% and <=75% " << itrf->first << " i.e. " 
-			<<(itrf->first).get_identifier32().get_compact()<<" "
-			<<m_idHelper->show_to_string(itrf->first)<< " " 
-			<< itrf->second );
-      else if (itrf->second > 0.75) {
-	if (itrf->second <= 0.90)
-	  ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >75% and <=90% " << itrf->first << " i.e. " 
-			  <<(itrf->first).get_identifier32().get_compact()<<" "
-			  <<m_idHelper->show_to_string(itrf->first)<< " " 
-			  << itrf->second );
-	else if (itrf->second > 0.90) ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >90% " << itrf->first << " i.e. " 
-						      <<(itrf->first).get_identifier32().get_compact()<<" "
-						      <<m_idHelper->show_to_string(itrf->first)<< " " 
-						      << itrf->second );
+    ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: " << itr->first << " i.e. " 
+		    <<(itr->first).get_identifier32().get_compact()<<" "
+		    <<m_idHelper->show_to_string(itr->first)<< " " 
+		    << itr->second );
+    if (itr->second > 0.50) {
+      if (itr->second <= 0.75)
+	ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >50% and <=75% " << itr->first << " i.e. " 
+			<<(itr->first).get_identifier32().get_compact()<<" "
+			<<m_idHelper->show_to_string(itr->first)<< " " 
+			<< itr->second );
+      else if (itr->second > 0.75) {
+	if (itr->second <= 0.90)
+	  ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >75% and <=90% " << itr->first << " i.e. " 
+			  <<(itr->first).get_identifier32().get_compact()<<" "
+			  <<m_idHelper->show_to_string(itr->first)<< " " 
+			  << itr->second );
+	else if (itr->second > 0.90) ATH_MSG_DEBUG ( "Summary Id/RPC_FracDeadStripMap: panel with fraction of dead strips >90% " << itr->first << " i.e. " 
+						      <<(itr->first).get_identifier32().get_compact()<<" "
+						      <<m_idHelper->show_to_string(itr->first)<< " " 
+						      << itr->second );
       }
     }
   }
 
 
-  ATH_MSG_DEBUG ( "Size Summary RPC_ProjectedTracksMap: " << m_rSummarySvc->RPC_ProjectedTracksMap().size() );
-  for (itri=m_rSummarySvc->RPC_ProjectedTracksMap().begin(); itri!=m_rSummarySvc->RPC_ProjectedTracksMap().end(); ++itri) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_ProjectedTracksMap: " << readCdo->getProjectedTracksMap().size() );
+  for (itri=readCdo->getProjectedTracksMap().begin(); itri!=readCdo->getProjectedTracksMap().end(); ++itri) {
     if(itri->second< 500) NpanelTrackLess500++;
     if(itri->second< 100) NpanelTrackLess100++;
     if(itri->second<  50)  NpanelTrackLess50++;
@@ -2467,8 +2472,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		    <<m_idHelper->show_to_string(itri->first)<< " " 
 		    << itri->second );
   }
-  ATH_MSG_DEBUG ( "Size Summary RPC_DeadStripList: " << m_rSummarySvc->RPC_DeadStripList().size() );
-  for (itri=m_rSummarySvc->RPC_DeadStripList().begin(); itri!=m_rSummarySvc->RPC_DeadStripList().end(); ++itri) {
+  ATH_MSG_DEBUG ( "Size Summary RPC_DeadStripList: " << readCdo->getDeadStripIntMap().size() );
+  for (itri=readCdo->getDeadStripIntMap().begin(); itri!=readCdo->getDeadStripIntMap().end(); ++itri) {
     ATH_MSG_DEBUG ( "Summary Id/RPC_DeadStripList: " << itri->first << " i.e. " 
 		    <<(itri->first).get_identifier32().get_compact()<<" "
 		    <<m_idHelper->show_to_string(itri->first)<< " " 
@@ -2562,18 +2567,18 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 
 
 
-		if( m_rSummarySvc->RPC_EfficiencyMap            ().find(atlasIdEta)!= m_rSummarySvc->RPC_EfficiencyMap().end()       ) efficiencyEta     = m_rSummarySvc->RPC_EfficiencyMap      ().find(atlasIdEta)->second ;
-		if( m_rSummarySvc->RPC_MeanClusterSizeMap       ().find(atlasIdEta)!= m_rSummarySvc->RPC_MeanClusterSizeMap().end()  ) averageCSEta      = m_rSummarySvc->RPC_MeanClusterSizeMap ().find(atlasIdEta)->second ;
-		if( m_rSummarySvc->RPC_FracClusterSize1Map      ().find(atlasIdEta)!= m_rSummarySvc->RPC_FracClusterSize1Map().end() ) FracCS1Eta        = m_rSummarySvc->RPC_FracClusterSize1Map().find(atlasIdEta)->second ;
-		if( m_rSummarySvc->RPC_FracClusterSize2Map      ().find(atlasIdEta)!= m_rSummarySvc->RPC_FracClusterSize2Map().end() ) FracCS2Eta        = m_rSummarySvc->RPC_FracClusterSize2Map().find(atlasIdEta)->second ;
+		if( readCdo->getEfficiencyMap            ().find(atlasIdEta)!= readCdo->getEfficiencyMap().end()       ) efficiencyEta     = readCdo->getEfficiencyMap      ().find(atlasIdEta)->second ;
+		if( readCdo->getMeanClusterSizeMap       ().find(atlasIdEta)!= readCdo->getMeanClusterSizeMap().end()  ) averageCSEta      = readCdo->getMeanClusterSizeMap ().find(atlasIdEta)->second ;
+		if( readCdo->getFracClusterSize1Map      ().find(atlasIdEta)!= readCdo->getFracClusterSize1Map().end() ) FracCS1Eta        = readCdo->getFracClusterSize1Map().find(atlasIdEta)->second ;
+		if( readCdo->getFracClusterSize2Map      ().find(atlasIdEta)!= readCdo->getFracClusterSize2Map().end() ) FracCS2Eta        = readCdo->getFracClusterSize2Map().find(atlasIdEta)->second ;
 		FracCStailEta     = 1.-FracCS1Eta-FracCS2Eta ;
-		if( m_rSummarySvc->RPC_ProjectedTracksMap       ().find(atlasIdEta)!= m_rSummarySvc->RPC_ProjectedTracksMap().end()  ) ProjectedTracksEta= m_rSummarySvc->RPC_ProjectedTracksMap ().find(atlasIdEta)->second ;
-		if( m_rSummarySvc->RPC_EfficiencyGapMap         ().find(atlasIdEta)!= m_rSummarySvc->RPC_EfficiencyGapMap().end()    ) efficiencygapEta  = m_rSummarySvc->RPC_EfficiencyGapMap   ().find(atlasIdEta)->second ;
+		if( readCdo->getProjectedTracksMap       ().find(atlasIdEta)!= readCdo->getProjectedTracksMap().end()  ) ProjectedTracksEta= readCdo->getProjectedTracksMap ().find(atlasIdEta)->second ;
+		if( readCdo->getEfficiencyGapMap         ().find(atlasIdEta)!= readCdo->getEfficiencyGapMap().end()    ) efficiencygapEta  = readCdo->getEfficiencyGapMap   ().find(atlasIdEta)->second ;
 
-		if( m_rSummarySvc->RPC_EfficiencyMap            ().find(atlasIdPhi)!= m_rSummarySvc->RPC_EfficiencyMap().end()       ) efficiencyPhi     = m_rSummarySvc->RPC_EfficiencyMap      ().find(atlasIdPhi)->second ;
-		if( m_rSummarySvc->RPC_MeanClusterSizeMap       ().find(atlasIdPhi)!= m_rSummarySvc->RPC_MeanClusterSizeMap().end()  ) averageCSPhi      = m_rSummarySvc->RPC_MeanClusterSizeMap ().find(atlasIdPhi)->second ;
-		if( m_rSummarySvc->RPC_FracClusterSize1Map      ().find(atlasIdPhi)!= m_rSummarySvc->RPC_FracClusterSize1Map().end() ) FracCS1Phi        = m_rSummarySvc->RPC_FracClusterSize1Map().find(atlasIdPhi)->second ;
-		if( m_rSummarySvc->RPC_FracClusterSize2Map      ().find(atlasIdPhi)!= m_rSummarySvc->RPC_FracClusterSize2Map().end() ) FracCS2Phi        = m_rSummarySvc->RPC_FracClusterSize2Map().find(atlasIdPhi)->second ;
+		if( readCdo->getEfficiencyMap            ().find(atlasIdPhi)!= readCdo->getEfficiencyMap().end()       ) efficiencyPhi     = readCdo->getEfficiencyMap      ().find(atlasIdPhi)->second ;
+		if( readCdo->getMeanClusterSizeMap       ().find(atlasIdPhi)!= readCdo->getMeanClusterSizeMap().end()  ) averageCSPhi      = readCdo->getMeanClusterSizeMap ().find(atlasIdPhi)->second ;
+		if( readCdo->getFracClusterSize1Map      ().find(atlasIdPhi)!= readCdo->getFracClusterSize1Map().end() ) FracCS1Phi        = readCdo->getFracClusterSize1Map().find(atlasIdPhi)->second ;
+		if( readCdo->getFracClusterSize2Map      ().find(atlasIdPhi)!= readCdo->getFracClusterSize2Map().end() ) FracCS2Phi        = readCdo->getFracClusterSize2Map().find(atlasIdPhi)->second ;
 		FracCStailPhi     	= 1.-FracCS1Phi-FracCS2Phi ;
 
 		if((ProjectedTracksEta>=m_CutProjectedTracks)&&(ProjectedTracksEta<10000000)&&(ProjectedTracksEta>=m_CutProjectedTracks)&&(efficiencyEta>0)&&(efficiencyEta<=1)&&(efficiencygapEta>0)&&(efficiencygapEta<=1)&&(efficiencyPhi>0)&&(efficiencyPhi<=1)){
@@ -2737,20 +2742,20 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		  Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, 1)     ;
 		  if(atlasId == 0 )continue;
 
-		  if(m_rSummarySvc->RPC_EfficiencyMap().find(atlasId)->second == 1){
-		    ATH_MSG_VERBOSE ( "Effi RPC panel = 1: " <<m_rSummarySvc->RPC_DeadStripListMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
+		  if(readCdo->getEfficiencyMap().find(atlasId)->second == 1){
+		    ATH_MSG_VERBOSE ( "Effi RPC panel = 1: " <<readCdo->getDeadStripMap().find(atlasId)->second<<" "<<readCdo->getProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
-		  if(m_rSummarySvc->RPC_EfficiencyMap().find(atlasId)->second == 0){
-		    ATH_MSG_VERBOSE ( "Effi RPC panel = 0: " <<m_rSummarySvc->RPC_DeadStripListMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
+		  if(readCdo->getEfficiencyMap().find(atlasId)->second == 0){
+		    ATH_MSG_VERBOSE ( "Effi RPC panel = 0: " <<readCdo->getDeadStripMap().find(atlasId)->second<<" "<<readCdo->getProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
-		  if(m_rSummarySvc->RPC_EfficiencyGapMap().find(atlasId)->second == 0){
-		    ATH_MSG_VERBOSE ( "EffiGap RPC panel = 0: " <<m_rSummarySvc->RPC_DeadStripListMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
+		  if(readCdo->getEfficiencyGapMap().find(atlasId)->second == 0){
+		    ATH_MSG_VERBOSE ( "EffiGap RPC panel = 0: " <<readCdo->getDeadStripMap().find(atlasId)->second<<" "<<readCdo->getProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
-		  if(m_rSummarySvc->RPC_MeanClusterSizeMap().find(atlasId)->second > 3 ){
-		    ATH_MSG_VERBOSE ( "MeanClusterSize RPC panel > 3: " <<m_rSummarySvc->RPC_MeanClusterSizeMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
+		  if(readCdo->getMeanClusterSizeMap().find(atlasId)->second > 3 ){
+		    ATH_MSG_VERBOSE ( "MeanClusterSize RPC panel > 3: " <<readCdo->getMeanClusterSizeMap().find(atlasId)->second<<" "<<readCdo->getProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
-		  if(m_rSummarySvc->RPC_FracDeadStripMap().find(atlasId)->second == 1){
-		    ATH_MSG_VERBOSE ( "Dead RPC panel: " <<m_rSummarySvc->RPC_DeadStripListMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
+		  if(readCdo->getFracDeadStripMap().find(atlasId)->second == 1){
+		    ATH_MSG_VERBOSE ( "Dead RPC panel: " <<readCdo->getDeadStripMap().find(atlasId)->second<<" "<<readCdo->getProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
 
 		  if(m_DeadPanel_fromlist.find(atlasId)->second == 1){
@@ -2789,15 +2794,15 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		  int   ProjectedTracks     = 0. ;
 		  float FracDeadStrip       = 0. ;
 
-		  if( m_rSummarySvc->RPC_EfficiencyMap            ().find(atlasId)!= m_rSummarySvc->RPC_EfficiencyMap().end()       ) efficiency     = m_rSummarySvc->RPC_EfficiencyMap      ().find(atlasId)->second ;
-		  if( m_rSummarySvc->RPC_EfficiencyGapMap         ().find(atlasId)!= m_rSummarySvc->RPC_EfficiencyGapMap().end()    ) efficiencygap  = m_rSummarySvc->RPC_EfficiencyGapMap   ().find(atlasId)->second ;
-		  if( m_rSummarySvc->RPC_MeanClusterSizeMap       ().find(atlasId)!= m_rSummarySvc->RPC_MeanClusterSizeMap().end()  ) averageCS      = m_rSummarySvc->RPC_MeanClusterSizeMap ().find(atlasId)->second ;
-		  if( m_rSummarySvc->RPC_FracClusterSize1Map      ().find(atlasId)!= m_rSummarySvc->RPC_FracClusterSize1Map().end() ) FracCS1        = m_rSummarySvc->RPC_FracClusterSize1Map().find(atlasId)->second ;
-		  if( m_rSummarySvc->RPC_FracClusterSize2Map      ().find(atlasId)!= m_rSummarySvc->RPC_FracClusterSize2Map().end() ) FracCS2        = m_rSummarySvc->RPC_FracClusterSize2Map().find(atlasId)->second ;
+		  if( readCdo->getEfficiencyMap            ().find(atlasId)!= readCdo->getEfficiencyMap().end()       ) efficiency     = readCdo->getEfficiencyMap      ().find(atlasId)->second ;
+		  if( readCdo->getEfficiencyGapMap         ().find(atlasId)!= readCdo->getEfficiencyGapMap().end()    ) efficiencygap  = readCdo->getEfficiencyGapMap   ().find(atlasId)->second ;
+		  if( readCdo->getMeanClusterSizeMap       ().find(atlasId)!= readCdo->getMeanClusterSizeMap().end()  ) averageCS      = readCdo->getMeanClusterSizeMap ().find(atlasId)->second ;
+		  if( readCdo->getFracClusterSize1Map      ().find(atlasId)!= readCdo->getFracClusterSize1Map().end() ) FracCS1        = readCdo->getFracClusterSize1Map().find(atlasId)->second ;
+		  if( readCdo->getFracClusterSize2Map      ().find(atlasId)!= readCdo->getFracClusterSize2Map().end() ) FracCS2        = readCdo->getFracClusterSize2Map().find(atlasId)->second ;
 		  FracCStail     = 1.0-FracCS1-FracCS2 ;
 		  averageCStail  = averageCS - FracCS1 - 2*FracCS2                                ;
-		  if( m_rSummarySvc->RPC_ProjectedTracksMap       ().find(atlasId)!= m_rSummarySvc->RPC_ProjectedTracksMap().end()  ) ProjectedTracks= m_rSummarySvc->RPC_ProjectedTracksMap ().find(atlasId)->second ;
-		  if( m_rSummarySvc->RPC_FracDeadStripMap         ().find(atlasId)!= m_rSummarySvc->RPC_FracDeadStripMap   ().end() ) FracDeadStrip  = m_rSummarySvc->RPC_FracDeadStripMap   ().find(atlasId)->second ;
+		  if( readCdo->getProjectedTracksMap       ().find(atlasId)!= readCdo->getProjectedTracksMap().end()  ) ProjectedTracks= readCdo->getProjectedTracksMap ().find(atlasId)->second ;
+		  if( readCdo->getFracDeadStripMap         ().find(atlasId)!= readCdo->getFracDeadStripMap  ().end() ) FracDeadStrip  = readCdo->getFracDeadStripMap   ().find(atlasId)->second ;
 
 		  if(ProjectedTracks<m_CutProjectedTracks  ||  ProjectedTracks>10000000 || efficiency<=0 || efficiency>1 || efficiencygap<=0 || efficiencygap>1 ){
 		    if( stationEta >=  0){
@@ -2846,7 +2851,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 
 		}}}}}}}}
 
-  ATH_MSG_VERBOSE( "Number of dead strip " << m_rSummarySvc->RPC_DeadStripList ().size() );
+  ATH_MSG_VERBOSE( "Number of dead strip " << readCdo->getDeadStripMap().size() );
   for( int stationName =  2 ;  stationName !=11;  stationName++){
     for( int stationEta  = -7 ;  stationEta  != 8;  stationEta++ ){
       for( int stationPhi  =  1 ;  stationPhi  != 9;  stationPhi++ ){
@@ -2863,8 +2868,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		    if(idr == 0 )continue;
 		    Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, strip)     ;
 		    if(atlasId == 0 )continue;
-		    //if( m_rSummarySvc->RPC_DeadStripList().find(atlasId).empty() )continue;
-		    int stripstatus	      = m_rSummarySvc->RPC_DeadStripList      ().find(atlasId)->second ;
+		    //if( readCdo->getDeadStripIntMap().find(atlasId).empty() )continue;
+		    int stripstatus	      = readCdo->getDeadStripIntMap      ().find(atlasId)->second ;
 		    if( stripstatus != 1 )continue;
 		    ATH_MSG_VERBOSE( "Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus );
 		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;

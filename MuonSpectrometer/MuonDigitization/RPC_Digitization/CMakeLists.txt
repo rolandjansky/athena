@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfoMgt
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
+                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
@@ -40,7 +41,7 @@ atlas_add_component( RPC_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps PileUpToolsLib xAODEventInfo GaudiKernel MuonSimData MuonSimEvent HitManagement AthenaKernel EventInfo GeneratorObjects MuonCondInterface MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib PathResolver )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps PileUpToolsLib xAODEventInfo GaudiKernel MuonSimData MuonSimEvent HitManagement AthenaKernel EventInfo GeneratorObjects MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib PathResolver )
 
 # Install files from the package:
 atlas_install_headers( RPC_Digitization )
