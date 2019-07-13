@@ -1,0 +1,843 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonCondAlg/MdtCondDbAlg.h"
+#include "MuonCondTool/MDT_MapConversion.h"
+#include <zlib.h>
+
+// constructor
+MdtCondDbAlg::MdtCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
+    AthAlgorithm(name, pSvcLocator),
+    m_condSvc("CondSvc", name),
+    m_condMapTool("MDT_MapConversion"),
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  {
+ 
+    declareProperty("MDT_MapConversion", m_condMapTool);
+    declareProperty("IdHelper"         , m_idHelper   );
+
+    declareProperty("isOnline"         , m_isOnline               );
+    declareProperty("isData"           , m_isData                 );
+    declareProperty("isRun1"           , m_isRun1                 );
+    declareProperty("useRun1SetPoints" , m_checkOnSetPoint = false);
+}
+
+
+// Initialize
+StatusCode
+MdtCondDbAlg::initialize(){
+
+    ATH_MSG_DEBUG( "initializing " << name() );                
+    ATH_CHECK(m_condSvc .retrieve());
+    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_writeKey.initialize());
+    ATH_CHECK(m_readKey_folder_da_pshv.initialize());
+    ATH_CHECK(m_readKey_folder_da_psv0.initialize());
+    ATH_CHECK(m_readKey_folder_da_psv1.initialize());
+    ATH_CHECK(m_readKey_folder_da_pslv.initialize());
+    ATH_CHECK(m_readKey_folder_da_hv  .initialize());
+    ATH_CHECK(m_readKey_folder_da_lv  .initialize());
+    ATH_CHECK(m_readKey_folder_da_droppedChambers.initialize());
+    ATH_CHECK(m_readKey_folder_mc_droppedChambers.initialize());
+    ATH_CHECK(m_readKey_folder_mc_deadElements   .initialize());
+    ATH_CHECK(m_readKey_folder_mc_deadTubes      .initialize());
+    ATH_CHECK(m_readKey_folder_mc_noisyChannels  .initialize());
+
+    if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+      ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+      return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+// finalize
+StatusCode
+MdtCondDbAlg::finalize(){
+  return StatusCode::SUCCESS;
+}
+
+
+// execute
+StatusCode 
+MdtCondDbAlg::execute(){
+
+    ATH_MSG_DEBUG( "execute " << name() );   
+
+	if(m_isOnline) {
+    	ATH_MSG_DEBUG( "IsOnline is set to True; nothing to do!" );   
+		return StatusCode::SUCCESS;
+	}
+ 
+    // launching Write Cond Handle
+    SG::WriteCondHandle<MdtCondDbData> writeHandle{m_writeKey};
+    if (writeHandle.isValid()) {
+        ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
+        	  << " In theory this should not be called, but may happen"
+        	  << " if multiple concurrent events are being processed out of order.");
+        return StatusCode::SUCCESS; 
+    }
+
+    std::unique_ptr<MdtCondDbData> writeCdo{std::make_unique<MdtCondDbData>()};
+    EventIDRange rangeW;
+    StatusCode sc = StatusCode::SUCCESS;
+
+    // retrieving data
+    if(m_isData && m_isRun1) {
+		if(loadDataPsHv           (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		if(loadDataPsLv           (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		if(loadDataDroppedChambers(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+    }
+    else if(m_isData && !m_isRun1) {
+		if(loadDataHv             (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		if(loadDataLv             (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+    }
+    else {
+		if(loadMcDroppedChambers  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		if(loadMcNoisyChannels    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		//if(loadMcDeadElements     (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		//if(loadMcDeadTubes        (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+    } 
+    if(sc.isFailure()){ // checking both to avoid "Unchecked StatusCode" error
+        ATH_MSG_WARNING("Could not read data from the DB");
+        return StatusCode::FAILURE;
+    }
+
+    if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+      ATH_MSG_FATAL("Could not record MdtCondDbData " << writeHandle.key() 
+  		  << " with EventRange " << rangeW
+  		  << " into Conditions Store");
+      return StatusCode::FAILURE;
+    }		  
+    ATH_MSG_INFO("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
+    return StatusCode::SUCCESS;
+}
+
+
+// loadDataPsHv
+StatusCode
+MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo){
+  
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pshv};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+
+    std::vector<Identifier> cachedDeadMultiLayersId_standby;
+    CondAttrListCollection::const_iterator itr;
+    unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        unsigned int chanNum   = readCdo->chanNum (chan_index);
+        std::string hv_payload = readCdo->chanName(chanNum   );
+        std::string hv_name;
+        itr = readCdo->chanAttrListPair(chanNum);
+        const coral::AttributeList& atr = itr->second;
+
+        if(atr.size()==1) {
+            hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
+            std::string delimiter = " ";
+            std::vector<std::string> tokens;
+            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+     
+            std::string thename; 
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+
+            if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
+                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                std::string chamber_name = tokens2[2];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                thename = chamber_name+"_multilayer"+tokens2[3];
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+                cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+            }
+            if(tokens[0]=="STANDBY"){
+                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                std::string chamber_name = tokens2[2];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                thename = chamber_name+"_multilayer"+tokens2[3];
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+                cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+                //m_Chamber_Naming_standby[int(chanNum)] = MultiLayerId;
+            }
+        }
+        chan_index++;
+    }
+
+
+    // moving on to SetPoints
+    if(!m_checkOnSetPoint) return StatusCode::SUCCESS;
+
+    std::map<Identifier, float> chamberML_V1;
+    std::map<Identifier, float> chamberML_V0; 
+    std::map<Identifier, std::string> mlname;
+ 
+    // V0 handle
+    SG::ReadCondHandle<CondAttrListCollection> readHandle_v0{m_readKey_folder_da_psv0};
+    const CondAttrListCollection* readCdo_v0{*readHandle_v0}; 
+    if(readCdo_v0==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle_v0.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle_v0.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_v0.fullKey() << " readCdo->size()= " << readCdo_v0->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    // V1
+    SG::ReadCondHandle<CondAttrListCollection> readHandle_v1{m_readKey_folder_da_psv1};
+    const CondAttrListCollection* readCdo_v1{*readHandle_v1}; 
+    if(readCdo_v1==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle_v1.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle_v1.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_v1.fullKey() << " readCdo->size()= " << readCdo_v1->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    // V0 iteration
+    CondAttrListCollection::const_iterator itr_v0;
+    unsigned int chan_index_v0=0; 
+    for(itr_v0 = readCdo_v0->begin(); itr_v0 != readCdo_v0->end(); ++itr_v0) {
+      
+        unsigned int chanNum            = readCdo_v0->chanNum  (chan_index_v0);
+        std::string setPointsV0_payload = readCdo_v0->chanName(chanNum);
+        
+        float setPointsV0_name;
+           
+        itr_v0 = readCdo_v0->chanAttrListPair(chanNum);
+        const coral::AttributeList& atr_v0 = itr_v0->second;
+            
+        if(atr_v0.size()==1){
+            setPointsV0_name = *(static_cast<const float*>((atr_v0["readBackSettings_v0"]).addressOfData()));
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload, tokens2, delimiter2);
+            //chamberML_V0_chanum[int(chanNum)] = float(setPointsV0_name);
+        
+            int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+            std::string chamber_name     = tokens2[2];
+            std::string thename          = chamber_name+"_"+tokens2[3];
+            Identifier ChamberId         = m_condMapTool->ConvertToOffline(chamber_name);
+            Identifier MultiLayerId      = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+            chamberML_V0[MultiLayerId]   = setPointsV0_name;
+            mlname[MultiLayerId]         = thename;
+      
+        }
+        chan_index_v0++;
+    }
+
+    // V1 iteration
+    CondAttrListCollection::const_iterator itr_v1;
+    unsigned int chan_index_v1=0; 
+    for(itr_v1 = readCdo_v1->begin(); itr_v1 != readCdo_v1->end(); ++itr_v1) {
+      
+        unsigned int chanNum            = readCdo_v1->chanNum(chan_index_v1);
+        std::string setPointsV1_payload = readCdo_v1->chanName(chanNum);
+        float setPointsV1_name;
+        itr_v1 = readCdo_v1-> chanAttrListPair(chanNum);
+        const coral::AttributeList& atr_v1 = itr_v1->second;
+    
+        if(atr_v1.size()==1){
+            setPointsV1_name = *(static_cast<const float*>((atr_v1["readBackSettings_v1"]).addressOfData()));
+               
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload, tokens2, delimiter2);
+            //chamberML_V1_chanum[int(chanNum)] = float(setPointsV1_name);
+           
+            int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+            std::string chamber_name     = tokens2[2];
+            std::string thename          = chamber_name+"_"+tokens2[3];
+            Identifier ChamberId         = m_condMapTool->ConvertToOffline(chamber_name);
+            Identifier MultiLayerId      = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+            chamberML_V1[MultiLayerId]   = setPointsV1_name;
+            mlname[MultiLayerId]         = thename;
+          
+        }
+        chan_index_v1++;
+    }
+    
+    // check for chamber standby the correct value of Setpoint V0 vs SetpointV1
+    // for chamber StandBy --> V0==V1 to be on
+    for (unsigned int vect=0; vect<cachedDeadMultiLayersId_standby.size(); vect++){
+        Identifier MultilayerId_ch = cachedDeadMultiLayersId_standby[vect];
+        
+        if (chamberML_V1.find(MultilayerId_ch)->second == chamberML_V0.find(MultilayerId_ch)->second){
+            ATH_MSG_DEBUG( "Chamber has  correct Voltage V1 = "<< chamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << chamberML_V0.find(MultilayerId_ch)->second );
+        }
+        else{
+            ATH_MSG_DEBUG( "Chamber has  wrong correct Voltage V1 = "<< chamberML_V1.find(MultilayerId_ch)->second<<" V0=   " << chamberML_V0.find(MultilayerId_ch)->second);
+            ATH_MSG_DEBUG( "Has to be masked!!!");
+            writeCdo->setDeadMultilayer(mlname[MultilayerId_ch], MultilayerId_ch);
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+// loadDataPsLv
+StatusCode 
+MdtCondDbAlg::loadDataPsLv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo){
+  
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pslv};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        unsigned int chanNum = readCdo->chanNum(chan_index);
+        std::string hv_name;
+        std::string hv_payload = readCdo->chanName(chanNum);
+        
+        itr = readCdo-> chanAttrListPair(chanNum);
+        const coral::AttributeList& atr=itr->second;
+    
+        if(atr.size()){
+            hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState"]).addressOfData()));
+            std::string delimiter = " ";
+            std::vector<std::string> tokens;
+            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      
+            if(tokens[0]!="ON"){
+                std::string chamber_name= tokens2[2];
+	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
+            }
+        }
+        chan_index++;
+    }
+  
+    return StatusCode::SUCCESS;
+}
+
+
+
+// loadDataHv
+StatusCode
+MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo){
+  
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        unsigned int chanNum   = readCdo->chanNum(chan_index);
+        std::string hv_name_ml1, hv_name_ml2;
+        std::string hv_payload = readCdo->chanName(chanNum);
+        float hv_v0_ml1, hv_v0_ml2, hv_v1_ml1, hv_v1_ml2;
+        itr = readCdo->chanAttrListPair(chanNum);
+        const coral::AttributeList& atr = itr->second;
+
+        if(atr.size()) {
+            hv_name_ml1 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML1"]).addressOfData()));
+            hv_name_ml2 = *(static_cast<const std::string*>((atr["fsmCurrentState_ML2"]).addressOfData()));
+            hv_v0_ml1   = *(static_cast<const float*>((atr["v0set_ML1"]).addressOfData()));
+            hv_v1_ml1   = *(static_cast<const float*>((atr["v1set_ML1"]).addressOfData()));
+            hv_v0_ml2   = *(static_cast<const float*>((atr["v0set_ML2"]).addressOfData()));
+            hv_v1_ml2   = *(static_cast<const float*>((atr["v1set_ML2"]).addressOfData()));
+
+            std::string thename;            
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+
+            if(hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN"){
+	            int multilayer = 1;
+	            std::string chamber_name = tokens2[0];
+	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer, 1, 1);
+                thename = chamber_name+"_multilayer1";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+      
+            if(hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
+	            int multilayer = 1;
+	            std::string chamber_name = tokens2[0];
+	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name+"_multilayer1";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+
+            if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN"){
+	            int multilayer = 2;
+	            std::string chamber_name = tokens2[0];
+	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name+"_multilayer2";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+      
+            if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2){
+	            int multilayer = 2;
+	            std::string chamber_name = tokens2[0];
+	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+                thename = chamber_name+"_multilayer2";
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+
+            if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN" && hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN" ){
+                std::string chamber_name = tokens2[0];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
+            }
+            if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2 && hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
+                std::string chamber_name = tokens2[0];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
+            }
+        }  
+        chan_index++;
+    }
+    return StatusCode::SUCCESS;
+}
+
+
+// loadDataLv
+StatusCode 
+MdtCondDbAlg::loadDataLv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo){
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_lv};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+    
+        unsigned int chanNum = readCdo->chanNum(chan_index);
+        std::string hv_name;
+        std::string hv_payload = readCdo->chanName(chanNum);
+        
+        itr = readCdo->chanAttrListPair(chanNum);
+        const coral::AttributeList& atr = itr->second;
+    
+        if(atr.size()){
+            hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
+            std::string delimiter = " ";
+            std::vector<std::string> tokens;
+            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      
+            if(tokens[0]!="ON"){
+                std::string chamber_name= tokens2[0];
+	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
+            }
+        }
+        chan_index++;
+    }
+  
+    return StatusCode::SUCCESS;
+  
+}
+
+
+
+//loadDataDroppedChambers
+StatusCode 
+MdtCondDbAlg::loadDataDroppedChambers(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo){
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_droppedChambers};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    //unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+        const coral::AttributeList& atr = itr->second;
+        std::string chamber_dropped;
+        chamber_dropped = *(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
+    
+        std::string delimiter = " ";
+        std::vector<std::string> tokens;
+        MuonCalib::MdtStringUtils::tokenize(chamber_dropped,tokens,delimiter);
+        for (unsigned int i=0; i<tokens.size(); i++) {
+            if(tokens[i]!="0"){
+	            std::string chamber_name = tokens[i];
+	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
+            }
+        }
+    }
+    return StatusCode::SUCCESS;
+}
+
+
+
+// loadMcDroppedChambers
+StatusCode
+MdtCondDbAlg::loadMcDroppedChambers(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo) {
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_droppedChambers};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        const coral::AttributeList& atr = itr->second;
+        std::string chamber_name;
+        chamber_name = *(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
+    
+        Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+        writeCdo->setDeadChamber(ChamberId);
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+// loadMcDeadElements
+StatusCode
+MdtCondDbAlg::loadMcDeadElements(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo) {
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_deadElements};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+    
+        const coral::AttributeList& atr = itr->second;
+        std::string chamber_name, list_mlayer, list_layer, list_tube;
+
+        chamber_name = *(static_cast<const std::string*>((atr["Chambers_Name"  ]).addressOfData()));
+        list_mlayer  = *(static_cast<const std::string*>((atr["Dead_multilayer"]).addressOfData()));
+        list_layer   = *(static_cast<const std::string*>((atr["Dead_layer"     ]).addressOfData()));
+        list_tube    = *(static_cast<const std::string*>((atr["Dead_tube"      ]).addressOfData()));
+ 
+        std::string thename; 
+        std::string delimiter = " ";
+        std::vector<std::string> tokens;
+        std::vector<std::string> tokens_mlayer;
+        std::vector<std::string> tokens_layer;
+        Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+        MuonCalib::MdtStringUtils::tokenize(list_tube  , tokens       , delimiter);
+        MuonCalib::MdtStringUtils::tokenize(list_mlayer, tokens_mlayer, delimiter);
+        MuonCalib::MdtStringUtils::tokenize(list_layer , tokens_layer , delimiter);
+    
+        for(unsigned int i=0; i<tokens.size(); i++){
+            if(tokens[i]!="0"){
+                int ml    = atoi(const_cast<char*>((tokens[i].substr(0,1)).c_str()));
+                int layer = atoi(const_cast<char*>((tokens[i].substr(1,2)).c_str()));
+                int tube  = atoi(const_cast<char*>((tokens[i].substr(2  )).c_str()));
+                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, tube);
+                thename = chamber_name+"_"+tokens[i];
+                writeCdo->setDeadTube   (thename, ChannelId);
+                writeCdo->setDeadChamber(ChamberId);
+            }
+        }
+
+        for(unsigned int i=0; i<tokens_mlayer.size(); i++){
+            if(tokens_mlayer[i]!="0"){
+                int ml = atoi(const_cast<char*>((tokens_mlayer[i].substr(0)).c_str()));
+                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId,ml,1,1);
+                thename = chamber_name+"_"+tokens[i];
+                writeCdo->setDeadMultilayer(thename, ChannelId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+        }
+      
+        for(unsigned int i=0; i<tokens_layer.size(); i++) {
+            if(tokens_layer[i]!="0"){
+                int ml    = atoi(const_cast<char*>((tokens_layer[i].substr(0,1)).c_str()));
+                int layer = atoi(const_cast<char*>((tokens_layer[i].substr(1  )).c_str()));
+                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, 1);
+                thename = chamber_name+"_"+tokens[i];
+                writeCdo->setDeadLayer  (thename, ChannelId);
+                writeCdo->setDeadChamber(ChamberId);
+            }
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+//loadMcDeadTubes
+StatusCode 
+MdtCondDbAlg::loadMcDeadTubes(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo) {
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_deadTubes};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        const coral::AttributeList& atr=itr->second;
+        
+        std::string chamber_name;
+        std::string dead_tube;
+        std::string tube_list;
+        dead_tube    = *(static_cast<const std::string*>((atr["DeadTube_List"]).addressOfData()));
+        chamber_name = *(static_cast<const std::string*>((atr["Chamber_Name" ]).addressOfData()));
+
+        std::string thename;
+        std::vector<std::string> tokens;
+        std::string delimiter = " ";
+        MuonCalib::MdtStringUtils::tokenize(dead_tube, tokens, delimiter);
+        Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+
+        for (unsigned int i=0; i<tokens.size(); i++) {
+            int ml    = atoi(const_cast<char*>((tokens[i].substr(0,1)).c_str()));
+            int layer = atoi(const_cast<char*>((tokens[i].substr(1,2)).c_str()));
+            int tube  = atoi(const_cast<char*>((tokens[i].substr(2  )).c_str()));
+            thename   = chamber_name+"_"+tokens[i];
+            tube_list = tokens[i]+".";
+            Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, tube); 
+		    writeCdo->setDeadTube(thename, ChannelId);
+        }
+		writeCdo->setDeadChamber(ChamberId);
+    }
+  
+    return StatusCode::SUCCESS;
+}
+
+
+
+// loadMcNoisyChannels
+StatusCode 
+MdtCondDbAlg::loadMcNoisyChannels(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& writeCdo) {
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_noisyChannels};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of input is " << rangeW);
+
+    CondAttrListCollection::const_iterator itr;
+    unsigned int chan_index=0; 
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        unsigned int chanNum   = readCdo->chanNum (chan_index);
+        std::string hv_payload = readCdo->chanName(chanNum   );
+        std::string hv_name;
+        itr = readCdo->chanAttrListPair(chanNum);
+        const coral::AttributeList& atr = itr->second;
+
+        if(atr.size()==1) {
+            hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
+            std::string delimiter = " ";
+            std::vector<std::string> tokens;
+            MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
+     
+            std::string thename; 
+            std::string delimiter2 = "_";
+            std::vector<std::string> tokens2;
+            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
+
+            if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
+                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                std::string chamber_name = tokens2[2];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                thename = chamber_name+"_multilayer"+tokens2[3];
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+            if(tokens[0]=="STANDBY"){
+                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                std::string chamber_name = tokens2[2];
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                thename = chamber_name+"_multilayer"+tokens2[3];
+                writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                writeCdo->setDeadChamber   (ChamberId);
+            }
+        }
+        chan_index++;
+    }
+	return StatusCode::SUCCESS;
+}
+
+
+//inline bool 
+//MdtCondDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
+//    if (!m_decompression_buffer) {
+//        m_buffer_length= 50000;
+//        m_decompression_buffer = new Bytef[m_buffer_length];
+//    }
+//    uLongf actual_length; 
+//    while(1) {
+//        actual_length=m_buffer_length;
+//        int res(uncompress(m_decompression_buffer, &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
+//        if (res == Z_OK) break;
+//        //double buffer if it was not big enough
+//        if( res == Z_BUF_ERROR) {
+//          m_buffer_length*=2;
+//          ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
+//          delete [] m_decompression_buffer;
+//          m_decompression_buffer = new Bytef[m_buffer_length];
+//          continue;
+//        }
+//        //something else is wrong
+//        return false;
+//    }
+//    //append 0 to terminate string, increase buffer if it is not big enough
+//    if (actual_length >= m_buffer_length) {
+//        Bytef * old_buffer=m_decompression_buffer;
+//        size_t old_length=m_buffer_length;
+//        m_buffer_length*=2;
+//        m_decompression_buffer = new Bytef[m_buffer_length];
+//        memcpy(m_decompression_buffer, old_buffer, old_length);
+//        delete [] old_buffer;
+//    }
+//    m_decompression_buffer[actual_length]=0;
+//    return true;
+//} 
+//
+//
+//inline StatusCode 
+//MdtCondDbAlg::extractString(std::string &input, std::string &output, std::string separator) {
+//    unsigned long int pos = 0;
+//    std::string::size_type start = input.find_first_not_of(separator.c_str(),pos);
+//    if(start == std::string::npos) {
+//        ATH_MSG_ERROR("MdtCondDbAlg::extractString: Cannot extract string in a proper way!");
+//        return StatusCode::FAILURE;
+//    }
+//    std::string::size_type stop = input.find_first_of(separator.c_str(),start+1);
+//    if (stop == std::string::npos) stop = input.size();
+//    output = input.substr(start,stop-start);
+//    input.erase(pos,stop-pos);
+//
+//    return StatusCode::SUCCESS;
+//}  
+
+
+
+
