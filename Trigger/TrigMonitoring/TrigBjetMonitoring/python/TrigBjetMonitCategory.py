@@ -12,7 +12,8 @@ monitoring_bjet_FTK = ["S_HLT_j35_boffperf_split_FTK_L1J15_FTK", "E_HLT_j35_boff
 
 #General trigger chains  -  default values
 
-monitoring_bjet      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split"]
+monitoring_bjet      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
+                        "E_HLT_j35_gsc45_boffperf_split_L1J20","E_HLT_j35_gsc45_bmv2c1070_split_L1J20"]
 
 
 #if TriggerFlags.doFTK():
@@ -23,7 +24,9 @@ monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu
 
 # triggers in pp collisions   -  used for q431 test
 
-monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split"]
+monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
+                           "E_HLT_j35_gsc45_boffperf_split_L1J20","E_HLT_j35_gsc45_bmv2c1070_split_L1J20"]
+
 
 #if TriggerFlags.doFTK():
 monitoring_bjet_pp += monitoring_bjet_FTK
@@ -50,7 +53,9 @@ monitoring_mujet_hi    = ["E_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S
 
 # Triggers for MC  -  used for q221 test
 
-monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split"]
+monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
+                              "E_HLT_j35_gsc45_boffperf_split_L1J20","E_HLT_j35_gsc45_bmv2c1070_split_L1J20"]
+
 
 #if TriggerFlags.doFTK():
 monitoring_bjet_validation += monitoring_bjet_FTK
