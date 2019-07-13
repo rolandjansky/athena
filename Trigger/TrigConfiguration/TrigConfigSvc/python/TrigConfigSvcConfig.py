@@ -297,9 +297,10 @@ class SetupTrigConfigSvc:
             """
             state == xml -> read the trigger configuration from 2 xml files, one for L1, one for HLT
             stats == ds  -> read the trigger configuration from the detector store = esd header
+            state == run3_dummy -> use a hard-coded list of HLT chains until the HLT JSON is ready
             """
             self.states = ["xml"]
-            self.allowedStates = set(['xml','ds'])
+            self.allowedStates = set(['run3_dummy','xml','ds'])
             self.initialised = False
 
             from AthenaCommon.Logging import logging
