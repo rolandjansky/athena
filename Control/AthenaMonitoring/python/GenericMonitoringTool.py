@@ -47,7 +47,8 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Assert argument types
     if not athenaCommonFlags.isOnline():
-        if path is None: path = ''
+        if path is None:
+            path = ''
     assert path is not None, "path is required"
     assert labels is None or isinstance(labels, list), "labels must be of type list"
     # assert labels is None or !isinstance(labels, list), \

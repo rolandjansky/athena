@@ -32,6 +32,8 @@ class Test( unittest.TestCase ):
       self.assertEqual(s, 'EXPERT, TProfile2D, , , var1,var2,var3, title, 10, 0.000000, 10.000000, 20, 0.000000, 20.000000, -1.000000, 1.000000')
 
    def test_enforcePath( self ):
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      athenaCommonFlags.isOnline=True
       with self.assertRaises(AssertionError):
          defineHistogram('var', 'TH1F')
 
