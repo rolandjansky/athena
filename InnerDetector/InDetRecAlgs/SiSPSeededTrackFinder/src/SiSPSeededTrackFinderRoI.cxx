@@ -188,6 +188,9 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
     dummyxAODVertices_vector.at(r)->auxdecor<double>("boundary_low") = m_listRoIs[r].z_window[0];
     dummyxAODVertices_vector.at(r)->auxdecor<double>("boundary_high") = m_listRoIs[r].z_window[1];
 
+    dummyxAODVertices_vector.at(r)->auxdecor<double>("perigee_z0_lead") = m_listRoIs[r].z_perigee_pos[0];
+    dummyxAODVertices_vector.at(r)->auxdecor<double>("perigee_z0_sublead") = m_listRoIs[r].z_perigee_pos[1];
+
   }
 
   if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){

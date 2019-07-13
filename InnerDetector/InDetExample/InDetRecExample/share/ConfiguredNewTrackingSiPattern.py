@@ -183,11 +183,11 @@ class  ConfiguredNewTrackingSiPattern:
 
             ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                         InputTracksCollection     = InputZWindowTracks,
-                                        LeadingMinTrackPt         = 27000.0,
-                                        SubleadingMinTrackPt      = 20000.0,
+                                        LeadingMinTrackPt         = 15000.0,
+                                        SubleadingMinTrackPt      = 12000.0,
                                         TracksMaxEta              = 2.5,
                                         TracksMaxD0               = 9999.,
-                                        MaxDeltaZTracksPair       = 1.0,
+                                        MaxDeltaZTracksPair       = 2.0,
                                         TrackZ0Window             = 1.0 )
             ToolSvc += ZWindowRoISeedTool
             #ZWindowRoISeedTool.OutputLevel = VERBOSE
