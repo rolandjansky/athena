@@ -25,6 +25,9 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
 from AthenaCommon.AppMgr import ToolSvc
 
+## MT-safe conditions access
+import MuonCondAlg.AllCondDbAlgConfig
+
 muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
