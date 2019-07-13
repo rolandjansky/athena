@@ -31,11 +31,14 @@ namespace InDet
       float z_window[2];
       //* Reference z-position (if any) */
       float z_reference;
+      //* The perigee z-positions of the tracks (if any) */
+      float z_perigee_pos[2];
 
       //* Constructor setting default values */
       ZWindow() { 
 	z_reference = -999.;
 	z_window[0]=z_window[1]=-999.; 
+	z_perigee_pos[0]=z_perigee_pos[1]=-999.; 
       }
 
       ~ZWindow() {};

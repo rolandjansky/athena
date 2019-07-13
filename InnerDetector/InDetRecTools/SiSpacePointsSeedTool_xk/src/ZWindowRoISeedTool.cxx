@@ -36,7 +36,7 @@ InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
   declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 20000.); 
   declareProperty("TracksMaxEta", m_trk_eta_max = 2.5);
   declareProperty("TracksMaxD0", m_trk_d0_max = 9999.);
-  declareProperty("MaxDeltaZTracksPair", m_max_delta_z = 1.0);
+  declareProperty("MaxDeltaZTracksPair", m_max_delta_z = 2.0);
   declareProperty("TrackZ0Window", m_z0_window = 1.0);
 
 }
@@ -139,6 +139,8 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       RoI.z_reference = (z0 + z0_trk_reference + z0_leading + z0_trk_leading_reference) / 2;
       RoI.z_window[0] = RoI.z_reference - m_z0_window; 
       RoI.z_window[1] = RoI.z_reference + m_z0_window; 
+      RoI.z_perigee_pos[0] = z0_leading; 
+      RoI.z_perigee_pos[1] = z0; 
       ATH_MSG_INFO("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
       listRoIs.push_back(RoI);
     }
