@@ -11,6 +11,7 @@
 
 // Athena includes
 #include "AthenaKernel/AthStatusCode.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
@@ -65,6 +66,14 @@
 // Same as above but returns DrainSchedulerStatusCode::FAILURE to break the loop
 #define HLT_DRAINSCHED_CHECK(scexpr,errmsg,errcode,evctx) \
   HLT_LOOP_CHECK(scexpr,errmsg,errcode,evctx,DrainSchedulerStatusCode::FAILURE)
+namespace {
+  bool isTimedOut(const std::unordered_map<std::string_view,StatusCode>& algErrors) {
+    for (const auto& [key, sc] : algErrors) {
+      if (sc == Athena::Status::TIMEOUT) return true;
+    }
+    return false;
+  }
+}
 using namespace boost::property_tree;
 
 // =============================================================================
@@ -250,7 +259,14 @@ StatusCode HltEventLoopMgr::initialize()
   return StatusCode::SUCCESS;
 }
 
-
+// =============================================================================
+// Reimplementation of AthService::start (IStateful interface)
+// =============================================================================
+StatusCode HltEventLoopMgr::start()
+{
+  bookHistograms();
+  return StatusCode::SUCCESS;
+}
 
 // =============================================================================
 // Reimplementation of AthService::stop (IStateful interface)
@@ -263,7 +279,7 @@ StatusCode HltEventLoopMgr::stop()
   // Stop top level algorithms
   for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysStop());
 
-  return AthService::stop();
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -1197,14 +1213,17 @@ void HltEventLoopMgr::runEventTimer()
 }
 
 // =============================================================================
-bool HltEventLoopMgr::isTimedOut(const EventContext& eventContext) const {
+std::unordered_map<std::string_view,StatusCode> HltEventLoopMgr::algExecErrors(const EventContext& eventContext) const {
+  std::unordered_map<std::string_view,StatusCode> algErrors;
   for (const auto& [key, state] : m_aess->algExecStates(eventContext)) {
-    if (state.execStatus() == Athena::Status::TIMEOUT) {
-      ATH_MSG_DEBUG("Algorithm " << key << " returned Athena::Status::TIMEOUT in event " << eventContext.eventID());
-      return true;
+    if (!state.execStatus().isSuccess()) {
+      ATH_MSG_DEBUG("Algorithm " << key << " returned StatusCode " << state.execStatus().message()
+                    << " in event " << eventContext.eventID());
+      algErrors[key.str()] = state.execStatus();
+      oh_lock_histogram<TH2I>(m_errorCodePerAlg)->Fill(key.str().c_str(),state.execStatus().message().c_str(),1);
     }
   }
-  return false;
+  return algErrors;
 }
 
 // =============================================================================
@@ -1261,12 +1280,15 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     Gaudi::Hive::setCurrentContext(thisFinishedEvtContext);
 
     // Check the event processing status
-    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) markFailed();
-    hltonl::PSCErrorCode errCode = isTimedOut(*thisFinishedEvtContext) ?
-                                   hltonl::PSCErrorCode::TIMEOUT : hltonl::PSCErrorCode::PROCESSING_FAILURE;
-    HLT_DRAINSCHED_CHECK(sc, "Processing event with context " << *thisFinishedEvtContext
-                         << " failed with status " << m_aess->eventStatus(*thisFinishedEvtContext),
-                         errCode, *thisFinishedEvtContext);
+    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
+      markFailed();
+      auto algErrors = algExecErrors(*thisFinishedEvtContext);
+      hltonl::PSCErrorCode errCode = isTimedOut(algErrors) ?
+                                     hltonl::PSCErrorCode::TIMEOUT : hltonl::PSCErrorCode::PROCESSING_FAILURE;
+      HLT_DRAINSCHED_CHECK(sc, "Processing event with context " << *thisFinishedEvtContext
+                           << " failed with status " << m_aess->eventStatus(*thisFinishedEvtContext),
+                           errCode, *thisFinishedEvtContext);
+    }
 
     // Select the whiteboard slot
     sc = m_whiteboard->selectStore(thisFinishedEvtContext->slot());
@@ -1424,4 +1446,17 @@ StatusCode HltEventLoopMgr::drainAllSlots()
   }
 
   return StatusCode::FAILURE;
+}
+
+// =============================================================================
+void HltEventLoopMgr::bookHistograms()
+{
+  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
+  m_errorCodePerAlg = new TH2I("ErrorCodePerAlg", "Error StatusCodes per algorithm;Algorithm name;StatusCode",
+                               1, 0, 1, 1, 0, 1);
+  m_errorCodePerAlg->SetCanExtend(TH1::kAllAxes);
+  // regHist moves the ownership to THistSvc
+  if (m_THistSvc->regHist(path + m_errorCodePerAlg->GetName(), m_errorCodePerAlg).isFailure()) {
+    ATH_MSG_WARNING("Cannot register monitoring histogram " << m_errorCodePerAlg->GetName());
+  }
 }
