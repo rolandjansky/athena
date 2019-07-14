@@ -17,6 +17,7 @@ monotop
 2photon
 3photon
 4photon
+photonFusion
 neutrino
 muon
 1muon
