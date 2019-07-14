@@ -213,8 +213,8 @@ if __name__=='__main__':
     # MC input files proposed by Tim Martin in https://its.cern.ch/jira/browse/ATR-19881 for Run-3
     # file = '/afs/cern/ch/user/t/tamartin/public/ESD.pool.root'
     # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
-    file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
-    # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_build/AOD.pool.root'
+    # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
+    file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-07-07T2127/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_build/AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
 
