@@ -83,9 +83,10 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     ATH_MSG_INFO("  Chain number: " << i << " AllChains Chain Name: " << chainName );
   }
 
-  /* Verifiy if the trigger chain was fired and if yes, fill the corresponding histogram*/
+  /*
+  // Verifiy if the trigger chain was fired and if yes, fill the corresponding histogram
 
-  /* Define keys of retrival */
+  // Define keys of retrival
 
   std::string trackKey  = "";
   std::string jetKey  = "";
@@ -94,6 +95,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   bool mujetChain = false;
   bool bjetChain = true;
   bool splitChain = false;
+  */
+
 
   for ( auto& trigName : m_AllChains ) {
 
