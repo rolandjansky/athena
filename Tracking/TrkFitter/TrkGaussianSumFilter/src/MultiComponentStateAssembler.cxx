@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -127,7 +127,8 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
   }
 
   // Check for minimum fraction of valid states
-  double validWeightFraction = cache.validWeightSum / ( cache.validWeightSum + cache.invalidWeightSum );
+  double den = cache.validWeightSum + cache.invalidWeightSum;
+  double validWeightFraction = den > 0 ? cache.validWeightSum / den : 0;
   if (cache.invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
     ATH_MSG_DEBUG( "Insufficient valid states in the state... returning false \n");
     return false;
