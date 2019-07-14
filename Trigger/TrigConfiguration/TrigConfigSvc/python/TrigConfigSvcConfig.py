@@ -53,6 +53,11 @@ def findFileInXMLPATH(filename):
                 mlog.info("Found XML file: " + abspath(test))
                 return abspath(test)
 
+            test = join(path, "TriggerMenuMT",filename)
+            if exists(test):
+                mlog.info("Found XML file: " + abspath(test))
+                return abspath(test)
+
         return filename
 
 
