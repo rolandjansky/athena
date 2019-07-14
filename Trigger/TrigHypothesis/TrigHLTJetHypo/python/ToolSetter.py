@@ -14,6 +14,10 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_partgen,
 )
 
+from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
+    AgreeHelperTool,
+)
+
 class ToolSetter(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
@@ -24,6 +28,7 @@ class ToolSetter(object):
             'simplepartition': [TrigJetHypoToolConfig_simple_partition, 0],
             'not': [NotHelperTool, 0],
             'and': [AndHelperTool, 0],
+            'agree': [AgreeHelperTool, 0],
             'or': [OrHelperTool, 0],
             'dijet': [TrigJetHypoToolConfig_dijet, 0],
             'combgen': [TrigJetHypoToolConfig_combgen, 0],
@@ -33,6 +38,7 @@ class ToolSetter(object):
         self.mod_router = {
             'not': self.mod_logical_unary,
             'and': self.mod_logical_binary,
+            'agree': self.mod_logical_binary,
             'or': self.mod_logical_binary,
             'simple': self.mod_simple,
             'simplepartition': self.mod_simple,

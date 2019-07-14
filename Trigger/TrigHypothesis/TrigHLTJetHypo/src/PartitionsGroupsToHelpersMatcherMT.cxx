@@ -67,21 +67,36 @@ PartitionsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
     // the IGroupsMatcher species that the input HypoJetVectors are constant,
     // so make a copy...
 
-    HypoJetVector jv((*(groups_e +i)).begin(), (*(groups_e +i)).end());
+    HypoJetVector jv((*(groups_b +i)).begin(), (*(groups_b +i)).end());
+    if(collector){
+      std::string msg{"jets: group " +std::to_string(i)};
+      for(const auto& j :  jv){
+	msg += " " + std::to_string(j->et());
+      }
+      collector->collect("PartitionsGroupsToHelpersMatcherMT", msg);
+    }
+    
     if (!m_helpers[i]->pass(jv,
 			    jetCollector,
 			    collector)){
+      
+      if(collector){
+	collector->collect("PartitionsGroupsToHelpersMatcherMT", "fail");
+      }
       return std::make_optional<bool>(false);
-    }
-
-    // passed....
-    for(auto iter = groups_b; iter != groups_e; ++iter){
-      jetCollector.addJets((*iter).begin(), (*iter).end());
     }
   }
   
+  // passed....
+  for(auto iter = groups_b; iter != groups_e; ++iter){
+    jetCollector.addJets((*iter).begin(), (*iter).end());
+  }
+  
+  if(collector){
+    collector->collect("PartitionsGroupsToHelpersMatcherMT", "pass");
+  }
   return std::make_optional<bool>(true);  
-} 
+}
 
 
 std::string PartitionsGroupsToHelpersMatcherMT::toString() const noexcept {

@@ -14,6 +14,39 @@ from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
+def  trigJetHypoToolHelperFromDict_(chain_label, chain_name):
+
+    parser = ChainLabelParser(chain_label, debug=False)
+
+    tree = parser.parse()
+    
+    #expand strings of cuts to a cut dictionary
+    visitor = TreeParameterExpander()
+    tree.accept(visitor)
+    log.info(visitor.report())
+
+    # tell the child nodes who their parent is.
+    tree.set_ids(node_id=0, parent_id=0)
+
+    # create - possibly nested - tools
+
+    # chain name in run 2 dicts were missing the 'HLT_' prefix
+    # but it seems it is necessary to run the hypos in AthenaMT ?...?
+    
+    if not chain_name.startswith('HLT_'):
+        chain_name = 'HLT_' + chain_name
+        
+    log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
+
+    # debug flag to be relayed to C++ objects
+    visitor = ToolSetter(chain_name)
+    tree.accept(visitor)
+
+    log.info(visitor.report())
+
+    return tree.tool
+
+
 def  trigJetHypoToolHelperFromDict(chain_dict):
     """Produce  a jet trigger hypo tool helper from a chainDict
     Helper tools do the hypio work. They are used, for example
@@ -33,38 +66,10 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
         log.error(m)
         
         raise e
-                                                  
-    parser = ChainLabelParser(chain_label, debug=False)
-
-    tree = parser.parse()
-    
-    #expand strings of cuts to a cut dictionary
-    visitor = TreeParameterExpander()
-    tree.accept(visitor)
-    log.info(visitor.report())
-
-    # tell the child nodes who their parent is.
-    tree.set_ids(node_id=0, parent_id=0)
-
-    # create - possibly nested - tools
-
-    # chain name in run 2 dicts were missing the 'HLT_' prefix
-    # but it seems it is necessary to run the hypos in AthenaMT ?...?
     
     chain_name = chain_dict['chainName']
-    if not chain_name.startswith('HLT_'):
-        chain_name = 'HLT_' + chain_name
-
-    log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
-
-    # debug flag to be relayed to C++ objects
-    visitor = ToolSetter(chain_name)
-    tree.accept(visitor)
-
-    log.info(visitor.report())
-
-    return tree.tool
-
+    return trigJetHypoToolHelperFromDict_(chain_label, chain_name)
+ 
 
 def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
@@ -90,8 +95,8 @@ class TestStringMethods(unittest.TestCase):
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
         chainNameDecoder = DictFromChainName.DictFromChainName()
-        # chain_names = ('HLT_j85', 'HLT_j35_0eta320')
-        chain_names = ('HLT_j0_vbenf',)
+        # chain_names = ('HLT_j85_L1J20', 'HLT_j35_0eta320_L1J20')
+        chain_names = ('HLT_j0_vbenf_L1J20',)
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
             chain_dict = chainNameDecoder.getChainDict(chain_name)
@@ -105,7 +110,7 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
         chainNameDecoder = DictFromChainName.DictFromChainName()
-        chain_name = 'HLT_j85'
+        chain_name = 'HLT_j85_L1J20'
         chain_dict = chainNameDecoder.getChainDict(chain_name)
         tool = trigJetHypoToolFromDict(chain_dict)
         self.assertIsNotNone(tool) 
@@ -119,8 +124,8 @@ def _tests():
     chainNameDecoder = DictFromChainName.DictFromChainName()
         
     chain_names = (
-        'j80_0eta240_2j60_320eta490',
-        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+        'j80_0eta240_2j60_320eta490_L1J20',
+        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
     )
     for cn in chain_names:
         chain_dict = chainNameDecoder.getChainDict(cn)

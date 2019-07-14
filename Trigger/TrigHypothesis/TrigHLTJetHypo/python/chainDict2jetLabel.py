@@ -368,11 +368,11 @@ def _tests():
     from ChainLabelParser import ChainLabelParser
 
     chain_names = (
-        'HLT_j85',
-        'HLT_j80_0eta240_2j60_320eta490',
-        'HLT_j85_j70',
+        'HLT_j85_L1J20',
+        'HLT_j80_0eta240_2j60_320eta490_L1J20',
+        'HLT_j85_j70_L1J20',
         'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet',
-        'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+        'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
         
         
     )
@@ -400,7 +400,7 @@ def _tests1():
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
     from ChainLabelParser import ChainLabelParser
     
-    chain_name = 'HLT_j85'
+    chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
 
     chain_dict = decodeChainName.getChainDict(chain_name)
@@ -422,7 +422,7 @@ def _tests2():
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
     from ChainLabelParser import ChainLabelParser
     
-    chain_name = 'HLT_j85'
+    chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
 
     chain_dict = decodeChainName.getChainDict(chain_name)

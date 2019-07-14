@@ -6,7 +6,9 @@ from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
 
 from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
-from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolHelperFromDict
+from TrigHLTJetHypo.TrigJetHypoToolConfig import (
+    trigJetHypoToolHelperFromDict,
+    trigJetHypoToolHelperFromDict_)
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -71,25 +73,30 @@ class CombinationsTests(object):
 
         self.n_bkgd = n_bkgd
         self.bkgd_etmax = bkgd_etmax
+        self.chain_name = 'HLT_j80_L1J20'
         
     def make_chain_dict(self):
         """ChainDict to excercise modifications to CombinationsHelperTool"""
         
         chainNameDecoder = DictFromChainName.DictFromChainName()
-        chain_name = 'HLT_j80'
         
         #make a chain dict to be perverted:
         # its hypoScenario will be overwritten by the value
         # 'combinationsTest'. This will result in a hardwired chain label
         # being used.
-        chain_dict = chainNameDecoder.getChainDict(chain_name)
+        chain_dict = chainNameDecoder.getChainDict(self.chain_name)
         assert len(chain_dict['chainParts']) == 1
         
         chain_dict['chainParts'][0]['hypoScenario'] = 'combinationsTest'
         
         return chain_dict
 
-    
+    def make_helper_tool(self):
+        chain_dict = self._make_chain_dict();
+        print(chain_dict['chainParts'][0])
+        return trigJetHypoToolHelperFromDict(chain_dict)
+
+
     def make_event_generator(self):
         generator = SimpleHypoJetVectorGenerator()
     
@@ -112,7 +119,7 @@ class PartitionsTests(CombinationsTests) :
     ):
         CombinationsTests.__init__(self, n_bkgd, bkgd_etmax)
 
-    def make_chain_dict(self):
+    def _make_chain_dict(self):
         """ChainDict to excercise modifications to CombinationsHelperTool"""
         
         chain_dict = CombinationsTests.make_chain_dict(self)
@@ -120,20 +127,53 @@ class PartitionsTests(CombinationsTests) :
         
         return chain_dict
 
+    def make_helper_tool(self):
+        chain_dict = self._make_chain_dict();
+        print(chain_dict['chainParts'][0])
+        return trigJetHypoToolHelperFromDict(chain_dict)
+
+
+    def logfile_name(self, chain_name):
+        return  chain_name + '_b' + str(self.n_bkgd) + '_parts.log'
+
+class FlowNetworkVsPartitionsTests(CombinationsTests) :
+
+    def __init__(self,
+                 n_bkgd=4,
+                 bkgd_etmax=50000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_FNvsPartition_0'
+
+    def make_helper_tool(self):
+        chain_label = """
+        agree([]
+        simple([(80et)(81et)(82et)(83et)])
+        
+        partgen(
+        []
+        simple([(80et)(81et)])
+        simple([(82et)(83et)]))
+        )"""
+
+        return trigJetHypoToolHelperFromDict_(chain_label,
+                                              self.chain_name)
+
+
     def logfile_name(self, chain_name):
         return  chain_name + '_b' + str(self.n_bkgd) + '_parts.log'
 
 
 def JetHypoExerciserCfg():
 
-    test_conditions =  PartitionsTests()
+    # test_conditions =  PartitionsTests()
+    test_conditions = FlowNetworkVsPartitionsTests()
+    print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
-    chain_dict = test_conditions.make_chain_dict()
     generator = test_conditions.make_event_generator()
-    chain_name = chain_dict['chainName']
-    print(chain_dict['chainParts'][0])
+    chain_name = test_conditions.chain_name
 
-    ht=trigJetHypoToolHelperFromDict(chain_dict)
+    ht = test_conditions.make_helper_tool()
 
     print('ht = ', ht)
     
@@ -144,7 +184,6 @@ def JetHypoExerciserCfg():
 
     lfn = test_conditions.logfile_name(chain_name)
 
-    print(chain_dict['chainParts'][0])
     jetHypoExerciserAlg.logname = lfn
 
     
@@ -167,7 +206,8 @@ if __name__=="__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
     cfg.merge(JetHypoExerciserCfg())
-    cfg.setAppProperty("EvtMax", 2)
+    # cfg.setAppProperty("EvtMax", 2)
+    cfg.setAppProperty("EvtMax", 100)
     cfg.run()
 
     #f=open("HelloWorld.pkl","w")

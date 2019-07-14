@@ -11,6 +11,8 @@
 
 class JetTrigTimer{
  public:
+  JetTrigTimer(bool nanoseconds=false);
+  
   void start();
   void stop();
   std::string read();
@@ -18,8 +20,6 @@ class JetTrigTimer{
   std::string readAndReset();
   std::string readAndContinue();
   double elapsed();
-  
- private:
   std::chrono::system_clock::time_point m_start;
   std::chrono::system_clock::time_point m_stop;
   bool m_isRunning{false};
@@ -28,7 +28,10 @@ class JetTrigTimer{
 
   std::size_t m_nCalls{0};
 
+ private:
+  bool m_nanoseconds;
   void accumulate();
+  std::string units() const;
 
 };
 #endif

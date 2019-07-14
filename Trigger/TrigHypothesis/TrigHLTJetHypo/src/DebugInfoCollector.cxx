@@ -10,6 +10,8 @@
 DebugInfoCollector::DebugInfoCollector(const std::string& name,
 				       bool byTime):
   m_name(name), m_byTime(byTime){
+  constexpr bool nanoseconds{false};  // false: units are us
+  m_timer = JetTrigTimer(nanoseconds);
   m_timer.start();
 }
 

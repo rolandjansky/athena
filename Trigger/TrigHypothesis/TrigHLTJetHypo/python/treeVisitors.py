@@ -442,6 +442,7 @@ class TreeParameterExpander(object):
         'or': TreeParameterExpander_null,
         'combgen': TreeParameterExpander_combgen,
         'partgen': TreeParameterExpander_partgen,
+        'agree': TreeParameterExpander_null,
     }
 
     def __init__(self):

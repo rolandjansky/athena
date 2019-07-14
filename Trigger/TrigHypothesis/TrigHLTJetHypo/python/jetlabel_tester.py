@@ -13,6 +13,17 @@ def compile(label, dump=False):
 
 if __name__ == '__main__':
     label = """
+    agree([]
+    simple([(80et)(81et)(82et)(83et)])
+
+    partgen(
+    []
+    simple([(80et)(81et)])
+    simple([(80et)(81et)]))
+    )"""
+    compile(label)
+    
+    label = """
     combgen(
     [(2)(20et, 0eta320)]
     
@@ -20,4 +31,4 @@ if __name__ == '__main__':
     simple([(35et, 0eta240) (55et, 0et240)])
     )"""
 
-    compile(label)
+    #compile(label)
