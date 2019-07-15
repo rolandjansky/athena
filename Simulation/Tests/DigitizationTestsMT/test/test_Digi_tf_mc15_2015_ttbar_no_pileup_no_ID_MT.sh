@@ -20,7 +20,7 @@ Digi_tf.py \
 --postInclude 'Digitization/FixDataDependenciesForMT.py' \
 --skipEvents 0  \
 --maxEvents 10 \
---athenaopts '--threads 2'
+--athenaopts ' --threads=2 '
 
 echo  "art-result: $? Digi_tf.py"
 

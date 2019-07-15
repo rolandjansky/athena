@@ -10,7 +10,7 @@
 # art-output: tree-orderer.log
 
 AtlasG4_tf.py \
---athenaopts '--threads 4' \
+--athenaopts ' --threads=4 ' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' \
 --outputHITSFile 'unordered.HITS.pool.root' \
 --maxEvents '20' \
