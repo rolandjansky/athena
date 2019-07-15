@@ -22,7 +22,6 @@ Branch                                                            | Purpose     
 [21.0](https://gitlab.cern.ch/atlas/athena/tree/21.0)             | Tier0 and MC16c              | Athena, 21.0.X
 [21.0-mc16a](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16a) | MC16a bugfixes               | Athena, 21.0.20.Y
 [21.0-mc16d](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16d) | MC16d bugfixes               | Athena, 21.0.20.Y
-[21.0-TrigMC](https://gitlab.cern.ch/atlas/athena/tree/21.0-TrigMC)  | MC production with new trigger developments | Athena, 21.5.X
 [21.1](https://gitlab.cern.ch/atlas/athena/tree/21.1)             | HLT and P1 monitoring        | AthenaP1, 21.1.X
 [21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations + (Ath)AnalysisBase, 21.2.X
 [21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena, 21.3.X
