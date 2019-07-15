@@ -128,7 +128,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
         m_iOLRLevel = ELEBDTMEDIUM;
       else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
-        m_iOLRLevel = ELEBDTIGHT;
+        m_iOLRLevel = ELEBDTTIGHT;
       else
         ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
           " are not supported in recommendations tag " << m_sRecommendationTag <<
@@ -276,7 +276,7 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     {
       if (!(m_iOLRLevel==TAUELEOLR or m_iOLRLevel==ELEBDTLOOSEPLUSVETO or
            m_iOLRLevel==ELEBDTMEDIUMPLUSVETO or m_iOLRLevel==ELEBDTLOOSE or
-           m_iOLRLevel==ELEBDTMEDIUM))
+           m_iOLRLevel==ELEBDTMEDIUM or m_iOLRLevel==ELEBDTTIGHT))
       {
         ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_iOLRLevel <<
           " are not supported in recommendations tag " << m_sRecommendationTag <<
@@ -1882,9 +1882,9 @@ std::string TauEfficiencyCorrectionsTool::ConvertEleOLRToString(const int& iLeve
   case ELETIGHTLLHOLR:
     return "EleTightLLHOLR";
     break;
-  case ELEBDTIGHTPLUSVETO:
+  case ELEBDTTIGHTPLUSVETO:
     return "eleBDTTightPlusVeto";
-  case ELEBDTIGHT:
+  case ELEBDTTIGHT:
     return "eleBDTTight";
   case ELEBDTMEDIUMPLUSVETO:
     return "eleBDTMediumPlusVeto";
