@@ -16,7 +16,7 @@ namespace xAOD {
    static const unsigned int NMANTISSA = 23;
 
    FloatCompressor::FloatCompressor( unsigned int mantissaBits )
-     : m_mantissaBits( mantissaBits ), m_mantissaBitmask( 0 ) , m_mymantissaBitmask( 0 ) {
+      : m_mantissaBits( mantissaBits ), m_mantissaBitmask( 0 ) {
 
       // IEEE754 single-precision float
       // SEEE EEEE EMMM MMMM MMMM MMMM MMMM MMMM
@@ -36,49 +36,9 @@ namespace xAOD {
       }
       // And now negate it to get the correct mask:
       m_mantissaBitmask = ~m_mantissaBitmask;
-
-      // Now repeat procedure for vector of different precisions
-      for (int j = 0; j < 23; ++j ) {
-	m_mymantissaBitmask = 0;
-	// Fill up the lower N bits:
-	for( unsigned int i = 0; i < ( NMANTISSA - j ); ++i ) {
-	  m_mymantissaBitmask |= ( 0x1 << i );
-	}
-	// And now negate it to get the correct mask:
-	m_mymantissaBitmask = ~m_mymantissaBitmask;
-	// Add it to the vector
-	m_mantissaBitmasks.push_back(m_mymantissaBitmask);
-      }
    }
 
    float FloatCompressor::reduceFloatPrecision( float value ) const {
-
-      // Check if any compression is to be made:
-      if( m_mantissaBits == NMANTISSA ) {
-         return value;
-      }
-
-      // Check for NaN, etc:
-      if( ! std::isfinite( value ) ) {
-         return value;
-      }
-
-      // Create the helper object:
-      floatint_t fi;
-      fi.fvalue = value;
-
-      //safety-check if value (omitting the sign-bit) is lower than vmax
-      //(avoid overflow)
-      if( ( fi.ivalue & 0x7ffffff ) < m_vmax ) {
-	fi.ivalue += m_rounding;
-      }
-
-      // Do the compression:
-      fi.ivalue &= m_mantissaBitmask;
-      return fi.fvalue;
-   }
-
-  float FloatCompressor::reduceFloatPrecision( float value, unsigned int mantissaBits ) const {
 
       // Check if any compression is to be made:
       if( m_mantissaBits == NMANTISSA ) {
@@ -101,9 +61,8 @@ namespace xAOD {
       }
 
       // Do the compression:
-      fi.ivalue &= m_mantissaBitmasks[mantissaBits];
+      fi.ivalue &= m_mantissaBitmask;
       return fi.fvalue;
    }
-  
 
 } // namespace xAOD

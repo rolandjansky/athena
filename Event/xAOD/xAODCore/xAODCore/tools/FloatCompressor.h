@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FloatCompressor.h 789425 2016-12-13 10:50:12Z krasznaa $
 #ifndef XAODCORE_TOOLS_FLOATCOMPRESSOR_H
 #define XAODCORE_TOOLS_FLOATCOMPRESSOR_H
 
@@ -12,8 +11,6 @@
 extern "C" {
 #   include <stdint.h>
 }
-
-#include <vector>
 
 namespace xAOD {
 
@@ -26,9 +23,6 @@ namespace xAOD {
    /// @author Scott Snyder <snyder@bnl.gov>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 789425 $
-   /// $Date: 2016-12-13 11:50:12 +0100 (Tue, 13 Dec 2016) $
-   ///
    class FloatCompressor {
 
    public:
@@ -37,7 +31,6 @@ namespace xAOD {
 
       /// Function returning a reduced precision float value
       float reduceFloatPrecision( float value ) const;
-      float reduceFloatPrecision( float value, unsigned int mantissaBits ) const;
 
       /// Type used in the compression
       union floatint_t {
@@ -51,19 +44,15 @@ namespace xAOD {
       /// Bitmask for zeroing out the non-interesting bits
       uint32_t m_mantissaBitmask;
 
-      uint32_t m_mymantissaBitmask;
-
       /// @name Magic numbers
       /// @{
 
-      // Half of the LSB-value after cutting the lower 16 bits
-      const uint32_t m_rounding=0x00008000;
+      /// Half of the LSB-value after cutting the lower 16 bits
+      static const uint32_t m_rounding=0x00008000;
       /// Largest possible positive 32bit float minus the rounding
-      const uint32_t m_vmax=0x7f7f7fff;
+      static const uint32_t m_vmax=0x7f7f7fff;
 
       /// @}
-
-     std::vector<uint32_t> m_mantissaBitmasks;
 
    }; // class FloatCompressor
 
