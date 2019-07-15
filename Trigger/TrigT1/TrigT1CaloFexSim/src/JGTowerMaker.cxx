@@ -27,6 +27,7 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
   declareProperty("useSCQuality",m_useSCQuality=true);
   declareProperty("useAllCalo",m_useAllCalo=false);
+  declareProperty("useAllRun2TT",m_useAllCalo=false);
   declareProperty("SuperCellType",m_scType="SCell");
   declareProperty("SuperCellQuality",m_scQuality=0x200);
 }
@@ -92,40 +93,53 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
       std::vector<int> jgTowerSCIndex = jgt->GetSCIndices();
 
       //Filling tower energy with SC
- 
-      for(unsigned i=0; i<jgTowerSCIndex.size(); i++){
-         const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
-         const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
-         CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
-         if(scell==nullptr)continue; 
-	 if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
-         float scell_et = scell->et();
-         jgEt += scell_et; 
-         lar_et+=scell_et;
-      }
+      if(!m_useAllRun2TT){ 
+        for(unsigned i=0; i<jgTowerSCIndex.size(); i++){
+           const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
+           const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
+           CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
+           if(scell==nullptr)continue; 
+	   if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
+           float scell_et = scell->et();
+           jgEt += scell_et; 
+           lar_et+=scell_et;
+        }
 
-      if(jgt->sampling()==1){
-        if(m_useAllCalo){
-          for(unsigned cell_hs=0 ; cell_hs<jgTowerTileIndex.size(); cell_hs++){
-             const CaloCell * cell = cells->findCell(jgTowerTileIndex.at(cell_hs));
-             jgEt+=cell->e()*cell->sinTh();
-             tile_et+=cell->e()*cell->sinTh();
+        if(jgt->sampling()==1){
+          if(m_useAllCalo){
+            for(unsigned cell_hs=0 ; cell_hs<jgTowerTileIndex.size(); cell_hs++){
+               const CaloCell * cell = cells->findCell(jgTowerTileIndex.at(cell_hs));
+               jgEt+=cell->e()*cell->sinTh();
+               tile_et+=cell->e()*cell->sinTh();
+            }
+          } 
+
+          else{
+
+            for(unsigned tt_hs=0 ; tt_hs<TTs->size(); tt_hs++){
+               const xAOD::TriggerTower * tt = TTs->at(tt_hs);
+               if(tt->sampling()!=1 || fabs(tt->eta())>1.5) continue; // Tile raneg upto 1.5 with sampling == 1
+	       float ttPhi = TVector2::Phi_mpi_pi(tt->phi() );//converted [0,2pi] -> [-pi,pi]
+               if(!inBox(jgt->Eta(),tt->eta(),jgt->dEta()/2,jgt->Phi(),ttPhi,jgt->dPhi()/2)) continue;
+               float cpET = 500*tt->cpET();
+	       jgEt+=cpET;
+               tile_et+=cpET;
+            }
+
           }
-        } 
-
-        else{
-
+        }
+      }
+      else{
           for(unsigned tt_hs=0 ; tt_hs<TTs->size(); tt_hs++){
              const xAOD::TriggerTower * tt = TTs->at(tt_hs);
-             if(tt->sampling()!=1 || fabs(tt->eta())>1.5) continue; // Tile raneg upto 1.5 with sampling == 1
-	     float ttPhi = TVector2::Phi_mpi_pi(tt->phi() );//converted [0,2pi] -> [-pi,pi]
+             if(tt->sampling()!= jgt->sampling() && fabs(jgt->Eta())<3.1) continue; // Tile raneg upto 1.5 with sampling == 1
+             float ttPhi = TVector2::Phi_mpi_pi(tt->phi() );//converted [0,2pi] -> [-pi,pi]
              if(!inBox(jgt->Eta(),tt->eta(),jgt->dEta()/2,jgt->Phi(),ttPhi,jgt->dPhi()/2)) continue;
              float cpET = 500*tt->cpET();
-	     jgEt+=cpET;
+             jgEt+=cpET;
              tile_et+=cpET;
           }
-
-        }
+   
       }
       xAOD::JGTower* m_trigTower = new xAOD::JGTower();
       jgTContainer->push_back(m_trigTower);
@@ -190,7 +204,7 @@ StatusCode JGTowerMaker::ForwardMapping(){
      const CaloDetDescrElement* dde = m_sem_mgr->get_element(scid);
      float scEta = dde->eta_raw();
      float scPhi = dde->phi_raw();
-     if(fabs(scEta)<3.2) continue;
+     if(fabs(scEta)<3.1) continue;
      float scDEta = dde->deta();
      float scDPhi = dde->dphi();
 

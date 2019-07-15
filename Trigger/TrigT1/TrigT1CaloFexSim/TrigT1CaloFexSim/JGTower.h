@@ -21,7 +21,7 @@
 #include <TString.h>
 #include <TObjArray.h>
 #include <TLorentzVector.h>
-
+#include <TH2.h>
 class JGTower{
 
  public:
@@ -60,4 +60,16 @@ bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dph
 bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool acceptEqual=false);
 float deltaPhi(float phi1, float phi2);
 
+class TowerHelper{
+
+   public:
+   //constructor
+   TowerHelper(std::vector<TH2F*>& h_inputbins);
+   //destructor
+   virtual ~TowerHelper();
+
+   std::vector<TH2F*> h_bins;
+   int iEta(float eta);
+   int iPhi(float eta, float phi);
+};
 #endif

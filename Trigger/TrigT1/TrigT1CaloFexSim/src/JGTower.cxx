@@ -53,3 +53,50 @@ float deltaPhi(float phi1,float phi2){
   //https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00456 
   return TVector2::Phi_mpi_pi(phi1-phi2);
 }
+
+//The helpers
+TowerHelper::TowerHelper(std::vector<TH2F*> & h_inputs){
+ 
+   TH2F*h_in;
+   for(auto& h:h_inputs){
+      h_in = (TH2F*) h->Clone("h_in");
+      h_bins.push_back(h_in);
+   }
+
+}
+
+TowerHelper::~TowerHelper(){
+   for(auto& h:h_bins){
+      h->Delete();
+   }
+}
+
+int TowerHelper::iEta(float eta){
+   int x=0;
+   for(auto& h:h_bins){
+      int test = h->GetXaxis()->FindBin(eta);
+      int nbin = ((TH1F*)h->ProjectionX())->GetSize()-2;
+
+      if(test==0) continue;
+      else if(test<nbin){
+        x+=test;
+        return x;
+      }
+      else x+=nbin;
+   }
+   x+=1;
+  return x;
+}
+
+int TowerHelper::iPhi(float eta, float phi){
+   int y=0;
+   for(auto& h:h_bins){
+      int test = h->GetXaxis()->FindBin(eta);
+      int nbin = ((TH1F*)h->ProjectionX())->GetSize()-2;
+
+      if(test==0 || test>nbin) continue;
+      y=h->GetYaxis()->FindBin(phi);
+   }
+   return y;
+}
+
