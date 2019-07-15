@@ -43,6 +43,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
 
 // Atlas includes
@@ -90,6 +91,12 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
 
     SG::WriteHandleKey<TileRawChannelContainer> m_muRcvRawChannelContainerKey{this,
         "MuonReceiverRawChannelContainer", "MuRcvRawChCnt", "Output Tile muon receiver raw channel container key"};
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number service to use
 

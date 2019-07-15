@@ -72,7 +72,7 @@ AllowedEventBuildingIdentifiers = ['pebtestone', 'pebtesttwo',
 #==========================================================
 # ---- Test Dictinary of all allowed Values ----
 TestChainParts = {
-    'L1item'         : '',
+    'L1threshold'         : '',
     'signature'      : ['Test'],
     'chainPartName'  : '',
     'multiplicity'   : '',    
@@ -84,7 +84,7 @@ TestChainParts = {
 # ---- Test Dictionary of default Values ----
 TestChainParts_Default = {
     'signature'      : ['Test'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'multiplicity'   : '',    
     'trigType'       : '',
     'threshold'      : '',
@@ -98,7 +98,7 @@ AllowedTopos_jet = []
 # ---- Jet Dictinary of all allowed Values ----
 JetChainParts = {
     'signature'    : ['Jet'],
-    'L1item'       : '',
+    'L1threshold'       : '',
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
@@ -136,7 +136,7 @@ JetChainParts = {
 # ---- Jet Dictinary of default Values ----
 JetChainParts_Default = {
     'signature'    : ['Jet'],
-    'L1item'       : '',
+    'L1threshold'       : '',
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : '0eta320',
@@ -184,7 +184,7 @@ AllowedTopos_mu = []
 # ---- Muon Dictinary of all allowed Values ----
 MuonChainParts = {
     'signature'      : ['Muon'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'chainPartName'  : [],
     'multiplicity'   : '',    
     'trigType'       : ['mu'],
@@ -201,7 +201,7 @@ MuonChainParts = {
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
     'signature'      : ['Muon'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'multiplicity'   : '',    
     'trigType'       : ['mu'],
     'etaRange'       : '0eta250',    
@@ -238,7 +238,7 @@ AllowedTopos_tau = []
 # ---- Tau Dictionary of all allowed Values ----
 TauChainParts = {
     'signature'    : ['Tau'],
-    'L1item'       : '',
+    'L1threshold'       : '',
     'chainPartName': '',
     'threshold'    : '',
     'preselection' : ['tracktwo', 'tracktwoMVA', 'ptonly', ],
@@ -254,7 +254,7 @@ TauChainParts = {
 }
 TauChainParts_Default = {
     'signature'    : ['Tau'],
-    'L1item'       : '',
+    'L1threshold'       : '',
     'chainPartName': '',
     'threshold'    : '20',
     'preselection' : 'tracktwo',
@@ -276,7 +276,7 @@ AllowedTopos_xe = []
 # ---- Met Dictinary of all allowed Values ----
 METChainParts = {
     'signature'    : ['MET'],
-    'L1item'       : '',
+    'L1threshold'       : '',
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
@@ -293,7 +293,7 @@ METChainParts = {
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
     'signature'      : ['MET'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'trigType'       : ['xe'],
     'threshold'      : '',
     'extra'          : '',
@@ -339,7 +339,7 @@ AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
 ElectronChainParts = {
     'signature'      : ['Electron'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'extra'          : '',
     'multiplicity'   : '',    
     'trigType'       : ['e'],
@@ -358,7 +358,7 @@ ElectronChainParts = {
 ElectronChainParts_Default = {
     'signature'      : ['Electron'],
     'multiplicity'   : '',    
-    'L1item'         : '',
+    'L1threshold'         : '',
     'trigType'       : '',
     'threshold'      : '',
     'etaRange'       : '0eta250',
@@ -383,7 +383,7 @@ ElectronChainParts_Default = {
 #==========================================================
 # ---- Photon Dictinary of all allowed Values ----
 PhotonChainParts = {
-    'L1item'         : '',
+    'L1threshold'         : '',
     'signature'      : ['Photon'],
     'chainPartName'  : '',
     'multiplicity'   : '',    
@@ -404,7 +404,7 @@ PhotonChainParts = {
 # ---- Photon Dictinary of default Values ----
 PhotonChainParts_Default = {
     'signature'      : ['Photon'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'multiplicity'   : '',    
     'trigType'       : '',
     'threshold'      : '',
@@ -426,7 +426,7 @@ PhotonChainParts_Default = {
 # ---- MinBias Dictionary of all allowed Values ----
 MinBiasChainParts = {
     'signature'      : ['MinBias'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
@@ -451,7 +451,7 @@ MinBiasChainParts = {
 # ---- MinBiasDictinary of default Values ----
 MinBiasChainParts_Default = {
     'signature'      : ['MinBias'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
@@ -474,7 +474,7 @@ MinBiasChainParts_Default = {
 # ---- HeavyIon Dictionary of all allowed Values ----
 HeavyIonChainParts = {
     'signature'      : ['HeavyIon'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
     'trigType'       : ['hi'],
@@ -496,7 +496,7 @@ HeavyIonChainParts = {
 # ---- HeavyIonDictinary of default Values ----
 HeavyIonChainParts_Default = { 
     'signature'      : ['HeavyIon'],
-    'L1item'         : '',
+    'L1threshold'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
     'trigType'       : ['hi'],
@@ -526,7 +526,7 @@ AllowedCosmicChainIdentifiers = ['larps','larhec',
 CosmicChainParts = {
     'signature'      : ['Cosmic'],
     'chainPartName'  : '',
-    'L1item'       : '',
+    'L1threshold'       : '',
     'purpose'        : AllowedCosmicChainIdentifiers,
     'addInfo'        : ['cosmicid','noise', 'beam', 'laser', 'AllTE', 'central', 'ds'], #'trtd0cut'
     'trackingAlg'    : ['idscan', 'sitrack', 'trtxk'],
@@ -541,7 +541,7 @@ CosmicChainParts = {
 CosmicChainParts_Default = {
     'signature'      : ['Cosmic'],
     'chainPartName'  : '',
-    'L1item'       : '',
+    'L1threshold'       : '',
     'purpose'        : [],
     'addInfo'        : [],
     'trackingAlg'    : [],
@@ -562,7 +562,7 @@ AllowedStreamingChainIdentifiers = ['noalg']
 StreamingChainParts = {
     'signature'      : ['Streaming'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
@@ -579,7 +579,7 @@ StreamingChainParts = {
 StreamingChainParts_Default = {
     'signature'      : ['Streaming'],
     'chainPartName'  : '',
-    'L1item'       : '',
+    'L1threshold'       : '',
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : 'hltpassthrough',
@@ -606,7 +606,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
 CalibChainParts = {
     'signature'      : ['Calibration'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'purpose'        : AllowedCalibChainIdentifiers+AllowedEventBuildingIdentifiers,
 #    'eventBuildType'  : AllowedEventBuildingIdentifiers, 
     'location'       : ['central', 'fwd'],
@@ -623,7 +623,7 @@ CalibChainParts = {
 CalibChainParts_Default = {
     'signature'      : ['Calibration'],
     'chainPartName'  : '',
-    'L1item'       : '',
+    'L1threshold'       : '',
     'purpose'        : [],
     'addInfo'        : [],
     'hypo'           : '',
@@ -650,7 +650,7 @@ AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
 MonitorChainParts = {
     'signature'      : ['Monitoring'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'monType'        : AllowedMonitorChainIdentifiers,
     'hypo'           : ['trkFS',],
     'threshold'      : '',
@@ -663,7 +663,7 @@ MonitorChainParts = {
 MonitorChainParts_Default = {
     'signature'      : ['Monitoring'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'monType'        : [],
     'hypo'           : '',
     'threshold'      : '',
@@ -682,7 +682,7 @@ AllowedEBChainIdentifiers = ['eb']
 EnhancedBiasChainParts = {
     'signature'      : ['EnhancedBias'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'algType'        : ['high','firstempty','empty','unpairediso','unpairednoniso', 'low'],
     'threshold'      : '',
     'multiplicity'   : '',
@@ -694,7 +694,7 @@ EnhancedBiasChainParts = {
 EnhancedBiasChainParts_Default = {
     'signature'      : ['EnhancedBias'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'algType'        : 'physics',
     'threshold'      : '',
     'multiplicity'   : '',
@@ -709,7 +709,7 @@ AllowedBeamspotChainIdentifiers = ['beamspot',]
 BeamspotChainParts = {
     'signature'      : ['Beamspot'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
     'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
@@ -726,7 +726,7 @@ BeamspotChainParts = {
 BeamspotChainParts_Default = {
     'signature'      : ['Beamspot'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1threshold'         : '',
     'monType'        : [],
     'addInfo'        : [],
     'hypo'           : [],

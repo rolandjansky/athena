@@ -40,17 +40,32 @@ doExtrap = True
 ExtrapolationEngine=""
 if (doExtrap):
   import MagFieldServices.SetupField
+  from AthenaCommon.DetFlags import DetFlags
+  DetFlags.geometry.ID_setOn()
+  DetFlags.detdescr.ID_setOn()
+  DetFlags.geometry.Calo_setOn()
+  DetFlags.detdescr.Calo_setOn()
+  DetFlags.geometry.Muon_setOn()
+  DetFlags.detdescr.Muon_setOn()
+  # from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+  print "DetFlags:", DetFlags.Print()
+  from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+  AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
+  print AtlasTrackingGeometrySvc
   
-  from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-  VP1ExtraPolatorName='VP1Extrapolator';
-  VP1Extrapolator = AtlasExtrapolator(name=VP1ExtraPolatorName)
+  from AtlasGeoModel import SetGeometryVersion
+  from AtlasGeoModel import GeoModelInit
+  
+  # from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+  # VP1ExtraPolatorName='VP1Extrapolator';
+  # VP1Extrapolator = AtlasExtrapolator(name=VP1ExtraPolatorName)
   
   from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
   ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=INFO)
   print ExtrapolationEngine
   ToolSvc += ExtrapolationEngine  
 
-from DumpEventDataToJson.DumpEventDataToJsonConf import DumpEventDataToJsonAlg
+from DumpEventDataToJSON.DumpEventDataToJSONConf import DumpEventDataToJsonAlg
 event_info_key = "EventInfo"
 topSequence += DumpEventDataToJsonAlg(OutputLevel=VERBOSE, EventInfoKey = event_info_key, ExtrapolateTracks=doExtrap, Extrapolator = ExtrapolationEngine)
 
@@ -59,3 +74,4 @@ ServiceMgr.MessageSvc.Format = "% F%80W%S%7W%R%T %0W%M"
 
 theApp.EvtMax = 2
 theApp.OutputLevel=VERBOSE
+

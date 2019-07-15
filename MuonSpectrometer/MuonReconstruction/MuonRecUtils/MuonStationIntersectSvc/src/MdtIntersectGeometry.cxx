@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
@@ -16,9 +16,11 @@ namespace Muon{
 
   
   MdtIntersectGeometry::MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr,
-					      IMDTConditionsSvc* mdtCondSvc ) : m_chid(chid), m_mdtGeometry(0), m_detMgr(detMgr), m_mdtSummarySvc(mdtCondSvc)
+					      IMDTConditionsSvc* mdtCondSvc,
+                                              MsgStream* msg)
+    : m_chid(chid), m_mdtGeometry(0), m_detMgr(detMgr), m_mdtSummarySvc(mdtCondSvc)
   {
-    init();
+    init(msg);
   }
 
   MdtIntersectGeometry::MdtIntersectGeometry(const MdtIntersectGeometry &right) {
@@ -113,7 +115,7 @@ namespace Muon{
   }
 
 
-  void MdtIntersectGeometry::init()
+  void MdtIntersectGeometry::init(MsgStream* msg)
   {
 
     m_mdtIdHelper = m_detMgr->mdtIdHelper();
@@ -207,8 +209,8 @@ namespace Muon{
     Identifier secondIdml0 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,1,2 );
     Amg::Vector3D secondTubeMl0 = transform()*(m_detElMl0->tubePos( secondIdml0 ));
 
-    if(m_detElMl0) fillDeadTubes(m_detElMl0);
-    if(m_detElMl1) fillDeadTubes(m_detElMl1);
+    if(m_detElMl0) fillDeadTubes(m_detElMl0, msg);
+    if(m_detElMl1) fillDeadTubes(m_detElMl1, msg);
 	
     // position first tube in second layer ml 0 
     Identifier firstIdml0lay1 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,2,1 );
@@ -227,7 +229,7 @@ namespace Muon{
     if( !goodMl0 && goodMl1 ) m_mdtGeometry->isSecondMultiLayer(true);
   }
 
-  void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl){
+  void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg){
 
     if( (mydetEl->getStationName()).find("BMG") != std::string::npos ) {
       PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
@@ -258,9 +260,12 @@ namespace Muon{
               Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
               m_deadTubes.push_back( deadTubeId );
               m_deadTubesML.insert( deadTubeMLId );
-              // std::cout << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
-              //           << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
-              //           << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
+              if (msg) {
+                *msg << MSG::VERBOSE
+                  << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
+                  << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
+                  << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
+              }
             }
          }
       }

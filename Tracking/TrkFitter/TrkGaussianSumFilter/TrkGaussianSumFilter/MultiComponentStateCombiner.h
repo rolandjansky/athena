@@ -44,6 +44,10 @@ class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComp
   /** Calculate combined state of many components */
   virtual const TrackParameters* combine( const MultiComponentState&, bool useModeTemp = false) const;
 
+  virtual void combineWithWeight( std::pair< std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
+                          const std::pair< std::unique_ptr<Trk::TrackParameters>, double>& addThis ) const;
+
+
   /** Calculate combined state and weight of many components */
   virtual const ComponentParameters* combineWithWeight( const MultiComponentState&, bool useModeTemp = false ) const;
 

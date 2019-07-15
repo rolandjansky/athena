@@ -29,10 +29,8 @@ class MenuUtils:
         for k,v in flags._flagdict.iteritems():
             if "Trigger.menu." in k:
                 for chain in v.get():
-                    hlt = chain.name
-                    l1 = chain.l1SeedItem
-                    if l1 == "":
-                        l1 = hlt[hlt.index("_L1")+1:].replace("L1","L1_", 1)
+                    hlt = chain.name                    
+                    l1 = hlt[hlt.index("_L1")+1:].replace("L1","L1_", 1)
                     seeding[hlt] = l1 # this is the item name
         return seeding
 

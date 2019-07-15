@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "TestActionTimerTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1D.h"
@@ -28,7 +27,7 @@ namespace G4UA
   TestActionTimerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a TestActionTimer");
-    auto action = CxxUtils::make_unique<TestActionTimer>();
+    auto action = std::make_unique<TestActionTimer>();
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

@@ -6,7 +6,6 @@
 #include "RecordingEnvelope.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h"
 #include "MCTruth/TrackHelper.h"
 
 //G4 headers
@@ -63,7 +62,7 @@ bool RecordingEnvelope::Initialize()
 
 void RecordingEnvelope::BeginOfEvent()
 {
-  if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
+  if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = std::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
   return;
 }
 void RecordingEnvelope::AddTrackRecord(const G4Step* aStep)

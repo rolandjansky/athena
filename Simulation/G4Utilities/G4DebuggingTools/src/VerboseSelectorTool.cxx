@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "VerboseSelectorTool.h"
 
 namespace G4UA
@@ -33,7 +32,7 @@ namespace G4UA
   VerboseSelectorTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a VerboseSelector");
-    auto action = CxxUtils::make_unique<VerboseSelector>(m_config);
+    auto action = std::make_unique<VerboseSelector>(m_config);
     actionList.eventActions.push_back( action.get() );
     actionList.trackingActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

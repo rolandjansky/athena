@@ -37,7 +37,7 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6fast_L1MU6',  groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup), 
         ChainProp(name='HLT_mu6_L1MU6', groups=SingleMuonGroup),
 
@@ -49,7 +49,7 @@ def setupMenu():
 
         ChainProp(name='HLT_2mu6Comb_L12MU6', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_L12MU6', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu6_mu4_L12MU4', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu4_L12MU4', l1SeedThresholds=['MU4']*2,  groups=MultiMuonGroup),
 
      ]
 
@@ -120,9 +120,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup)
     ]
     TriggerFlags.CombinedSlice.signatures = [ 
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['L1_EM8I', 'L1_MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
-        #ChainProp(name='HLT_mu8_e8_etcut_L1MU6_EM7', l1SeedThresholds=['L1_MU6', 'L1_EM7'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
-        #ChainProp(name='HLT_e8_etcut1step_j85_L1EM3_J20', l1SeedThresholds=['L1_EM3', 'L1_J20'], stream=[PhysicsStream], groups=MultiElectronGroup),  
+        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
+        #ChainProp(name='HLT_mu8_e8_etcut_L1MU6_EM7', l1SeedThresholds=['MU6', 'EM7'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
+        #ChainProp(name='HLT_e8_etcut1step_j85_L1EM3_J20', l1SeedThresholds=['EM3', 'J20'], stream=[PhysicsStream], groups=MultiElectronGroup),  
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []   

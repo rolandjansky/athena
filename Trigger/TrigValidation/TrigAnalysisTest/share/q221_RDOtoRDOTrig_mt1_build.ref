@@ -1,8 +1,8 @@
 TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J2019        19        0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J20 decisions                    0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           10        10        4         3         0         0         0         3
+TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           4         4         4         3         0         0         0         3
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     16        12        0         0         0
-TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               10        10        4         3         2         2         0         2
+TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               4         4         4         3         2         2         0         2
 TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6 decisions                         16        12        8         8         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J20               19        19        0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J20 decisions                         0         0         0         0         0
@@ -50,8 +50,8 @@ TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4      
 TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      24        22        32        30        0
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             10        10        10        0         0         0         0         10
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       14        0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        10        7         0         0         0         7
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       27        9         0         0         0
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        10        6         0         0         0         6
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       27        8         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       0         0         0         0         0         0         0         0

@@ -34,6 +34,12 @@
 
 #include <vector>
 #include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
+#include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
+
+#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+
+#include "InDetRecToolInterfaces/IVertexFinder.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -51,9 +57,7 @@ namespace Trk {
   class Track;
   class ITrackFitter;
   class ITrackSummaryTool;
-  class ITrackParticleCreatorTool;
   class IRIO_OnTrackCreator;
-  class IVertexCollectionSortingTool;
 }
 
 namespace InDetDD {
@@ -64,10 +68,7 @@ namespace InDet {
   class PixelCluster;
   class PixelClusterOnTrack;
   class SCT_Cluster;
-  class IVertexFinder;
 }
-
-class IFTK_VertexFinderTool;
 
 
 class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public IIncidentListener,

@@ -95,6 +95,8 @@ from ConfigUtils import injectNameArgument
 from ConfigUtils import dumpConfigurables
 from ConfigUtils import checkKWArgs
 from ConfigUtils import toolFactory
+from ConfigUtils import createExtendNameIfNotDefault
+from ConfigUtils import createPublicTool
 
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 class InDetHoleSearchTool(object) :
@@ -142,13 +144,13 @@ def getInDetPhysHitDecoratorAlg(**kwargs) :
     of the algorithm will be extended by the collection name
     '''
     # @TODO use track particles from ? from InDetRecExample.InDetKeys import InDetKeys
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
-                                                    'TrackParticleContainerName','InDetTrackParticles',
-                                                    kwargs,
-                                                    InDetTrackHoleSearchTool = toolFactory(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool),
-                                                    Updator = 'Trk::KalmanUpdator/TrkKalmanUpdator',
-                                                    ResidualPullCalculator = 'Trk::ResidualPullCalculator/ResidualPullCalculator',
-                                                    TrackParticleContainerName = 'InDetTrackParticles')
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
+                                         'TrackParticleContainerName','InDetTrackParticles',
+                                         kwargs,
+                                         InDetTrackHoleSearchTool = toolFactory(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool),
+                                         Updator = 'Trk::KalmanUpdator/TrkKalmanUpdator',
+                                         ResidualPullCalculator = 'Trk::ResidualPullCalculator/ResidualPullCalculator',
+                                         TrackParticleContainerName = 'InDetTrackParticles')
 
 
 def getParameterErrDecoratorAlg(**kwargs) :
@@ -157,9 +159,9 @@ def getParameterErrDecoratorAlg(**kwargs) :
     If the collection name TrackParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.ParameterErrDecoratorAlg,
-                                                    'TrackParticleContainerName', 'InDetTrackParticles',
-                                                     kwargs)
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.ParameterErrDecoratorAlg,
+                                         'TrackParticleContainerName', 'InDetTrackParticles',
+                                         kwargs)
 
 def getInDetPhysValTruthDecoratorAlg(**kwargs) :
     '''
@@ -167,21 +169,21 @@ def getInDetPhysValTruthDecoratorAlg(**kwargs) :
     If the collection name TruthParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValTruthDecoratorAlg,
-                                                    'TruthParticleContainerName','TruthParticles',
-                                                    kwargs,
-                                                    Extrapolator= 'Trk::Extrapolator/AtlasExtrapolator')
+    return createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValTruthDecoratorAlg,
+                                        'TruthParticleContainerName','TruthParticles',
+                                        kwargs,
+                                        Extrapolator= 'Trk::Extrapolator/AtlasExtrapolator')
 
 def getInDetRttTruthSelectionTool(**kwargs) :
-    return ConfigUtils.createPublicTool(InDetPhysValMonitoring.InDetPhysValMonitoringConf.AthTruthSelectionTool,
-                                         kwargs,
-                                         # @TODO change name ? name = 'InDetRttTruthSelectionTool',
-                                         requireStatus1 = True,
-                                         requireCharged = True,
-                                         maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
-                                         maxProdVertRadius = 110.,
-                                         maxEta = 2.5,
-                                         minPt = 400. )
+    return createPublicTool(InDetPhysValMonitoring.InDetPhysValMonitoringConf.AthTruthSelectionTool,
+                            kwargs,
+                            # @TODO change name ? name = 'InDetRttTruthSelectionTool',
+                            requireStatus1 = True,
+                            requireCharged = True,
+                            maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
+                            maxProdVertRadius = 110.,
+                            maxEta = 2.5,
+                            minPt = 400. )
 
 def getInDetTruthSelectionTool(**kwargs) :
     return getInDetRttTruthSelectionTool(**_args( kwargs,
@@ -202,9 +204,9 @@ def getTruthClassDecoratorAlg(**kwargs) :
     if the collection name TruthParticleContainerName is specified and differs from the default, the name
     of the algorithm will be extended by the collection name
     '''
-    return ConfigUtils.createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.TruthClassDecoratorAlg,
-                                                     'TruthParticleContainerName', 'TruthParticles',
-                                                     kwargs )
+    return createExtendNameIfNotDefault( InDetPhysValMonitoring.InDetPhysValMonitoringConf.TruthClassDecoratorAlg,
+                                         'TruthParticleContainerName', 'TruthParticles',
+                                         kwargs )
 
 def getTrackDecorators(**kwargs) :
     '''

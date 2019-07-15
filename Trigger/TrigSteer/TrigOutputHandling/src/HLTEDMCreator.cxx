@@ -59,6 +59,7 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
   INIT_XAOD( TauJetContainer );
+  INIT_XAOD( JetContainer );
 
   INIT_XAOD( CaloClusterContainer );
 
@@ -309,6 +310,9 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
   // After view collections are merged, need to update collection links
+
+  CREATE_XAOD( JetContainer, JetAuxContainer );
+
   ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD

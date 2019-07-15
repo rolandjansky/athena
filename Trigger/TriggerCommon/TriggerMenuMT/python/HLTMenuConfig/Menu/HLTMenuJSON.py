@@ -15,10 +15,9 @@ def __generateJSON( chainDicts, sequences, menuName ):
         streamDicts = [ { "obeyLB": "yes", "prescale":"1", "name":sn, "type":"physics" } 
                         for sn in chain["stream"]]
         
-        # l1 threshold require a bit of parsing for now, TODO revisit once L1 thresholds available in the chainDicts
-        # the logic is: break the item name into pieces by "_", removing the prefix L1, then remove any multiplicity that is in front of each fragment
-        l1Thresholds = [ t.lstrip( '23456789') for t in chain["L1item"].split("_", 1)[-1].split("_")]
-        
+        l1Thresholds  = []
+        [ l1Thresholds.append(p['L1threshold']) for p in chain['chainParts'] ]
+
         chainDict = { "counter": counter,
                       "name": chain["chainName"],
                       "l1item": chain["L1item"],

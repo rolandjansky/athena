@@ -37,6 +37,11 @@ def setupCommonServices():
     import StoreGate.StoreGateConf as StoreGateConf
     svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+    # Configure the CoreDumpSvc
+    if not hasattr(svcMgr, "CoreDumpSvc"):
+        from AthenaServices.Configurables import CoreDumpSvc
+        svcMgr += CoreDumpSvc()
+
     # ThreadPoolService thread local initialization
     from GaudiHive.GaudiHiveConf import ThreadPoolSvc
     svcMgr += ThreadPoolSvc("ThreadPoolSvc")

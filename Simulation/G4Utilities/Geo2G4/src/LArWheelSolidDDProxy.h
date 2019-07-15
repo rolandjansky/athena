@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArWheelSolidDDProxy
 // proxy for LArWheelSolid to store in DetectorDescription
 // Author: D. A. Maximov
 
-#ifndef __LArWheelSolidDDProxy_HH__
-#define __LArWheelSolidDDProxy_HH__
+#ifndef GEO2G4_LARWHEELSOLIDDDPROXY_H
+#define GEO2G4_LARWHEELSOLIDDDPROXY_H
 
 // #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 class LArWheelSolid;
@@ -65,4 +65,4 @@ private:
 //This is required and checked at compile time when you try to record/retrieve
 CLASS_DEF(LArWheelSolidDDProxy, 900345679 , 1)
 
-#endif // __LArWheelSolidDDProxy_HH__
+#endif // GEO2G4_LARWHEELSOLIDDDPROXY_H

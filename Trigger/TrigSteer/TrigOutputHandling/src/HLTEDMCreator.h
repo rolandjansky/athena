@@ -43,6 +43,8 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
@@ -112,6 +114,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( MuonContainer );
   DEF_XAOD_KEY( TauJetContainer );
   DEF_XAOD_KEY( CaloClusterContainer );
+  DEF_XAOD_KEY( JetContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY

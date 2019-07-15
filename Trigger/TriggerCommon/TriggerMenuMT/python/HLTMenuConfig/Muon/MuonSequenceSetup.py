@@ -302,6 +302,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.MuonsLink = "feature"
     efcbfsInputMaker.RequireParentView = True
+    efcbfsInputMaker.InViewMuonCandidates = "MuonCandidates_FS"
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBFSRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
