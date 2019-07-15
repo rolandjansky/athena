@@ -104,8 +104,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     std::string NameH = "d0_"+trigName;
     std::cout << " NameH: " << NameH << std::endl;
     auto d0 = Monitored::Scalar<float>(NameH,0.05);
-    ATH_MSG_INFO("        d0: " << d0);
     fill("TrigBjetMonitor",d0);
+    ATH_MSG_INFO(" =====> Histogram " << NameH << " is filled with d0: " << d0);
 
     /*
     if ( m_trigDecTool->isPassed(trigName) ) {
