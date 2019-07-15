@@ -1,10 +1,9 @@
 from MadGraphControl.MadGraphUtils import *
 import re
+import subprocess
 include("MC15JobOptions/VLQCouplingCalculator.py")
 include("MC15JobOptions/lhe_hacker.py")
-import subprocess
 import sys
-# import lheparser
 
 reMass = int(re.findall(r'\d+',re.findall(r'\d+LH',runArgs.jobConfig[0])[0])[0])
 reKappa = int(re.findall(r'\d+', runArgs.jobConfig[0])[-1])
@@ -41,7 +40,7 @@ rewtcardmaker(reMass,0.5)
 MAX_TRIAL = 50
 
 ##Figure out what kind of process we have (from file name)
-runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt, z > ferm ferm, tt > ferm ferm bb)"
+runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > WW bb, WW > ferm ferm)"
 #runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt)"
 
 print ("Mass:  ", runArgs.mass)
@@ -78,7 +77,7 @@ define ferm = ve vm vt ve~ vm~ vt~ mu- ta- e- mu+ ta+ e+ u c d s u~ c~ d~ s~
 define VLQ = tp tp~
 %s 
 output -f
-"""%("add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt)"))
+"""%("add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > WW bb)"))
 
 fcard.close()
 
@@ -245,7 +244,7 @@ arrange_output(run_name=runName+'_minDecay',proc_dir=process_dir_minDecay,output
 #process_dir_minDecay = 'PROC_VLQ_UFO_1'
 #Refurbishing
 
-status = lhe_hacker(lhe_minDecay=process_dir_minDecay+'/Events/run_01_minDecay/unweighted_events.lhe', lhe_fullDecay=process_dir_fullDecay+'/Events/run_01_fullDecay/unweighted_events.lhe',vlq='T',decay='Z')
+status = lhe_hacker(lhe_minDecay=process_dir_minDecay+'/Events/run_01_minDecay/unweighted_events.lhe', lhe_fullDecay=process_dir_fullDecay+'/Events/run_01_fullDecay/unweighted_events.lhe',vlq='T',decay='W')
 status_2 = False
 ME_script = open('script.txt','w')
 ME_script.write('''
@@ -307,11 +306,11 @@ include("MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
 include("MC15JobOptions/Pythia8_MadGraph.py")
 
 
-evgenConfig.description = "MadGraph+Pythia8 production JO with NNPDF30LN and A15NNPDF23LO for VLQ single T to Zt with T produced via W"
+evgenConfig.description = "MadGraph+Pythia8 production JO with NNPDF30LN and A15NNPDF23LO for VLQ single T to Wb with T produced via W"
 
 evgenConfig.keywords = ["BSM", "BSMtop", "exotic"]
 
-evgenConfig.process = "T_Zt"
+evgenConfig.process = "T_Wb"
 
 evgenConfig.contact =  ['fschenck@cern.ch,avik.roy@cern.ch']
 
