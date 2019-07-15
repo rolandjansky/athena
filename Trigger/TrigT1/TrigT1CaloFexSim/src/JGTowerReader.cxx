@@ -121,6 +121,7 @@ JGTowerReader::~JGTowerReader() {
   jL1Jets.clear();
   jJet_L1Jets.clear();
   gL1Jets.clear();
+  
 }
 
 
@@ -151,10 +152,39 @@ StatusCode JGTowerReader::initialize() {
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
   }
+
   acc_rho = new SG::AuxElement::Accessor<float>("Rho");
   acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   acc_mst = new SG::AuxElement::Accessor<float>("MST");
 
+  //Here is to set up the tower helper which returns the tower eta/phi indices
+  //Define the histograms for each region
+  std::vector<TH2F*> hs_jT;
+  TH2F* j_h1=new TH2F("j_h1","j_h1",1,-3.2,-3.1,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h2=new TH2F("j_h2","j_h2",3,-3.1,-2.5,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h3=new TH2F("j_h3","j_h3",50,-2.5, 2.5,64,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h4=new TH2F("j_h4","j_h4",3,2.5,3.1,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h5=new TH2F("j_h5","j_h5",1,3.1,3.2,32,-TMath::Pi(),TMath::Pi());
+  hs_jT.push_back(j_h1);
+  hs_jT.push_back(j_h2);
+  hs_jT.push_back(j_h3);
+  hs_jT.push_back(j_h4);
+  hs_jT.push_back(j_h5);
+  jT_helper = std::make_shared<TowerHelper>(hs_jT);
+
+
+  std::vector<TH2F*> hs_gT;
+  double fgT_Eta_p[5] = {3.2, 3.5, 4.0, 4.45,4.9};
+  double fgT_Eta_n[5] = {-4.9, -4.45, -4.0, -3.5,-3.2};
+  double gT_barrel[35]={-3.2,-3.1,-2.9,-2.7,-2.5,-2.4,-2.2,-2.0,-1.8,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,
+                  0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.5,2.7,2.9,3.1,3.2};
+  TH2F* g_h1=new TH2F("g_h1","g_h1",4 , fgT_Eta_p,17,-TMath::Pi(),TMath::Pi());  
+  TH2F* g_h2=new TH2F("g_h2","g_h2",34, gT_barrel,32,-TMath::Pi(),TMath::Pi());
+  TH2F* g_h3=new TH2F("g_h3","g_h3",4 , fgT_Eta_n,17,-TMath::Pi(),TMath::Pi());
+  hs_gT.push_back(g_h1);
+  hs_gT.push_back(g_h2);
+  hs_gT.push_back(g_h3);
+  gT_helper = std::make_shared<TowerHelper>(hs_gT);
 
   return StatusCode::SUCCESS;
 }
@@ -196,7 +226,7 @@ StatusCode JGTowerReader::execute() {
   if(jT_noise.size()==0){
     ATH_MSG_INFO (" Failed to find noise file, setting jTower noise manually ");
     for( const auto &jT : *jTowers){
-       if(jT->sampling()==0) jT_noise.push_back(450);
+       if(jT->sampling()==0) jT_noise.push_back(430);
        else if(jT->sampling()==1) jT_noise.push_back(2400);
        else jT_noise.push_back(2000);
     }
@@ -320,6 +350,48 @@ StatusCode JGTowerReader::execute() {
     CHECK( CheckTowerMap(jTowers) );
   }
 
+  if(m_outputNoise){
+
+    for(const auto &jT : *jTowers){
+       //===============Test Block================
+       int ieta = jT_helper->iEta(jT->eta());
+       int iphi = jT_helper->iPhi(jT->eta(), jT->phi());
+       ATH_MSG_DEBUG(jT->eta()<<"("<<ieta<<")"<<" "<<jT->phi()<<"("<<iphi<<")");
+       if(fabs(jT->et())<0.1) continue;
+       CHECK(HistBookFill(Form("jTNoise/jT%d",jT->Id()), 5000, -1500, 3500, jT->et(),1));
+       if(jT->sampling()==0){
+         if(fabs(jT->eta())<2.5)  CHECK(HistBookFill("jTNoise_regions/region0_em", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.1)  CHECK(HistBookFill("jTNoise_regions/region1_em", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.2)  CHECK(HistBookFill("jTNoise_regions/region2_em", 5000, -1500, 3500, jT->et(),1));
+       }
+       else if(jT->sampling()==1){
+         if(fabs(jT->eta())<2.5)  CHECK(HistBookFill("jTNoise_regions/region0_had", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.1)  CHECK(HistBookFill("jTNoise_regions/region1_had", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.2)  CHECK(HistBookFill("jTNoise_regions/region2_had", 5000, -1500, 3500, jT->et(),1));
+       }
+
+       else CHECK(HistBookFill("jTNoise_regions/region3", 5000, -1500, 3500, jT->et(),1));
+    }
+
+    for(const auto &gT : *gTowers){
+       if(fabs(gT->et())<0.1) continue;
+       CHECK(HistBookFill(Form("gTNoise/gT%d",gT->Id()), 7000, -1500, 5500, gT->et(),1));
+       if(gT->sampling()==0){
+         if(fabs(gT->eta())<2.4)  CHECK(HistBookFill("gTNoise_regions/region0_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<2.5)  CHECK(HistBookFill("gTNoise_regions/region1_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.1)  CHECK(HistBookFill("gTNoise_regions/region2_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.2)  CHECK(HistBookFill("gTNoise_regions/region3_em", 7000, -1500, 5500, gT->et(),1));
+       }
+       else if(gT->sampling()==1){
+         if(fabs(gT->eta())<2.4)  CHECK(HistBookFill("gTNoise_regions/region0_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<2.5)  CHECK(HistBookFill("gTNoise_regions/region1_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.1)  CHECK(HistBookFill("gTNoise_regions/region2_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.2)  CHECK(HistBookFill("gTNoise_regions/region3_had", 7000, -1500, 5500, gT->et(),1));
+       }
+       else CHECK(HistBookFill("gTNoise_regions/region4", 7000, -1500, 5500, gT->et(),1));
+    }
+
+  }
   ATH_MSG_DEBUG ("About to call JFexAlg");
   CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
   ATH_MSG_DEBUG ("About to call GFexAlg");
@@ -789,9 +861,20 @@ StatusCode JGTowerReader::ProcessObjects(){
 StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei){
 
   if(std::find(hists.begin(),hists.end(),name)==hists.end()) {
-    TH1F*h = new TH1F( name, name, nbinsx, xbins);
-    h->Sumw2();
-    CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    TH1F*h;
+    const std::string name_str(name.Data());
+    if(name_str.find("/")!=std::string::npos){
+      TString name1= name_str.substr(0, name_str.find("/"));
+      TString name2= name_str.substr(name_str.find("/")+1,name_str.length()-1);
+      h = new TH1F( name2, name2, nbinsx, xbins);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s/%s", this->name().c_str(),name1.Data(), name2.Data()),h));
+    }
+    else{
+      h = new TH1F( name, name, nbinsx, xbins);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    }
     m_hName[name]=h;
     m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
@@ -803,9 +886,21 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const D
 StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue,float wei){
 
   if(std::find(hists.begin(),hists.end(),name)==hists.end()) {
-    TH1F*h=new TH1F( name, name, nbinsx, xbin_down,xbin_up);
-    h->Sumw2();
-    CHECK( histSvc->regHist(Form("/EXPERT/%s/%s",this->name().c_str(), name.Data()),h));
+    TH1F*h;
+    const std::string name_str(name.Data());
+    if(name_str.find("/")!=std::string::npos){
+      TString name1= name_str.substr(0, name_str.find("/"));
+      TString name2= name_str.substr(name_str.find("/")+1,name_str.length()-1);
+      h = new TH1F( name2, name2, nbinsx, xbin_down, xbin_up);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s/%s", this->name().c_str(),name1.Data(), name2.Data()),h));
+    }
+    else{
+      h = new TH1F( name, name, nbinsx, xbin_down, xbin_up);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    }
+
     m_hName[name]=h;
     m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);

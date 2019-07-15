@@ -6,6 +6,7 @@ def createJGTowerMaker( SuperCellContainer="SCell", ApplySCQual=True, SCBitMask=
 
     towerMaker = JGTowerMaker( useSCQuality = ApplySCQual,
                                useAllCalo = False,
+                               useAllRun2TT = True,
                                SuperCellType = SuperCellContainer,
                                SuperCellQuality = SCBitMask )
 
@@ -27,7 +28,8 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
     towerReader = JGTowerReader( outputNoise = False, 
                                  debugJetAlg = False,
                                  SuperCellType = SuperCellType, 
-                                 noise_file = "Run3L1CaloSimulation/Noise/noise_r10684_MapFixed.root",
+                                 ## noise_file = "Run3L1CaloSimulation/Noise/noise_r10684_MapFixed.root",
+                                 noise_file = "",
                                  plotSeeds = False,
                                  dumpTowerInfo = False,
 

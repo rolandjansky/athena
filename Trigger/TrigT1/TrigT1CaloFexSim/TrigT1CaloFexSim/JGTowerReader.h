@@ -30,7 +30,7 @@
 #include "TH2.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
-
+#include "TrigT1CaloFexSim/JGTower.h"
 #include "string.h"
 std::vector<std::string> splitString(std::string parentString, std::string sep, bool stripEmpty=false);
 class JGTowerReader: public ::AthAlgorithm { 
@@ -175,6 +175,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::map<TString, TH2*> m_h2Name;
   int m_jTowerHashMax;
   int m_gTowerHashMax;
+  std::shared_ptr<TowerHelper> jT_helper;
+  std::shared_ptr<TowerHelper> gT_helper;
 
   unsigned int m_eventCount = 0;
   SG::AuxElement::Accessor<float>* acc_rho = new SG::AuxElement::Accessor<float>("Rho_avg");
