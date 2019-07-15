@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLinkResetAlg.h 788434 2016-12-07 14:46:53Z krasznaa $
 #ifndef DERIVATIONFRAMEWORKEXAMPLE_FLOATCOMPRESSIONALG_H
 #define DERIVATIONFRAMEWORKEXAMPLE_FLOATCOMPRESSIONALG_H
 
@@ -15,6 +14,7 @@
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// EDM include(s).
 #include "xAODCore/tools/FloatCompressor.h"
 
 // Forward declaration(s):
@@ -34,8 +34,6 @@ namespace DerivationFramework {
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     * @author Kerim Suruliz <Kerim.Suruliz@cern.ch>
     * @author Johannes Elmsheuser <Kerim.Suruliz@cern.ch>
-
-    *
     */
    class FloatCompressionAlg : public AthAlgorithm {
 
@@ -72,9 +70,9 @@ namespace DerivationFramework {
 
       /// Cached types of the auxiliary IDs
       std::vector< AuxIDType > m_typeCache;
+      /// Float compressors used by the algorithm
+      std::vector< xAOD::FloatCompressor > m_floatCompressors;
 
-     std::unique_ptr< xAOD::FloatCompressor > m_floatCompressor;
-     
    }; // class FloatCompressionAlg
 
 } // namespace DerivationFramework

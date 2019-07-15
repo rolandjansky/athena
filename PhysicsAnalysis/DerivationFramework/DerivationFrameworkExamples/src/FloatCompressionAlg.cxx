@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -14,12 +14,9 @@
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#include "AthLinks/ElementLinkBase.h"
 
 // Local include(s):
 #include "DerivationFrameworkExamples/FloatCompressionAlg.h"
-
-#include "xAODCore/tools/FloatCompressor.h"
 
 namespace DerivationFramework {
 
@@ -34,11 +31,16 @@ namespace DerivationFramework {
    StatusCode FloatCompressionAlg::initialize() {
      
       // Tell the user what's happening:
-     ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
-     ATH_MSG_DEBUG( "SGKeys = " << m_keys );
-     ATH_MSG_DEBUG( "Vars = " << m_vars );
+      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_DEBUG( "SGKeys = " << m_keys );
+      ATH_MSG_DEBUG( "Vars = " << m_vars );
 
-     m_floatCompressor = std::make_unique<xAOD::FloatCompressor>( 7 );
+      // Initialise the float compressor objects.
+      static const unsigned int NMANTISSA = 23;
+      m_floatCompressors.reserve( NMANTISSA );
+      for( unsigned int i = 0; i < NMANTISSA; ++i ) {
+         m_floatCompressors.emplace_back( i );
+      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -111,12 +113,12 @@ namespace DerivationFramework {
 
   StatusCode FloatCompressionAlg::reset( const SG::IConstAuxStore& store,
 					 const std::string& key ) {
-    
+
       // If the container is empty, return right away:
-      //if( ! store.size() ) {
-      //   return StatusCode::SUCCESS;
-      //}
-      
+      if( ! store.size() ) {
+         return StatusCode::SUCCESS;
+      }
+
       // Get all the IDs stored in this object:
       const SG::auxid_set_t& auxids = store.getAuxIDs();
       
@@ -159,7 +161,9 @@ namespace DerivationFramework {
 	const size_t eltSize = reg.getEltSize( auxid );
 	void* ptr = const_cast< void* >( store.getData( auxid ) );
 	const size_t sz_i = store.size();
-	
+
+   static const unsigned int DEFAULT_NMANTISSA = 7;
+
 	for( size_t i = 0; i < sz_i; ++i ) {
 	  
 	  void* eltPtr = reinterpret_cast< char* >( ptr ) + i * eltSize;
@@ -168,7 +172,7 @@ namespace DerivationFramework {
 	  if (m_typeCache[ auxid ].isFloat) {
 	    if (eltPtr) {
 	      float val = *(float *) eltPtr;
-	      val = m_floatCompressor->reduceFloatPrecision( val );
+	      val = m_floatCompressors[ DEFAULT_NMANTISSA ].reduceFloatPrecision( val );
 	      *(float *) eltPtr = val;
 	    }
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
@@ -178,7 +182,7 @@ namespace DerivationFramework {
 	    const size_t sz_j = vals.size();
 
 	    for( size_t j = 0; j < sz_j; ++j ) {
-	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j] );
+          vals[j] = m_floatCompressors[ DEFAULT_NMANTISSA ].reduceFloatPrecision( vals[j] );
 	    }	    
 
 	    // vals.erase( vals.begin()+2, vals.end() );
@@ -276,7 +280,7 @@ namespace DerivationFramework {
 		  std::string var = myvar.first;
 		  int prec = myvar.second;
 		  if (var == reg.getName( auxid )) {
-		    val = m_floatCompressor->reduceFloatPrecision( val, prec );
+		    val = m_floatCompressors[ prec ].reduceFloatPrecision( val );
 		  }
 		}
 	      }
@@ -295,7 +299,7 @@ namespace DerivationFramework {
 		  const size_t sz_j = vals.size();
 
 		  for( size_t j = 0; j < sz_j; ++j ) {
-		    vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j], prec );
+		    vals[j] = m_floatCompressors[ prec ].reduceFloatPrecision( vals[j] );
 		  }	    
 		}
 	      }
