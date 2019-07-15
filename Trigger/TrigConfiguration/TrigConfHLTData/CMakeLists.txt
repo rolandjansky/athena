@@ -19,3 +19,7 @@ atlas_add_library( TrigConfHLTData
    PUBLIC_HEADERS TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
+
+atlas_add_executable( string2hash
+   SOURCES util/string2hash.cxx
+   LINK_LIBRARIES TrigConfHLTData )
