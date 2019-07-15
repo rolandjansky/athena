@@ -22,7 +22,7 @@ StatusCode CombinationsHelperTool::initialize() {
   
   m_conditions = m_config->getConditions();
 
-  m_grouper  = std::move(m_config->getJetGrouper());
+  m_grouper  = m_config->getJetGrouper();
 
   return StatusCode::SUCCESS;
 }
