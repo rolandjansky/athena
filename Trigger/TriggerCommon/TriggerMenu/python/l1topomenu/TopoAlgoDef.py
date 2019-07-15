@@ -1977,28 +1977,28 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         #ATR-19302: not included for now
-#        if usev8:
-#            toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
-#            log.info("Define %s" % toponame)
-#            inputList = ['EMshi','EMshi']
-#            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-#            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
-#            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
-#            alg.addgeneric('MaxTob1', 1)
-#            alg.addgeneric('MaxTob2', 6)
-#            alg.addgeneric('NumResultBits', 1)
-#            alg.addvariable('MinMSqr', 0)
-#            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
-#            alg.addvariable('MinET1', 10)
-#            alg.addvariable('MinET2', 10)
-#            alg.addgeneric('ApplyEtaCut', 1)
-#            alg.addvariable('MinEta1', 0)
-#            alg.addvariable('MaxEta1', 9999)
-#            alg.addvariable('MinEta2', 0)
-#            alg.addvariable('MaxEta2', 9999)
-#            alg.addvariable('MinDeltaPhi', 27)
-#            alg.addvariable('MaxDeltaPhi', 32)
-#            tm.registerAlgo(alg)
+        if usev8:
+            toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
+            log.info("Define %s" % toponame)
+            inputList = ['EMshi','EMshi']
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob1', 1)
+            alg.addgeneric('MaxTob2', 6)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
+            alg.addvariable('MinET1', 10)
+            alg.addvariable('MinET2', 10)
+            alg.addgeneric('ApplyEtaCut', 1)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addvariable('MinDeltaPhi', 27)
+            alg.addvariable('MaxDeltaPhi', 32)
+            tm.registerAlgo(alg)
 
         if usev8:
             toponame = "0INVM70-27DPHI32-EM10his1-EM12his6"
