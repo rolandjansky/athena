@@ -2,12 +2,8 @@
 
 # art-description: athenaHLT on data with Physics_pp_v7 menu currently from 2016 EB data 
 # art-type: build
-# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-include: 21.0/AthenaP1
-# art-include: 21.0-TrigMC/AthenaP1
-# art-include: master/AthenaP1
+# art-include: 21.3/Athena
 # art-include: master/Athena
 
 if [ -z ${TEST} ]; then

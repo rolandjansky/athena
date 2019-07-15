@@ -2,17 +2,21 @@
 
 # art-description: Test of Trigger FTK RDO->RDO_FTK 
 # art-type: grid
-# art-include: 21.3/Athena
 # art-include: 21.0/Athena
+# art-include: 21.3/Athena
 # art-include: master/Athena
-# art-output: *check*
+# art-output: *.txt
 # art-output: *.log
-# art-output: log.RAW*
-# art-output: log.RDO*
+# art-output: log.*
+# art-output: *.new
+# art-output: *.json
 # art-output: *.root
 # art-output: *.pmon.gz
-# art-output: TotalEventsProcessed.txt
-
+# art-output: *perfmon*
+# art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
 
 export NAME="mc_rdo_to_rdoftk_grid"
 export JOB_LOG="athena_RDO_FTK.log"
