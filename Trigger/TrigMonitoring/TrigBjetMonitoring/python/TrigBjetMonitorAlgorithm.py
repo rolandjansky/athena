@@ -123,9 +123,11 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "E" :
                 myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                         path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
                 shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                              path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             continue
         else :                      # b-jets
@@ -135,33 +137,41 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "E" :
                 myGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
                                         path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
                 shifterGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
                                              path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             HistName = 'd0_' + chain[2:]
             if chain[0:1] == "E" :
                 myGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
                                         path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
                 shifterGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
                                              path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
+
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
                 myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                         path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
                 shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                              path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             HistName = 'wMV2c20_' + chain[2:]
             if chain[0:1] == "E" :
                 myGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
                                         path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
                 shifterGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
                                              path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-
+                print " ==> histogam ",HistName," is defined for shifterGroup"
             continue
 
 
