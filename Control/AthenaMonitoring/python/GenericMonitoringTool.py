@@ -45,6 +45,7 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     if title is None:
         title = varname
+    title = title.replace(',','","') # Commas used as delimiters, but "," is ok
 
     if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
         log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
