@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -802,6 +802,13 @@ Trk::STEP_Propagator::globalPositions ( std::list<Amg::Vector3D>& positionsList,
 // Main function for track propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
+// Force this function to be optimized, even in unoptimized builds:
+// this makes heavy use of Eigen, and Eigen is extremely slow if optimization
+// is disabled.  If you do need to debug this function, you can comment
+// this out.
+#if defined(__GNUC__) && !defined(__OPTIMIZE__)
+__attribute__ ((optimize(2)))
+#endif
 const Trk::TrackParameters*
 Trk::STEP_Propagator::propagateRungeKutta (Cache&                              cache,           
                                            bool 	                             errorPropagation,
@@ -1877,6 +1884,13 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 // This is the default STEP method
 /////////////////////////////////////////////////////////////////////////////////
 
+// Force this function to be optimized, even in unoptimized builds:
+// this makes heavy use of Eigen, and Eigen is extremely slow if optimization
+// is disabled.  If you do need to debug this function, you can comment
+// this out.
+#if defined(__GNUC__) && !defined(__OPTIMIZE__)
+__attribute__ ((optimize(2)))
+#endif
 bool
 Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
                                       bool    errorPropagation,

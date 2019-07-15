@@ -155,7 +155,7 @@ def _createCfgFlags():
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags
         return createPFConfigFlags()
-    _addFlagsCategory(acf,"PF",__pflow)
+    _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags

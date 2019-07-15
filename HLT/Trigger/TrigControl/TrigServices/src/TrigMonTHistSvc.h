@@ -44,6 +44,7 @@ public:
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
 
   virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   
   virtual StatusCode regHist(const std::string& name) override;
@@ -100,6 +101,7 @@ public:
 private:
   /// Helper struct that bundles the histogram, name and mutex
   struct THistID {
+    ~THistID() { delete mutex; }
     std::string id{""};
     TObject* obj{nullptr};
     std::mutex* mutex{nullptr};

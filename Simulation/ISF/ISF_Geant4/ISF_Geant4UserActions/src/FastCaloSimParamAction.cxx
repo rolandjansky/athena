@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ISF_Geant4UserActions/FastCaloSimParamAction.h"
+#include "FastCaloSimParamAction.h"
 
 
 #include <stdexcept>

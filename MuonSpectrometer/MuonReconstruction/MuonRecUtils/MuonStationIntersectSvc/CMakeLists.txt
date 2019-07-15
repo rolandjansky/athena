@@ -34,3 +34,9 @@ atlas_add_component( MuonStationIntersectSvc
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests MuonCondInterface MuonReadoutGeometry TrkDriftCircleMath MuonStationIntersectSvcLib )
 
+atlas_install_python_modules( python/*.py )
+
+atlas_add_test( MdtIntersectGeometry_test
+  SCRIPT python -m MuonStationIntersectSvc.MdtIntersectGeometry_test
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "-s dead tube" )

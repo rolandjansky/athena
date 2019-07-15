@@ -109,7 +109,7 @@ Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
 {
   // this is for a tilted perigee surface
   if (Surface::m_transform) {
-    // get the vector perpenticular to the momentum and the straw axis
+    // get the vector perpendicular to the momentum and the straw axis
     Amg::Vector3D radiusAxisGlobal(lineDirection().cross(glomom));
     Amg::Vector3D locZinGlobal = transform() * Amg::Vector3D(0., 0., locpos[Trk::locZ]);
     // transform zPosition into global coordinates and add locR * radiusAxis

@@ -94,6 +94,8 @@ atlas_add_test( GaussianTrackDensity_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+# Needed to avoid spurious ubsan warnings.
+set_target_properties( TrkVertexSeedFinderUtils_GaussianTrackDensity_test PROPERTIES ENABLE_EXPORTS True )
 
 
 atlas_add_test( SimpleVertexClusterFinder_test

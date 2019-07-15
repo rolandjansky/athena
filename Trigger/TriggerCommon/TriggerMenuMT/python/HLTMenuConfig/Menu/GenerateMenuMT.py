@@ -330,7 +330,7 @@ class GenerateMenuMT(object):
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
             log.debug('ChainName %s', cc.name)
-            log.debug('  L1Seed %s', cc.seed)
+            log.debug('  L1Item %s', cc.L1Item)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
                 log.info(step)
