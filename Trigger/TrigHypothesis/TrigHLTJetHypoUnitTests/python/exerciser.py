@@ -166,14 +166,14 @@ class FlowNetworkVsPartitionsTests(CombinationsTests) :
 
     def logfile_name(self, chain_name):
         return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
-            str(self.n_bkgd) + '_parts.log'
+            str(self.n_bkgd) + '.log'
                                             
 
 
 def JetHypoExerciserCfg():
 
     # test_conditions =  PartitionsTests()
-    test_conditions = FlowNetworkVsPartitionsTests(n_sgnl=3, n_bkgd=0)
+    test_conditions = FlowNetworkVsPartitionsTests(n_sgnl=3, n_bkgd=10)
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
     generator = test_conditions.make_event_generator()

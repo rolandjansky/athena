@@ -41,15 +41,16 @@ std::string DebugInfoCollector::toStringByMsgKey() const {
 std::string DebugInfoCollector::toStringByTime() const {
   /* print out messages in time order */
 
-  std::map<int, std::string> by_time;
+  std::map<unsigned long, std::string> by_time;
   
   for(const auto& p : m_info){
     for(const auto& tm : p.second){
       // tm.first = time from vector of (time, msg)
       // p.first = msg key
       // tm.second = msg at time tm.first
-      
-      by_time[tm.first] = p.first + " " + tm.second;
+
+      auto timestamp = static_cast<unsigned long>(tm.first);
+      by_time[timestamp] = p.first + " " + tm.second;
     }
   }
 	     
