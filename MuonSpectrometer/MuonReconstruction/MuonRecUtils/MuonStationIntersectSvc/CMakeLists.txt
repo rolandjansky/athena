@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           PRIVATE
                           Control/StoreGate
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           Tracking/TrkUtilityPackages/TrkDriftCircleMath )
@@ -26,7 +27,7 @@ atlas_add_library( MuonStationIntersectSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonStationIntersectSvc
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests GeoModelUtilities
                    PRIVATE_LINK_LIBRARIES MuonCondInterface MuonReadoutGeometry TrkDriftCircleMath )
 
 atlas_add_component( MuonStationIntersectSvc
