@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -180,6 +180,19 @@ SiDetectorElement::updateCache() const
   static const HepGeom::Vector3D<double> & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
   static const HepGeom::Vector3D<double> & localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
   static const HepGeom::Vector3D<double> & localRecoDepthAxis = localAxes[distDepth]; // Defined to be same as z axis
+
+
+   // Initialize various cached members
+  // The unit vectors
+  m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
+  m_normal = Amg::Vector3D( m_normalCLHEP[0], m_normalCLHEP[1], m_normalCLHEP[2]);
+  
+  
+  m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
+  m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
+  
+  m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
+  m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
   
   // We only need to calculate the rough orientation once.
   //For it to change would require extreme unrealistic misalignment changes.
@@ -210,11 +223,11 @@ SiDetectorElement::updateCache() const
 
     bool barrelLike = true;
     nominalEta.setZ(1);
-    if (std::abs(globalEtaAxis.dot(nominalEta)) < 0.5) { // Check that it is in roughly the right direction.
+    if (std::abs(globalEtaAxis.dot(nominalEta)) < 0.5) { // Check that it is in roughly the right direction. Allowed not to be for ITK inclined/barrel ring modules
       barrelLike = false;
     }   
 
-    if (isBarrel() && !barrelLike) {      
+    if (isBarrel() && !barrelLike && !isInclined() && !isBarrelRing()) {      
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has endcap like orientation with barrel identifier." 
 						 << endreq;
     } else if (!isBarrel() && barrelLike) {
@@ -315,18 +328,6 @@ SiDetectorElement::updateCache() const
   }
   #endif 
 
-  // Initialize various cached members
-  // The unit vectors
-  m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
-  m_normal = Amg::Vector3D( m_normalCLHEP[0], m_normalCLHEP[1], m_normalCLHEP[2]);
-  
-
-  m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
-  m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
-
-  m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
-  m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
-
   getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
 
   // Determin isStereo
@@ -346,9 +347,9 @@ SiDetectorElement::updateCache() const
 	m_isStereo = (sinStereoThis > sinStereoOther);
       }
     } else {
-      m_isStereo = false;
-    }
-  }    
+  m_isStereo = false;
+}
+}    
   
 }
 
