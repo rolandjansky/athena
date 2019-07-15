@@ -137,9 +137,13 @@ namespace Trk
     if(not ok)
       lPosition = Amg::Vector2D (INVALID,INVALID);
 
+    // For a neutral particle, last parm should be 1/p rather than q/p.
+    double qopnum = this->charge();
+    if (qopnum == 0) qopnum = 1;
+
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], momentum().phi(),
-      momentum().theta(), this->charge()/momentum().norm();
+      momentum().theta(), qopnum/momentum().norm();
   }
 
   // Constructor with mixed arguments 1 - uses global <-> local for parameters
