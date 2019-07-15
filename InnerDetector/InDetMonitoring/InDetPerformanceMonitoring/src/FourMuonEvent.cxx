@@ -107,7 +107,10 @@ bool FourMuonEvent::Reco()
     if (m_numberOfFullPassMuons == 4) {
       m_passedSelectionCuts = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
       if ( m_passedSelectionCuts && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
-      if (this->ReconstructKinematics()) {   // Reconstruct the invariant mass ( based on mu-sys pt ).
+
+      m_passedSelectionCuts = this->ReconstructKinematics(); // try the event kinematics 
+
+      if (m_passedSelectionCuts) {   
 	m_passedSelectionCuts = EventSelection(ID);
 	m_FourMuonInvMass = m_fInvariantMass[ID];
       }
@@ -130,10 +133,14 @@ bool FourMuonEvent::Reco()
   
   if ( m_passedSelectionCuts) m_acceptedEventCount++;
 
-  if (m_doDebug || thisdebug || true) std::cout << " * FourMuonEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
-						<< " muons. So far there are " << m_acceptedEventCount 
-						<< " accpeted events out of " << m_eventCount 
-						<< " tested * COMPLETED * return " << m_passedSelectionCuts << std::endl; 
+  if (m_doDebug || thisdebug || m_passedSelectionCuts) {
+    std::cout << " * FourMuonEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
+	      << " muons. " << m_acceptedEventCount 
+	      << " events accpeted out of " <<  m_eventCount 
+	      << " tested ";
+    if (m_passedSelectionCuts) std::cout << " This m= " << m_FourMuonInvMass;
+    std::cout << " * return " << m_passedSelectionCuts << std::endl; 
+  }
   
   return m_passedSelectionCuts;
 }

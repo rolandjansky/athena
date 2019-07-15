@@ -46,6 +46,8 @@ ZmumuEvent::ZmumuEvent()
   m_Z0GapCut = 5.0; // in mm
   m_SelectMuonByIso = true;
   m_SelectMuonByIP = true;
+  m_analyzedEventCount = 0;
+  m_acceptedEventCount = 0;
 }
 
 //==================================================================================
@@ -84,8 +86,9 @@ const std::string ZmumuEvent::getRegion() const{
 //==================================================================================
 bool ZmumuEvent::Reco()
 {
-
   if(m_doDebug){ std::cout << " * ZmumuEvent * ZmumuEvent::Reco() starting " << std::endl; }
+  m_analyzedEventCount++;
+
   // Clear out the previous events record.
   this->Clear();
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
@@ -120,12 +123,20 @@ bool ZmumuEvent::Reco()
   m_passedSelectionCuts = EventSelection(ID);
   m_DiMuonPairInvMass =  m_fInvariantMass[ID];
   
+  if (m_passedSelectionCuts) m_acceptedEventCount++;
   
   if(m_doDebug) {
-    if ( m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * Selected event :) " << std::endl;
-    if (!m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * Rejected event :) " << std::endl;
+    if ( m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * result of analyzed event " << m_analyzedEventCount << " --> Selected event :) " << std::endl;
+    if (!m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * result of analyzed event " << m_analyzedEventCount << " --> Rejected event :( " << std::endl;
   }
-
+  if (m_doDebug) {
+    std::cout << " * ZmumuEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
+	      << " muons. " << m_acceptedEventCount 
+	      << " events accpeted out of " <<  m_analyzedEventCount 
+	      << " tested ";
+    if (m_passedSelectionCuts) std::cout << " This m= " << m_DiMuonPairInvMass; 
+    std::cout << " * return " << m_passedSelectionCuts << std::endl; 
+  }
   return m_passedSelectionCuts;
 }
 

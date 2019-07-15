@@ -7,8 +7,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-#m_reconmerge = "merge" #"%"
-m_reconmerge = "deriv" #"%"
+m_reconmerge = "deriv" # "merge" "%"
 m_workDirPlatform = ""
 
 # options
@@ -496,7 +495,8 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
         theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            theOptions = "--useShortLivedReplicas  --forceStaged"
+            #theOptions = "--useShortLivedReplicas  --forceStaged"
+            theOptions = "--useShortLivedReplicas" # under test. Suggested by Ilija Vukotic on 14/July/2019
 
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 

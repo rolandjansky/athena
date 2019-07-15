@@ -528,7 +528,7 @@ StatusCode IDPerfMonZee::fillHistograms()
      const xAOD::MissingET *met;
      met = (*final_met)[m_metRefFinalName];
      if (met) {
-         msg(MSG::INFO) << " zee MET = " << met->met() << endreq;   
+         msg(MSG::DEBUG) << " zee MET = " << met->met() << endreq;   
      }
   }
 

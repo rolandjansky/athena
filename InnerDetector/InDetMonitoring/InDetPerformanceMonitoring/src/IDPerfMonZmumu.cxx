@@ -165,7 +165,7 @@ StatusCode IDPerfMonZmumu::initialize()
 
   // Setup the services
   ISvcLocator* pxServiceLocator = serviceLocator();
-  if ( pxServiceLocator != NULL ) {
+  if ( pxServiceLocator != nullptr ) {
       StatusCode xSC = PerfMonServices::InitialiseServices( pxServiceLocator );
       if ( xSC == !StatusCode::SUCCESS ) {
 	ATH_MSG_FATAL("Problem Initializing PerfMonServices");
@@ -684,7 +684,7 @@ StatusCode IDPerfMonZmumu::execute()
   m_xZmm.SetSecondMuonPtCut(m_SecondMuonPtCut);
   m_xZmm.SetOpeningAngleCut(m_OpeningAngleCut);
   m_xZmm.SetZ0GapCut(m_Z0GapCut);
-  // m_xZmm.setDebugMode(m_doDebug);
+  m_xZmm.setDebugMode(m_doDebug);
 
   // check if the muon-pair passed the resonance selection cuts:
   if(!m_xZmm.Reco()){
@@ -712,10 +712,9 @@ StatusCode IDPerfMonZmumu::execute()
   const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
   const xAOD::Muon* muon_neg = m_xZmm.getCombMuon(m_xZmm.getNegMuon(ZmumuEvent::CB));
 
-  const xAOD::TrackParticle* p1_comb; const xAOD::Vertex* p1_comb_v = nullptr;
-  const xAOD::TrackParticle* p2_comb; const xAOD::Vertex* p2_comb_v = nullptr;
-  
-  
+  const xAOD::TrackParticle* p1_comb = nullptr; const xAOD::Vertex* p1_comb_v = nullptr;
+  const xAOD::TrackParticle* p2_comb = nullptr; const xAOD::Vertex* p2_comb_v = nullptr;
+    
   //To protect against failures of the estimation
   bool success_pos =false;
   bool success_neg =false;
@@ -730,9 +729,14 @@ StatusCode IDPerfMonZmumu::execute()
       p2_comb_v = p2_comb->vertex();
       
       if (!p1_comb || !p2_comb) {
-	ATH_MSG_WARNING("Requested InnerDetectorTrackParticles but not present in the input file. Exiting event..");
+	ATH_MSG_WARNING("Requested InDetTrackParticles but not present in the input file. Exiting event..");
 	return StatusCode::SUCCESS;
       }
+
+      if (!p1_comb_v || !p2_comb_v){
+	ATH_MSG_WARNING( "Requested InDetTrackParticles have no vertex. Exiting event");
+	return StatusCode::SUCCESS;
+      }      
     }
     else {
       ATH_MSG_DEBUG("Selecting CombinedTrackParticles");
@@ -754,18 +758,9 @@ StatusCode IDPerfMonZmumu::execute()
       }
 
       if (!p1_comb_v || !p2_comb_v){
-	ATH_MSG_WARNING( "Requested CombinedTrackParticles has no vertex. Exiting event");
+	ATH_MSG_WARNING( "Requested CombinedTrackParticles have no vertex. Exiting event");
 	return StatusCode::SUCCESS;
-      }
-      
-      //This is hiding things under the rug
-      // in case the combined muons couldn't be retrieved try with the ID part
-      // std::cout << "  ** IDPerfMonZmumu ** retrieving ID muons with (ZmumuEvent::ID) " << std::endl;
-      //p1_comb = m_xZmm.getIDTrack(m_xZmm.getPosMuon(ZmumuEvent::ID));
-      //p1_comb_v = p1_comb->vertex();
-      //p2_comb = m_xZmm.getIDTrack(m_xZmm.getNegMuon(ZmumuEvent::ID));
-      //p2_comb_v = p2_comb->vertex();
-      
+      }      
     }
   }
   else {
@@ -881,7 +876,7 @@ StatusCode IDPerfMonZmumu::execute()
 
 	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
 
-	if (muon1_neg->vertex() != NULL) {
+	if (muon1_neg->vertex() != nullptr) { // check vertex exists
 	  m_pv_x = muon1_pos->vertex()->x();
 	  m_pv_y = muon1_pos->vertex()->y();
 	  m_pv_z = muon1_pos->vertex()->z();
@@ -916,7 +911,6 @@ StatusCode IDPerfMonZmumu::execute()
 	  m_metphi = met->phi();
 	}
 	ATH_MSG_DEBUG (" Zmumu event with MET = " << m_met);
-
 	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accepted event " << m_4mu.getAcceptedEvents() << " with m_4mu.GetInvMass= " << m_4mu_minv);
 	m_FourMuTree->Fill();
       }
