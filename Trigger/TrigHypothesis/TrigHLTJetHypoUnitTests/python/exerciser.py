@@ -32,11 +32,12 @@ class PartitionvsFlowNetworkTests(object):
         """Chaindicts for Partion vs flownetwork strudies"""
     
         chainNameDecoder = DictFromChainName.DictFromChainName()
-        chain_name = 'HLT'
+        self.chain_name = 'HLT'
         for i in range(self.n_conds):
-            chain_name += '_j80'
+            self.chain_name += '_j80'
 
-        chain_dict = chainNameDecoder.getChainDict(chain_name)
+        
+        chain_dict = chainNameDecoder.getChainDict(self.chain_name)
         assert len(chain_dict['chainParts']) == n_conds
 
         if (self.run_with_partitions):
@@ -49,8 +50,8 @@ class PartitionvsFlowNetworkTests(object):
     def make_event_generator(self):
         generator = SimpleHypoJetVectorGenerator()
     
-        generator.ets = [80000. + 1000.*i for i in range(self.n_conds)]
-        generator.etas = [0.5] * self.n_conds
+        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.etas = [0.5] * self.n_sgnl
         generator.n_bkgd = self.n_bkgd
         generator.bkgd_etmax = self.bkgd_etmax
 
@@ -58,19 +59,20 @@ class PartitionvsFlowNetworkTests(object):
 
     def logfile_name(self, chain_name):
         if (run_with_partitions):
-            lfn = chain_name + '_b' + str(self.n_bkgd) + '_part.log'
+            lfn = self.chain_name + '_b' + str(self.n_bkgd) + '_part.log'
         else:
-            lfn = chain_name + '_b' + str(self.n_bkgd) + '.log'
+            lfn = self.chain_name + '_b' + str(self.n_bkgd) + '.log'
 
         return lfn
 
 class CombinationsTests(object):
 
     def __init__(self,
+                 n_sgnl=4,
                  n_bkgd=4,
                  bkgd_etmax=50000.,  # MeV
     ):
-
+        self.n_sgnl = n_sgnl
         self.n_bkgd = n_bkgd
         self.bkgd_etmax = bkgd_etmax
         self.chain_name = 'HLT_j80_L1J20'
@@ -100,24 +102,25 @@ class CombinationsTests(object):
     def make_event_generator(self):
         generator = SimpleHypoJetVectorGenerator()
     
-        generator.ets = [80000. + 1000.*i for i in range(4)]
-        generator.etas = [0.5] * 4
+        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.etas = [0.5] * self.n_sgnl
         generator.n_bkgd = self.n_bkgd
         generator.bkgd_etmax = self.bkgd_etmax
 
         return generator
 
-    def logfile_name(self, chain_name):
-        return  chain_name + '_b' + str(self.n_bkgd) + '_combs.log'
+    def logfile_name(self):
+        return  self.chain_name + '_b' + str(self.n_bkgd) + '_combs.log'
 
     
 class PartitionsTests(CombinationsTests) :
 
     def __init__(self,
+                 n_sgnl=4,
                  n_bkgd=4,
                  bkgd_etmax=50000.,  # MeV
     ):
-        CombinationsTests.__init__(self, n_bkgd, bkgd_etmax)
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
 
     def _make_chain_dict(self):
         """ChainDict to excercise modifications to CombinationsHelperTool"""
@@ -139,11 +142,12 @@ class PartitionsTests(CombinationsTests) :
 class FlowNetworkVsPartitionsTests(CombinationsTests) :
 
     def __init__(self,
+                 n_sgnl=4,
                  n_bkgd=4,
                  bkgd_etmax=50000.,  # MeV
     ):
-        CombinationsTests.__init__(self, n_bkgd, bkgd_etmax)
-        self.chain_name = 'HLT_FNvsPartition_0'
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_FNvsPartition'
 
     def make_helper_tool(self):
         chain_label = """
@@ -155,19 +159,21 @@ class FlowNetworkVsPartitionsTests(CombinationsTests) :
         simple([(80et)(81et)])
         simple([(82et)(83et)]))
         )"""
-
+        
         return trigJetHypoToolHelperFromDict_(chain_label,
                                               self.chain_name)
 
 
     def logfile_name(self, chain_name):
-        return  chain_name + '_b' + str(self.n_bkgd) + '_parts.log'
+        return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
+            str(self.n_bkgd) + '_parts.log'
+                                            
 
 
 def JetHypoExerciserCfg():
 
     # test_conditions =  PartitionsTests()
-    test_conditions = FlowNetworkVsPartitionsTests()
+    test_conditions = FlowNetworkVsPartitionsTests(n_sgnl=3, n_bkgd=0)
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
     generator = test_conditions.make_event_generator()
