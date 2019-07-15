@@ -299,7 +299,7 @@ private:
   struct Cache{
     double  m_direction                                ;
     double  m_step                                     ;
-    double  m_maxPath                                  ;
+    double  m_maxPath                            =10000;
     double  m_field[3]                                 ;
     bool    m_maxPathLimit                       =false;
     bool    m_mcondition                         =false;
