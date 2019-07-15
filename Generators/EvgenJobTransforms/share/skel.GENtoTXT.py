@@ -53,9 +53,9 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate_lhe')
+evgenLog = logging.getLogger('Gen_lhe')
 
-
+evgenLog.debug("****************** GENERATING EVENTS WITH GEN_TF_TXT *****************")
 ##==============================================================
 ## Run arg handling
 ##==============================================================

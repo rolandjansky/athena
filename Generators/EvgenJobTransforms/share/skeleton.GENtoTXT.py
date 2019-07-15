@@ -55,6 +55,7 @@ evgenLog = logging.getLogger('Generate_lhe')
 ## Run arg handling
 ##==============================================================
 
+evgenLog.debug("****************** GENERATING EVENTS WITH GENERATE_TF_TXT *****************")
 ## Announce arg checking
 evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
 evgenLog.debug(str(runArgs))

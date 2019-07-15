@@ -7,7 +7,7 @@
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
 rm *;
-Generate_tf.py --ecmEnergy=13000 --jobConfig=421116 --maxEvents=10 \
+Gen_tf.py --ecmEnergy=13000 --jobConfig=421116 --maxEvents=10 \
     --outputEVNTFile=test_powheg_wenu_inelastic.EVNT.pool.root \
 
 echo "art-result: $? generate"
