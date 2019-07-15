@@ -164,7 +164,7 @@ float ScaleFactorCalculator::mcEventWeight() const {
 
   ///-- Start using the PMG tool to get the nominal event weights --///
   ///-- But nominal weight name seems to vary so we try to test   --///
-  const std::vector<std::string> nominal_weight_names = {" nominal ", "nominal"};
+  const std::vector<std::string> nominal_weight_names = {" nominal ", "nominal", ""};
 
   for(auto weight_name : nominal_weight_names){
     ///-- Check whether this weight name does exist --///
