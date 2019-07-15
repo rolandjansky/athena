@@ -48,7 +48,7 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Gen_lhe')
+evgenLog = logging.getLogger('Generate_lhe')
 
 
 ##==============================================================
