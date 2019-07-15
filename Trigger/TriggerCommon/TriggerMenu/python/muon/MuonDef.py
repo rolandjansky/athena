@@ -52,6 +52,7 @@ class L2EFChain_mu(L2EFChainDef):
   DummyMergerAlgo = PESA__DummyCopyAllTEAlgo("DummyMergerAlgo")
   fullScanSeqMap = getFullScanCaloSequences()
   # ----------------------------------------------------------------
+  allowed_masswindow = ('20invm60', '10invm60', '10invm70', '0invm60', '20invm80', '10invm80')
 
   def __init__(self, chainDict, asymDiMuonChain = False, asymMultiMuonChain = False, AllMuons = [], thisIsBphysChain=False):
     self.L2sequenceList   = []
@@ -429,7 +430,8 @@ class L2EFChain_mu(L2EFChainDef):
                                [theTrigMuonEFCombinerDiMuonMassPtImpactsHiggsinoHypoConfig],
                                'EF_mu_step3']]
 
-    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+    doZveto = any([masswindow in self.chainPart['addInfo'] for masswindow in self.allowed_masswindow])
+    if doZveto:
       dimuon_name = '0'
       muon_name = 'mu'
       mass_low = 0.
@@ -440,6 +442,9 @@ class L2EFChain_mu(L2EFChainDef):
       elif '10invm60' in self.chainPart['addInfo']:
         mass_low = 10.
         mass_high = 60.
+      elif '10invm70' in self.chainPart['addInfo']:
+        mass_low = 10.
+        mass_high = 70.
       elif '0invm60' in self.chainPart['addInfo']:
         mass_low = 0.
         mass_high = 60.
@@ -571,7 +576,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     if '10invm30' in self.chainPart['addInfo'] and 'pt2' in self.chainPart['addInfo'] and 'z10' in self.chainPart['addInfo']:
       self.EFsignatureList += [ [['EF_mu_step3']] ]
-    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+    if doZveto:
       self.EFsignatureList += [ [['EF_mu_step3invm']] ]
 
     if 'invm1' in self.chainPart['addInfo']:
@@ -623,7 +628,7 @@ class L2EFChain_mu(L2EFChainDef):
       self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step3': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS)})
-    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+    if doZveto:
       self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step3invm': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS)})
@@ -705,7 +710,7 @@ class L2EFChain_mu(L2EFChainDef):
                                   'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS+'_wOvlpRm'),
                                   'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS+'_wOvlpRm'),
                                   'EF_mu_step3': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS+'_wOvlpRm')}) 
-    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+    if doZveto:
       self.TErenamingDict.update({'L2_step1a_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step1b_wOvlpRm'  : mergeRemovingOverlap('L2_muon_comb',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step1c_wOvlpRm'  : mergeRemovingOverlap('L2_muon_combhyp',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
@@ -1308,7 +1313,8 @@ class L2EFChain_mu(L2EFChainDef):
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
 
-      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+      doZveto = any([masswindow in self.chainPart['addInfo'] for masswindow in self.allowed_masswindow])
+      if doZveto:
         dimuon_name = '0'
         muon_name = 'mu'
         mass_low = 0.
@@ -1337,6 +1343,7 @@ class L2EFChain_mu(L2EFChainDef):
         dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
         if  '0invm60' in self.chainPart['addInfo']: invm=  '0invm60'
         if '10invm60' in self.chainPart['addInfo']: invm= '10invm60'
+        if '10invm70' in self.chainPart['addInfo']: invm= '10invm70'
         if '20invm60' in self.chainPart['addInfo']: invm= '20invm60'
         if '20invm80' in self.chainPart['addInfo']: invm= '20invm80'
         if '10invm80' in self.chainPart['addInfo']: invm= '10invm80'
@@ -1380,7 +1387,7 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
       if 'TagandProbe' in self.chainPart['FSinfo']:
         self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
-      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+      if doZveto:
         self.EFsignatureList += [ [['EF_CB_FSINVM']] ]
 
       if run_isolation:
@@ -1422,7 +1429,7 @@ class L2EFChain_mu(L2EFChainDef):
             })
 
       if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
-      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo'] or '10invm80' in self.chainPart['addInfo']:
+      if doZveto:
         self.TErenamingDict['EF_CB_FSINVM'] = mergeRemovingOverlap('EF_CB_FSINVM_', 'SAFSHypo'+hypocut+'_'+hypocutEF+'_'+dimuon_name)
 
       if run_isolation:
