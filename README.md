@@ -1,4 +1,6 @@
-Athena - 21.0-TrigMC Branch - MC production with new trigger developments
+Athena - 21.1 Branch for online use at P1
+==========================
 
 This branch is currently used for:
-- Trigger developments that break Frozen Tier-0 Policy
+- Data taking at P1 with Run-2 trigger software
+- GlobalMonitoring at P1 with Run-2 software
