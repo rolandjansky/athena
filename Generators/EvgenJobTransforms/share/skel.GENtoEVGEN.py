@@ -60,8 +60,9 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate')
+evgenLog = logging.getLogger('Gen')
 
+evgenLog.debug("****************** GENERATING EVENTS WITH GEN_TF *****************")
 
 ##==============================================================
 ## Run arg handling
@@ -796,4 +797,4 @@ with open("config.pickle", 'w') as f:
 ##==============================================================
 ## Get ready to run...
 ##==============================================================
-evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
+evgenLog.info("****************** STARTING EVENT GENERATION *****************")
