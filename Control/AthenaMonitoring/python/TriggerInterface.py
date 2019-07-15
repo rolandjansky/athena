@@ -25,7 +25,9 @@ def getTrigConfigSvc(flags):
         print 'hltcs', hltcs.XMLMenuFile
         rv.addService(hltcs)
         lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
-        lvl1cs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
+        # Configures here via "newJO" but XMLs not generated for this menu name
+        lvl1XML = flags.Trigger.LVL1ConfigFile.replace('newJO_', '')
+        lvl1cs.XMLMenuFile = findFileInXMLPATH(lvl1XML)
         rv.addService(lvl1cs)
         l1topocs = L1TopoConfigSvc()
         l1topocs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1TopoConfigFile)
