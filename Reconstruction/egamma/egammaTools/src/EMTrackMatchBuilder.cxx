@@ -143,8 +143,8 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
       continue;
     }
     /* 
-     * try with normal directions for cosmics
-     * allow a retry with inverted direction.
+     * Try with normal directions. 
+     * For cosmics allow a retry with inverted direction.
      */
     if (isCandidateMatch(cluster, isTRT, (*trkIt), false)){
       inBroadWindow(ctx, trkMatches, *cluster, trackNumber, 
