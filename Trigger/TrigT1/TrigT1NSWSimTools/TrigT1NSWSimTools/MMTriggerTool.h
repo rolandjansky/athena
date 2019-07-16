@@ -174,9 +174,6 @@ namespace NSWL1 {
     std::vector<double> *m_NSWMM_hitGlobalDirectionY;
     std::vector<double> *m_NSWMM_hitGlobalDirectionZ;
 
-    std::vector<double> *m_NSWMM_hitLocalPositionX;
-    std::vector<double> *m_NSWMM_hitLocalPositionY;
-    std::vector<double> *m_NSWMM_hitLocalPositionZ;
 
     std::vector<double> *m_NSWMM_detector_globalPositionX;
     std::vector<double> *m_NSWMM_detector_globalPositionY;
@@ -196,7 +193,6 @@ namespace NSWL1 {
     std::vector<int> *m_NSWMM_particleEncoding;
     std::vector<double> *m_NSWMM_kineticEnergy;
     std::vector<double> *m_NSWMM_depositEnergy;
-    std::vector<double> *m_NSWMM_StepLength;
 
     std::vector<std::string> *m_NSWMM_sim_stationName;
     std::vector<int> *m_NSWMM_sim_stationEta;
