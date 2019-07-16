@@ -170,16 +170,16 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
-      ATH_MSG_ERROR("Could not get the local strip position for MM");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not get the local strip position for MM");
+      continue;
     }
     int stripNumberRDOId = detEl->stripNumber(localPos,layid);
     ATH_MSG_DEBUG(" check strip nr RDOId " << stripNumberRDOId );
     Amg::Vector3D globalPos;
     bool getGlobalPos = detEl->stripGlobalPosition(prdId,globalPos);
     if ( !getGlobalPos ) {
-      ATH_MSG_ERROR("Could not get the global strip position for MM");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not get the global strip position for MM");
+      continue;
     }
 
 //    const Trk::Surface& surf = detEl->surface(rdoId);
