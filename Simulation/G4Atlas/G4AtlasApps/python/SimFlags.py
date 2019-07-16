@@ -780,7 +780,7 @@ class TruthService(JobProperty):
 
 class ParticleSimWhiteList(JobProperty):
     """Steering of ISF: set the ParticleSimWhiteList tool"""
-    statusOn     = False
+    statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ISF_ParticleSimWhiteList'
 
