@@ -93,6 +93,17 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     //const static std::string m_snapshotStepNames[3];
     std::vector< std::string > m_snapshotStepNames;
 
+    
+    // Inspect whether a component is run with same thread or not
+    //std::map < PMonMT::StepCompPair , PMonMT::ThreadId* > m_threadIdMap;    
+
+    // Comp level measurements inside event loop
+    std::map < PMonMT::StepCompEvent, PMonMT::MeasurementData* > m_eventLoopDataMap;
+
+    //pthread_mutex_t m_mutex_pthread;
+
+    std::mutex m_mutex;
+
 }; // class PerfMonMTSvc
 
 #endif // PERFMONCOMPS_PERFMONMTSVC_H

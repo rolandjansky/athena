@@ -20,6 +20,8 @@
 
 #include "AthenaBaseComps/AthMessaging.h"
 
+#include <mutex>
+
 /*
  * Necessary tools
  */
@@ -29,21 +31,78 @@ namespace PMonMT {
   double get_process_cpu_time();
   double get_wall_time();
 
+  pthread_t get_thread_id();
+
+  // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
+  struct StepCompPair {
+  
+    std::string stepName;
+    std::string compName;
+  
+    // Overload < operator, because we are using a custom key(StepCompPair)  for std::map
+    bool operator<(const StepCompPair& sc) const {
+      return std::make_pair( this->stepName, this->compName ) < std::make_pair( sc.stepName, sc.compName );
+    }
+  
+  };
+                                   
+  // Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3    Clear!
+  struct StepCompEvent {
+  
+    std::string stepName;
+    std::string compName;
+    int eventNumber;
+  
+    // Should we include event number ?
+    //Overload < operator, because we are using a custom key(StepCompPair)  for std::map
+    bool operator<(const StepCompEvent& sce) const {
+      return std::make_pair( this->eventNumber, this->compName ) < std::make_pair( sce.eventNumber, sce.compName );
+    }
+  };
+  
+
   // Basic Measurement
   struct Measurement {
     double cpu_time;
     double wall_time;
+
+    // Should it be mutable ?
+    std::mutex m_mutex;
+    
+    // Clear -> get rid of pair
+    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_map;
+
+    std::map< StepCompEvent, int > thread_id_map;
+
+
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
-      /* Log to stdout
+      // Log to stdout
       IMessageSvc *msgSvc;
       MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      msg << MSG::INFO << std::fixed  <<  "Capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
-      ATH_MSG_INFO("Capture: CPU: " << cpu_time << ", Wall: " << wall_time);
-      */
+      //msg << MSG::INFO << std::fixed  <<  "Capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
+      //ATH_MSG_INFO("Capture: CPU: " << cpu_time << ", Wall: " << wall_time);
+      
     }
+
+    // Could we make it argumentless
+    void captureThread ( StepCompEvent sce ) {
+      
+      //std::lock_guard<std::mutex> lock(m_mutex);
+     
+      cpu_time = get_thread_cpu_time();
+      wall_time = get_wall_time(); // Does it really needed?
+
+     
+
+      shared_measurement_map[ sce ] = std::make_pair(cpu_time,wall_time);
+      
+      thread_id_map[sce] = get_thread_id();
+
+    }
+
     Measurement() : cpu_time{0.}, wall_time{0.} { }
   };
 
@@ -52,17 +111,32 @@ namespace PMonMT {
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
 
-    void addPointStart(const Measurement& meas) {
+    // Should it be mutable ?
+    std::mutex m_mutex;
+
+    // Clear -> get rid of pair
+    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_tmp_map;
+
+    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_delta_map;
+        
+   
+    std::map< StepCompEvent, int  > thread_id_tmp_map;
+    std::map< StepCompEvent, int  > thread_id_delta_map; 
+    
+
+    void addPointStart(const Measurement& meas) {          
+
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
-      
+     
       /* Log to stdout
       IMessageSvc *msgSvc;
       MsgStream msg( msgSvc, "PerfMonMTUtils" );
       msg << MSG::INFO << "addPointStart: CPU: " << m_tmp_cpu << ", Wall: " << m_tmp_wall  << endmsg;
       */
     }
-    void addPointStop(const Measurement& meas)  {
+    void addPointStop(const Measurement& meas)  {     
+
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
 
@@ -73,21 +147,61 @@ namespace PMonMT {
       msg << MSG::INFO << "addPointStop: delta_Wall: " << meas.wall_time << " - " << m_tmp_wall << " = " << m_delta_wall  << endmsg;
       */
     }
+
+    // Clear -> Make generic + make meas const
+    void addPointStart_thread(Measurement& meas, StepCompEvent sce ){
+
+      //std::lock_guard<std::mutex> lock(m_mutex);
+
+      shared_measurement_tmp_map[sce] = meas.shared_measurement_map[sce];
+
+      thread_id_tmp_map[sce] = meas.thread_id_map[sce];
+
+    }
+
+    void addPointStop_thread (Measurement& meas, StepCompEvent sce  ){
+
+      //std::lock_guard<std::mutex> lock(m_mutex);
+
+      shared_measurement_delta_map[sce].first = meas.shared_measurement_map[sce].first - shared_measurement_tmp_map[sce].first;
+      shared_measurement_delta_map[sce].second = meas.shared_measurement_map[sce].second - shared_measurement_tmp_map[sce].second;
+
+      thread_id_delta_map[sce] = meas.thread_id_map[sce] - thread_id_tmp_map[sce];
+
+      /* Log to stdout
+      IMessageSvc *msgSvc;
+      MsgStream msg( msgSvc, "PerfMonMTUtils" );
+      msg << MSG::INFO << "addPointStop_thread: delta_CPU: " << meas.shared_measurement_map[sce].first << " - " << shared_measurement_tmp_map[sce].first << " = " << shared_measurement_delta_map[sce].first  << endmsg;
+      
+      msg << MSG::INFO << "addPointStop_thread: delta_CPU: " << meas.shared_measurement_map[sce].second << " - " << shared_measurement_tmp_map[sce].second << " = " << shared_measurement_delta_map[sce].second  << endmsg;
+      */
+    }
+
+    
     MeasurementData() : m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.} { }
   };
+ /*
+  struct ThreadId {
 
-  // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
-  struct StepCompPair {
+    pthread_t thread_id;
 
-    std::string stepName;
-    std::string compName;
-   
-    // Overload < operator, because we are using a custom key(StepCompPair)  for std::map
-    bool operator<(const StepCompPair& sc) const { 
-        return std::make_pair( this->stepName, this->compName ) < std::make_pair( sc.stepName, sc.compName );
-    }     
+    bool isSameThread;
 
-  };
+    void addPointStart( pthread_t thread_id  ){
+
+      this->thread_id = thread_id;
+
+    }
+  
+    void addPointStop ( pthread_t thread_id  ){
+  
+      isSameThread = ( this->thread_id == thread_id) ? true : false;
+ 
+    }
+
+  };*/
+  
+  
  
 }
 
@@ -111,6 +225,13 @@ inline double PMonMT::get_thread_cpu_time() {
   // Return the measurement in ms
   return static_cast<double>(ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6);
 }
+
+inline pthread_t PMonMT::get_thread_id(){
+
+  return pthread_self();
+
+}
+
 
 /*
  * Process specific CPU time measurement in ms
