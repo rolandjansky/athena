@@ -237,7 +237,9 @@ StatusCode RpcDigitizationTool::initialize() {
   // fill the taginfo information
   ATH_CHECK(fillTagInfo());
 
-  ATH_CHECK(m_readKey.initialize());
+  if (m_RPCInfoFromDb) {
+    ATH_CHECK(m_readKey.initialize());
+  }
 
   if(m_PrintCalibrationVector) {
     ATH_CHECK(PrintCalibrationVector());
@@ -457,9 +459,6 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
 
 //--------------------------------------------
 StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
-
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-  const RpcCondDbData* readCdo{*readHandle};
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
@@ -686,6 +685,8 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 									 stationPhi,doubletR), doubletZ, doubletPhi,gasGap, imeasphi, clus);
 	  // here count and maybe kill dead strips if using COOL input for the detector status 
 	  if (m_Efficiency_fromCOOL) {
+        SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+        const RpcCondDbData* readCdo{*readHandle};
 	    if ( !(undefPhiStripStat && imeasphi==1) )
 	      {
 		if(readCdo->getDeadStripIntMap().find( newId )  != readCdo->getDeadStripIntMap().end()) 
@@ -1718,9 +1719,6 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   int stripetagood = 0 ;
   int stripphigood = 0 ;
 
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-  const RpcCondDbData* readCdo{*readHandle};
-
   if(!m_Efficiency_fromCOOL){
     unsigned int index = stationName - 2 ;
     // BML and BMS, BOL and BOS  come first (stationName= 2 and 3, 4 and 5 -> index 0-3)
@@ -1749,6 +1747,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     }
   }
   else{
+
+    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+    const RpcCondDbData* readCdo{*readHandle};
 
     ATH_MSG_DEBUG("Efficiencies and cluster size + dead strips will be extracted from COOL");
     

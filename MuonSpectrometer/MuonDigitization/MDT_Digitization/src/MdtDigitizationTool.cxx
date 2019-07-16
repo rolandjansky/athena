@@ -367,11 +367,11 @@ StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer
   CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin");
   CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name());
 
-  SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
-  const MdtCondDbData* readCdo{*readHandle};
 
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
+    SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
+    const MdtCondDbData* readCdo{*readHandle};
     m_IdentifiersToMask.clear();
     int size_id = readCdo->getDeadStationsId().size();
     ATH_MSG_DEBUG ( "Number of dead/missing stations retrieved from CondService= "<< size_id );	
