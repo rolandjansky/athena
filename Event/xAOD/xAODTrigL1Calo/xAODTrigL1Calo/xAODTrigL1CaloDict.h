@@ -1,10 +1,10 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigL1CaloDict.h 804221 2017-05-03 16:06:15Z cylin $
+// $Id: xAODTrigL1CaloDict.h 694350 2015-09-11 12:02:19Z krasznaa $
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 
@@ -76,7 +76,6 @@
 #include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v1.h"
 
 // Run 2
-
 #include "xAODTrigL1Calo/versions/TriggerTower_v2.h"
 #include "xAODTrigL1Calo/versions/TriggerTowerContainer_v2.h"
 #include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v2.h"
@@ -130,11 +129,6 @@
 #include "xAODTrigL1Calo/versions/L1TopoRawDataContainer_v1.h"
 #include "xAODTrigL1Calo/versions/L1TopoRawDataAuxContainer_v1.h"
 
-// Run 3
-
-#include "xAODTrigL1Calo/versions/JGTower_v1.h"
-#include "xAODTrigL1Calo/versions/JGTowerContainer_v1.h"
-#include "xAODTrigL1Calo/versions/JGTowerAuxContainer_v1.h"
 
 // Versionless AuxContainers
 #include "xAODTrigL1Calo/CMMCPHitsAuxContainer.h"
@@ -158,7 +152,6 @@
 #include "xAODTrigL1Calo/JetElementAuxContainer.h"
 #include "xAODTrigL1Calo/RODHeaderAuxContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
-#include "xAODTrigL1Calo/JGTowerAuxContainer.h"
 #include "xAODTrigL1Calo/L1TopoRawDataAuxContainer.h"
 
 
@@ -302,7 +295,6 @@ namespace {
     // Run 2
     
     // TriggerTower
-
     xAOD::TriggerTowerContainer_v2 TriggerTower_v2_c1;
      /*
     DataLink< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_l1;
@@ -312,10 +304,6 @@ namespace {
     std::vector< ElementLink< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_l5;
     std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_l6;
      */
-
-    //Run 3
-    xAOD::JGTowerContainer_v1 JGTower_v1_c1;
-
 
     // RODHeader  
     xAOD::RODHeaderContainer_v2 RODHeader_v2_c1;

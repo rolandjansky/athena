@@ -203,7 +203,7 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
             msg() << "MenuLoader:                       Error loading TriggerThreshold " << thr_info.thrId << endl;
             throw runtime_error( "MenuLoader::loadItems: error loading TriggerThreshold " );
          }
-         menu.thresholdConfig().addTriggerThreshold(thr_info.thr, /*bool respectRun2Limits =*/ false);
+         menu.thresholdConfig().addTriggerThreshold(thr_info.thr);
       }
       item_thrInfo[ctpid].push_back(thr_info);
    }
