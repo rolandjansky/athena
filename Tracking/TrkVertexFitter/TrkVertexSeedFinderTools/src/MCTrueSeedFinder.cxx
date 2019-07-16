@@ -47,10 +47,7 @@ namespace Trk
     AthAlgTool(t,n,p),
     m_partPropSvc( "PartPropSvc", n ),
     m_removeInTimePileUp(false),
-    m_removeHardScattering(false),
-    m_cacheRunNumber(0),
-    m_cacheEventNumber(0),
-    m_currentInteractionIdx(0)
+    m_removeHardScattering(false)
   {   
     declareProperty("RemoveHardScattering", m_removeHardScattering, "Do not consider hard-scattering");
     declareProperty("RemoveInTimePileUp", m_removeInTimePileUp, "Do not consider in-time pile-up");
@@ -62,7 +59,6 @@ namespace Trk
   
   StatusCode MCTrueSeedFinder::initialize() 
   { 
-    ATH_CHECK( m_eventInfoKey.initialize() );
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
     msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -75,80 +71,54 @@ namespace Trk
   }
 
 
-  Amg::Vector3D MCTrueSeedFinder::findSeed(const std::vector<const Trk::Track*>&, const xAOD::Vertex*) {
-
-    StatusCode sc = retrieveInteractionsInfo();
-    if (sc.isFailure())
-      return Amg::Vector3D(0.,0.,0.);
-
-    if (m_currentInteractionIdx >= m_interactions.size()) {
-      ATH_MSG_DEBUG("No more interactions. Returning (0,0,0)");
+  Amg::Vector3D
+  MCTrueSeedFinder::findSeed(const std::vector<const Trk::Track*>& perigeeList,
+                             const xAOD::Vertex* constraint)
+  {
+    std::vector<Amg::Vector3D> seeds = findMultiSeeds (perigeeList, constraint);
+    if (seeds.empty()) {
       return Amg::Vector3D(0.,0.,0.);
     }
-
-    ATH_MSG_DEBUG("Retrieving info for " << m_currentInteractionIdx << " pre-sorted interaction");
-    Amg::Vector3D nextInteractionVertex = m_interactions[m_currentInteractionIdx];
-    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.x() << " , "
-		  << nextInteractionVertex.y() << ", " << nextInteractionVertex.z() << ")");
-
-    //move to next interaction and return
-    m_currentInteractionIdx++;
-    return nextInteractionVertex;
-
+    return seeds[0];
   }
   
-  Amg::Vector3D MCTrueSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*>&, const xAOD::Vertex*) {
 
-    StatusCode sc = retrieveInteractionsInfo();
-    if (sc.isFailure())
-      return Amg::Vector3D(0.,0.,0.);
-
-    if (m_currentInteractionIdx >= m_interactions.size()) {
-      ATH_MSG_DEBUG("No more interactions. Returning (0,0,0)");
+  Amg::Vector3D
+  MCTrueSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*>& vectorTrk,
+                             const xAOD::Vertex* constraint)
+  {
+    std::vector<Amg::Vector3D> seeds = findMultiSeeds (vectorTrk, constraint);
+    if (seeds.empty()) {
       return Amg::Vector3D(0.,0.,0.);
     }
-
-    ATH_MSG_DEBUG("Retrieving info for " << m_currentInteractionIdx << " pre-sorted interaction");
-    Amg::Vector3D nextInteractionVertex = m_interactions[m_currentInteractionIdx];
-    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.x() << " , "
-		  << nextInteractionVertex.y() << ", " << nextInteractionVertex.z() << ")");
-
-    //move to next interaction and return
-    m_currentInteractionIdx++;
-    return nextInteractionVertex;
-
+    return seeds[0];
   }
 
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
-    StatusCode sc = retrieveInteractionsInfo();
-    if (sc.isFailure())
-      m_interactions.clear();
 
-    return m_interactions;
-  }
-
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
-    StatusCode sc = retrieveInteractionsInfo();
-    if (sc.isFailure())
-      m_interactions.clear();
-
-    return m_interactions;
-  }
-
-  StatusCode MCTrueSeedFinder::retrieveInteractionsInfo() {
-    // This gets the EventInfo object from StoreGate
-    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
-    if( !myEventInfo.isValid() ) {
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
-      return StatusCode::FAILURE;
+  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */)
+  {
+    std::vector<Amg::Vector3D> seeds;
+    if( retrieveInteractionsInfo (seeds).isFailure() ) {
+      seeds.clear();
     }
-    
-    unsigned int ei_RunNumber = myEventInfo->runNumber();
-    unsigned int ei_EventNumber =myEventInfo->eventNumber();
 
-    if ( (ei_RunNumber == m_cacheRunNumber) && (ei_EventNumber == m_cacheEventNumber) )
-      return StatusCode::SUCCESS; //cached info already available
+    return seeds;
+  }
 
+
+  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
+  {
+    std::vector<Amg::Vector3D> seeds;
+    if( retrieveInteractionsInfo (seeds).isFailure() ) {
+      seeds.clear();
+    }
+
+    return seeds;
+  }
+
+  StatusCode
+  MCTrueSeedFinder::retrieveInteractionsInfo (std::vector<Amg::Vector3D>& interactions) const
+  {
     ATH_MSG_DEBUG("Retrieving interactions information");
     msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_mcEventCollectionKey.key() << endmsg;
     SG::ReadHandle<McEventCollection> mcEventCollection( m_mcEventCollectionKey );
@@ -158,11 +128,8 @@ namespace Trk
       return StatusCode::FAILURE;
     }
 
-    m_interactions.clear();    
+    interactions.clear();    
     std::vector<Interactions_pair> interactionsColl;
-    m_cacheRunNumber = ei_RunNumber;
-    m_cacheEventNumber = ei_EventNumber;
-    m_currentInteractionIdx = 0; //reset counter of interactions given
     McEventCollection::const_iterator itr = mcEventCollection->begin();
     for ( ; itr != mcEventCollection->end(); ++itr ) {
       const HepMC::GenEvent* myEvent=(*itr);
@@ -193,17 +160,17 @@ namespace Trk
       interactionsColl.push_back( Interactions_pair (sum_pt2, vtxPosition) );
     } // end loop over GenEvent
 
-    //now sort the container and store results to m_interactions
+    //now sort the container and store results to interactions
     std::sort(interactionsColl.begin(), interactionsColl.end());
     std::vector<Interactions_pair>::iterator itIp = interactionsColl.begin();
     ATH_MSG_DEBUG("Sorted collection:");
     for (; itIp < interactionsColl.end(); ++itIp) {
-      m_interactions.push_back(itIp->second);
+      interactions.push_back(itIp->second);
       ATH_MSG_DEBUG("(" << itIp->second.x() << ", " << itIp->second.y() << ", " 
 		    << itIp->second.z() << "), SumPt2 = " << itIp->first);
     }
 
-    ATH_MSG_DEBUG("New interactions info stored successfully: " << m_interactions.size() << " interactions found.");
+    ATH_MSG_DEBUG("New interactions info stored successfully: " << interactions.size() << " interactions found.");
     return StatusCode::SUCCESS;
 
   }

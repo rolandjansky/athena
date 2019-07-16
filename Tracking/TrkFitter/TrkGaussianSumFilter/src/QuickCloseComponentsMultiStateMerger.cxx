@@ -223,7 +223,6 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
   unsigned int numberOfComponents = n;
   int minIndex = -1;
   int nextMinIndex = -1;
-  const Trk::ComponentParameters dummyComponent(nullptr,0.0);
   
   while (numberOfComponents > m_maximumNumberOfComponents){
 
@@ -251,18 +250,18 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     //merge components
     ATH_MSG_VERBOSE(  "key1 " << mini << " key2 " << minj );
     /*
-     * The ownership is passed to the componenents to be merged
+     * Combine the compoents to be merged 
+     * statesToMerge[mini] becomes the merged
+     * statesToMerge[minj] is set to dummy values
      */
-    // Combine the closest distance components
     m_stateCombiner->combineWithWeight( statesToMerge[mini], statesToMerge[minj] );
     ATH_MSG_VERBOSE( "Weight of new component "<< statesToMerge[mini].second );
-    // Combined values stored in the first state
-    // This will also delete the relevant TrackParameters
-    // in the relevant entry of vector statesToMerge As they are shared
-    //Mini becomes the combined
-    //Minij is now dummy
     statesToMerge[minj].first.reset();
     statesToMerge[minj].second = 0.;
+
+    /*
+     * set relevant distances
+     */
     const AmgSymMatrix(5)* measuredCov  = statesToMerge[mini].first->covariance();
     const AmgVector(5)&  parameters   = statesToMerge[mini].first->parameters();
     qonp[mini]    =  parameters[Trk::qOverP];
@@ -300,15 +299,19 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     if(!state.first) {
       continue;
     }
-    // Add component to state being prepared for assembly
+    /*
+     * Add componets to the state be prepared for assembly
+     * and update the relevant weight
+     */
     cache.multiComponentState.push_back( SimpleComponentParameters(state.first.release(), state.second) );
+    cache.validWeightSum+=state.second;
   }
   const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
-  ATH_MSG_VERBOSE( "Number of components in merged state: " << mergedState->size() );
-
-  // Memory clean up for the state vector
-  statesToMerge.clear();
+  ATH_MSG_DEBUG( "Number of components in merged state: " << mergedState->size() );
   
+  // Clear the state vector
+  statesToMerge.clear();
+
   return mergedState;
 }
 
@@ -317,7 +320,6 @@ void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict
                                                                 const  int  n)const{
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
-
   int j = mini;
   int indexConst = (j+1)*j/2;
   for( int i = 0; i < j; ++i ){

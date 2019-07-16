@@ -165,7 +165,6 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
      cache.multiComponentState.erase(itr.base()-1);
    }
   }
-
   // Now recheck to make sure the state is now still valid
   if ( !isStateValid (cache) ){
      ATH_MSG_DEBUG("After removal of small weights, state is invalid... returning false \n");
@@ -180,18 +179,15 @@ const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState (Cache& cache)  const{
 
   ATH_MSG_DEBUG( "Finalising assembly... no specified reweighting \n");
-
   if ( !prepareStateForAssembly(cache) ) {
     ATH_MSG_DEBUG ("Unable to prepare state for assembly... returning 0 \n");
     return 0;
   }
-
   if ( cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
     double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
     const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache,totalWeight);
     return stateAssembly;
   }
-
   return doStateAssembly(cache,cache.validWeightSum ); ;
 }
 
