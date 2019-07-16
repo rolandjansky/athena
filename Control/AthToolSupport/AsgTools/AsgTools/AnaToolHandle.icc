@@ -844,8 +844,6 @@ namespace asg
 	return StatusCode::FAILURE;
       }
       break;
-    default:
-      break;
     }
 
     // cppcheck-suppress constStatement; false positive
@@ -896,8 +894,6 @@ namespace asg
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
     case detail::AnaToolHandleMode::USER:
       return false;
-    default:
-      return true;
     }
     return true; //compiler dummy
   }
