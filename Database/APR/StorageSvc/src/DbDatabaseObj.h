@@ -70,6 +70,8 @@ namespace pool    {
     typedef std::vector<DbToken*>                    LinkVector;
     /// Definition of map with shape elements
     typedef std::map< Guid , const DbTypeInfo* >     ShapeMap;
+    /// Definition of map with index elements
+    typedef std::map< long long int , int >          IndexMap;
     /// Handle to domain
     DbDomain                      m_dom;
     /// Handle to link container
@@ -84,7 +86,9 @@ namespace pool    {
     LinkMap                       m_linkMap;
     /// Random access array containing all links
     LinkVector                    m_linkVec;
-    /// Map containing all links
+    /// Map containing all index
+    IndexMap                      m_indexMap;
+    /// Map containing all shapes
     ShapeMap                      m_shapeMap;
     /// Map with all cached file properties
     ParamMap                      m_paramMap;
