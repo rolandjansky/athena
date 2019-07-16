@@ -62,7 +62,7 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 from AthenaCommon.Logging import logging
 evgenLog = logging.getLogger('Gen')
 
-evgenLog.debug("****************** GENERATING EVENTS WITH GEN_TF *****************")
+evgenLog.info("****************** GENERATING EVENTS WITH GEN_TF *****************")
 
 ##==============================================================
 ## Run arg handling
