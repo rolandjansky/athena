@@ -83,5 +83,3 @@ from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 StreamESD.ItemList = ItemList
 
-
-HLTTop = findSubSequence(topSequence, "HLTTop")
