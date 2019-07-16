@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -98,7 +98,7 @@ int main() {
    
    try {
     prw_bad->initialize();
-   } catch(std::runtime_error e) {
+   } catch(const std::runtime_error& e) {
     std::cout << "correctly caught:" << e.what() << std::endl;
    }
    
@@ -144,7 +144,7 @@ int main() {
    bool exceptionThrown=false;
    try {
     prw1->expert()->GetPrimaryWeight(101,2002,0.5); //should throw exception because of unavvailable MC
-   } catch(std::exception) {
+   } catch(const std::exception&) {
     exceptionThrown=true;
    }
    if(!exceptionThrown) {
