@@ -6,7 +6,7 @@ def createJGTowerMaker( SuperCellContainer="SCell", ApplySCQual=True, SCBitMask=
 
     towerMaker = JGTowerMaker( useSCQuality = ApplySCQual,
                                useAllCalo = False,
-                               useAllRun2TT = True,
+                               useAllRun2TT = False,
                                SuperCellType = SuperCellContainer,
                                SuperCellQuality = SCBitMask )
 
