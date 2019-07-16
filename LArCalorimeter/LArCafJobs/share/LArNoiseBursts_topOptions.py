@@ -102,22 +102,6 @@ topSequence.LArCollisionTimeAlg.cutIteration = False
 topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 ###################################################################
 
-if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   
-   from IOVDbSvc.CondDB import conddb
-
-# 11/2014 : 6 lines below commented by B.Trocme to avoid crash when 
-# running on cosmic (w/o LHC beam). One should implement a more clever
-# way to test if LHC parameters are available of not.
-#   if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
-#      conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
-#   if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):
-#      conddb.addFolder('TDAQ', '/TDAQ/OLC/LHC/FILLPARAMS')
-#   if not conddb.folderRequested('/LHC/DCS/FILLSTATE'):
-#      conddb.addFolder('DCS_OFL', '/LHC/DCS/FILLSTATE')
-# End of B.Trocme 11/2014 modification
-
-
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )
 topSequence.LArNoiseBursts.ICaloNoiseTool = theCaloNoiseTool

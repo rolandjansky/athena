@@ -1,24 +1,24 @@
-#Job Opts to compute AutoCorrelation based on a zero-bias physics run. 
+#Job Opts to compute AutoCorrelation based on a zero-bias physics run.
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=["data11_7TeV.00190256.physics_ZeroBias.merge.RAW._lb0340._SFO-ALL._0001.1","data11_7TeV.00190256.physics_ZeroBias.merge.RAW._lb0341._SFO-ALL._0001.1",]
 
 
 if not 'RunNumberList' in dir():
-   from RecExConfig.InputFilePeeker import inputFileSummary
-   RunNumberList=inputFileSummary['run_number']
+	from PyUtils.MetaReaderPeeker import metadata
+	RunNumberList = metadata['runNumbers']
 
 #LArCalibFolderOutputTag="-UPD3-00"
 
 if not 'EventsRef' in dir():
-   EventsRef     = 10    
+   EventsRef     = 10
    
 if not 'NSigma' in dir():
    NSigma = 5
 
 if not 'NSamples' in dir():
-   NSamples = 7   
-   
+   NSamples = 7
+
 if not 'GroupingType' in dir():
    GroupingType = "ExtendedSubDetector"
 
@@ -35,7 +35,7 @@ if not 'WriteIOV' in dir():
 
 if not 'IOVBegin' in dir():
    IOVBegin = min(RunNumberList)
-   
+
 if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
@@ -50,7 +50,7 @@ if not 'LArAutoCorrPhysKey' in dir():
 
 if not 'OutputAutoCorrRootFileDir' in dir():
    OutputAutoCorrRootFileDir  = "."
-   
+
 if not 'OutputAutoCorrPoolFileDir' in dir():
    OutputAutoCorrPoolFileDir  = "."
 
@@ -58,10 +58,10 @@ if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
 
 if 'OutputSQLiteFile' in dir():
-   OutputDB = DBConnectionFile(OutputSQLiteFile)   
+   OutputDB = DBConnectionFile(OutputSQLiteFile)
 
-if not 'KeyOutputAC' in dir():  
-   KeyOutputAC      = "LArAutoCorr" 
+if not 'KeyOutputAC' in dir():
+   KeyOutputAC      = "LArAutoCorr"
 
 if not 'BaseFileNameAutoCorr' in dir():
    BaseFileNameAutoCorr = "LArAutoCorr"
@@ -78,7 +78,7 @@ if not 'OutputAutoCorrRootFileName' in dir():
 
 if not 'OutputSQLiteFile' in dir():
    OutputSQLiteFile = BaseFileNameAutoCorr +".db"
-   
+
 OutputDB="sqlite://;schema="+OutputSQLiteFile+";dbname=CONDBR2"
 
 # FIXME : fix name and folder and tag
@@ -109,7 +109,7 @@ PedestalAutoCorrLog.info( " ====================================================
 include ("LArConditionsCommon/LArMinimalSetup.py")
 
 ## get a handle to the default top-level algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence 
+from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
@@ -119,7 +119,7 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 svcMgr.IOVDbSvc.GlobalTag   = "COMCOND-ES1PST-005-04"
 try:
    svcMgr.IOVDbSvc.DBInstance=""
-except: 
+except:
    pass
 
 theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
@@ -157,18 +157,18 @@ LArAutoCorrMaker.MinBCFromFront=10
 #LArAutoCorrMaker.OutputLevel = DEBUG
 LArAutoCorrMaker.BunchCrossingTool=bct
 topSequence += LArAutoCorrMaker
-      
+
 # extrapolation to other gains
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrExtrapolate
 LArAutoCorrExtrapolate=LArAutoCorrExtrapolate("LArAutoCorrExtrapolate")
 LArAutoCorrExtrapolate.KeyOutput = LArAutoCorrPhysKey
 
 topSequence += LArAutoCorrExtrapolate
-      
+
 
 
 if ( WriteNtuple ) :
-   
+
    Nvector = (NSamples+1)*NSamples/2 + 1
    from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
    LArAutoCorr2Ntuple = LArAutoCorr2Ntuple( "LArAutoCorr2Ntuple" )
@@ -179,7 +179,7 @@ if ( WriteNtuple ) :
 
    theApp.HistogramPersistency = "ROOT"
    from GaudiSvc.GaudiSvcConf import NTupleSvc
-   if os.path.exists(OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName): 
+   if os.path.exists(OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName):
       os.remove(OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName)
    svcMgr += NTupleSvc()
    svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName+"' OPT='NEW'" ]
@@ -188,22 +188,22 @@ if ( WriteNtuple ) :
 if ( WritePoolFile ) :
 
         from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
-        
-        if os.path.exists(OutputAutoCorrPoolFileDir + "/" + OutputAutoCorrPoolFileName): 
+
+        if os.path.exists(OutputAutoCorrPoolFileDir + "/" + OutputAutoCorrPoolFileName):
            os.remove(OutputAutoCorrPoolFileDir + "/" + OutputAutoCorrPoolFileName)
         OutputConditionsAlgAC=OutputConditionsAlg("OutputConditionsAlgAC",OutputAutoCorrPoolFileDir + "/" + OutputAutoCorrPoolFileName,
                                                       [OutputObjectSpecAutoCorr],[OutputTagSpecAutoCorr],WriteIOV)
-        OutputConditionsAlgAC.Run1     = IOVBegin                                       
+        OutputConditionsAlgAC.Run1     = IOVBegin
         if IOVEnd>0:
            OutputConditionsAlgAC.Run2=IOVEnd
-           
+
         svcMgr.IOVDbSvc.dbConnection  = OutputDB
-        
+
         from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
         svcMgr += IOVRegistrationSvc()
         svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
         svcMgr.IOVRegistrationSvc.RecreateFolders = False
-        
+
 
 ###########################################################################
 
