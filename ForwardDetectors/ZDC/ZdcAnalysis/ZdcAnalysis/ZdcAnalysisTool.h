@@ -84,7 +84,7 @@ public:
   static bool MessageFunc(unsigned int level, std::string message)
   {
     MSG::Level theLevel = static_cast<MSG::Level>(level);
-    bool test = m_currentInstance->msg().msgLevel(theLevel);
+    bool test = theLevel >= m_currentInstance->msg().level();
     if (test) {
       m_currentInstance->ATH_MSG_LVL_NOCHK(theLevel, message);
     }
