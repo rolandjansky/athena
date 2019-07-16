@@ -298,7 +298,6 @@ protected:
 
   virtual void loop() = 0;
 
-
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {
 
