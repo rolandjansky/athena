@@ -414,7 +414,7 @@ def defineMenu():
         '60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49',
         #ATR-19302
 #        '0INVM70-27DPHI32-EM10his1-EM10his6',
-        '0INVM70-27DPHI32-EM10his1-EM12his6',
+        '0INVM70-27DPHI32-EM12his1-EM12his6',
 
         #ATR-19720
         '8INVM15-0DR22-2MU6ab',
