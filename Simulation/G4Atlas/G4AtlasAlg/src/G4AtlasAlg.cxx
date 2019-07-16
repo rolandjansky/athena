@@ -73,10 +73,6 @@ StatusCode G4AtlasAlg::initialize()
 {
   ATH_MSG_DEBUG("Start of initialize()");
 
-  // Input/Ouput Keys
-  ATH_CHECK( m_inputTruthCollectionKey.initialize());
-  ATH_CHECK( m_outputTruthCollectionKey.initialize());
-
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
@@ -95,22 +91,24 @@ StatusCode G4AtlasAlg::initialize()
   // FIXME TOO EARLY???
   ATH_CHECK(m_g4atlasSvc.retrieve());
 
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
+
+  // Truth
   ATH_CHECK( m_truthRecordSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
   ATH_CHECK( m_geoIDSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
 
-  ATH_CHECK(m_inputConverter.retrieve());
-
-  ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
-
-
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
-  ATH_CHECK(m_senDetTool.retrieve());
-  ATH_CHECK(m_fastSimTool.retrieve());
+  // I/O
+  ATH_CHECK( m_inputTruthCollectionKey.initialize());
+  ATH_CHECK( m_outputTruthCollectionKey.initialize());
+
+  ATH_CHECK(m_inputConverter.retrieve());
 
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
