@@ -24,7 +24,7 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
---outputHITSFile "unordered.HITS.pool.root" \
+--outputHITSFile "test.HITS.pool.root" \
 --maxEvents 250 \
 --imf False
 
@@ -33,17 +33,9 @@ echo  "art-result: $rc simulation"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    tree-orderer.py -i unordered.HITS.pool.root -o test.HITS.pool.root
-    rc2=$?
-    rm unordered.HITS.pool.root
-fi
-echo  "art-result: $rc2 reordering"
-rc3=-9999
-if [ $rc2 -eq 0 ]
-then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc3=$?
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --order-trees
+    rc2=$?
 fi
-echo  "art-result: $rc3 regression"
+echo  "art-result: $rc2 regression"

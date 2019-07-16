@@ -22,10 +22,15 @@ Digi_tf.py \
 --maxEvents 10 \
 --athenaopts ' --threads=2 '
 
-echo  "art-result: $? Digi_tf.py"
+rc=$?
+echo  "art-result: $rc Digi_tf.py"
 
-#ArtPackage=$1
-#ArtJobName=$2
-#
-#art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-#echo  "art-result: $? art-compare"
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+echo  "art-result: $rc2 regression"
