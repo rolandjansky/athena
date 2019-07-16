@@ -1852,6 +1852,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1861,6 +1873,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1933,6 +1957,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diPhoton.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+    for(auto &sfop : m_photonTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigEffTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_photonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigSFTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
       return ret;
