@@ -52,7 +52,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   
   int nBinsX() const;
   int nBinsY() const;
-  StatusCode initHist(LockedHandle<TH2>&);
+  StatusCode initHist(std::unique_ptr<TH2>&);
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;

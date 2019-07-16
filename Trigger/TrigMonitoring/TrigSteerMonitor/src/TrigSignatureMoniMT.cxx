@@ -6,8 +6,6 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
-
-
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ) 
@@ -33,14 +31,14 @@ StatusCode TrigSignatureMoniMT::start() {
   std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
   std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCount", "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
 
+  ATH_CHECK( initHist( h1 ) );
+  ATH_CHECK( initHist( h2 ) );
+  ATH_CHECK( initHist( h3 ) );
+
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCount", std::move(h3), m_rateHistogram));
   
-  ATH_CHECK( initHist( m_passHistogram ) );
-  ATH_CHECK( initHist( m_countHistogram ) );
-  ATH_CHECK( initHist( m_rateHistogram ) );
-
   return StatusCode::SUCCESS;
 }
 
@@ -201,7 +199,7 @@ int TrigSignatureMoniMT::nBinsY() const {
   return m_collectorTools.size()+3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist) {
+StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist) {
 
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
