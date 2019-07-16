@@ -2001,7 +2001,7 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         if usev8:
-            toponame = "0INVM70-27DPHI32-EM10his1-EM12his6"
+            toponame = "0INVM70-27DPHI32-EM12his1-EM12his6"
             log.info("Define %s" % toponame)
             inputList = ['EMshi','EMshi']
             alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
