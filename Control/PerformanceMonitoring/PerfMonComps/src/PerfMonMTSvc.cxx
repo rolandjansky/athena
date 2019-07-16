@@ -101,7 +101,8 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
   if( compName != "PerfMonMTSvc" ){  
     startSnapshotAud(stepName, compName);
 
-    if (stepName == "Execute")
+    //if (stepName == "Execute")
+    if( isLoop() )
       startCompAud_MT(stepName, compName);
     else
       startCompAud_serial(stepName, compName);
@@ -119,7 +120,8 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
     stopSnapshotAud(stepName, compName);
 
 
-    if (stepName == "Execute")
+    //if (stepName == "Execute")
+    if( isLoop() )
       stopCompAud_MT(stepName, compName);
     else
       stopCompAud_serial(stepName, compName);
@@ -218,8 +220,7 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
   std::lock_guard<std::mutex> lock( m_mutex );
    
   // Get the event number
-  auto ctx = Gaudi::Hive::currentContext(); 
-  int eventNumber = ctx.eventID().event_number();
+  int eventNumber = getEventNumber();
 
   // Make generic
   PMonMT::StepCompEvent currentState;
@@ -239,8 +240,7 @@ void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName,
   std::lock_guard<std::mutex> lock( m_mutex );
 
   // Get the event number
-  auto ctx = Gaudi::Hive::currentContext();
-  int eventNumber = ctx.eventID().event_number();
+  int eventNumber = getEventNumber();
 
   // Make generic
   PMonMT::StepCompEvent currentState;
@@ -254,8 +254,47 @@ void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName,
 
 }
 
+bool PerfMonMTSvc::isLoop(){
+  int eventNumber = getEventNumber();
+  return (eventNumber > 0) ? true : false;
+}
 
+int PerfMonMTSvc::getEventNumber(){
 
+  auto ctx = Gaudi::Hive::currentContext();
+  int eventNumber = ctx.eventID().event_number();
+  return eventNumber;
+}
+
+void PerfMonMTSvc::parallelDataAggregator(){
+
+  std::map< PMonMT::StepComp, std::pair<double,double> >::iterator sc_itr;
+
+  for(auto& sce_itr : m_parallelCompLevelData.shared_measurement_delta_map ){
+
+    // Write a function for these 3 lines
+    PMonMT::StepComp currentState;
+    currentState.stepName = sce_itr.first.stepName;
+    currentState.compName = sce_itr.first.compName;
+
+    sc_itr = m_aggParallelCompLevelDataMap.find(currentState);
+    if(sc_itr != m_aggParallelCompLevelDataMap.end()){
+      // Clear!!!!!
+      m_aggParallelCompLevelDataMap[currentState].first += sce_itr.second.first;
+      m_aggParallelCompLevelDataMap[currentState].second += sce_itr.second.second;
+    }
+    else{
+
+      m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;
+
+      //m_aggParallelCompLevelDataMap[currentState].first = sce_itr.second.first;
+      //      m_aggParallelCompLevelDataMap[currentState].second = sce_itr.second.second;      
+
+    }
+      
+  } 
+
+}
 
 // Report the results
 void PerfMonMTSvc::report(){
@@ -397,7 +436,22 @@ void PerfMonMTSvc::report2Stdout(){
 
 
   }
+
+  parallelDataAggregator();
+
+  ATH_MSG_INFO("=========================================================");
+
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("               Aggregated Event Loop Monitoring                ");
+  ATH_MSG_INFO("=========================================================");
+
+  for(auto& it : m_aggParallelCompLevelDataMap){
+
+    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second.first << "  -  "  << it.second.second <<   "     "  <<  it.first.compName  );
+
+  }
    
+
   ATH_MSG_INFO("Event loop CPU Sum:  " << cpu_sum );
   ATH_MSG_INFO("Event loop Wall Sum:  " << wall_sum );
   //ATH_MSG_INFO("Thread id Diff Sum:  " << thread_id_diff_sum  );
