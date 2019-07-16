@@ -180,19 +180,6 @@ SiDetectorElement::updateCache() const
   static const HepGeom::Vector3D<double> & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
   static const HepGeom::Vector3D<double> & localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
   static const HepGeom::Vector3D<double> & localRecoDepthAxis = localAxes[distDepth]; // Defined to be same as z axis
-
-
-   // Initialize various cached members
-  // The unit vectors
-  m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
-  m_normal = Amg::Vector3D( m_normalCLHEP[0], m_normalCLHEP[1], m_normalCLHEP[2]);
-  
-  
-  m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
-  m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
-  
-  m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
-  m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
   
   // We only need to calculate the rough orientation once.
   //For it to change would require extreme unrealistic misalignment changes.
@@ -227,12 +214,15 @@ SiDetectorElement::updateCache() const
       barrelLike = false;
     }   
 
-    if (isBarrel() && !barrelLike && !isInclined() && !isBarrelRing()) {      
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has endcap like orientation with barrel identifier." 
-						 << endreq;
-    } else if (!isBarrel() && barrelLike) {
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Element has barrel like orientation with endcap identifier."
-						 << endreq;
+      //These need to be done after m_normal is initialized, otherwise IsInclined() does not work
+    if(msgLvl(MSG::DEBUG)){
+      if (isBarrel() && !barrelLike) {      
+	msg(MSG::DEBUG) << "Element has endcap like orientation with barrel identifier. This is OK for Inclined modules or Barrel Disks in ITK pixel layouts, but is otherwise suspicious..." 
+			  << endreq;
+      } else if (!isBarrel() && barrelLike) {
+	msg(MSG::DEBUG) << "Element has barrel like orientation with endcap identifier."
+			  << endreq;
+      }
     }
     
     if (barrelLike) {
@@ -328,6 +318,18 @@ SiDetectorElement::updateCache() const
   }
   #endif 
 
+  // Initialize various cached members, needs to be done here otherwise the necessary transforms are not yet initialized
+  // The unit vectors
+  m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
+  m_normal = Amg::Vector3D( m_normalCLHEP[0], m_normalCLHEP[1], m_normalCLHEP[2]);
+  
+  
+  m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
+  m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
+  
+  m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
+  m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
+
   getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
 
   // Determin isStereo
@@ -350,7 +352,7 @@ SiDetectorElement::updateCache() const
   m_isStereo = false;
 }
 }    
-  
+ 
 }
 
 
@@ -638,20 +640,25 @@ int SiDetectorElement::getPixelLayer() const {
 
 bool SiDetectorElement::isInclined() const {
   if (isPixel() && isBarrel()) {
-    double myNormalZ = this->normal()[Amg::z];
-    // Inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
-    // have myNormalZ values of -0.965926 or -0.829044.
-    // Flat barrel modules have myNormalZ = 0
-    // in a perfectly-aligned detector
-    // but once misalignment is added, perhaps the value of 0 below should be changed
-    // to 0.1 or whatever is a reasonable value.
-    double epsilon = 0.1;
-   
-    return(fabs(myNormalZ) > epsilon);
-  }
+  if (m_firstTime) updateCache();
+  if (this->normal().norm() == 0.0){
+  msg(MSG::ERROR) << "Normal does not appear to have been initialized yet! Returning false, but this may not be reliable! " << endreq;
+  return false;
+}
+  double myNormalZ = this->normal()[Amg::z];
+  // Inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
+  // have myNormalZ values of -0.965926 or -0.829044.
+  // Flat barrel modules have myNormalZ = 0
+  // in a perfectly-aligned detector
+  // but once misalignment is added, perhaps the value of 0 below should be changed
+  // to 0.1 or whatever is a reasonable value.
+  double epsilon = 0.1;
+  
+  return(fabs(myNormalZ) > epsilon);
+}
   else {
-    return false;
-  }
+  return false;
+}
 }
 
 bool SiDetectorElement::isBarrelRing() const {
