@@ -261,7 +261,7 @@ def main(args):
             read_old = True
             read_new = True
 
-            if (args.order_trees and d_old[-1] == d_new[-1]) or d_old == d_new:
+            if (args.order_trees and d_old and d_new and d_old[-1] == d_new[-1]) or d_old == d_new:
                 n_good += 1
                 continue
             
