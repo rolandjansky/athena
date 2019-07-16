@@ -79,7 +79,6 @@ StatusCode PerfMonMTSvc::initialize() {
  */
 StatusCode PerfMonMTSvc::finalize(){ 
  
-  //ATH_MSG_INFO("Finalize");
   //ATH_MSG_INFO("Post Finalization is captured!");
   m_measurement.capture();
   m_snapshotData[2].addPointStop(m_measurement);
@@ -101,7 +100,12 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
    */
   if( compName != "PerfMonMTSvc" ){  
     startSnapshotAud(stepName, compName);
-    startCompLevelAud(stepName, compName); 
+
+    if (stepName == "Execute")
+      startCompAud_MT(stepName, compName);
+    else
+      startCompAud_serial(stepName, compName);
+     
   }
 }
 
@@ -110,9 +114,16 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
  */
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
+
   if( compName != "PerfMonMTSvc" ){
-    stopCompLevelAud(stepName, compName);
     stopSnapshotAud(stepName, compName);
+
+
+    if (stepName == "Execute")
+      stopCompAud_MT(stepName, compName);
+    else
+      stopCompAud_serial(stepName, compName);
+
   }
 }
 
@@ -162,40 +173,15 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
 }
 
 
-void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
+void PerfMonMTSvc::startCompAud_serial( const std::string& stepName,
                                       const std::string& compName) {
 
   // Current step - component pair. Ex: Initialize-StoreGateSvc 
-  PMonMT::StepCompPair currentState;
+  PMonMT::StepComp currentState;
   currentState.stepName = stepName;
   currentState.compName = compName;
 
   
-  //if ( stepName == "Execute" || stepName == "preLoadProxy"   ){
-  if ( stepName == "Execute" ){
-
-    //pthread_mutex_lock(&m_mutex_pthread);
-    std::lock_guard<std::mutex> lock( m_mutex );
-   
-    auto ctx = Gaudi::Hive::currentContext(); 
-    int eventNumber = ctx.eventID().event_number();
-
-    // Make generic
-    PMonMT::StepCompEvent currentStateInsideEvtLoop;
-    currentStateInsideEvtLoop.stepName = stepName;
-    currentStateInsideEvtLoop.compName = compName;
-    currentStateInsideEvtLoop.eventNumber = eventNumber;
-
-    m_measurement.captureThread( currentStateInsideEvtLoop );    
-
-    m_eventLoopDataMap[ currentStateInsideEvtLoop ] = new PMonMT::MeasurementData;
-    m_eventLoopDataMap[ currentStateInsideEvtLoop ]->addPointStart_thread(m_measurement, currentStateInsideEvtLoop);  
-
-    //pthread_mutex_unlock(&m_mutex_pthread);
-   
-    return;
-  }
-
   // Capture the time
   m_measurement.capture(); 
 
@@ -208,47 +194,67 @@ void PerfMonMTSvc::startCompLevelAud( const std::string& stepName,
 
 }
 
-void PerfMonMTSvc::stopCompLevelAud( const std::string& stepName,
+void PerfMonMTSvc::stopCompAud_serial( const std::string& stepName,
                                      const std::string& compName) {
 
   // Capture the time
   m_measurement.capture();
 
   // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepCompPair currentState;
+  PMonMT::StepComp currentState;
   currentState.stepName = stepName;
   currentState.compName = compName;
-
-  //if ( stepName == "Execute"  || stepName == "preLoadProxy" ){
-  if ( stepName == "Execute" ){
  
-    //pthread_mutex_lock(&m_mutex_pthread);
-    std::lock_guard<std::mutex> lock( m_mutex );
-
-    auto ctx = Gaudi::Hive::currentContext();
-    int eventNumber = ctx.eventID().event_number();
-
-    // Make generic
-    PMonMT::StepCompEvent currentStateInsideEvtLoop;
-    currentStateInsideEvtLoop.stepName = stepName;
-    currentStateInsideEvtLoop.compName = compName;
-    currentStateInsideEvtLoop.eventNumber = eventNumber;
-        
-    m_measurement.captureThread( currentStateInsideEvtLoop );
-    
-    m_eventLoopDataMap[ currentStateInsideEvtLoop ]->addPointStop_thread(m_measurement, currentStateInsideEvtLoop);
-
-    //pthread_mutex_lock(&m_mutex_pthread);
-     
-    return;
-    
-  } 
- 
-  // We do not need this, because we have just created it in startCompLevelAud
+  // We do not need this, because we have just created it in startCompAud_serial
   //m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
   m_compLevelDataMap[currentState]->addPointStop(m_measurement);
 
 }
+
+void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
+                                   const std::string& compName) {
+
+
+  std::lock_guard<std::mutex> lock( m_mutex );
+   
+  // Get the event number
+  auto ctx = Gaudi::Hive::currentContext(); 
+  int eventNumber = ctx.eventID().event_number();
+
+  // Make generic
+  PMonMT::StepCompEvent currentState;
+  currentState.stepName = stepName;
+  currentState.compName = compName;
+  currentState.eventNumber = eventNumber;
+
+  m_measurement.capture_MT( currentState );    
+
+  m_parallelCompLevelData.addPointStart_MT(m_measurement, currentState);
+}
+
+void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName,
+                                   const std::string& compName) {
+
+
+  std::lock_guard<std::mutex> lock( m_mutex );
+
+  // Get the event number
+  auto ctx = Gaudi::Hive::currentContext();
+  int eventNumber = ctx.eventID().event_number();
+
+  // Make generic
+  PMonMT::StepCompEvent currentState;
+  currentState.stepName = stepName;
+  currentState.compName = compName;
+  currentState.eventNumber = eventNumber;
+        
+  m_measurement.capture_MT( currentState );
+    
+  m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
+
+}
+
+
 
 
 // Report the results
@@ -370,31 +376,30 @@ void PerfMonMTSvc::report2Stdout(){
   double wall_sum = 0;
 
   double thread_id_diff_sum = 0; //should be 0 ideally
+ 
 
-  for(auto& it : m_eventLoopDataMap){
-  //for( auto&it : PMonMT::shared_measurement_delta_map  )
-    PMonMT::StepCompEvent currentStateInsideEvtLoop;
-    currentStateInsideEvtLoop.stepName = it.first.stepName;
-    currentStateInsideEvtLoop.compName = it.first.compName;
-    currentStateInsideEvtLoop.eventNumber = it.first.eventNumber; 
+  for(auto& it : m_parallelCompLevelData.shared_measurement_delta_map){
 
-    double cpu = it.second->shared_measurement_delta_map[currentStateInsideEvtLoop].first;
-    double wall = it.second->shared_measurement_delta_map[currentStateInsideEvtLoop].second;
+    PMonMT::StepCompEvent currentState;
+    currentState.stepName = it.first.stepName;
+    currentState.compName = it.first.compName;
+    currentState.eventNumber = it.first.eventNumber;
+
+    double cpu = it.second.first;
+    double wall = it.second.second;
 
     cpu_sum += cpu;
     wall_sum += wall;
 
     ATH_MSG_INFO( it.first.eventNumber << ": " <<  it.first.stepName << ": " <<  cpu  << "  -  "  << wall  <<   "     "  <<  it.first.compName  );
 
-    thread_id_diff_sum += it.second->thread_id_delta_map[currentStateInsideEvtLoop];
+    //thread_id_diff_sum += it.second.thread_id_delta_map[currentState];
 
-    //ATH_MSG_INFO( it.first.eventNumber << ": " << it.second->thread_id_delta_map[currentStateInsideEvtLoop]  <<  it.first.compName  );
 
-    delete it.second;
   }
    
   ATH_MSG_INFO("Event loop CPU Sum:  " << cpu_sum );
   ATH_MSG_INFO("Event loop Wall Sum:  " << wall_sum );
-  ATH_MSG_INFO("Thread id Diff Sum:  " << thread_id_diff_sum  );
+  //ATH_MSG_INFO("Thread id Diff Sum:  " << thread_id_diff_sum  );
 }
 

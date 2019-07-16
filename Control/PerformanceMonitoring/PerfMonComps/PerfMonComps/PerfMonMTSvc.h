@@ -63,10 +63,17 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                            const std::string& compName );
 
     /// Component Level Auditing ( just for serial parts for now) 
-    void startCompLevelAud ( const std::string& stepName,
+    void startCompAud_serial ( const std::string& stepName,
                              const std::string& compName );
 
-    void stopCompLevelAud ( const std::string& stepName,
+    void stopCompAud_serial ( const std::string& stepName,
+                            const std::string& compName );
+
+    /// Component Level Auditing ( just for serial parts for now) 
+    void startCompAud_MT ( const std::string& stepName,
+                             const std::string& compName );
+
+    void stopCompAud_MT ( const std::string& stepName,
                             const std::string& compName );
 
     // Report the results
@@ -84,7 +91,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /* Data structure  to store component level measurements
      * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
      */
-    std::map < PMonMT::StepCompPair , PMonMT::MeasurementData* > m_compLevelDataMap;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap;
     
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
@@ -92,15 +99,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // TODO: It gives error when defining this variable as a class member. Fix it.
     //const static std::string m_snapshotStepNames[3];
     std::vector< std::string > m_snapshotStepNames;
-
-    
-    // Inspect whether a component is run with same thread or not
-    //std::map < PMonMT::StepCompPair , PMonMT::ThreadId* > m_threadIdMap;    
+  
 
     // Comp level measurements inside event loop
-    std::map < PMonMT::StepCompEvent, PMonMT::MeasurementData* > m_eventLoopDataMap;
-
-    //pthread_mutex_t m_mutex_pthread;
+    PMonMT::MeasurementData m_parallelCompLevelData;
 
     std::mutex m_mutex;
 

@@ -11,16 +11,16 @@
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
 // STL includes
-#include <pthread.h>
+//#include <pthread.h>
 #include <ctime>
 #include <chrono>
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-#include "AthenaBaseComps/AthMessaging.h"
+//#include "AthenaBaseComps/AthMessaging.h"
 
-#include <mutex>
+//#include <mutex>
 
 /*
  * Necessary tools
@@ -34,13 +34,13 @@ namespace PMonMT {
   pthread_t get_thread_id();
 
   // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
-  struct StepCompPair {
+  struct StepComp {
   
     std::string stepName;
     std::string compName;
   
-    // Overload < operator, because we are using a custom key(StepCompPair)  for std::map
-    bool operator<(const StepCompPair& sc) const {
+    // Overload < operator, because we are using a custom key(StepComp)  for std::map
+    bool operator<(const StepComp& sc) const {
       return std::make_pair( this->stepName, this->compName ) < std::make_pair( sc.stepName, sc.compName );
     }
   
@@ -53,8 +53,8 @@ namespace PMonMT {
     std::string compName;
     int eventNumber;
   
-    // Should we include event number ?
-    //Overload < operator, because we are using a custom key(StepCompPair)  for std::map
+
+    //Overload < operator, because we are using a custom key(StepCompEvent)  for std::map
     bool operator<(const StepCompEvent& sce) const {
       return std::make_pair( this->eventNumber, this->compName ) < std::make_pair( sce.eventNumber, sce.compName );
     }
@@ -65,9 +65,6 @@ namespace PMonMT {
   struct Measurement {
     double cpu_time;
     double wall_time;
-
-    // Should it be mutable ?
-    std::mutex m_mutex;
     
     // Clear -> get rid of pair
     std::map< StepCompEvent, std::pair< double, double > > shared_measurement_map;
@@ -79,23 +76,21 @@ namespace PMonMT {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
-      // Log to stdout
+      /* Log to stdout
       IMessageSvc *msgSvc;
       MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      //msg << MSG::INFO << std::fixed  <<  "Capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
-      //ATH_MSG_INFO("Capture: CPU: " << cpu_time << ", Wall: " << wall_time);
+      msg << MSG::INFO << std::fixed  <<  "capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
+      */
       
     }
 
-    // Could we make it argumentless
-    void captureThread ( StepCompEvent sce ) {
+    // Could we make it argumentless?
+    void capture_MT ( StepCompEvent sce ) {
       
-      //std::lock_guard<std::mutex> lock(m_mutex);
+
      
       cpu_time = get_thread_cpu_time();
       wall_time = get_wall_time(); // Does it really needed?
-
-     
 
       shared_measurement_map[ sce ] = std::make_pair(cpu_time,wall_time);
       
@@ -111,8 +106,6 @@ namespace PMonMT {
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
 
-    // Should it be mutable ?
-    std::mutex m_mutex;
 
     // Clear -> get rid of pair
     std::map< StepCompEvent, std::pair< double, double > > shared_measurement_tmp_map;
@@ -149,9 +142,7 @@ namespace PMonMT {
     }
 
     // Clear -> Make generic + make meas const
-    void addPointStart_thread(Measurement& meas, StepCompEvent sce ){
-
-      //std::lock_guard<std::mutex> lock(m_mutex);
+    void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
 
       shared_measurement_tmp_map[sce] = meas.shared_measurement_map[sce];
 
@@ -159,9 +150,7 @@ namespace PMonMT {
 
     }
 
-    void addPointStop_thread (Measurement& meas, StepCompEvent sce  ){
-
-      //std::lock_guard<std::mutex> lock(m_mutex);
+    void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
 
       shared_measurement_delta_map[sce].first = meas.shared_measurement_map[sce].first - shared_measurement_tmp_map[sce].first;
       shared_measurement_delta_map[sce].second = meas.shared_measurement_map[sce].second - shared_measurement_tmp_map[sce].second;
@@ -180,29 +169,7 @@ namespace PMonMT {
     
     MeasurementData() : m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.} { }
   };
- /*
-  struct ThreadId {
-
-    pthread_t thread_id;
-
-    bool isSameThread;
-
-    void addPointStart( pthread_t thread_id  ){
-
-      this->thread_id = thread_id;
-
-    }
   
-    void addPointStop ( pthread_t thread_id  ){
-  
-      isSameThread = ( this->thread_id == thread_id) ? true : false;
- 
-    }
-
-  };*/
-  
-  
- 
 }
 
 
