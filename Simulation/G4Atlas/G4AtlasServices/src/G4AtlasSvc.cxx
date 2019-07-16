@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasSvc.h"
@@ -15,15 +15,15 @@ G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
   , m_detGeoSvc("DetectorGeometrySvc",name)
   , m_physicsListTool("PhysicsListToolBase")
-  , m_userLimitsTool("UserLimitsTool")
+  , m_userLimitsSvc("UserLimitsSvc", name)
   , m_isMT(false)
   , m_activateParallelGeometries(false)
 {
   ATH_MSG_DEBUG( "G4AtlasSvc being created!" );
-  declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
+  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
   declareProperty("DetectorGeometrySvc", m_detGeoSvc );
   declareProperty("PhysicsListTool", m_physicsListTool);
-  declareProperty("UserLimitsTool", m_userLimitsTool);
+  declareProperty("UserLimitsSvc", m_userLimitsSvc);
   declareProperty("isMT", m_isMT);
 }
 
@@ -52,7 +52,7 @@ StatusCode G4AtlasSvc::initialize(){
 
   ATH_MSG_INFO( "retrieving the Physics List Tool" );
   CHECK(m_physicsListTool.retrieve());
-  CHECK(m_userLimitsTool.retrieve());
+  CHECK(m_userLimitsSvc.retrieve());
 
   if (m_activateParallelGeometries)
     {

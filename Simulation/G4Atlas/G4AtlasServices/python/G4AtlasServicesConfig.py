@@ -4,6 +4,30 @@ from AthenaCommon import CfgMgr, CfgGetter
 #from G4AtlasApps.SimFlags import simFlags
 #from AthenaCommon.BeamFlags import jobproperties
 
+def getReducedStepSizeUserLimitsSvc(name="ReducedStepSizeUserLimitsSvc", **kwargs):
+    from AthenaCommon.SystemOfUnits import millimeter
+    kwargs.setdefault("OutputLevel", 1)
+    kwargs.setdefault("VolumeList", [
+                                    "Atlas::Atlas",
+                                    "BeamPipe::SectionC01",
+                                    "BeamPipe::SectionF01",
+                                    "CALO::CALO",
+                                    "LArMgr::LAr::Barrel::Cryostat::",
+                                    "LArMgr::LAr::DM::SectorEnvelopes",
+                                    "LArMgr::LAr::EMB::GTENF",
+                                    "LArMgr::LAr::Endcap::Cryostat::",
+                                    "LArMgr::MBTS1",
+                                    "LArMgr::MBTS2",
+                                    "LArMgr::Moderator",
+                                    "LArMgr::ModeratorTube",
+                                    "Tile::GirderIron",
+                                    "Tile::GirderMother",
+                                    ])
+    kwargs.setdefault("MaxStep", 10.*millimeter)
+    kwargs.setdefault("MatchType", "contains")
+    return CfgMgr.UserLimitsSvc(name, **kwargs)
+
+
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags

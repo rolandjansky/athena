@@ -2,6 +2,8 @@
 
 from AthenaCommon.CfgGetter import addService
 
+addService("G4AtlasServices.G4AtlasServicesConfig.getReducedStepSizeUserLimitsSvc","ReducedStepSizeUserLimitsSvc")
+
 addService("G4AtlasServices.G4AtlasServicesConfig.getDetectorGeometrySvc","DetectorGeometrySvc")
 addService("G4AtlasServices.G4AtlasServicesConfig.getG4AtlasSvc","G4AtlasSvc")
 addService("G4AtlasServices.G4AtlasServicesConfig.getG4GeometryNotifierSvc","G4GeometryNotifierSvc")

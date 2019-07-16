@@ -1,3 +1,4 @@
+#include "../UserLimitsSvc.h"
 #include "../G4AtlasSvc.h"
 #include "../G4GeometryNotifierSvc.h"
 #include "../DetectorGeometrySvc.h"
@@ -5,6 +6,7 @@
 #include "../ConstantFieldSvc.h"
 #include "../StandardFieldSvc.h"
 
+DECLARE_COMPONENT( UserLimitsSvc )
 DECLARE_COMPONENT( G4AtlasSvc )
 DECLARE_COMPONENT( G4GeometryNotifierSvc )
 DECLARE_COMPONENT( DetectorGeometrySvc )
