@@ -841,8 +841,6 @@ namespace asg
 	return StatusCode::FAILURE;
       }
       break;
-    default:
-      break;
     }
 
     T *toolPtr = nullptr;
@@ -892,8 +890,6 @@ namespace asg
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
     case detail::AnaToolHandleMode::USER:
       return false;
-    default:
-      return true;
     }
     return true; //compiler dummy
   }
