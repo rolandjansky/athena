@@ -893,9 +893,9 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
 
-	std::string BaseName = m_BaseName;
-    if(!m_isModule) BaseName += m_pos_zside? "Pos::" : "Neg::";
-    std::string name = BaseName + id;
+	std::string baseName = m_BaseName;
+    if(!m_isModule) baseName += m_pos_zside? "Pos::" : "Neg::";
+    std::string name = baseName + id;
 
 	double rminBOB = getNumber(m_DB_tubes, tubes, id, "RMIN", 699.-2.5+40.);    //RMiddle+40. // -2.5 for cold
 	double rmaxBOB = getNumber(m_DB_tubes, tubes, id, "RMAX", 1961.-7.+62.);    //ROuter+62. // -7 for cold
@@ -913,12 +913,12 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	int nofdiv = nofabs / number_of_modules;
 	double dfi = Gaudi::Units::twopi / nofabs;
 
-	name = BaseName + "BackOuterBarrette::Module::Phidiv";
+	name = baseName + "BackOuterBarrette::Module::Phidiv";
 	GeoTubs *shapeBOBMP = new GeoTubs(rminBOB, rmaxBOB, dzBOB, -dfi/4., dfi);
 	GeoLogVol *logicalBOBMP = new GeoLogVol(name, shapeBOBMP, m_LAr);
 	GeoPhysVol *physBOBMP = new GeoPhysVol(logicalBOBMP);
 
-	name = BaseName + "BackOuterBarrette::Abs";  //longitudinal bar - absorber connection
+	name = baseName + "BackOuterBarrette::Abs";  //longitudinal bar - absorber connection
 	double rmn = getNumber(m_DB_numbers, numbers, "R0", "PARVALUE", 698.4);        // start of abs.
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 42.1);        // start of barrette rel to start of abs
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 1229.) / 2.;        // length of the connected part
@@ -931,7 +931,7 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	physBOBMP->add(new GeoTransform(GeoTrf::TranslateX3D(r0A)));
 	physBOBMP->add(physBOBA);
 
-	name = BaseName + "BackOuterBarrette::Ele";   // piece of electrode
+	name = baseName + "BackOuterBarrette::Ele";   // piece of electrode
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 41.);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 1246.9) / 2.;
 	assert(rmn + dr > rminBOB && rmn + dr + dx*2 < rmaxBOB);
@@ -947,14 +947,14 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 
 	if(m_isModule){
   // Put phi divisions directly to Barrette Mother
-		name = BaseName + "BackOuterBarrette::Module::Phidiv";
+		name = baseName + "BackOuterBarrette::Module::Phidiv";
 		for(int i = 0; i < nofdiv - 1; ++ i){
 			double fi = m_PhiStart + dfi/2. + i * dfi;
 			physBOB->add(new GeoIdentifierTag(i));
 			physBOB->add(new GeoTransform(GeoTrf::RotateZ3D(fi)));
 			physBOB->add(physBOBMP);
 		}
-		name = BaseName + "BackOuterBarrette::Abs";
+		name = baseName + "BackOuterBarrette::Abs";
 		double fi = m_PhiStart + dfi/2.+ (nofdiv - 1) * dfi;
 		x0 = r0A * cos(fi);
 		y0 = r0A * sin(fi);
@@ -969,7 +969,7 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 		GeoLogVol *logicalBOBM = new GeoLogVol(name, shapeBOBM, m_LAr);
 		GeoPhysVol *physBOBM = new GeoPhysVol(logicalBOBM);
      //position the fi divisions into module
-		name = BaseName + "BackOuterBarrette::Module::Phidiv";
+		name = baseName + "BackOuterBarrette::Module::Phidiv";
 		for(int i = 0; i < nofdiv; ++ i){
 			double fi = dfi * i;
 			physBOBM->add(new GeoIdentifierTag(i));
@@ -977,7 +977,7 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 			physBOBM->add(physBOBMP);
 		}
      //position modules into Barrette mother to create the full wheel
-		name = BaseName + "BackOuterBarrette::Module";
+		name = baseName + "BackOuterBarrette::Module";
 		for(int i = 0; i < number_of_modules; ++ i){
 			double fi = dfi/2.+ i * moduldfi;
 			physBOB->add(new GeoIdentifierTag(i));

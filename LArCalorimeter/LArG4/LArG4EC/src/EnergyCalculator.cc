@@ -344,7 +344,6 @@ EnergyCalculator::EnergyCalculator(const std::string& name, ISvcLocator *pSvcLoc
   declareProperty("EnergyCorrection",m_corrProp);
   m_corrProp.declareUpdateHandler(&EnergyCalculator::CorrectionTypeHandler, this);
   declareProperty("zSide",m_zside);
-//  declareProperty("PatchFindIdentifierBarrett",m_patchFindIdentifier_Barrett);
 }
 
 void EnergyCalculator::CorrectionTypeHandler(Property&)
@@ -2205,8 +2204,6 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
   G4int sampling = geometry[c].sampling;
   G4int region   = geometry[c].region;
-//  const G4int sign = (m_patchFindIdentifier_Barrett && p.z()<0.0) ? -1.0 : 1.0;
-//  const G4int atlasside = sign * lwc()->GetAtlasZside() * geometry[c].zSide;
   const G4int atlasside = lwc()->GetAtlasZside() * geometry[c].zSide;
 
   if(lwc()->GetisModule() && atlasside < 0 ) {
