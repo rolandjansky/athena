@@ -118,7 +118,7 @@ namespace TrigCompositeUtils {
               features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
             }
           }
-          if (oneFeaturePerLeg) {
+          if (featureLinks.size() && oneFeaturePerLeg) {
             break;
           }
         } catch (SG::ExcCLIDMismatch&) {
