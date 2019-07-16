@@ -121,10 +121,9 @@ NonMetTriggers = [
 'HLT_e24_medium_L1EM20VHI_mu8noL1',
 'HLT_e24_lhmedium_L1EM20VHI_mu8noL1',
 'HLT_e24_lhmedium_nod0_L1EM20VHI_mu8noL1',
-'HLT_e24_lhmedium_5j30_0eta240_L1EM13VH_3J20',
-'HLT_mu24_5j30_0eta240_L1MU10_3J20',
 'HLT_e26_lhmedium_5j30_0eta240_L1EM13VH_3J20',
 'HLT_mu26_5j30_0eta240_L1MU10_3J20',
+'HLT_e26_lhmedium_nod0_5j30_0eta240_L1EM20VH_3J20',
 ]
 
 MetTriggers = [
@@ -229,6 +228,8 @@ PrescaledHighPtTriggers = [
 'HLT_e26_lhvloose_nod0',
 'HLT_e26_lhvloose_nod0_L1EM20VH',
 'HLT_e26_lhvloose_nod0_L1EM22VHIM',
+'HLT_e26_lhmedium_nod0_L1EM20VH',
+'HLT_e26_lhmedium_nod0_L1EM22VH',
 'HLT_e28_lhvloose_nod0_L1EM20VH',
 'HLT_e30_lhvloose_nod0_L1EM15',
 'HLT_e30_etcut_L1EM15',

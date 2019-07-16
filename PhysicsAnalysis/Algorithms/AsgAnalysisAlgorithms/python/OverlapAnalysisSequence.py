@@ -6,7 +6,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeOverlapAnalysisSequence( dataType,
                                  inputLabel = '', outputLabel = 'passesOR',
-                                 linkOverlapObjects = False,
+                                 linkOverlapObjects = False, doMuPFJetOR=False,
                                  doEleEleOR = False, doElectrons = True,
                                  doMuons = True, doJets = True, doTaus = True,
                                  doPhotons = True, doFatJets = False,
@@ -61,6 +61,7 @@ def makeOverlapAnalysisSequence( dataType,
       outputLabel -- Decoration put on the output variables. Set to "true" for
                      objects passing the overlap removal.
       linkOverlapObjects -- Set up an element link between overlapping objects
+      doMuPFJetOR -- Set up overlap removal for PFlow jets that are acutally muons
       doEleEleOR -- Set up electron-electron overlap removal
       doXXXX     -- these flags enable/disable object types to
                     configure tools for: doElectrons, doMuons,
@@ -90,6 +91,16 @@ def makeOverlapAnalysisSequence( dataType,
     # explicitly to use the "true" flag on objects that pass the overlap
     # removal.
     alg.overlapTool.OutputPassValue = True
+
+    # Set up overlap removal for PFlow jets that are acutally muons, if requested.
+    if doMuPFJetOR:
+       addPrivateTool( alg, 'overlapTool.MuPFJetORT',
+                       'ORUtils::MuPFJetOverlapTool' )
+       alg.overlapTool.MuPFJetORT.InputLabel = inputLabel
+       alg.overlapTool.MuPFJetORT.OutputLabel = outputLabel
+       alg.overlapTool.MuPFJetORT.LinkOverlapObjects = linkOverlapObjects
+       alg.overlapTool.MuPFJetORT.OutputPassValue = True
+       pass
 
     # Set up the electron-electron overlap removal, if requested.
     if doElectrons and doEleEleOR:

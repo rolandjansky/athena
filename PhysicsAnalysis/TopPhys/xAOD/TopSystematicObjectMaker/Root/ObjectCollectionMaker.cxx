@@ -40,7 +40,7 @@ namespace top{
     m_metMaker    = std::unique_ptr<top::MissingETObjectCollectionMaker> ( new top::MissingETObjectCollectionMaker( "top::MissingETObjectCollectionMaker" ) );
     m_ghostTrackSystMaker = std::unique_ptr<top::GhostTrackSystematicsMaker> ( new top::GhostTrackSystematicsMaker("top::GhostTrackSystematicsMaker") );
 
-    if( m_config->usePhotons() || m_config->useElectrons()  ){
+    if( m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()  ){
       top::check( m_egammaMaker->setProperty( "config" , m_config ) , "Failed to setProperty" );
       top::check( m_egammaMaker->initialize() , "Failed to initialize" );
     }
@@ -89,6 +89,7 @@ namespace top{
 
     if( m_config->usePhotons()    ){ top::check( m_egammaMaker->executePhotons(true) ,   "Failed to executePhotons()"    ); }
     if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(true) , "Failed to executeElectrons()"  ); }
+    if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->executeFwdElectrons(true) , "Failed to executeFwdElectrons()"  ); }
     if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(true) ,            "Failed to executeMuons()"      ); }
     if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(true) ,             "Failed to executeTaus()"       ); }
     if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(true) ,         "Failed to executeJets()"       ); }
@@ -112,6 +113,7 @@ namespace top{
       
       if( m_config->usePhotons()    ){ top::check( m_egammaMaker->executePhotons(false) ,   "Failed to executePhotons()"    ); }
       if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(false) , "Failed to executeElectrons()"  ); }
+      if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->executeFwdElectrons(false) , "Failed to executeFwdElectrons()"  ); }
       if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(false) ,            "Failed to executeMuons()"      ); }
       if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(false) ,             "Failed to executeTaus()"       ); }
       if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(false) ,         "Failed to executeJets()"       ); }
@@ -135,6 +137,7 @@ namespace top{
   {
     if( m_config->usePhotons()    ){ top::check( m_egammaMaker->printoutPhotons() ,   "Failed to printoutPhotons()"    ); }
     if( m_config->useElectrons()  ){ top::check( m_egammaMaker->printoutElectrons() , "Failed to printoutElectrons()"  ); }
+    if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->printoutFwdElectrons() , "Failed to printoutFwdElectrons()"  ); }
     if( m_config->useMuons()      ){ top::check( m_muonMaker->printout() ,            "Failed to printoutMuons()"      ); }
     if( m_config->useTaus()       ){ top::check( m_tauMaker->printout() ,             "Failed to printoutTaus()"       ); }
     if( m_config->useJets()       ){ top::check( m_jetMaker->printoutJets() ,         "Failed to printoutJets()"       ); }

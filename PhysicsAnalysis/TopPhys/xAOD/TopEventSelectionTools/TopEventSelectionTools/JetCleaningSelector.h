@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCLEANINGSELECTOR_H_
@@ -53,9 +53,17 @@ public:
     std::string name() const override;
 
 private:
+    /**
+     * @brief A helper function to check if the event passes BadBatman cleaning
+     * in a specified range (from config) of RunNUmbers
+     *
+     * @return true if event passes
+     */
+    bool checkBadBatman(const top::Event& event) const;
+
     ///The jet cleaning tools
     ToolHandle<IJetSelector> m_jetCleaningToolLooseBad;
-    ToolHandle<IJetSelector> m_jetCleaningToolTightBad;    
+    ToolHandle<IJetSelector> m_jetCleaningToolTightBad;
 
     ///The jet event cleaning tools
     ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;

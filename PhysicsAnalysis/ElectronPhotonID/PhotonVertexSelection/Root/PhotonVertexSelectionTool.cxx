@@ -41,6 +41,7 @@ namespace CP {
     declareProperty("conversionPtCut"      , m_convPtCut       = 2e3 );    
     declareProperty("updatePointing", m_updatePointing=true, "Update pointing data?");
     declareProperty("vertexContainer", m_vertexContainerName = "PrimaryVertices");
+    declareProperty("saveNeuralNetVars", m_saveNeuralNetVars=false);
     declareProperty("derivationPrefix", m_derivationPrefix = "");
   }
 
@@ -181,19 +182,33 @@ namespace CP {
       // Set input variables for MVA
       static SG::AuxElement::ConstAccessor<float> sumPt(m_derivationPrefix + "sumPt");
       if (sumPt.isAvailable(*vertex)) {
-        m_sumPt = log10(sumPt(*vertex));
+        m_sumPt = sumPt(*vertex);
       } else {
-        m_sumPt  = log10(xAOD::PVHelpers::getVertexSumPt(vertex));
+        m_sumPt  = xAOD::PVHelpers::getVertexSumPt(vertex);
+        if(m_saveNeuralNetVars)
+          vertex->auxdecor<float>(m_derivationPrefix + "sumPt") = m_sumPt;
       }
 
       static SG::AuxElement::ConstAccessor<float> sumPt2(m_derivationPrefix + "sumPt2");
       if (sumPt2.isAvailable(*vertex))
-        m_sumPt2 = log10(sumPt2(*vertex));
-      else
-        m_sumPt2 = log10(xAOD::PVHelpers::getVertexSumPt(vertex, 2));
+        m_sumPt2 = sumPt2(*vertex);
+      else{
+        m_sumPt2 = xAOD::PVHelpers::getVertexSumPt(vertex, 2);
+        if(m_saveNeuralNetVars)
+          vertex->auxdecor<float>(m_derivationPrefix + "sumPt2") = m_sumPt2;
+      }
 
+      // Compute input variables of the NN
+      m_sumPt        = log10(m_sumPt);
+      m_sumPt2       = log10(m_sumPt2);
       m_deltaPhi     = fabs(vmom.DeltaPhi(vegamma));
       m_deltaZ       = fabs((zCommon.first - vertex->z())/zCommon.second);
+
+      if(m_saveNeuralNetVars){
+        vertex->auxdecor<float>(m_derivationPrefix + "fabs_deltaPhi") = m_deltaPhi;
+        vertex->auxdecor<float>(m_derivationPrefix + "fabs_deltaZ") = m_deltaZ;
+      }
+
       ATH_MSG_VERBOSE("log(sumPt): " << m_sumPt <<
                       " log(sumPt2): " << m_sumPt2 <<
                       " deltaPhi: " << m_deltaPhi <<

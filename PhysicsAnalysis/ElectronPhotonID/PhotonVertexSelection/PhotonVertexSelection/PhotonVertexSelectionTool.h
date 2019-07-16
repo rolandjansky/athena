@@ -43,6 +43,7 @@ namespace CP {
     bool        m_updatePointing;
     std::string m_vertexContainerName;
     std::string m_derivationPrefix;
+    bool        m_saveNeuralNetVars;
 
     /// PhotonPointingTool
     asg::AnaToolHandle<CP::IPhotonPointingTool> m_pointingTool;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -14,6 +14,7 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -61,13 +62,10 @@ namespace CP
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the b-tagging efficiency
+    /// \brief the decoration for the b-tagging scale factor
   private:
-    std::string m_efficiencyDecoration;
-
-    /// \brief the accessor for \ref m_efficiencyDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    SysDecorationHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the b-tagging efficiency scale factor"};
 
     /// \brief the decoration for the b-tagging selection
   private:

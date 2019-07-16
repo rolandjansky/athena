@@ -151,7 +151,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   }
 
   // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
+  if ( input.pt() < 4e3 || !input.caloCluster() ) return StatusCode::SUCCESS;
 
   if (!input.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return StatusCode::SUCCESS;
 
@@ -229,11 +229,6 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
       dec_ecisBDT(input) = bdt;
     }
 
-    //get ElectronChargeEfficiencyCorrectionTool decorations in this case
-    if( !isData() ) {
-      if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
-        ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
-    }
   }
   else{ 
     dec_passChID(input) = true;
@@ -328,8 +323,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("No signal electron ID or trigger scale factors provided for the selected working point!");
     ATH_MSG_ERROR("I will now die messily.");
   }
-
-  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
@@ -439,7 +432,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
     //ECIS SF 
     if( m_runECIS ){
-      ATH_MSG_WARNING ("Be aware that ECIS SF is not provided in R21 yet. Use at your own risk!");
       result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
@@ -461,17 +453,20 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     switch (result) {
     case CP::CorrectionCode::Ok:
       sf *= chf_sf;
+      dec_sfChIDEff(el) = chf_sf;
       break;
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve signal electron charge efficiency correction SF");
       break;
     case CP::CorrectionCode::OutOfValidityRange:
-      ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge efficiency correction SF");
+      // Range determined by bin range in configured correction file (CorrectionFileName)
+      // Run m_elecChargeEffCorrTool with message level VERBOSE to print out range
+      ATH_MSG_DEBUG( "OutOfValidityRange found for signal electron charge efficiency correction SF. Setting SF = 1");
+      dec_sfChIDEff(el) = 1;
       break;
     default:
       ATH_MSG_WARNING( "Don't know what to do for signal electron charge efficiency correction SF");
-    }   
-
+    }
   }
   
   dec_effscalefact(el) = sf;
@@ -547,7 +542,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
   float sf(1.);
 
-  for (const auto& electron : electrons) {
+  for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
     else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }

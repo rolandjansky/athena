@@ -141,12 +141,12 @@ namespace Analysis {
     m_allChCombs(false),
     m_electronCollectionKey("Electrons"),
     m_TrkParticleCollection("InDetTrackParticles"),
-    m_iVertexFitter("Trk::TrkVKalVrtFitter"),
-    m_iV0VertexFitter("Trk::V0VertexFitter"),
+    m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
+    m_iV0VertexFitter("Trk::V0VertexFitter", this),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_egammaCuts(true),
-    m_elSelection("LHLoose"),
+    m_elSelection("d0"),
     m_doTagAndProbe(false),
     m_numberOfEventsWithJpsi(0)
     
@@ -654,7 +654,18 @@ namespace Analysis {
     
     bool JpsiFinder_ee::passesEgammaCuts(const xAOD::Electron* electron) {
                       
-      bool passesSelection =  electron->passSelection(m_elSelection);
+      static SG::AuxElement::Accessor<char> isLHVeryLoosenod0("DFCommonElectronsLHVeryLoosenod0");
+      static SG::AuxElement::Accessor<char> isLHVeryLoose("DFCommonElectronsLHVeryLoose");
+      
+      bool passesSelection = false;
+      bool passesLHVLoose = isLHVeryLoose(*electron);
+      bool passesLHVLoosenod0 = isLHVeryLoosenod0(*electron);
+      
+      if(m_elSelection == "d0") passesSelection = passesLHVLoose;
+      else if(m_elSelection == "nod0") passesSelection = passesLHVLoosenod0;
+      else if(m_elSelection == "d0_or_nod0") passesSelection = passesLHVLoose || passesLHVLoosenod0;
+      else ATH_MSG_ERROR("Invalid electron selection " << m_elSelection);
+      
       ATH_MSG_DEBUG("Electron with pT, eta: " << electron->pt() << " " << electron->eta() << " passes " << m_elSelection << " " << passesSelection);
       return passesSelection;
         

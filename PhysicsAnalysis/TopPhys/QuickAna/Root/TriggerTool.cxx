@@ -159,6 +159,7 @@ namespace ana
       m_mu_trig_sf2015 ("ana_MuonTriggerScaleFactors2015", nullptr),
       m_mu_trig_sf2016 ("ana_MuonTriggerScaleFactors2016", nullptr),
       m_mu_trig_sf2017 ("ana_MuonTriggerScaleFactors2017", nullptr),
+      m_mu_trig_sf2018 ("ana_MuonTriggerScaleFactors2018", nullptr),
       m_el_trig_sf ("ana_AsgElectronEfficiencyCorrectionTool", this),
       m_el_trig_eff ("ana_AsgElectronEfficiencyTool", this)
   {
@@ -212,6 +213,11 @@ namespace ana
     ATH_CHECK (m_mu_trig_sf2017.initialize());
     registerTool(&*m_mu_trig_sf2017);
 
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_mu_trig_sf2018, CP::MuonTriggerScaleFactors));
+    ATH_CHECK (m_mu_trig_sf2018.setProperty("MuonQuality", m_muon_wp));
+    ATH_CHECK (m_mu_trig_sf2018.setProperty("AllowZeroSF", true));
+    ATH_CHECK (m_mu_trig_sf2018.initialize());
+    registerTool(&*m_mu_trig_sf2018);
 
     // Thanks to Moritz (SUSY trigger contact): using same SFs for AF2 and full sim for the time being
     // Pre-built keys for the trigger tool -- will come in handy later
@@ -338,8 +344,9 @@ namespace ana
 
       // If we are in the wrong year, then stop here
       if ( (my_runNumber<290000 && m_year!=Only2015 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017) ||
-           (my_runNumber>290000 && my_runNumber<320000 && m_year!=Only2016 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017) || 
-           (my_runNumber>320000 && m_year!=Only2017 && m_year!=Only2016_2017 && m_year!=Only2015_2016_2017) ) return StatusCode::SUCCESS;
+           (my_runNumber>290000 && my_runNumber<320000 && m_year!=Only2016 && m_year!=Only2015_2016 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017 && m_year!=Only2016_2017_2018) || 
+           (my_runNumber>320000 && my_runNumber<342000 && m_year!=Only2017 && m_year!=Only2016_2017 && m_year!=Only2015_2016_2017 && m_year!=Only2016_2017_2018) ||
+           (my_runNumber>342000 && m_year!=Only2018 && m_year!=Only2016_2017_2018) ) return StatusCode::SUCCESS;
 
       // This is unreadably ugly...
       bool isDiMuTrig = (m_muon_trig_str.find("2mu") != std::string::npos || m_muon_trig_str.find("mu", m_muon_trig_str.find("mu")+1 ) != std::string::npos);
@@ -422,7 +429,8 @@ namespace ana
   {
     // Was it 2016?
     if (runNumber>290000 && runNumber<320000) return m_mu_trig_sf2016;
-    if (runNumber>320000) return m_mu_trig_sf2017;
+    if (runNumber>320000 && runNumber<342000) return m_mu_trig_sf2017;
+    if (runNumber>342000) return m_mu_trig_sf2018;
     // It was 2015 then
     return m_mu_trig_sf2015;
   }
@@ -533,7 +541,7 @@ namespace ana
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarmedium_OR_HLT_mu50",
     makeTriggerTool (args, "HLT_mu24_ivarmedium HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", false, true, 24, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_ivarmedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016_2017))
+    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016_2017_2018))
 
   // Stand alone muon triggers
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu14",

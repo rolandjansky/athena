@@ -72,6 +72,7 @@ class TopConfig final {
   // What objects are we using
   inline bool usePhotons()    const {return m_usePhotons;   }
   inline bool useElectrons()  const {return m_useElectrons; }
+  inline bool useFwdElectrons()  const {return m_useFwdElectrons; }
   inline bool useMuons()      const {return m_useMuons;     }
   inline bool useTaus()       const {return m_useTaus;      }
   inline bool useJets()       const {return m_useJets;      }
@@ -102,6 +103,10 @@ class TopConfig final {
   // AFII?
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
+
+  // List of branches to be removed
+  inline std::vector<std::string> filterBranches() const {return m_filterBranches;}
+  inline void setFilterBranches(const std::vector<std::string>& value) {if(!m_configFixed){m_filterBranches = value;}}
 
   // Generators name
   inline std::string getGenerators() const {return m_generators;}
@@ -188,6 +193,25 @@ class TopConfig final {
   {m_FakesMMDir = dir;}
   inline void setFakesMMDebug()
   {m_doFakesMMDebug = true;}
+
+  // Do fakes MM weight calculation using FakeBkgTools from IFF
+  inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
+
+  // Configurations for MM fake estimate using FakeBkgTools from IFF
+  inline std::string FakesMMConfigIFF() const {return m_FakesMMConfigIFF;}
+
+  // Debug mode for MM fake estimate using FakeBkgTools from IFF
+  inline bool FakesMMIFFDebug() const {return m_doFakesMMIFFDebug;}
+
+  // enables calculation of MM weights using FakeBkgTools from IFF
+  // only possible for data loose
+  // doing it on MC loose is explicitly forbidden
+  inline void setFakesMMWeightsCalculationIFF()
+  {m_doFakesMMWeightsIFF = true;}
+  inline void setFakesMMConfigIFF(const std::string& configIFF)
+  {m_FakesMMConfigIFF = configIFF;}
+  inline void setFakesMMIFFDebug()
+  {m_doFakesMMIFFDebug = true;} 
 
   // By default the top group does overlap removal on the tight lepton definitions
   // If you use this you are going off piste and need to report
@@ -329,6 +353,7 @@ class TopConfig final {
   virtual void sgKeyMCParticle      ( const std::string& s );
   virtual void sgKeyPhotons         ( const std::string& s );
   virtual void sgKeyElectrons       ( const std::string& s );
+  virtual void sgKeyFwdElectrons      ( const std::string& s );
   virtual void sgKeyMuons           ( const std::string& s );
   virtual void sgKeyTaus            ( const std::string& s );
   virtual void sgKeyJets            ( const std::string& s );
@@ -349,6 +374,7 @@ class TopConfig final {
   inline const std::string& sgKeyPrimaryVertices() const {return m_sgKeyPrimaryVertices;}
   inline virtual const std::string& sgKeyPhotons()    const {return m_sgKeyPhotons;   }
   inline virtual const std::string& sgKeyElectrons()  const {return m_sgKeyElectrons; }
+  inline virtual const std::string& sgKeyFwdElectrons()  const {return m_sgKeyFwdElectrons; }
   inline virtual const std::string& sgKeyMuons()      const {return m_sgKeyMuons;     }
   inline virtual const std::string& sgKeyTaus()       const {return m_sgKeyTaus;      }
   inline virtual const std::string& sgKeyJets()       const {return m_sgKeyJets;      }
@@ -378,7 +404,9 @@ class TopConfig final {
 
   virtual const std::string& sgKeyPhotons   ( const std::size_t hash ) const;
   virtual const std::string& sgKeyElectrons ( const std::size_t hash ) const;
+  virtual const std::string& sgKeyFwdElectrons ( const std::size_t hash ) const;
   virtual const std::string& sgKeyElectronsStandAlone ( const std::size_t hash ) const;
+  virtual const std::string& sgKeyFwdElectronsStandAlone ( const std::size_t hash ) const;
   virtual const std::string& sgKeyMuons     ( const std::size_t hash ) const;
   virtual const std::string& sgKeyTaus
     ( const std::size_t hash ) const;
@@ -394,6 +422,8 @@ class TopConfig final {
   const std::string& sgKeyPhotonsTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyElectronsTDS( const std::size_t hash ) const;
   const std::string& sgKeyElectronsTDSAux( const std::size_t hash ) const;
+  const std::string& sgKeyFwdElectronsTDS( const std::size_t hash ) const;
+  const std::string& sgKeyFwdElectronsTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyMuonsTDS( const std::size_t hash ) const;
   const std::string& sgKeyMuonsTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyTausTDS( const std::size_t hash ) const;
@@ -462,6 +492,23 @@ class TopConfig final {
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
   inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
+  
+  // Fwd electron
+  inline virtual void fwdElectronID( const std::string& s    ){if(!m_configFixed){m_fwdElectronID    = s;}}
+  inline virtual void fwdElectronIDLoose( const std::string& s    ){if(!m_configFixed){m_fwdElectronIDLoose    = s;}}
+  inline virtual void fwdElectronPtcut(const float pt)       {if(!m_configFixed){m_fwdElectronPtcut = pt;}}
+  inline virtual void fwdElectronMinEtacut(const float eta)       {if(!m_configFixed){m_fwdElectronMinEtacut = eta;}}
+  inline virtual void fwdElectronMaxEtacut(const float eta)       {if(!m_configFixed){m_fwdElectronMaxEtacut = eta;}}
+  inline virtual void fwdElectronBCIDCleaningMinRun( const int fwdElectronBCIDCleaningMinRun) {if(!m_configFixed){m_fwdElectronBCIDCleaningMinRun=fwdElectronBCIDCleaningMinRun;}}
+  inline virtual void fwdElectronBCIDCleaningMaxRun( const int fwdElectronBCIDCleaningMaxRun) {if(!m_configFixed){m_fwdElectronBCIDCleaningMaxRun=fwdElectronBCIDCleaningMaxRun;}}  
+  
+  inline virtual const std::string& fwdElectronID()     const {return m_fwdElectronID;   }
+  inline virtual const std::string& fwdElectronIDLoose()     const {return m_fwdElectronIDLoose;   }
+  inline virtual float fwdElectronPtcut()       const {return m_fwdElectronPtcut;}
+  inline virtual float fwdElectronMinEtacut()       const {return m_fwdElectronMinEtacut;}
+  inline virtual float fwdElectronMaxEtacut()       const {return m_fwdElectronMaxEtacut;}
+  inline virtual int fwdElectronBCIDCleaningMinRun() const {return m_fwdElectronBCIDCleaningMinRun;}
+  inline virtual int fwdElectronBCIDCleaningMaxRun() const {return m_fwdElectronBCIDCleaningMaxRun;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
@@ -506,12 +553,10 @@ class TopConfig final {
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
   inline virtual void largeRJESUncertaintyConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESUncertaintyConfig = largeR_config;}}
   inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESJMSConfig = largeR_config;}}
-  inline virtual void largeRtoptaggingConfigFile(const std::string& topTagging_config) {if(!m_configFixed){m_largeRtoptaggingConfigFile = topTagging_config;}}
   inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
   inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
   inline virtual const std::string& largeRJESUncertaintyConfig() const {return m_largeRJESUncertaintyConfig;}
   inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
-  inline virtual const std::string& largeRtoptaggingConfigFile() const {return m_largeRtoptaggingConfigFile;}
 
   inline virtual void trackJetPtcut(const float pt)    {if(!m_configFixed){m_trackJetPtcut = pt;}}
   inline virtual void trackJetEtacut(const float eta)  {if(!m_configFixed){m_trackJetEtacut = eta;}}
@@ -573,6 +618,11 @@ class TopConfig final {
 
   inline virtual void doJVTinMET( const bool& doJVT ){if(!m_configFixed){m_doJVTInMETCalculation = doJVT;}}
   inline virtual bool doJVTinMET() const {return m_doJVTInMETCalculation;}
+  inline virtual void saveFailJVTJets( const bool& doJVT ){if(!m_configFixed){m_saveFailJVTJets = doJVT;}}
+  inline virtual bool saveFailJVTJets() const {return m_saveFailJVTJets;}
+
+  inline const std::string& getJVTWP() const {return m_JVTWP;}
+  inline void  setJVTWP(const std::string& value) {m_JVTWP = value;}
 
   inline virtual float  JSF() const{return m_JSF;}
   inline virtual float bJSF() const{return m_bJSF;}
@@ -745,6 +795,8 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
+  
+  const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const { return m_chosen_boostedJetTaggers;}
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
   const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
@@ -848,6 +900,7 @@ class TopConfig final {
 
   virtual void systematicsPhotons    ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsElectrons  ( const std::list<CP::SystematicSet>& syst );
+  virtual void systematicsFwdElectrons  ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsMuons      ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsTaus       ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsJets       ( const std::list<CP::SystematicSet>& syst );
@@ -864,6 +917,7 @@ class TopConfig final {
   inline std::size_t nominalHashValue() const {return m_nominalHashValue;}
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashPhotons()   const {return m_systHashPhotons;  }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashElectrons() const {return m_systHashElectrons;}
+  inline std::shared_ptr<std::unordered_set<std::size_t>> systHashFwdElectrons() const {return m_systHashFwdElectrons;}
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashMuons()     const {return m_systHashMuons;    }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashTaus()      const {return m_systHashTaus;     }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashJets()      const {return m_systHashJets;     }
@@ -873,6 +927,7 @@ class TopConfig final {
   // Systematic Maps
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapPhotons()   const {return m_systMapPhotons;  }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapElectrons() const {return m_systMapElectrons;}
+  inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapFwdElectrons() const {return m_systMapFwdElectrons;}
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapMuons()     const {return m_systMapMuons;    }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapTaus()      const {return m_systMapTaus;     }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapJets()      const {return m_systMapJets;     }
@@ -881,6 +936,7 @@ class TopConfig final {
   // Systematic StoreGate key Maps
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapPhotons()    const {return m_systSgKeyMapPhotons;   }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapElectrons()  const {return m_systSgKeyMapElectrons; }
+  inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapFwdElectrons()  const {return m_systSgKeyMapFwdElectrons; }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapMuons()      const {return m_systSgKeyMapMuons;     }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapTaus()       const {return m_systSgKeyMapTaus;      }
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapJets(const bool useLooseLeptonJets) const;
@@ -906,6 +962,14 @@ class TopConfig final {
   inline void setSaveBootstrapWeights(const bool value) { m_saveBootstrapWeights = value; }
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
+
+  // Switch to use BadBatmanCleaning
+  inline bool useBadBatmanCleaning() const { return m_useBadBatmanCleaning; }
+  inline void setUseBadBatmanCleaning(const bool value) { m_useBadBatmanCleaning = value; }
+  inline unsigned int badBatmanCleaningMin() const { return m_badBatmanCleaningMin; }
+  inline void setBadBatmanCleaningMin(const unsigned int value) { m_badBatmanCleaningMin = value; }
+  inline unsigned int badBatmanCleaningMax() const { return m_badBatmanCleaningMax; }
+  inline void setBadBatmanCleaningMax(const unsigned int value) { m_badBatmanCleaningMax = value; }
 
   // Switch to use event-level jet cleaning tool for studies
   inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
@@ -949,6 +1013,7 @@ class TopConfig final {
   // Use which objects
   bool m_usePhotons;
   bool m_useElectrons;
+  bool m_useFwdElectrons;
   bool m_useMuons;
   bool m_useAntiMuons;
   bool m_useTaus;
@@ -998,6 +1063,7 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::vector<std::string> m_filterBranches;
   std::string m_generators;
   std::string m_AMITag;
   bool m_isPrimaryxAOD;
@@ -1012,6 +1078,13 @@ class TopConfig final {
   std::string m_FakesMMDir;
   // Debug mode?
   bool m_doFakesMMDebug;
+
+  // Do fakes MM weights calculation? - only for data loose
+  bool m_doFakesMMWeightsIFF;
+  // Configurations for MM fake estimate
+  std::string m_FakesMMConfigIFF;
+  // Debug mode?
+  bool m_doFakesMMIFFDebug;
 
   // By default the top group does overlap removal on
   // the tight lepton definitions.
@@ -1092,6 +1165,7 @@ class TopConfig final {
   std::string m_sgKeyPrimaryVertices;
   std::string m_sgKeyPhotons;
   std::string m_sgKeyElectrons;
+  std::string m_sgKeyFwdElectrons;
   std::string m_sgKeyMuons;
   std::string m_sgKeyTaus;
   std::string m_sgKeyJets;
@@ -1140,7 +1214,18 @@ class TopConfig final {
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
   bool m_useElectronChargeIDSelection;
-
+  
+  //Fwd electron configuration
+  float m_fwdElectronPtcut;
+  float m_fwdElectronMinEtacut;
+  float m_fwdElectronMaxEtacut;
+  std::string m_fwdElectronID;
+  std::string m_fwdElectronIDLoose;
+  int m_fwdElectronBCIDCleaningMinRun;
+  int m_fwdElectronBCIDCleaningMaxRun;
+  
+  
+  
   // Muon configuration
   float m_muonPtcut; // muon object selection pT cut
   float m_muonEtacut; // muon object selection (abs) eta cut
@@ -1169,6 +1254,8 @@ class TopConfig final {
   std::string m_jetCalibSequence; // GCC or JMS
   bool m_jetStoreTruthLabels; // True or False
   bool m_doJVTInMETCalculation;
+  bool m_saveFailJVTJets;
+  std::string m_JVTWP;
 
   // Large R jet configuration
   float m_largeRJetPtcut; // large R jet object selection pT cut
@@ -1176,7 +1263,6 @@ class TopConfig final {
   std::string m_largeRJESUncertaintyConfig; // large R jet JES uncertainty configuration file
   // see: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015PrerecLargeR
   std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
-  std::string m_largeRtoptaggingConfigFile;
 
   // Track jet configuration
   float m_trackJetPtcut; // track jet object selection pT cut
@@ -1288,6 +1374,9 @@ class TopConfig final {
   // Options for upgrade studies
   bool m_HLLHC;
   bool m_HLLHCFakes;
+
+  // Boosted jet taggers requested by user
+  std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1446,6 +1535,7 @@ class TopConfig final {
 
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashPhotons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashElectrons;
+  std::shared_ptr<std::unordered_set<std::size_t>> m_systHashFwdElectrons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashMuons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashTaus;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashJets;
@@ -1461,6 +1551,7 @@ class TopConfig final {
 
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapPhotons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapElectrons;
+  std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapMuons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapJets;
@@ -1470,6 +1561,7 @@ class TopConfig final {
 
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapPhotons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapElectrons;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapMuons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapJets;
@@ -1482,6 +1574,7 @@ class TopConfig final {
   // For TopEvent/SingleSystEvent - will return the nominal key if not under variation
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapPhotons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapElectrons;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapJets;
@@ -1497,6 +1590,8 @@ class TopConfig final {
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapPhotonsTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapElectronsTDS;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapElectronsTDSAux;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapFwdElectronsTDS;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapFwdElectronsTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuonsTDS;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuonsTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapTausTDS;
@@ -1549,6 +1644,11 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
+
+  // Switch to use BadBatmanCleaning
+  bool m_useBadBatmanCleaning;
+  unsigned int m_badBatmanCleaningMin;
+  unsigned int m_badBatmanCleaningMax;
 
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;

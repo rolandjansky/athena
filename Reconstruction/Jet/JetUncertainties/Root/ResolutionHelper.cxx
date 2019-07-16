@@ -118,7 +118,7 @@ ResolutionHelper::~ResolutionHelper()
     JESUNC_SAFE_DELETE(m_mTopNomHistMC);
 }
 
-StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param, CompMassDef::TypeEnum& massDef)
+StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param, CompMassDef::TypeEnum& massDef, const TString& MCtype)
 {
     // Get the string
     TString value = settings.GetValue(key,defaultValue);
@@ -179,8 +179,12 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
         }
     }
 
+    // Replace generic MCTYPE string with the user-specified type if applicable
+    TString histName = splitValue.at(0);
+    histName.ReplaceAll("MCTYPE",MCtype);
+
     // Create the histogram
-    hist = new UncertaintyHistogram(splitValue.at(0)+"_"+m_jetDef.c_str(),interp);
+    hist = new UncertaintyHistogram(histName+"_"+m_jetDef.c_str(),interp);
 
     // Initialize the histogram
     if (hist->initialize(histFile).isFailure())
@@ -192,7 +196,7 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
     return StatusCode::SUCCESS;
 }
 
-StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
+StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile, const TString& MCtype)
 {
     if (m_isInit)
     {
@@ -222,9 +226,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
 
 
     // Start with nominal pT resolution
-    if (parseInput(settings,histFile,"NominalPtResData","",m_ptNomHistData,m_ptNomParamData,m_ptNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalPtResData","",m_ptNomHistData,m_ptNomParamData,m_ptNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalPtResMC","",m_ptNomHistMC,m_ptNomParamMC,m_ptNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalPtResMC","",m_ptNomHistMC,m_ptNomParamMC,m_ptNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_ptNomHistData && !m_ptNomHistMC)
     {
@@ -233,9 +237,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Now the nominal four-vector resolution
-    if (parseInput(settings,histFile,"NominalFourVecResData","",m_fvNomHistData,m_fvNomParamData,m_fvNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalFourVecResData","",m_fvNomHistData,m_fvNomParamData,m_fvNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalFourVecResMC","",m_fvNomHistMC,m_fvNomParamMC,m_fvNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalFourVecResMC","",m_fvNomHistMC,m_fvNomParamMC,m_fvNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_fvNomHistData && !m_fvNomHistMC)
     {
@@ -248,9 +252,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     // Lots of code duplication, but time is of the essence, and it works
 
     // QCD topology
-    if (parseInput(settings,histFile,"NominalMassResDataQCD","",m_mQCDNomHistData,m_mQCDNomParamData,m_mQCDNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataQCD","",m_mQCDNomHistData,m_mQCDNomParamData,m_mQCDNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCQCD","",m_mQCDNomHistMC,m_mQCDNomParamMC,m_mQCDNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCQCD","",m_mQCDNomHistMC,m_mQCDNomParamMC,m_mQCDNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_mQCDNomHistData && !m_mQCDNomHistMC)
     {
@@ -259,9 +263,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // WZ topology
-    if (parseInput(settings,histFile,"NominalMassResDataWZ","",m_mWZNomHistData,m_mWZNomParamData,m_mWZNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataWZ","",m_mWZNomHistData,m_mWZNomParamData,m_mWZNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCWZ","",m_mWZNomHistMC,m_mWZNomParamMC,m_mWZNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCWZ","",m_mWZNomHistMC,m_mWZNomParamMC,m_mWZNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_mWZNomHistData && !m_mWZNomHistMC)
     {
@@ -270,9 +274,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Hbb topology
-    if (parseInput(settings,histFile,"NominalMassResDataHbb","",m_mHbbNomHistData,m_mHbbNomParamData,m_mHbbNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataHbb","",m_mHbbNomHistData,m_mHbbNomParamData,m_mHbbNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCHbb","",m_mHbbNomHistMC,m_mHbbNomParamMC,m_mHbbNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCHbb","",m_mHbbNomHistMC,m_mHbbNomParamMC,m_mHbbNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_mHbbNomHistData && !m_mHbbNomHistMC)
     {
@@ -281,9 +285,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Top topology
-    if (parseInput(settings,histFile,"NominalMassResDataTop","",m_mTopNomHistData,m_mTopNomParamData,m_mTopNomMassDefData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataTop","",m_mTopNomHistData,m_mTopNomParamData,m_mTopNomMassDefData,MCtype).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCTop","",m_mTopNomHistMC,m_mTopNomParamMC,m_mTopNomMassDefMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCTop","",m_mTopNomHistMC,m_mTopNomParamMC,m_mTopNomMassDefMC,MCtype).isFailure())
         return StatusCode::FAILURE;
     if (m_mTopNomHistData && !m_mTopNomHistMC)
     {

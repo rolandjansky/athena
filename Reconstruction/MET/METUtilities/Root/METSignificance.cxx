@@ -995,10 +995,10 @@ namespace met {
 
     // collect the phi resolution
     if(jet_pt<50.0)
-      return h_phi_reso_pt20->GetBinContent(xbin, ybin);
+      return h_phi_reso_pt20->GetBinError(xbin, ybin);
     else if(jet_pt<100.0)
-      return h_phi_reso_pt50->GetBinContent(xbin, ybin);
-    return h_phi_reso_pt100->GetBinContent(xbin, ybin);
+      return h_phi_reso_pt50->GetBinError(xbin, ybin);
+    return h_phi_reso_pt100->GetBinError(xbin, ybin);
 
     return 0.0;
   }

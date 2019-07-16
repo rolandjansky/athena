@@ -236,53 +236,45 @@ namespace CP
   {
     ATH_MSG_DEBUG("<###### Enter: doTightMatch() function ######>");
 
-    if(&vx!=NULL)
+    if(vx.vertexType()!=xAOD::VxType::NoVtx )
     {
-      if(vx.vertexType()!=xAOD::VxType::NoVtx )
+
+      if(trk.vertex()==&vx) // check whether the track is used for the given vertex fit.
       {
+        ATH_MSG_DEBUG("This track is used to fit the vertex");
 
-        if(trk.vertex()==&vx) // check whether the track is used for the given vertex fit.
-        {
-          ATH_MSG_DEBUG("This track is used to fit the vertex");
+        float trk_z0=trk.z0();
+        float beamspot_z0=trk.vz();
+        float theta=trk.theta();
 
-          float trk_z0=trk.z0();
-          float beamspot_z0=trk.vz();
-          float theta=trk.theta();
-
-          dz=fabs((trk_z0-(vx.z())+beamspot_z0)*sin(theta)); // calculate dz
-          return UsedInFit;
-        }
-
-        if(trk.vertex()==0) // track is not used for any vertex fit
-        {
-          // tracks not used in fitting process
-          float trk_z0=trk.z0();
-          float beamspot_z0=trk.vz();
-          float theta=trk.theta();
-          float trk_d0=trk.d0();
-
-          dz=fabs((trk_z0-(vx.z())+beamspot_z0)*sin(theta)); // calculate dz
-          if((dz < m_dz_cut && !m_dod0sel) ||(dz < m_dz_cut && m_dod0sel && fabs(trk_d0)<m_d0_cut ) ) // apply d0 selection when turn on the d0 selection tag
-          {
-            ATH_MSG_DEBUG("Track match to Vertex");
-            return Matched;
-          }
-          else
-          {
-            return UnMatch;
-          }
-        }
-        else return UnMatch;
+        dz=fabs((trk_z0-(vx.z())+beamspot_z0)*sin(theta)); // calculate dz
+        return UsedInFit;
       }
-      else
+
+      if(trk.vertex()==0) // track is not used for any vertex fit
       {
-        ATH_MSG_DEBUG("The vertex is a fake one");
-        return UnMatch;
+        // tracks not used in fitting process
+        float trk_z0=trk.z0();
+        float beamspot_z0=trk.vz();
+        float theta=trk.theta();
+        float trk_d0=trk.d0();
+
+        dz=fabs((trk_z0-(vx.z())+beamspot_z0)*sin(theta)); // calculate dz
+        if((dz < m_dz_cut && !m_dod0sel) ||(dz < m_dz_cut && m_dod0sel && fabs(trk_d0)<m_d0_cut ) ) // apply d0 selection when turn on the d0 selection tag
+        {
+          ATH_MSG_DEBUG("Track match to Vertex");
+          return Matched;
+        }
+        else
+        {
+          return UnMatch;
+        }
       }
+      else return UnMatch;
     }
     else
     {
-      ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
+      ATH_MSG_DEBUG("The vertex is a fake one");
       return UnMatch;
     }
 

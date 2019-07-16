@@ -123,7 +123,7 @@ namespace CP {
     JTC::Hole partModToHole(int part, int mod); //translate to eta-phi coordinates (+dummy IOV)
 
     bool m_constScale = false; //Get correction using constituent pt (for testing purposes)
-    bool m_isMC = false;       //check if it is simulation
+    int m_isMC = -1;           //check if it is simulation (=1) or data (=0), -1 means undefined
 
     int m_current_run = -1;  //keep current run number
     //int m_current_lb;   //keep current lumiblock

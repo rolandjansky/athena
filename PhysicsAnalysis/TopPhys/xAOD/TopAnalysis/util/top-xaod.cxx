@@ -28,12 +28,15 @@
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
+#include "FakeBkgTools/AsymptMatrixTool.h"
+
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
 
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
+#include "TopConfiguration/Tokenize.h"
 
 #include "TopAnalysis/AnalysisTrackingHelper.h"
 #include "TopAnalysis/EventSelectionManager.h"
@@ -351,7 +354,7 @@ int main(int argc, char** argv) {
     top::check(topScaleFactors->initialize(),"Failed to initialize  top::ScaleFactorCalculator");
 
     ///-- weights for matrix-method fakes estimate --///
-    std::unique_ptr<top::TopFakesMMWeightCalculator> topfakesMMWeights(nullptr);
+    std::unique_ptr<top::TopFakesMMWeightCalculator> topfakesMMWeights(nullptr);    
     if (!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeights()) {
       topfakesMMWeights = std::unique_ptr<top::TopFakesMMWeightCalculator>( new top::TopFakesMMWeightCalculator() );
       top::check(topfakesMMWeights->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopFakesMMWeightCalculator");
@@ -360,7 +363,37 @@ int main(int argc, char** argv) {
 	top::check(topfakesMMWeights->setSelectionConfigs(sel.m_name, eventSelectionManager.GetFakesMMConfigs(sel.m_name)),"Failed to set the selection FakesMMConfigs for selection"+sel.m_name);
       }
     }
-
+    std::vector<std::unique_ptr<CP::AsymptMatrixTool> > topfakesMMWeightsIFF;
+    std::vector<std::vector<std::string> > FakesMMConfigIFF;
+    if(!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeightsIFF()) {
+      if(topConfig->FakesMMConfigIFF() != ""){
+	std::vector<std::string> tokens;
+	top::tokenize(topConfig->FakesMMConfigIFF(), tokens, ";");
+	std::reverse(tokens.begin(),tokens.end());
+	while (tokens.size()){
+	  const auto & token = tokens.back();
+	  std::vector<std::string> tokens2;
+	  top::tokenize(token, tokens2, ":");
+	  top::check(tokens2.size()==3,"Failed to read FakesMMConfigIFF: "+topConfig->FakesMMConfigIFF()+" has size "+std::to_string(tokens2.size())+" (should be 3)");
+          FakesMMConfigIFF.push_back(tokens2);
+	  FakesMMConfigIFF.back()[0] = PathResolverFindCalibFile(tokens2[0]);
+	  tokens.pop_back();
+	}	
+      }
+      for (unsigned int mmi = 0; mmi<FakesMMConfigIFF.size(); ++mmi) {
+	topfakesMMWeightsIFF.emplace_back(std::make_unique<CP::AsymptMatrixTool>("AsymptMatrixTool_"+mmi));
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "InputFiles", std::vector<std::string>{FakesMMConfigIFF[mmi][0]} ) , "Failed To setProperty InputFiles of AsymptMatrixTool");
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "Selection", FakesMMConfigIFF[mmi][1] ),"Failed to set the selection FakesMMIFFConfigs for selection " +  FakesMMConfigIFF[mmi][1]);
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "Process", FakesMMConfigIFF[mmi][2] ),"Failed to set the selection FakesMMIFFConfigs for process " +  FakesMMConfigIFF[mmi][2]);
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "EnergyUnit", "GeV" ) , "Failed to setProperty EnergyUnit of AsymptMatrixTool");
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "ConvertWhenMissing", true ) , "Failed to setProperty ConvertWhenMissing of AsymptMatrixTool");
+	top::check(topfakesMMWeightsIFF.back()->setProperty( "TightDecoration", "passPreORSelection,as_char" ) , "Failed to setProperty TightDecoration of AsymptMatrixTool");
+	if(topConfig->FakesMMIFFDebug()) 
+	  top::check(topfakesMMWeightsIFF.back()->setProperty( "OutputLevel", MSG::INFO ), "Failed to setProperty of AsymptMatrixTool");
+	top::check(topfakesMMWeightsIFF.back()->initialize(),"Failed to initialize  AsymptMatrixTool");
+      }
+    }
+    
     //A list of extra branches that we create in this code and want to save
     std::vector<std::string> extraBranches;
     eventSelectionManager.addExtraBranches(extraBranches);
@@ -779,6 +812,52 @@ int main(int argc, char** argv) {
 		///-- weights for matrix-method fakes estimate, only for nominal --///
 		if (!topConfig->isMC() && topConfig->doFakesMMWeights() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
 		  top::check( topfakesMMWeights->execute(&topEvent) , "Failed to execute fakes mmweight calculation");
+		}
+		///-- weights for matrix-method fakes estimate from IFF tools, only for nominal --///
+		if (!topConfig->isMC() && topConfig->doFakesMMWeightsIFF() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
+		  xAOD::IParticleContainer lepton(SG::VIEW_ELEMENTS);
+		  for (auto const & t : topEvent.m_electrons)
+		    lepton.push_back(static_cast<xAOD::Electron *>(t));
+		  for (auto const & t : topEvent.m_muons)
+		    lepton.push_back(static_cast<xAOD::Muon *>(t));
+		  
+		  topEvent.m_info->auxdecor<int>("njets") = topEvent.m_jets.size();
+		  for(const auto& tagWP : topConfig->bTagWP_available()) {
+		    if(tagWP.find("Continuous") != std::string::npos) continue;
+		    int nbjets=0;
+		    for (const auto & jetPtr : topEvent.m_jets) {
+		      if(jetPtr->isAvailable<char>("isbtagged_"+tagWP)) {
+			nbjets += jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
+		      }
+		    }
+		    topEvent.m_info->auxdecor<int>("nbjets_"+tagWP) = nbjets;
+		  }
+		  
+		  std::vector<float> mmweight;
+		  std::vector<std::vector<float> > mmweight_var;
+		  std::vector<std::vector<std::string> > mmweight_varname;
+		  for (unsigned int mmi = 0; mmi<topfakesMMWeightsIFF.size(); ++mmi) {
+		    top::check( topfakesMMWeightsIFF[mmi]->addEvent(lepton) , "Failed to execute fakes mmweight IFF addEvent()");
+		    float asmWgt = 0.;
+		    top::check( topfakesMMWeightsIFF[mmi]->applySystematicVariation({}) , "Failed to execute fakes mmweight IFF applySystematicVariation()");
+		    top::check( topfakesMMWeightsIFF[mmi]->getEventWeight(asmWgt, FakesMMConfigIFF[mmi][1], FakesMMConfigIFF[mmi][2]) , "Failed to execute fakes mmweight IFF getEventWeight()");
+
+		    std::vector<float> asmWgt_var(topfakesMMWeightsIFF[mmi]->affectingSystematics().size());
+		    std::vector<std::string> asmWgt_varname(topfakesMMWeightsIFF[mmi]->affectingSystematics().size());
+		    for(const auto& sysvar : topfakesMMWeightsIFF[mmi]->affectingSystematics()) {
+		      float mmweight_syst;
+		      top::check( topfakesMMWeightsIFF[mmi]->applySystematicVariation({sysvar}) , "Failed to execute fakes mmweight IFF applySystematicVariation()");
+		      top::check( topfakesMMWeightsIFF[mmi]->getEventWeight(mmweight_syst, FakesMMConfigIFF[mmi][1], FakesMMConfigIFF[mmi][2]) , "Failed to execute fakes mmweight IFF getEventWeight()");
+		      asmWgt_var.push_back(mmweight_syst);
+		      asmWgt_varname.push_back(sysvar.name());
+		    }
+		    mmweight.push_back(asmWgt);
+		    mmweight_var.push_back(asmWgt_var);
+		    mmweight_varname.push_back(asmWgt_varname);
+		  }
+		  topEvent.m_info->auxdecor<std::vector<float> >("ASMWeight") = mmweight;
+		  topEvent.m_info->auxdecor<std::vector<std::vector<float> > >("ASMWeight_Syst") = mmweight_var;
+		  topEvent.m_info->auxdecor<std::vector<std::vector<std::string> > >("ASMWeight_Systname") = mmweight_varname;
 		}
                 ///-- Save event - we defer to eventSaver the decision to write or not --///
                 eventSaver->saveEvent(topEvent);

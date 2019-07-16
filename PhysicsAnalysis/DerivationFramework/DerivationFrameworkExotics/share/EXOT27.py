@@ -28,6 +28,7 @@ from ThinningUtils.ThinningUtilsConf import (
     DeltaRThinningTool,
     EleLinkThinningTool,
     ThinAssociatedObjectsTool)
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -133,6 +134,11 @@ EXOT27TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     TriggerListOR = trigger_list
     )
 EXOT27PreliminarySkimmingTools.append(EXOT27TriggerSkimmingTool)
+# Remake the trigger list to use for the matching
+triggers_for_matching = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.el | TriggerType.mu | TriggerType.g,
+    livefraction = 0.95)
 
 # Add the tools to the ToolSvc
 for tool in EXOT27PreliminarySkimmingTools:
@@ -237,6 +243,12 @@ EXOT27TrackSelection.TrackSelectionTool.CutLevel = "Loose"
 ToolSvc += EXOT27TrackSelection
 
 EXOT27AugmentationTools.append(EXOT27TrackSelection) 
+
+# Trigger matching augmentation
+matching_helper = TriggerMatchingHelper(
+    "EXOT27TriggerMatchingTool",
+    triggers_for_matching)
+EXOT27AugmentationTools.append(matching_helper.matching_tool)
 
 ################################################################################
 # Setup thinning (remove objects from collections)
@@ -376,7 +388,7 @@ EXOT27ThinningTools.append(
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
 # code
 if DerivationFrameworkIsMonteCarlo:
-  truth_with_descendants = [6, 23, 24, 25, 54]  # pdg id 54: scalar particle in mono-scalar signal model
+  truth_with_descendants = [6, 22, 23, 24, 25, 54]  # pdg id 54: scalar particle in mono-scalar signal model
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
@@ -551,6 +563,8 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
+
+matching_helper.add_to_slimming(EXOT27SlimmingHelper)
 
 EXOT27SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT27SlimmingHelper.IncludeEGammaTriggerContent = True

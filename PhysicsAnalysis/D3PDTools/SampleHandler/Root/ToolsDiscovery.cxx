@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -17,6 +17,7 @@
 
 #include <SampleHandler/ToolsDiscovery.h>
 
+#include <CxxUtils/StringUtils.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -182,12 +183,69 @@ namespace SH
     else
       name = ds;
 
-    std::auto_ptr<SampleGrid> sample (new SampleGrid (name));
+    auto sample = std::make_unique<SampleGrid> (name);
     sample->meta()->setString (MetaFields::gridName, ds);
     sample->meta()->setString (MetaFields::gridFilter, MetaFields::gridFilter_default);
     sh.add (sample.release());
   }
 
+
+
+  void addGridCombined (SampleHandler& sh, const std::string& dsName,
+                        const std::vector<std::string>& dsList)
+  {
+    std::string name;
+    for (const std::string &ds : dsList)
+    {
+      RCU_ASSERT_SOFT (ds.find ("*") == std::string::npos);
+
+      if (!name.empty())
+        name.append(",");
+
+      if (ds.at(ds.size() - 1) == '/')
+        name.append(ds.substr (0, ds.size() - 1));
+      else
+        name.append(ds);
+    }
+
+    auto sample = std::make_unique<SampleGrid> (dsName);
+    sample->meta()->setString (MetaFields::gridName, name);
+    sample->meta()->setString (MetaFields::gridFilter, MetaFields::gridFilter_default);
+    sh.add (sample.release());
+  }
+
+
+  void addGridCombinedFromFile (SampleHandler& sh, const std::string& dsName,
+                                const std::string& dsFile)
+  {
+    std::ifstream file (dsFile.c_str());
+
+    std::string name;
+    std::string ds;
+    while (std::getline (file, ds))
+    {
+      ds = CxxUtils::StringUtils::trim(ds);
+      if (ds.empty() || ds.at(0) == '#')
+        continue;
+
+      RCU_ASSERT_SOFT (ds.find ("*") == std::string::npos);
+
+      if (!name.empty())
+        name.append(",");
+
+      if (ds.at(ds.size() - 1) == '/')
+        name.append(ds.substr (0, ds.size() - 1));
+      else
+        name.append(ds);
+    }
+    if (!file.eof())
+      RCU_THROW_MSG ("failed to read file: " + dsFile);
+
+    auto sample = std::make_unique<SampleGrid> (dsName);
+    sample->meta()->setString (MetaFields::gridName, name);
+    sample->meta()->setString (MetaFields::gridFilter, MetaFields::gridFilter_default);
+    sh.add (sample.release());
+  }
 
 
   void makeGridDirect (SampleHandler& sh, const std::string& disk,
@@ -317,14 +375,11 @@ namespace SH
   {
     std::ifstream myfile (file.c_str());
 
-    std::auto_ptr<SampleLocal> sample (new SampleLocal (name));
+    auto sample = std::make_unique<SampleLocal> (name);
     std::string line;
     while (std::getline (myfile, line))
     {
-      while (!line.empty() && isspace (line.at(0)))
-	line = line.substr (1);
-      while (!line.empty() && isspace (line.at(line.size()-1)))
-	line = line.substr (0, line.size()-1);
+      line = CxxUtils::StringUtils::trim(line);
       if (!line.empty() && line.at(0) != '#')
       {
 	sample->add (line);

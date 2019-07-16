@@ -24,7 +24,6 @@ namespace CP
                           ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
   {
-    declareProperty ("efficiency", m_efficiency, "the decoration for the efficiency");
   }
 
 
@@ -32,18 +31,15 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   initialize ()
   {
-    if (m_efficiency.empty())
+    if (m_scaleFactorInputDecoration.empty() || m_scaleFactorOutputDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_eventInfoHandle);
     m_systematicsList.addHandle (m_particleHandle);
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
-
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiency);
 
     return StatusCode::SUCCESS;
   }
@@ -60,16 +56,16 @@ namespace CP
       xAOD::IParticleContainer *particles = nullptr;
       ANA_CHECK (m_particleHandle.getCopy (particles, sys));
 
-      float efficiency = 1;
+      float scaleFactor = 1;
       for (xAOD::IParticle *particle : *particles)
       {
         if (m_preselection.getBool (*particle))
         {
-          efficiency *= (*m_efficiencyAccessor) (*particle);
+          scaleFactor *= m_scaleFactorInputDecoration.get (*particle, sys);
         }
       }
 
-      (*m_efficiencyAccessor) (*eventInfo) = efficiency;
+      m_scaleFactorOutputDecoration.set (*eventInfo, scaleFactor, sys);
 
       return StatusCode::SUCCESS;
     });

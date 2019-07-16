@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # import Common Algs
@@ -226,7 +226,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 2000,
+        ghostArea = 0 , ptmin = 4000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
@@ -236,7 +236,6 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
         ghost_suffix = "GhostTag"
         VRJetName += ghost_suffix
         VRGhostLabel += ghost_suffix
-        VRJetOptions['ptmin'] = 5000
 
     #==========================================================
     # Build VR jets
@@ -250,6 +249,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -634,13 +634,13 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
 
-   ExKtJetCollection__FatJet = "AntiKt8EMTopoJets"
+   ExKtJetCollection__FatJet = "AntiKt8EMPFlowJets"
    ExKtJetCollection__SubJet = []
 
    if jetToolName not in DFJetAlgs:
-     ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
+     ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMPFlowJets", OutputJetContainer="AntiKt8EMPFlowJets")
      getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
-     getattr(ToolSvc,jetToolName).InputJetPtMin = 0
+     getattr(ToolSvc,jetToolName).InputJetPtMin = 20
      getattr(ToolSvc,jetToolName).RCJetPtMin = 1
      getattr(ToolSvc,jetToolName).RCJetPtFrac = 0
      getattr(ToolSvc,jetToolName).DoArea = False

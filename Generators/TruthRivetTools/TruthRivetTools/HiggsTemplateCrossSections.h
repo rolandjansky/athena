@@ -115,6 +115,10 @@ namespace Rivet {
       cat.stage0_cat = HTXS::Stage0::UNKNOWN;
       cat.stage1_cat_pTjet25GeV = HTXS::Stage1::UNKNOWN;
       cat.stage1_cat_pTjet30GeV = HTXS::Stage1::UNKNOWN;
+      cat.stage1_1_cat_pTjet25GeV = HTXS::Stage1_1::UNKNOWN;
+      cat.stage1_1_cat_pTjet30GeV = HTXS::Stage1_1::UNKNOWN;
+      cat.stage1_1_fine_cat_pTjet25GeV = HTXS::Stage1_1_Fine::UNKNOWN;
+      cat.stage1_1_fine_cat_pTjet30GeV = HTXS::Stage1_1_Fine::UNKNOWN;
 
       if (prodMode == HTXS::UNKNOWN) 
 	return error(cat,HTXS::PRODMODE_DEFINED,
@@ -207,7 +211,7 @@ namespace Rivet {
 	  Particle top = getLastInstance(Particle(ptcl));
 	  if ( top.genParticle()->end_vertex() ) 
 	    for (auto child:top.children())
-	      if ( PID::isW(child.pdgId()) ) Ws += child;
+	      if ( PID::isW(child.pdgId()) ) Ws += getLastInstance(child);
 	}
       }
 
@@ -275,7 +279,11 @@ namespace Rivet {
       // Apply the categorization categorization
       cat.stage0_cat = getStage0Category(prodMode,cat.higgs,cat.V);
       cat.stage1_cat_pTjet25GeV = getStage1Category(prodMode,cat.higgs,cat.jets25,cat.V);
-      cat.stage1_cat_pTjet30GeV = getStage1Category(prodMode,cat.higgs,cat.jets30,cat.V);      
+      cat.stage1_cat_pTjet30GeV = getStage1Category(prodMode,cat.higgs,cat.jets30,cat.V);
+      cat.stage1_1_cat_pTjet25GeV = getStage1_1_Category(prodMode,cat.higgs,cat.jets25,cat.V);
+      cat.stage1_1_cat_pTjet30GeV = getStage1_1_Category(prodMode,cat.higgs,cat.jets30,cat.V);
+      cat.stage1_1_fine_cat_pTjet25GeV = getStage1_1_Fine_Category(prodMode,cat.higgs,cat.jets25,cat.V);
+      cat.stage1_1_fine_cat_pTjet30GeV = getStage1_1_Fine_Category(prodMode,cat.higgs,cat.jets30,cat.V);
       cat.errorCode = HTXS::SUCCESS; ++m_errorCount[HTXS::SUCCESS];
 
       return cat;
@@ -303,6 +311,34 @@ namespace Rivet {
       const FourMomentum &j1=jets[0].momentum(), &j2=jets[1].momentum();
       bool VBFtopo = (j1+j2).mass() > 400.0 && std::abs(j1.rapidity()-j2.rapidity()) > 2.8;
       return VBFtopo ? (j1+j2+higgs.momentum()).pt()<25 ? 2 : 1 : 0;
+    }
+    /// @brief VBF topology selection
+    /// 0 = fail loose selection: m_jj > 350 GeV
+    /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
+    /// 3 pass tight (m_jj>700 GeV), but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
+    int vbfTopology_Stage1_1(const Jets &jets, const Particle &higgs) {
+      if (jets.size()<2) return 0;
+      const FourMomentum &j1=jets[0].momentum(), &j2=jets[1].momentum();
+      double mjj = (j1+j2).mass();
+      if(mjj>350 && mjj<=700) return (j1+j2+higgs.momentum()).pt()<25 ? 1 : 2;
+      else if(mjj>700) return (j1+j2+higgs.momentum()).pt()<25 ? 3 : 4;
+      else return 0;
+    }
+    /// @brief VBF topology selection for Stage1_1
+    /// 0 = fail loose selection: m_jj > 350 GeV
+    /// 1 pass loose, but fail additional cut pT(Hjj)<25. 2 pass pT(Hjj)>25 selection
+    /// 3 pass 700<m_jj<1000 GeV, but fail additional cut pT(Hjj)<25. 4 pass pT(Hjj)>25 selection
+    /// 5 pass 1000<m_jj<1500 GeV, but fail additional cut pT(Hjj)<25. 6 pass pT(Hjj)>25 selection
+    /// 7 pass m_jj>1500 GeV, but fail additional cut pT(Hjj)<25. 8 pass pT(Hjj)>25 selection
+    int vbfTopology_Stage1_1_Fine(const Jets &jets, const Particle &higgs) {
+      if (jets.size()<2) return 0;
+      const FourMomentum &j1=jets[0].momentum(), &j2=jets[1].momentum();
+      double mjj = (j1+j2).mass();
+      if(mjj>350 && mjj<=700) return (j1+j2+higgs.momentum()).pt()<25 ? 1 : 2;
+      else if(mjj>700 && mjj<=1000) return (j1+j2+higgs.momentum()).pt()<25 ? 3 : 4;
+      else if(mjj>1000 && mjj<=1500) return (j1+j2+higgs.momentum()).pt()<25 ? 5 : 6;
+      else if(mjj>1500) return (j1+j2+higgs.momentum()).pt()<25 ? 7 : 8;
+      else return 0;
     }
 
     /// @brief Whether the Higgs is produced in association with a vector boson (VH)
@@ -390,6 +426,159 @@ namespace Rivet {
       return UNKNOWN;
     }
 
+    /// @brief Stage-1.1 categorization
+    HTXS::Stage1_1::Category getStage1_1_Category(const HTXS::HiggsProdMode prodMode,
+                         const Particle &higgs,
+                         const Jets &jets,
+                         const Particle &V) {
+      using namespace HTXS::Stage1_1;
+      int Njets=jets.size(), ctrlHiggs = std::abs(higgs.rapidity())<2.5, fwdHiggs = !ctrlHiggs;
+      int vbfTopo = vbfTopology_Stage1_1(jets,higgs);
+
+      // 1. GGF Stage 1 categories
+      //    Following YR4 write-up: XXXXX
+      if (prodMode==HTXS::GGF || (prodMode==HTXS::GG2ZH && quarkDecay(V)) ) {
+    if (fwdHiggs)        return GG2H_FWDH;
+    if ( higgs.pt()>200 ) return GG2H_PTH_GT200;
+    if (Njets==0)  return higgs.pt()<10 ? GG2H_0J_PTH_0_10 : GG2H_0J_PTH_GT10;
+    if (Njets==1)  return Category(GG2H_1J_PTH_0_60+getBin(higgs.pt(),{0,60,120,200}));
+    if (Njets>1){
+        //VBF topology
+        if(vbfTopo) return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
+        //Njets >= 2jets without VBF topology (mjj<350)
+        return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60+getBin(higgs.pt(),{0,60,120,200}));
+    }
+      }
+
+      // 2. Electroweak qq->Hqq Stage 1.1 categories
+      else if (prodMode==HTXS::VBF || ( isVH(prodMode) && quarkDecay(V)) ) {
+    if (std::abs(higgs.rapidity())>2.5) return QQ2HQQ_FWDH;
+    int Njets=jets.size();
+    if (Njets==0)        return QQ2HQQ_0J;
+    else if (Njets==1)   return QQ2HQQ_1J;
+    else if (Njets>=2) {
+        double mjj = (jets[0].mom()+jets[1].mom()).mass();
+        if ( mjj < 60 )      return QQ2HQQ_GE2J_MJJ_0_60;
+        else if ( 60 < mjj && mjj < 120 ) return QQ2HQQ_GE2J_MJJ_60_120;
+        else if ( 120 < mjj && mjj < 350 ) return QQ2HQQ_GE2J_MJJ_120_350;
+        else if (  mjj > 350 ) {
+            if (higgs.pt()>200) return QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200;
+            if(vbfTopo) return Category(QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200+vbfTopo);
+        }
+    }
+      }
+      // 3. WH->Hlv categories
+      else if (prodMode==HTXS::WH) {
+        if (fwdHiggs) return QQ2HLNU_FWDH;
+        else if (V.pt()<75) return QQ2HLNU_PTV_0_75;
+        else if (V.pt()<150) return QQ2HLNU_PTV_75_150;
+        else if (V.pt()>250) return QQ2HLNU_PTV_GT250;
+        // 150 < pTV/GeV < 250
+        return jets.size()==0 ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
+      }
+      // 4. qq->ZH->llH categories
+      else if (prodMode==HTXS::QQ2ZH) {
+        if (fwdHiggs) return QQ2HLL_FWDH;
+        else if (V.pt()<75) return QQ2HLL_PTV_0_75;
+        else if (V.pt()<150) return QQ2HLL_PTV_75_150;
+        else if (V.pt()>250) return QQ2HLL_PTV_GT250;
+        // 150 < pTV/GeV < 250
+        return jets.size()==0 ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
+      }
+      // 5. gg->ZH->llH categories
+      else if (prodMode==HTXS::GG2ZH ) {
+        if (fwdHiggs) return GG2HLL_FWDH;
+        else if (V.pt()<75) return GG2HLL_PTV_0_75;
+        else if (V.pt()<150) return GG2HLL_PTV_75_150;
+        else if (V.pt()>250) return GG2HLL_PTV_GT250;
+        return jets.size()==0 ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
+      }
+      // 6.ttH,bbH,tH categories
+      else if (prodMode==HTXS::TTH) return Category(TTH_FWDH+ctrlHiggs);
+      else if (prodMode==HTXS::BBH) return Category(BBH_FWDH+ctrlHiggs);
+      else if (prodMode==HTXS::TH ) return Category(TH_FWDH+ctrlHiggs);
+      return UNKNOWN;
+    }
+
+    /// @brief Stage-1.1_Fine categorization
+    HTXS::Stage1_1_Fine::Category getStage1_1_Fine_Category(const HTXS::HiggsProdMode prodMode,
+                         const Particle &higgs,
+                         const Jets &jets,
+                         const Particle &V) {
+      using namespace HTXS::Stage1_1_Fine;
+      int Njets=jets.size(), ctrlHiggs = std::abs(higgs.rapidity())<2.5, fwdHiggs = !ctrlHiggs;
+      int vbfTopo = vbfTopology_Stage1_1_Fine(jets,higgs);
+
+      // 1. GGF Stage 1.1 categories
+      //    Following YR4 write-up: XXXXX
+      if (prodMode==HTXS::GGF || (prodMode==HTXS::GG2ZH && quarkDecay(V)) ) {
+    if (fwdHiggs)        return GG2H_FWDH;
+    if ( higgs.pt()>200 ) return GG2H_PTH_GT200;
+    if (Njets==0)  return higgs.pt()<10 ? GG2H_0J_PTH_0_10 : GG2H_0J_PTH_GT10;
+    if (Njets==1)  return Category(GG2H_1J_PTH_0_60+getBin(higgs.pt(),{0,60,120,200}));
+    if (Njets>1){
+        //double mjj = (jets[0].mom()+jets[1].mom()).mass();
+        double pTHjj = (jets[0].momentum()+jets[1].momentum()+higgs.momentum()).pt();
+        //VBF topology
+        if(vbfTopo) return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
+        //Njets >= 2jets without VBF topology (mjj<350)
+        if (pTHjj<25) return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_0_25+getBin(higgs.pt(),{0,60,120,200}));
+        else return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_GT25+getBin(higgs.pt(),{0,60,120,200}));
+    }
+      }
+
+      // 2. Electroweak qq->Hqq Stage 1.1 categories
+      else if (prodMode==HTXS::VBF || ( isVH(prodMode) && quarkDecay(V)) ) {
+    if (std::abs(higgs.rapidity())>2.5) return QQ2HQQ_FWDH;
+    int Njets=jets.size();
+    if (Njets==0)        return QQ2HQQ_0J;
+    else if (Njets==1)   return QQ2HQQ_1J;
+    else if (Njets>=2) {
+        double mjj = (jets[0].mom()+jets[1].mom()).mass();
+        double pTHjj = (jets[0].momentum()+jets[1].momentum()+higgs.momentum()).pt();
+        if (mjj<350){
+            if (pTHjj<25) return Category(QQ2HQQ_GE2J_MJJ_0_60_PTHJJ_0_25+getBin(mjj,{0,60,120,350}));
+            else return Category(QQ2HQQ_GE2J_MJJ_0_60_PTHJJ_GT25+getBin(mjj,{0,60,120,350}));
+        } else { //mjj>350 GeV
+            if (higgs.pt()<200){
+                return Category(QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
+            } else {
+                return Category(QQ2HQQ_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25+vbfTopo-1);
+            }
+        }
+    }
+      }
+      // 3. WH->Hlv categories
+      else if (prodMode==HTXS::WH) {
+        if (fwdHiggs) return QQ2HLNU_FWDH;
+        int Njets=jets.size();
+        if (Njets==0) return Category(QQ2HLNU_PTV_0_75_0J+getBin(V.pt(),{0,75,150,250,400}));
+        if (Njets==1) return Category(QQ2HLNU_PTV_0_75_1J+getBin(V.pt(),{0,75,150,250,400}));
+        return Category(QQ2HLNU_PTV_0_75_GE2J+getBin(V.pt(),{0,75,150,250,400}));
+      }
+      // 4. qq->ZH->llH categories
+      else if (prodMode==HTXS::QQ2ZH) {
+        if (fwdHiggs) return QQ2HLL_FWDH;
+        int Njets=jets.size();
+        if (Njets==0) return Category(QQ2HLL_PTV_0_75_0J+getBin(V.pt(),{0,75,150,250,400}));
+        if (Njets==1) return Category(QQ2HLL_PTV_0_75_1J+getBin(V.pt(),{0,75,150,250,400}));
+        return Category(QQ2HLL_PTV_0_75_GE2J+getBin(V.pt(),{0,75,150,250,400}));
+      }
+      // 5. gg->ZH->llH categories
+      else if (prodMode==HTXS::GG2ZH ) {
+        if (fwdHiggs) return GG2HLL_FWDH;
+        int Njets=jets.size();
+        if (Njets==0) return Category(GG2HLL_PTV_0_75_0J+getBin(V.pt(),{0,75,150,250,400}));
+        if (Njets==1) return Category(GG2HLL_PTV_0_75_1J+getBin(V.pt(),{0,75,150,250,400}));
+        return Category(GG2HLL_PTV_0_75_GE2J+getBin(V.pt(),{0,75,150,250,400}));
+      }
+      // 6.ttH,bbH,tH categories
+      else if (prodMode==HTXS::TTH) return Category(TTH_FWDH+ctrlHiggs);
+      else if (prodMode==HTXS::BBH) return Category(BBH_FWDH+ctrlHiggs);
+      else if (prodMode==HTXS::TH ) return Category(TH_FWDH+ctrlHiggs);
+      return UNKNOWN;
+    }
+
     /// @}
 
 
@@ -454,8 +643,19 @@ namespace Rivet {
       // Stage 1 enum offsets for each production mode: GGF=12, VBF=6, WH= 5, QQ2ZH=5, GG2ZH=4, TTH=2, BBH=2, TH=2
       static vector<int> offset({0,1,13,19,24,29,33,35,37,39});
       int off = offset[P];
+      // Stage 1.1 enum offsets for each production mode: GGF=14, VBF=11, WH= 6, QQ2ZH=6, GG2ZH=6, TTH=2, BBH=2, TH=2
+      static vector<int> offset1_1({0,1,15,26,32,38,44,46,48,50});
+      int off1_1 = offset1_1[P];
+      // Stage 1.1-Fine enum offsets for each production mode: GGF=21, VBF=25, WH= 16, QQ2ZH=16, GG2ZH=16, TTH=2, BBH=2, TH=2
+      static vector<int> offset1_1_Fine({0,1,22,47,63,79,95,97,99,101});
+      int off1_1_Fine = offset1_1_Fine[P];
+
       hist_stage1_pTjet25->fill(cat.stage1_cat_pTjet25GeV%100 + off, weight);
       hist_stage1_pTjet30->fill(cat.stage1_cat_pTjet30GeV%100 + off, weight);
+      hist_stage1_1_pTjet25->fill(cat.stage1_1_cat_pTjet25GeV%100 + off1_1, weight);
+      hist_stage1_1_pTjet30->fill(cat.stage1_1_cat_pTjet30GeV%100 + off1_1, weight);
+      hist_stage1_1_fine_pTjet25->fill(cat.stage1_1_fine_cat_pTjet25GeV%100 + off1_1_Fine, weight);
+      hist_stage1_1_fine_pTjet30->fill(cat.stage1_1_fine_cat_pTjet30GeV%100 + off1_1_Fine, weight);
 
       // Fill histograms: variables used in the categorization
       hist_pT_Higgs->fill(cat.higgs.pT(),weight);
@@ -500,8 +700,8 @@ namespace Rivet {
     void finalize() {
       printClassificationSummary();
       double sf = m_sumw>0?1.0/m_sumw:1.0;
-      for (auto hist:{hist_stage0,hist_stage1_pTjet25,hist_stage1_pTjet30,hist_Njets25,hist_Njets30,
-	    hist_pT_Higgs,hist_y_Higgs,hist_pT_V,hist_pT_jet1,hist_deltay_jj,hist_dijet_mass,hist_pT_Hjj})
+      for (auto hist:{hist_stage0,hist_stage1_pTjet25,hist_stage1_pTjet30,hist_stage1_1_pTjet25,hist_stage1_1_pTjet30,hist_stage1_1_fine_pTjet25,hist_stage1_1_fine_pTjet30,
+        hist_Njets25,hist_Njets30,hist_pT_Higgs,hist_y_Higgs,hist_pT_V,hist_pT_jet1,hist_deltay_jj,hist_dijet_mass,hist_pT_Hjj})
 	scale(hist, sf);
     }
     
@@ -513,6 +713,10 @@ namespace Rivet {
       hist_stage0          = bookHisto1D("HTXS_stage0",20,0,20);
       hist_stage1_pTjet25  = bookHisto1D("HTXS_stage1_pTjet25",40,0,40);
       hist_stage1_pTjet30  = bookHisto1D("HTXS_stage1_pTjet30",40,0,40);
+      hist_stage1_1_pTjet25  = bookHisto1D("HTXS_stage1_1_pTjet25",51,0,51);
+      hist_stage1_1_pTjet30  = bookHisto1D("HTXS_stage1_1_pTjet30",51,0,51);
+      hist_stage1_1_fine_pTjet25  = bookHisto1D("HTXS_stage1_1_fine_pTjet25",102,0,102);
+      hist_stage1_1_fine_pTjet30  = bookHisto1D("HTXS_stage1_1_fine_pTjet30",102,0,102);
       hist_pT_Higgs    = bookHisto1D("pT_Higgs",80,0,400);
       hist_y_Higgs     = bookHisto1D("y_Higgs",80,-4,4);
       hist_pT_V        = bookHisto1D("pT_V",80,0,400);
@@ -535,6 +739,8 @@ namespace Rivet {
     std::map<HTXS::ErrorCode,size_t> m_errorCount;
     Histo1DPtr hist_stage0;
     Histo1DPtr hist_stage1_pTjet25, hist_stage1_pTjet30;
+    Histo1DPtr hist_stage1_1_pTjet25, hist_stage1_1_pTjet30;
+    Histo1DPtr hist_stage1_1_fine_pTjet25, hist_stage1_1_fine_pTjet30;
     Histo1DPtr hist_pT_Higgs, hist_y_Higgs;
     Histo1DPtr hist_pT_V, hist_pT_jet1;
     Histo1DPtr hist_deltay_jj, hist_dijet_mass, hist_pT_Hjj;

@@ -99,7 +99,7 @@ BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 #====================================================================
 # Data datasets to receive special treatment
 #====================================================================
-BPHY8cf.specDataRuns = [339849,358096]
+BPHY8cf.specDataRuns = [302393,339849,358096]
 #
 # for testing only
 ## BPHY8cf.specDataRuns += [337491]

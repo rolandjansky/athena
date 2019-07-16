@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -590,12 +590,12 @@ bool DerivationFramework::MenuTruthThinning::isLeptonFromTau(const xAOD::TruthPa
     // Loop over the parents of this particle.
     unsigned int nIncoming = prod->nIncomingParticles();
     for(unsigned int itr = 0; itr<nIncoming; ++itr){
+        if (prod->incomingParticle(itr)==NULL) continue;
         int parentId = prod->incomingParticle(itr)->pdgId();
         if(abs(parentId) == 15) {
             ATH_MSG_DEBUG("Particle with pdgId = " << pdg << ", matched to tau");
             return true; // Has tau parent
         }
-
         if(parentId == pdg) { // Same particle just a different MC status
             // Go up the generator record until a tau is found or not.
             // Note that this requires a connected *lepton* chain, while calling
@@ -605,7 +605,6 @@ bool DerivationFramework::MenuTruthThinning::isLeptonFromTau(const xAOD::TruthPa
             }
         }
     }
-
     return false;
 }
 

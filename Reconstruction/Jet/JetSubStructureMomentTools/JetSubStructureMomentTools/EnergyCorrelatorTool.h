@@ -22,9 +22,10 @@ class EnergyCorrelatorTool :
 
     private:
       float m_Beta;
-      bool m_includeECF4;
+      bool m_doC3;
       std::vector<float> m_betaVals;
       std::vector<float> betaVals; // Local vector for cleaned up inputs
+      bool m_doDichroic;
 
 };
 

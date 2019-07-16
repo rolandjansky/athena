@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -10,7 +10,6 @@ dataType = "data"
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
-jetContainer = "AntiKt4EMTopoJets"
 
 # Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
@@ -18,25 +17,9 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Access the main algorithm sequence of the job:
-from AthenaCommon.AlgSequence import AlgSequence
-algSeq = AlgSequence()
-
-# Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-algSeq += sysLoader
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-print( jetSequence ) # For debugging
-
-# Add the sequence to the job:
-algSeq += jetSequence
+from FTagAnalysisAlgorithms.FTagAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

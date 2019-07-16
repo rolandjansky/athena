@@ -67,6 +67,7 @@ private:
     std::unique_ptr<TH2> h_EffHist;
     std::string m_sf_decoration_name;
     std::string m_isHS_decoration_name;
+    std::string m_truthJetContName;
     float m_jvtCut;
     float m_jvtCutBorder;
     std::string m_jetJvtMomentName;

@@ -7,6 +7,7 @@
 
 #include "AssociationUtils/IOverlapTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
+#include "AssociationUtils/IObjectAssociator.h"
 #include "AssociationUtils/OverlapRemovalTool.h"
 #include "AssociationUtils/BaseOverlapTool.h"
 #include "AssociationUtils/DeltaROverlapTool.h"
@@ -14,6 +15,7 @@
 #include "AssociationUtils/EleJetOverlapTool.h"
 #include "AssociationUtils/EleMuSharedTrkOverlapTool.h"
 #include "AssociationUtils/MuJetOverlapTool.h"
+#include "AssociationUtils/MuPFJetOverlapTool.h"
 #include "AssociationUtils/AltMuJetOverlapTool.h"
 #include "AssociationUtils/TauLooseEleOverlapTool.h"
 #include "AssociationUtils/TauLooseMuOverlapTool.h"

@@ -268,6 +268,13 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg2d1Seq)
 
 #====================================================================
+# QG tagging
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",  sequence=higg2d1Seq, algname="QGTaggerToolAlg",   truthjetalg='AntiKt4TruthJets')
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg2d1Seq, algname="QGTaggerToolPFAlg", truthjetalg='AntiKt4TruthJets')
+
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkHiggs.HIGG2D1ExtraContent import *

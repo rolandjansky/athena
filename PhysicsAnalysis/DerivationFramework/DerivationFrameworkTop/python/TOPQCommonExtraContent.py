@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used by TOPQCommonSlimming.py
@@ -72,7 +72,7 @@
 #====================================================================
 
 #================================
-# SMART SLIMMING COLLECTIONS 
+# SMART SLIMMING COLLECTIONS
 #================================
 # list of existing containers with a smart list is available here :
 # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/FullListOfSmartContainers.py
@@ -95,7 +95,8 @@ TOPQSmartSlimmingCollections = ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingE
                                 "BTagging_AntiKt4EMPFlow",
                                 "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                 "AntiKt4TruthJets",
-                                "AntiKt4TruthWZJets"]
+                                "AntiKt4TruthWZJets",
+                                "AntiKt4TruthDressedWZJets"]
 
 #================================
 # EXTRA VARIABLES - Data & MC
@@ -353,7 +354,7 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "selected"]
 
 # for TOPQDERIV-62
-TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
+TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1 =  ["AntiKt4EMPFlowJets."
                                                   + "DoubleTagBDTOutput."
                                                   + "LargeJetLabel."
                                                   + "ExKtbb_MaxMV2c10."
@@ -689,78 +690,6 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "L2"
                                                                + "L3"
                                                                + "L4"
-                                                               + "L5"]
-
-
-TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
-                                                               + "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux."
-                                                               + "ActiveArea."
-                                                               + "ActiveArea4vec_eta."
-                                                               + "ActiveArea4vec_m."
-                                                               + "ActiveArea4vec_phi."
-                                                               + "ActiveArea4vec_pt."
-                                                               + "AlgorithmType."
-                                                               + "Angularity."
-                                                               + "Aplanarity."
-                                                               + "Charge."
-                                                               + "ConstituentScale."
-                                                               + "DetectorPhi."
-                                                               + "Dip12."
-                                                               + "Dip13."
-                                                               + "Dip23."
-                                                               + "DipExcl12."
-                                                               + "EMFrac."
-                                                               + "FoxWolfram0."
-                                                               + "FoxWolfram1."
-                                                               + "FoxWolfram2."
-                                                               + "FoxWolfram3."
-                                                               + "FoxWolfram4."
-                                                               + "GhostAntiKt2TrackJetCount."
-                                                               + "GhostAntiKt2TrackJetPt."
-                                                               + "GhostAntiKt4TrackJet."
-                                                               + "GhostAntiKt4TrackJetCount."
-                                                               + "GhostAntiKt4TrackJetPt."
-                                                               + "GhostMuonSegment."
-                                                               + "GhostMuonSegmentCount."
-                                                               + "GhostTrack."
-                                                               + "GhostTrackCount."
-                                                               + "GhostTrackPt."
-                                                               + "InputType."
-                                                               + "JetEMScaleMomentum_eta."
-                                                               + "JetEMScaleMomentum_m."
-                                                               + "JetEMScaleMomentum_phi."
-                                                               + "JetEMScaleMomentum_pt."
-                                                               + "JetGhostArea."
-                                                               + "KtDR."
-                                                               + "Mu12."
-                                                               + "Parent."
-                                                               + "PlanarFlow."
-                                                               + "PullMag."
-                                                               + "PullPhi."
-                                                               + "Pull_C00."
-                                                               + "Pull_C01."
-                                                               + "Pull_C10."
-                                                               + "Pull_C11."
-                                                               + "SizeParam."
-                                                               + "Sphericity."
-                                                               + "Split12."
-                                                               + "Split23."
-                                                               + "Split34."
-                                                               + "Tau1."
-                                                               + "Tau2."
-                                                               + "Tau3."
-                                                               + "ThrustMaj."
-                                                               + "ThrustMin."
-                                                               + "TransformType."
-                                                               + "Width."
-                                                               + "WidthPhi."
-                                                               + "ZCut12."
-                                                               + "ZCut23."
-                                                               + "ZCut34."
-                                                               + "L1."
-                                                               + "L2."
-                                                               + "L3."
-                                                               + "L4."
                                                                + "L5"]
 
 
@@ -1477,57 +1406,6 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
                                                                      + "L4"
                                                                      + "L5"]
 
-TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
-                                                                     + "GhostBHadronsFinal."
-                                                                     + "GhostBHadronsFinalCount."
-                                                                     + "GhostBHadronsFinalPt."
-                                                                     + "GhostBHadronsInitial."
-                                                                     + "GhostBHadronsInitialCount."
-                                                                     + "GhostBHadronsInitialPt."
-                                                                     + "GhostBQuarksFinal."
-                                                                     + "GhostBQuarksFinalCount."
-                                                                     + "GhostBQuarksFinalPt."
-                                                                     + "GhostCHadronsFinal."
-                                                                     + "GhostCHadronsFinalCount."
-                                                                     + "GhostCHadronsFinalPt."
-                                                                     + "GhostCHadronsInitial."
-                                                                     + "GhostCHadronsInitialCount."
-                                                                     + "GhostCHadronsInitialPt."
-                                                                     + "GhostCQuarksFinal."
-                                                                     + "GhostCQuarksFinalCount."
-                                                                     + "GhostCQuarksFinalPt."
-                                                                     + "GhostHBosons."
-                                                                     + "GhostHBosonsCount."
-                                                                     + "GhostHBosonsPt."
-                                                                     + "GhostMuonSegment."
-                                                                     + "GhostMuonSegmentCount."
-                                                                     + "GhostPartons."
-                                                                     + "GhostPartonsCount."
-                                                                     + "GhostPartonsPt."
-                                                                     + "GhostTQuarksFinal."
-                                                                     + "GhostTQuarksFinalCount."
-                                                                     + "GhostTQuarksFinalPt."
-                                                                     + "GhostTausFinal."
-                                                                     + "GhostTausFinalCount."
-                                                                     + "GhostTausFinalPt."
-                                                                     + "GhostTruth."
-                                                                     + "GhostTruthCount."
-                                                                     + "GhostTruthPt."
-                                                                     + "GhostWBosons."
-                                                                     + "GhostWBosonsCount."
-                                                                     + "GhostWBosonsPt."
-                                                                     + "GhostZBosons."
-                                                                     + "GhostZBosonsCount."
-                                                                     + "GhostZBosonsPt."
-                                                                     + "TruthLabelDeltaR_B."
-                                                                     + "TruthLabelDeltaR_C."
-                                                                     + "TruthLabelDeltaR_T."
-                                                                     + "L1."
-                                                                     + "L2."
-                                                                     + "L3."
-                                                                     + "L4."
-                                                                     + "L5"]
-
 #===========================================
 # COLLECTIONS AT TRUTH LEVEL
 #===========================================
@@ -1599,6 +1477,66 @@ TOPQExtraVariables_AntiKt4TruthJets = ["AntiKt4TruthJets."
                                        + "TruthLabelDeltaR_T."
                                        + "Width."
                                        + "WidthPhi"]
+
+TOPQExtraVariables_AntiKt4TruthDressedWZJets = ["AntiKt4TruthDressedWZJets."
+                                                + "ActiveArea."
+                                                + "ActiveArea4vec_eta."
+                                                + "ActiveArea4vec_m."
+                                                + "ActiveArea4vec_phi."
+                                                + "ActiveArea4vec_pt."
+                                                + "AlgorithmType."
+                                                + "ConeExclBHadronsFinal."
+                                                + "ConeExclCHadronsFinal."
+                                                + "ConeExclTausFinal."
+                                                + "ConstituentScale."
+                                                + "GhostBHadronsFinal."
+                                                + "GhostBHadronsFinalCount."
+                                                + "GhostBHadronsFinalPt."
+                                                + "GhostBHadronsInitial."
+                                                + "GhostBHadronsInitialCount."
+                                                + "GhostBHadronsInitialPt."
+                                                + "GhostBQuarksFinal."
+                                                + "GhostBQuarksFinalCount."
+                                                + "GhostBQuarksFinalPt."
+                                                + "GhostCHadronsFinal."
+                                                + "GhostCHadronsFinalCount."
+                                                + "GhostCHadronsFinalPt."
+                                                + "GhostCHadronsInitial."
+                                                + "GhostCHadronsInitialCount."
+                                                + "GhostCHadronsInitialPt."
+                                                + "GhostCQuarksFinal."
+                                                + "GhostCQuarksFinalCount."
+                                                + "GhostCQuarksFinalPt."
+                                                + "GhostHBosons."
+                                                + "GhostHBosonsCount."
+                                                + "GhostHBosonsPt."
+                                                + "GhostPartons."
+                                                + "GhostPartonsCount."
+                                                + "GhostPartonsPt."
+                                                + "GhostTQuarksFinal."
+                                                + "GhostTQuarksFinalCount."
+                                                + "GhostTQuarksFinalPt."
+                                                + "GhostTausFinal."
+                                                + "GhostTausFinalCount."
+                                                + "GhostTausFinalPt."
+                                                + "GhostWBosons."
+                                                + "GhostWBosonsCount."
+                                                + "GhostWBosonsPt."
+                                                + "GhostZBosons."
+                                                + "GhostZBosonsCount."
+                                                + "GhostZBosonsPt."
+                                                + "InputType."
+                                                + "JetConstitScaleMomentum_eta."
+                                                + "JetConstitScaleMomentum_m."
+                                                + "JetConstitScaleMomentum_phi."
+                                                + "JetConstitScaleMomentum_pt."
+                                                + "JetGhostArea."
+                                                + "SizeParameter."
+                                                + "TruthLabelDeltaR_B."
+                                                + "TruthLabelDeltaR_C."
+                                                + "TruthLabelDeltaR_T."
+                                                + "Width."
+                                                + "WidthPhi"]
 
 TOPQExtraVariables_AntiKt4TruthWZJets = ["AntiKt4TruthWZJets."
                                          + "ActiveArea."
@@ -1815,8 +1753,6 @@ TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR
                           'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.',
                           'xAOD::JetContainer#AntiKt10TruthTrimmedPtFrac5SmallR20Jets',
                           'xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.',
-                          'xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets',
-                          'xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.',
                           'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
                           'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.']
 

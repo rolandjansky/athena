@@ -71,6 +71,7 @@
     std::string m_outLabel;
     std::string m_outLabelFjvt;
     std::string m_outLabelTiming;
+    std::string m_verticesName;
     double m_etaThresh;
     double m_timingCut;
     double m_forwardMinPt;

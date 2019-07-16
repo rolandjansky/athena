@@ -198,10 +198,10 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
 		  maskTracks[index] = true;
 		}
 		if(tccO->taste()!=0){
-		    for (size_t c = 0; c < tccO->caloClusterLinks().size(); ++c) {
-		        index = tccO->caloClusterLinks().at(c).index();
-		        maskClusters[index] = true;
-		    }
+          for (size_t c = 0; c < tccO->iparticleLinks().size(); ++c) {
+            index = tccO->iparticleLinks().at(c).index();
+            maskClusters[index] = true;
+          }
 		}
 	    }
 	}
@@ -209,8 +209,8 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
     } else {
 	
 	for (std::vector<const xAOD::Jet*>::iterator jetIt=jetToCheck.begin(); jetIt!=jetToCheck.end(); ++jetIt) {
-            for( size_t j = 0; j < (*jetIt)->numConstituents(); ++j ) {
-	        auto tcc = (*jetIt)->constituentLinks().at(j);
+      for( size_t j = 0; j < (*jetIt)->numConstituents(); ++j ) {
+        auto tcc = (*jetIt)->constituentLinks().at(j);
 		int index = tcc.index();
 		maskTCCs[index] = true;
 		const xAOD::TrackCaloCluster* tccO = dynamic_cast<const xAOD::TrackCaloCluster*>(*tcc);
@@ -220,8 +220,8 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
 		  maskTracks[index] = true;
 		}
 		if(tccO->taste()!=0){
-		    for (size_t c = 0; c < tccO->caloClusterLinks().size(); ++c) {
-		        index = tccO->caloClusterLinks().at(c).index();
+		    for (size_t c = 0; c < tccO->iparticleLinks().size(); ++c) {
+		        index = tccO->iparticleLinks().at(c).index();
 		        maskClusters[index] = true;
 		    }
 		}

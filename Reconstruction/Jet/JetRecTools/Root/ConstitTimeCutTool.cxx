@@ -1,3 +1,7 @@
+/*
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
+
 #include <vector>
 #include "JetRecTools/ConstitTimeCutTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -15,8 +19,6 @@ ConstitTimeCutTool::ConstitTimeCutTool(const std::string& name) : JetConstituent
   declareProperty("TimeCutSmallQ", m_timeCutSmallQ = 15);
   declareProperty("MaxEtaForCut", m_etaMax = 2.5);
 
-  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
-
 }
 
 StatusCode ConstitTimeCutTool::initialize() {
@@ -24,11 +26,6 @@ StatusCode ConstitTimeCutTool::initialize() {
   if(m_inputType==xAOD::Type::ParticleFlow) {
     if(!m_applyToNeutralPFO) {
       ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
-      return StatusCode::FAILURE;
-    }
-    else if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
-      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
-		    <<  "will set all cPFOs to zero");
       return StatusCode::FAILURE;
     }
 

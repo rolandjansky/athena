@@ -53,6 +53,7 @@ namespace CompParametrization
         eLOGmOe,        // 2D, (E,log(m/E)) dependence
         eLOGmOeEta,     // 3D, (E,log(m/E),eta) dependence
         eLOGmOeAbsEta,  // 3D, (E,log(m/E),|eta|) dependence
+        PtLOGPtMassForTagSF,// 2D, (pt,log(m/pT)) dependence, only for tagging SF
     };
 
     TString enumToString(const TypeEnum type);
@@ -100,6 +101,7 @@ namespace CompScaleVar
         D2Beta1,        // The value of D_2^{beta=1} (ECF ratio)
         C2Beta1,        // The value of C_2^{beta=1} (ECF ratio)
         Qw,             // The value of Qw
+        TagScaleFactor, // Tagging efficiency SF
         
         // Resolution uncertainties
         MassRes,        // The jet mass resolution, relative
@@ -116,6 +118,36 @@ namespace CompScaleVar
     bool isResolutionType(const TypeEnum type);
     bool isAbsResolutionType(const TypeEnum type);
     bool isRelResolutionType(const TypeEnum type);
+}
+
+namespace CompFlavorLabelVar
+{
+    enum TypeEnum // used to identify the jet flavor relevant for this NP
+    {
+        UNKNOWN=0,  // error state
+        t_qqb,      // full-contained top
+        t,          // inclusive top
+        V_qq,       // W/Z->qq
+        W_qq,       // W->qq
+        Z_qq,       // Z->qq
+	q           // background jet
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
+namespace CompTaggerRegionVar
+{
+    enum TypeEnum // used to identify the region relevant for this NP
+    {
+        UNKNOWN=0,  // error state
+        passMpassD2_2Var,// passing both mass and D2 cuts
+        passMfailD2_2Var,// passing mass cut but failing D2
+        failMpassD2_2Var,// failing mass cut but passing D2
+	failMfailD2_2Var // failing both mass and D2 cuts
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
 
 namespace PileupComp

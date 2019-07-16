@@ -42,9 +42,11 @@ class  JetBTaggerTool:
 
  private:
   
+  std::string m_JetName;
   std::string m_BTagName;
   std::string m_BTagSVName; 
-  std::string m_BTagJFVtxName; 
+  std::string m_BTagJFVtxName;
+  bool m_do2019Retraining;
 
   // FIXME: mutable
   mutable ToolHandle< IBTagTool > m_bTagTool; 
@@ -57,6 +59,7 @@ class  JetBTaggerTool:
   bool m_PtRescale;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
+  int btag_container(xAOD::JetContainer& jets, xAOD::BTaggingContainer *, bool) const;
   // Utility functions to be used in case of container overwriting.
   // Note that they do not need to be defined here, as they can only be called from code in JetBTaggerTool.cxx.
   template< class CONTAINER, class AUXSTORE >

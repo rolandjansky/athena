@@ -175,8 +175,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   // If we don't want isolation then we don't need the tool
   if (m_config->muonIsolationSF() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
+    // Add LowPt_ as prefix only if the muon quality is LowPt
     std::string muon_isolation = m_config->muonIsolationSF();
-    muon_isolation += "Iso";
+    muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") +muon_isolation+ "Iso";
+
     m_muonEfficiencyCorrectionsToolIso = 
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
@@ -185,9 +187,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   // Do we have isolation on our loose muons? If not no need for the tool...
   if (m_config->muonIsolationSFLoose() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
+    // Add LowPt_ as prefix only if the muon quality is LowPt
     // Note: now loose isolation
     std::string muon_isolation = m_config->muonIsolationSFLoose();
-    muon_isolation += "Iso";
+    muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") +muon_isolation+ "Iso";
     m_muonEfficiencyCorrectionsToolLooseIso =
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
                       muon_isolation);

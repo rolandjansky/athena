@@ -18,6 +18,9 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #====================================================================                                               
 # SET UP STREAM 
@@ -231,6 +234,13 @@ DerivationFrameworkJob += STDM5Sequence
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM5Sequence)
 
+#q/g tagging
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM5Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM5Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -262,6 +272,10 @@ STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxA
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 STDM5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 STDM5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
+#QGTagger
+STDM5SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+STDM5SlimmingHelper.ExtraVariables += ["AntiKt4EMPFlowJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
 
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *

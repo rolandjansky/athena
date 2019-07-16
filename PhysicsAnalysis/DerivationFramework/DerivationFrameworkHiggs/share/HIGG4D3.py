@@ -85,6 +85,9 @@ DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D3Sequence, HIGG4
 # variable-R jets + b-tagging
 DerivationFrameworkHiggs.HIGG4DxAugmentation.addVRJetsAndBTagging(DAOD_StreamID, HIGG4D3Sequence)
 
+# NonPrompt Lepton Tagger
+DerivationFrameworkHiggs.HIGG4DxAugmentation.addJetTagNonPromptLepton(DAOD_StreamID, HIGG4D3Sequence)
+
 # thinning
 HIGG4D3Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools)
 

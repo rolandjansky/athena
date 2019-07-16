@@ -14,6 +14,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY5Stream.StreamName
@@ -30,7 +31,6 @@ AugmentationTools   = []
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY5 = CfgMgr.AthSequencer("SeqSUSY5")
 DerivationFrameworkJob += SeqSUSY5
-
 
 #====================================================================
 # Trigger navigation thinning
@@ -242,6 +242,10 @@ SeqSUSY5 += CfgMgr.DerivationFramework__DerivationKernel(
 	ThinningTools = thinningTools,
 )
 
+# Add VR jets
+addVRJets(SeqSUSY5)
+addRecommendedXbbTaggers(SeqSUSY5, ToolSvc)
+
 #====================================================================
 # Prompt Lepton Tagger
 #====================================================================
@@ -289,7 +293,8 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
                                       "BTagging_AntiKt2Track.MV2c10_discriminant",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
-                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount",
                                       "PrimaryVertices.covariance",
                                       "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                       ]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -123,6 +123,7 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("ScaleFactorFileName",                 m_SFFile = "",                 "name of the official scale factor calibration CDI file (uses PathResolver)");
   declareProperty("UseDevelopmentFile",                  m_useDevFile = false,          "specify whether or not to use the (PathResolver) area for temporary scale factor calibration CDI files");
   declareProperty("EfficiencyFileName",                  m_EffFile = "",                "name of optional user-provided MC efficiency CDI file");
+  declareProperty("EfficiencyConfig",                    m_EffConfigFile = "",           "name of config file specifying which efficiency map to use with a given samples DSID");
   declareProperty("ScaleFactorBCalibration",             m_SFNames["B"] = "default",    "name of b-jet scale factor calibration object");
   declareProperty("ScaleFactorCCalibration",             m_SFNames["C"] = "default",    "name of c-jet scale factor calibration object");
   declareProperty("ScaleFactorTCalibration",             m_SFNames["T"] = "default",    "name of tau-jet scale factor calibration object");
@@ -183,9 +184,40 @@ BTaggingEfficiencyTool::~BTaggingEfficiencyTool() {
 // }
 
 StatusCode BTaggingEfficiencyTool::initialize() {
+
+
   ATH_MSG_INFO( " Hello BTaggingEfficiencyTool user... initializing");
   ATH_MSG_INFO( " TaggerName = " << m_taggerName);
   ATH_MSG_INFO( " OP = " << m_OP);
+
+  //if a configuration file was provided for efficiency maps, overwrite the efficiency map selection with the one provided in the first line of the config
+  if(m_EffConfigFile!=""){
+    m_EffConfigFile = PathResolverFindCalibFile(m_EffConfigFile);
+    std::ifstream eff_config_file(m_EffConfigFile);
+
+    std::string str; 
+    std::getline(eff_config_file, str);
+
+
+    m_EffNames["B"] = str;
+    m_EffNames["C"] = str;
+    m_EffNames["T"] = str;
+    m_EffNames["Light"] = str;
+
+    while (std::getline(eff_config_file, str))
+    {
+        std::vector<std::string> dsid_and_effmap = split(str,':');
+
+        unsigned int dsid = std::stoul( dsid_and_effmap[0] );
+        unsigned int map_index = std::stoul( dsid_and_effmap[1] );
+        m_DSID_to_MapIndex[dsid] = map_index;
+    }
+
+  }
+
+
+
+
   ATH_MSG_INFO( " b-jet     SF/eff calibration = " << m_SFNames["B"] <<     " / " << m_EffNames["B"]);
   ATH_MSG_INFO( " c-jet     SF/eff calibration = " << m_SFNames["C"] <<     " / " << m_EffNames["C"]);
   ATH_MSG_INFO( " tau-jet   SF/eff calibration = " << m_SFNames["T"] <<     " / " << m_EffNames["T"]);
@@ -1000,6 +1032,26 @@ BTaggingEfficiencyTool::setMapIndex(const std::string& label, unsigned int index
     ATH_MSG_ERROR("setMapIndex failed to find an Eff calibration object" << label << " " << index);
   }
   return false;
+}
+bool BTaggingEfficiencyTool::setMapIndex(unsigned int dsid){
+
+  if(m_DSID_to_MapIndex.find(dsid) == m_DSID_to_MapIndex.end() ){
+    ATH_MSG_WARNING("setMapIndex DSID "  << dsid << "not found in config file");
+
+  }else{
+      unsigned int map_index = m_DSID_to_MapIndex[dsid];
+
+      bool set_b = setMapIndex("B",map_index);
+      bool set_c = setMapIndex("C",map_index);
+      bool set_light = setMapIndex("Light",map_index);
+      bool set_t = setMapIndex("T",map_index);
+
+      return set_b && set_c && set_light && set_t;
+  }
+
+
+  return false;
+
 }
 
 // private method to generate the list of eigenvector variations

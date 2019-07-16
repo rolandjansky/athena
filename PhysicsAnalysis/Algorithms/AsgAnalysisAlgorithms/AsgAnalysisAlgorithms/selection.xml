@@ -14,5 +14,7 @@
    <class name="CP::OverlapRemovalAlg" />
    <class name="CP::PileupReweightingAlg" />
    <class name="CP::SysListLoaderAlg" />
+   <class name="CP::TreeFillerAlg" />
+   <class name="CP::TreeMakerAlg" />
    
 </lcgdict>

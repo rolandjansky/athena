@@ -98,11 +98,22 @@ namespace {
     if (name == "log_dr") {
       return [](const xAOD::Jet& j, const Tracks& t) {
                const auto jp4 = j.p4();
-               std::vector<double> dr;
+               std::vector<double> log_dr;
                for (const auto& trk: t) {
-                 dr.push_back(std::log(trk->p4().DeltaR(jp4)));
+                 log_dr.push_back(std::log(trk->p4().DeltaR(jp4)));
                }
-               return dr;
+               return log_dr;
+             };
+    }
+    if (name == "log_dr_nansafe") {
+      return [](const xAOD::Jet& j, const Tracks& t) {
+               const auto jp4 = j.p4();
+               std::vector<double> log_dr;
+               for (const auto& trk: t) {
+                 double dr = trk->p4().DeltaR(jp4) + 1E-7;
+                 log_dr.push_back(std::log( dr ) );
+               }
+               return log_dr;
              };
     }
     throw std::logic_error("no match for custom getter " + name);

@@ -303,7 +303,7 @@ namespace top {
                                    trig_sf_decor, trig_eff_decor);
         this->decorateTrigSFandEff(m_muonTriggerScaleFactorsLoose,
                                    m_systNominal, trigger_SF_muon,
-                                   trig_sf_loose_decor, trig_eff_decor);
+                                   trig_sf_loose_decor, trig_eff_loose_decor);
 
         // If we are running on the nominal tree, then do the
         // SF systematic variations too.

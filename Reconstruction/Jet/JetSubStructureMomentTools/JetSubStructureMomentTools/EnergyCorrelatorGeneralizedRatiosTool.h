@@ -21,8 +21,11 @@ class EnergyCorrelatorGeneralizedRatiosTool :
       int modifyJet(xAOD::Jet &jet) const;
 
     private:
+      bool m_doN3;
+      bool m_doLSeries;
       std::vector<float> m_betaVals;
       std::vector<float> betaVals; // Local vector for cleaned up inputs
+      bool m_doDichroic;
 
 };
 

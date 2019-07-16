@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -25,7 +25,6 @@ namespace CP
     , m_efficiencyCorrectionTool ("AsgElectronEfficiencyCorrectionTool", this)
   {
     declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the calibration and smearing tool we apply");
-    declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the electron efficiency");
   }
 
 
@@ -33,12 +32,11 @@ namespace CP
   StatusCode ElectronEfficiencyCorrectionAlg ::
   initialize ()
   {
-    if (m_efficiencyDecoration.empty())
+    if (m_scaleFactorDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiencyDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
     m_systematicsList.addHandle (m_electronHandle);
@@ -62,9 +60,11 @@ namespace CP
         {
           if (m_preselection.getBool (*electron))
           {
-            double eff = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, eff));
-            (*m_efficiencyAccessor) (*electron) = eff;
+            double sf = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
+            m_scaleFactorDecoration.set (*electron, sf, sys);
+          } else {
+            m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
           }
         }
         return StatusCode::SUCCESS;

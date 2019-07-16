@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ skimming
@@ -38,6 +38,11 @@
 #   2 additional muons with 2GeV<M_mumu<4GeV
 # reductionConf flag TOPQ5 in Reco_tf.py
 # Shares most settings with TOPQ1
+#
+# TOPQ6 (single top)
+#   >=1 electron(pT>20 GeV) OR
+#   >=1 muon(pT>20 GeV)
+# same as TOPQ1 but no thinning on tracks
 #================================
 # IMPORTS
 #================================
@@ -135,6 +140,8 @@ def setup_lep(TOPQname, ToolSvc):
     TOPQ_Selection_lep = "1" 
   elif TOPQname == 'TOPQ5':
     TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
+  elif TOPQname == 'TOPQ6':
+    TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
   else: 
     TOPQ_Selection_lep = "1"
     
@@ -179,6 +186,8 @@ def setup_jet(TOPQname, ToolSvc):
     # TOPQ_Selection_jet = "( (count("+akt4EMcalib_20+") >= 5) || (count("+largeR_200+") >= 2) )" # boosted_2jets
     # TOPQ_Selection_jet = "( (count("+akt4EMcalib_20+") >= 5) || (count("+largeR_200_masscut+") >= 1) )" # boosted_masscut
   elif TOPQname == 'TOPQ5':
+    TOPQ_Selection_jet = "1"
+  elif TOPQname == 'TOPQ6':
     TOPQ_Selection_jet = "1"
   else: 
     TOPQ_Selection_jet = "1"

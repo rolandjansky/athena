@@ -5,6 +5,7 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
+                                preselection = '',
                                 globalSF = True,
                                 runSelection = True ):
     """Create a jet JVT analysis algorithm sequence
@@ -12,7 +13,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
-      globalSF -- Wether to calculate per event efficiencies
+      globalSF -- Wether to calculate per event scale factors
       runSelection -- Wether to run selection
     """
 
@@ -20,7 +21,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         raise ValueError ("invalid data type: " + dataType)
 
     if runSelection and not globalSF :
-        raise ValueError ("per-event efficiency needs to be computed when doing a JVT selection")
+        raise ValueError ("per-event scale factors needs to be computed when doing a JVT selection")
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "JetJVTAnalysisSequence" )
@@ -32,25 +33,29 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
+        from JetAnalysisSequence import jvtSysts, fjvtSysts
+
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
-        alg.efficiency = 'jvt_efficiency'
-        alg.preselection = 'no_jvt'
+        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
+        alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
+        alg.scaleFactorInputDecorationRegex = jvtSysts
+        alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
+                    affectingSystematics = jvtSysts,
                     inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
-                    outputPropName = { 'jets' : 'particlesOut',
-                                       'eventInfo' : 'eventInfoOut' } )
+                                      'eventInfo' : 'eventInfo' } )
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-        alg.efficiency = 'fjvt_efficiency'
-        alg.preselection= 'no_fjvt'
+        alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
+        alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
+        alg.scaleFactorInputDecorationRegex = fjvtSysts
+        alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
         seq.append( alg,
+                    affectingSystematics = fjvtSysts,
                     inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
-                    outputPropName = { 'jets' : 'particlesOut',
-                                       'eventInfo' : 'eventInfoOut' } )
+                                      'eventInfo' : 'eventInfo' } )
 
 
     if runSelection:

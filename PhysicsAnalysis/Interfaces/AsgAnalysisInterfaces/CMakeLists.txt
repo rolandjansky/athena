@@ -7,6 +7,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODBase
    PhysicsAnalysis/AnalysisCommon/PATInterfaces )
 
 # External(s):
@@ -18,7 +19,7 @@ atlas_add_library( AsgAnalysisInterfaces
    INTERFACE
    PUBLIC_HEADERS AsgAnalysisInterfaces
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo PATInterfaces )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEventInfo PATInterfaces )
 
 atlas_add_dictionary( AsgAnalysisInterfacesDict
    AsgAnalysisInterfaces/AsgAnalysisInterfacesDict.h

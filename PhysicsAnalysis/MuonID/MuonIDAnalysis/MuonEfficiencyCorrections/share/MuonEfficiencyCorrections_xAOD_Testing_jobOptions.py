@@ -14,44 +14,61 @@ AssembleIO("MUONEFFTESTER")
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
 
+from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__CalibratedMuonsProvider, CP__MuonCalibrationPeriodTool
+toolName = "MuonCalibrationTool"
+calibTool = CP__MuonCalibrationPeriodTool(toolName)
+ToolSvc += calibTool
+
+theJob += CP__CalibratedMuonsProvider("CalibratedMuonsProvider",Tool=calibTool, prwTool = GetPRWTool(
+ #               PRWLumiCalcFiles = ["GoodRunsLists/data18_13TeV/20180830/physics_13TeV_lowmu_2018.lumicalc.OflLumi-13TeV-001.root"],
+ #               PRWMCConfigFiles = ["/ptmp/mpp/niko/TEMP/mc16_FULLSIM_r10244_NTUP_PILEUP.root"  ],
+))
+
+#ToolSvc.prwTool.PeriodAssignments = [ 304000, 348197,364485]
 # Add the test algorithm:
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
 alg.MuonSelectionTool = GetSelectionTool()
-alg.DefaultRelease="cSummer2018"
-alg.ValidationRelease="cWinter2019"
+alg.DefaultRelease="cFeb_2019"
+alg.ValidationRelease="cMay_2019"
+alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
-#alg.MinPt = 15000
-alg.MaxEta = 2.5
-
+alg.MinPt = 4000
+alg.MaxEta = 2.7
+#alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        "LowPt",
+      #  "LowPt",
         "Loose", 
         "Medium", 
-        "Tight", 
-        "HighPt",       
+       # "Tight", 
+     #   "HighPt",       
          # track-to-vertex-association WPs
-    #     "TTVA",
+         "TTVA",
          # BadMuon veto SFs
      #   "BadMuonVeto_HighPt",
         #"GradientIso",
          # isolation WPs
-      #  "FixedCutPflowTightIso",
-    #    "FixedCutPflowLooseIso",
-    #    "FixedCutHighPtTrackOnlyIso",
-    #    "FCTight_FixedRadIso",
-    #    "FCTightTrackOnly_FixedRadIso",
-    #    "FCTightTrackOnlyIso",
-    #    "FCTightIso",
-    #    "FCLoose_FixedRadIso",
+        "FCLooseIso",                    
+        "FCTight_FixedRadIso",
+        "FCLoose_FixedRadIso",           
+        "FixedCutHighPtTrackOnlyIso",
+        "FCTightIso",                    
+        "FixedCutPflowLooseIso",
+        "FCTightTrackOnlyIso",           
+        "FixedCutPflowTightIso",
+        "FCTightTrackOnly_FixedRadIso",
         ]
 
 for WP in WPs: 
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, #Release="190220_Winter_r21", 
-                                                  CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_coarsePtBinning/")]
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190312_Winter_r21", 
+                                                  #CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_coarsePtBinning/"
+                                                  )]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
+                                                #CustomInput = "/ptmp/mpp/niko/TEMP/"
+                                                Release = "190530_r21"
+                                              )]
   
 theJob += alg
 

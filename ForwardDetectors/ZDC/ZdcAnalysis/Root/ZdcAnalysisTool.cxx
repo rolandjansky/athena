@@ -271,10 +271,10 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 
     ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{70.00, 72.74, 73.09, 72.25},
                                                   {75.11, 74.94, 73.93, 74.45}
-                                                 }};
+                                                }};
     ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{70.00, 73.41, 74.27, 73.30},
                                                   {76.28, 76.07, 74.98, 76.54}
-                                                 }};
+                                                }};
 
     // Delta T0 cut
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};

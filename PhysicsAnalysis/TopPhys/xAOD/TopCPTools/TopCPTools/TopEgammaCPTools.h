@@ -21,6 +21,8 @@
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
+#include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
 namespace top {
 
@@ -48,7 +50,12 @@ class EgammaCPTools final : public asg::AsgTool {
   std::string m_electronEffSFIsoFile;
   std::string m_electronEffSFIsoLooseFile;
   std::string m_electronEffSFChargeIDFile;
+  std::string m_electronEffSFChargeIDLooseFile;
   std::string m_electronEffSFChargeMisIDFile;
+  std::string m_electronEffSFChargeMisIDLooseFile;
+  
+  std::string m_fwdElectronEffSFIDFile;
+  std::string m_fwdElectronEffSFIDLooseFile;
 
   ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibrationAndSmearingTool;
 
@@ -62,6 +69,7 @@ class EgammaCPTools final : public asg::AsgTool {
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIso;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLoose;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeID;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeIDLoose;
 
   ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_photonFudgeTool;
   ToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEffSF;
@@ -70,9 +78,15 @@ class EgammaCPTools final : public asg::AsgTool {
   ToolHandle<IAsgPhotonIsEMSelector> m_photonTightIsEMSelector;
   ToolHandle<IAsgPhotonIsEMSelector> m_photonMediumIsEMSelector;
   ToolHandle<IAsgPhotonIsEMSelector> m_photonLooseIsEMSelector;
-
-
-
+  
+  ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelector;
+  ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelectorLoose;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFID;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_fwdElectronEffSFIDLoose;
+  
+  ToolHandle<Trig::WebBunchCrossingTool> m_webBunchCrossingTool;
+  
+  StatusCode setupSelectors();
   StatusCode setupCalibration();
   StatusCode setupScaleFactors();
 
@@ -81,7 +95,7 @@ class EgammaCPTools final : public asg::AsgTool {
 
   // Helper function to deal with path resolving the
   // egamma groups very long file names for SFs and efficiencies.
-  std::string electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO);
+  std::string electronSFFilePath(const std::string& type, const std::string& ID, std::string ISO);
 
   // Helper for using maps from egamma groups
   IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type);

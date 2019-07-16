@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -25,7 +25,7 @@ namespace CP
     , m_efficiencyCorrectionsTool ("TauAnalysisTools::DiTauEfficiencyCorrectionsTool", this)
   {
     declareProperty ("efficiencyCorrectionsTool", m_efficiencyCorrectionsTool, "the calibration and smearing tool we apply");
-    declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the tau efficiency");
+    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the tau scale factor");
   }
 
 
@@ -33,12 +33,12 @@ namespace CP
   StatusCode DiTauEfficiencyCorrectionsAlg ::
   initialize ()
   {
-    if (m_efficiencyDecoration.empty())
+    if (m_scaleFactorDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiencyDecoration);
+    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
     m_systematicsList.addHandle (m_tauHandle);
@@ -62,9 +62,9 @@ namespace CP
         {
           if (m_preselection.getBool (*tau))
           {
-            double eff = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, eff));
-            (*m_efficiencyAccessor) (*tau) = eff;
+            double sf = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
+            (*m_scaleFactorAccessor) (*tau) = sf;
           }
         }
         return StatusCode::SUCCESS;

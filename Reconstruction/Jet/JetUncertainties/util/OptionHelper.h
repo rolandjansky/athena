@@ -12,6 +12,7 @@
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 namespace jet
 {
@@ -69,6 +70,7 @@ class OptionHelper : public asg::AsgMessaging
         TString GetCompositionName()   const;
         int  GetNjetFlavour()       const { checkInit(); return m_nJetFlavour;       }
         int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;        }
+        FatjetTruthLabel::TypeEnum FixedFatjetTruthLabel() const {checkInit(); return m_fatjetTruthLabel; }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -124,6 +126,7 @@ class OptionHelper : public asg::AsgMessaging
         TString m_composition;
         int     m_nJetFlavour;
         int     m_truthLabel;
+        FatjetTruthLabel::TypeEnum m_fatjetTruthLabel;
         bool    m_isDijet; // legacy support
 
         bool    m_onlyCompare;
@@ -189,6 +192,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_composition("")
     , m_nJetFlavour(-1)
     , m_truthLabel(0)
+    , m_fatjetTruthLabel(FatjetTruthLabel::UNKNOWN)
     , m_isDijet(false)
 
     , m_onlyCompare(false)
@@ -265,6 +269,15 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_composition    = getOptionValueWithDefault(options,"Composition",m_composition);
     m_nJetFlavour    = getOptionValueWithDefault(options,"NjetFlavour",m_nJetFlavour);
     m_truthLabel     = getOptionValueWithDefault(options,"TruthLabel",m_truthLabel);
+    TString fatjetTruthLabelStr = getOptionValue(options,"FatjetTruthLabel");
+    if (fatjetTruthLabelStr != "")
+    {
+        m_fatjetTruthLabel = FatjetTruthLabel::stringToEnum(fatjetTruthLabelStr);
+        if (m_fatjetTruthLabel == FatjetTruthLabel::UNKNOWN)
+        {
+            ATH_MSG_WARNING("FatjetTruthLabel is UNKNOWN value, skipping usage: " << fatjetTruthLabelStr.Data());
+        }
+    }
     m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
     if (m_isDijet)
     {

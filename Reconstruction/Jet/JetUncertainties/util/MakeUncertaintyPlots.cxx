@@ -663,7 +663,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018") || release.BeginsWith("rel21_Summer2018") || release.BeginsWith("rel21_Fall2018"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018") || release.BeginsWith("rel21_Summer2018") || release.BeginsWith("rel21_Fall2018") || release.BeginsWith("rel21_Spring2019"))
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies
@@ -973,6 +973,13 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         {
             jet->setAttribute("PartonTruthLabelID",optHelper.FixedTruthLabel());
             std::cout << "Fixed PartonTruthLabelID to " << optHelper.FixedTruthLabel() << std::endl;
+        }
+
+        // Fix the fatjet truth label if relevant
+        if (optHelper.FixedFatjetTruthLabel() != FatjetTruthLabel::UNKNOWN)
+        {
+            jet->setAttribute("FatjetTruthLabel",FatjetTruthLabel::enumToInt(optHelper.FixedFatjetTruthLabel()));
+            std::cout << "Fixed FatjetTruthLabel" << std::endl;
         }
         
         // One totalHist per provider

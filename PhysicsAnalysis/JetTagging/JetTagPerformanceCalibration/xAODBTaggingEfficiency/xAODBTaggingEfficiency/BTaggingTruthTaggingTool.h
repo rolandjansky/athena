@@ -94,7 +94,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   StatusCode CalculateResults( std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw, Analysis::TruthTagResults& results,int rand_seed = -1);
   StatusCode CalculateResults( const xAOD::JetContainer& jets, Analysis::TruthTagResults& results,int rand_seed = -1);
   StatusCode setEffMapIndex(const std::string& flavour, unsigned int index);
-
+  void setUseSystematics(bool useSystematics);
 
   virtual  ~BTaggingTruthTaggingTool();
 
@@ -158,7 +158,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   int GAFinalHadronFlavourLabel(const xAOD::Jet& jet);
   int ConeFinalPartonFlavourLabel (const xAOD::Jet& jet);
   int ExclusiveConeHadronFlavourLabel (const xAOD::Jet& jet);
-
+  std::vector<std::string> split(const std::string& str, char token);
   //*********************************//
   // Prop. of BTaggingEfficiencyTool //
   //*********************************//
@@ -195,6 +195,8 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   std::string m_taggerName;
   /// operating point
   std::string m_OP;
+  /// operating point when running in Continuous
+  std::string m_cutBenchmark;
   ///  jet collection name
   std::string m_jetAuthor;
   /// systematics model to be used (current choices are "SFEigen" and "Envelope")
@@ -205,8 +207,11 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   bool m_coneFlavourLabel;
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
-  // bool m_excludeJESFromEV; // commented out in the trunk of BTaggingEfficiencyTool
-
+  /// in case of continuous WP you can choose to ignore some of the eigenvectors
+  std::string m_excludeEV;
+  ///possibility to compute the direct tagging SFs map directly from the TruthTaggingTool
+  // member is unused, please remove if not needed:
+  //   bool m_doDirectTag;
 
   //*********************************//
   // Prop. of BTaggingSelectionTool  //
@@ -221,6 +226,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   bool m_ignoreSF;
   bool m_usePerm;
   bool m_useQuntile;
+  bool m_continuous;
   bool m_useSys;
   int m_nbtag;
 

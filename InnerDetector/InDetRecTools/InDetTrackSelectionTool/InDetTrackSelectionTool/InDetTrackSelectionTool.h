@@ -84,15 +84,11 @@ namespace InDet {
     
     /// @}
 
-    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true ) override
-      __attribute__ ((deprecated("For consistency with the athena interface, the cut level is best set through the \"CutLevel\" property.")));
-
   private:
     bool m_isInitialized = false; // flag whether or not the tool has been initialized, to check erroneous use cases.
     mutable bool m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
 
-    // this is the setCutLevel function that actually does the work, so that it doesn't warn if called in athena.
-    void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
+    void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true );
 
     std::unordered_map< std::string, std::shared_ptr<TrackAccessor> > m_trackAccessors; //!< list of the accessors that need to be run for each track
 

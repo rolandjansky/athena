@@ -288,8 +288,13 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed to reconstruct sec vtx" << endmsg;
     }
 
-    // Tag jet 
-    sc = m_bTagTool->tagJet(jet, trigBTagging, primaryVertex);
+    // Tag jet
+    // WARNING - this code is not use in 21.2
+    // The jet name container is hard coded here
+    // DonÂt sweep this code to 21.0 without tests
+    // Never sweep this code to 22
+    std::string jetName = "HLT_xAOD__JetContainer_" + m_jetKey;
+    sc = m_bTagTool->tagJet(jet, trigBTagging, jetName, primaryVertex);
     if(sc.isFailure()) {
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }

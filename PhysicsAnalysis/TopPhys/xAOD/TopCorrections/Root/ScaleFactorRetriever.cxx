@@ -234,6 +234,48 @@ namespace top {
     return sf;
   }
 
+// Obtain the electron SF
+  float ScaleFactorRetriever::fwdElectronSF(const top::Event& event,
+                                         const top::topSFSyst SFSyst,
+                                         const top::topSFComp SFComp) const {
+    
+    float sf(1.);
+
+    std::string fwdElectronID = m_config->fwdElectronID();
+    if (event.m_isLoose)
+    {
+		fwdElectronID = m_config->fwdElectronIDLoose();
+    }
+
+    float reco(1.);
+    float id(1.);
+    float isol(1.);
+    float chargeid(1.);
+    float chargemisid(1.);
+
+    // Loop over electrons
+    for (auto elPtr : event.m_fwdElectrons) {
+      //currently on ID SFs are supported for fwd electrons  
+      id *= fwdElectronSF_ID(*elPtr , fwdElectronID , SFSyst);
+    }
+
+    sf = reco * id * isol; 
+
+    if (SFComp == top::topSFComp::RECO)
+      return reco;
+    else if (SFComp == top::topSFComp::ID)
+      return id;
+    else if (SFComp == top::topSFComp::ISOLATION)
+      return isol;
+    else if (SFComp == top::topSFComp::CHARGEID)
+      return chargeid;
+    else if (SFComp == top::topSFComp::CHARGEMISID)
+      return chargemisid;
+    else if (SFComp == top::topSFComp::ALL)
+      return sf;
+
+    return sf;
+  }
 
 
   float ScaleFactorRetriever::electronSF_Trigger(const xAOD::Electron& x,
@@ -330,6 +372,14 @@ namespace top {
     return electronSF_ID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst);
 
   }
+  
+  float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
+                                            const top::topSFSyst SFSyst,
+                                            bool isLoose) const {
+
+    return fwdElectronSF_ID(x, (isLoose ? m_config->fwdElectronIDLoose() : m_config->fwdElectronID()), SFSyst);
+
+  }
 
 
   float ScaleFactorRetriever::electronSF_ID(const xAOD::Electron& x,
@@ -349,6 +399,31 @@ namespace top {
     if (SFSyst == top::topSFSyst::EL_SF_ID_DOWN) {
       if (x.isAvailable<float>("EL_SF_ID_"+id+"_DOWN")) {
         sf = x.auxdataConst<float>("EL_SF_ID_"+id+"_DOWN");
+      }
+    }
+
+    return sf;
+  }
+  
+  float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
+                                            const std::string& id,
+                                            const top::topSFSyst SFSyst) const {
+												
+
+    float sf(1.);
+    if (x.isAvailable<float>("FWDEL_SF_ID_"+id)) {
+      sf = x.auxdataConst<float>("FWDEL_SF_ID_"+id);
+    }
+
+    if (SFSyst == top::topSFSyst::FWDEL_SF_ID_UP) {
+      if (x.isAvailable<float>("FWDEL_SF_ID_"+id+"_UP")) {
+        sf = x.auxdataConst<float>("FWDEL_SF_ID_"+id+"_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::FWDEL_SF_ID_DOWN) {
+      if (x.isAvailable<float>("FWDEL_SF_ID_"+id+"_DOWN")) {
+        sf = x.auxdataConst<float>("FWDEL_SF_ID_"+id+"_DOWN");
       }
     }
 
@@ -1021,24 +1096,14 @@ namespace top {
     if (x.isAvailable<float>("PH_SF_Iso_" + iso)) {
       sf = x.auxdataConst<float>("PH_SF_Iso_"+iso);
     }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_UP) {
-      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_LOWPT_UP")) {
-	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_LOWPT_UP");
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_UP) {
+      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_UP")) {
+	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_UP");
       }
     }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_DOWN) {
-      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_LOWPT_DOWN")) {
-	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_LOWPT_DOWN");
-      }
-    }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_UP) {
-      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_TRK_UP")) {
-	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_TRK_UP");
-      }
-    }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_DOWN) {
-      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_TRK_DOWN")) {
-	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_TRK_DOWN");
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_DOWN) {
+      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_DOWN")) {
+	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_DOWN");
       }
     }
     return sf;

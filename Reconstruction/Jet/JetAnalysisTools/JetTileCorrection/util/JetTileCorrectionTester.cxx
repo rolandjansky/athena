@@ -69,9 +69,9 @@ int main( int argc, char* argv[] )
   const char* APP_NAME = argv[ 0 ];
 
   // Check if we received a file name
-  if(argc < 2) {
-    Error( APP_NAME, "No file name received!" );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [num events]", APP_NAME );
+  if(argc < 3) {
+    Error( APP_NAME, "No file name and/or isMC flag received!" );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [isMC flag] [num events]", APP_NAME );
     return 1;
   }
 
@@ -92,10 +92,13 @@ int main( int argc, char* argv[] )
   Info(APP_NAME, "Number of events in the file: %i",
        static_cast<int>(event.getEntries()));
 
+  // check if it's MC or Data
+  int isMC = atoi(argv[2]);
+
   // Decide how many events to run over
   Long64_t entries = event.getEntries();
-  if(argc > 2) {
-    const Long64_t e = atoll(argv[2]);
+  if(argc > 3) {
+    const Long64_t e = atoll(argv[3]);
     entries = std::min(e, entries);
   }
 
@@ -105,6 +108,7 @@ int main( int argc, char* argv[] )
   
   //Set properties if needed
   CHECK( tool_jtc.setProperty("CorrectionFileName", "JetTileCorrection/JetTile_pFile_010216.root") ); //default anyway
+  CHECK( tool_jtc.setProperty("isMC",isMC) );
   // std::vector<std::string> dead_modules = {"1 04","1 05","1 06","1 07","1 08","1 09",
   // 					   "2 04","2 05","2 06","2 07","2 08","2 09"  }; // LBA/C5-10 :  NOT REAL SCENARIO !! just trying to get some magnified effect for testing! 
   // CHECK( tool_jtc.setProperty("UserMaskedRegions", dead_modules));

@@ -17,7 +17,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Physics )
+find_package( ROOT COMPONENTS Core Physics GenVector)
 
 # Component(s) in the package:
 atlas_add_library( xAODPFlow

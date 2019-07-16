@@ -20,6 +20,7 @@ namespace xAOD{
 
     AUX_VARIABLE( goodPhotons );
     AUX_VARIABLE( goodElectrons );
+    AUX_VARIABLE( goodFwdElectrons );
     AUX_VARIABLE( goodMuons );
     AUX_VARIABLE( goodTaus );
     AUX_VARIABLE( goodJets );
@@ -38,6 +39,7 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( SystematicEvent , char , isLooseEvent , setIsLooseEvent )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodPhotons , setGoodPhotons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodElectrons , setGoodElectrons )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodFwdElectrons , setGoodFwdElectrons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodMuons , setGoodMuons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodTaus , setGoodTaus )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodJets , setGoodJets )

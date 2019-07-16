@@ -6,6 +6,7 @@
 #define JETUNCERTAINTIES_CONFIGHELPER_H
 
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 #include "AsgTools/AsgMessaging.h"
 
@@ -45,6 +46,10 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
+        TString FatjetTruthLabelStr;
+        TString FatjetTruthLabelForSFstr;
+        TString RegionForSFstr;
+	TString ResultName;
 
         // Derived values to parse from the raw values
         CompParametrization::TypeEnum parametrization;
@@ -59,6 +64,10 @@ class ComponentHelper
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;
+        std::vector<TString> FatjetTruthLabelStrs;
+        std::vector<FatjetTruthLabel::TypeEnum> FatjetTruthLabels;
+	CompFlavorLabelVar::TypeEnum FatjetTruthLabelForSF;
+	CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 
 class GroupHelper

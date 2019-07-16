@@ -95,16 +95,30 @@ namespace TestMuonSF {
     CP::CorrectionCode MuonSFBranches::fill(const xAOD::Muon& muon) {
         for (auto& Syst_SF : m_SFs) {
             if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+                Error("MuonSFBranches()", "Failed to apply variation %s for %s", Syst_SF.first.name().c_str(), name().c_str());
                 return CP::CorrectionCode::Error;
             }
             CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-
+            if (cc != CP::CorrectionCode::Ok) {
+                Error("MuonSFBranches()", "Failed to retrieve %s scale-factor for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }
+            /// No data-mc efficiencies provided for eta beyond 2.5
+            if (std::fabs(muon.eta()) > 2.5) {
+                Syst_SF.second.data_eff = -1;
+                Syst_SF.second.mc_eff = -1;
+                continue;
+            }
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
-
+            if (cc != CP::CorrectionCode::Ok) {
+                 Error("MuonSFBranches()", "Failed to retrieve %s data efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }
             cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (cc != CP::CorrectionCode::Ok) {
+                Error("MuonSFBranches()", "Failed to retrieve %s mc efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }
         }
         return CP::CorrectionCode::Ok;
     }
@@ -274,7 +288,7 @@ namespace TestMuonSF {
     }
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::Muon& mu) {
         for (auto& br : m_Branches) {
-            if (br->fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (br->fill(mu) == CP::CorrectionCode::Error) {return CP::CorrectionCode::Error;}
         }
         return CP::CorrectionCode::Ok;
     }

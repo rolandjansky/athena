@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackCaloClusterRecTools/ParticleToCaloExtrapolationTool.h"
@@ -185,7 +185,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::caloExtension( const Trk::T
 
   // pointers to hold results and go
   std::vector<const Trk::TrackStateOnSurface*>* material = 0;//new std::vector<const Trk::TrackStateOnSurface*>();
-  const auto* caloParameters = m_extrapolator->extrapolate( startPars, propDir, particleType, material, 3 ); 
+  const auto* caloParameters = m_extrapolator->extrapolate( startPars, propDir, particleType, material, 1 ); // last parameter is the "destination" interpreted as a GeometrySignature (1=include ID, 3=include clo)
   if( material ) {
     ATH_MSG_DEBUG("Got material " << material->size() );
     for( auto& m : *material ) {

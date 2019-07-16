@@ -108,6 +108,10 @@ class FilePeekerTool():
         peeked_data['lumi_block'] = list(esic.lumiBlockNumbers(esi))
         peeked_data['run_number'] = list(esic.runNumbers(esi))
         peeked_data['stream_names'] = list(esic.processingTags(esi))
+        peeked_data['file_comp_alg'] = self.f.GetCompressionAlgorithm()
+        peeked_data['file_comp_level'] = self.f.GetCompressionLevel()
+        if self.f.GetListOfKeys().Contains('CollectionTree'):
+            peeked_data['auto_flush'] = self.f.Get('CollectionTree').GetAutoFlush()
 
         item_list = list( (cgen.getNameFromClid(i.first), i.second) for i in esic.itemList(esi))
         #reorder items to match that of StoreGate

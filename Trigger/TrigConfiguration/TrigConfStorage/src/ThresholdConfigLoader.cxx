@@ -175,7 +175,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
             if (tt != 0) {
                // trigger thresholds sorted by type
-               thrConfig.addTriggerThreshold(tt);
+               thrConfig.addTriggerThreshold(tt, /*bool respectRun2Limits =*/ false);
                tt = new TriggerThreshold();
                numberofvalues = 0;
             } else {
@@ -290,7 +290,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       }
 
       // trigger thresholds sorted by type
-      thrConfig.addTriggerThreshold(tt);
+      thrConfig.addTriggerThreshold(tt, /*bool respectRun2Limits =*/ false);
 
       //===========================================
       // now get the Thresholds WITHOUT trigger threshold values
@@ -363,7 +363,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             if (tt != 0) {
                //tt->setNumberofValues(numberofvalues);
                // trigger thresholds sorted by type
-               thrConfig.addTriggerThreshold(tt);
+               thrConfig.addTriggerThreshold(tt, /*bool respectRun2Limits =*/ false);
                tt = new TriggerThreshold();
                numberofvalues = 0;
             } else {

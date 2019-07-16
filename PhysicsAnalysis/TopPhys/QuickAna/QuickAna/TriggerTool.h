@@ -153,9 +153,11 @@ namespace ana
       Only2015,
       Only2016,
       Only2017,
+      Only2018,
       Only2015_2016,
       Only2016_2017,
-      Only2015_2016_2017
+      Only2015_2016_2017,
+      Only2016_2017_2018
     };
 
   protected:
@@ -193,6 +195,7 @@ namespace ana
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2015;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2016;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2017;
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2018;
     // Electron trigger scale factor
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_sf;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_eff;

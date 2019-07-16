@@ -75,13 +75,6 @@ namespace InDet {
 					 const Trk::Vertex* vertex = 0 ) const = 0;
 #endif
 
-    /// Set the selection to a pre-defined standard set of cuts
-    // This function should not be public in Athena, as the cut level should be 
-    //   set in the job options. Allow it for now, so as to not break compatibility
-    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true )
-      __attribute__ ((deprecated("The cut level should be set in the job options through the \"CutLevel\" property.")))
-      = 0;
-
   }; // class IInDetTrackSelectionTool
 
 } // namespace InDet

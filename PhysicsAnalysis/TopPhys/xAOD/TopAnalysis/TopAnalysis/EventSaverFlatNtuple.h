@@ -272,12 +272,20 @@ private:
     //Store output PDF weights from LHAPDF
     std::unordered_map<std::string, std::vector<float> > m_PDF_eventWeights;
 
+    // Store boosted jet tagger names
+    std::vector<std::string> m_boostedJetTaggersNames;
+
     //some event weights
     float m_weight_mc;
     float m_weight_pileup;
     ///-- Pileup SF systematics --///
     float m_weight_pileup_UP;
     float m_weight_pileup_DOWN;
+    ///---Fwd electrons --///
+    float m_weight_fwdElSF;
+    float m_weight_fwdElSF_FWDEL_SF_ID_UP;
+    float m_weight_fwdElSF_FWDEL_SF_ID_DOWN;
+    
     ///-- Lepton SF --///
     float m_weight_leptonSF;
     ///-- Lepton SF - electron SF systematics --///
@@ -417,12 +425,8 @@ private:
     float m_weight_photonSF_ID_UP = 0.;
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso = 0.;
-    float m_weight_photonSF_effLowPtIso_UP = 0.;
-    float m_weight_photonSF_effLowPtIso_DOWN = 0.;
-    float m_weight_photonSF_effTrkIso_UP = 0.;
-    float m_weight_photonSF_effTrkIso_DOWN = 0.;
-    float m_weight_photonSF_isoDDonoff_UP = 0.;
-    float m_weight_photonSF_isoDDonoff_DOWN = 0.;
+    float m_weight_photonSF_effIso_UP = 0.;
+    float m_weight_photonSF_effIso_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;
@@ -463,6 +467,10 @@ private:
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
     /// m_fakesMM_weights[selection][configuration]
     std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
+    int m_ASMsize;
+    std::vector<float> m_ASMweights;
+    std::vector<std::vector<float> > m_ASMweights_Syst;
+    std::vector<std::vector<std::string> > m_ASMweights_Systname;
 
     /// Weights for bootstrapping
     std::vector<int> m_weight_poisson;
@@ -507,6 +515,16 @@ private:
     std::vector<char>  m_el_true_isChargeFl;
     std::vector<char>  m_el_ECIDS;
     std::vector<double>  m_el_ECIDSResult;
+    
+    //forward electrons
+    std::vector<float> m_fwdel_pt;
+    std::vector<float> m_fwdel_eta;
+    std::vector<float> m_fwdel_phi;
+    std::vector<float> m_fwdel_e;
+    std::vector<float> m_fwdel_etcone20;
+    std::vector<float> m_fwdel_etcone30;
+    std::vector<float> m_fwdel_etcone40; 
+    std::vector<char>  m_fwdel_isTight;   
 
     //muons
     std::vector<float> m_mu_pt;
@@ -588,6 +606,25 @@ private:
     std::vector<float> m_jet_DL1rmu_pu;
     std::vector<float> m_jet_DL1rmu_pc;
     std::vector<float> m_jet_DL1rmu_pb;
+    
+    // fail-JVT jets
+    std::vector<float> m_failJvt_jet_pt;
+    std::vector<float> m_failJvt_jet_eta;
+    std::vector<float> m_failJvt_jet_phi;
+    std::vector<float> m_failJvt_jet_e;
+    std::vector<float> m_failJvt_jet_jvt;
+    std::vector<char> m_failJvt_jet_passfjvt;
+    std::vector<int>   m_failJvt_jet_truthflav;
+    std::vector<int>   m_failJvt_jet_truthPartonLabel;
+    std::vector<char>  m_failJvt_jet_isTrueHS;
+    std::vector<int>   m_failJvt_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_pt;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_eta;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_phi;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_qOverP;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -607,6 +644,8 @@ private:
     std::vector<char> m_ljet_isWTagged_50;
     std::vector<char> m_ljet_isZTagged_80;
     std::vector<char> m_ljet_isZTagged_50;
+    
+    std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1078,12 +1117,8 @@ protected:
   const float& weight_photonSF_ID_UP () const { return m_weight_photonSF_ID_UP ;}
   const float& weight_photonSF_ID_DOWN () const { return m_weight_photonSF_ID_DOWN ;}
   const float& weight_photonSF_effIso () const { return m_weight_photonSF_effIso ;}
-  const float& weight_photonSF_effLowPtIso_UP () const { return m_weight_photonSF_effLowPtIso_UP ;}
-  const float& weight_photonSF_effLowPtIso_DOWN () const { return m_weight_photonSF_effLowPtIso_DOWN ;}
-  const float& weight_photonSF_effTrkIso_UP () const { return m_weight_photonSF_effTrkIso_UP ;}
-  const float& weight_photonSF_effTrkIso_DOWN () const { return m_weight_photonSF_effTrkIso_DOWN ;}
-  const float& weight_photonSF_isoDDonoff_UP () const { return m_weight_photonSF_isoDDonoff_UP ;}
-  const float& weight_photonSF_isoDDonoff_DOWN () const { return m_weight_photonSF_isoDDonoff_DOWN ;}
+  const float& weight_photonSF_effIso_UP () const { return m_weight_photonSF_effIso_UP ;}
+  const float& weight_photonSF_effIso_DOWN () const { return m_weight_photonSF_effIso_DOWN ;}
 
   // nominal b-tagging SF [WP]
   const std::unordered_map<std::string, float>& weight_bTagSF() const { return m_weight_bTagSF;}
@@ -1161,6 +1196,15 @@ protected:
   const std::vector<int>& el_true_firstEgMotherPdgId() const { return m_el_true_firstEgMotherPdgId;}
   const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
   const std::vector<char>& el_true_isChargeFl() const { return m_el_true_isChargeFl;}
+  
+  //forward electrons
+  const std::vector<float>& fwdel_pt() const { return m_fwdel_pt;}
+  const std::vector<float>& fwdel_eta() const { return m_fwdel_eta;}
+  const std::vector<float>& fwdel_phi() const { return m_fwdel_phi;}
+  const std::vector<float>& fwdel_e() const { return m_fwdel_e;}
+  const std::vector<float>& fwdel_etcone20() const { return m_fwdel_etcone20;}
+  const std::vector<float>& fwdel_etcone30() const { return m_fwdel_etcone30;}
+  const std::vector<float>& fwdel_etcone40() const { return m_fwdel_etcone40;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -1213,6 +1257,18 @@ protected:
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
+  
+  // fail-JVT jets
+  const std::vector<float>& failJvt_jet_pt() const { return m_failJvt_jet_pt;}
+  const std::vector<float>& failJvt_jet_eta() const { return m_failJvt_jet_eta;}
+  const std::vector<float>& failJvt_jet_phi() const { return m_failJvt_jet_phi;}
+  const std::vector<float>& failJvt_jet_e() const { return m_failJvt_jet_e;}
+  const std::vector<float>& failJvt_jet_jvt() const { return m_failJvt_jet_jvt;}
+  const std::vector<char>& failJvt_jet_passfjvt() const { return m_failJvt_jet_passfjvt;}
+  const std::vector<int>& failJvt_jet_truthflav() const { return m_failJvt_jet_truthflav;}
+  const std::vector<int>& failJvt_jet_truthPartonLabel() const { return m_failJvt_jet_truthPartonLabel;}
+  const std::vector<char>& failJvt_jet_isTrueHS() const { return m_failJvt_jet_isTrueHS;}
+  const std::vector<int>& failJvt_jet_truthflavExtended() const { return m_failJvt_jet_HadronConeExclExtendedTruthLabelID;}
 
   //large-R jets
   const std::vector<float>& ljet_pt() const { return m_ljet_pt;}
@@ -1227,6 +1283,9 @@ protected:
   const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
   const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
   const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+  
+  const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() const { return m_ljet_isTagged;}
+  const std::vector<char>& ljet_isTagged(const std::string& taggerName) { return m_ljet_isTagged[taggerName];}
 
   //track jets
   const std::vector<float>& tjet_pt() const { return m_tjet_pt;}
@@ -1472,6 +1531,8 @@ protected:
   // Prompt lepton definition for event saver
   std::pair<bool, bool> isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge);
   bool isPromptMuon(int type, int origin);
+
+  int filterBranches(const top::TreeManager*, const std::string& variable);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

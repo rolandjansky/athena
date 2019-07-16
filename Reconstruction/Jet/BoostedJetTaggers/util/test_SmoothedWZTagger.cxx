@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -35,8 +35,7 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
-
-using namespace std;
+#include "JetUncertainties/JetUncertaintiesTool.h"
 
 int main( int argc, char* argv[] ) {
 
@@ -44,9 +43,11 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.deriv.DAOD_JETM6.e3749_s3126_r9364_r9315_p3260/DAOD_JETM6.12133401._000005.pool.root.1";
+  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
+  int  m_DSID=361028;
   int  ievent=-1;
   int  nevents=-1;
+  bool m_IsMC=true;
   bool verbose=false;
 
 
@@ -56,6 +57,8 @@ int main( int argc, char* argv[] ) {
   Info( APP_NAME, " $> %s -f X  | Run on xAOD file X", APP_NAME );
   Info( APP_NAME, " $> %s -n X  | X = number of events you want to run on", APP_NAME );
   Info( APP_NAME, " $> %s -e X  | X = specific number of the event to run on - for debugging", APP_NAME );
+  Info( APP_NAME, " $> %s -d X  | X = dataset ID", APP_NAME );
+  Info( APP_NAME, " $> %s -m X  | X = isMC", APP_NAME );
   Info( APP_NAME, " $> %s -v    | run in verbose mode   ", APP_NAME );
   Info( APP_NAME, "==============================================" );
 
@@ -68,14 +71,14 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////
   //:::  parse the options
   ////////////////////////////////////////////////////
-  string options;
+  std::string options;
   for( int i=0; i<argc; i++){
     options+=(argv[i]);
   }
 
-  if(options.find("-f")!=string::npos){
+  if(options.find("-f")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-f")==0){
+      if(std::string(argv[ipos]).compare("-f")==0){
         fileName = argv[ipos+1];
         Info( APP_NAME, "Argument (-f) : Running on file # %s", fileName.Data() );
         break;
@@ -83,9 +86,9 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-event")!=string::npos){
+  if(options.find("-event")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-event")==0){
+      if(std::string(argv[ipos]).compare("-event")==0){
         ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", ievent );
         break;
@@ -93,9 +96,29 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-n")!=string::npos){
+  if(options.find("-d")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-n")==0){
+      if(std::string(argv[ipos]).compare("-d")==0){
+        m_DSID = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-d) : DSID = %i", m_DSID );
+        break;
+      }
+    }
+  }
+  
+  if(options.find("-m")!=std::string::npos){
+    for( int ipos=0; ipos<argc ; ipos++ ) {
+      if(std::string(argv[ipos]).compare("-m")==0){
+        m_IsMC = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_IsMC );
+        break;
+      }
+    }
+  }
+
+  if(options.find("-n")!=std::string::npos){
+    for( int ipos=0; ipos<argc ; ipos++ ) {
+      if(std::string(argv[ipos]).compare("-n")==0){
         nevents = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-n) : Running on NEvents = %i", nevents );
         break;
@@ -103,7 +126,7 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-v")!=string::npos){
+  if(options.find("-v")!=std::string::npos){
     verbose=true;
     Info( APP_NAME, "Argument (-v) : Setting verbose");
   }
@@ -133,11 +156,34 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  TFile* outputFile = TFile::Open( "output_SmoothedWZTagger.root", "recreate" );
-  int pass;
+  std::unique_ptr<TFile> outputFile(TFile::Open("output_SmoothedWZTagger.root", "recreate"));
+  int pass,truthLabel;
+  float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
+  Tree->Branch( "sf", &sf, "sf/F" );
+  Tree->Branch( "pt", &pt, "pt/F" );
+  Tree->Branch( "m", &m, "m/F" );
+  Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
+  
+  std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
+  m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20");
+  m_jetUncToolSF->setProperty("Path", "/eos/atlas/user/t/tnobe/temp/JetUncertainties/TakuyaTag/");
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/TagSFUncert_SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var.config");
+  m_jetUncToolSF->setProperty("MCType", "MC16a");
+  m_jetUncToolSF->initialize();
 
+  std::vector<std::string> pulls = {"__1down", "__1up"};
+  CP::SystematicSet jetUnc_sysSet = m_jetUncToolSF->recommendedSystematics();
+  const std::set<std::string> sysNames = jetUnc_sysSet.getBaseNames();
+  std::vector<CP::SystematicSet> m_jetUnc_sysSets;
+  for (std::string sysName: sysNames) {
+    for (std::string pull : pulls) {
+      std::string sysPulled = sysName + pull;
+      m_jetUnc_sysSets.push_back(CP::SystematicSet(sysPulled));
+    }
+  }
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
   ////////////////////////////////////////////
@@ -152,7 +198,10 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat");
+  m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/SmoothedWZTaggers/Rel21/");
+  m_Tagger.setProperty( "ConfigFile",   "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190525.dat");
+  m_Tagger.setProperty( "DSID", m_DSID );
+  m_Tagger.setProperty( "IsMC", m_IsMC );
   m_Tagger.retrieve();
 
   ////////////////////////////////////////////////////
@@ -176,21 +225,48 @@ int main( int argc, char* argv[] ) {
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
+    //if( event.retrieve( myJets, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
       continue ;
 
     // Loop over jet container
-    for(const xAOD::Jet* jet : * myJets ){
+    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *myJets );
+    std::unique_ptr<xAOD::JetContainer> shallowJets(jets_shallowCopy.first);
+    std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(jets_shallowCopy.second);
+    for( xAOD::Jet* jetSC : *shallowJets ){
 
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
-      const Root::TAccept& res = m_Tagger->tag( *jet );
+      const Root::TAccept& res = m_Tagger->tag( *jetSC );
+      if(verbose) std::cout<<"jet pt              = "<<jetSC->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"result d2pass       = "<<res.getCutResult("PassD2")<<std::endl;
+      if(verbose) std::cout<<"result ntrkpass     = "<<res.getCutResult("PassNtrk")<<std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
+      truthLabel = jetSC->auxdata<int>("FatjetTruthLabel");
 
       pass = res;
+      sf = jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF");
+      pt = jetSC->pt();
+      m  = jetSC->m();
+      eta = jetSC->eta();
 
       Tree->Fill();
+
+      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ){
+	bool validForUncTool = (pt >= 200e3 && pt < 2500e3);
+	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
+	validForUncTool &= (fabs(eta) < 2);
+	if( validForUncTool ){
+	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb, 2: W->qq, 3: Z->qq, etc.)" << std::endl;
+	  std::cout << "passMass? " << (res.getCutResult("PassMassHigh") && res.getCutResult("PassMassLow")) << " passD2? " << res.getCutResult("PassD2") << std::endl;
+	  for ( CP::SystematicSet sysSet : m_jetUnc_sysSets ){
+	    m_Tagger->tag( *jetSC );
+	    m_jetUncToolSF->applySystematicVariation(sysSet);
+	    m_jetUncToolSF->applyCorrection(*jetSC);
+	    std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
+	  }
+	}
+      }
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );

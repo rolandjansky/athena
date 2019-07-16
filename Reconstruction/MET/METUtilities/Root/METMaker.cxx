@@ -155,10 +155,10 @@ namespace met {
 
     //default jet selection i.e. pre-recommendation - 
     ATH_MSG_INFO("Use jet selection criterion: " << m_jetSelection << " PFlow: " <<m_doPFlow);
-    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
-    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
-    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
-    else if (m_jetSelection == "Tighter"){ m_CenJetPtCut = 20e3; m_FwdJetPtCut = 35e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.5; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.5; m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.5; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tighter"){ m_CenJetPtCut = 20e3; m_FwdJetPtCut = 35e3; if(m_doPFlow){ m_JvtCut = 0.5; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tenacious")  { 
       m_CenJetPtCut  = 20e3; m_FwdJetPtCut = 35e3;
       m_JvtCutTight  = 0.91; m_JvtTightPtMax  = 40.0e3;
@@ -338,13 +338,24 @@ namespace met {
         if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
 	if(assocs.empty()) {
-	    ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
-	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
+          std::string message = "Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration? " 
+                                "If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h";
+          float pt_threshold = 7.0e3; // Avoid warnings for leptons with pT below threshold for association map
+          if (orig->pt()>pt_threshold) {
+              ATH_MSG_WARNING(message);
+          } else {
+              ATH_MSG_DEBUG(message);
+          }
 	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
 	  if(orig->type()==xAOD::Type::Electron){
 	    uniqueLinks.emplace_back( iplink_t(objkey,obj->index()) );
 	    uniqueWeights.emplace_back( 0. );
-	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
+            message = "Missing an electron from the MET map. Included as a track in the soft term. pT: " + std::to_string(obj->pt());         
+            if (orig->pt()>pt_threshold) {
+                ATH_MSG_WARNING(message);
+            } else {
+                ATH_MSG_DEBUG(message);
+            }
 	    continue;
 	  }else{
 	    ATH_MSG_ERROR("Missing an object: " << orig->type() << " pT: " << obj->pt() << " may be duplicated in the soft term.");

@@ -33,6 +33,7 @@ namespace xAOD {
     declareProperty("SimpleIsolation",            m_simpleIsolation = false);
     declareProperty("UseTTVAtool",                m_useTTVAtool = false);
     declareProperty("OverlapCone",                m_overlapCone2 = 0.1); // will be squared later
+    declareProperty("CoreTrackEtaRange",          m_coreTrackEtaRange = 0);
     declareProperty("TrackSelectionTool",         m_trkselTool );
     declareProperty("TrackVertexAssociationTool", m_ttvaTool );
   }
@@ -305,7 +306,7 @@ namespace xAOD {
   {
     // check if track pointer matches the one of input or one of the exclusion set
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
-      if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
+      if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2) && (!m_coreTrackEtaRange || fabs(input.particle->eta()-tp2.eta())<m_coreTrackEtaRange))){
 	ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
 	result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
 	return;

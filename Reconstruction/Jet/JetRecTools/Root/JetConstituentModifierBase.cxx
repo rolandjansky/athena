@@ -92,7 +92,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(obj);
       if( tcc->taste() != 0) {
         if(weightAcc) (*weightAcc)(*tcc) = pt / tcc->pt();
-        tcc->setParameters(pt, tcc->eta(), tcc->phi(), tcc->m(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->caloClusterLinks());
+        tcc->setParameters(pt, tcc->eta(), tcc->phi(), tcc->m(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->iparticleLinks());
       }
     }
     break;
@@ -105,7 +105,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
 }
 
 StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4,
-					     const SG::AuxElement::Accessor<float>* weightAcc) const {
+                                             const SG::AuxElement::Accessor<float>* weightAcc) const {
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
     {
@@ -134,7 +134,7 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(obj);
       if( tcc->taste() != 0) {
 	      if(weightAcc) (*weightAcc)(*tcc) = tcc->pt() > FLT_MIN ? p4.pt() / tcc->pt() : 0.;
-        tcc->setParameters(p4.pt(), p4.eta(), p4.phi(), p4.mass(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->caloClusterLinks());
+        tcc->setParameters(p4.pt(), p4.eta(), p4.phi(), p4.mass(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->iparticleLinks());
       }
       break;
     }

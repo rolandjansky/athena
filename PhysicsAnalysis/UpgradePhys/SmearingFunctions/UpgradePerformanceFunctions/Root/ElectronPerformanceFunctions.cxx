@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPERFORMANCEFUNCTIONS_CXX
@@ -23,15 +23,6 @@ float UpgradePerformanceFunctions::getElectronEfficiency(float ptMeV, float eta)
 //*********************************************************************
 //---- Get the electron ID efficiency
 {
-
-  //---- old code
-  //   if (m_eleCutLevel==looseElectron) {
-  //     return 0.97 - 0.103*exp(1.-ptGeV/15.0);
-  //   } else if (m_eleCutLevel==tightElectron) {
-  //     return 0.85 - 0.191*exp(1.-ptGeV/20.0);
-  //   }
-  //   std::cout << "getElectronEfficiency: Invalid working point." << std::endl;
-  //   return 0.0;
 
   float ptGeV = ptMeV / 1000.;
 
@@ -86,14 +77,6 @@ float UpgradePerformanceFunctions::getElectronEfficiency(float ptMeV, float eta)
 
   float efficiency = 1.;
   efficiency = interpolateElectronIDMap(mapToUse, ptGeV, eta);
-
-  // HGTD hack to improve Electron ID/ISO efficiency
-  if (m_bUseHGTD0 || m_bUseHGTD1) {
-    if (fabs(eta) > 2.4 && fabs(eta) < 3.6)
-      efficiency = 1.2 * efficiency;
-  }
-
-
 
   if (efficiency > 1.0) efficiency = 1.0;
 
@@ -155,16 +138,6 @@ float UpgradePerformanceFunctions::getElectronFakeRate(float ptMeV, float eta)
 {
   //---- returns the probability to find a fake electron in a true jet
   //----  pt and eta passed as arguments are the one of the true jet.
-
-
-  //----- old code
-  //   if (m_eleCutLevel==looseElectron) {
-  //     return 0.11*exp(-0.033*ptGeV);
-  //   } else if (m_eleCutLevel==tightElectron) {
-  //     return 0.0048*exp(-0.035*ptGeV);
-  //   }
-  //   std::cout << "getElectronFakeRate: Invalid working point." << std::endl;
-  //   return 0.0;
 
   float ptGeV = ptMeV / 1000.;
 

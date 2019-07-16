@@ -10,7 +10,9 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
+from DerivationFrameworkHI.HIAugmentationTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIRecExample.HIRecExampleFlags import jobproperties
 
 #====================================================================
 #Read and set conditions
@@ -36,15 +38,21 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HION8Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=4000 #in MeV
 JetThinningThreshold={}
+
+#Book DF jets only if they are in xAOD or they are made in AODFix
+BookDFJetCollection = (jobproperties.HIRecExampleFlags.doHIAODFix or HasCollection("DFAntiKt4HI"))
+MainJetCollection = ""
+if BookDFJetCollection : MainJetCollection = "DF"
+
 #Trigger selection
 expression=''
 if not HIDerivationFlags.isSimulation():    
     TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
     for i, key in enumerate(TriggerDict):
 	    #Event selection based on DF jets for HI
-	    expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    expression = expression + '(' + key + ' && count(' + MainJetCollection + 'AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    #Event selection based also on non-DF jets for pp
-	    if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP and BookDFJetCollection: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    if not i == len(TriggerDict) - 1:
 		    expression = expression + ' || ' 
 	    
@@ -77,7 +85,7 @@ for t in skimmingTools : ToolSvc+=t
 #########Thinning#########
 
 thinningTools=[]
-thinningTools.append(addJetClusterThinningTool('DFAntiKt4HIJets',DerivationName,30))
+thinningTools.append(addJetClusterThinningTool(MainJetCollection+'AntiKt4HIJets',DerivationName,30))
 #track thinning
 #Original: 
 #thinningTools.append(addTrackThinningToolTight(DerivationName,TrackThinningThreshold))
@@ -102,8 +110,8 @@ ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
 CollectionList=[]
-CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
-if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
+CollectionList=[MainJetCollection + 'AntiKt2HIJets',MainJetCollection + 'AntiKt4HIJets','AntiKt2HIJets_Seed1']
+if HIDerivationFlags.isPP() and BookDFJetCollection :CollectionList.extend(['AntiKt2HIJets','AntiKt4HIJets']) 
 
 #Jet thinning only on PbPb HP streams
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
@@ -158,7 +166,10 @@ SlimmingHelper.ExtraVariables=ExtraVars
 for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)
 
 
-augToolList=[]
+###############Augmentation#############
+HIGlobalAugmentationTool = addHIGlobalAugmentationTool(DerivationName,3,500)
+augToolList=[HIGlobalAugmentationTool]
+
 #########Kernel#########
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("%sKernel" % DerivationName,

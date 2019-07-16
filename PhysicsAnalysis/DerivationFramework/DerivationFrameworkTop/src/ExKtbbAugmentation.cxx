@@ -21,8 +21,8 @@ ExKtbbAugmentation::ExKtbbAugmentation(const std::string& t, const std::string& 
 
     declareProperty("EventInfoName",m_eventInfoName="EventInfo");
     declareProperty("LargeJetRadius",m_radius=0.8);
-    declareProperty("LargeJetCollectionName",m_largeJetCollectionName="AntiKt8EMTopoJets");
-    declareProperty("SmallJetCollectionName",m_smallJetCollectionName="AntiKt4EMTopoJets");
+    declareProperty("LargeJetCollectionName",m_largeJetCollectionName="AntiKt8EMPFlowJets");
+    declareProperty("SmallJetCollectionName",m_smallJetCollectionName="AntiKt4EMPFlowJets");
     declareProperty("isMC",m_isMC=false);
 }
 

@@ -3269,6 +3269,47 @@ function JER_August2018 \
 }
 
 
+function JER_Fall_2018_Compare \
+{
+    scaleVar="FourVecResAbs"
+    jetdef="EMTopo"
+    jetDefinition="AntiKt4${jetdef};AntiKt4${jetdef};AntiKt4${jetdef}"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2018/R4_GlobalReduction_SimpleJER.config;rel21/Fall2018/R4_GlobalReduction_FullJER.config;rel21/Fall2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Fall2018-${MCtype}-Compare-${jetdef}.pdf"
+    compList="JER#@JER#@JER#"
+    compLabels="Total JER uncertainty, ${jetdef}, 7NP@Total JER uncertainty, ${jetdef}, 12NP@Total JER uncertainty, ${jetdef}, All NP"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false"
+}
+
+function JER_Fall_2018_Nominal \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2018/R4_GlobalReduction_SimpleJER.config;rel21/Summer2018/R4_GlobalReduction_SimpleJER.config"
+    outFile="JER-Fall2018-${MCtype}-Nominal.pdf"
+    compList="NOMINALRESMC;NOMINALRESDATA@NOMINALRESMC;NOMINALRESDATA"
+    compLabels="Nominal MC JER, EMTopo;Nominal data JER, EMTopo@Nominal MC JER, EMPFlow;Nominal data JER,EMPFlow"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false;axisMax=0.4"
+}
+
+function JER_Fall2018 \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Fall2018-${MCtype}-Recommendations.pdf"
+    compList="JER_DataVsMC_#;JER_N_#;JER_dijet_c#,JER_dijet_j#,JER_dijet_m#,JER_dijet_p#;JER_dijet_stat#"
+    compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics);Dijet #it{in situ} JER (statistics)"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40;scaleVar=${scaleVar};IsData=false;axisMax=0.05"
+}
+
+
 
 
 

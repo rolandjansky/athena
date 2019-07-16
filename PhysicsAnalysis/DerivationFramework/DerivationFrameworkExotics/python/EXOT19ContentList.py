@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 EXOT19Content = []
 
@@ -20,8 +20,11 @@ EXOT19SmartCollections = [
     "Electrons",
     "Muons",
     "MET_Reference_AntiKt4EMTopo",
+    "MET_Reference_AntiKt4EMPFlow",
     "BTagging_AntiKt4EMTopo",
+    "BTagging_AntiKt4EMPFlow",
     "AntiKt4EMTopoJets",
+    "AntiKt4EMPFlowJets",
     "PrimaryVertices",
     "InDetTrackParticles"
 ]

@@ -20,7 +20,8 @@ namespace CP {
     JSSTaggerBase( name ),
     m_name(name),
     m_APP_NAME(APP_NAME),
-    m_BDTmethod("BDT_method")
+    m_BDTmethod("BDT_method"),
+    m_trkSelectionTool(name+"_trackselectiontool", this)
     {
 
       declareProperty( "ConfigFile",   m_configFile="");
@@ -31,6 +32,7 @@ namespace CP {
 
       declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/JetQGTaggerBDT/Oct18/");
       declareProperty( "TMVAConfigFile", m_tmvaConfigFileName="TMVAClassification_BDTQGTagger_Oct18_BDT.weights.xml");
+      declareProperty( "UseJetVars",   m_mode = 1); // 0 uses the tracks. 1 uses variables from the jets (default)
 
 
   }
@@ -45,7 +47,6 @@ namespace CP {
 
     // initialize decorators as decorationName+_decorator
     ATH_MSG_INFO( "Decorators that will be attached to jet :" );
-
 
     if( ! m_configFile.empty() ) {
       ATH_MSG_INFO( "Using config file : "<< m_configFile );
@@ -211,11 +212,58 @@ namespace CP {
     ATH_MSG_DEBUG(TString::Format("pT: %g, eta: %g",m_pt,m_eta) );
 
     m_undefInput = false;
-    bool undefNTracks = false;
-    bool undefTrackWidth = false;
+    m_ntracks = -1.;
+    m_trackwidth = -1.;
+    m_trackC1 = -1.;
 
-    const xAOD::Vertex* primvertex {nullptr};
+    if(m_mode == 1){
+      getPrecomputedVariables(jet);
+    }else if(m_mode == 0){
+      calculateVariables(jet);
+    }
+
+    if(m_undefInput){
+      ATH_MSG_ERROR("Can't determine QG tagging variables! Try different mode.");
+    }
+    return;
+  }
+
+  void JetQGTaggerBDT::getPrecomputedVariables(const xAOD::Jet& jet) const{
+    int ntrk = -1;
+    float trkWidth = -1.;
+    float trkC1 = -1.;
+
+    if(!jet.getAttribute<int>("DFCommonJets_QGTagger_NTracks", ntrk)){
+      ATH_MSG_WARNING("Unable to retrieve DFCommonJets_QGTagger_NTracks");
+      m_accept.setCutResult("ValidEventContent", false);
+      m_undefInput = true;
+    }
+    if(!jet.getAttribute<float>("DFCommonJets_QGTagger_TracksWidth", trkWidth)){
+      ATH_MSG_WARNING("Unable to retrieve DFCommonJets_QGTagger_TracksWidth");
+      m_accept.setCutResult("ValidEventContent", false);
+      m_undefInput = true;
+    }
+    if(!jet.getAttribute<float>("DFCommonJets_QGTagger_TracksC1", trkC1)){
+      ATH_MSG_WARNING("Unable to retrieve DFCommonJets_QGTagger_TracksC1");
+      m_accept.setCutResult("ValidEventContent", false);
+      m_undefInput = true;
+    }
+
+    m_ntracks = (float) ntrk;
+    m_trackwidth = trkWidth;
+    m_trackC1 = trkC1;
+
+    return;
+  }
+
+  void JetQGTaggerBDT::calculateVariables(const xAOD::Jet& jet) const{
+    //calculate q/g tagging variables from GhostTracks associated to jet
+    //some derivations apply slimming to these tracks, which would lead to wrong values.
+    //so we compare the number of GhostTracks to NumTrkPt500 (i.e. nTracks)
+    //      if they are "close enough" we can proceed
+
     bool isValid = true;
+    const xAOD::Vertex* primvertex {nullptr};
 
     const xAOD::VertexContainer* vxCont = 0;
     if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
@@ -239,8 +287,10 @@ namespace CP {
     }
     if(!primvertex) isValid = false;
 
-    if (!isValid)
+    if (!isValid){
+      m_undefInput = true;
       return;
+    }
 
     //NTracks
     std::vector<int> nTrkVec;
@@ -249,15 +299,18 @@ namespace CP {
       m_ntracks = (float) nTrkVec[primvertex->index()];
     }
     else
-      undefNTracks = true;
+      //if NumTrkPt500 is not available, I can't confirm that the number of GhostTracks is correct (i.e. unslimmed)
+      m_undefInput = true;
 
     //TrackWidth
+    bool undefTrackWidth = false;
     std::vector<float> trkWidthVec;
     if(jet.getAttribute(xAOD::JetAttribute::TrackWidthPt500, trkWidthVec)){
       ATH_MSG_DEBUG(trkWidthVec.size());
       m_trackwidth = trkWidthVec[primvertex->index()];
     }
     else
+      //if TrackWidthPt500 is not available, we can maybe calculate it from tracks
       undefTrackWidth = true;
     float weightedwidth = 0.;
 
@@ -288,6 +341,11 @@ namespace CP {
       }
     }
 
+    if(! isCorrectNumberOfTracks(m_ntracks,trackParttmp.size())){
+      ATH_MSG_ERROR("Number of ghost associated tracks wrong!");
+      m_undefInput = true;
+    }
+
     //calculate TrackC1 (and TrackWidth if necessary)
     for(unsigned i=0; i<trackParttmp.size(); i++){
       double ipt = trackParttmp.at(i)->pt();
@@ -309,15 +367,29 @@ namespace CP {
       }
     }
 
-    if(undefNTracks)
-      m_ntracks = trackParttmp.size();
     if(undefTrackWidth)
       m_trackwidth = sumPt>0 ? weightedwidth/sumPt : -0.1;
     m_trackC1 = sumPt>0 ? weightedwidth2/(sumPt*sumPt) : -0.1;
 
-    //    ATH_MSG_DEBUG(TString::Format("n_trk: %g, w_trk: %g, C_1,trk: %g, pT: %g, eta: %g",m_ntracks,m_trackwidth,m_trackC1,m_pt,m_eta) );
-
     return;
+  }
+
+  bool JetQGTaggerBDT::isCorrectNumberOfTracks(int expectedNTracks, int nTracksFromGhostTracks) const{
+    //some derivations do not store all tracks associated to the jet.
+    //In this case the calculation of the tagging variables will be wrong.
+    //The requirements are fairly loose, because a few tracks may get lost in the derivation production.
+    //But it will fail quickly if the too many tracks were slimmed away.
+    if(nTracksFromGhostTracks == 0){
+      if(expectedNTracks == 0)
+        return true;
+      if(abs(expectedNTracks-nTracksFromGhostTracks) < 3)
+        return true;
+      else
+        return false;
+    }else if(expectedNTracks/nTracksFromGhostTracks < 0.5 && abs(expectedNTracks-nTracksFromGhostTracks) > 5){
+      return false;
+    }
+    return true;
   }
 
 } /* namespace CP */

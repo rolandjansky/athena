@@ -53,10 +53,16 @@ namespace CP {
       // Retrieve BDT score
       float getScore(const xAOD::Jet& jet) const;
 
+    private:
+
       // Update the jet substructure variables for each jet to use in BDT
       void getJetProperties(const xAOD::Jet& jet) const;
 
-    private:
+      void getPrecomputedVariables(const xAOD::Jet& jet) const;
+
+      void calculateVariables(const xAOD::Jet& jet) const;
+
+      bool isCorrectNumberOfTracks(int expectedNTracks, int nTracksFromGhostTracks) const;
 
       // naming of tool
       std::string m_name;
@@ -64,8 +70,6 @@ namespace CP {
 
       // TMVA tools
       std::unique_ptr<TMVA::Reader> m_bdtTagger;
-      std::map<std::string,std::string> m_bdt_weights;
-      std::string m_inputVariableSet;
       std::string m_BDTmethod;
 
       asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
@@ -91,8 +95,7 @@ namespace CP {
       // bool to check whether variables are undefined
       mutable  bool m_undefInput;
 
-      // string for decorating jets with DNN output
-      std::string m_decorationName;
+      int m_mode;
 
   };
 

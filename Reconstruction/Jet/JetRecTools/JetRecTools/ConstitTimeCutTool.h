@@ -1,3 +1,6 @@
+/*
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 #ifndef JETRECTOOLS_CONSTITTIMECUTTOOL_H
 #define JETRECTOOLS_CONSTITTIMECUTTOOL_H
 
@@ -34,7 +37,6 @@ class ConstitTimeCutTool : public JetConstituentModifierBase{
   float m_timeCutSmallQ; 
   float m_etaMax;
 		
-  bool m_ignoreChargedPFOs;
 };
 
 

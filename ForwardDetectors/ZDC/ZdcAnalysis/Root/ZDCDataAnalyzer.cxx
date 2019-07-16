@@ -22,12 +22,12 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, int nSamp
   m_currentLB(-1),
   m_moduleMask(0),
   m_moduleSum( {{0, 0}}),
-m_moduleSumErrSq({{0, 0}}),
-m_moduleSumPreSample({{0, 0}}),
-m_calibModuleSum({{0, 0}}),
-m_calibModuleSumErrSq({{0, 0}}),
-m_averageTime({{0, 0}}),
-m_fail({{false, false}})
+  m_moduleSumErrSq({{0, 0}}),
+  m_moduleSumPreSample({{0, 0}}),
+  m_calibModuleSum({{0, 0}}),
+  m_calibModuleSumErrSq({{0, 0}}),
+  m_averageTime({{0, 0}}),
+  m_fail({{false, false}})
 {
   m_moduleDisabled[0] = {{false, false, false, false}};
   m_moduleDisabled[1] = {{false, false, false, false}};

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ slimming
@@ -53,19 +53,23 @@ def setup(TOPQname, stream):
   # for jets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
   # for TOPQDERIV-62
-  if TOPQname == 'TOPQ1':
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
-  
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
+
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-  # trimmed jets
-  if TOPQname == 'TOPQ1':
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
+
   # see TOPQDERIV70
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+
+  # Xbb tagger extra variables
+  if TOPQname == 'TOPQ1':
+    from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+    TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
@@ -115,9 +119,7 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
-    if TOPQname == 'TOPQ1':
-      TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth
-    
+
   # add these trigger variables to all MC and data (TOPQ4 only)
   if DFisMC or TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
@@ -135,9 +137,10 @@ def setup(TOPQname, stream):
   if DFisMC:
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthDressedWZJets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TruthJets
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents  
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles  
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthVertices
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_Truth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_TruthRegions
@@ -149,9 +152,9 @@ def setup(TOPQname, stream):
   #================================
   TOPQSlimmingHelper.StaticContent = []
   TOPQSlimmingHelper.StaticContent += TOPQStaticContent
-  
+
   # for TOPQDERIV-69
-  if TOPQname == 'TOPQ1':
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
 
   if DFisMC:
@@ -179,20 +182,19 @@ def setup(TOPQname, stream):
   #====================================
   # ADD AntiKT4EMPFlowJets MET OUTPUT
   #===================================
-  # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/METCommon.py#L28    
+  # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/METCommon.py#L28
   # needs to be after where AllVariables[] and StaticContent[] are created
   # adds METAssoc_XXXX, MET_Core_XXXX, and MET_Reference_XXXX
   # uses DerivationFrameworkJetEtMiss.METCommon.py
   addMETOutputs(TOPQSlimmingHelper, [TOPQname], ["AntiKt4EMTopo","AntiKt4EMPFlow"])
 
   #=======================
-  # ADD CUSTOM JET OUTPUT 
+  # ADD CUSTOM JET OUTPUT
   #=======================
-  addJetOutputs(TOPQSlimmingHelper,[TOPQname], 
+  addJetOutputs(TOPQSlimmingHelper,[TOPQname],
                 ["AntiKt4EMTopoJets", # smart list
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
@@ -200,6 +202,7 @@ def setup(TOPQname, stream):
                  "AntiKt4LCTopoJets",
                  "AntiKt10LCTopoJets",
                  "AntiKt10LCTopoCSSKJets",
+                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )

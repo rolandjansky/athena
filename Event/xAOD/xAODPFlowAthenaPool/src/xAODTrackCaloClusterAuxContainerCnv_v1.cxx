@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
+// $Id$
+       
 // System include(s):
 #include <stdexcept>
        
@@ -38,7 +39,7 @@ persToTrans(  const xAOD::TrackCaloClusterAuxContainer_v1* oldObj,
               MsgStream& log ) {
        
   // Greet the user:
-  ATH_MSG( "Converting xAOD::TrackCaloClusterAuxContainer_v1 to current version..." );
+  ATH_MSG( "Converting xAOD::TrackCaloClusterAuxContainer_v1 to current version... "<< oldObj->size() );
        
   // Clear the transient object:
   newObj->resize( 0 );
@@ -47,9 +48,9 @@ persToTrans(  const xAOD::TrackCaloClusterAuxContainer_v1* oldObj,
   // the thinning code a bit...
   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
 
+  
   // Set up interface containers on top of them:
-       
-  //The old  uses v_
+  //The old  uses v_1
   xAOD::TrackCaloClusterContainer_v1 oldInt;
   for( size_t i = 0; i < oldObj->size(); ++i ) {
     oldInt.push_back( new xAOD::TrackCaloCluster_v1() );
@@ -61,8 +62,21 @@ persToTrans(  const xAOD::TrackCaloClusterAuxContainer_v1* oldObj,
     newInt.push_back( new xAOD::TrackCaloCluster() );
   }
   newInt.setStore( newObj );
-    
-         
+
+  // Next convert links to cluster to links to IParticle
+  static  SG::AuxElement::Accessor< std::vector<ElementLink< xAOD::IParticleContainer > > > ipartAccessor("iparticleLinks");
+  static SG::AuxElement::ConstAccessor< std::vector<ElementLink< xAOD::CaloClusterContainer > > > clustAccessor("caloClusterLinks");
+
+  // loop over each TCC :
+  for( size_t i = 0; i < oldInt.size(); ++i ) {
+    std::vector<ElementLink< xAOD::IParticleContainer > > & ipVect = ipartAccessor(*newInt[i]);
+    const std::vector<ElementLink< xAOD::CaloClusterContainer > > & clVect = clustAccessor(*oldInt[i]);
+
+    // copy all old EL<cluster> to EL<iparticles> :
+    ipVect.clear(); ipVect.reserve(clVect.size());
+    for( auto & clustEL : clVect ) ipVect.push_back(clustEL);
+  }
+
   // Print what happened:
   ATH_MSG( "Converting xAOD::TrackCaloClusterAuxContainer_v1 to current version [OK]" );
        

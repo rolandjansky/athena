@@ -26,6 +26,7 @@ namespace CP {
                 m_second_release_name("Second"),                
                 m_pt_cut(-1),
                 m_eta_cut(-1),
+                m_muon_quality(xAOD::Muon::Loose),
                 m_evNumber(0) {
         declareProperty("SGKey", m_sgKey = "Muons");
         // prepare the handle
@@ -40,6 +41,7 @@ namespace CP {
 
         declareProperty("MinPt", m_pt_cut);
         declareProperty("MaxEta", m_eta_cut);
+        declareProperty("MinQuality", m_muon_quality);
         
         // force strict checking of return codes
         CP::SystematicCode::enableFailure();
@@ -94,13 +96,15 @@ namespace CP {
         //Apply the prwTool first before calling the efficiency correction methods
         ATH_CHECK(m_prw_Tool->apply(*ei));
         m_evNumber = ei->eventNumber();
-
+        
         for (const auto& mu : *muons) {
             if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
             // reject all loose muons
-            if (m_sel_tool->getQuality(*mu) > xAOD::Muon::Loose) continue;
-            if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
-            if (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
+            if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;
+            if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok || (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok)) {
+                ATH_MSG_FATAL("Failed to fill muon with pt: "<<mu->pt()/1.e3<<" GeV eta: "<<mu->eta()<<" phi: "<<mu->phi());
+                return StatusCode::FAILURE;
+            }
             m_test_helper->fillTree();
         }
         // Return gracefully:

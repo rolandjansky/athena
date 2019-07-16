@@ -56,31 +56,38 @@ namespace top{
 
       StatusCode executePhotons(bool);
       StatusCode executeElectrons(bool);
+      StatusCode executeFwdElectrons(bool);
 
       StatusCode printoutPhotons();
       StatusCode printoutElectrons();
+      StatusCode printoutFwdElectrons();
 
       // return specific Systematic
       inline virtual const std::list<CP::SystematicSet>& specifiedSystematicsPhotons() const {return m_specifiedSystematicsPhotons;}
       inline virtual const std::list<CP::SystematicSet>& specifiedSystematicsElectrons() const {return m_specifiedSystematicsElectrons;}
+      inline virtual const std::list<CP::SystematicSet>& specifiedSystematicsFwdElectrons() const {return m_specifiedSystematicsFwdElectrons;}
   
       // return all recommendedSystematics
       inline const std::list<CP::SystematicSet>& recommendedSystematicsPhotons() const {return m_recommendedSystematicsPhotons;}
       inline const std::list<CP::SystematicSet>& recommendedSystematicsElectrons() const {return m_recommendedSystematicsElectrons;}
+      inline const std::list<CP::SystematicSet>& recommendedSystematicsFwdElectrons() const {return m_recommendedSystematicsFwdElectrons;}
 
     protected:
       // specify Systematic
       virtual void specifiedSystematicsPhotons  ( const std::set<std::string>& specifiedSystematics );
       virtual void specifiedSystematicsElectrons( const std::set<std::string>& specifiedSystematics );
+      virtual void specifiedSystematicsFwdElectrons( const std::set<std::string>& specifiedSystematics );
 
     private:
       std::shared_ptr<top::TopConfig> m_config;
 
       std::list<CP::SystematicSet> m_specifiedSystematicsPhotons;
       std::list<CP::SystematicSet> m_specifiedSystematicsElectrons;
+      std::list<CP::SystematicSet> m_specifiedSystematicsFwdElectrons;
 
       std::list<CP::SystematicSet> m_recommendedSystematicsPhotons;
       std::list<CP::SystematicSet> m_recommendedSystematicsElectrons;
+      std::list<CP::SystematicSet> m_recommendedSystematicsFwdElectrons;
 
       ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_calibrationTool;
       ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_photonFudgeTool;
@@ -103,6 +110,7 @@ namespace top{
 
       // Flag for applying calibration to objects
       bool calibrateElectrons;
+      bool calibrateFwdElectrons;
       bool calibratePhotons;
 
       // Flag for recomputing CP vars

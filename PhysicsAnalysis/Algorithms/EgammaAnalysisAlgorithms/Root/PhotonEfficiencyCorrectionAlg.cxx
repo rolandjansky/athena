@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -25,7 +25,7 @@ namespace CP
     , m_efficiencyCorrectionTool ("AsgPhotonEfficiencyCorrectionTool", this)
   {
     declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the calibration and smearing tool we apply");
-    declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the photon efficiency");
+    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the photon scale factor");
   }
 
 
@@ -33,12 +33,12 @@ namespace CP
   StatusCode PhotonEfficiencyCorrectionAlg ::
   initialize ()
   {
-    if (m_efficiencyDecoration.empty())
+    if (m_scaleFactorDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiencyDecoration);
+    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
     m_systematicsList.addHandle (m_photonHandle);
@@ -62,9 +62,9 @@ namespace CP
         {
           if (m_preselection.getBool (*photon))
           {
-            double eff = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, eff));
-            (*m_efficiencyAccessor) (*photon) = eff;
+            double sf = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
+            (*m_scaleFactorAccessor) (*photon) = sf;
           }
         }
         return StatusCode::SUCCESS;

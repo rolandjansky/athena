@@ -19,7 +19,7 @@ namespace CP
 {
   SelectionAccessorBits ::
   SelectionAccessorBits (const std::string& name)
-    : m_accessor (name), m_constAccessor (name)
+    : m_accessor (name), m_constAccessor (name), m_label(name)
   {}
 
 
@@ -57,5 +57,13 @@ namespace CP
       m_accessor (element) = selectionAccept();
     else
       m_accessor (element) = selectionAccept() ^ 0x1;
+  }
+
+
+
+  std::string SelectionAccessorBits ::
+  label () const
+  {
+    return m_label;
   }
 }

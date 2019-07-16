@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -33,6 +33,8 @@ namespace DerivationFramework {
                        "StoreGate key of the tau container to use" );
       declareProperty( "TauTracksKey", m_tracksSGKey,
                        "StoreGate key of the tau tracks container" );
+      declareProperty( "IDTracksKey", m_IDtracksSGKey,
+                       "StoreGate key of the associated ID track particle container" );
       declareProperty( "SelectionString", m_selectionString,
                        "Selection string for the e/gamma objects" );
       declareProperty( "ApplyAnd", m_and,
@@ -59,7 +61,11 @@ namespace DerivationFramework {
                     << m_tauSGKey << " will be retained in this format with "
                                      "the rest being thinned away" );
 
-      // Set up the text-parsing machinery for selectiong the taus directly
+      if(!m_IDtracksSGKey.empty())
+	ATH_MSG_INFO( "Associated ID track particles collection " << m_IDtracksSGKey
+		      << " will be thinned accordingly" );
+      
+      // Set up the text-parsing machinery for selecting the taus directly
       // according to user cuts
       if( m_selectionString != "" ) {
          m_parser.reset( new ExpressionParserHelper( evtStore() ) );
@@ -140,11 +146,7 @@ namespace DerivationFramework {
 	// Get all the associated charged track particles:	
 	std::vector<const xAOD::TauTrack *> allTracks = tau->allTracks();
 	for(const xAOD::TauTrack *track : allTracks){
-	  for(unsigned int i=0;i<nTracks;i++){
-	    double dR = importedTrackParticles->at(i)->p4().DeltaR(track->p4());
-	    if(dR<0.0001)
-	      mask.at( i ) = true;
-	  }
+	  mask.at( track->index() ) = true;
 	}
       }
 
@@ -159,7 +161,27 @@ namespace DerivationFramework {
       const IThinningSvc::Operator::Type opType =
 	( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );
       ATH_CHECK( m_thinningSvc->filter( *importedTrackParticles, mask, opType ) );
-      
+
+
+      // Associated ID track particle thinning
+      if(!m_IDtracksSGKey.empty()) {
+	
+	const xAOD::TrackParticleContainer* importedIDTrackParticles = nullptr;
+	ATH_CHECK( evtStore()->retrieve( importedIDTrackParticles, m_IDtracksSGKey ) );
+	
+	const size_t nIDTracks = importedIDTrackParticles->size();
+	std::vector< bool > maskID( nIDTracks, false );
+	
+	for( const xAOD::TauJet* tau : tauToCheck ) {
+	  std::vector<const xAOD::TauTrack *> allTracks = tau->allTracks();
+	  for(const xAOD::TauTrack *track : allTracks) {
+	    maskID.at(track->track()->index()) = true;
+	  }
+	}
+	// Warning: use the same Or/And setting as for tau tracks
+	ATH_CHECK( m_thinningSvc->filter( *importedIDTrackParticles, maskID, opType ) );
+      }
+
       // Return gracefully:
       return StatusCode::SUCCESS;
    }

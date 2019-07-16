@@ -26,6 +26,7 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
   m_config(nullptr),
 
   m_electronSelection(nullptr),
+  m_fwdElectronSelection(nullptr),
   m_muonSelection(nullptr),
   m_tauSelection(nullptr),
   m_jetSelection(nullptr),
@@ -99,18 +100,13 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
   
   // boosted tagging stuff
   if (m_config->useLargeRJets()) {
-    m_topTag50 = ToolHandle<SmoothedTopTagger>("topTag50");
-    top::check( m_topTag50.retrieve(), "Failed to retrieve 50% top-tagging tool" );
-    m_topTag80 = ToolHandle<SmoothedTopTagger>("topTag80");
-    top::check( m_topTag80.retrieve(), "Failed to retrieve 80% top-tagging tool" );
-    m_WTag50 = ToolHandle<SmoothedWZTagger>("WTag50");
-    top::check( m_WTag50.retrieve(), "Failed to retrieve 50% W-tagging tool" );
-    m_WTag80 = ToolHandle<SmoothedWZTagger>("WTag80");
-    top::check( m_WTag80.retrieve(), "Failed to retrieve 80% W-tagging tool" );
-    m_ZTag50 = ToolHandle<SmoothedWZTagger>("ZTag50");
-    top::check( m_ZTag50.retrieve(), "Failed to retrieve 50% Z-tagging tool" );
-    m_ZTag80 = ToolHandle<SmoothedWZTagger>("ZTag80");
-    top::check( m_ZTag80.retrieve(), "Failed to retrieve 80% Z-tagging tool" );
+    
+    for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
+      std::string fullName=name.first+"_"+name.second;
+      m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+      top::check(m_boostedJetTaggers[fullName].retrieve(),"Failed to retrieve "+fullName);
+    }
+    
   }
   
   return StatusCode::SUCCESS;  
@@ -120,6 +116,10 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
 
 void TopObjectSelection::electronSelection(ElectronSelectionBase* ptr) {
     m_electronSelection.reset(ptr);
+}
+
+void TopObjectSelection::fwdElectronSelection(FwdElectronSelectionBase* ptr) {
+    m_fwdElectronSelection.reset(ptr);
 }
 
 void TopObjectSelection::muonSelection(MuonSelectionBase* ptr) {
@@ -172,6 +172,7 @@ void TopObjectSelection::applySelectionPreOverlapRemoval()
   //  (3) Apply object selection to the modified jets
   
   if( m_config->useElectrons()  ){applySelectionPreOverlapRemovalElectrons()  ;}
+  if( m_config->useFwdElectrons()  ){applySelectionPreOverlapRemovalFwdElectrons()  ;}
   
   if (m_config->applyElectronInJetSubtraction()) {
     top::check( m_electronInJetSubtractor->execute(m_executeNominal) , "Failed to execute top::ElectronInJetSubtractionCollectionMaker" );
@@ -232,6 +233,44 @@ void TopObjectSelection::applySelectionPreOverlapRemovalElectrons() {
     }
 }
 
+/**
+ * @brief For each systematic load each of the fwd electrons and test if they pass
+ * the object selection.
+ */
+void TopObjectSelection::applySelectionPreOverlapRemovalFwdElectrons() {
+	
+	for (const auto& currentSystematic : *m_config->systSgKeyMapFwdElectrons()) {
+	  ///-- if executeNominal, skip other systematics (and vice-versa) --///
+	  if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+	  if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        
+	  const xAOD::ElectronContainer* fwdelectrons(nullptr);
+	  top::check(evtStore()->retrieve(fwdelectrons, currentSystematic.second), "TopObjectSelection::applySelectionPreOverlapRemovalFwdElectrons() failed to retrieve fwd electrons");
+	  ATH_MSG_DEBUG(" Cut on Electrons with key = "<<currentSystematic.second);
+        
+	  int bcid=0;
+	  int runNumber=0;
+	  if(!m_config->isMC())
+	    {
+	      const xAOD::EventInfo* eventInfo(nullptr);
+	      top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo in TopObjectSelection::applySelectionPreOverlapRemovalFwdElectrons()");
+	      bcid = eventInfo->bcid();
+	      runNumber=eventInfo -> runNumber();
+	    }
+        
+	  for (auto electronPtr : *fwdelectrons) {
+            electronPtr->auxdecor<char>( m_passPreORSelection ) = m_fwdElectronSelection->passSelection(*electronPtr,bcid,runNumber);
+            electronPtr->auxdecor<char>( m_ORToolDecoration ) = electronPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
+            if (m_doLooseCuts) {
+	      electronPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_fwdElectronSelection->passSelectionLoose(*electronPtr,bcid,runNumber);
+	      electronPtr->auxdecor<char>( m_ORToolDecorationLoose ) = electronPtr->auxdataConst<char>( m_passPreORSelectionLoose) * 2;
+            }
+	  }//end of loop on electrons
+		
+	}//end of loop on systematics
+	
+}
+
 void TopObjectSelection::applySelectionPreOverlapRemovalMuons() {
     for (auto currentSystematic : *m_config->systSgKeyMapMuons()) {
         ///-- if executeNominal, skip other systematics (and vice-versa) --///
@@ -289,6 +328,11 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets() {
     for (auto jetPtr : *jets) {
       ATH_MSG_DEBUG("   Jet pt = "<<(jetPtr)->pt());
       bool passed = m_jetSelection->passSelection(*jetPtr);
+      if(m_config->applyElectronInJetSubtraction()){
+          if(jetPtr->isAvailable<char>("passesFancyOR")){
+              if(!jetPtr->auxdecor<char>("passesFancyOR")) passed = false;
+          }
+      }
       jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
       jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
       if (m_doLooseCuts) {
@@ -391,20 +435,14 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
-          //decorate with boosted-tagging flags
-          char isTop_80    = m_topTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char isTop_50    = m_topTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Wtagged_80  = m_WTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Wtagged_50  = m_WTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Ztagged_80  = m_ZTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Ztagged_50  = m_ZTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-
-          jetPtr->auxdecor<char>("isTopTagged_80")  = isTop_80;
-          jetPtr->auxdecor<char>("isTopTagged_50")  = isTop_50;
-          jetPtr->auxdecor<char>("isWTagged_80")    = Wtagged_80;
-          jetPtr->auxdecor<char>("isWTagged_50")    = Wtagged_50;
-          jetPtr->auxdecor<char>("isZTagged_80")    = Ztagged_80;
-          jetPtr->auxdecor<char>("isZTagged_50")    = Ztagged_50;
+          
+	  //decorate with boosted-tagging flags
+	  for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
+	    std::string fullName=name.first+"_"+name.second;
+	    char isTagged = m_boostedJetTaggers[fullName]->tag(*jetPtr);
+	    jetPtr->auxdecor<char>("isTagged_"+fullName) = isTagged;
+	  }
+	  
         }
     }
 }
@@ -565,6 +603,7 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
 
 
 StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* currentSystematic) {
+
     
   // Which lepton definition are we using for the overlap removal?
   // Default for top analysis is "Tight"
@@ -594,6 +633,10 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
   const xAOD::ElectronContainer* xaod_el(nullptr);
   if (m_config->useElectrons())
       top::check(evtStore()->retrieve(xaod_el, m_config->sgKeyElectrons(hash)) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve electrons" );
+      
+  const xAOD::ElectronContainer* xaod_fwdel(nullptr);
+  if (m_config->useFwdElectrons())
+      top::check(evtStore()->retrieve(xaod_fwdel, m_config->sgKeyFwdElectrons(hash)) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve fwd electrons" );
 
   const xAOD::MuonContainer* xaod_mu(nullptr);
   if (m_config->useMuons())
@@ -613,10 +656,11 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
 
   const xAOD::JetContainer* xaod_tjet(nullptr);
   if (m_config->useTrackJets())
-      top::check(evtStore()->retrieve(xaod_tjet, m_config->sgKeyTrackJets()) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve track jets");  
+      top::check(evtStore()->retrieve(xaod_tjet, m_config->sgKeyTrackJets()) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve track jets"); 
+      
   
   // vectors to store the indices of objects passing selection and overlap removal
-  std::vector<unsigned int> goodPhotons,goodElectrons,goodMuons,goodTaus,goodJets,goodLargeRJets,goodTrackJets;
+  std::vector<unsigned int> goodPhotons,goodElectrons,goodFwdElectrons,goodMuons,goodTaus,goodJets,goodLargeRJets,goodTrackJets;
   
   // Apply overlap removal
   m_overlapRemovalToolPostSelection->overlapremoval(xaod_photon,xaod_el,xaod_mu,xaod_tau,
@@ -633,8 +677,6 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
     currentSystematic->auxdecor< std::vector<unsigned int> >("overlapsMu") = overlapsMu;
   }  
   
-
-  
   // If we did use overlap removal on "Loose" lepton definitions
   // We take the remaining leptons and only keep those passing the "Tight" cuts
   if (!currentSystematic->isLooseEvent() && m_config->doOverlapRemovalOnLooseLeptonDef()) {
@@ -645,7 +687,7 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
     applyTightSelectionPostOverlapRemoval( xaod_jet , goodJets );
     applyTightSelectionPostOverlapRemoval( xaod_ljet , goodLargeRJets );
   }
-  
+
   if (m_config->useTrackJets()){
     for (unsigned int i=0; i<xaod_tjet->size(); ++i) goodTrackJets.push_back(i);
     trackJetOverlapRemoval(xaod_el, xaod_mu, xaod_tjet, goodElectrons, goodMuons, goodTrackJets);
@@ -655,9 +697,30 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
   // Post overlap removal decorations
   decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
   
+  // for the time being no OR applied on FwdElectrons
+  if(xaod_fwdel)
+  {
+	int i(0);
+	std::string passTopCuts("");
+	if (!looseLeptonOR) {
+		passTopCuts = "passPreORSelection";
+	  }
+	if (looseLeptonOR) {
+		passTopCuts = "passPreORSelectionLoose";
+	  }
+	for (const auto& x: *xaod_fwdel)
+	{
+		 if( x->auxdataConst< char >(passTopCuts) != 1 ) continue;
+		 goodFwdElectrons.push_back(i);
+		 
+		 i++;
+	}
+  }
+  
   // set the indices in the xAOD::SystematicEvent
   currentSystematic->setGoodPhotons( goodPhotons );
   currentSystematic->setGoodElectrons( goodElectrons );
+  currentSystematic->setGoodFwdElectrons( goodFwdElectrons );
   currentSystematic->setGoodMuons( goodMuons );
   currentSystematic->setGoodTaus( goodTaus );
   currentSystematic->setGoodJets( goodJets );
@@ -800,6 +863,17 @@ void TopObjectSelection::print(std::ostream& os) const {
             os << "All";
         else
             os << *m_electronSelection;
+    }
+    
+    os << "\n";
+    os << "FwdElectrons\n";
+    os << "  ContainerName: " << m_config->sgKeyFwdElectrons() << "\n";
+    if (m_config->useFwdElectrons()) {
+        os << "  Selection: ";
+        if (!m_fwdElectronSelection)
+            os << "All";
+        else
+            os << *m_fwdElectronSelection;
     }
 
     os << "\n";
