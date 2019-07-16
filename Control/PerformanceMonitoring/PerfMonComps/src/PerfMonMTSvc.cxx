@@ -316,7 +316,7 @@ void PerfMonMTSvc::report(){
  *     "Event_loop" : {...},
  *     "Finalize" : {... }
  *   },
- *   "Component_level" : {
+ *   "Serial_Component_level" : {
  *     "Initialize" : {
  *        "comp1" : {
  *          "cpu_time" : cpu_measurement
@@ -328,6 +328,28 @@ void PerfMonMTSvc::report(){
  *      "Stop" : {...},
  *      "Finalize": {...}  
  *   }
+     "Parallel_Component_level" : {
+        "Execute" : {
+ *        "comp1" : {
+ *          "cpu_time" : cpu_measurement
+ *          "wall_time": wall_measurement
+ *        },
+ *        "comp2": ...
+ *       },
+         "Stop" : {...}
+     },
+     "Detailed_Parallel_Component_level" : {
+       "Event_number_1" : {
+         "Execute" : {
+ *        "comp1" : {
+ *          "cpu_time" : cpu_measurement
+ *          "wall_time": wall_measurement
+ *        },
+ *        "comp2": ...
+ *       },
+         "Stop" : {...}
+       }   
+     }
  * }
  *
  * Output Filename: PerfMonMTSvc_result.json
@@ -362,6 +384,31 @@ void PerfMonMTSvc::report2JsonFile(){
 
     // Free the dynamically allocated space
     delete it.second;
+  }
+
+  for(auto& it : m_aggParallelCompLevelDataMap){
+
+    std::string stepName = it.first.stepName;
+    std::string compName = it.first.compName;
+
+    double wall_time = it.second.second;
+    double cpu_time = it.second.first;
+
+    j["Parallel_Component_level"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+
+  }
+
+  for(auto& it : m_parallelCompLevelData.shared_measurement_delta_map){
+
+    std::string stepName = it.first.stepName;
+    std::string compName = it.first.compName;
+    int eventNumber = it.first.eventNumber;
+
+    double wall_time = it.second.second;
+    double cpu_time = it.second.first;
+
+    j["Detailed_Parallel_Component_level"][eventNumber][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+
   }
 
   std::ofstream o("PerfMonMTSvc_result.json");
