@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -250,7 +250,7 @@ TrigConf::buildObjNode(uint32_t condIdx,
          }
       }
    }
-   catch(std::exception e) {
+   catch(const std::exception& e) {
       std::cout << "Exeption caught in buildObjNode for " << conditions[condIdx-1] << ": " << e.what() << std::endl;
       throw;
    }
