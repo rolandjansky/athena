@@ -44,6 +44,7 @@ def getAllThresholdsFromItem(item):
     multThressholds = item.split("_")[1:] # skips the L1_
     thresholds = []
     for mt in multThressholds:
+        assert mt[0] != '1', 'Issue while parsing {}, multiplicity of 1, should not be configured, if multiplicity greater than 9 is needed then support for it needs to be added'.format( mt )
         if mt[0] in '23456789': # first letter is a number == multiplicity, multiplicity 1 is not specified
             thresholds.extend( int(mt[0])*[mt[1:]] )
         else:
