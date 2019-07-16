@@ -76,7 +76,7 @@ class AthMonitorCfgHelper(object):
         self.monSeq += algObj
         return algObj
 
-    def addGroup(self, alg, name, topPath='', duration='run'):
+    def addGroup(self, alg, name, topPath='', defaultDuration='run'):
         '''
         Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
         here can be used to retrieve the group from within the algorithm when calling the fill()
@@ -86,6 +86,7 @@ class AthMonitorCfgHelper(object):
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
         topPath -- directory name in the output ROOT file under which histograms will be produced
+        defaultDuration -- default duration of histograms produced under this group; can be overridden for each specific histogram
 
         Returns:
         tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms
@@ -101,7 +102,9 @@ class AthMonitorCfgHelper(object):
             self.resobj.merge(acc)
 
         tool.HistPath = self.inputFlags.DQ.FileKey + ('/%s' % topPath if topPath else '')
-        tool.convention = 'OFFLINE:'+duration
+        # in the future, autodetect if we are online or not
+        tool.convention = 'OFFLINE'
+        tool.defaultDuration = defaultDuration
         alg.GMTools += [tool]
         return tool
 

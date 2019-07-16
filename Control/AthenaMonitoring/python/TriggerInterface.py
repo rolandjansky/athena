@@ -22,7 +22,6 @@ def getTrigConfigSvc(flags):
                                                        findFileInXMLPATH, TrigConfigSvc)
         hltcs = HLTConfigSvc("HLTConfigSvc")
         hltcs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.HLTConfigFile)
-        print 'hltcs', hltcs.XMLMenuFile
         rv.addService(hltcs)
         lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
         lvl1cs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
