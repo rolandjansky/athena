@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasTools/PhysicsListToolBase.h"
+#include "PhysicsListSvc.h"
 
 #include "G4VUserPhysicsList.hh"
 #include "G4StateManager.hh"
@@ -17,8 +17,8 @@
 
 #include <limits>
 
-PhysicsListToolBase::PhysicsListToolBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent)
+PhysicsListSvc::PhysicsListSvc(const std::string& name, ISvcLocator* pSvcLocator)
+  : base_class(name,pSvcLocator)
   , m_phys_option(this)
   , m_phys_decay(this)
   , m_physicsList(nullptr)
@@ -42,8 +42,9 @@ PhysicsListToolBase::PhysicsListToolBase(const std::string& type, const std::str
 }
 
 
-StatusCode PhysicsListToolBase::initialize( )
+StatusCode PhysicsListSvc::initialize( )
 {
+  ATH_MSG_DEBUG("PhysicsListSvc::initialize()");
   if (m_phys_option.size())
     {
       ATH_MSG_INFO( "Initializing list of " <<  m_phys_option.size() << " physics options"  );
@@ -60,9 +61,9 @@ StatusCode PhysicsListToolBase::initialize( )
 }
 
 
-void PhysicsListToolBase::CreatePhysicsList()
+void PhysicsListSvc::CreatePhysicsList()
 {
-  ATH_MSG_DEBUG("PhysicsListToolBase::CreatePhysicsList()");
+  ATH_MSG_DEBUG("PhysicsListSvc::CreatePhysicsList()");
   if (m_physicsListName != ""){
     G4PhysListFactory factory;
     AtlasPhysListFactory Atlasfactory;
@@ -75,7 +76,7 @@ void PhysicsListToolBase::CreatePhysicsList()
       m_physicsList = Atlasfactory.GetReferencePhysList(m_physicsListName);
     }
   }
-    
+
   if (!m_physicsList)
     {
       ATH_MSG_ERROR("Unable to initialize physics List: " << m_physicsList);
@@ -97,10 +98,10 @@ void PhysicsListToolBase::CreatePhysicsList()
     }
 
   //ConstructProcess();
-  ATH_MSG_DEBUG("end of PhysicsListToolBase::CreatePhysicsList()");
+  ATH_MSG_DEBUG("end of PhysicsListSvc::CreatePhysicsList()");
 }
 
-G4VUserPhysicsList* PhysicsListToolBase::GetPhysicsList()
+G4VUserPhysicsList* PhysicsListSvc::GetPhysicsList()
 {
   if (!m_physicsList) {
     this->CreatePhysicsList();
@@ -108,7 +109,7 @@ G4VUserPhysicsList* PhysicsListToolBase::GetPhysicsList()
   return m_physicsList;
 }
 
-void PhysicsListToolBase::SetPhysicsList()
+void PhysicsListSvc::SetPhysicsList()
 {
   if(!m_physicsList) {
     this->CreatePhysicsList();
@@ -116,7 +117,7 @@ void PhysicsListToolBase::SetPhysicsList()
   G4RunManager::GetRunManager()->SetUserInitialization(m_physicsList);
 }
 
-void PhysicsListToolBase::SetPhysicsOptions()
+void PhysicsListSvc::SetPhysicsOptions()
 {
   if (!m_physicsList)
     {
@@ -165,7 +166,7 @@ void PhysicsListToolBase::SetPhysicsOptions()
   return;
 }
 
-void PhysicsListToolBase::CommandLog(int returnCode, const std::string& commandString) const
+void PhysicsListSvc::CommandLog(int returnCode, const std::string& commandString) const
 {
   switch(returnCode) {
   case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;

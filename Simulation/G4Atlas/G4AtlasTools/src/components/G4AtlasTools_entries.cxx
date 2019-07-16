@@ -1,4 +1,3 @@
-#include "G4AtlasTools/PhysicsListToolBase.h"
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "G4AtlasTools/CylindricalEnvelope.h"
 #include "G4AtlasTools/BoxEnvelope.h"
@@ -14,7 +13,6 @@
 #include "../G4ThreadInitTool.h"
 #include "../MaterialDescriptionTool.h"
 
-DECLARE_COMPONENT( PhysicsListToolBase )
 DECLARE_COMPONENT( DetectorGeometryBase )
 DECLARE_COMPONENT( CylindricalEnvelope )
 DECLARE_COMPONENT( BoxEnvelope )

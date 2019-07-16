@@ -14,7 +14,7 @@
 G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
   , m_detGeoSvc("DetectorGeometrySvc",name)
-  , m_physicsListTool("PhysicsListToolBase")
+  , m_physicsListSvc("PhysicsListSvc",name)
   , m_userLimitsSvc("UserLimitsSvc", name)
   , m_isMT(false)
   , m_activateParallelGeometries(false)
@@ -22,7 +22,7 @@ G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   ATH_MSG_DEBUG( "G4AtlasSvc being created!" );
   declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
   declareProperty("DetectorGeometrySvc", m_detGeoSvc );
-  declareProperty("PhysicsListTool", m_physicsListTool);
+  declareProperty("PhysicsListSvc", m_physicsListSvc);
   declareProperty("UserLimitsSvc", m_userLimitsSvc);
   declareProperty("isMT", m_isMT);
 }
@@ -51,12 +51,12 @@ StatusCode G4AtlasSvc::initialize(){
   CHECK(m_detGeoSvc.retrieve());
 
   ATH_MSG_INFO( "retrieving the Physics List Tool" );
-  CHECK(m_physicsListTool.retrieve());
+  CHECK(m_physicsListSvc.retrieve());
   CHECK(m_userLimitsSvc.retrieve());
 
   if (m_activateParallelGeometries)
     {
-      G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physicsListTool->GetPhysicsList());
+      G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physicsListSvc->GetPhysicsList());
       if (!thePhysicsList)
         {
           ATH_MSG_FATAL("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");

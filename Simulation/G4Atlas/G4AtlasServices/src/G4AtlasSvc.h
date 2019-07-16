@@ -9,12 +9,11 @@
 #include "AthenaBaseComps/AthService.h"
 #include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "G4AtlasInterfaces/IUserLimitsSvc.h"
 // Member
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
  public:
@@ -30,7 +29,7 @@ class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
 
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
-  ToolHandle<IPhysicsListTool> m_physicsListTool;
+  ServiceHandle<IPhysicsListSvc> m_physicsListSvc;
   ServiceHandle<IUserLimitsSvc> m_userLimitsSvc;
   bool m_isMT;
   bool m_activateParallelGeometries;

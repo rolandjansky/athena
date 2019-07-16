@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASTOOLS_PHYSICSLISTTOOLBASE_H
-#define G4ATLASTOOLS_PHYSICSLISTTOOLBASE_H
+#ifndef G4ATLASTOOLS_PHYSICSLISTSVC_H
+#define G4ATLASTOOLS_PHYSICSLISTSVC_H
 
 // Base classes
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
+#include "AthenaBaseComps/AthService.h"
 
 
 #include "G4AtlasInterfaces/IPhysicsOptionTool.h"
@@ -20,16 +20,16 @@ class G4VUserPhysicsList;
 // STL library
 #include <string>
 
-class PhysicsListToolBase : public extends<AthAlgTool, IPhysicsListTool>
+class PhysicsListSvc : public extends<AthService, IPhysicsListSvc>
 {
 public:
   // Standard constructor and destructor
-  PhysicsListToolBase(const std::string& type, const std::string& name, const IInterface *parent);
-  ~PhysicsListToolBase() {}
+  PhysicsListSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~PhysicsListSvc() = default;
 
 
   virtual StatusCode initialize( ) override;
-  // Base class methods from IPhysicsListTool
+  // Base class methods from IPhysicsListSvc
   virtual void CreatePhysicsList() override;
   virtual G4VUserPhysicsList* GetPhysicsList() override;
   virtual void SetPhysicsList() override;

@@ -5,7 +5,6 @@ addTool("G4AtlasTools.G4AtlasToolsConfig.getFastSimulationMasterTool","FastSimul
 addTool("G4AtlasTools.G4AtlasToolsConfig.getEmptyFastSimulationMasterTool","EmptyFastSimulationMasterTool")
 addTool("G4AtlasTools.G4AtlasToolsConfig.getEmptySensitiveDetectorMasterTool","EmptySensitiveDetectorMasterTool")
 addTool("G4AtlasTools.G4AtlasToolsConfig.getSensitiveDetectorMasterTool","SensitiveDetectorMasterTool")
-addTool("G4AtlasTools.G4AtlasToolsConfig.getPhysicsListToolBase","PhysicsListToolBase")
 
 addTool("G4AtlasTools.G4GeometryConfig.getBeamPipeGeoDetectorTool", 'BeamPipe')
 addTool("G4AtlasTools.G4GeometryConfig.getPixelGeoDetectorTool", 'Pixel')

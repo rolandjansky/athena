@@ -28,6 +28,42 @@ def getReducedStepSizeUserLimitsSvc(name="ReducedStepSizeUserLimitsSvc", **kwarg
     return CfgMgr.UserLimitsSvc(name, **kwargs)
 
 
+def getPhysicsListSvc(name="PhysicsListSvc", **kwargs):
+    PhysOptionList = ["G4StepLimitationTool"]
+    from G4AtlasApps.SimFlags import simFlags
+    PhysOptionList += simFlags.PhysicsOptions.get_Value()
+    PhysDecaysList = []
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.simulate.TRT_on():
+        PhysOptionList +=["TRTPhysicsTool"]
+    if DetFlags.simulate.Lucid_on() or DetFlags.simulate.AFP_on():
+        PhysOptionList +=["LucidPhysicsTool"]
+    kwargs.setdefault("PhysOption", PhysOptionList)
+    kwargs.setdefault("PhysicsDecay", PhysDecaysList)
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("PhysicsList", simFlags.PhysicsList.get_Value())
+    if 'PhysicsList' in kwargs:
+        if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
+            raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+    kwargs.setdefault("GeneralCut", 1.)
+    if hasattr(simFlags, 'NeutronTimeCut') and simFlags.NeutronTimeCut.statusOn:
+        kwargs.setdefault("NeutronTimeCut", simFlags.NeutronTimeCut.get_Value())
+    if hasattr(simFlags, 'NeutronEnergyCut') and simFlags.NeutronEnergyCut.statusOn:
+        kwargs.setdefault("NeutronEnergyCut", simFlags.NeutronEnergyCut.get_Value())
+    if hasattr(simFlags, 'ApplyEMCuts') and simFlags.ApplyEMCuts.statusOn:
+        kwargs.setdefault("ApplyEMCuts", simFlags.ApplyEMCuts.get_Value())
+    ## from AthenaCommon.SystemOfUnits import eV, TeV
+    ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
+    ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    """ --- ATLASSIM-3967 ---
+        these two options are replaced by SetNumberOfBinsPerDecade
+        which now controls both values.
+    """
+    ## kwargs.setdefault("EMDEDXBinning"   , 77)
+    ## kwargs.setdefault("EMLambdaBinning" , 77)
+    return CfgMgr.PhysicsListSvc(name, **kwargs)
+
+
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags

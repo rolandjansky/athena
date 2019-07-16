@@ -2,6 +2,7 @@
 
 from AthenaCommon.CfgGetter import addService
 
+addService("G4AtlasServices.G4AtlasServicesConfig.getPhysicsListSvc","PhysicsListSvc")
 addService("G4AtlasServices.G4AtlasServicesConfig.getReducedStepSizeUserLimitsSvc","ReducedStepSizeUserLimitsSvc")
 
 addService("G4AtlasServices.G4AtlasServicesConfig.getDetectorGeometrySvc","DetectorGeometrySvc")
