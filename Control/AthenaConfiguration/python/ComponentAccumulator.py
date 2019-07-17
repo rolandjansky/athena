@@ -809,6 +809,9 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        from AthenaCommon.Debugging import allowPtrace
+        allowPtrace()
+
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 
