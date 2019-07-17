@@ -5,7 +5,6 @@
 #ifndef _ZDCDataAnalyzer_h
 #define _ZDCDataAnalyzer_h
 
-// #include <AsgTools/MessageCheck.h>
 #include <ZdcAnalysis/ZDCPulseAnalyzer.h>
 #include <TSpline.h>
 
