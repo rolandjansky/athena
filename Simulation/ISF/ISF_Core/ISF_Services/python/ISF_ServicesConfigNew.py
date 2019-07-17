@@ -14,7 +14,7 @@ from ISF_Services.ISF_ServicesConf import ISF__TruthSvc, ISF__InputConverter
 
 #Functions yet to be migrated:
 #getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getISFEnvelopeDefSvc, getAFIIEnvelopeDefSvc, getGeoIDSvc, getAFIIGeoIDSvc
-#getGenParticleFilters, getInputConverter, getLongLivedInputConverter, getValidationTruthService, getMC12BeamPipeTruthStrategies, getMC12IDTruthStrategies
+# getLongLivedInputConverter, getValidationTruthService, getMC12BeamPipeTruthStrategies, getMC12IDTruthStrategies
 #getMC12CaloTruthStrategies, getMC12MSTruthStrategies, getMC12TruthService, getTruthService, getMC12LLPTruthService, getMC12PlusTruthService,  getMC15IDTruthStrategies
 #getMC15CaloTruthStrategies
 
@@ -82,7 +82,9 @@ def GenParticleFiltersToolCfg(ConfigFlags):
     if "ATLAS" in ConfigFlags.GeoModel.Layout or "atlas" in ConfigFlags.GeoModel.Layout:
         #from AthenaCommon.BeamFlags import jobproperties
         #if jobproperties.Beam.beamType() != "cosmics":
-        if ConfigFlags.Beam.Type != "cosmics":
+
+        if True:
+        #if ConfigFlags.Beam.Type != "cosmics":
 
             acc2 = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc2)]
@@ -99,7 +101,9 @@ def GenParticleFiltersToolCfg(ConfigFlags):
     acc4 = GenParticleInteractingFilterCfg(ConfigFlags)
     genParticleFilterList += [result.popToolsAndMerge(acc4)]
     #genParticleFilterList += ['ISF_GenParticleInteractingFilter']
-    return result, genParticleFilterList
+
+    result.setPrivateTools(genParticleFilterList)
+    return result
 
 
 def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
@@ -112,10 +116,9 @@ def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
     kwargs.setdefault('BarcodeSvc', result.getService("Barcode_MC15aPlusBarcodeSvc") )
 
     kwargs.setdefault("UseGeneratedParticleMass", False)
-    acc, genParticleFilterList = GenParticleFiltersToolCfg(ConfigFlags)
-    kwargs.setdefault("GenParticleFilters", genParticleFilterList)
 
-    result.merge(acc)
+    acc_GenParticleFiltersList = GenParticleFiltersToolCfg(ConfigFlags)
+    kwargs.setdefault("GenParticleFilters", result.popToolsAndMerge(acc_GenParticleFiltersList) )
 
     result.addService(ISF__InputConverter(name, **kwargs))
     return result

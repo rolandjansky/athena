@@ -12,8 +12,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy, ISF__
 from AthenaCommon.SystemOfUnits import MeV, mm
 
 #Functions yet to be migrated:
-#getParticleFinalStateFilter, getParticleSimWhiteList, getParticlePositionFilter, getParticlePositionFilterID, getParticlePositionFilterCalo, getParticlePositionFilterMS
-#getParticlePositionFilterWorld, getParticlePositionFilter, getParticlePositionFilterDynamic, getGenParticleInteractingFilter, getEtaPhiFilter
+#getParticleSimWhiteList, getParticlePositionFilterMS
 #getTruthStrategyGroupID, getTruthStrategyGroupIDHadInt, getTruthStrategyGroupCaloMuBrem_MC15, getTruthStrategyGroupCaloDecay, getValidationTruthStrategy, getLLPTruthStrategy
 
 #--------------------------------------------------------------------------------------------------
@@ -39,21 +38,21 @@ def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
 def ParticlePositionFilterCfg(ConfigFlags, name="ISF_ParticlePositionFilter", **kwargs):
     result = ComponentAccumulator()
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    )
+    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    ) #this svc updated - add once Merge request gone in
 
     result.setPrivateTools(ISF__GenParticlePositionFilter(name, **kwargs))
     return result
 
-def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
+def ParticlePositionFilterIDCfg(ConfigFlags, name="ISF_ParticlePositionFilterID", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
     AtlasRegion = ROOT.AtlasDetDescr
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID ] )
-    return getParticlePositionFilter(name, **kwargs)
+    return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
 
-def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwargs):
+def ParticlePositionFilterCaloCfg(ConfigFlags, name="ISF_ParticlePositionFilterCalo", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
@@ -62,7 +61,7 @@ def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwarg
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo ] )
-    return getParticlePositionFilter(name, **kwargs)
+    return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
 
 def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
@@ -76,7 +75,7 @@ def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
                                             AtlasRegion.fAtlasMS ] )
     return getParticlePositionFilter(name, **kwargs)
 
-def getParticlePositionFilterWorld(ConfigFlags, name="ISF_ParticlePositionFilterWorld", **kwargs):
+def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilterWorld", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
@@ -86,31 +85,31 @@ def getParticlePositionFilterWorld(ConfigFlags, name="ISF_ParticlePositionFilter
                                             AtlasRegion.fAtlasCalo,
                                             AtlasRegion.fAtlasMS,
                                             AtlasRegion.fAtlasCavern ] )
-    result = ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
-    return result
+    return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
 
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
-    from AthenaCommon.DetFlags import DetFlags
-    #if DetFlags.Muon_on():
+    
+    #if ConfigFlags.Detector.SimulateMuon:
     if True:
-      result = getParticlePositionFilterWorld(ConfigFlags, name, **kwargs)
-      return result
-    elif DetFlags.Calo_on():
-      return getParticlePositionFilterCalo(name, **kwargs)
-    elif DetFlags.ID_on():
-      return getParticlePositionFilterID(name, **kwargs)
+      return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
+    elif ConfigFlags.Detector.SimulateCalo:
+      return ParticlePositionFilterCaloCfg(ConfigFlags, name, **kwargs)
+    elif ConfigFlags.Detector.SimulateID:
+      return ParticlePositionFilterIDCfg(ConfigFlags, name, **kwargs)
     else:
-      return getParticlePositionFilterWorld(ConfigFlags, name, **kwargs)
+      return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
 
 def GenParticleInteractingFilterCfg(ConfigFlags, name="ISF_GenParticleInteractingFilter", **kwargs):
     result = ComponentAccumulator()
-    from G4AtlasApps.SimFlags import simFlags
-    simdict = simFlags.specialConfiguration.get_Value()
-    if simdict is not None and "InteractingPDGCodes" in simdict:
-        kwargs.setdefault('AdditionalInteractingParticleTypes', eval(simdict["InteractingPDGCodes"]))
-    if simdict is not None and "NonInteractingPDGCodes" in simdict:
-        kwargs.setdefault('AdditionalNonInteractingParticleTypes', eval(simdict["InteractingNonPDGCodes"]))
+
+    #todo (dnoel) - add this functionality
+    #from G4AtlasApps.SimFlags import simFlags
+    #simdict = simFlags.specialConfiguration.get_Value()
+    #if simdict is not None and "InteractingPDGCodes" in simdict:
+    #    kwargs.setdefault('AdditionalInteractingParticleTypes', eval(simdict["InteractingPDGCodes"]))
+    #if simdict is not None and "NonInteractingPDGCodes" in simdict:
+    #    kwargs.setdefault('AdditionalNonInteractingParticleTypes', eval(simdict["InteractingNonPDGCodes"]))
 
     result.setPrivateTools(ISF__GenParticleInteractingFilter(name, **kwargs))
     return result
@@ -118,8 +117,7 @@ def GenParticleInteractingFilterCfg(ConfigFlags, name="ISF_GenParticleInteractin
 def EtaPhiFilterCfg(ConfigFlags, name="ISF_EtaPhiFilter", **kwargs):
     result = ComponentAccumulator()
     # EtaPhiFilter
-    from AthenaCommon.DetFlags import DetFlags
-    EtaRange = 7.0 if DetFlags.geometry.Lucid_on() else 6.0
+    EtaRange = 7.0 if ConfigFlags.Detector.SimulateLucid else 6.0
     kwargs.setdefault('MinEta' , -EtaRange)
     kwargs.setdefault('MaxEta' , EtaRange)
     kwargs.setdefault('MaxApplicableRadius', 30*mm)
