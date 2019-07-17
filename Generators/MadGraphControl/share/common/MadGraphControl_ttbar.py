@@ -17,11 +17,22 @@ MET200_filter     = [407048]
 pT300_cut     = [410368]
 
 # LHE production
-tt_inclusive_LHE = [410440]
+tt_inclusive_LHE = [410440, 412121, 421109]
 
+# for matching with H7
+herwig_dsids   = [412121, 421109]
 
-enhanced_bwcut = [410440]
-thisDSID     = runArgs.runNumber
+enhanced_bwcut = [410440, 412121, 421109]
+#thisDSID       = runArgs.runNumber
+if hasattr(runArgs,'runNumber'):
+   thisDSID = int(runArgs.runNumber)
+else:
+   parDSID = str(runArgs.jobConfig[0])
+   if len(parDSID)==6 and parDSID.isdigit():
+      thisDSID = int(parDSID)
+   else:
+      thisDSID = int(parDSID[-6:])
+print "DSID is ",thisDSID
 
 # --------------------------------------------------------------
 #  Some global production settings
@@ -45,6 +56,9 @@ muF2_over_ref = 1.0
 dyn_scale = '10'    # user-defined scale -> Dominic's definition of mt+1/2*(pt^2+ptx^2)
 lhe_version=3
 bwcut = 15
+
+if thisDSID in herwig_dsids:
+    parton_shower='HERWIGPP'
 
 # --------------------------------------------------------------
 #  Setting up the process
@@ -102,7 +116,7 @@ if thisDSID in MET200_filter:
 if thisDSID in b_filter:
     nevents = nevents*25
 
-stringy = 'madgraph.'+str(runArgs.runNumber)+'.MadGraph_'+str(name)
+stringy = 'madgraph.'+str(thisDSID)+'.MadGraph_'+str(name)
 
 # Proc card writing
 fcard = open('proc_card_mg5.dat','w')
@@ -277,14 +291,32 @@ outputDS=arrange_output(run_name=name,
 # --------------------------------------------------------------
 # Run Pythia 8 Showering
 # --------------------------------------------------------------
-evgenConfig.generators    += ["aMcAtNlo", "Pythia8"]
-evgenConfig.description    = 'MG5_aMC@NLO+Pythia8+EvtGen '+name+' OTF, A14 NNPDF 2.3 LO, ME NNPDF 3.0 NLO, using scale sqrt(sum_i mT(i)**2/2)), for i = top quarks'
-evgenConfig.keywords      += [ 'SM', 'top']
-evgenConfig.contact        = [ 'ian.connelly@cern.ch', 'steffen.henkelmann@cern.ch' ]
-runArgs.inputGeneratorFile=outputDS
 
-include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_aMcAtNlo.py")
+if not runArgs.runNumber in herwig_dsids:
+    evgenConfig.generators    += ["aMcAtNlo", "Pythia8"]
+    evgenConfig.description    = 'MG5_aMC@NLO+Pythia8+EvtGen '+name+' OTF, A14 NNPDF 2.3 LO, ME NNPDF 3.0 NLO, using scale sqrt(sum_i mT(i)**2/2)), for i = top quarks'
+    evgenConfig.keywords      += [ 'SM', 'top']
+    evgenConfig.contact        = [ 'ian.connelly@cern.ch', 'steffen.henkelmann@cern.ch' ]
+    runArgs.inputGeneratorFile=outputDS    
+    include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
+    include("Pythia8_i/Pythia8_aMcAtNlo.py")
+elif runArgs.runNumber in herwig_dsids:
+    runArgs.inputGeneratorFile=outputDS
+    evgenConfig.generators += ["aMcAtNlo", "Herwig7"]
+    evgenConfig.description = 'MG5_aMC@NLO+Herwig7+EvtGen '+name+' OTF, H7p1 default tune, ME NNPDF 3.0 NLO, using scale sqrt(sum_i mT(i)**2/2)), for i = top quarks'
+    evgenConfig.tune = "H7.1-Default"
+    include("Herwig7_i/Herwig7_LHEF.py")
+    Herwig7Config.me_pdf_commands(order="NLO", name="NNPDF30_nlo_as_0118")
+    Herwig7Config.tune_commands()
+    Herwig7Config.lhef_mg5amc_commands(lhe_filename=runArgs.inputGeneratorFile, me_pdf_order="NLO")
+    include("Herwig7_i/Herwig71_EvtGen.py")
+    Herwig7Config.run()
+else:
+    theApp.finalize()
+    theApp.exit()
+
+
+
 
 # --------------------------------------------------------------
 # Apply TTbarWToLeptonFilter

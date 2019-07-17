@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: Generation test Sherpa DY 
+# art-description: Generation test Sherpa Z0 
 # art-type: build
 # art-include: 21.6/AthGeneration
 # art-output: *.root

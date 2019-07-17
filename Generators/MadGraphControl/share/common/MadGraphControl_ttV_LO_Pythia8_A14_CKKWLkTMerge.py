@@ -30,7 +30,7 @@ ttZnnqq_Np0        =[410073,410190,410191]
 ttZnnqq_Np1        =[410074,410192,410193]
 ttZnnqq_Np2        =[410075,410194,410195]
                                          
-ttW_Np0            =[410066,410196,410197]
+ttW_Np0            =[410066,410196,410197,421108]
 ttW_Np1            =[410067,410198,410199]
 ttW_Np2            =[410068,410200,410201]
                                          
@@ -68,16 +68,23 @@ systScalefactDn=[410191,
                  410211,
                  410213]
 
+if hasattr(runArgs,'runNumber'):
+   runNum = int(runArgs.runNumber)
+else:
+   parDSID = str(runArgs.jobConfig[0])
+   if len(parDSID)==6 and parDSID.isdigit():
+      runNum = int(parDSID)
+   else:
+      runNum = int(parDSID[-6:])
 
-
-if runArgs.runNumber in ttZllonshell_Np0:
+if runNum in ttZllonshell_Np0:
     mgproc="""generate p p > t t~ z, z > l+ l-"""
     name='ttllonshell_Np0'
     mllcut=10
     process="pp>tt~z"
     keyword=['SM','ttZ','2lepton'] 
     nJetMax=1
-elif runArgs.runNumber in ttZllonshell_Np1:
+elif runNum in ttZllonshell_Np1:
     mgproc="""generate p p > t t~ z j, z > l+ l-"""
     name='ttllonshell_Np1'
     mllcut=10
@@ -85,14 +92,14 @@ elif runArgs.runNumber in ttZllonshell_Np1:
     keyword=['SM','ttZ','2lepton'] 
     nJetMax=1
 
-elif runArgs.runNumber in ttZlloffshell_Np0:
+elif runNum in ttZlloffshell_Np0:
     mgproc="""generate p p > t t~ l+ l- $ z h"""
     name='ttlloffshell_Np0'
     mllcut=10
     process="pp>tt~LEPTONS,NEUTRINOS"
     keyword=['SM','ttZ','2lepton'] 
     nJetMax=1
-elif runArgs.runNumber in ttZlloffshell_Np1:
+elif runNum in ttZlloffshell_Np1:
     mgproc="""generate p p > t t~ l+ l- j $ z h"""
     name='ttlloffshell_Np1'
     mllcut=10
@@ -100,19 +107,19 @@ elif runArgs.runNumber in ttZlloffshell_Np1:
     keyword=['SM','ttZ','2lepton'] 
     nJetMax=1
 
-elif runArgs.runNumber in ttZnnqq_Np0:
+elif runNum in ttZnnqq_Np0:
     mgproc="""generate p p > t t~ z, z > zonshell zonshell~"""
     name='ttZnnqq_Np0'
     process="pp>tt~z"
     nJetMax=2
     keyword=['SM','ttZ','neutrino','quark'] 
-elif runArgs.runNumber in ttZnnqq_Np1:
+elif runNum in ttZnnqq_Np1:
     mgproc="""generate p p > t t~ z j, z > zonshell zonshell~"""
     name='ttZnnqq_Np1'
     process="pp>tt~z"
     nJetMax=2
     keyword=['SM','ttZ','neutrino','quark'] 
-elif runArgs.runNumber in ttZnnqq_Np2:
+elif runNum in ttZnnqq_Np2:
     mgproc="""generate p p > t t~ z j j, z > zonshell zonshell~"""
     name='ttZnnqq_Np2'
     process="pp>tt~z"
@@ -123,19 +130,19 @@ elif runArgs.runNumber in ttZnnqq_Np2:
 
 
 
-elif runArgs.runNumber in ttW_Np0:
+elif runNum in ttW_Np0:
     mgproc="""generate p p > t t~ w"""
     name='ttW_Np0'
     process="pp>tt~W"
     nJetMax=2
     keyword=['SM','ttW'] 
-elif runArgs.runNumber in ttW_Np1:
+elif runNum in ttW_Np1:
     mgproc="""generate p p > t t~ w j"""
     name='ttW_Np1'
     process="pp>tt~W"
     nJetMax=2
     keyword=['SM','ttW'] 
-elif runArgs.runNumber in ttW_Np2:
+elif runNum in ttW_Np2:
     mgproc="""generate p p > t t~ w j j"""
     name='ttW_Np2'
     process="pp>tt~W"
@@ -144,14 +151,14 @@ elif runArgs.runNumber in ttW_Np2:
 
 
 
-elif runArgs.runNumber in ttee_5fl_Np0:
+elif runNum in ttee_5fl_Np0:
     mgproc="""generate p p > t t~ e+ e-"""
     name='ttee_Np0'
     mllcut=5
     process="pp>tt~e+e-"
     nJetMax=1
     keyword=['SM','ttZ'] 
-elif runArgs.runNumber in ttee_5fl_Np1:
+elif runNum in ttee_5fl_Np1:
     mgproc="""generate p p > t t~ e+ e- j"""
     name='ttee_Np1'
     mllcut=5
@@ -160,14 +167,14 @@ elif runArgs.runNumber in ttee_5fl_Np1:
     keyword=['SM','ttZ'] 
 
 
-elif runArgs.runNumber in ttmumu_5fl_Np0:
+elif runNum in ttmumu_5fl_Np0:
     mgproc="""generate p p > t t~ mu+ mu-"""
     name='ttmumu_Np0'
     mllcut=5
     process="pp>tt~mu+mu-"
     nJetMax=1
     keyword=['SM','ttZ'] 
-elif runArgs.runNumber in ttmumu_5fl_Np1:
+elif runNum in ttmumu_5fl_Np1:
     mgproc="""generate p p > t t~ mu+ mu- j"""
     name='ttmumu_Np1'
     mllcut=5
@@ -176,14 +183,14 @@ elif runArgs.runNumber in ttmumu_5fl_Np1:
     keyword=['SM','ttZ'] 
 
 
-elif runArgs.runNumber in tttautau_5fl_Np0:
+elif runNum in tttautau_5fl_Np0:
     mgproc="""generate p p > t t~ ta+ ta- $ h"""
     name='tttautau_Np0'
     mllcut=5
     process="pp>tt~ta+ta-"
     nJetMax=1
     keyword=['SM','ttZ'] 
-elif runArgs.runNumber in tttautau_5fl_Np1:
+elif runNum in tttautau_5fl_Np1:
     mgproc="""generate p p > t t~ ta+ ta- j $ h"""
     name='tttautau_Np1'
     mllcut=5
@@ -194,10 +201,10 @@ elif runArgs.runNumber in tttautau_5fl_Np1:
 
 
 else: 
-    raise RuntimeError("runNumber %i not recognised in these jobOptions."%runArgs.runNumber)
+    raise RuntimeError("runNumber %i not recognised in these jobOptions."%runNum)
 
 
-stringy = 'madgraph.'+str(runArgs.runNumber)+'.MadGraph_'+str(name)
+stringy = 'madgraph.'+str(runNum)+'.MadGraph_'+str(name)
 
 
 fcard = open('proc_card_mg5.dat','w')
@@ -251,10 +258,10 @@ extras = { 'lhe_version'  : '3.0',
 
 
 scalefact = 1.0
-if runArgs.runNumber in systScalefactUp:
+if runNum in systScalefactUp:
     name=name+'_scaleUp'
     scalefact = 2.0
-elif runArgs.runNumber in systScalefactDn:
+elif runNum in systScalefactDn:
     name=name+'_scaleDown'
     scalefact = 0.5
 

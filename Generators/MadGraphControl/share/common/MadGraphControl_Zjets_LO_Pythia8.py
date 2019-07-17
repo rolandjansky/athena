@@ -27,7 +27,7 @@ Zee_5fl_Np2=[361502]
 Zee_5fl_Np3=[361503]
 Zee_5fl_Np4=[361504]
 
-Zmumu_5fl_Np0=[361505]
+Zmumu_5fl_Np0=[361505, 421107]
 Zmumu_5fl_Np1=[361506]
 Zmumu_5fl_Np2=[361507]
 Zmumu_5fl_Np3=[361508]
@@ -49,23 +49,32 @@ Znunu_5fl_Np4=[361519]
 
 
 ### Electrons
-if runArgs.runNumber in Zee_5fl_Np0:
+if hasattr(runArgs,'runNumber'):
+   runNum = int(runArgs.runNumber)
+else:
+   parDSID = str(runArgs.jobConfig[0])
+   if len(parDSID)==6 and parDSID.isdigit():
+      runNum = int(parDSID)
+   else:
+      runNum = int(parDSID[-6:])
+
+if runNum in Zee_5fl_Np0:
     mgproc="generate p p > e+ e- @0"
     name='Zee_Np0'
     process="pp>e+e-"
-elif runArgs.runNumber in Zee_5fl_Np1:
+elif runNum in Zee_5fl_Np1:
     mgproc="generate p p > e+ e- j @1"
     name='Zee_Np1'
     process="pp>e+e-"
-elif runArgs.runNumber in Zee_5fl_Np2:
+elif runNum in Zee_5fl_Np2:
     mgproc="generate p p > e+ e- j j @2"
     name='Zee_Np2'
     process="pp>e+e-"
-elif runArgs.runNumber in Zee_5fl_Np3:
+elif runNum in Zee_5fl_Np3:
     mgproc="generate p p > e+ e- j j j @3"
     name='Zee_Np3'
     process="pp>e+e-"
-elif runArgs.runNumber in Zee_5fl_Np4:
+elif runNum in Zee_5fl_Np4:
     mgproc="generate p p > e+ e- j j j j @4"
     name='Zee_Np4'
     process="pp>e+e-"
@@ -80,23 +89,23 @@ elif runArgs.runNumber in Zee_5fl_Np4:
     nJobs=20
 
 ### Muons    
-elif runArgs.runNumber in Zmumu_5fl_Np0:
+elif runNum in Zmumu_5fl_Np0:
     mgproc="generate p p > mu+ mu- @0"
     name='Zmumu_Np0'
     process="pp>mu+mu-"
-elif runArgs.runNumber in Zmumu_5fl_Np1:
+elif runNum in Zmumu_5fl_Np1:
     mgproc="generate p p > mu+ mu- j @1"
     name='Zmumu_Np1'
     process="pp>mu+mu-"
-elif runArgs.runNumber in Zmumu_5fl_Np2:
+elif runNum in Zmumu_5fl_Np2:
     mgproc="generate p p > mu+ mu- j j @2"
     name='Zmumu_Np2'
     process="pp>mu+mu-"
-elif runArgs.runNumber in Zmumu_5fl_Np3:
+elif runNum in Zmumu_5fl_Np3:
     mgproc="generate p p > mu+ mu- j j j @3"
     name='Zmumu_Np3'
     process="pp>mu+mu-"
-elif runArgs.runNumber in Zmumu_5fl_Np4:
+elif runNum in Zmumu_5fl_Np4:
     mgproc="generate p p > mu+ mu- j j j j @4"
     name='Zmumu_Np4'
     process="pp>mu+mu-"
@@ -112,23 +121,23 @@ elif runArgs.runNumber in Zmumu_5fl_Np4:
     nJobs=20
     
 ### Taus
-elif runArgs.runNumber in Ztautau_5fl_Np0:
+elif runNum in Ztautau_5fl_Np0:
     mgproc="generate p p > ta+ ta- @0"
     name='Ztautau_Np0'
     process="pp>ta+ta-"
-elif runArgs.runNumber in Ztautau_5fl_Np1:
+elif runNum in Ztautau_5fl_Np1:
     mgproc="generate p p > ta+ ta- j @1"
     name='Ztautau_Np1'
     process="pp>ta+ta-"
-elif runArgs.runNumber in Ztautau_5fl_Np2:
+elif runNum in Ztautau_5fl_Np2:
     mgproc="generate p p > ta+ ta- j j @2"
     name='Ztautau_Np2'
     process="pp>ta+ta-"
-elif runArgs.runNumber in Ztautau_5fl_Np3:
+elif runNum in Ztautau_5fl_Np3:
     mgproc="generate p p > ta+ ta- j j j @3"
     name='Ztautau_Np3'
     process="pp>ta+ta-"
-elif runArgs.runNumber in Ztautau_5fl_Np4:
+elif runNum in Ztautau_5fl_Np4:
     mgproc="generate p p > ta+ ta- j j j j @4"
     name='Ztautau_Np4'
     process="pp>ta+ta-"
@@ -145,23 +154,23 @@ elif runArgs.runNumber in Ztautau_5fl_Np4:
 
 
 ### Neutrinos
-elif runArgs.runNumber in Znunu_5fl_Np0:
+elif runNum in Znunu_5fl_Np0:
     mgproc="generate p p > vl vl~ @0"
     name='Znunu_Np0'
     process="pp>NEUTRINOS"
-elif runArgs.runNumber in Znunu_5fl_Np1:
+elif runNum in Znunu_5fl_Np1:
     mgproc="generate p p > vl vl~ j @1"
     name='Znunu_Np1'
     process="pp>NEUTRINOS"
-elif runArgs.runNumber in Znunu_5fl_Np2:
+elif runNum in Znunu_5fl_Np2:
     mgproc="generate p p > vl vl~ j j @2"
     name='Znunu_Np2'
     process="pp>NEUTRINOS"
-elif runArgs.runNumber in Znunu_5fl_Np3:
+elif runNum in Znunu_5fl_Np3:
     mgproc="generate p p > vl vl~ j j j @3"
     name='Znunu_Np3'
     process="pp>NEUTRINOS"
-elif runArgs.runNumber in Znunu_5fl_Np4:
+elif runNum in Znunu_5fl_Np4:
     mgproc="generate p p > vl vl~ j j j j @4"
     name='Znunu_Np4'
     process="pp>NEUTRINOS"
@@ -177,10 +186,10 @@ elif runArgs.runNumber in Znunu_5fl_Np4:
     nJobs=20
     
 else: 
-    raise RuntimeError("runNumber %i not recognised in these jobOptions."%runArgs.runNumber)
+    raise RuntimeError("runNumber %i not recognised in these jobOptions."%runNum)
 
 
-stringy = 'madgraph.'+str(runArgs.runNumber)+'.MadGraph_'+str(name)
+stringy = 'madgraph.'+str(runNum)+'.MadGraph_'+str(name)
 
 
 fcard = open('proc_card_mg5.dat','w')
