@@ -70,7 +70,7 @@ namespace PMGTools
     // Try to load MC channel number from file metadata
     ATH_MSG_INFO("Attempting to retrieve MC channel number...");
     const xAOD::FileMetaData *fmd = nullptr;
-    if (inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("FileMetaData")) {
+    if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
       ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
       float _flt_channel_number(-1);
       if (fmd->value(xAOD::FileMetaData::mcProcID, _flt_channel_number)) {
