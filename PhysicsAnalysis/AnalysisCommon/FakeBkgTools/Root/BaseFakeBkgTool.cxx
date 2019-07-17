@@ -128,7 +128,7 @@ bool BaseFakeBkgTool::importEfficiencies(bool resetDB)
             return false;
         }
     }
-    catch(Database::XmlError err) /// XML parsing error
+    catch(const Database::XmlError& err) /// XML parsing error
     {
         unsigned line1 = m_database->getXmlLineNumber(err.location.ptr);
         unsigned line2 = m_database->getXmlLineNumber(err.location.endptr);
@@ -140,7 +140,7 @@ bool BaseFakeBkgTool::importEfficiencies(bool resetDB)
         ATH_MSG_ERROR(fullmsg);
         return false;
     }
-    catch(Database::GenericError err) /// ROOT histograms importing error, or unknown error
+    catch(const Database::GenericError& err) /// ROOT histograms importing error, or unknown error
     {
         ATH_MSG_INFO("Exception caught while reading file " << filename << ", details follow");
         ATH_MSG_ERROR(err.reason);
