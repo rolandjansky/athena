@@ -8,9 +8,9 @@ KG Tan, 17/06/2012
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from BarcodeServices.BarcodeServicesConfigNew import MC15aPlusBarcodeSvcCfg
-from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cfg, TruthStrategyGroupCaloMuBremCfg, TruthStrategyGroupCaloDecay_MC15Cfg, TruthStrategyGroupIDHadInt_MC15Cfg
+from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cfg, TruthStrategyGroupCaloMuBremCfg, TruthStrategyGroupCaloDecay_MC15Cfg, TruthStrategyGroupIDHadInt_MC15Cfg, ParticleFinalStateFilterCfg, ParticlePositionFilterDynamicCfg, EtaPhiFilterCfg, GenParticleInteractingFilterCfg
 
-from ISF_Services.ISF_ServicesConf import ISF__TruthSvc
+from ISF_Services.ISF_ServicesConf import ISF__TruthSvc, ISF__InputConverter
 
 #Functions yet to be migrated:
 #getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getISFEnvelopeDefSvc, getAFIIEnvelopeDefSvc, getGeoIDSvc, getAFIIGeoIDSvc
@@ -67,26 +67,58 @@ def getAFIIGeoIDSvc(name="ISF_AFIIGeoIDSvc", **kwargs):
     return getGeoIDSvc(name, **kwargs)
 
 
-def getGenParticleFilters():
+def GenParticleFiltersToolCfg(ConfigFlags):
+    result = ComponentAccumulator()
+
+    #acc1 = ParticlePositionFilterDynamicCfg(ConfigFlags)
     genParticleFilterList = []
-    genParticleFilterList = ['ISF_ParticleFinalStateFilter'] # not used for Quasi-stable particle simulation
-    from G4AtlasApps.SimFlags import simFlags
-    if "ATLAS" in simFlags.SimLayout():
-        from AthenaCommon.BeamFlags import jobproperties
-        if jobproperties.Beam.beamType() != "cosmics":
-            genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-            if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
-                genParticleFilterList += ['ISF_EtaPhiFilter']
-    genParticleFilterList += ['ISF_GenParticleInteractingFilter']
-    return genParticleFilterList
+
+    acc1 = ParticleFinalStateFilterCfg(ConfigFlags)
+    #genParticleFilterList = ['ISF_ParticleFinalStateFilter'] # not used for Quasi-stable particle simulation
+    genParticleFilterList += [result.popToolsAndMerge(acc1)]
+
+    #from G4AtlasApps.SimFlags import simFlags
+    #if "ATLAS" in simFlags.SimLayout():
+    if "ATLAS" in ConfigFlags.GeoModel.Layout or "atlas" in ConfigFlags.GeoModel.Layout:
+        #from AthenaCommon.BeamFlags import jobproperties
+        #if jobproperties.Beam.beamType() != "cosmics":
+        if ConfigFlags.Beam.Type != "cosmics":
+
+            acc2 = ParticlePositionFilterDynamicCfg(ConfigFlags)
+            genParticleFilterList += [result.popToolsAndMerge(acc2)]
+            #genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
 
 
-def getInputConverter(name="ISF_InputConverter", **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
+            #if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
+            #if ConfigFlags.Sim.CavernBG == 'Signal': #or if off?
+            if True: 
+                acc3 = EtaPhiFilterCfg(ConfigFlags)
+                genParticleFilterList += [result.popToolsAndMerge(acc3)]
+                #genParticleFilterList += ['ISF_EtaPhiFilter']
+
+    acc4 = GenParticleInteractingFilterCfg(ConfigFlags)
+    genParticleFilterList += [result.popToolsAndMerge(acc4)]
+    #genParticleFilterList += ['ISF_GenParticleInteractingFilter']
+    return result, genParticleFilterList
+
+
+def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
+    result = ComponentAccumulator()
+
+    #just use this barcodeSvc for now. TODO - make configurable
+    #from G4AtlasApps.SimFlags import simFlags
+    #kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
+    result = MC15aPlusBarcodeSvcCfg(ConfigFlags)
+    kwargs.setdefault('BarcodeSvc', result.getService("Barcode_MC15aPlusBarcodeSvc") )
+
     kwargs.setdefault("UseGeneratedParticleMass", False)
-    kwargs.setdefault("GenParticleFilters", getGenParticleFilters())
-    return CfgMgr.ISF__InputConverter(name, **kwargs)
+    acc, genParticleFilterList = GenParticleFiltersToolCfg(ConfigFlags)
+    kwargs.setdefault("GenParticleFilters", genParticleFilterList)
+
+    result.merge(acc)
+
+    result.addService(ISF__InputConverter(name, **kwargs))
+    return result
 
 
 def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
