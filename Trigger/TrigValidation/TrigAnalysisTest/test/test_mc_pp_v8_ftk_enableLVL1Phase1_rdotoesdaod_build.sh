@@ -6,7 +6,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-export NAME="mc_pp_v8_ftk_eneableLVL1Phase1_rdotoesdaod_build"
+export NAME="mc_pp_v8_ftk_enableLVL1Phase1_rdotoesdaod_build"
 export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
