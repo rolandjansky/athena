@@ -25,7 +25,7 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
-#include "G4AtlasInterfaces/IG4AtlasSvc.h"
+#include "G4AtlasInterfaces/IUserLimitsSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
@@ -119,10 +119,11 @@ private:
   std::vector<std::string> m_g4commands;
   /// Activate multi-threading configuration
   bool m_useMT{false};
+  bool m_activateParallelGeometries{false};
   /// Random number service
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "AtRndmGenSvc", "AthRNGSvc", ""}; // TODO rename property
-  /// G4Atlas Service - handles G4 initialization
-  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
+  ///
+  ServiceHandle<IUserLimitsSvc> m_userLimitsSvc{this, "UserLimitsSvc", "UserLimitsSvc", ""};
   /// User Action Service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc{this, "UserActionSvc", "G4UA::UserActionSvc", ""};
   /// Detector Geometry Service (builds G4 Geometry)

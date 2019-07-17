@@ -19,12 +19,12 @@
 // Athena headers
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
+#include "G4AtlasInterfaces/IUserLimitsSvc.h"
 #include "CxxUtils/checker_macros.h"
 
 // ISF includes
@@ -134,10 +134,11 @@ namespace iGeant4
     std::vector<std::string> m_g4commands;
     /// Activate multi-threading configuration
     bool m_useMT{false};
+    bool m_activateParallelGeometries{false};
     // Random number service
     ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomNumberService", "AthRNGSvc", ""};
-    /// G4AtlasSvc
-    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
+    ///
+    ServiceHandle<IUserLimitsSvc> m_userLimitsSvc{this, "UserLimitsSvc", "UserLimitsSvc", ""};
     /// user action service
     ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc{this, "UserActionSvc", "", ""};
     /// Detector Geometry Service (builds G4 Geometry)

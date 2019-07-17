@@ -38,6 +38,9 @@
 #include "G4ScoringManager.hh"
 #include "G4Timer.hh"
 #include "G4SDManager.hh"
+#include "G4VUserPhysicsList.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 #include "AtlasDetDescr/AtlasRegionHelper.h"
 
@@ -63,6 +66,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
   declareProperty("PrintTimingInfo",      m_doTiming       );
+  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
 
 }
 
@@ -84,9 +88,10 @@ StatusCode iGeant4::G4TransportTool::initialize()
     m_runTimer->Start();
   }
 
-  ATH_CHECK(m_inputConverter.retrieve());
+  // Create the scoring manager if requested
+  if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
- // One-time initialization
+  // One-time initialization
   try {
     std::call_once(initializeOnceFlag, &iGeant4::G4TransportTool::initializeOnce, this);
   }
@@ -98,14 +103,10 @@ StatusCode iGeant4::G4TransportTool::initialize()
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
-  ATH_CHECK(m_g4atlasSvc.retrieve());
-
-  if (m_recordFlux) G4ScoringManager::GetScoringManager();
-
-  ATH_CHECK (m_detGeoSvc.retrieve());
-
   ATH_CHECK(m_senDetTool.retrieve());
   ATH_CHECK(m_fastSimTool.retrieve());
+
+  ATH_CHECK(m_inputConverter.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -165,6 +166,39 @@ void iGeant4::G4TransportTool::initializeOnce()
   for (auto g4command : m_g4commands) {
     int returnCode = ui->ApplyCommand( g4command );
     commandLog(returnCode, g4command);
+  }
+
+  // Code from G4AtlasSvc
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    throw std::runtime_error("Run manager retrieval has failed");
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_useMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
+
+  ATH_MSG_INFO( "retireving the Detector Geometry Service" );
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS DetectorGeometrySvc!");
+  }
+
+  if(m_userLimitsSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS UserLimitsSvc!");
+  }
+
+  if (m_activateParallelGeometries) {
+    G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physListSvc->GetPhysicsList());
+    if (!thePhysicsList) {
+      throw std::runtime_error("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+    }
+#if G4VERSION_NUMBER >= 1010
+    std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+    for (auto& it: parallelWorldNames) {
+      thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+    }
+#endif
   }
 
   return;

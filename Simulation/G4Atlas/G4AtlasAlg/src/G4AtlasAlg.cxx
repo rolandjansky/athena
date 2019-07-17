@@ -25,6 +25,9 @@
 #include "G4StackManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
+#include "G4VUserPhysicsList.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
@@ -61,6 +64,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("G4Commands", m_g4commands, "Commands to send to the G4UI");
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT, "Multi-threading specific settings");
+  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
 
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
@@ -87,9 +91,6 @@ StatusCode G4AtlasAlg::initialize()
 
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
-
-  // FIXME TOO EARLY???
-  ATH_CHECK(m_g4atlasSvc.retrieve());
 
   ATH_CHECK(m_senDetTool.retrieve());
   ATH_CHECK(m_fastSimTool.retrieve());
@@ -179,10 +180,39 @@ void G4AtlasAlg::initializeOnce()
     commandLog(returnCode, g4command);
   }
 
-  // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
-  /// @todo Reinstate or delete?! This can't actually be called from the Py algs
-  //ATH_MSG_INFO("Firing initialization of G4!!!");
-  //initializeG4();
+  // Code from G4AtlasSvc
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    throw std::runtime_error("Run manager retrieval has failed");
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_useMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
+
+  ATH_MSG_INFO( "retireving the Detector Geometry Service" );
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS DetectorGeometrySvc!");
+  }
+
+  if(m_userLimitsSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS UserLimitsSvc!");
+  }
+
+  if (m_activateParallelGeometries) {
+    G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physListSvc->GetPhysicsList());
+    if (!thePhysicsList) {
+      throw std::runtime_error("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+    }
+#if G4VERSION_NUMBER >= 1010
+    std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+    for (auto& it: parallelWorldNames) {
+      thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+    }
+#endif
+  }
+
   return;
 }
 
