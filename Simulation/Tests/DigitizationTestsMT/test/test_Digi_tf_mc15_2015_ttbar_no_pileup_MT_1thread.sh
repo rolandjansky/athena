@@ -20,7 +20,7 @@ Digi_tf.py \
 --postInclude 'Digitization/FixDataDependenciesForMT.py' \
 --skipEvents 0  \
 --maxEvents 10 \
---athenaopts '--threads 1'
+--athenaopts '--threads=1'
 
 rc=$?
 echo  "art-result: $rc Digi_tf.py"
@@ -33,4 +33,4 @@ then
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
 fi
-echo  "art-result: $rc2 art-compare"
+echo  "art-result: $rc2 regression"
