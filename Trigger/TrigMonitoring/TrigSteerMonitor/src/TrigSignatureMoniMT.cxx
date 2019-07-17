@@ -42,8 +42,13 @@ StatusCode TrigSignatureMoniMT::start() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::stop() {
+StatusCode TrigSignatureMoniMT::finalize() {
 
+  /**
+   * This should really be done during stop(). However, at the moment
+   * the EventContext is printed for each message in the stop transition
+   * making the use of the count printout in regtests impossible (!20776).
+   */
   if (m_chainIDToBinMap.empty()) {
     ATH_MSG_INFO( "No chains configured, no counts to print" );
     return StatusCode::SUCCESS;

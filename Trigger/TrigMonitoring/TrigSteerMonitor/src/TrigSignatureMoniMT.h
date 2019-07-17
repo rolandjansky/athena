@@ -31,7 +31,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   virtual StatusCode  initialize() override;
   virtual StatusCode  start() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  stop() override;
+  virtual StatusCode  finalize() override;
 
  private:
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
