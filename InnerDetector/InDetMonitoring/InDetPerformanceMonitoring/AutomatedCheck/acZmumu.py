@@ -7,7 +7,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "deriv" # "merge" "%"
+m_reconmerge = "merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
 # options
@@ -175,9 +175,10 @@ def extractRunsAndProperties (listOfDataSets):
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfFiles = int(tempString[:tempString.find("|")])
                 print " Number of files: ", theNumberOfFiles
-                print ("")
+                print (" ")
                 infoFromAMI[theRunNumber] = {}
                 infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
+                
                 infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
                 infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
                 if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
@@ -313,6 +314,7 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     import os
 
     listOfSubmittedRuns = []
+    listOfSubmittedDatasets = []
 
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
@@ -360,10 +362,11 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             infoFromAMI[runNumber]["status"] = "NEW"
             infoFromAMI[runNumber]["attempt"] = 0
             infoFromAMI[runNumber]["jeditaskid"] = 0
-            theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
+            theCommand, theDataset = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
-            
+            listOfSubmittedDatasets.append(theDataset)
+
             print (" <acZmumu> submiting job number %d" %(len(listOfSubmittedRuns)))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> job to be submmited");
@@ -382,8 +385,17 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
 
     import simplejson
     listOfSubmittedRuns.sort()
-    filewithlist = open('acZmumu_listofsubmittedruns.txt', 'wb')
-    simplejson.dump(listOfSubmittedRuns, filewithlist)        
+    filewithrunlist = open('acZmumu_listofsubmittedruns.txt', 'wb')
+    simplejson.dump(listOfSubmittedRuns, filewithrunlist)        
+    print " size of submitted runs: ",len(listOfSubmittedRuns)
+
+    listOfSubmittedDatasets.sort()
+    print " size of submitted datasets: ",len(listOfSubmittedDatasets)
+    filewithdatasets= open("acZmumu_listofsubmitteddatasets.txt","wb")
+    for thedataset in listOfSubmittedDatasets:
+        filewithdatasets.write("%s\n" %thedataset)
+        print " data set: ",thedataset
+    filewithdatasets.close()
 
     return listOfSubmittedRuns
 
@@ -470,10 +482,13 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     theScript = "%s%sshare/%s" %(m_testArea, m_packagePath, m_scriptName)
 
     theInput = "NONE"
+    theDataSet = "NONE"
     if (runNumber>0):
-        theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
+        theDataSet = "%s" %(infoFromAMI[runNumber]["dataset"])
+        theInput = "--inDS=%s" %(theDataSet)
     else:
         if ("NONE" not in m_userDataSet):
+            theDataSet = "%s" %m_userDataSet
             theInput = "--inDS=%s" %m_userDataSet
     if ("NONE" in theInput):
         sys.exit(" <acZmumu> ** ERROR ** no input available for the grid submission command. ** STOP execution **")
@@ -508,7 +523,7 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print "%s " %theCommand
 
-    return theCommand
+    return theCommand,theDataSet
 
 ###################################################################################################                                                                                
 def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
