@@ -23,6 +23,8 @@
 #include "../LooperThresholdSetTool.h"
 #include "../VolumeDumperTool.h"
 #include "../TestActionTool.h"
+#include "../AthenaStackingActionTool.h"
+#include "../AthenaTrackingActionTool.h"
 
 DECLARE_COMPONENT( G4UA::G4SimTimerTool )
 DECLARE_COMPONENT( G4UA::G4TrackCounterTool )
@@ -44,3 +46,5 @@ DECLARE_COMPONENT( G4UA::RadLengthActionTool )
 DECLARE_COMPONENT( G4UA::LooperThresholdSetTool )
 DECLARE_COMPONENT( G4UA::TestActionTool )
 DECLARE_COMPONENT( G4UA::VolumeDumperTool )
+DECLARE_COMPONENT( G4UA::AthenaStackingActionTool )
+DECLARE_COMPONENT( G4UA::AthenaTrackingActionTool )
