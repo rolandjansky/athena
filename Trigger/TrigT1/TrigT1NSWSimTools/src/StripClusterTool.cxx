@@ -37,7 +37,6 @@ namespace NSWL1 {
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
       m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
       m_detManager(0),
       m_sTgcIdHelper(0),
       m_tree(0),
