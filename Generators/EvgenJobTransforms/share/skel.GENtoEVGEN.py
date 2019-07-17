@@ -60,14 +60,8 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-<<<<<<< HEAD
-evgenLog = logging.getLogger('Generate')
-
-=======
 evgenLog = logging.getLogger('Gen')
-
 evgenLog.info("****************** GENERATING EVENTS WITH GEN_TF *****************")
->>>>>>> remotes/upstream/21.6
 
 ##==============================================================
 ## Run arg handling
@@ -203,17 +197,10 @@ if len(runArgs.jobConfig) != 1:
 
 print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"])
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-<<<<<<< HEAD
-print "The first search dir = ", FIRST_DIR
-
-dsid_param = runArgs.jobConfig[0]
-evgenLog.info("dsid_param " + dsid_param)
-=======
 #print "The first search dir = ", FIRST_DIR
 
 dsid_param = runArgs.jobConfig[0]
 #evgenLog.info("dsid_param " + dsid_param)
->>>>>>> remotes/upstream/21.6
 dsid = os.path.basename(dsid_param)
 #evgenLog.info("dsid " + dsid)
 #BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
@@ -231,11 +218,9 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
-<<<<<<< HEAD
 include("EvgenJobTransforms/check_jo_consistency.py")
 check_consistency(jofile)
-=======
->>>>>>> remotes/upstream/21.6
+
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
 #jofile = os.path.basename(jo)
@@ -265,11 +250,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     #    sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
-<<<<<<< HEAD
-    if len(jo_physshortpart) > 60:
-=======
     if len(jo_physshortpart) > 50:
->>>>>>> remotes/upstream/21.6
         evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
@@ -672,11 +653,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-<<<<<<< HEAD
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
-=======
         raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
->>>>>>> remotes/upstream/21.6
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
@@ -822,8 +799,4 @@ with open("config.pickle", 'w') as f:
 ##==============================================================
 ## Get ready to run...
 ##==============================================================
-<<<<<<< HEAD
-evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
-=======
 evgenLog.info("****************** STARTING EVENT GENERATION *****************")
->>>>>>> remotes/upstream/21.6
