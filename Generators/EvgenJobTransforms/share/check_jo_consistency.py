@@ -41,18 +41,7 @@ def check_consistency(jofile):
 
 
     # NOTE: Further checks for generators - these need modification to work properly
-#    Generators = {'Madgraph':'MG', 'Herwigpp':'Hpp', 'Herwig7':'H7', 'EvtGen':'EG', 'Pythia8':'Py8', 'Pythia':'Py6', 'Powheg':'Ph', 'Sherpa':'Sh', 'Alpgen':'Ag', 'ParticleGun':'PG', 'aMcAtNlo':'aMC',
-#                  'Perugia2012':'p12', 'ParticleDecayer':'PD', 'HepMCAscii':'HepMC', 'MadSpin':'MSp'}
-    
-    File_path = os.path.dirname(os.path.abspath(__file__))
-    GenListFile = File_path+'/GeneratorList.txt'
-    print GenListFile
-
-    Generators = {}
-    with open(GenListFile) as f:
-        for line in f:
-            (key, val) = line.split()
-            Generators[key] = val
+    include('EvgenJobTransforms/GeneratorList.py')
     print Generators
 
     Generators_abb = list(Generators.values())
@@ -109,4 +98,4 @@ def check_consistency(jofile):
 #    check_consistency("mc16.aMC_Example1.py")
 
 if __name__== "__main__":
-    main()
+    print __name__
