@@ -214,7 +214,7 @@ SiDetectorElement::updateCache() const
       barrelLike = false;
     }   
 
-      //These need to be done after m_normal is initialized, otherwise IsInclined() does not work
+    
     if(msgLvl(MSG::DEBUG)){
       if (isBarrel() && !barrelLike) {      
 	msg(MSG::DEBUG) << "Element has endcap like orientation with barrel identifier. This is OK for Inclined modules or Barrel Disks in ITK pixel layouts, but is otherwise suspicious..." 
