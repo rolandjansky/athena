@@ -34,6 +34,9 @@ FourMuonEvent::FourMuonEvent()
   m_container = PerfMonServices::MUID_COLLECTION;
 
   m_doDebug = false;
+  m_workAsFourMuons = true;
+  m_workAsFourElectrons = false;
+  m_workAsFourLeptons = false;
 
   // Setup the muon tags
   m_uMuonTags   = 4;
@@ -79,7 +82,7 @@ bool FourMuonEvent::Reco()
 
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
-  if (pxMuonContainer != nullptr) {
+  if (pxMuonContainer != nullptr && (m_workAsFourMuons || m_workAsFourLeptons) ) {
     if (m_doDebug || thisdebug) {std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
 					   << " track list has "<< pxMuonContainer->size() 
 					   << " combined muons in container " << m_container 
@@ -103,29 +106,42 @@ bool FourMuonEvent::Reco()
     // ordering of muons
     this->OrderMuonList();
     
-    m_passedSelectionCuts = false;  // unless the event has 4 muons, assume it is not good
+    m_passedFourMuonSelection = false; // unless the event has 4 muons, assume it is not good
     if (m_numberOfFullPassMuons == 4) {
-      m_passedSelectionCuts = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
-      if ( m_passedSelectionCuts && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
+      m_passedFourMuonSelection = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
+      if ( m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
 
-      m_passedSelectionCuts = this->ReconstructKinematics(); // try the event kinematics 
+      m_passedFourMuonSelection = this->ReconstructKinematics(); // try the event kinematics 
 
-      if (m_passedSelectionCuts) {   
-	m_passedSelectionCuts = EventSelection(ID);
+      if (m_passedFourMuonSelection) {   
+	m_passedFourMuonSelection = EventSelection(ID);
 	m_FourMuonInvMass = m_fInvariantMass[ID];
       }
-      if (!m_passedSelectionCuts && thisdebug) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
+      if (!m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
     }
     else {
       if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco * This events has no 4 good muons :( " << std::endl;
     }    
   }
   
-  if (!pxMuonContainer) {
+  if (!pxMuonContainer && m_workAsFourMuons) {
     std::cout << " * FourMuonEvent::Reco * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
     return false;
   }
   
+  if (m_workAsFourElectrons) {
+    std::cout << " * FourMuonEvent::Reco * work in progress to use 4 electrons as well " << std::endl;
+  }
+
+  if (m_workAsFourLeptons) {
+    std::cout << " * FourMuonEvent::Reco * work in progress to use 4 leptons (electrons or muons) " << std::endl;
+  }
+
+  m_passedSelectionCuts = false; // assume event is not good, but check the selection according to the use case
+  if (m_workAsFourMuons)     m_passedSelectionCuts = m_passedFourMuonSelection;
+  if (m_workAsFourElectrons) m_passedSelectionCuts = m_passedFourElectronSelection;
+  if (m_workAsFourLeptons)   m_passedSelectionCuts = m_passedFourLeptonSelection;
+
   if (m_doDebug) {
     if ( m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Selected event :) " << std::endl;
     if (!m_passedSelectionCuts) std::cout << " * FourMuonEvent::Reco * Rejected event :( " << std::endl;
@@ -467,6 +483,11 @@ void FourMuonEvent::Clear()
 {
   m_numberOfFullPassMuons = 0;
   m_passedSelectionCuts   = false;
+  m_passedFourMuonSelection = false;
+  m_passedFourElectronSelection = false;
+  m_passedFourLeptonSelection = false;
+
+
   m_FourMuonInvMass = -1.; // flag as no reconstructed inv mass yet
   m_muon1 = MUON1; // point to the first two
   m_muon2 = MUON2;

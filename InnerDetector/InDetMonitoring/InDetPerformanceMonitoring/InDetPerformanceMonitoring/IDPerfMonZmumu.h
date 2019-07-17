@@ -73,12 +73,12 @@ class IDPerfMonZmumu : public AthAlgorithm
 
  private:
   // Private class member functions.
-  void RegisterHistograms();
+  StatusCode          bookTrees();
+  void                RegisterHistograms();
   const xAOD::Vertex* GetDiMuonVertex(const xAOD::TrackParticle*,const  xAOD::TrackParticle*);
-  bool FillRecParameters(const Trk::Track* track, const xAOD::TrackParticle* trackp_for_unbias, double charge,const xAOD::Vertex* vertex);
-  bool FillRecParametersTP(const xAOD::TrackParticle* trackp, const xAOD::TrackParticle* trackp_for_unbias,double charge,const xAOD::Vertex* vertex = NULL);
-  //void FillRecParameters(const xAOD::TrackParticle* trackparticle, double charge);
-StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
+  bool                FillRecParameters(const Trk::Track* track, const xAOD::TrackParticle* trackp_for_unbias, double charge,const xAOD::Vertex* vertex);
+  bool                FillRecParametersTP(const xAOD::TrackParticle* trackp, const xAOD::TrackParticle* trackp_for_unbias,double charge,const xAOD::Vertex* vertex = NULL);
+  StatusCode          FillTruthParameters(const xAOD::TrackParticle* track);
 
   const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
   StatusCode CheckTriggerStatusAndPrescale ();

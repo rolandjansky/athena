@@ -54,8 +54,8 @@ class FourMuonEvent : public EventAnalysis
     NUM_TYPES
   };
 
-  virtual void Init();
-  virtual bool Reco();
+  void Init(); 
+  bool Reco();
 
   // Public access methods
   inline void                        doIsoSelection(bool doIso) { m_xMuonID.doIsoSelection(doIso); }
@@ -98,7 +98,7 @@ class FourMuonEvent : public EventAnalysis
 
 
  protected:
-  virtual void BookHistograms();
+  void BookHistograms(); // virtual?
 
  private:
   typedef EventAnalysis PARENT;
@@ -128,9 +128,15 @@ class FourMuonEvent : public EventAnalysis
   double m_Z0GapCut;
 
   bool m_doDebug;
+  bool m_workAsFourMuons;
+  bool m_workAsFourElectrons;
+  bool m_workAsFourLeptons;
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
   bool             m_passedSelectionCuts;
+  bool             m_passedFourMuonSelection;
+  bool             m_passedFourElectronSelection;
+  bool             m_passedFourLeptonSelection;
 
   const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS];
   const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )

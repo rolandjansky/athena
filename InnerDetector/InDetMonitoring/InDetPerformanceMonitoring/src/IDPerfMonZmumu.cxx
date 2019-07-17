@@ -213,7 +213,19 @@ StatusCode IDPerfMonZmumu::initialize()
   if (m_doFourMuAnalysis) m_4mu.setDebugMode(false);
 
   m_LooseT2VAssociationTool = std::make_unique<CP::LooseTrackVertexAssociationTool>("Loose");
+
+  ATH_CHECK( this->bookTrees() );
   
+  return StatusCode::SUCCESS;
+}
+
+
+  
+//==================================================================================
+StatusCode IDPerfMonZmumu::bookTrees()
+{
+
+
 
   if( m_defaultTree == 0){
 
@@ -884,8 +896,7 @@ StatusCode IDPerfMonZmumu::execute()
 	
 	m_4mu_minv = m_4mu.GetInvMass();
 	
-	// MET test
-	// declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
+	// Obtain MET 
 	std::string m_metName = "MET_Reference_AntiKt4LCTopo";
 	std::string m_metRefFinalName = "FinalClus";
 	const xAOD::MissingETContainer* final_met = 0;
