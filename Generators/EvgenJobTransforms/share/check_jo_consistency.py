@@ -41,8 +41,20 @@ def check_consistency(jofile):
 
 
     # NOTE: Further checks for generators - these need modification to work properly
-    Generators = {'Madgraph':'MG', 'Herwigpp':'Hpp', 'Herwig7':'H7', 'EvtGen':'EG', 'Pythia8':'Py8', 'Pythia':'Py6', 'Powheg':'Ph', 'Sherpa':'Sh', 'Alpgen':'Ag', 'ParticleGun':'PG', 'aMcAtNlo':'aMC',
-                  'Perugia2012':'p12', 'ParticleDecayer':'PD', 'HepMCAscii':'HepMC', 'MadSpin':'MSp'}
+#    Generators = {'Madgraph':'MG', 'Herwigpp':'Hpp', 'Herwig7':'H7', 'EvtGen':'EG', 'Pythia8':'Py8', 'Pythia':'Py6', 'Powheg':'Ph', 'Sherpa':'Sh', 'Alpgen':'Ag', 'ParticleGun':'PG', 'aMcAtNlo':'aMC',
+#                  'Perugia2012':'p12', 'ParticleDecayer':'PD', 'HepMCAscii':'HepMC', 'MadSpin':'MSp'}
+    
+    File_path = os.path.dirname(os.path.abspath(__file__))
+    GenListFile = File_path+'/GeneratorList.txt'
+    print GenListFile
+
+    Generators = {}
+    with open(GenListFile) as f:
+        for line in f:
+            (key, val) = line.split()
+            Generators[key] = val
+    print Generators
+
     Generators_abb = list(Generators.values())
     if joparts[0].startswith("mc"): #< if this is an "official" JO
         genpart = jo_physshortparts[0]
@@ -89,12 +101,12 @@ def check_consistency(jofile):
 #def main():
 #    print("\n===> Checking jobOption consistency...\n")
     # Get job options
-#    command="git diff-tree --name-only -r HEAD --diff-filter=AMDCRTUXB | grep -E \"mc[0-9]{2}.*.py\""
+#     command="git diff-tree --name-only -r HEAD --diff-filter=AMDCRTUXB | grep -E \"mc[0-9]{2}.*.py\""
 #    files=os.popen(command).read().strip().split("\n")
 #    for file in files:
 #        jofile=file.split("/")[-1]
 #        print("Modified jO fle: {0} - jO file = {1}".format(file, jofile))
-#        check_consistency(jofile)
+#    check_consistency("mc16.aMC_Example1.py")
 
-#if __name__== "__main__":
-#    main()
+if __name__== "__main__":
+    main()
