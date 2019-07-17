@@ -28,7 +28,7 @@ find_package( HepMC COMPONENTS HepMC HepMCfio )
 find_package( Lhapdf )
 find_package( Pythia6 )
 
-add_definitions(-DPY6VERSION="${PYTHIA6_VERSION}")
+add_definitions(-DPY6VERSION="${PYTHIA6_LCGVERSION}")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()

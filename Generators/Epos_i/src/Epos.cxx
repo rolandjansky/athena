@@ -170,7 +170,7 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
   declareProperty( "ParamFile",       m_paramFile       = "crmc.param" );
   declareProperty( "LheOutput",       m_ilheout       = 0 );
   declareProperty( "LheFile",         m_lheout       = "epos.lhe" );
-  declareProperty( "TabCreate",       m_itab       = 0 );
+  declareProperty( "TabCreate",       m_itab       = 1 );
   declareProperty( "nEvents",         m_nEvents    = 5500 );
   
   m_events = 0; // current event number (counted by interface)
@@ -194,7 +194,7 @@ Epos::~Epos()
 StatusCode Epos::genInitialize() 
 {
   ATH_MSG_INFO( " CRMC INITIALISING.\n" );
-  ATH_MSG_INFO( "signal_rocess_id 101-ND, 105-DD, 102-CD, 103 AB->XB, 104 AB->AX \n");
+  ATH_MSG_INFO( "signal_process_id 101-ND, 105-DD, 102-CD, 103 AB->XB, 104 AB->AX \n");
 
   static const bool CREATEIFNOTTHERE = true;
   
@@ -213,13 +213,23 @@ StatusCode Epos::genInitialize()
 
   // set up initial values
 
-  //   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+     std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+    ATH_MSG_INFO( " CRMC SET F.\n" );
 
     crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_paramFile.c_str() ); 
 
+    std::string name1 = "tabs/epos.inirj.lhc";
+    std::string name2 = "tabs/epos.inics.lhc";
+    bool ex1 = access(name1.c_str(), F_OK) != -1;
+    bool ex2 = access(name2.c_str(), F_OK) != -1;
+    std::cout << "ini files found ? " << ex1 << " " << ex2 << std::endl;
+
+
     // initialize Epos
   //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
+  ATH_MSG_INFO( " CRMC INIT F.\n" );
   crmc_init_f_();
+  ATH_MSG_INFO( " CRMC INIT F DONE.\n" );
 
     // ... and set them back to the stream for proper save
   p_AtRndmGenSvcEpos->CreateStream( si1, si2, epos_rndm_stream );
@@ -231,6 +241,8 @@ StatusCode Epos::genInitialize()
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
     HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
 
+    ATH_MSG_INFO( " HEPMC SETUP DONE.\n" );
+
   m_events = 0;
 
   //  m_ascii_out = new HepMC::IO_GenEvent(m_eposEventInfo);
@@ -241,7 +253,7 @@ StatusCode Epos::genInitialize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::callGenerator() 
 {
-  // ATH_MSG_INFO( " EPOS Generating." );
+   ATH_MSG_INFO( " EPOS Generating." );
 
     // save the random number seeds in the event
     CLHEP::HepRandomEngine* engine = p_AtRndmGenSvcEpos->GetEngine( epos_rndm_stream );

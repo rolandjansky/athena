@@ -23,7 +23,7 @@ find_package( HepMC )
 find_package( Hijing )
 find_package( ROOT COMPONENTS minicern Core Tree MathCore Hist RIO pthread )
 
-add_definitions(-DHIJINGVERSION=\"${HHIJING_VERSION}\")
+add_definitions(-DHIJINGVERSION=\"${HIJING_LCGVERSION}\")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()

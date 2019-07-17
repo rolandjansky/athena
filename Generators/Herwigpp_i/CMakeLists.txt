@@ -29,7 +29,7 @@ atlas_add_component( Herwigpp_i
    Herwigpp_i/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
    ${THEPEG_INCLUDE_DIRS}
-   PRIVATE_DEFINITIONS -DHWVERSION=\"${HERWIGPP_VERSION}\"
+   PRIVATE_DEFINITIONS -DHWVERSION=\"${HERWIGPP_LCGVERSION}\"
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${HERWIGPP_LIBRARIES} ${THEPEG_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver )
 

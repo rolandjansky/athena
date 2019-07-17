@@ -60,7 +60,7 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate')
+evgenLog = logging.getLogger('Generate_ab')
 
 
 ##==============================================================

@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 // ------------------------------------------------------------- 
 // Generators/Starlight_i.cxx Description: Allows the user
 // to generate Starlight events and store the result in the
@@ -48,8 +47,9 @@ namespace{
 
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
              GenModule(name,pSvcLocator), m_events(0), 
-	     m_starlight(0),
-	     m_inputParameters(0),
+	     m_starlight(),
+	     m_inputParameters(),
+	     m_randomGenerator(),
 	     m_event(0),
 	     m_configFileName(""),
 	     m_beam1Z(0),
@@ -70,6 +70,7 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 	     m_minEta(0.),
 	     m_maxEta(0.),
 	     m_productionMode(0),
+	     m_axionMass(1.),
 	     m_nmbEventsTot(0),
 	     m_prodParticleId(0),
 	     m_randomSeed(0),
@@ -136,11 +137,21 @@ StatusCode Starlight_i::genInitialize()
     if( !res ) {
       return StatusCode::FAILURE;
     }
+    
+    
+    m_randomGenerator.SetSeed(m_randomSeed);
+    
 
     // create the starlight object
     m_starlight = new starlight();
+    
+    // adding explicit setting
+    m_starlight->setInputParameters(&m_inputParameters);
+    m_starlight->setRandomGenerator(&m_randomGenerator);
+    
     // and initialize
     m_starlight->init();
+
 
     return StatusCode::SUCCESS;
 }
@@ -227,8 +238,9 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	int charge = (*part).getCharge();
         //AO special for pid sign stored in charge
         int pidsign = pid/abs(pid);
-        int chsign = charge/abs(charge);
-        if( chsign != pidsign ) pid = -pid;
+	int chsign = 0;
+        if (charge !=0) chsign = charge/abs(charge);
+        if( chsign != pidsign && chsign != 0) pid = -pid;
 
 	double px = (*part).GetPx();
 	double py = (*part).GetPy();
@@ -236,8 +248,13 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	double e  = (*part).GetE();
 	// mass fix implemented only for muons
 	if(abs(pid)==13) {
-          float mass = starlightConstants::muonMass;
+//          float mass = starlightConstants::muonMass;
+          float mass = m_inputParameters.muonMass();
 	  e  = sqrt(px*px + py*py + pz*pz + mass*mass);
+	}
+	// mass fix for photons (ALPs)
+	if(abs(pid)==22) {
+	  e  = sqrt(px*px + py*py + pz*pz);
 	}
 	log << MSG::DEBUG
 	    << "saving particle " << ipart << endreq;
@@ -271,12 +288,14 @@ bool Starlight_i::set_user_params()
     }
   }
   
-  inputParametersInstance.configureFromFile(m_configFileName);
-  if (!inputParametersInstance.init()) {
+  m_inputParameters.configureFromFile(m_configFileName);
+  
+  if (!m_inputParameters.init()) {
     log << MSG::WARNING
 	<< "problems initializing input parameters. cannot initialize starlight. " << endreq;
     return false;
   }
+  log << MSG::INFO << "after m_inputParameters->init()" << endreq; 
   
   return true;
 }
@@ -365,6 +384,10 @@ bool Starlight_i::prepare_params_file()
 	{
 	  m_productionMode  = mystring.numpiece(2);
 	}
+	else if (myparam == "axionMass")
+	{
+	  m_axionMass  = mystring.numpiece(2);
+	}
 	else if (myparam == "nmbEventsTot")
 	{
 	  m_nmbEventsTot  = mystring.numpiece(2);
@@ -451,6 +474,7 @@ bool Starlight_i::prepare_params_file()
     configFile << "ETA_MIN = " << m_minEta << std::endl;
     configFile << "ETA_MAX = " << m_maxEta << std::endl;
     configFile << "PROD_MODE = " << m_productionMode << std::endl;
+    configFile << "AXION_MASS = " << m_axionMass << std::endl;
     configFile << "N_EVENTS = " << m_nmbEventsTot << std::endl;
     configFile << "PROD_PID = " << m_prodParticleId << std::endl;
     configFile << "RND_SEED = " << m_randomSeed << std::endl;
