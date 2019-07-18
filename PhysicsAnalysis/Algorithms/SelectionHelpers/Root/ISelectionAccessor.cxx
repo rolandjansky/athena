@@ -82,7 +82,7 @@ namespace CP
         SelectionExprParser parser(name);
         std::unique_ptr<SelectionExprParser::BooleanExpression> ex =
             parser.build();
-        ATH_MSG_VERBOSE("Expression: " << ex->toString());
+        ANA_MSG_VERBOSE("Expression: " << ex->toString());
 
         std::unordered_map<std::string, std::unique_ptr<ISelectionAccessor>>
             accessors;
@@ -102,7 +102,7 @@ namespace CP
         accessor = std::make_unique<SelectionAccessorExpr>(std::move(ex), std::move(accessors));
 
       } catch (...) {
-        ATH_MSG_FATAL("Failure to parse expression: '" << name << "'");
+        ANA_MSG_FATAL("Failure to parse expression: '" << name << "'");
         return StatusCode::FAILURE;
       }
 
