@@ -206,7 +206,13 @@ def setupMenu():
         ['j0_perf_sktc_lcw_nojcalib_L1RD0_FILLED',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j0_perf_tc_lcw_nojcalib_L1RD0_FILLED',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j0_perf_tc_lcw_sub_L1RD0_FILLED',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        # Test of ftf on cut-down Run 3 HH item
+        ['j55_j45_j28_j20_AND_j20_ftf', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1, ['serial', -1,["j55","j45","j28","j20_AND","j20_ftf"]]],
+        ['2j35_AND_j35_ftf', 'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1, ['serial', -1,["2j35_AND","j35_ftf"]]],
+        ['4j35_AND_j35_ftf', 'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1, ['serial', -1,["4j35_AND","j35_ftf"]]],
 			 ]
+
 
 
     if TriggerFlags.doFTK():
