@@ -242,9 +242,9 @@ namespace ana
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzz4l", makeHZZElectronTool (args))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l", makeHZZElectronTool (args, "LooseAndBLayerLLH", WPType::_SMZZ4l))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l_veryloose", makeHZZElectronTool (args, "VLooseLLH", WPType::_SMZZ4l))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FCLoose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseAndBLayerLLH", WPType::_ZHinv, "FCLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FCLoose"))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZElectronTool (args, "LooseAndBLayerLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "FCLoose"))
 }

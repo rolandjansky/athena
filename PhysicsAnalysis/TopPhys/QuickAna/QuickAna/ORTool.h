@@ -103,6 +103,7 @@ namespace ana
     /// WP for 4l, only reject jets
     bool m_onlyRejJets;
     bool m_onlyVBS4l;
+    bool m_applyMuPF;
 
   }; // class ORTool
 
