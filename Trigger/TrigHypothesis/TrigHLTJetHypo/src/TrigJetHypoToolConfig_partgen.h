@@ -2,11 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETHYPOTOOLConfig_ETAET_H
-#define TRIGJETHYPOTOOLConfig_ETAET_H
+#ifndef TRIGJETHYPOTOOLConfig_PARTGEN_H
+#define TRIGJETHYPOTOOLConfig_PARTGEN_H
+
 /********************************************************************
  *
- * NAME:     TrigJetHypoToolConfig_EtaEtTool.h
+ * NAME:     TrigJetHypoToolConfig_partgen.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  *
@@ -19,6 +20,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
+
 
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
@@ -26,21 +29,23 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
-class TrigJetHypoToolConfig_EtaEt:
+class TrigJetHypoToolConfig_partgen:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
  public:
   
-  TrigJetHypoToolConfig_EtaEt(const std::string& type,
+  TrigJetHypoToolConfig_partgen(const std::string& type,
                           const std::string& name,
                           const IInterface* parent);
-  virtual ~TrigJetHypoToolConfig_EtaEt();
+  virtual ~TrigJetHypoToolConfig_partgen();
 
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
   virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
-  virtual ConditionsMT getConditions() const override;
+
+  virtual std::optional<ConditionsMT> getConditions() const override;
+  virtual std::size_t requiresNJets() const override {return 0;}
 
  private:
   
@@ -55,20 +60,14 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
   Gaudi::Property<std::vector<int>>
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
-      
 
+  Gaudi::Property<unsigned int>
+    m_size{this, "groupSize", {}, "Jet group size"};
 
+  ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
+    this, "children", {}, "list of child jet hypo helpers"};
 
   virtual StatusCode checkVals()  const override;
-
- // Monitored variables...
- /*
-  declareMonitoredVariable("NJet", m_njet);
-  declareMonitoredVariable("Et", m_et);
-  declareMonitoredVariable("Eta", m_eta);
-  declareMonitoredVariable("Phi", m_phi);
-*/
-
-
+ 
 };
 #endif

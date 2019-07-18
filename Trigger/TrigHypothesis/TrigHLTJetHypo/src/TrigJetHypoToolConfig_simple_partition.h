@@ -39,7 +39,8 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
   virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
-  virtual ConditionsMT getConditions() const override;
+  virtual std::optional<ConditionsMT> getConditions() const override;
+  virtual std::size_t requiresNJets() const override;
 
  private:
   

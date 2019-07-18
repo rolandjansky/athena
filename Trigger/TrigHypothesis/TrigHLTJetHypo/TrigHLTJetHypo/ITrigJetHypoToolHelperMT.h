@@ -26,7 +26,9 @@ public:
 		    xAODJetCollector&,
                     const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
   
+  virtual std::size_t requiresNJets() const = 0;
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const = 0;
+  virtual std::string toString() const = 0;
    
 };
 #endif

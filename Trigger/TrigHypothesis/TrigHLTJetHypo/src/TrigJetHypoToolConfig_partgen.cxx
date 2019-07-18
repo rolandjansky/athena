@@ -4,19 +4,19 @@
 
 // ********************************************************************
 //
-// NAME:     TrigJetHypoToolMT_combgen.cxx
+// NAME:     TrigJetHypoToolMT_partgen.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 //
 // ********************************************************************
 
-#include "TrigJetHypoToolConfig_combgen.h"
+#include "TrigJetHypoToolConfig_partgen.h"
 #include "./conditionsFactoryMT.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
-#include "./CombinationsGroupsToHelpersMatcherMT.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/PartitionsGrouper.h"
+#include "./PartitionsGroupsToHelpersMatcherMT.h"
 
-TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& type,
+TrigJetHypoToolConfig_partgen::TrigJetHypoToolConfig_partgen(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent) :
   base_class(type, name, parent){
@@ -24,10 +24,10 @@ TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& 
 }
 
 
-TrigJetHypoToolConfig_combgen::~TrigJetHypoToolConfig_combgen(){
+TrigJetHypoToolConfig_partgen::~TrigJetHypoToolConfig_partgen(){
 }
 
-StatusCode TrigJetHypoToolConfig_combgen::initialize() {
+StatusCode TrigJetHypoToolConfig_partgen::initialize() {
   CHECK(checkVals());
   return StatusCode::SUCCESS;
 }
@@ -36,33 +36,29 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 
 
 std::optional<ConditionsMT>
-TrigJetHypoToolConfig_combgen::getConditions() const {
+TrigJetHypoToolConfig_partgen::getConditions() const {
 
   auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
                                              m_etaMaxs,
                                              m_EtThresholds,
                                              m_asymmetricEtas);
   
-  auto capacity0 = conditions[0]->capacity();
-  if(std::any_of(conditions.begin(),
-		 conditions.end(),
-		 [capacity0](const auto& c) {
-		   return c->capacity() != capacity0;}))
-    {
-      ATH_MSG_ERROR("Conditions have differing capacities");
-      return std::optional<ConditionsMT>();
-    }
-  
   return std::make_optional<ConditionsMT>(std::move(conditions));
 }
 
  
 std::unique_ptr<IJetGrouper>
-TrigJetHypoToolConfig_combgen::getJetGrouper() const {
-  return std::make_unique<CombinationsGrouper>(m_size);
+TrigJetHypoToolConfig_partgen::getJetGrouper() const {
+
+  std::vector<std::size_t> mults;
+  for(const auto& c : m_children){
+    mults.push_back(c->requiresNJets());
+  }
+    
+  return std::make_unique<PartitionsGrouper>(mults);
 }
 
-StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
+StatusCode TrigJetHypoToolConfig_partgen::checkVals() const {
   if (m_EtThresholds.size() != m_etaMins.size() or
       m_EtThresholds.size() != m_etaMaxs.size() or
       m_asymmetricEtas.size() != m_etaMaxs.size()){
@@ -87,23 +83,16 @@ StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
 }
 
 std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_combgen::getCleaners() const {
+TrigJetHypoToolConfig_partgen::getCleaners() const {
   std::vector<std::shared_ptr<ICleaner>> v;
   return v;
 }
 
 
 std::unique_ptr<IGroupsMatcherMT>
-TrigJetHypoToolConfig_combgen::getMatcher () const {
-  /* Provides a matcher that matcheZ<s single HypoJetVectors to
+TrigJetHypoToolConfig_partgen::getMatcher () const {
+  /* Provides a matcher that matches single HypoJetVectors to
      multiple ITrigJetHypoToolHelperMT*/
 
-  return std::make_unique<CombinationsGroupsToHelpersMatcherMT>(m_children);
-}
-
-std::size_t
-TrigJetHypoToolConfig_combgen::requiresNJets() const {
-  std::size_t result{0};
-  for(const auto& c : m_children){result += c->requiresNJets();}
-  return result;
+  return std::make_unique<PartitionsGroupsToHelpersMatcherMT>(m_children);
 }

@@ -4,21 +4,21 @@
 
 // ********************************************************************
 //
-// NAME:     AndHelperTool.cxx
+// NAME:     AgreeHelperTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 //
 // ********************************************************************
 
-#include "AndHelperTool.h"
+#include "TrigHLTJetHypoUnitTests/AgreeHelperTool.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./ITrigJetHypoInfoCollector.h"
-#include "./nodeIDPrinter.h"
-#include "./JetTrigTimer.h"
+#include "TrigHLTJetHypo/../src/ITrigJetHypoInfoCollector.h"
+#include "TrigHLTJetHypo/../src/nodeIDPrinter.h"
+#include "TrigHLTJetHypo/../src/JetTrigTimer.h"
 #include <sstream>
 
-AndHelperTool::AndHelperTool(const std::string& type,
+AgreeHelperTool::AgreeHelperTool(const std::string& type,
                              const std::string& name,
                              const IInterface* parent) :
   base_class(type, name, parent){
@@ -26,23 +26,20 @@ AndHelperTool::AndHelperTool(const std::string& type,
 
 
 bool
-AndHelperTool::pass(HypoJetVector& jets,
+AgreeHelperTool::pass(HypoJetVector& jets,
 		    xAODJetCollector& jetCollector,
 		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-  ATH_MSG_DEBUG("AndHelperTool::pass... " << jets.size() << " jets");
+  ATH_MSG_DEBUG("AgreeHelperTool::pass... " << jets.size() << " jets");
 
   JetTrigTimer timer;
   if(collector){
     timer.start();
   }
-  bool pass = m_lhs->pass(jets, jetCollector, collector);
-  if (pass){
-    ATH_MSG_DEBUG("LHS passed");
-    pass = m_rhs->pass(jets, jetCollector, collector);
-    ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
-  } else {
-    ATH_MSG_DEBUG("LHS failed");
-  }
+  bool lpass = m_lhs->pass(jets, jetCollector, collector);
+  bool rpass = m_rhs->pass(jets, jetCollector, collector);
+  // bool lpass = true;
+  // bool rpass = true;
+  bool pass = (lpass and rpass) or (not(lpass or rpass));
 
   if (collector){
     timer.stop();
@@ -52,20 +49,29 @@ AndHelperTool::pass(HypoJetVector& jets,
                                              pass,
                                              timer.readAndReset()));
   }
-  return pass;
+  if(not pass){
+    ATH_MSG_ERROR("Right - left pass disagree. rhs pass: " << rpass
+		  << " lhs pass: " <<lpass);
+  }
 
+  if(collector){
+    std::string msg = pass ? "pass" : "fail";
+    collector->collect(name(), msg);
+  }
+  
+  return pass;
 }
 
-std::string AndHelperTool::toString() const{
+std::string AgreeHelperTool::toString() const{
   return nodeIDPrinter(name(), m_nodeID, m_parentNodeID);                     
 }
 
-StatusCode AndHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
+StatusCode AgreeHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }
 
-std::size_t AndHelperTool::requiresNJets() const {
+std::size_t AgreeHelperTool::requiresNJets() const {
   return m_lhs->requiresNJets() + m_rhs->requiresNJets();
 }
 

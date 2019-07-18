@@ -72,7 +72,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, debugFlagIsFalse){
 TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   EXPECT_TRUE(true);
   HypoJetVector jets;
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
@@ -89,6 +89,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
 
   EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
+
 }
 
 
@@ -116,7 +117,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
   if(m_debug){
     visitor.reset(new DebugInfoCollector("toofewselectedjets"));
   }
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
 
   xAODJetCollector jetCollector;
 
@@ -165,20 +166,22 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   EXPECT_CALL(jet3, et()).Times(3);
   
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
-  
-  std::unique_ptr<ITrigJetHypoInfoCollector>
-    collector(new DebugInfoCollector("oneSelectedJet.log"));
+
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  if(m_debug){
+    collector.reset(new DebugInfoCollector("oneSelectedjets"));
+  }
 								      
 
   EXPECT_TRUE(groups.end() - groups.begin() == 4);
   auto groups_b = groups.begin();
   auto groups_e = groups.end();
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
 
   xAODJetCollector jetCollector;
   
   auto pass = matcher.match(groups_b, groups_e, jetCollector, collector);
-  
+
   if(m_debug){collector->write();}
   
   EXPECT_TRUE(jetCollector.empty());
@@ -229,7 +232,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, twoSelectedJets){
   EXPECT_CALL(jet2, et()).Times(m_nconditions);
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
@@ -286,15 +289,21 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
   EXPECT_CALL(jet0, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  if(m_debug){
+    visitor.reset(new DebugInfoCollector("threeSelectedjets"));
+  }
 
   xAODJetCollector jetCollector;
 
   auto pass =
     matcher.match(groups.begin(), groups.end(), jetCollector, visitor);
 
+  if(m_debug){visitor->write();}
+  
   EXPECT_TRUE(jetCollector.empty());  // not xAOD jets
   EXPECT_TRUE(*pass);
 }
@@ -342,7 +351,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, fourSelectedJets){
   EXPECT_CALL(jet2, et()).Times(m_nconditions);
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(m_conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   
@@ -417,7 +426,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, overlappingEtaRegions){
   EXPECT_CALL(jet2, et()).Times(nconditions);
   EXPECT_CALL(jet3, et()).Times(nconditions);
 
-  MaximumBipartiteGroupsMatcherMT matcher(conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(std::move(conditions));
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);

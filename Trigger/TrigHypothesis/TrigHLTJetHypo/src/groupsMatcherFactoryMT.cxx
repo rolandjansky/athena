@@ -9,32 +9,26 @@
 
 
 std::unique_ptr<IGroupsMatcherMT> 
-groupsMatcherFactoryMT_MaxBipartite (const ConditionsMT& conditions){
-  
-  auto matcher = std::unique_ptr<IGroupsMatcherMT> (nullptr);
+groupsMatcherFactoryMT_MaxBipartite (ConditionsMT&& conditions){
   
   if (conditions.size() == 1) {
-    matcher.reset(new SingleConditionMatcherMT(conditions[0]));
+    return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
+    // return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
-    matcher.reset(new MaximumBipartiteGroupsMatcherMT(conditions));
+    return std::make_unique<MaximumBipartiteGroupsMatcherMT>(std::move(conditions));
   }
-
-  return matcher;
+  
 }
 
 
 std::unique_ptr<IGroupsMatcherMT> 
-groupsMatcherFactoryMT_Partitions (const ConditionsMT& conditions){
-  
-  auto matcher = std::unique_ptr<IGroupsMatcherMT> (nullptr);
+groupsMatcherFactoryMT_Partitions (ConditionsMT&& conditions){
   
   if (conditions.size() == 1) {
-    matcher.reset(new SingleConditionMatcherMT(conditions[0]));
+    return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
-    matcher.reset(new PartitionsGroupsMatcherMT(conditions));
+    return std::make_unique<PartitionsGroupsMatcherMT>(std::move(conditions));
   }
-
-  return matcher;
 }
 
 

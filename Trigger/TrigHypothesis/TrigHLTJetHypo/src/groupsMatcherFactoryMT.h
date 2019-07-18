@@ -10,9 +10,9 @@
 #include <memory>
 
 std::unique_ptr<IGroupsMatcherMT>
-groupsMatcherFactoryMT_MaxBipartite(const ConditionsMT&);
+groupsMatcherFactoryMT_MaxBipartite(ConditionsMT&&);
 
 std::unique_ptr<IGroupsMatcherMT>
-groupsMatcherFactoryMT_Partitions(const ConditionsMT&);
+groupsMatcherFactoryMT_Partitions(ConditionsMT&&);
 
 #endif

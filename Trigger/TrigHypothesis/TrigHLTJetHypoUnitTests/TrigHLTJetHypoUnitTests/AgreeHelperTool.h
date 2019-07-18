@@ -2,31 +2,34 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_ANDHELPERTOOLMT_H
-#define TRIGHLTJETHYPO_ANDHELPERTOOLMT_H
+#ifndef TRIGHLTJETHYPO_AGREEHELPERTOOLMT_H
+#define TRIGHLTJETHYPO_AGREEHELPERTOOLMT_H
 /********************************************************************
  *
- * NAME:     AndHelperTool.h
+ * NAME:     AgreeHelperTool.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
+ * Checks lhs and rhs IChilddrenTrigJetHypoToolHelperMT c
+ * set pass to true if both fail or if both pass.
+ * used for hypo implementation comparisons
  *
  *********************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
-#include "ITrigJetHypoToolConfig.h"
+#include "TrigHLTJetHypo/../src/ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "./ITrigJetHypoInfoCollector.h"
+#include "TrigHLTJetHypo/../src/ITrigJetHypoInfoCollector.h"
 
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
-class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
+class AgreeHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
  public:
 
-  AndHelperTool(const std::string& type,
+  AgreeHelperTool(const std::string& type,
                 const std::string& name,
                 const IInterface* parent);
   
