@@ -8,7 +8,7 @@
 #include "DerivationFrameworkEGamma/EGCrackVetoCleaningTool.h"
 #include "DerivationFrameworkEGamma/BkgElectronClassification.h"
 #include "DerivationFrameworkEGamma/TruthCaloShowerDecorator.h"
-
+#include "DerivationFrameworkEGamma/EGElectronAmbiguityTool.h"
 
 using namespace DerivationFramework; 
 DECLARE_TOOL_FACTORY( PhotonsDirectionTool )
@@ -20,6 +20,7 @@ DECLARE_TOOL_FACTORY( EGPhotonCleaningWrapper )
 DECLARE_TOOL_FACTORY( EGCrackVetoCleaningTool )
 DECLARE_TOOL_FACTORY( BkgElectronClassification )
 DECLARE_TOOL_FACTORY( TruthCaloShowerDecorator )
+DECLARE_TOOL_FACTORY( EGElectronAmbiguityTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkEGamma ) {
    DECLARE_TOOL( PhotonsDirectionTool )
@@ -30,6 +31,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkEGamma ) {
    DECLARE_TOOL( EGPhotonCleaningWrapper )
    DECLARE_TOOL( EGCrackVetoCleaningTool )
    DECLARE_TOOL( BkgElectronClassification )
-   DECLARE_TOOL( TruthCaloShowerDecorator )  
+   DECLARE_TOOL( TruthCaloShowerDecorator )
+   DECLARE_TOOL( EGElectronAmbiguityTool )
 }
  

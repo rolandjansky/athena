@@ -339,6 +339,12 @@ ElectronPassCrackVeto = DF_EGCVCT(name               = "ElectronPassCrackVeto",
                                   ContainerName      = "Electrons")
 ToolSvc += [PhotonPassCrackVeto,ElectronPassCrackVeto]
 
+# decorate some electrons with an additional ambiguity flag against internal and early material conversion
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGElectronAmbiguityTool as DF_EGEAT
+ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity",
+                             isMC               = (globalflags.DataSource()!='data'))
+ToolSvc += ElectronAmbiguity
+
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
@@ -347,7 +353,8 @@ EGAugmentationTools = [DFCommonPhotonsDirection,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
                        PhotonPassCleaning,
-                       PhotonPassCrackVeto,ElectronPassCrackVeto]
+                       PhotonPassCrackVeto,ElectronPassCrackVeto,
+                       ElectronAmbiguity]
 
 #==================================================
 # Truth Related tools 
