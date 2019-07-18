@@ -116,7 +116,6 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Constants import DEBUG
@@ -168,7 +167,7 @@ if __name__ == "__main__":
     cfg.getService("IOVDbSvc").OutputLevel=DEBUG
     
     cfg.store( file( "test.pkl", "w" ) )
-    print "used flags"
+    print("used flags")
     ConfigFlags.dump()
     cfg.run(0)
-    print "All OK"
+    print("All OK")
