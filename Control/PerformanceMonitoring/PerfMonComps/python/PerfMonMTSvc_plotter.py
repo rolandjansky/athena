@@ -23,24 +23,32 @@ if ( len(sys.argv) != 2 ):
 # Get the result Json file
 result_file = sys.argv[1] 
 
-with open( result_file ) as json_file:
-  data = json.load(json_file)
 
-  snapshot_data = data['Snapshot_level']
-  complevel_data = data['Component_level']
 
- 
+def snapshot_plotter(snapshot_data, plotname):
+  
 
-  snapshot_steps = ['Initialize', 'Execute', 'Finalize']
+  snapshot_steps = [ 'Finalize', 'Execute','Initialize']
+  #snapshot_steps = []
   snapshot_cpu_times = []
   snapshot_wall_times = []
-  # Plot Snapshot Level Monitoring
-  for idx, step in enumerate(snapshot_data):
-    cpu_time = snapshot_data[step]['cpu_time']
-    wall_time = snapshot_data[step]['wall_time']
-    snapshot_cpu_times.append(cpu_time)
-    snapshot_wall_times.append(wall_time)
- 
+
+  # Get rid of code duplication
+  cpu_time = snapshot_data['Finalize']['cpu_time']
+  wall_time = snapshot_data['Finalize']['wall_time']
+  snapshot_cpu_times.append(cpu_time)
+  snapshot_wall_times.append(wall_time)
+
+  cpu_time = snapshot_data['Event_loop']['cpu_time']
+  wall_time = snapshot_data['Event_loop']['wall_time']
+  snapshot_cpu_times.append(cpu_time)
+  snapshot_wall_times.append(wall_time)
+
+  cpu_time = snapshot_data['Initialize']['cpu_time']
+  wall_time = snapshot_data['Initialize']['wall_time']
+  snapshot_cpu_times.append(cpu_time)
+  snapshot_wall_times.append(wall_time)
+
   ind = np.arange(len(snapshot_steps))
   width = 0.35
      
@@ -56,12 +64,13 @@ with open( result_file ) as json_file:
   ax.legend()
 
   fig.set_tight_layout( True )
-  fig.savefig("PerfMonMTSvc_snapshot_plot.pdf")  
+  fig.savefig(plotname) 
 
-   
+def comp_plotter(complevel_data, plotname):
   # Plot Component Level Monitoring
  
-  fig = plt.figure(figsize=(31,150))
+  #fig = plt.figure(figsize=(31,150))
+  fig = plt.figure(figsize=(50,150))
   stepNum = len(complevel_data)
  
   measurement_threshold = 5 # 5 ms
@@ -139,4 +148,18 @@ with open( result_file ) as json_file:
     fig.set_tight_layout( True )
     
    
-  fig.savefig("PerfMonMTSvc_component_plot.pdf")
+  fig.savefig(plotname)
+
+
+with open( result_file ) as json_file:
+  data = json.load(json_file)
+
+  snapshot_data = data['Snapshot_level']
+  snapshot_plotter(snapshot_data, 'snapshot_level.pdf')
+  
+  serial_complevel_data = data['Serial_Component_level']
+  comp_plotter(serial_complevel_data, 'serial_complevel.pdf')
+
+  parallel_complevel_data = data['Parallel_Component_level']
+  comp_plotter(parallel_complevel_data, 'parallel_complevel.pdf')
+

@@ -380,7 +380,7 @@ void PerfMonMTSvc::report2JsonFile(){
     double cpu_time = it.second->m_delta_cpu;
     
     // nlohmann::json syntax
-    j["Component_level"][stepName][compName] =  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+    j["Serial_Component_level"][stepName][compName] =  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
     // Free the dynamically allocated space
     delete it.second;
@@ -397,7 +397,8 @@ void PerfMonMTSvc::report2JsonFile(){
     j["Parallel_Component_level"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
   }
-
+  
+  /*
   for(auto& it : m_parallelCompLevelData.shared_measurement_delta_map){
 
     std::string stepName = it.first.stepName;
@@ -410,7 +411,7 @@ void PerfMonMTSvc::report2JsonFile(){
     j["Detailed_Parallel_Component_level"][eventNumber][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
   }
-
+  */
   std::ofstream o("PerfMonMTSvc_result.json");
   o << std::setw(4) << j << std::endl;
 
@@ -477,7 +478,7 @@ void PerfMonMTSvc::report2Stdout(){
     cpu_sum += cpu;
     wall_sum += wall;
 
-    ATH_MSG_INFO( it.first.eventNumber << ": " <<  it.first.stepName << ": " <<  cpu  << "  -  "  << wall  <<   "     "  <<  it.first.compName  );
+    ATH_MSG_INFO("     " <<  it.first.eventNumber << ":     " <<  it.first.stepName << ": " <<  cpu  << "  -  "  << wall  <<   "     "  <<  it.first.compName  );
 
     //thread_id_diff_sum += it.second.thread_id_delta_map[currentState];
 
