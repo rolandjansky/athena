@@ -37,8 +37,8 @@ def bJetStep1Sequence():
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetRoiBuilderMT
+    RoIBuilder = TrigBjetRoiBuilderMT("TrigBjetRoiBuilderMT")
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "BjetRoIs"
     RoIs=RoIBuilder.RoIOutputKey
@@ -105,8 +105,8 @@ def bJetStep1SequenceALLTE():
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetRoiBuilderMT
+    RoIBuilder = TrigBjetRoiBuilderMT("TrigBjetRoiBuilderMT")
     RoIBuilder.JetInputKey = sequenceOut
     RoIs="EMViewRoIs" # Default for Fast Tracking Algs
     RoIBuilder.RoIOutputKey = RoIs
