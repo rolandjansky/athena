@@ -29,9 +29,15 @@ def getEMECNegOuterWheelCalibrationCalculator(name="EMECNegOuterWheelCalibration
     kwargs.setdefault("GeometryCalculator","EMECNegOuterWheelCorrOffCalculator")
     return getCalibrationCalculator(name, **kwargs)
 
-def getEMECBackOuterBarretteCalibrationCalculator(name="EMECBackOuterBarretteCalibrationCalculator", **kwargs):
+def getEMECPosBackOuterBarretteCalibrationCalculator(name="EMECPosBackOuterBarretteCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
     kwargs.setdefault("zSide", 1)
+    kwargs.setdefault("GeometryCalculator","EMECBackOuterBarretteCorrOffCalculator")
+    return getCalibrationCalculator(name, **kwargs)
+
+def getEMECNegBackOuterBarretteCalibrationCalculator(name="EMECNegBackOuterBarretteCalibrationCalculator", **kwargs):
+    kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
+    kwargs.setdefault("zSide", -1)
     kwargs.setdefault("GeometryCalculator","EMECBackOuterBarretteCorrOffCalculator")
     return getCalibrationCalculator(name, **kwargs)
 
@@ -79,9 +85,15 @@ def getEMECNegOuterWheelCalculator(name="EMECNegOuterWheelCalculator", **kwargs)
     kwargs.setdefault("zSide", -1)
     return getEnergyCalculator(name, **kwargs)
 
-def getEMECBackOuterBarretteCalculator(name="EMECBackOuterBarretteCalculator", **kwargs):
-    kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
+def getEMECPosBackOuterBarretteCalculator(name="EMECPosBackOuterBarretteCalculator", **kwargs):
+    kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
+    return getEnergyCalculator(name, **kwargs)
+
+def getEMECNegBackOuterBarretteCalculator(name="EMECNegBackOuterBarretteCalculator", **kwargs):
+    kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheel)
+    #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
+    kwargs.setdefault("zSide", -1)
     return getEnergyCalculator(name, **kwargs)
 
 def getEMECPosInnerWheelCorrOffCalculator(name="EMECPosInnerWheelCorrOffCalculator", **kwargs):
