@@ -410,6 +410,13 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
 
+    // Assert that scheduler has not been initialised before forking
+    SmartIF<IService> svc = serviceLocator()->service(m_schedulerName, /*createIf=*/ false);
+    if (svc.isValid()) {
+      ATH_MSG_FATAL("Misconfiguration - Scheduler was initialised before forking!");
+      return StatusCode::FAILURE;
+    }
+
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
   }
