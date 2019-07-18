@@ -240,17 +240,17 @@ def getTriggerTranslatorToolSimple(inputFlags):
             continue
         # work around possibly buggy category items
         if isinstance(tdt_menu_item, basestring):
-            tdt_local_logger.debug('String, not list: %s' % tdt_menu)
+            tdt_local_logger.debug('String, not list: %s', tdt_menu)
             tdt_menu_item = [tdt_menu_item]
             if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:
-                tdt_local_logger.debug('Bad formatting: %s' % tdt_menu)
+                tdt_local_logger.debug('Bad formatting: %s', tdt_menu)
         tdt_menu_item = [_ if (_.startswith('HLT_') or _.startswith('L1_')) else 'HLT_' + _
                          for _ in tdt_menu_item]
         tdt_mapping[tdt_menu] = ','.join(tdt_menu_item)
 
     if not getTriggerTranslatorToolSimple.printed:
         for k, v in tdt_mapping.items():
-            tdt_local_logger.info('Category %s resolves to %s' % (k, v))
+            tdt_local_logger.info('Category %s resolves to %s', k, v)
         getTriggerTranslatorToolSimple.printed = True
 
     monTrigTransTool = TriggerTranslatorToolSimple(
