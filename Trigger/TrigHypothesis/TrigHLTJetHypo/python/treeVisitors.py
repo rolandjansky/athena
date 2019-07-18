@@ -230,7 +230,7 @@ class TreeParameterExpander_dijet(object):
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
     
-    scale_factors = {'deta': 0.11,
+    scale_factors = {'deta': 0.1,
                      'mass': 1000.,
                      'dphi': 0.1,
     }
@@ -355,16 +355,16 @@ class TreeParameterExpander_combgen(object):
 
         ok = True # status flag
         # the group size must be the first attribute, then the conditions.
-        size_re = re.compile(r'^\((\d+)\)')
+        # size_re = re.compile(r'^\((\d+)\)')
         parameters = node.parameters[:]
-        m = size_re.match(parameters)
-        if m is None:
-            self.msgs.append('Error')
-            return
+        # m = size_re.match(parameters)
+        # if m is None:
+        #     self.msgs.append('Error')
+        #     return
 
-        node.conf_attrs = {'groupSize':int(m.groups()[0])}
+        # node.conf_attrs = {'groupSize':int(m.groups()[0])}
         # remove goup info + 2 parentheses
-        parameters = parameters[len(m.groups()[0])+2:]
+        # parameters = parameters[len(m.groups()[0])+2:]
 
         cdm = SimpleConditionsDictMaker()
         d, error, msgs = cdm.makeDict(parameters)

@@ -41,8 +41,8 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto j0 = ips[0];
   auto j1 = ips[1];
 
-  auto rj0 = 0.001 * (j0 -> p4());
-  auto rj1 = 0.001 * (j1 -> p4());
+  auto rj0 = j0 -> p4();
+  auto rj1 = j1 -> p4();
 
   auto mass = (rj0 + rj1).M();
 
@@ -66,7 +66,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
         <<std::boolalpha << pass <<  " jet group: \n";
      for(auto ip : ips){
        address = static_cast<const void*>(ip);
-       ss << "    "  << address << " " << ip->eta() << "\n";
+       ss << "    "  << address << " " << ip->eta() << " " << ip->et() << '\n';
      }
      ss << '\n';
 

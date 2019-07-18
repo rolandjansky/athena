@@ -3,15 +3,26 @@
 
 
 from ChainLabelParser import ChainLabelParser
+from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 
-def compile(label, dump=False):
+def compile(label, expand=False, dump=False):
     parser = ChainLabelParser(label, debug=False)
     tree = parser.parse()
 
-    if dump: tree.dump()
+    if expand:
+        visitor = TreeParameterExpander()
+        tree.accept(visitor)
+        print visitor.report()
+        
+    if dump:
+        print tree.dump()
     
 
 if __name__ == '__main__':
+
+    label = 'simple([(80et)(81et)(82et)(83et)(maxshare)])'
+    compile(label, expand=True, dump=True)
+        
     label = """
     agree([]
     simple([(80et)(81et)(82et)(83et)])

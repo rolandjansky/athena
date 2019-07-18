@@ -94,7 +94,6 @@ StatusCode JetHypoExerciserAlg::execute() {
   ss <<  "========= ncall: "<<m_ncall << "==========\n";
   ss << debugInfoCollector->toString() + '\n';
   auto s = ss.str();
-  // std::cout << s;
   std::ofstream outfile;
   outfile.open(m_logname, std::ios_base::app);
   outfile << s;
