@@ -111,11 +111,8 @@ bool SelectionExprParser::Separator::operator()(
       "^( ?((?:[^|&()! ]+)|(?:&&)|(?:!)|(?:\\()|(?:\\))|(?:\\|\\|))).*");
   std::smatch m;
 
-  //std::cout << "next: '" << std::string(next, end) << "'" << std::endl;
 
   if (std::regex_match(next, end, m, base_regex)) {
-    //std::cout << "matches: (" << m[2].length() << ") "
-              //<< "'" << m[2].str() << "'" << std::endl;
     tok = m[2].str();
     next += m[1].length();
   } else {
@@ -125,7 +122,6 @@ bool SelectionExprParser::Separator::operator()(
       // only spaces left, we're done
       return false;
     }
-    //std::cout << "not matched" << std::endl;
     throw std::runtime_error("Cannot tokenize: '" + std::string(next, end) +
                              "'");
   }
@@ -134,7 +130,6 @@ bool SelectionExprParser::Separator::operator()(
 
 SelectionExprParser::Lexer::Lexer(const std::string& s)
     : m_string(s), m_tokenizer(s, {}) {
-      //std::cout << "Lexer: '" << s << "'" << std::endl;
   m_iterator = m_tokenizer.begin();
 }
 
@@ -144,7 +139,6 @@ auto SelectionExprParser::Lexer::nextSymbol() -> Symbol {
   }
   std::string t = *m_iterator;
   Type type;
-  //std::cout << "SelComb: next symbol: " << t << std::endl;
   if (t == "&&")
     type = AND;
   else if (t == "||")
@@ -164,13 +158,10 @@ auto SelectionExprParser::Lexer::nextSymbol() -> Symbol {
     const std::regex base_regex("^([^|()&! ]*)$");
     std::smatch base_match;
 
-    //std::cout << "SelComb: check variable: " << t << std::endl;
 
     if (!std::regex_match(t, base_match, base_regex)) {
-      //std::cout << "SelComb: Variable is illegal: " << t << std::endl;
       throw std::runtime_error("illegal variable encountered");
     } else {
-      //std::cout << "SelComb: Variable with value: " << t << std::endl;
       type = VAR;
     }
   }
