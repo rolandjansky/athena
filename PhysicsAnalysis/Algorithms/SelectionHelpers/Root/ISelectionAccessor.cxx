@@ -87,7 +87,8 @@ namespace CP
         std::unordered_map<std::string, std::unique_ptr<ISelectionAccessor>>
             accessors;
         ex->visit([&](const SelectionExprParser::BooleanExpression& subex) {
-          const SelectionExprParser::Variable* var = dynamic_cast<const SelectionExprParser::Variable*>(&subex);
+          const SelectionExprParser::VariableExpr* var 
+            = dynamic_cast<const SelectionExprParser::VariableExpr*>(&subex);
           if (var == nullptr) {
             return;
           }

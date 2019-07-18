@@ -17,7 +17,7 @@ using BoolPtr = std::unique_ptr<BooleanExpression>;
 using ValFunc = BooleanExpression::ValueGetter;
 using Visitor = BooleanExpression::Visitor;
 
-class True : public BooleanExpression {
+class TrueExpr : public BooleanExpression {
  public:
   bool evaluate(const ValFunc&) const override { return true; }
 
@@ -26,16 +26,16 @@ class True : public BooleanExpression {
   std::string toString() const override { return "True<>"; }
 };
 
-class False : public BooleanExpression {
+class FalseExpr : public BooleanExpression {
  public:
   bool evaluate(const ValFunc&) const override { return false; }
   void visit(const Visitor& func) const override { func(*this); }
   std::string toString() const override { return "False<>"; }
 };
 
-class Not : public BooleanExpression {
+class NotExpr : public BooleanExpression {
  public:
-  Not(BoolPtr child) : m_child(std::move(child)) {}
+  NotExpr(BoolPtr child) : m_child(std::move(child)) {}
   bool evaluate(const ValFunc& func) const override {
     return !m_child->evaluate(func);
   }
@@ -51,9 +51,9 @@ class Not : public BooleanExpression {
   BoolPtr m_child;
 };
 
-class Or : public BooleanExpression {
+class OrExpr : public BooleanExpression {
  public:
-  Or(BoolPtr left, BoolPtr right)
+  OrExpr(BoolPtr left, BoolPtr right)
       : m_left(std::move(left)), m_right(std::move(right)) {}
 
   bool evaluate(const ValFunc& func) const override {
@@ -75,9 +75,9 @@ class Or : public BooleanExpression {
   BoolPtr m_right;
 };
 
-class And : public BooleanExpression {
+class AndExpr : public BooleanExpression {
  public:
-  And(BoolPtr left, BoolPtr right)
+  AndExpr(BoolPtr left, BoolPtr right)
       : m_left(std::move(left)), m_right(std::move(right)) {}
 
   bool evaluate(const ValFunc& func) const override {
@@ -184,7 +184,7 @@ void SelectionExprParser::expression() {
     BoolPtr left = std::move(m_root);
     term();
     BoolPtr right = std::move(m_root);
-    m_root = std::make_unique<Or>(std::move(left), std::move(right));
+    m_root = std::make_unique<OrExpr>(std::move(left), std::move(right));
   }
 }
 
@@ -194,27 +194,27 @@ void SelectionExprParser::term() {
     BoolPtr left = std::move(m_root);
     factor();
     BoolPtr right = std::move(m_root);
-    m_root = std::make_unique<And>(std::move(left), std::move(right));
+    m_root = std::make_unique<AndExpr>(std::move(left), std::move(right));
   }
 }
 
 void SelectionExprParser::factor() {
   m_symbol = m_lexer.nextSymbol();
   if (m_symbol.type == Lexer::TRUE_LITERAL) {
-    m_root = std::make_unique<True>();
+    m_root = std::make_unique<TrueExpr>();
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::FALSE_LITERAL) {
-    m_root = std::make_unique<False>();
+    m_root = std::make_unique<FalseExpr>();
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::NOT) {
     factor();
-    BoolPtr notEx = std::make_unique<Not>(std::move(m_root));
+    BoolPtr notEx = std::make_unique<NotExpr>(std::move(m_root));
     m_root = std::move(notEx);
   } else if (m_symbol.type == Lexer::LEFT) {
     expression();
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::VAR) {
-    m_root = std::make_unique<Variable>(m_symbol.value);
+    m_root = std::make_unique<VariableExpr>(m_symbol.value);
     m_symbol = m_lexer.nextSymbol();
   } else {
     throw std::runtime_error("Malformed expression.");

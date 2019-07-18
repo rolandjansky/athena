@@ -24,9 +24,9 @@ class SelectionExprParser {
     virtual ~BooleanExpression() = default;
   };
 
-  class Variable : public BooleanExpression {
+  class VariableExpr : public BooleanExpression {
    public:
-    Variable(const std::string &name) : m_name(name) {}
+    VariableExpr(const std::string &name) : m_name(name) {}
     bool evaluate(const BooleanExpression::ValueGetter &func) const override {
       return func(m_name);
     }
