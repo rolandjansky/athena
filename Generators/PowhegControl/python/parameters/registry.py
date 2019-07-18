@@ -327,7 +327,7 @@ class Registry(object):
         self.add_default("par_isrtinycsi", -1, description="[-1:use Powheg default]")
         self.add_default("par_isrtinyy", -1, description="[-1:use Powheg default]")
         self.add_default("parallelstage", -1, description="which stage to perform in parallel. [1...4:specify stage; -1:disabled]")
-        self.add_default("pdfreweight", 1, frozen=True, description="store PDF information. Deprecated for processes with XML-reweighting. [1:enabled]")
+        self.add_default("pdfreweight", 1, frozen=True, description="store PDF information. Deprecated for processes with XML-reweighting. [1:enabled]") # "old-style reweighting"
         self.add_default("Phasespace", 1, name="phasespace", description="phasespace to use. [1:standard; 2:use separate unweighted events from event.total.lhe as input]")
         self.add_default("photoninduced", -1, description="[-1:use Powheg default]")
         self.add_default("PHOTOS_enabled", True, description="use PHOTOS for photon radiation. [False:disabled; True:enabled]")
@@ -549,6 +549,10 @@ class Registry(object):
         self.add_default("ZZvvqq", 0, hidden=True, description="ZZ decay mode: Z->qq Z->nunu. [1:enabled]")
         self.add_default("ZZvvtautau", 0, hidden=True, description="ZZ decay mode: Z->tautau Z->nunu. [1:enabled]")
         self.add_default("ZZvvvv", 0, hidden=True, description="ZZ decay mode: Z->nunu Z->nunu. [1:enabled]")
+        self.add_default("skipbtlgrid", 0, hidden=True, description="skip calculation of btlgrid. [1:enabled]") # Present in process VBF_Wp_Wm
+        self.add_default("skiprmngrid", 0, hidden=True, description="skip calculation of rmngrid. [1:enabled]") # Present in process VBF_Wp_Wm
+
+
 
 
     def add_default(self, keyword, value, name=None, hidden=False, frozen=False, description=""):
