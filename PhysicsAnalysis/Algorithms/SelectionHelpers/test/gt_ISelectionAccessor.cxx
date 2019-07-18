@@ -87,6 +87,89 @@ namespace CP
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
     EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
+
+    // check an OR of two accessors
+    std::unique_ptr<ISelectionAccessor> accOr;
+    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||b,as_char", accOr));
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    EXPECT_TRUE (accOr->getBool (*jet));
+    EXPECT_EQ (accOr->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, false);
+    EXPECT_TRUE (accOr->getBool (*jet));
+    EXPECT_EQ (accOr->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    EXPECT_FALSE (accOr->getBool (*jet));
+    EXPECT_EQ (accOr->getBits (*jet), selectionReject());
+
+    std::unique_ptr<ISelectionAccessor> accEx;
+    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||(b,as_char && c,as_bits)", accEx));
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, true);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, true);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, false);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+
+    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||(b,as_char && !c,as_bits)", accEx));
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, false);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, false);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionReject());
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, true);
+    EXPECT_TRUE (accEx->getBool (*jet));
+    EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+  }
+
   TEST (SelectionExprParser, tokenizer) {
     using tok = SelectionExprParser::Tokenizer;
 
