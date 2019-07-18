@@ -66,6 +66,9 @@ class  JetBTaggerTool:
     StatusCode overwrite(const std::string& key, bool doCopy = true) const;
   template< class CONTAINER, class AUXSTORE >
     StatusCode overwriteImp(const std::string& key, bool doCopy = true) const;
+
+  SG::AuxElement::Decorator<char> m_bad_auxdata;
+
 };
 
 }

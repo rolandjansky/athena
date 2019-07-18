@@ -20,6 +20,8 @@
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
 
+#include "AthContainers/exceptions.h"
+
 #include <iostream>
 #include <string>
 
@@ -38,7 +40,8 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_PtRescalingTool("Analysis::BTagJetPtScaling"),
   m_augment(false),
   m_PtRescale(false),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_magFieldSvc("AtlasFieldSvc",n),
+  m_bad_auxdata("has_ATLASRECTS_5027_bug")
 {
   declareProperty( "JetCollectionName", m_JetName);
   declareProperty( "preBtagToolModifiers", m_preBtagToolModifiers);
@@ -414,7 +417,17 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (run_augmenters) {
       ATH_MSG_DEBUG("running posttag augmenters for "<< jetName);
       for (const auto& tool: m_postBtagToolModifiers) {
-        tool->modifyJet(jetToTag);
+        // this try / catch is a temporary workaround because some inputs are
+        // missing due to an upstream bug. See ATLASRECTS-5027.
+        try {
+          tool->modifyJet(jetToTag);
+          m_bad_auxdata(jetToTag) = 0;
+        } catch (SG::ExcBadAuxVar& exc) {
+          ATH_MSG_WARNING(
+            "Issue filling b-tagging scores: '" << exc.what() <<
+            "' see ATLASRECTS-5027");
+          m_bad_auxdata(jetToTag) = 1;
+        }
       }
     }
   }
