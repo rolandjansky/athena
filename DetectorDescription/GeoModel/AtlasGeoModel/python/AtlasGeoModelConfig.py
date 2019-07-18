@@ -3,7 +3,6 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
 def AtlasGeometryCfg (flags):
     acc = ComponentAccumulator()
