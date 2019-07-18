@@ -142,7 +142,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
     } 
     //check if original pixel is on b-layer and if yes continue, otherwise interrupt...
     Identifier pixelId = origCluster.identify();
-    if (!pixelIDp->is_blayer(pixelId))
+    if (!pixelIDp->is_innermost(pixelId))
     {
       //return empty object...
       ATH_MSG_VERBOSE(" Cluster not on b-layer. Return empty object-->back to default clustering." );;

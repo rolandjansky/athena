@@ -2518,19 +2518,19 @@ check_trt_decoding(IdDictMgr& idd)
     Identifier id = pixel_id.pixel_id(0, 2, 0, 5, 211, 40);
     std::cout << "=========>  pixel id " << trt_id.show_to_string(id) << std::endl;
     std::cout << "=========>  is_trt "   << trt_id.is_trt(id) << std::endl;
-    std::cout << "=========>  is_blayer "   << pixel_id.is_blayer(id) << std::endl;
+    std::cout << "=========>  is_innermost "   << pixel_id.is_innermost(id) << std::endl;
     id = pixel_id.pixel_id(0, 0, 0, 5, 211, 40);
     std::cout << "=========>  pixel id " << trt_id.show_to_string(id) << std::endl;
     std::cout << "=========>  is_trt "   << trt_id.is_trt(id) << std::endl;
-    std::cout << "=========>  is_blayer "   << pixel_id.is_blayer(id) << std::endl;
+    std::cout << "=========>  is_innermost "   << pixel_id.is_innermost(id) << std::endl;
     id = pixel_id.pixel_id(2, 0, 0, 5, 211, 40);
     std::cout << "=========>  pixel id " << trt_id.show_to_string(id) << std::endl;
     std::cout << "=========>  is_trt "   << trt_id.is_trt(id) << std::endl;
-    std::cout << "=========>  is_blayer "   << pixel_id.is_blayer(id) << std::endl;
+    std::cout << "=========>  is_innermost "   << pixel_id.is_innermost(id) << std::endl;
     id = pixel_id.pixel_id(0, 1, 0, 5, 211, 40);
     std::cout << "=========>  pixel id " << trt_id.show_to_string(id) << std::endl;
     std::cout << "=========>  is_trt "   << trt_id.is_trt(id) << std::endl;
-    std::cout << "=========>  is_blayer "   << pixel_id.is_blayer(id) << std::endl;
+    std::cout << "=========>  is_innermost "   << pixel_id.is_innermost(id) << std::endl;
 
 
 }

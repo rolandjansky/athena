@@ -714,7 +714,7 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
 	    {
 	      region=(m_pixelId->is_barrel(id)) ? Region::PixBarrel : Region::PixEndcap;
         //Don't set IBL flag for old EDM, i.e. TrigL2SiTrackFinder
-        //if (m_pixelId->is_blayer(id)) {
+        //if (m_pixelId->is_innermost(id)) {
         //  region = Region::IBL;
         //}
 	    }
@@ -892,7 +892,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
 	  if(m_idHelper->is_pixel(id))
 	    {
         region=(m_pixelId->is_barrel(id)) ? Region::PixBarrel: Region::PixEndcap;
-        if (m_pixelId->is_blayer(id)) {
+        if (m_pixelId->is_innermost(id)) {
           region = Region::IBL;
         }
 	    }
@@ -1075,7 +1075,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
       if(m_idHelper->is_pixel(id))
       {
         region=(m_pixelId->is_barrel(id)) ? Region::PixBarrel: Region::PixEndcap;
-        if (m_pixelId->is_blayer(id)) {
+        if (m_pixelId->is_innermost(id)) {
           region = Region::IBL;
         }
       }

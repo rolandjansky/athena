@@ -163,7 +163,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
       if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
          information[Trk::numberOfPixelOutliers]++;
-         if (m_pixelId->is_blayer(id)){
+         if (m_pixelId->is_innermost(id)){
             information[Trk::numberOfBLayerOutliers]++;
          }
 	 if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)){
@@ -186,7 +186,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
 	 else {
 	   information[Trk::numberOfPixelHits]++;
-	   if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
+	   if ( (m_pixelId->is_innermost(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit douplicate counters...
 	   if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
 	   if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
 	   // check to see if there's an ambiguity with the ganged cluster.
@@ -196,7 +196,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	   } else {
 	     const InDet::PixelCluster* pixPrd = pix->prepRawData();
 	     if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
-	     if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
+	     if ( pixPrd && m_pixelId->is_innermost(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
 	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0 && pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
 	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1 && pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
 	     if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
@@ -258,7 +258,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
              if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
                if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
                information[Trk::numberOfPixelSharedHits]++;
-               if ( (m_pixelId->is_blayer(id) ) ) {
+               if ( (m_pixelId->is_innermost(id) ) ) {
                  if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
                  information[Trk::numberOfBLayerSharedHits]++;        
                }
@@ -496,7 +496,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                          if ( pixPrd && pixPrd->isSplit() ){ 
                             summary.m_information[Trk::numberOfPixelSplitHits]++; 
                             hitIsSplit=true;
-			     if ( m_pixelId->is_blayer(id)) summary.m_information[Trk::numberOfBLayerSplitHits]++;
+			     if ( m_pixelId->is_innermost(id)) summary.m_information[Trk::numberOfBLayerSplitHits]++; //Duplicate
 			    if ( m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) summary.m_information[Trk::numberOfInnermostLayerSplitHits]++;
 			    if ( m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]++;  
                          }
@@ -508,7 +508,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                       if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
                           ATH_MSG_DEBUG("shared Pixel hit found");
                           summary.m_information[Trk::numberOfPixelSharedHits]++;
-			  if ( (m_pixelId->is_blayer(id) ) ) {
+			  if ( (m_pixelId->is_innermost(id) ) ) {
 			    ATH_MSG_DEBUG("--> shared Pixel hit is in b-layer");
 			    summary.m_information[Trk::numberOfBLayerSharedHits]++;       
 			  }
