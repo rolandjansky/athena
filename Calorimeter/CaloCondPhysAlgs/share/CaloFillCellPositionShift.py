@@ -71,6 +71,7 @@ include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+conddb.blockFolder("/LAR/LArCellPositionShift")
 
 conddb.blockFolder("/LAR/LArCellPositionShift")
 

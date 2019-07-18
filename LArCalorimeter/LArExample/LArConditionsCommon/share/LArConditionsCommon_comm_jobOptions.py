@@ -194,7 +194,12 @@ if larCondFlags.LoadElecCalib():
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          addLArFolder ('LAR_OFL',
+          if 'RekeyOFC' in dir():    
+            addLArFolder ('LAR_OFL',
+                        'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
+                        'LArOFCComplete', selection+"<key>"+RekeyOFC+"</key>")
+          else:  
+            addLArFolder ('LAR_OFL',
                         'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
                         'LArOFCComplete', selection)
 
@@ -207,7 +212,12 @@ if larCondFlags.LoadElecCalib():
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              addLArFolder ('LAR_OFL',
+              if 'RekeyShape' in dir():
+                addLArFolder ('LAR_OFL',
+                            'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
+                            'LArShapeComplete', selection+"<key>"+RekeyShape+"</key>")
+              else:  
+                addLArFolder ('LAR_OFL',
                             'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
                             'LArShapeComplete', selection)
 

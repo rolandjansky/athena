@@ -491,8 +491,8 @@ StatusCode CaloCellNoiseAlg::fitNoise()
           for (int phi=phimin;phi<=phimax;phi++) {
             Identifier id2 = m_calo_id->cell_id(regionId,eta,phi);
             if (id2.is_valid()) {
-              if(msgLvl(MSG::DEBUG))
-                msg() << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
+               if(msgLvl(MSG::DEBUG))
+                 msg() << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
                IdentifierHash idHash2 = m_calo_id->calo_cell_hash(id2);
                int index = (int)(idHash2);
                if (index>=0 && index<m_ncell) {
