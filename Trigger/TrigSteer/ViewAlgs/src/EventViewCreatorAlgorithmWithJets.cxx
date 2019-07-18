@@ -114,7 +114,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
              m_viewNodeName,             // CF node to attach views to
              context,                    // Source context
-             m_scheduler.get() ) );
+             getScheduler() ) );
   
   // store views
   // auto viewsHandle = SG::makeHandle( m_viewsKey );
