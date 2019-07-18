@@ -107,7 +107,7 @@ class PowhegControl(object):
 
         @param create_run_card_only    Only generate the run card.
         @param save_integration_grids  Save the integration grids for future reuse.
-        @param use_external_run_card   Use a user-provided run card.
+        @param use_external_run_card   Use a user-provided Powheg run card (powheg.input).
         @param use_XML_reweighting     Use XML-based reweighting.
         """
         self.process.use_XML_reweighting = use_XML_reweighting
@@ -119,6 +119,8 @@ class PowhegControl(object):
         # Run appropriate generation functions
         if not use_external_run_card:
             self.__generate_run_card()
+        else:
+            logger.warning("Using native Powheg run card (must be located at './powheg.input' in order for Powheg to find it!) to configure event generation, instead of PowhegControl configuration interface")
         if not create_run_card_only:
             self.__generate_events()
 
