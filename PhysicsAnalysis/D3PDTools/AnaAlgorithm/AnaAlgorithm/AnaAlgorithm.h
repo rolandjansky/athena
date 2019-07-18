@@ -560,17 +560,13 @@ namespace EL
     IWorker *m_wk = nullptr;
 #endif
 
-#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasFileExecute
   private:
     bool m_hasFileExecute {false};
-#endif
 
-#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
-#endif
 
 #ifdef XAOD_STANDALONE
     /// \brief a list of objects to clean up when releasing the

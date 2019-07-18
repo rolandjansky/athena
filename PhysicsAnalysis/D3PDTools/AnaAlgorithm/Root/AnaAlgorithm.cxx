@@ -223,13 +223,22 @@ namespace EL
   StatusCode AnaAlgorithm ::
   requestFileExecute ()
   {
-#ifdef XAOD_STANDALONE
     m_hasFileExecute = true;
-    return StatusCode::SUCCESS;
-#else
-    ANA_MSG_ERROR ("fileExecute not supported in Athena");
-    return StatusCode::FAILURE;
+
+#ifndef XAOD_STANDALONE
+    // Connect to the IncidentSvc:
+    ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
+
+    // Set up the right callback, but ensure we don't double-register
+    // if we are called twice
+    incSvc->removeListener( this, IncidentType::BeginInputFile );
+    incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+
+    ANA_MSG_WARNING ("fileExecute does not work with sub-file-splitting in Athena");
 #endif
+
+    return StatusCode::SUCCESS;
   }
 
 
@@ -237,9 +246,9 @@ namespace EL
   StatusCode AnaAlgorithm ::
   requestBeginInputFile ()
   {
-#ifdef XAOD_STANDALONE
     m_hasBeginInputFile = true;
-#else
+
+#ifndef XAOD_STANDALONE
     // Connect to the IncidentSvc:
     ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
@@ -249,6 +258,7 @@ namespace EL
     incSvc->removeListener( this, IncidentType::BeginInputFile );
     incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
 #endif
+
     return StatusCode::SUCCESS;
   }
 
@@ -454,7 +464,10 @@ namespace EL
   {
     if (inc.type() == IncidentType::BeginInputFile)
     {
-      ANA_CHECK_THROW (beginInputFile ());
+      if (m_hasBeginInputFile)
+        ANA_CHECK_THROW (beginInputFile ());
+      if (m_hasFileExecute)
+        ANA_CHECK_THROW (fileExecute ());
     } else
     {
       ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
