@@ -2,9 +2,11 @@
 
 if [[ $# < 3 ]];
 then
-    echo "Syntax: $0 <time>  <Run> <LB> "
+    echo "Syntax: $0 <time>  <Run> <LB> [mu] [dt]"
     echo " <time> = time in UTC at which the HV is stable at the new conditions (and HV mapping updated if needed) like \"2010-07-29:13:00:00\" "
     echo " <Run> <LB> = run/lumiblock to start IoV for UPD4 noise update (allows to backdate)"
+    echo " [mu] [dt] are values of mu and bunch spacing for which we compute noise, if not"
+    echo "           given, the current values will be used"
     exit
 fi
 
@@ -15,13 +17,26 @@ echo "    the new HV setting should be correct / stable for this Time "
 echo "    in case of HV mapping change, the new mapping should be valid (in the UPD4 tag) for this specified time (be careful of glitch at the mapping db is in run/lb IoV) "
 echo " "
 echo "It will also produce new noise tables for online/offline database"
-echo "   this assumes that the current state of the UPD1 offline noise database is in synch with the HV corrections used in DSP before this new setting, at the time specified by Time"
 echo " "
 
 
 time=$1
 run=$2
 lb=$3
+mu=-1
+dt=-1
+
+if [[ $# > 3 ]];
+then
+ mu=$4
+fi
+
+if [[ $# > 4 ]];
+then
+ dt=$5
+fi
+
+echo " $0 $1 $2 $3 $mu $dt"
 
 summaryFile=noise_summary.txt
 
@@ -107,7 +122,7 @@ if grep -q ERROR hv.log
 fi
 
 usedRun=`grep "Working on run" hv.log | awk '{print($5)}'`
-echo " ---> the run number to read the HV mapping db in the UPD4 tag is" ${usedRun}
+echo " ---> the run number to read the HV mapping db in the UPD4 tag is " ${usedRun}
 grep "^--->" hv.log
 
 cat > dumpMapping.py << _EOF1_
@@ -124,7 +139,7 @@ _EOF1_
 python dumpMapping.py >& python.log
 runHVmap=`grep LArHVMap dumpMapping.txt  | tail -1 | cut -f 1  -d , | cut -f 2 -d \[`
 
-echo "      the latest HV mapping change is valid from run" ${runHVmap}
+echo "      the latest HV mapping change is valid from run " ${runHVmap}
 
 if test ${runHVmap} -gt ${usedRun}; then
    echo "   BE CAREFUL  the used run is older than the latest HV mapping change... Check that you know what you are doing before any db upload "
@@ -167,12 +182,6 @@ echo " -----> Number of channels which changed HV correction more than 0.5\%: " 
 echo "        Look at the file hvlist.txt for the full list of these channels"
 
 echo " "
-#echo "Make online folder for HVcorr sqlite file"
-#AtlCoolCopy.exe "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://;schema=myDB200_hvOnline.db;dbname=CONDBR2" -f /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOnl/HVScaleCorr -fs -alliov -create >& mergedb.log 
-#/afs/cern.ch/user/l/larcalib/LArDBTools/python/setOnlineMode.py myDB200_hvOnline.db
-
-#echo "create UPD3 tag for HV corr "
-#AtlCoolCopy.exe  "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://schema=myDB200_UPD3.db;dbname=CONDBR2" -f  /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOfl/HVScaleCorr -ot LARElecCalibOflHVScaleCorr-UPD3-00 -nrls ${run} ${lb} -create -alliov >> mergedb.log 
 
 # Now compute new L1Calo corrections based on new LArHV corr
 cat > getGlobalTagES.py << _EOF5_
@@ -200,12 +209,11 @@ if grep -q ERROR l1calocorr.log
       exit    
 fi
 
-
-# Now noise....
-
+# Now noise
 echo " "
-echo "Running athena to rescale noise values from current UPD1 noise database"
-athena.py -c "date=\"${time}\";GlobalTag=\"${globalTag}\"" CaloCondPhysAlgs/CaloRescaleNoise_online_jobOptions.py > noise.log 2>&1
+echo "Running athena to scale noise values from reference noise database"
+echo "        asking mu=$mu and dt=$dt"
+athena.py -c "mu=${mu};dt=$dt;date=\"${time}\";GlobalTag=\"${globalTag}\";sqliteHVCorr=\"HVScaleCorr.db\"" CaloCondPhysAlgs/CaloScaleNoise_jobOptions.py > noise.log 2>&1
 
 if [ $? -ne 0 ];  then
       echo "Athena reported an error ! Please check noise.log!"
@@ -277,12 +285,13 @@ AtlCoolCopy.exe "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=la
 /bin/rm tempdb.db
 
 echo "Make UPD1 online folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot  CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"
 #(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; source $AtlasSetup/scripts/asetup.sh --tags=AtlasP1HLT,20.2.1.4,setup,here; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
 (mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
+
 if [ $? -ne 0 ];  then
       echo "Testing job reported an error ! "
       echo "Please, do not upload constants to online ! "

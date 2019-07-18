@@ -1,7 +1,8 @@
 
-DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
+if not 'OutputSqliteFile' in dir():
+   OutputSqliteFile="dspconfig.db"
 
-OutputSqliteFile="dspconfig.db"
+DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
 
 include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
 
