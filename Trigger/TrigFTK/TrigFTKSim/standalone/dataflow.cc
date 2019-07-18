@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dataflow.h"
@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <cmath>
 #include <TFile.h>
+
+using namespace std;
 
 int SIGDIGITS=2;
 int SIGDIGITS_ERR=1;
