@@ -11,11 +11,8 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from AthenaCommon.Logging import logging
-
 
 def FillParamsCondAlgCfg (configFlags):
-    log = logging.getLogger ('FillParamsCondAlgCfg')
     name = 'FillParamsCondAlg'
     result = ComponentAccumulator()
 
@@ -28,8 +25,7 @@ def FillParamsCondAlgCfg (configFlags):
     result.merge (addFolders (configFlags, folder, 'TDAQ', tag='HEAD',
                               className='AthenaAttributeList'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import \
-         FillParamsCondAlg
+    from CoolLumiUtilities.CoolLumiUtilitiesConf import FillParamsCondAlg
     alg = FillParamsCondAlg (name,
                              FillParamsFolderInputKey = folder,
                              FillParamsOutputKey = 'FillParamsCondData')
