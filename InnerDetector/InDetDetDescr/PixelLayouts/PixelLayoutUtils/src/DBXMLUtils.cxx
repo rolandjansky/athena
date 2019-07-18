@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,7 @@ DBXMLUtils::~DBXMLUtils()
 void DBXMLUtils::readXMLtableFromDB()
 {
 
-  msg(MSG::INFO)<<"XML input data : test if read from CLOB saved in DB ";
+  msg(MSG::VERBOSE)<<"XML input data : test if read from CLOB saved in DB ";
 
   pixelXMLTable_ptr = geoAccessor().getTable("PIXXDD");
   if (!pixelXMLTable_ptr||!pixelXMLTable_ptr)
@@ -45,7 +45,7 @@ std::string DBXMLUtils::readXMLFromDB(std::string xmlName) const
   if(prefix.size()>0) xmlName=xmlName.substr(0,xmlName.size()-4);
  
 
-  msg(MSG::INFO)<<"Read XML file from CLOB DB : "<<xmlName<<endreq;
+  msg(MSG::VERBOSE)<<"Read XML file from CLOB DB : "<<xmlName<<endreq;
   std::string xmlNameGeo = xmlName+"Geo";
 
   int nbCLOB=0;
