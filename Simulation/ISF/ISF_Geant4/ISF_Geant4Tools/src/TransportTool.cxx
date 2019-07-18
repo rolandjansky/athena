@@ -309,6 +309,20 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 {
   ATH_MSG_DEBUG ( "setup Event" );
 
+#ifdef G4MULTITHREADED
+  // In some rare cases, TBB may create more physical worker threads than
+  // were requested via the pool size.  This can happen at any time.
+  // In that case, those extra threads will not have had the thread-local
+  // initialization done, leading to a crash.  Try to detect that and do
+  // the initialization now if needed.
+  if (m_useMT && G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
+  {
+    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
+    ATH_CHECK( ti.retrieve() );
+    ti->initThread();
+  }
+#endif
+
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);

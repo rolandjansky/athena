@@ -122,6 +122,15 @@ else :
 
 from ISF_Example.ISF_Input import ISF_Input
 
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads > 0:
+    from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'ThreadPoolSvc'):
+        svcMgr+=ThreadPoolSvc("ThreadPoolSvc")
+    svcMgr.ThreadPoolSvc.ThreadInitTools+=["G4ThreadInitTool"]
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg")
 
