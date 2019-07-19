@@ -176,6 +176,7 @@ class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
     allowedType=['int']
+    allowedValues=[1,2,3]
     StoredValue=2
 
 _flags.append(EDMDecodingVersion)
