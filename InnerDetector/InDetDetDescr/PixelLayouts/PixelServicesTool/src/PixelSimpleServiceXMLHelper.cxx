@@ -28,7 +28,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -44,7 +44,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
   
   if(!bParsed){
     m_bXMLdefined = false;
-    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
+    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
     return;
     }
 }

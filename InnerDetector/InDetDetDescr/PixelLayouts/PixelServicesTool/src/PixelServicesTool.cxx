@@ -127,15 +127,6 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 
   // Access to teh xml file that defines the geometry envelope
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",m_basics);
-
-
-  // Add service materials
-  std::string fileName="ServiceMaterial.xml";
-  if(const char* env_p = std::getenv("")) fileName = std::string(env_p);
-  if(const char* env_p = std::getenv("PIXEL_PIXELSERVICEMATERIAL_GEO_XML")) fileName = std::string(env_p);
-  GeoPixelXMLMaterial matBuilder(basics,fileName);
-  matBuilder.Build("indet");
-
   
   //  const GeoShape * envelopeShape;
   double pixelRmin = genDBHelper.getEnvelopeRMin();

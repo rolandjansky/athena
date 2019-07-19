@@ -61,7 +61,7 @@ std::string DBXMLUtils::readXMLFromDB(std::string xmlName) const
     }
 
   if(nbCLOB>1) res="<data>\n"+res+"</data>\n";
-  if(res.size()==0)msg(MSG::WARNING)<<"No XML-CLOB entry found for "<<xmlName<<endreq;
+  if(res.size()==0)msg(MSG::ERROR)<<"No XML-CLOB entry found for "<<xmlName<<endreq;
   return res;
 }
 
