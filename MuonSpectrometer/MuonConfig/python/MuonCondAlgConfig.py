@@ -3,29 +3,80 @@
 ## Configuration Access to OFFLINE DB (COMP200)
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonCondAlg.MuonTopCondAlgConfigRUN2.py import MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg,TgcCondDbAlg
+from MuonCondAlg.MuonCondAlgConf import MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg,TgcCondDbAlg
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 
-def MdtCondDbAlg(flags, **kwargs):
-    result = ComponentAccumulator()
-    alg    = MdtCondDbAlg(**kwargs)
+def MdtCondDbAlgCfg(flags, **kwargs):
+    result  = ComponentAccumulator()
+    folders = []
+    if flags.Common.isOnline:
+        kwargs["isOnline"] = True
+    else:
+        kwargs["isOnline"] = False
+        if flags.Input.isMC:
+            kwargs['isData'] = False
+            folders          = ["/MDT/DCS/DROPPEDCH", "/MDT/DCS/PSLVCHSTATE"]
+        else:
+            kwargs['isData'] = True
+            kwargs['isRun1'] = False
+            folders          = ["/MDT/DCS/HV", "/MDT/DCS/LV"]
+    alg = MdtCondDbAlg(**kwargs)
+    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result, alg
 
-def RpcCondDbAlg(flags, **kwargs):
-    result = ComponentAccumulator()
-    alg    = RpcCondDbAlg(**kwargs)
+def RpcCondDbAlgCfg(flags, **kwargs):
+    result  = ComponentAccumulator()
+    folders = []
+    if flags.Common.isOnline:
+        kwargs["isOnline"] = True
+    else:
+        kwargs["isOnline"] = False
+        if flags.Input.isMC:
+            kwargs['isData'] = False
+        else:
+            kwargs['isData'] = True
+            kwargs['isRun1'] = False
+            folders          = ["/RPC/DCS/DeadRopanels", "/RPC/DCS/OffRopanels"]
+    alg = RpcCondDbAlg(**kwargs)
+    result.merge( addFolders(flags, folders                     , detDb="DCS_OFL", className='CondAttrListCollection') )
+    result.merge( addFolders(flags, ["/RPC/DQMF/ELEMENT_STATUS"], detDb="RPC_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result, alg
 
-def CscCondDbAlg(flags, **kwargs):
-    result = ComponentAccumulator()
-    alg    = CscCondDbAlg(**kwargs)
+def CscCondDbAlgCfg(flags, **kwargs):
+    result  = ComponentAccumulator()
+    folders = ["/CSC/STAT"]
+    if flags.Common.isOnline:
+        kwargs["isOnline"] = True
+    else:
+        kwargs["isOnline"] = False
+        if flags.Input.isMC:
+            kwargs['isData'] = False
+        else:
+            kwargs['isData'] = True
+            kwargs['isRun1'] = False
+    alg = CscCondDbAlg(**kwargs)
+    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result, alg
 
-def TgcCondDbAlg(flags, **kwargs):
-    result = ComponentAccumulator()
-    alg    = TgcCondDbAlg(**kwargs)
-    result.addCondAlgo(alg)
-    return result, alg
+###def TgcCondDbAlgCfg(flags, **kwargs):
+###    result  = ComponentAccumulator()
+###    folders = [] # which folders?
+###    if flags.Common.isOnline:
+###        kwargs["isOnline"] = True
+###    else:
+###        kwargs["isOnline"] = False
+###        if flags.Input.isMC:
+###            kwargs['isData'] = False
+###        else:
+###            kwargs['isData'] = True
+###            kwargs['isRun1'] = False
+###    alg = TgcCondDbAlg(**kwargs)
+###    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
+###    result.addCondAlgo(alg)
+###    return result, alg
+
+
 
