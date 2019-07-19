@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
-class MuonCacheNames:
+class MuonCacheNames(object):
     MdtCsmCache = "MdtCsmRdoCache"
     CscCache    = "CscRdoCache"
     RpcCache    = "RpcRdoCache"

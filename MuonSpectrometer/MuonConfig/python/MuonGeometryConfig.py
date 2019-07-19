@@ -6,7 +6,6 @@ from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
-from StoreGate.StoreGateConf import StoreGateSvc
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
@@ -20,7 +19,7 @@ def MuonGeoModelCfg(flags):
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
     detTool.BuildFromNova = 0
-    if ( ( not flags.Detector.SimulateMuon or flags.Detector.OverlayMuon ) and flags.Common.Project is not "AthSimulation" ):
+    if ( ( not flags.Detector.SimulateMuon or flags.Detector.OverlayMuon ) and flags.Common.Project != "AthSimulation" ):
         # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -87,9 +86,9 @@ def MuonGeoModelCfg(flags):
             if flags.GeoModel.Run=="RUN3" or flags.GeoModel.Run=="RUN4":
                 detTool.StationSelection  = 2
                 detTool.SelectedStations  = [ "EIL1", "EIL2", "EIL6", "EIL7",
-                                                       "EIS*", "EIL10", "EIL11", "EIL12",
-                                                       "EIL17", "CSS*", "CSL*", "T4E*",
-                                                       "T4F*" ]
+                                              "EIS*", "EIL10", "EIL11", "EIL12",
+                                              "EIL17", "CSS*", "CSL*", "T4E*",
+                                              "T4F*" ]
             ## Additional material in the muon system
             AGDD2Geo = AGDDtoGeoSvc()
             muonAGDDTool = MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
