@@ -144,10 +144,8 @@ namespace ana
     registerTool( &*m_smearing_tool );
 
     // JVT tool
-    //const std::string jvtFile = "JetMomentTools/JVTlikelihood_20140805.root";
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvt_tool, JetVertexTaggerTool) );
-    //ATH_CHECK( m_jvt_tool.setProperty("JVTFileName", jvtFile) );
     ATH_CHECK( m_jvt_tool.initialize() );
 
     // JVT efficiency SF
