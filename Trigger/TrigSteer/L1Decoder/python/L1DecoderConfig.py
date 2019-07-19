@@ -1,12 +1,11 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 
 def L1DecoderCfg(flags):
     flags.dump()
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool
