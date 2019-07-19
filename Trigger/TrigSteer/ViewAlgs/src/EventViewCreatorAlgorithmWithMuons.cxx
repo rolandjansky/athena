@@ -126,7 +126,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
-					m_scheduler.get() ) );
+					getScheduler() ) );
 
   if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
