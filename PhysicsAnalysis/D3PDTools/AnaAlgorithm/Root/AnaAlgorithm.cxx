@@ -234,11 +234,6 @@ namespace EL
     // if we are called twice
     incSvc->removeListener( this, IncidentType::BeginInputFile );
     incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
-
-    // please note: fileExecute does not work with sub-file-splitting
-    // in Athena.  this should not *normally* happen, unless you do
-    // crazy things like run AthenaMP or explicitly select sub-file
-    // splitting in panda.
 #endif
 
     return StatusCode::SUCCESS;
