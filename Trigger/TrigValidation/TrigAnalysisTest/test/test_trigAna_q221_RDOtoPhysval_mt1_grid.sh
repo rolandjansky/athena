@@ -54,6 +54,7 @@ Reco_tf.py \
 --inputAODFile=AOD.pool.root \
 --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root \
 --validationFlags="${VALIDATIONFLAGS}" \
+--preExec="TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3)" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

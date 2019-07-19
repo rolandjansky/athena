@@ -148,3 +148,14 @@ if hasattr(runArgs,"postExec"):
         exec(cmd)
 
 
+# Temporary (July 19) trigger additions
+if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
+  ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite";
+  ToolSvc.TrigDecisionTool.TrigConfigSvc="Trig::TrigConfigSvc/TrigConfigSvc";
+  ServiceMgr.TrigConfigSvc.PriorityList=["run3_dummy", "ds", "xml"]
+  from TrigConfigSvc.TrigConfigSvcConfig import (findFileInXMLPATH,  LVL1ConfigSvc, L1TopoConfigSvc)
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  ServiceMgr += LVL1ConfigSvc("LVL1ConfigSvc")
+  ServiceMgr += L1TopoConfigSvc()
+  ServiceMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1ConfigFile.replace('newJO_', ''))
+  ServiceMgr.L1TopoConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1TopoConfigFile)
