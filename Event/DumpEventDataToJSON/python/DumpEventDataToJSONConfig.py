@@ -1,13 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, INFO
+from AthenaCommon.Constants import VERBOSE
 from DumpEventDataToJSON.DumpEventDataToJSONConf import DumpEventDataToJsonAlg
 
 
 def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False):
     result=ComponentAccumulator()
-    ExtrapolationEngine=""
     if doExtrap:
       from TrkExEngine.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
       extrapAcc = AtlasExtrapolationEngineCfg(configFlags)
@@ -23,12 +22,7 @@ if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-
-    #log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = ["../q221/myESD.pool.root"]
 
