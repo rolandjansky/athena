@@ -273,6 +273,12 @@ StatusCode HltEventLoopMgr::start()
 // =============================================================================
 StatusCode HltEventLoopMgr::stop()
 {
+  // Need to reinitialize IO in the mother process
+  if (m_workerId.empty()) {
+    ATH_CHECK(m_ioCompMgr->io_update_all(boost::filesystem::current_path().string()));
+    ATH_CHECK(m_ioCompMgr->io_reinitialize());
+  }
+
   // temporary: endRun will eventually be deprecated
   for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysEndRun());
 

@@ -82,6 +82,7 @@ public:
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
+  virtual StatusCode stop() override;
 
   /// Retrieve the histogram fillers
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;

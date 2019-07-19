@@ -39,6 +39,11 @@ StatusCode GenericMonitoringTool::start() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode GenericMonitoringTool::stop() {
+  m_fillers.clear();
+  return StatusCode::SUCCESS;
+}
+
 StatusCode GenericMonitoringTool::book() {
 
   // If no histogram path given use parent or our own name
