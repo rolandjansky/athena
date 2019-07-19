@@ -227,10 +227,6 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
-    std::function<bool(int, std::string)> msgFunction = [this](int level, std::string message)-> bool
-    {
-    }
-
     //  Construct the data analyzer
     //
     std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
