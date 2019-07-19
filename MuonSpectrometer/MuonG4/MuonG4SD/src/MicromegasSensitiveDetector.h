@@ -7,7 +7,6 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "StoreGate/WriteHandle.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 
 class MicromegasHitIdHelper;
@@ -26,7 +25,6 @@ public:
 private:
 
     SG::WriteHandle<MMSimHitCollection> m_MMSimHitCollection;
-    SG::WriteHandle<GenericMuonSimHitCollection> m_GenericMuonHitCollection;
     MicromegasHitIdHelper* m_muonHelper;
 
 };
