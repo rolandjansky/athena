@@ -17,30 +17,11 @@
 
 namespace CP
 {
-  inline MsgStream& SysListHandle ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  inline MsgStream& SysListHandle ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T> SysListHandle ::
   SysListHandle (T *owner, const std::string& propertyName,
                      const std::string& propertyDescription)
-    : m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , m_msg (&owner->msg())
+    : AsgMessagingForward (owner)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_systematicsListName,
                             propertyDescription);

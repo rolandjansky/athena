@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_DECORATION_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgTools/AsgMessagingForward.h>
 #include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
@@ -34,7 +34,8 @@ namespace CP
 
   /// \brief a data handle for reading systematics varied input data
 
-  template<typename T> class SysDecorationHandle final : public ISysHandleBase
+  template<typename T> class SysDecorationHandle final
+    : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -104,19 +105,6 @@ namespace CP
   private:
     const std::tuple<std::string,SG::AuxElement::ConstAccessor<T>,SG::AuxElement::Accessor<T> >&
     getData (const CP::SystematicSet& sys) const;
-
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

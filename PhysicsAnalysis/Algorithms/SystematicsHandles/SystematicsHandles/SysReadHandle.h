@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_READ_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgTools/AsgMessagingForward.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <string>
@@ -24,7 +24,8 @@ namespace CP
 
   /// \brief a data handle for reading systematics varied input data
 
-  template<typename T> class SysReadHandle final : public ISysHandleBase
+  template<typename T> class SysReadHandle final
+    : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -102,19 +103,6 @@ namespace CP
     /// algorithm instead.
   private:
     std::function<StoreType*()> m_evtStoreGetter;
-
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

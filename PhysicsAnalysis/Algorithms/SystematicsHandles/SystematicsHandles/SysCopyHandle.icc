@@ -19,32 +19,12 @@
 
 namespace CP
 {
-  template<typename T> inline MsgStream& SysCopyHandle<T> ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  template<typename T> inline MsgStream& SysCopyHandle<T> ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T> template<typename T2> SysCopyHandle<T> ::
   SysCopyHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
-    : m_inputName (propertyValue)
+    : AsgMessagingForward (owner), m_inputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
@@ -100,7 +80,7 @@ namespace CP
         return StatusCode::FAILURE;
 
       return detail::ShallowCopy<T>::getCopy
-        (*m_msg, *m_evtStore, object, inputObject,
+        (msg(), *m_evtStore, object, inputObject,
          std::get<1>(cache->second), std::get<2>(cache->second));
     }
   }
