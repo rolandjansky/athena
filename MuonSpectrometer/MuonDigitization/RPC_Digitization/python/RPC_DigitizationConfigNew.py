@@ -32,7 +32,10 @@ def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
 
 def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured RpcDigitizationTool"""
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    alg, rpc_cond_summary_alg = RpcCondDbAlgCfg(flags)
     acc = ComponentAccumulator()
+    acc.merge(alg)
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", RPC_FirstXing())
         kwargs.setdefault("LastXing", RPC_LastXing())
@@ -42,7 +45,7 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
     # folder for RPCCondSummarySvc
-    acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL"))
+    #acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL")) ## already in RpcCondDbAlgCfg
     # config
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    
