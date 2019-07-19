@@ -81,6 +81,22 @@ public:
     _debugLevel = debugLevel;
   }
 
+  ZDCMsg::MessageFunctionPtr MakeMessageFunction() 
+  {
+    std::function<bool(int, std::string)> msgFunction = [this](int level, std::string message)-> bool
+    {
+      MSG::Level theLevel = static_cast<MSG::Level>(level);
+      bool test = theLevel >= this->msg().level();
+      if (test) {
+	this->msg() << message << endmsg;
+      }
+      return test;
+    };
+  
+    return ZDCMsg::MessageFunctionPtr(new ZDCMsg::MessageFunction(msgFunction));
+}
+
+
   static bool MessageFunc(unsigned int level, std::string message)
   {
     MSG::Level theLevel = static_cast<MSG::Level>(level);

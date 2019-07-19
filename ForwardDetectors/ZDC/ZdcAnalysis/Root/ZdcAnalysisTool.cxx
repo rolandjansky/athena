@@ -227,9 +227,13 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
+    std::function<bool(int, std::string)> msgFunction = [this](int level, std::string message)-> bool
+    {
+    }
+
     //  Construct the data analyzer
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&MessageFunc, m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
             peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -304,7 +308,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&MessageFunc, 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples,
             peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -385,7 +389,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&MessageFunc, 7, 25, 0, "FermiExp", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 7, 25, 0, "FermiExp", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
             peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -514,7 +518,7 @@ void ZdcAnalysisTool::initialize40MHz()
     moduleHGNonLinCorr[1][2] = { -7.82514e-02, -1.21218e-01};
     moduleHGNonLinCorr[1][3] = { -2.34354e-02, -2.52033e-01};
 
-    m_zdcDataAnalyzer_40MHz.reset (new ZDCDataAnalyzer(&MessageFunc, 7, 25, 0, "FermiExp", peak2ndDerivMinSamples,
+    m_zdcDataAnalyzer_40MHz.reset (new ZDCDataAnalyzer(MakeMessageFunction(), 7, 25, 0, "FermiExp", peak2ndDerivMinSamples,
                                    peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     m_zdcDataAnalyzer_40MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -621,7 +625,7 @@ void ZdcAnalysisTool::initialize80MHz()
     moduleHGNonLinCorr[1][2] = { -7.82514e-02, -1.21218e-01};
     moduleHGNonLinCorr[1][3] = { -2.34354e-02, -2.52033e-01};
 
-    m_zdcDataAnalyzer_80MHz.reset (new ZDCDataAnalyzer(&MessageFunc, 7 , 12.5, 0, "FermiExp", m_peak2ndDerivMinSamples,
+    m_zdcDataAnalyzer_80MHz.reset (new ZDCDataAnalyzer(MakeMessageFunction(), 7 , 12.5, 0, "FermiExp", m_peak2ndDerivMinSamples,
                                    m_peak2ndDerivMinThresholdsHG, m_peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     m_zdcDataAnalyzer_80MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
