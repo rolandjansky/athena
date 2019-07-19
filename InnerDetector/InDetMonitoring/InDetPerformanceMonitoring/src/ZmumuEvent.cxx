@@ -46,6 +46,8 @@ ZmumuEvent::ZmumuEvent()
   m_Z0GapCut = 5.0; // in mm
   m_SelectMuonByIso = true;
   m_SelectMuonByIP = true;
+  m_analyzedEventCount = 0;
+  m_acceptedEventCount = 0;
 }
 
 //==================================================================================
@@ -84,29 +86,32 @@ const std::string ZmumuEvent::getRegion() const{
 //==================================================================================
 bool ZmumuEvent::Reco()
 {
-
   if(m_doDebug){ std::cout << " * ZmumuEvent * ZmumuEvent::Reco() starting " << std::endl; }
+  m_analyzedEventCount++;
+
   // Clear out the previous events record.
   this->Clear();
-  //  const Analysis::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<Analysis::MuonContainer>( m_container );
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
-  if (!pxMuonContainer){
-    std::cout << " * ZmumuEvent * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
-    return false;
-  }
-  else{
-    if(m_doDebug) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " combined muon "<<std::endl; }
+  if (pxMuonContainer != NULL) {
+    if(m_doDebug) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " muon in xAOD::MuonContainer " << m_container <<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
     xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
+    int acceptedMuonCount = 0;
     while ( xMuonItr != xMuonItrE ){ // start loop on muons
       const xAOD::Muon* pxCMuon = *xMuonItr;
       if(m_doDebug){std::cout << " * ZmumuEvent * Reco() ** attempt on xMuonItr "<< *xMuonItr << std::endl; }
       // Apply muon cuts
       if ( m_xMuonID.passSelection( pxCMuon) ) {
 	RecordMuon( pxCMuon );
+	acceptedMuonCount++;
       }
       xMuonItr++;
     } // end loop on muons
+    if(m_doDebug) {std::cout << " * ZmumuEvent * accepted " << acceptedMuonCount << " from the input list of  "<< pxMuonContainer->size() <<std::endl; }
+  } // muon container exist
+  else {
+    std::cout << " * ZmumuEvent * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
+    return false;
   }
   
   // ordering of muons
@@ -118,12 +123,20 @@ bool ZmumuEvent::Reco()
   m_passedSelectionCuts = EventSelection(ID);
   m_DiMuonPairInvMass =  m_fInvariantMass[ID];
   
+  if (m_passedSelectionCuts) m_acceptedEventCount++;
   
   if(m_doDebug) {
-    if ( m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * Selected event :) " << std::endl;
-    if (!m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * Rejected event :) " << std::endl;
+    if ( m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * result of analyzed event " << m_analyzedEventCount << " --> Selected event :) " << std::endl;
+    if (!m_passedSelectionCuts) std::cout << " * ZmumuEvent * Reco() * result of analyzed event " << m_analyzedEventCount << " --> Rejected event :( " << std::endl;
   }
-
+  if (m_doDebug) {
+    std::cout << " * ZmumuEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
+	      << " muons. " << m_acceptedEventCount 
+	      << " events accpeted out of " <<  m_analyzedEventCount 
+	      << " tested ";
+    if (m_passedSelectionCuts) std::cout << " This m= " << m_DiMuonPairInvMass; 
+    std::cout << " * return " << m_passedSelectionCuts << std::endl; 
+  }
   return m_passedSelectionCuts;
 }
 
@@ -248,7 +261,7 @@ bool ZmumuEvent::EventSelection(ZTYPE eType)
       std::cout << " * ZmumuEvent *  z0_muon1= " << z0_muon1 << "  z0_muon2= " << z0_muon2 << "  delta= " << z0_muon1-z0_muon2 << std::endl;
     }
     if ( fabs(z0_muon1 - z0_muon2) > m_Z0GapCut) {
-      if(m_doDebug || true) {
+      if(m_doDebug) {
 	std::cout << " * ZmumuEvent * Failing common vertex cut. z.vtx1= " << m_pxIDTrack[m_muon1]->vz() << "  z.vtx2= " << m_pxIDTrack[m_muon2]->vz() << std::endl;
 	std::cout << " * ZmumuEvent * Failing common vertex cut. IDTrk.z0_1= " << m_pxIDTrack[m_muon1]->z0() << "  IDTrk.z0_2= " << m_pxIDTrack[m_muon2]->z0() << std::endl;
 	std::cout << " * ZmumuEvent * z0_muon1= " << z0_muon1 << "  z0_muon2= " << z0_muon2 << "  delta= " << z0_muon1-z0_muon2 << " > " << m_Z0GapCut << " (cut)" << std::endl;
