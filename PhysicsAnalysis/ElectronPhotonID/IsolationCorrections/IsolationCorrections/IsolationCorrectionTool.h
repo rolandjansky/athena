@@ -71,11 +71,11 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
 
-        bool m_bDoEDParametrizedShift;
-        std::string m_sEDParametrizedShiftInputName;
-        TGraph* m_gZeta20Nom;
-        TGraph* m_gZeta20Up;
-        TGraph* m_gZeta20Down;
+        bool m_bDoEtaEDParPUcorrection;
+
+        std::string m_sEtaEDParPUCorrectionInput;
+
+        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_mapIsoTypeZetaPU;
 
         bool m_usemetadata;
 	bool m_is_mc;
