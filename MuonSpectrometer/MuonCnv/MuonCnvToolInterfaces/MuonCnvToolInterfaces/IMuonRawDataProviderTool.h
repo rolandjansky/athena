@@ -10,8 +10,6 @@
 #include "Identifier/IdentifierHash.h"
 #include <vector>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 static const InterfaceID IID_IMuonRawDataProviderTool( "Muon::IMuonRawDataProviderTool", 1, 0 );
 
 namespace Muon
@@ -29,7 +27,7 @@ public:
 
 public:
     /** Decoding method. - current methods: let's keep them! */
-    typedef std::vector<const ROBFragment*> ROBFragmentList;
+    typedef std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> ROBFragmentList;
     virtual StatusCode convert(const ROBFragmentList&) = 0;
     virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&) = 0;
     /** the new ones */
