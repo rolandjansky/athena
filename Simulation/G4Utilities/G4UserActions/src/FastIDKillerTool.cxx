@@ -15,6 +15,8 @@ namespace G4UA
   {
     declareProperty("R", m_config.R);
     declareProperty("Z", m_config.Z);
+    declareProperty("energyCut", m_config.energyCut);
+    declareProperty("isDalek", m_config.isDalek);
   }
 
   //---------------------------------------------------------------------------
