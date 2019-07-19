@@ -33,7 +33,7 @@ if( XAOD_STANDALONE )
    set( sources Root/*.cxx  ${AsgToolsCintDict} )
 else()
    set( sources Root/MsgLevel.cxx Root/AsgTool.cxx Root/AsgMetadataTool.cxx
-      Root/AsgMessaging.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx
+      Root/AsgMessaging.cxx Root/AsgMessagingForward.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx
       Root/MessageCheck.cxx src/*.cxx )
 endif()
 
