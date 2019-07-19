@@ -4,8 +4,8 @@
 //
 //   @file    TrigBjetRoiBuilderMT.h        
 //
-#ifndef  TRIGBJETHYPO_TRIGBJETROIBUILDER_MT_H
-#define  TRIGBJETHYPO_TRIGBJETROIBUILDER_MT_H
+#ifndef  TRIGROI_FROMJETS_MT_H
+#define  TRIGROI_FROMJETS_MT_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -14,10 +14,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-class TrigBjetRoiBuilderMT : public AthAlgorithm {
+class TrigRoIFromJetsMT : public AthAlgorithm {
 
  public:
-  TrigBjetRoiBuilderMT(const std::string&, ISvcLocator*);
+  TrigRoIFromJetsMT(const std::string&, ISvcLocator*);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

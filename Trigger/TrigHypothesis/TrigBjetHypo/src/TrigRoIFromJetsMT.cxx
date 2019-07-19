@@ -3,24 +3,24 @@
 */
 
 //
-//   @file    TrigBjetRoiBuilderMT.cxx        
+//   @file    TrigRoIFromJetsMT.cxx
 //
 //            Creates a ROI from a jet collection
 //                   
 
 
-#include "TrigBjetRoiBuilderMT.h"
+#include "TrigRoIFromJetsMT.h"
 #include "CxxUtils/phihelper.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-TrigBjetRoiBuilderMT::TrigBjetRoiBuilderMT(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigRoIFromJetsMT::TrigRoIFromJetsMT(const std::string & name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator) {}
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode TrigBjetRoiBuilderMT::initialize() {
+StatusCode TrigRoIFromJetsMT::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_etaHalfWidth    );
@@ -42,7 +42,7 @@ StatusCode TrigBjetRoiBuilderMT::initialize() {
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
-StatusCode TrigBjetRoiBuilderMT::execute() {
+StatusCode TrigRoIFromJetsMT::execute() {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
   const EventContext& ctx = getContext();
