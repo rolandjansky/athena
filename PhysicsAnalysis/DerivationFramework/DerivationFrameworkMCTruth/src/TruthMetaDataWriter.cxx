@@ -49,7 +49,7 @@ StatusCode DerivationFramework::TruthMetaDataWriter::initialize()
     xAOD::TruthMetaDataAuxContainer* aux = new xAOD::TruthMetaDataAuxContainer();
     m_tmd = new xAOD::TruthMetaDataContainer();
     m_tmd->setStore( aux );
-    // Record it in the metadata store    
+    // Record it in the metadata store
     CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
     CHECK( m_metaStore->record( m_tmd, m_metaName ) );
 
@@ -65,24 +65,24 @@ StatusCode DerivationFramework::TruthMetaDataWriter::finalize()
 // Selection and collection creation
 StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
 {
-   
+
     //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
     uint32_t mcChannelNumber = 0;
     // If this fails, we are running on a datatype with no EventInfo.  Such data types should
     //  definitely not be mixing MC samples, so this should be safe (will fall back to 0 above)
-    if (evtStore()->contains<xAOD::EventInfo>("McEventInfo")){
+    if (evtStore()->contains<xAOD::EventInfo>("EventInfo")){
       const DataHandle<xAOD::EventInfo> eventInfo = nullptr;
       CHECK( evtStore()->retrieve(eventInfo) );
       mcChannelNumber = eventInfo->mcChannelNumber();
     }
-    
+
     //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
     //is used to check if the key already exists (returns false in the case it exists)
     if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
         xAOD::TruthMetaData* md = new xAOD::TruthMetaData();
         m_tmd->push_back( md );
 
-        // Get the list of weights from the metadata       
+        // Get the list of weights from the metadata
         std::map<std::string,std::size_t> weight_name_map = m_weightSvc->weightNames();
 
         std::vector<std::string> orderedWeightNameVec;
@@ -90,12 +90,12 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
         for (auto& entry: weight_name_map) {
             orderedWeightNameVec.push_back(entry.first);
         }
-       
+
         //The map from the HepMC record pairs the weight names with a corresponding index,
         //it is not guaranteed that the indices are ascending when iterating over the map
         std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
                   [&](std::string i, std::string j){return weight_name_map.at(i) < weight_name_map.at(j);});
-       
+
         md->setMcChannelNumber(mcChannelNumber);
         md->setWeightNames( std::move(orderedWeightNameVec) );
 
@@ -131,6 +131,6 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
         }
         // Done getting things from the TagInfo
 
-    } // Done making the new truth metadata object    
+    } // Done making the new truth metadata object
     return StatusCode::SUCCESS;
 }
