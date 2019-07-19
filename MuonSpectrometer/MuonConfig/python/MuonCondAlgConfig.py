@@ -23,7 +23,7 @@ def MdtCondDbAlgCfg(flags, **kwargs):
     alg = MdtCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
-    return result, alg
+    return result
 
 def RpcCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
@@ -42,7 +42,7 @@ def RpcCondDbAlgCfg(flags, **kwargs):
     result.merge( addFolders(flags, folders                     , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.merge( addFolders(flags, ["/RPC/DQMF/ELEMENT_STATUS"], detDb="RPC_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
-    return result, alg
+    return result
 
 def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
@@ -59,7 +59,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
     alg = CscCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
-    return result, alg
+    return result
 
 ###def TgcCondDbAlgCfg(flags, **kwargs):
 ###    result  = ComponentAccumulator()

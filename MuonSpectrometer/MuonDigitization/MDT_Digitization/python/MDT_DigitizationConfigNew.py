@@ -45,9 +45,7 @@ def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
 def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured MdtDigitizationTool"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
-    alg, mdt_cond_summary_alg = MdtCondDbAlgCfg(flags)
-    acc = ComponentAccumulator()
-    acc.merge(alg)
+    acc = MdtCondDbAlgCfg(flags)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
