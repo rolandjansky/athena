@@ -10,15 +10,13 @@ PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName, const Pixe
   GeoXMLUtils(), PixelGeoBuilder(basics)
 {
 
-  //  std::cout<<"XML helper - PixelGeneralXMLHelper"<<std::endl;
-
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed = false;
   std::string fileName_brl="GenericPixelGeneral.xml";
   if(readXMLfromDB)
     {
       if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
-      getBasics()->msgStream()<<"XML input : DB CLOB "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      getBasics()->msgStream()<<MSG::DEBUG<<"XML input : DB CLOB "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       DBXMLUtils dbUtils(basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName_brl);
       InitializeXML();
@@ -28,14 +26,14 @@ PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName, const Pixe
     {
       // Access XML file
       if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
-      getBasics()->msgStream()<<"XML input : from file "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      getBasics()->msgStream()<<MSG::DEBUG<<"XML input : from file "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       std::string file_brl = PathResolver::find_file (fileName_brl, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file_brl);
     }
 
   if(!bParsed){
-    std::cout<<"XML file "<<fileName_brl<<" not found"<<std::endl;
+    getBasics()->msgStream()<<MSG::ERROR<<"XML file "<<fileName_brl<<" not found"<<endreq;
     return;
   }
 
@@ -205,8 +203,6 @@ double PixelGeneralXMLHelper::getLayerRMin(int ilayer) const
 {
   std::ostringstream ostr; 
   ostr << "LayerMin" << ilayer;
-
-  //  std::cout<<"Read pixel layer rmin "<<std::cout;
  
   return getDouble("PixelLayerEnvelope", 0, ostr.str().c_str(),0, 0.);
 }

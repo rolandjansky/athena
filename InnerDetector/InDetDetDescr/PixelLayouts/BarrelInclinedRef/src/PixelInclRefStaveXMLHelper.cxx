@@ -21,7 +21,7 @@ PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeo
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      basics->msgStream()<<MSG::DEBUG<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -29,7 +29,7 @@ PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeo
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      basics->msgStream()<<MSG::DEBUG<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
@@ -37,13 +37,11 @@ PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeo
 
   // No XML file was parsed    
   if(!bParsed){
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+    basics->msgStream()<<MSG::ERROR<<"XML file "<<fileName<<" not found"<<endreq;
     return;
   }
 
   m_layerIndices = getChildValue_Indices("PixelStaveGeo","Layer",m_layer);
-
-  //  std::cout<<"PixelInclRefStaveXMLHelper for layer "<<m_layer<<" "<<m_layerIndices[0]<<" "<<m_layerIndices[1]<<std::endl;
 }
 
 PixelInclRefStaveXMLHelper::~PixelInclRefStaveXMLHelper()

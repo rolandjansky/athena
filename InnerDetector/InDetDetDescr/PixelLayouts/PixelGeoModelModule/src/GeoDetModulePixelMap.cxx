@@ -62,7 +62,7 @@ void GeoDetModulePixelMap::preBuild()
 
   if(readXMLfromDB)
     {
-      m_basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      m_basics->msgStream()<<MSG::DEBUG<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       DBXMLUtils dbUtils(m_basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -70,13 +70,13 @@ void GeoDetModulePixelMap::preBuild()
     }
   else{
     InitializeXML();
-    m_basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+    m_basics->msgStream()<<MSG::DEBUG<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
     std::string file = PathResolver::find_file (fileName, "DATAPATH");
     bParsed = ParseFile(file);
   }
   
   if(!bParsed){
-     m_basics->msgStream()<<"XML file "<<fileName<<" not found"<<endreq;
+    m_basics->msgStream()<<MSG::DEBUG<<"XML file "<<fileName<<" not found"<<endreq;
     return;
   }
 
