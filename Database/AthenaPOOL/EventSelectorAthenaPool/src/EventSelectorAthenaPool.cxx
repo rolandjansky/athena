@@ -405,7 +405,7 @@ void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile) const {
          // Assume that the end of collection file indicates the end of payload file.
          if (m_guid != Guid::null()) {
             // Fire EndInputFile incident
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
             m_incidentSvc->fireIncident(endInputFileIncident);
          }
       }
@@ -513,11 +513,11 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
       if (guid != m_guid && m_processMetadata.value()) {
          if (m_evtCount >= 0 && m_guid != Guid::null()) {
             // Fire EndInputFile incident
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
             m_incidentSvc->fireIncident(endInputFileIncident);
          }
          m_guid = guid;
-         FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString());
+         FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString(), m_guid.toString());
          m_incidentSvc->fireIncident(beginInputFileIncident);
       }
       return(StatusCode::SUCCESS);
@@ -538,7 +538,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          // Assume that the end of collection file indicates the end of payload file.
          if (m_processMetadata.value()) {
             // Fire EndInputFile incident
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
             m_incidentSvc->fireIncident(endInputFileIncident);
          }
          // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
@@ -577,7 +577,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          if (m_guid != Guid::null()) {
             if (m_processMetadata.value()) {
                // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
             // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
