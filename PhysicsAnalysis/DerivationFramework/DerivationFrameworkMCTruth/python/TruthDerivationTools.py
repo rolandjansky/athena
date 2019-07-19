@@ -45,12 +45,18 @@ DFCommonTruthNeutrinoTool = DerivationFramework__TruthCollectionMaker(name      
                                                                    ParticleSelectionString = neutrinoexpression)
 ToolSvc += DFCommonTruthNeutrinoTool
 
-DFCommonTruthTopTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthTopTool",
-                                                                NewCollectionName       = "TruthTop",
-                                                                KeepNavigationInfo      = False,
-                                                                ParticleSelectionString = "(abs(TruthParticles.pdgId) == 6)",
-                                                                Do_Compress             = True,
-                                                          )
+DFCommonTruthBottomTool = DerivationFramework__TruthCollectionMaker(name                    = "DFCommonTruthBottomTool",
+                                                                    NewCollectionName       = "TruthBottom",
+                                                                    KeepNavigationInfo      = False,
+                                                                    ParticleSelectionString = "(abs(TruthParticles.pdgId) == 5)",
+                                                                    Do_Compress             = True)
+ToolSvc += DFCommonTruthBottomTool
+
+DFCommonTruthTopTool = DerivationFramework__TruthCollectionMaker(name                    = "DFCommonTruthTopTool",
+                                                                 NewCollectionName       = "TruthTop",
+                                                                 KeepNavigationInfo      = False,
+                                                                 ParticleSelectionString = "(abs(TruthParticles.pdgId) == 6)",
+                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthTopTool
 
 DFCommonTruthBosonTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBosonTool",

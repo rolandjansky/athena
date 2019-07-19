@@ -100,26 +100,22 @@ TOPQ6Sequence = CfgMgr.AthSequencer("TOPQ6Sequence")
 # First skim on leptons
 TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-#============
-# add Jets
-#============
 #====================================================================
 # Special jets
 #====================================================================
 # Create TCC objects (see JETM1.py)
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-from DerivationFrameworkTop.TOPQCommonJets import addNonLargeRJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
-from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
-from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 # add fat/trimmed jets
+from DerivationFrameworkTop.TOPQCommonJets import addNonLargeRJetsForTop
 addNonLargeRJetsForTop(TOPQ6Sequence,'TOPQ6')
+
 # apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 
 # Then skim on the newly created fat jets and calibrated jets
@@ -139,8 +135,11 @@ if DFisMC:
   TOPQ6Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 addMSVVariables("AntiKt4EMTopoJets", TOPQ6Sequence, ToolSvc)
+
 # add ExKtDoubleTagVariables (TOPQDERIV-62)
+from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 addExKtDoubleTagVariables(TOPQ6Sequence, ToolSvc)
 
 # Then apply thinning

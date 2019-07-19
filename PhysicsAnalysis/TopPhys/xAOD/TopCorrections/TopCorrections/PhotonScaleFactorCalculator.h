@@ -54,12 +54,8 @@ class PhotonScaleFactorCalculator final : public asg::AsgTool {
   CP::SystematicSet m_systNominal;
   CP::SystematicSet m_systEffIDUp;
   CP::SystematicSet m_systEffIDDown;
-  CP::SystematicSet m_systEffLowPtIsoUp;
-  CP::SystematicSet m_systEffLowPtIsoDown;
-  CP::SystematicSet m_systEffTrkIsoUp;
-  CP::SystematicSet m_systEffTrkIsoDown;
-  CP::SystematicSet m_systIsoDDonoffUp;
-  CP::SystematicSet m_systIsoDDonoffDown;
+  CP::SystematicSet m_systEffIsoUp;
+  CP::SystematicSet m_systEffIsoDown;
 
   ToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEffSF;
   ToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonIsoSF;

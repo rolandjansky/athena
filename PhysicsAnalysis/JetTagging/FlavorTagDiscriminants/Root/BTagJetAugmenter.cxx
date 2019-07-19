@@ -11,83 +11,135 @@
 
 #include "TVector3.h"
 
-BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
+namespace {
+  // grab names based on configuration
+  std::string negString(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "Neg";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+  std::string flipString(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "Flip";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+
+  // the taggers
+  std::string ip2(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "IP2D" + negString(f);
+  }
+  std::string ip3(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "IP3D" + negString(f);
+  }
+  std::string rnn(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "rnnip";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "rnnipflip";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+  std::string jf(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "JetFitter" + flipString(f);
+  }
+  std::string sv(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "SV1" + flipString(f);
+  }
+  std::string jfSv(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "secondaryVtx" + flipString(f);
+  }
+  std::string jfSvNew(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "JetFitterSecondaryVertex" + flipString(f);
+  }
+
+}
+
+BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s,
+                                   FlavorTagDiscriminants::FlipTagConfig f):
   m_use_floats(false),
+  m_write_unflippable(true),
   pt_uncalib("pt_uncalib"),
   eta_uncalib("eta_uncalib"),
   abs_eta_uncalib("abs_eta_uncalib"),
-  ip2d_weightBOfTracks("IP2D_weightBofTracks"),
-  ip2d_nTrks("IP2D_nTrks"),
-  ip2d_pu("IP2D_pu"),
-  ip2d_pc("IP2D_pc"),
-  ip2d_pb("IP2D_pb"),
-  ip2d_isDefaults("IP2D_isDefaults"),
-  ip2d_cu("IP2D_cu"),
-  ip2d_bu("IP2D_bu"),
-  ip2d_bc("IP2D_bc"),
-  ip3d_weightBOfTracks("IP3D_weightBofTracks"),
-  ip3d_nTrks("IP3D_nTrks"),
-  ip3d_pu("IP3D_pu"),
-  ip3d_pc("IP3D_pc"),
-  ip3d_pb("IP3D_pb"),
-  ip3d_isDefaults("IP3D_isDefaults"),
-  ip3d_cu("IP3D_cu"),
-  ip3d_bu("IP3D_bu"),
-  ip3d_bc("IP3D_bc"),
-  jf_deltaEta("JetFitter_deltaeta"),
-  jf_deltaPhi("JetFitter_deltaphi"),
-  jf_fittedPosition("JetFitter_fittedPosition"),
-  jf_vertices("JetFitter_JFvertices"),
-  jf_nVtx("JetFitter_nVTX"),
-  jf_nSingleTracks("JetFitter_nSingleTracks"),
-  jf_isDefaults("JetFitter_isDefaults"),
-  jf_deltaR("JetFitter_deltaR"),
-  sv1_vertices("SV1_vertices"),
-  sv1_nVtx("SV1_nVtx"),
-  sv1_isDefaults("SV1_isDefaults"),
+  ip2d_weightBOfTracks(ip2(f) + "_weightBofTracks"),
+  ip2d_nTrks(ip2(f) + "_nTrks"),
+  ip2d_pu(ip2(f) + "_pu"),
+  ip2d_pc(ip2(f) + "_pc"),
+  ip2d_pb(ip2(f) + "_pb"),
+  ip2d_isDefaults(ip2(f) + "_isDefaults"),
+  ip2d_cu(ip2(f) + "_cu"),
+  ip2d_bu(ip2(f) + "_bu"),
+  ip2d_bc(ip2(f) + "_bc"),
+  ip3d_weightBOfTracks(ip3(f) + "_weightBofTracks"),
+  ip3d_nTrks(ip3(f) + "_nTrks"),
+  ip3d_pu(ip3(f) + "_pu"),
+  ip3d_pc(ip3(f) + "_pc"),
+  ip3d_pb(ip3(f) + "_pb"),
+  ip3d_isDefaults(ip3(f) + "_isDefaults"),
+  ip3d_cu(ip3(f) + "_cu"),
+  ip3d_bu(ip3(f) + "_bu"),
+  ip3d_bc(ip3(f) + "_bc"),
+  jf_deltaEta(jf(f) + "_deltaeta"),
+  jf_deltaPhi(jf(f) + "_deltaphi"),
+  jf_fittedPosition(jf(f) + "_fittedPosition"),
+  jf_vertices(jf(f) + "_JFvertices"),
+  jf_nVtx(jf(f) + "_nVTX"),
+  jf_nSingleTracks(jf(f) + "_nSingleTracks"),
+  jf_isDefaults(jf(f) + "_isDefaults"),
+  jf_deltaR(jf(f) + "_deltaR"),
+  sv1_vertices(sv(f) + "_vertices"),
+  sv1_nVtx(sv(f) + "_nVtx"),
+  sv1_isDefaults(sv(f) + "_isDefaults"),
   jet_track_links("BTagTrackToJetAssociator"),
-  secondaryVtx_isDefaults("secondaryVtx_isDefaults"),
-  secondaryVtx_nTrks("secondaryVtx_nTrks"),
-  secondaryVtx_m("secondaryVtx_m"),
-  secondaryVtx_E("secondaryVtx_E"),
-  secondaryVtx_EFrac("secondaryVtx_EFrac"),
-  secondaryVtx_L3d("secondaryVtx_L3d"),
-  secondaryVtx_Lxy("secondaryVtx_Lxy"),
-  secondaryVtx_min_trk_flightDirRelEta("secondaryVtx_min_trk_flightDirRelEta"),
-  secondaryVtx_max_trk_flightDirRelEta("secondaryVtx_max_trk_flightDirRelEta"),
-  secondaryVtx_avg_trk_flightDirRelEta("secondaryVtx_avg_trk_flightDirRelEta"),
+  secondaryVtx_isDefaults(jfSv(f) + "_isDefaults"),
+  secondaryVtx_nTrks(jfSv(f) + "_nTrks"),
+  secondaryVtx_m(jfSv(f) + "_m"),
+  secondaryVtx_E(jfSv(f) + "_E"),
+  secondaryVtx_EFrac(jfSv(f) + "_EFrac"),
+  secondaryVtx_L3d(jfSv(f) + "_L3d"),
+  secondaryVtx_Lxy(jfSv(f) + "_Lxy"),
+  secondaryVtx_min_trk_flightDirRelEta(jfSv(f) + "_min_trk_flightDirRelEta"),
+  secondaryVtx_max_trk_flightDirRelEta(jfSv(f) + "_max_trk_flightDirRelEta"),
+  secondaryVtx_avg_trk_flightDirRelEta(jfSv(f) + "_avg_trk_flightDirRelEta"),
   min_trk_flightDirRelEta("min_trk_flightDirRelEta"),
   max_trk_flightDirRelEta("max_trk_flightDirRelEta"),
   avg_trk_flightDirRelEta("avg_trk_flightDirRelEta"),
   smt_mu_pt("SMT_mu_pt"),
   smt_isDefaults("SMT_isDefaults"),
-  rnnip_pbIsValid("rnnip_pbIsValid"),
-  rnnip_isDefaults("rnnip_isDefaults"),
-  new_secondaryVtx_m("JetFitterSecondaryVertex_mass"),
-  new_secondaryVtx_E("JetFitterSecondaryVertex_energy"),
-  new_secondaryVtx_EFrac("JetFitterSecondaryVertex_energyFraction"),
-  new_secondaryVtx_min_trk_flightDirRelEta("JetFitterSecondaryVertex_minimumTrackRelativeEta"),
-  new_secondaryVtx_max_trk_flightDirRelEta("JetFitterSecondaryVertex_maximumTrackRelativeEta"),
-  new_secondaryVtx_avg_trk_flightDirRelEta("JetFitterSecondaryVertex_averageTrackRelativeEta"),
+  rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
+  rnnip_isDefaults(rnn(f) + "_isDefaults"),
+  new_secondaryVtx_m(jfSvNew(f) + "_mass"),
+  new_secondaryVtx_E(jfSvNew(f) + "_energy"),
+  new_secondaryVtx_EFrac(jfSvNew(f) + "_energyFraction"),
+  new_secondaryVtx_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumTrackRelativeEta"),
+  new_secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
+  new_secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
   new_min_trk_flightDirRelEta("minimumTrackRelativeEta"),
   new_max_trk_flightDirRelEta("maximumTrackRelativeEta"),
   new_avg_trk_flightDirRelEta("averageTrackRelativeEta")
 {
   using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::ConstAccessor<float> AEF;
-  typedef SG::AuxElement::ConstAccessor<double> AED;
   typedef SG::AuxElement::Decorator<float> ADF;
   typedef SG::AuxElement::Decorator<double> ADD;
   typedef SG::AuxElement::Decorator<char> ADC;
   typedef SG::AuxElement::Decorator<int> ADI;
-  if (s == EDMSchema::FEB_2019) {
+  if (s != EDMSchema::WINTER_2018) {
     pt_uncalib = ADD("pt_btagJes");
     eta_uncalib = ADD("eta_btagJes");
     abs_eta_uncalib = ADD("absEta_btagJes");
-    secondaryVtx_isDefaults = ADC("JetFitterSecondaryVertex_isDefaults");
-    secondaryVtx_nTrks = ADI("JetFitterSecondaryVertex_nTracks");
-    secondaryVtx_L3d = ADF("JetFitterSecondaryVertex_displacement3d");
-    secondaryVtx_Lxy = ADF("JetFitterSecondaryVertex_displacement2d");
+    secondaryVtx_isDefaults = ADC(jfSvNew(f) + "_isDefaults");
+    secondaryVtx_nTrks = ADI(jfSvNew(f) + "_nTracks");
+    secondaryVtx_L3d = ADF(jfSvNew(f) + "_displacement3d");
+    secondaryVtx_Lxy = ADF(jfSvNew(f) + "_displacement2d");
     m_use_floats = true;
   }
 
@@ -98,18 +150,23 @@ BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
-  pt_uncalib(btag) = uncalibrated_jet.pt();
-  eta_uncalib(btag) = uncalibrated_jet.eta();
-  abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
-
+  if (m_write_unflippable) {
+    pt_uncalib(btag) = uncalibrated_jet.pt();
+    eta_uncalib(btag) = uncalibrated_jet.eta();
+    abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
+  }
   // pass off to calibrated jet function
   augment(jet);
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   if (ip2d_weightBOfTracks(btag).size() > 0) {
     ip2d_isDefaults(btag) = 0;
@@ -283,23 +340,29 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     double min = min_track_flightDirRelEta;
     double max = max_track_flightDirRelEta;
     double avg = track_flightDirRelEta_total / track_number;
-    if (m_use_floats) {
-      new_min_trk_flightDirRelEta(btag) = min;
-      new_max_trk_flightDirRelEta(btag) = max;
-      new_avg_trk_flightDirRelEta(btag) = avg;
-    } else {
-      min_trk_flightDirRelEta(btag) = min;
-      max_trk_flightDirRelEta(btag) = max;
-      avg_trk_flightDirRelEta(btag) = avg;
+    if (m_write_unflippable) {
+      if (m_use_floats) {
+        new_min_trk_flightDirRelEta(btag) = min;
+        new_max_trk_flightDirRelEta(btag) = max;
+        new_avg_trk_flightDirRelEta(btag) = avg;
+      } else {
+        min_trk_flightDirRelEta(btag) = min;
+        max_trk_flightDirRelEta(btag) = max;
+        avg_trk_flightDirRelEta(btag) = avg;
+      }
     }
   }
-  if (smt_mu_pt(btag) > 0) {
-    smt_isDefaults(btag) = 0;
-  }  else {
-    smt_isDefaults(btag) = 1;
+  if (m_write_unflippable) {
+    if (smt_mu_pt(btag) > 0) {
+      smt_isDefaults(btag) = 0;
+    }  else {
+      smt_isDefaults(btag) = 1;
+    }
   }
 
-  if (! rnnip_pbIsValid(btag)) {
+  // pbIsValid is only defined in the "old" schema, which does not use
+  // floats. This will short circuit if we do use floats.
+  if (!m_use_floats && !rnnip_pbIsValid(btag)) {
     rnnip_isDefaults(btag) = 1;
   }  else {
     rnnip_isDefaults(btag) = 0;

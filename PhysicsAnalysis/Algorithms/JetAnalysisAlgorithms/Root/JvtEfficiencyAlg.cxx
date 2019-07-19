@@ -30,7 +30,6 @@ namespace CP
     declareProperty ("dofJVT", m_dofJVT, "differenciate between JVT and fJVT");
     declareProperty ("fJVTStatus", m_fJVTStatus, "the decoration for the fJVT status");
     declareProperty ("selection", m_selection, "the decoration for the JVT selection");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the JVT scale factor");
     declareProperty ("skipBadEfficiency", m_skipBadEfficiency, "whether to skip efficiency calculation if the selection failed");
     declareProperty ("truthJetCollection", m_truthJetsName, "the truth jet collection to use for truth tagging");
   }
@@ -58,9 +57,6 @@ namespace CP
 
     if (!m_selection.empty())
       ANA_CHECK (makeSelectionAccessor (m_selection, m_selectionAccessor));
-
-    if (!m_scaleFactorDecoration.empty())
-      m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     return StatusCode::SUCCESS;
   }
@@ -92,7 +88,7 @@ namespace CP
               if (m_selectionAccessor)
                 m_selectionAccessor->setBool (*jet, goodJet);
             }
-            if (m_scaleFactorAccessor)
+            if (m_scaleFactorDecoration)
             {
               float sf = 1;
               if (goodJet) {
@@ -100,8 +96,14 @@ namespace CP
               } else if (!m_skipBadEfficiency) {
                 ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, sf));
               }
-              (*m_scaleFactorAccessor) (*jet) = sf;
+              m_scaleFactorDecoration.set (*jet, sf, sys);
             }
+          } else {
+            if (m_selectionAccessor)
+              m_selectionAccessor->setBool (*jet, false);
+
+            if (m_scaleFactorDecoration)
+              m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);
           }
         }
         return StatusCode::SUCCESS;

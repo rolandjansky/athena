@@ -32,9 +32,11 @@ EXOT6ExtraVariables = [
     "TauJets.ptDetectorAxis,phiDetectorAxis,etaDetectorAxis,mDetectorAxis",
     "TauNeutralParticleFlowObjects.pt.eta.phi.m",
     "TauChargedParticleFlowObjects.pt.eta.phi.m",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount",
+    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta",
   "HLT_xAOD__JetContainer_a4tcemsubjesISFS.pt.eta.phi.m", 
-  "HLT_xAOD__PhotonContainer_egamma_Photons.pt.eta.phi"
+  "HLT_xAOD__PhotonContainer_egamma_Photons.pt.eta.phi",
+
+"AntiKt4EMPFlowJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"
 ]
 
 EXOT6UnslimmedContent = [

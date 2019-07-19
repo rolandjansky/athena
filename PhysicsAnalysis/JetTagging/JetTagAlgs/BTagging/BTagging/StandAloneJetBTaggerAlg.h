@@ -35,6 +35,7 @@ class  StandAloneJetBTaggerAlg:
   
     std::string m_JetCollectionName;
     std::string m_suffix;
+    bool m_dupPFlow;
 
     ToolHandle< IJetBTaggerTool > m_JetBTaggerTool; 
 

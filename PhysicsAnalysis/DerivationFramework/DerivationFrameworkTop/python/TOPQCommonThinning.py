@@ -290,34 +290,66 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     # MENU TRUTH THINNING
     #==========================
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-    TOPQTruthThinningTool = DerivationFramework__MenuTruthThinning(
-                              name                       = TOPQname + "TruthThinningTool",
-                              ThinningService            = TOPQThinningSvc,
-                              ParticlesKey               = "TruthParticles",
-                              VerticesKey                = "TruthVertices",
-                              EventsKey                  = "TruthEvents",
-                              WritePartons               = True,   # keep partons?  ###maybe set to FALSE?
-                              WriteHadrons               = False,  # keep hadrons?
-                              WriteBHadrons              = False,  # keep b-hadrons?
-                              WriteGeant                 = False,  # keep Geant particles?
-                              GeantPhotonPtThresh        = -1.0,   # Set to <0 to not write any Geant photons; otherwise write with a pT above threshold
-                              WriteTauHad                = True,   # keep hadronic taus?
-                              PartonPtThresh             = -1.0,   # write partons with pT aboe this threhold
-                              WriteBSM 	                 = True,   # keep BSM particles?
-                              WriteBSMProducts           = True,   # keep BSM particle decay products?
-                              WriteBosons                = True,   # keep bosons?
-                              WriteBosonProducts         = True,   # keep boson decay products?
-                              WriteTopAndDecays          = True,   # keep top partons and immediate decay products?
-                              WriteEverything            = False,  # keep everything?; overrides all other flags
-                              WriteAllLeptons            = True,   # keep absolutely all leptons?
-                              WriteLeptonsNotFromHadrons = False,  # keep leptons not from hadron decays
-                              WriteAllStable             = True,   # keep all stable particles?   ###maybe set to FALSE?
-                              WriteStatus3               = False,  # keep all particles with status code 3?
-                              WriteFirstN                = 10,     # keep first N particles in record
-                              PreserveDescendants        = False,  # keep descendants of retained particles?
-                              PreserveAncestors          = True,   # keep ancestors of retained particles?
-                              SimBarcodeOffset           = 200000, # barcode offset for simulation particles
-                              WritettHFHadrons           = True)   # keep tt+HF hadrons
+
+    if TOPQname == 'TOPQ6':  # Specific requirements for TOPQ6: keep GEANT tracks
+      TOPQTruthThinningTool = DerivationFramework__MenuTruthThinning(
+                                name                       = TOPQname + "TruthThinningTool",
+                                ThinningService            = TOPQThinningSvc,
+                                ParticlesKey               = "TruthParticles",
+                                VerticesKey                = "TruthVertices",
+                                EventsKey                  = "TruthEvents",
+                                WritePartons               = True,   # keep partons?  ###maybe set to FALSE?
+                                WriteHadrons               = False,  # keep hadrons?
+                                WriteBHadrons              = False,  # keep b-hadrons?
+                                WriteGeant                 = True,   # keep Geant particles?
+                                GeantPhotonPtThresh        = -1.0,   # Set to <0 to not write any Geant photons; otherwise write with a pT above threshold
+                                WriteTauHad                = True,   # keep hadronic taus?
+                                PartonPtThresh             = -1.0,   # write partons with pT aboe this threhold
+                                WriteBSM 	                 = True,   # keep BSM particles?
+                                WriteBSMProducts           = True,   # keep BSM particle decay products?
+                                WriteBosons                = True,   # keep bosons?
+                                WriteBosonProducts         = True,   # keep boson decay products?
+                                WriteTopAndDecays          = True,   # keep top partons and immediate decay products?
+                                WriteEverything            = False,  # keep everything?; overrides all other flags
+                                WriteAllLeptons            = True,   # keep absolutely all leptons?
+                                WriteLeptonsNotFromHadrons = False,  # keep leptons not from hadron decays
+                                WriteAllStable             = True,   # keep all stable particles?   ###maybe set to FALSE?
+                                WriteStatus3               = False,  # keep all particles with status code 3?
+                                WriteFirstN                = 10,     # keep first N particles in record
+                                PreserveDescendants        = False,  # keep descendants of retained particles?
+                                PreserveAncestors          = True,   # keep ancestors of retained particles?
+                                SimBarcodeOffset           = 200000, # barcode offset for simulation particles
+                                WritettHFHadrons           = True)   # keep tt+HF hadrons
+    else:
+      TOPQTruthThinningTool = DerivationFramework__MenuTruthThinning(
+                                name                       = TOPQname + "TruthThinningTool",
+                                ThinningService            = TOPQThinningSvc,
+                                ParticlesKey               = "TruthParticles",
+                                VerticesKey                = "TruthVertices",
+                                EventsKey                  = "TruthEvents",
+                                WritePartons               = True,   # keep partons?  ###maybe set to FALSE?
+                                WriteHadrons               = False,  # keep hadrons?
+                                WriteBHadrons              = False,  # keep b-hadrons?
+                                WriteGeant                 = False,  # keep Geant particles?
+                                GeantPhotonPtThresh        = -1.0,   # Set to <0 to not write any Geant photons; otherwise write with a pT above threshold
+                                WriteTauHad                = True,   # keep hadronic taus?
+                                PartonPtThresh             = -1.0,   # write partons with pT aboe this threhold
+                                WriteBSM 	                 = True,   # keep BSM particles?
+                                WriteBSMProducts           = True,   # keep BSM particle decay products?
+                                WriteBosons                = True,   # keep bosons?
+                                WriteBosonProducts         = True,   # keep boson decay products?
+                                WriteTopAndDecays          = True,   # keep top partons and immediate decay products?
+                                WriteEverything            = False,  # keep everything?; overrides all other flags
+                                WriteAllLeptons            = True,   # keep absolutely all leptons?
+                                WriteLeptonsNotFromHadrons = False,  # keep leptons not from hadron decays
+                                WriteAllStable             = True,   # keep all stable particles?   ###maybe set to FALSE?
+                                WriteStatus3               = False,  # keep all particles with status code 3?
+                                WriteFirstN                = 10,     # keep first N particles in record
+                                PreserveDescendants        = False,  # keep descendants of retained particles?
+                                PreserveAncestors          = True,   # keep ancestors of retained particles?
+                                SimBarcodeOffset           = 200000, # barcode offset for simulation particles
+                                WritettHFHadrons           = True)   # keep tt+HF hadrons
+
 
     ToolSvc += TOPQTruthThinningTool
     thinningTools.append(TOPQTruthThinningTool)

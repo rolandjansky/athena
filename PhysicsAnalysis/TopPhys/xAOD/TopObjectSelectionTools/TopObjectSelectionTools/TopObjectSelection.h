@@ -23,9 +23,13 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/ToolHandleArray.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
+#include "TopObjectSelectionTools/FwdElectronSelectionBase.h"
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
@@ -36,6 +40,7 @@
 // boosted-tagging includes
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 // b-tagging
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -93,6 +98,18 @@ public:
      * TopObjectSelectionTools).
      */
     void electronSelection(ElectronSelectionBase* ptr);
+    
+    
+    /**
+     * @brief Set the code used to select forward electrons.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * electrons will be accepted).
+     *
+     * @param ptr The code used to perform the  forward electron selection (see
+     * TopObjectSelectionTools).
+     */
+    void fwdElectronSelection(FwdElectronSelectionBase* ptr);
 
     /**
      * @brief Set the code used to select muons.
@@ -188,6 +205,7 @@ private:
     void applySelectionPreOverlapRemoval();
     void applySelectionPreOverlapRemovalPhotons();
     void applySelectionPreOverlapRemovalElectrons();
+    void applySelectionPreOverlapRemovalFwdElectrons();
     void applySelectionPreOverlapRemovalMuons();
     void applySelectionPreOverlapRemovalTaus();
     void applySelectionPreOverlapRemovalJets();
@@ -219,6 +237,9 @@ private:
 
     ///Electron selection code - can load user defined classes
     std::unique_ptr<top::ElectronSelectionBase> m_electronSelection;
+    
+    ///Fwd Electron selection code - can load user defined classes
+    std::unique_ptr<top::FwdElectronSelectionBase> m_fwdElectronSelection;
 
     ///Muon selection code - can load user defined classes
     std::unique_ptr<top::MuonSelectionBase> m_muonSelection;
@@ -259,13 +280,8 @@ private:
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
     
-    // do decorate the large-R jets with the boosted-tagging flags
-    ToolHandle<SmoothedTopTagger> m_topTag50;
-    ToolHandle<SmoothedTopTagger> m_topTag80;
-    ToolHandle<SmoothedWZTagger>  m_WTag50;
-    ToolHandle<SmoothedWZTagger>  m_WTag80;
-    ToolHandle<SmoothedWZTagger>  m_ZTag50;
-    ToolHandle<SmoothedWZTagger>  m_ZTag80;
+    // do decorate the large-R jets with the boosted-tagging flags 
+    std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
     
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;

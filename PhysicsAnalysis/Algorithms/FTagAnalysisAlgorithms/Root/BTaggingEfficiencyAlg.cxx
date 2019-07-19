@@ -25,7 +25,6 @@ namespace CP
     , m_efficiencyTool ("BTaggingEfficiencyTool", this)
   {
     declareProperty ("efficiencyTool", m_efficiencyTool, "the calibration and smearing tool we apply");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the b-tagging scale factor");
     declareProperty ("onlyInefficiency", m_onlyInefficiency, "whether only to calculate inefficiencies");
   }
 
@@ -45,7 +44,6 @@ namespace CP
       ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
@@ -89,7 +87,9 @@ namespace CP
             {
               ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, sf));
             }
-            (*m_scaleFactorAccessor) (*jet) = sf;
+            m_scaleFactorDecoration.set (*jet, sf, sys);
+          } else {
+            m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);
           }
         }
         return StatusCode::SUCCESS;

@@ -12,9 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODJet
                           xAODMissingET
                           xAODCutFlow
-			  xAODMetaData
+                          xAODMetaData
                           AsgTools
-                          AthContainers			  
+                          AthContainers
                           PATInterfaces
                           TopCPTools
                           TopEventSelectionTools
@@ -26,9 +26,10 @@ atlas_depends_on_subdirs( PUBLIC
                           TopObjectSelectionTools
                           TopSystematicObjectMaker
                           TopFakes
-			  TopDataPreparation
-			  TopHLUpgrade 
-			  Tools/PathResolver )
+                          TopDataPreparation
+                          TopHLUpgrade
+                          Tools/PathResolver
+                          FakeBkgTools )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -44,7 +45,7 @@ atlas_add_root_dictionary( TopAnalysis _cintDictSource
 # Build a library that other components can link against:
 atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                    TopAnalysis/*.h TopAnalysis/*.icc TopAnalysis/*/*.h
-                   TopAnalysis/*/*.icc ${_cintDictSource} 
+                   TopAnalysis/*/*.icc ${_cintDictSource}
                    PUBLIC_HEADERS TopAnalysis
                    LINK_LIBRARIES xAODCore
                                   xAODRootAccess
@@ -53,7 +54,7 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   xAODJet
                                   xAODMissingET
                                   xAODCutFlow
-				  xAODMetaData
+                                  xAODMetaData
                                   AsgTools
                                   AthContainers
                                   PATInterfaces
@@ -67,9 +68,10 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   TopObjectSelectionTools
                                   TopSystematicObjectMaker
                                   TopFakes
-				  TopDataPreparation
-				  TopHLUpgrade
-				  PathResolver
+                                  TopDataPreparation
+                                  TopHLUpgrade
+                                  PathResolver
+                                  FakeBkgToolsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
@@ -89,36 +91,7 @@ atlas_add_executable( top-xaod
                                      xAODJet
                                      xAODMissingET
                                      xAODCutFlow
-    				     xAODMetaData
-                                     AsgTools
-                                     AthContainers
-                                     PATInterfaces
-                                     TopCPTools
-                                     TopEventSelectionTools
-                                     TopConfiguration
-                                     TopCorrections
-                                     TopEvent
-                                     TopParticleLevel
-                                     TopPartons
-                                     TopObjectSelectionTools
-                                     TopSystematicObjectMaker
-                                     TopFakes
-				     TopDataPreparation
-                                     TopHLUpgrade
-				     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopAnalysis )
-
-atlas_add_executable( top-tool-ftag
-                      util/top-tool-ftag.cxx
-                      LINK_LIBRARIES xAODCore
-                                     xAODRootAccess
-                                     xAODEgamma
-                                     xAODMuon
-                                     xAODJet
-                                     xAODMissingET
-                                     xAODCutFlow
-				     xAODMetaData
+                                     xAODMetaData
                                      AsgTools
                                      AthContainers
                                      PATInterfaces
@@ -134,7 +107,37 @@ atlas_add_executable( top-tool-ftag
                                      TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
-				     PathResolver
+                                     PathResolver
+                                     ${ROOT_LIBRARIES}
+                                     TopAnalysis
+                                     FakeBkgToolsLib )
+
+atlas_add_executable( top-tool-ftag
+                      util/top-tool-ftag.cxx
+                      LINK_LIBRARIES xAODCore
+                                     xAODRootAccess
+                                     xAODEgamma
+                                     xAODMuon
+                                     xAODJet
+                                     xAODMissingET
+                                     xAODCutFlow
+                                     xAODMetaData
+                                     AsgTools
+                                     AthContainers
+                                     PATInterfaces
+                                     TopCPTools
+                                     TopEventSelectionTools
+                                     TopConfiguration
+                                     TopCorrections
+                                     TopEvent
+                                     TopParticleLevel
+                                     TopPartons
+                                     TopObjectSelectionTools
+                                     TopSystematicObjectMaker
+                                     TopFakes
+                                     TopDataPreparation
+                                     TopHLUpgrade
+                                     PathResolver
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
 atlas_add_executable( top-xaod-v2
@@ -162,7 +165,7 @@ atlas_add_executable( top-xaod-v2
                                      TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
-				     PathResolver
+                                     PathResolver
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
 

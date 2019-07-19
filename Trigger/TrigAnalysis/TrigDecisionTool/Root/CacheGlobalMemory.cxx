@@ -175,7 +175,8 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
     // -- assume that the groups and streams have all changed!!!
     m_groups.clear();
     m_streams.clear();
-    std::vector<std::string>::iterator gpIt;
+    // variable is unused, please remove if not needed:
+    //   std::vector<std::string>::iterator gpIt;
 
     for(auto ch : *m_confChains) {
       if (( ch->level() == "EF" || ch->level() == "HLT") && ch->streams().size()>0 ) {

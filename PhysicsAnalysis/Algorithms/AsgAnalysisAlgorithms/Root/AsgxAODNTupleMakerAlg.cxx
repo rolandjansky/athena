@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s):
 #include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
@@ -286,6 +286,18 @@ namespace {
       }
    }
 
+   /// Check if an aux item exists in the aux store
+   ///
+   /// @param key The name of the container in the event store
+   /// @return True if branch exists, false if not
+   ///
+   bool auxItemExists( const std::string& key ) {
+      // Get a pointer to the vector factory.
+      const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
+
+      // Try to find the aux item
+      return reg.findAuxID( key ) != SG::null_auxid;
+   }
 } // private namespace
 
 namespace CP {
@@ -297,8 +309,6 @@ namespace CP {
       // Declare the algorithm's properties.
       declareProperty( "TreeName", m_treeName = "physics",
                        "Name of the tree to write" );
-      declareProperty( "TreeAutoFlush", m_treeAutoFlush = 200,
-                       "AutoFlush value for the output tree" );
       declareProperty( "Branches", m_branches,
                        "Branches to write to the output tree" );
    }
@@ -312,15 +322,12 @@ namespace CP {
       }
 
       // Create the output tree.
-      ATH_CHECK( book( TTree( m_treeName.c_str(), "xAOD->NTuple tree" ) ) );
       m_tree = tree( m_treeName );
       if( ! m_tree ) {
-         ATH_MSG_ERROR( "Could not create output tree \"" << m_treeName
+         ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
                         << "\"" );
          return StatusCode::FAILURE;
       }
-      m_tree->SetAutoFlush( m_treeAutoFlush );
-      ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
 
       // Set up the systematics list.
       ATH_CHECK( m_systematicsList.initialize() );
@@ -372,12 +379,6 @@ namespace CP {
          }
          // Process it.
          ATH_CHECK( container_itr.second.process( *vec ) );
-      }
-
-      // Fill the tree.
-      if( m_tree->Fill() < 0 ) {
-         ATH_MSG_ERROR( "Error while filling TTree" );
-         return StatusCode::FAILURE;
       }
 
       // Return gracefully.
@@ -450,22 +451,40 @@ namespace CP {
             static const bool ALLOW_MISSING = true;
             if( getVector( key, *( evtStore() ), ALLOW_MISSING,
                            msg() ) ) {
+               bool created = false;
                ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
                                                          auxName,
-                                                         brName ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << brName
-                              << "\" from container/variable \"" << key
-                              << "." << auxName << "\"" );
-               branchCreated = true;
+                                                         brName,
+                                                         ALLOW_MISSING,
+                                                         created ) );
+               if( created ) {
+                  ATH_MSG_DEBUG( "Writing branch \"" << brName
+                                 << "\" from container/variable \"" << key
+                                 << "." << auxName << "\"" );
+                  branchCreated = true;
+               } else {
+                  ATH_MSG_DEBUG( "Skipping branch \"" << brName
+                                 << "\" from container/variable \"" << key
+                                 << "." << auxName << "\"" );
+               }
             } else if( getElement( key, *( evtStore() ),
                                    ALLOW_MISSING, msg() ) ) {
+               bool created = false;
                ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
                                                        auxName,
-                                                       brName ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << brName
+                                                       brName,
+                                                       ALLOW_MISSING,
+                                                       created ) );
+               if( created ) {
+                  ATH_MSG_DEBUG( "Writing branch \"" << brName
+                                 << "\" from object/variable \"" << key
+                                 << "." << auxName << "\"" );
+                  branchCreated = true;
+               } else {
+                  ATH_MSG_DEBUG( "Skipping branch \"" << brName
                               << "\" from object/variable \"" << key
                               << "." << auxName << "\"" );
-               branchCreated = true;
+               }
             } else {
                ATH_MSG_DEBUG( "Container \"" << key
                               << "\" not readable for expression: \""
@@ -482,8 +501,9 @@ namespace CP {
 
          // Check if the rule was meaningful or not:
          if( ! branchCreated ) {
-            ATH_MSG_WARNING( "No branch was created for rule: \""
-                             << branchDecl << "\"" );
+            ATH_MSG_ERROR( "No branch was created for rule: \""
+                           << branchDecl << "\"" );
+            return StatusCode::FAILURE;
          }
       }
 
@@ -510,7 +530,9 @@ namespace CP {
 
    StatusCode AsgxAODNTupleMakerAlg::ElementProcessor::
    addBranch( TTree& tree, const std::string& auxName,
-              const std::string& branchName ) {
+              const std::string& branchName,
+              bool allowMissing,
+              bool &created ) {
 
       /// Helper class for finding an already existing branch processor.
       class BranchFinder {
@@ -527,13 +549,33 @@ namespace CP {
          std::string m_name; ///< Name of the branch
       }; // class BranchFinder
 
+      // Check if the corresponding aux item exists
+      bool validAuxItem = auxItemExists( auxName );
+      if( ! validAuxItem ) {
+         if( allowMissing ) {
+            // Return gracefully.
+            ATH_MSG_DEBUG( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::SUCCESS;
+         } else {
+            // Return gracefully.
+            ATH_MSG_ERROR( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::FAILURE;
+         }
+      }
+
       // Check whether this branch is already set up:
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
-         return StatusCode::FAILURE;
+         ATH_MSG_WARNING( "Duplicate setup received for branch: " << branchName );
+         return StatusCode::SUCCESS;
       }
+
+      created = true;
 
       // Set up the new branch.
       m_branches.emplace_back();
@@ -735,7 +777,9 @@ namespace CP {
 
    StatusCode AsgxAODNTupleMakerAlg::ContainerProcessor::
    addBranch( TTree& tree, const std::string& auxName,
-              const std::string& branchName ) {
+              const std::string& branchName,
+              bool allowMissing,
+              bool &created ) {
 
       /// Helper class for finding an already existing branch processor.
       class BranchFinder {
@@ -752,12 +796,33 @@ namespace CP {
          std::string m_name; ///< Name of the branch
       }; // class BranchFinder
 
+      // Check if the corresponding aux item exists
+      bool validAuxItem = auxItemExists( auxName );
+      if( ! validAuxItem ) {
+         if( allowMissing ) {
+            // Return gracefully.
+            ATH_MSG_DEBUG( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::SUCCESS;
+         } else {
+            // Return gracefully.
+            ATH_MSG_ERROR( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::FAILURE;
+         }
+      }
+
       // Check whether this branch is already set up:
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
+         ATH_MSG_WARNING( "Duplicate setup received for branch: " << branchName );
+         return StatusCode::SUCCESS;
       }
+
+      created = true;
 
       // Set up the new branch.
       m_branches.emplace_back();

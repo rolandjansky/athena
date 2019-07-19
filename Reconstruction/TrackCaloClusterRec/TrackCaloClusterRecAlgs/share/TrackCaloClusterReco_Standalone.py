@@ -1,3 +1,8 @@
+##
+## WARNING !! probably DEPRECATED
+##
+## see TrackCaloClusterExample_jobOptions.py for a latest example
+##
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 from AthenaCommon import CfgMgr

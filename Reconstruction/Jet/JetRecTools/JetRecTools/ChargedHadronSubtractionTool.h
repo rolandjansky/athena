@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETRECTOOLS_CHARGEDHADRONSUBTRACTIONTOOL_H
@@ -41,6 +41,7 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
 
   const xAOD::Vertex* getPrimaryVertex() const;
   bool m_useTrackToVertexTool;
+  float m_z0sinThetaCutValue;
 	
   std::string m_vertexContainer_key;
   std::string m_trkVtxAssoc_key;

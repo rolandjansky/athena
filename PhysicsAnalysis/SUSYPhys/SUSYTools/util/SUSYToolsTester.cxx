@@ -63,6 +63,7 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "PathResolver/PathResolver.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/IAsgTool.h"
 
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
@@ -174,7 +175,8 @@ int main( int argc, char* argv[] ) {
   ST::ISUSYObjDef_xAODTool::DataSource datasource = (isData ? ST::ISUSYObjDef_xAODTool::Data : (isAtlfast ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim));
 
   ///
-  static SG::AuxElement::Accessor<int> acc_susyid("SUSY_procID");
+  // -- Deprecated usage
+  //  static SG::AuxElement::Accessor<int> acc_susyid("SUSY_procID");
 
   // Initialise the application:
   //ANA_CHECK( xAOD::Init( APP_NAME ) );  //NOT WORKING? //MT,WB
@@ -260,7 +262,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   // Create the tool(s) to test:
   ST::SUSYObjDef_xAOD objTool("SUSYObjDef_xAOD");
 
-  std::cout << " ABOUT TO INITIALIZE SUSYTOOLS " << std::endl;
+  ANA_MSG_INFO(" ABOUT TO INITIALIZE SUSYTOOLS " );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Configure the SUSYObjDef instance
@@ -343,7 +345,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     Info( APP_NAME, "SUSYObjDef_xAOD initialized... " );
   }
 
-  std::cout << " INITIALIZED SUSYTOOLS " << std::endl;
+  ANA_MSG_INFO(" INITIALIZED SUSYTOOLS " );
 
 
   /// SETUP TRIGGERS TO BE CHECKED
@@ -420,14 +422,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       const xAOD::CutBookkeeper* allEventsCBK = 0;
       int maxcycle=-1;
       for ( auto cbk : *completeCBC ) {
-        std::cout << cbk->nameIdentifier() << " : " << cbk->name() << " : desc = " << cbk->description()
+        ANA_MSG_INFO(cbk->nameIdentifier() << " : " << cbk->name() << " : desc = " << cbk->description()
                   << " : inputStream = " << cbk->inputStream()  << " : outputStreams = " << (cbk->outputStreams().size() ? cbk->outputStreams()[0] : "")
                   << " : cycle = " << cbk->cycle() << " :  allEvents = " << cbk->nAcceptedEvents()
-                  << std::endl;
+                  );
 
         if ( cbk->name() == "AllExecutedEvents" && TString(cbk->inputStream()).Contains("StreamDAOD")){ //guess DxAOD flavour
           xStream = TString(cbk->inputStream()).ReplaceAll("Stream","");
-          std::cout << "xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" << std::endl;
+          ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
         }
         if ( cbk->name() == "AllExecutedEvents" && cbk->inputStream() == "StreamAOD" && cbk->cycle() > maxcycle){
           maxcycle = cbk->cycle();
@@ -495,7 +497,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     else {
       // Check SUSY Proc. ID for signal MC (only for first event for now!)
       if(entry<5){
-        UInt_t  procID = 0;
+	// --- Deprecated usage of procID
+	//        UInt_t  procID = 0;
         int pdgid1 = 0;
         int pdgid2 = 0;
 
@@ -505,18 +508,20 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
 
         if( pdgid1!=0 && pdgid2!=0){ //(just to avoid warnings)
-          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
+	  // --- Deprecated usage of procID
+	  //          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
           Info(APP_NAME , "--- SIGNAL ID1     : %d", pdgid1);
           Info(APP_NAME , "    SIGNAL ID2     : %d", pdgid2);
-          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
-
-	  if ( acc_susyid.isAvailable(*ei)  )
-	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
+	  // --- Deprecated usage of procID
+	  //          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
+	  // --- Deprecated usage of procID
+	  //	  if ( acc_susyid.isAvailable(*ei)  )
+	  //	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
 
           Info(APP_NAME , "--- XSECTION DETAILS");
-          Info(APP_NAME , "    Xsec (high order)    : %f", my_XsecDB->xsectTimesEff(ei->mcChannelNumber(),procID));
-          Info(APP_NAME , "    kfactor (high order) : %f", my_XsecDB->kfactor(ei->mcChannelNumber(),procID));
-          Info(APP_NAME , "    filter efficiency    : %f", my_XsecDB->efficiency(ei->mcChannelNumber(),procID));
+          Info(APP_NAME , "    Xsec (high order)    : %f", my_XsecDB->xsectTimesEff(ei->mcChannelNumber(),0));
+          Info(APP_NAME , "    kfactor (high order) : %f", my_XsecDB->kfactor(ei->mcChannelNumber(),0));
+          Info(APP_NAME , "    filter efficiency    : %f", my_XsecDB->efficiency(ei->mcChannelNumber(),0));
 
         }
       }
@@ -541,9 +546,9 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         bool accepted=false;
         bool idok = electron->passSelection(accepted, "passBaseID");
         if(idok)
-          std::cout << "Electron Baseline ID Decision : " << accepted << std::endl;
+          ANA_MSG_DEBUG("Electron Baseline ID Decision : " << accepted );
         else
-          std::cout << "Electron Baseline ID Decision not available " << std::endl;
+          ANA_MSG_DEBUG("Electron Baseline ID Decision not available " );
       }
     }
 
@@ -561,12 +566,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     // HighPt muons (if required)
     for (const auto& muon : *muons_nominal){
       if (debug && entry<10){
-              std::cout << "--------------------------------------" << std::endl;
-        std::cout << "Muon pt = " << muon->pt()*0.001 << " , "
+              ANA_MSG_DEBUG("--------------------------------------" );
+        ANA_MSG_DEBUG("Muon pt = " << muon->pt()*0.001 << " , "
                   << "baseline = " << (int)muon->auxdata<char>("baseline") << " ,"
                   << "bad = " << (int)muon->auxdata<char>("bad") << " ,"
                   << "IsHighPt(deco) = " << (int)muon->auxdata<char>("passedHighPtCuts") << " , "
-                  << "IsHighPt(only) = " << (int)objTool.IsHighPtMuon(*muon) << std::endl;
+                  << "IsHighPt(only) = " << (int)objTool.IsHighPtMuon(*muon) );
       }
     }
 
@@ -597,7 +602,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       }
       else {
         Error( APP_NAME, " LargeR jet collection AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets not available in input file. CHECK!");
-        //        std::cout << "Warning :: LargeR jet collection AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets not available in input file. Skipping this part of the test!" << std::endl;
+        ANA_MSG_DEBUG("Warning :: LargeR jet collection AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets not available in input file. Skipping this part of the test!" );
       }
     }
 
@@ -648,7 +653,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     // Now loop over all the systematic variations
     for (const auto& sysInfo : systInfoList) {
       const CP::SystematicSet& sys = sysInfo.systset;
-      // std::cout << ">>>> Working on variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" << std::endl;
+      ANA_MSG_DEBUG(">>>> Working on variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" );
 
       size_t icut = 0;
       // log all events
@@ -879,6 +884,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
 
+      xAOD::JetInput::Type jetInputType = xAOD::JetInput::Uncategorized;
       if (debug) Info(APP_NAME, "GoodJets?");
       for (const auto& jet : *jets) {
         if (jet->auxdata<char>("baseline") == 1  &&
@@ -887,6 +893,13 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
             jet->pt() > 20000.  && ( fabs( jet->eta()) < 2.5) ) {
           goodJets->push_back(jet);
         }
+        jetInputType = jet->getInputType();
+      }
+
+      std::string jetCollection = xAOD::JetInput::typeName(jetInputType);
+      ANA_MSG_DEBUG ("xAOD::JetInputtypeName: " << jetCollection); 
+      if (jetCollection == "EMPFlow") {
+        if (objTool.IsPFlowCrackVetoCleaning(electrons, photons)) return StatusCode::FAILURE;
       }
 
       if (isNominal || sysInfo.affectsKinematics) {
@@ -992,11 +1005,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       }
       if (isNominal || syst_affectsElectrons) {
         if(!isData) elecSF = objTool.GetTotalElectronSF(*electrons);
-
-	// double trigElSF=1.;
-	// if(!isData) trigElSF = objTool.GetTotalElectronSF(*electrons,false,false,true,false,objTool.TrigSingleLep());
-	// std::cout << "DEBUG : " << trigElSF << "  Ntrigmatch = " << el_idx[trgmatch] << "    year = " << objTool.treatAsYear() << std::endl;
       }
+
       if (isNominal) {elecSF_nominal = elecSF;}
       else if (!syst_affectsElectrons) {elecSF = elecSF_nominal;}
       event_weight *= elecSF;
@@ -1027,7 +1037,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
             bool passTM=false;
             for(const auto& t : mu_triggers){
-              //std::cout << "Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t) << std::endl;
+              ANA_MSG_DEBUG("Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t));
               passTM |= objTool.IsTrigMatched(mu, t);
             }
             if(passTM)
@@ -1054,66 +1064,49 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       if (comb_trig_check) {
         if (objTool.IsTrigPassed("HLT_2e12_lhloose_L12EM10VH"))
-          std::cout << " 2e12_lhloose_L12EM10VH SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2e12_lhloose_L12EM10VH SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton"));
         if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14"))
-          std::cout << "e17_lhloose_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG("e17_lhloose_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0"))
-          std::cout << " 2e17_lhvloose_nod0 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2e17_lhvloose_nod0 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0_L12EM15VHI"))
-          std::cout << " 2e17_lhvloose_nod0_L12EM15VHI SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2e17_lhvloose_nod0_L12EM15VHI SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14"))
-          std::cout << " e17_lhloose_nod0_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" e17_lhloose_nod0_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24"))
-          std::cout << " e7_lhmedium_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" e7_lhmedium_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24"))
-          std::cout << " e7_lhmedium_nod0_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" e7_lhmedium_nod0_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_mu18_mu8noL1"))
-          std::cout << " mu18_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" mu18_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_mu20_mu8noL1"))
-          std::cout << " mu20_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" mu20_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_2mu10"))
-          std::cout << " 2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_2mu14"))
-          std::cout << " 2mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") );
         if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10"))
-          std::cout << " 2e12_lhloose_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2e12_lhloose_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") );
         if (objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10"))
-          std::cout << " 2e12_lhloose_nod0_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+          ANA_MSG_DEBUG(" 2e12_lhloose_nod0_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") );
         if (objTool.IsTrigPassed("HLT_e12_lhloose_2mu10"))
-          std::cout << " e12_lhloose_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+          ANA_MSG_DEBUG(" e12_lhloose_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") );
         if (objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10"))
-          std::cout << " e12_lhloose_nod0_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+          ANA_MSG_DEBUG(" e12_lhloose_nod0_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") );
         if (objTool.IsTrigPassed("HLT_3mu6"))
-          std::cout << " 3mu6 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+          ANA_MSG_DEBUG(" 3mu6 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") );
       }
-
-      ///CHECK FOR ATLSUSYSW-147
-      // if( mu_idx[goodpt] >= 2 ){
-      //         std::cout << "TRIGMUTEST ----------------------" << std::endl;
-      //         std::cout << "TRIGMUTEST " << objTool.IsTrigPassed("HLT_2mu14") << std::endl;
-      //         auto imudbg=0;
-      //         for (const auto& mu : *muons) {
-      //           std::cout << "TRIGMUTEST Muon "<< imudbg << " pass 2mu14 = " << objTool.IsTrigMatched(mu, "HLT_2mu14") << std::endl;
-      //           imudbg++;
-      //         }
-      //         if( mu_idx[goodpt] == 2 ){
-      //           std::cout << "TRIGMUTEST MuonPair pass 2mu14 = " << objTool.IsTrigMatched(muons->at(0), muons->at(1), "HLT_2mu14") << std::endl;
-      //         }
-      // }
-      ////
-
 
       if ((!isData && isNominal) || syst_affectsMuons) {
         if(passTMtest || 1){ //objTool.IsTrigPassed(muTrig.ReplaceAll("_OR_",",").Data())){
-          //std::cout << "MUON BEFORE SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() << std::endl;
+          ANA_MSG_DEBUG("MUON BEFORE SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() );
           if(objTool.treatAsYear()==2015)
             muonSF = objTool.GetTotalMuonSF(*muons, true, true, muTrig2015.Data());
           else if(objTool.treatAsYear()==2016)
             muonSF = objTool.GetTotalMuonSF(*muons, true, true, muTrig2016.Data());
           else
             muonSF = objTool.GetTotalMuonSF(*muons, true, true, muTrig2017.Data());
-
-          //std::cout << "MUON AFTER SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() << std::endl;
+          ANA_MSG_DEBUG("MUON AFTER SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() );
         }
       }
 
@@ -1240,7 +1233,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       isNominal = false;
       if(debug)
-	std::cout << ">>>> Finished with variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" << std::endl;
+	ANA_MSG_DEBUG(">>>> Finished with variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" );
 
       ++isys;
     }

@@ -95,6 +95,7 @@ private:
 
   StatusCode initializeWithTauSelectionTool();
 
+  StatusCode initializeTools_2019_summer();
   StatusCode initializeTools_2018_summer();
   StatusCode initializeTools_mc16_prerec();
   StatusCode initializeTools_2017_moriond();
@@ -102,7 +103,6 @@ private:
   StatusCode initializeTools_2016_ichep();
   StatusCode initializeTools_mc15_moriond();
   StatusCode initializeTools_mc15_pre_recommendations();
-  StatusCode initializeTools_mc12_final();
 
 private:
 
@@ -116,12 +116,14 @@ private:
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathDecayModeHadTau;
   std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
   std::string m_sVarNameEleOLRHadTau;
   std::string m_sVarNameEleOLRElectron;
   std::string m_sVarNameJetIDHadTau;
+  std::string m_sVarNameDecayModeHadTau;
   std::string m_sVarNameContJetIDHadTau;
   std::string m_sVarNameEleIDHadTau;
   std::string m_sVarNameTriggerHadTau;
@@ -131,6 +133,7 @@ private:
   std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
   //bool m_bNoMultiprong;
+  bool m_bUseTauSubstructure;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
   bool m_bUseTriggerInclusiveEta;

@@ -46,7 +46,8 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'FTagKinViewFromSelectionAlg' )
         alg.selection = [ 'ftag_kin_select' ]
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
 
     # Set up the ftag selection algorithm(s):
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagSelectionAlg' + btagger + btagWP )
@@ -57,9 +58,10 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
     alg.selectionTool.FlvTagCutDefinitionsFileName = bTagCalibFile
     alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut',
+                stageName = 'selection' )
 
-    if not noEfficiency :
+    if not noEfficiency and dataType != 'data':
         # Set up the efficiency calculation algorithm:
         alg = createAlgorithm( 'CP::BTaggingEfficiencyAlg',
                                'FTagEfficiencyScaleFactorAlg' + btagger + btagWP )
@@ -70,12 +72,14 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
         alg.efficiencyTool.JetAuthor = jetContainer
         alg.efficiencyTool.ScaleFactorFileName = bTagCalibFile
         alg.efficiencyTool.SystematicsStrategy = "Envelope"
-        alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP
+        alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP + '_%SYS%'
+        alg.scaleFactorDecorationRegex = '(^FT_EFF_.*)'
         alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_ftag_' + btagger + '_' + btagWP
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = '(^FT_EFF_.*)' )
+        seq.append( alg, inputPropName = 'jets',
+                    affectingSystematics = '(^FT_EFF_.*)',
+                    stageName = 'efficiency' )
         pass
 
     # Set up an algorithm used for debugging the f-tag selection:
@@ -83,7 +87,8 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
     alg.histPattern = 'ftag_cflow_' + btagger + '_' + btagWP + '_%SYS%'
     alg.selection = ['ftag_select_' + btagger + '_' + btagWP + ',as_char']
     alg.selectionNCuts = [1] # really we have 4 cuts, but we use char
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input',
+                stageName = 'selection' )
 
     # Return the sequence:
     return seq

@@ -58,4 +58,12 @@ namespace CP
   {
     m_base->setBool (element, !selection);
   }
+
+
+
+  std::string SelectionAccessorInvert ::
+  label () const
+  {
+    return "not " + m_base->label();
+  }
 }

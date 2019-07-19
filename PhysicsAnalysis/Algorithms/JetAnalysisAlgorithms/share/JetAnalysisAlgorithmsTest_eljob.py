@@ -59,55 +59,12 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Set up the systematics loader/handler algorithm:
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-config.sigmaRecommended = 1
-job.algsAdd( config )
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase' )
-print( jetSequence ) # For debugging
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
-jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer )
-jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo',
-                                     'jets'      : 'AnalysisJetsBase_%SYS%' },
-                       outputName = { 'eventInfo' : 'EventInfo_%SYS%',
-                                      'jets'      : 'AnalysisJets_%SYS%' },
-                       affectingSystematics = { 'jets' : '(^$)|(^JET_.*)' } )
-print( jvtSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in jetSequence:
+from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
+for alg in algSeq:
     job.algsAdd( alg )
     pass
-
-for alg in jvtSequence:
-    job.algsAdd( alg )
-    pass
-
-# Set up an ntuple to check the job with:
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
-ntupleMaker.TreeName = 'jets'
-ntupleMaker.Branches = [
-    'EventInfo.runNumber   -> runNumber',
-    'EventInfo.eventNumber -> eventNumber',
-    'AnalysisJets_%SYS%.pt -> jet_%SYS%_pt',
-]
-if dataType != 'data':
-    ntupleMaker.Branches += [
-        'EventInfo_%SYS%.jvt_effSF -> jvtSF_%SYS%',
-        'EventInfo_%SYS%.fjvt_effSF -> fjvtSF_%SYS%',
-        'AnalysisJets_%SYS%.jvt_effSF -> jet_%SYS%_jvtEfficiency',
-        'AnalysisJets_%SYS%.fjvt_effSF -> jet_%SYS%_fjvtEfficiency',
-    ]
-ntupleMaker.systematicsRegex = '.*'
-job.algsAdd( ntupleMaker )
 
 # Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )

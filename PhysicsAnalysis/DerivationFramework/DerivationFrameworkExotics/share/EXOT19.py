@@ -36,6 +36,7 @@ EXOT19ThinningHelper.AppendToStream( EXOT19Stream )
 #====================================================================
 
 thinningTools = []
+augmentationTools = []
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -102,6 +103,19 @@ EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
 if DerivationFrameworkIsMonteCarlo:
+  # Re-run MCTruthClassifier
+  from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+  EXOT19TruthClassifier = MCTruthClassifier(name                      = "EXOT19TruthClassifier",
+                                            ParticleCaloExtensionTool = "")
+  ToolSvc += EXOT19TruthClassifier
+
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
+  EXOT19ClassificationDecorator = DerivationFramework__TruthClassificationDecorator(name              = "EXOT19ClassificationDecorator",
+                                                                                    ParticlesKey      = "TruthParticles",
+                                                                                    MCTruthClassifier = EXOT19TruthClassifier)
+  ToolSvc += EXOT19ClassificationDecorator
+  augmentationTools.append(EXOT19ClassificationDecorator)
+
   ToolSvc += EXOT19TruthTool
   thinningTools.append(EXOT19TruthTool)
 
@@ -143,6 +157,11 @@ reducedJetList = [
 ]
 replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot19Seq)
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -150,7 +169,9 @@ replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot19Seq
 exot19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel_skim", SkimmingTools = [EXOT19SkimmingTool])
-exot19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel", ThinningTools = thinningTools)
+exot19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel",
+                                                          ThinningTools = thinningTools,
+                                                          AugmentationTools = augmentationTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

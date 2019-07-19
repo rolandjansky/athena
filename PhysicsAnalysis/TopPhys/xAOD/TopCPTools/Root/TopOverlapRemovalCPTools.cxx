@@ -51,6 +51,9 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
 
   float overlapRemovalSlidingInnerDRel = m_config->overlapRemovalSlidingInnerDRel();
   float overlapRemovalSlidingInnerDRmu = m_config->overlapRemovalSlidingInnerDRmu();
+  
+  // if this is set, turns OFF ele-jet OR completely (it's taken care of by the electronInJetSubtraction tool)
+  bool applyElectronInJetSubtraction = m_config->applyElectronInJetSubtraction();
 
   // If the requested OR procedure is unknown then fail.
   // This is mostly to avoid me writing 'harmonised' by mistake ;)
@@ -148,6 +151,18 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
     top::check(m_ORtoolBox.tauJetORT.setProperty("DR", 0.0),
                 "Failed to set DR in TauJetORT to zero");
   }
+  if(applyElectronInJetSubtraction){
+    top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", true),
+        "Failed to setSliding DR in ElJetORT");
+    top::check(m_ORtoolBox.eleJetORT.setProperty("InnerDR", 0),
+        "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+    top::check(m_ORtoolBox.eleJetORT.setProperty("SlidingDRC1", 0),
+        "Failed to set SlidingDRC1");
+    top::check(m_ORtoolBox.eleJetORT.setProperty("SlidingDRC2", 0),
+        "Failed to set SlidingDRC2");
+    top::check(m_ORtoolBox.eleJetORT.setProperty("SlidingDRMaxCone", 0),
+        "Failed to set SlidingDRMaxCone");
+  }
   top::check(m_ORtoolBox.initialize(),
               "Failed to initialize overlap removal tools");
   m_overlapRemovalTool = std::move(m_ORtoolBox.masterTool);
@@ -218,6 +233,18 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
   else if( OR_procedure == "noTauJetOLR"){
     top::check(m_ORtoolBox_Loose.tauJetORT.setProperty("DR", 0.0),
                 "Failed to set DR in TauJetORT to zero");
+  }
+  if(applyElectronInJetSubtraction){
+    top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", true),
+        "Failed to setSliding DR in ElJetORT");
+    top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("InnerDR", 0),
+        "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+    top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("SlidingDRC1", 0),
+        "Failed to set SlidingDRC1");
+    top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("SlidingDRC2", 0),
+        "Failed to set SlidingDRC2");
+    top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("SlidingDRMaxCone", 0),
+        "Failed to set SlidingDRMaxCone");
   }
   top::check(m_ORtoolBox_Loose.initialize(),
               "Failed to initialize loose overlap removal tools");

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Declares a GainDecorator factory. To add it to your decoration:
 # from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getExtraContent
@@ -48,6 +48,23 @@ ClusterEnergyPerLayerDecorator = ToolFactory( DerivationFramework__ClusterEnergy
                                               SGKey_photons = egammaKeys.outputPhotonKey(), 
                                               SGKey_caloCells = egammaKeys.caloCellKey() )
 
+ClusterEnergyPerLayerDecoratorNew = ToolFactory( DerivationFramework__ClusterEnergyPerLayerDecorator,
+                                                 CaloFillRectangularTool = CaloFillRectangularCluster,
+                                                 SGKey_electrons = "NewSwElectrons",
+                                                 SGKey_photons = "NewSwPhotons",
+                                                 SGKey_caloCells = "NewCellContainer" )
+
+ClusterEnergyPerLayerDecoratorMaxVar = ToolFactory( DerivationFramework__ClusterEnergyPerLayerDecorator,
+                                                    CaloFillRectangularTool = CaloFillRectangularCluster,
+                                                    SGKey_electrons = "MaxVarSwElectrons",
+                                                    SGKey_photons = "MaxVarSwPhotons",
+                                                    SGKey_caloCells = "MaxVarCellContainer" )
+
+ClusterEnergyPerLayerDecoratorMinVar = ToolFactory( DerivationFramework__ClusterEnergyPerLayerDecorator,
+                                                    CaloFillRectangularTool = CaloFillRectangularCluster,
+                                                    SGKey_electrons = "MinVarSwElectrons",
+                                                    SGKey_photons = "MinVarSwPhotons",
+                                                    SGKey_caloCells = "MinVarCellContainer" )
 
 ###################
 # getGainLayerNames
@@ -89,6 +106,41 @@ def getClusterEnergyPerLayerDecorator( neta, nphi, prefix = '', **kw ):
     nphi = nphi,
     **kw)
 
+def getClusterEnergyPerLayerDecoratorNew( neta, nphi, prefix = '', **kw ):
+  """Return a factory for ClusterEnergyPerLayerDecorator given neta, nphi"""
+  return ClusterEnergyPerLayerDecoratorNew.copy( 
+    name = "%sClusterEnergyPerLayerDecoratorNew_%sx%s" % (prefix, neta, nphi),
+    CaloFillRectangularTool = CaloFillRectangularCluster.copy( 
+      name = "%sCaloFillRectangularClusterNew_%sx%s" % (prefix, neta, nphi), 
+      eta_size = neta,
+      phi_size = nphi),
+    neta = neta,
+    nphi = nphi,
+    **kw)
+
+def getClusterEnergyPerLayerDecoratorMaxVar( neta, nphi, prefix = '', **kw ):
+  """Return a factory for ClusterEnergyPerLayerDecorator given neta, nphi"""
+  return ClusterEnergyPerLayerDecoratorMaxVar.copy( 
+    name = "%sClusterEnergyPerLayerDecoratorMaxVar_%sx%s" % (prefix, neta, nphi),
+    CaloFillRectangularTool = CaloFillRectangularCluster.copy( 
+      name = "%sCaloFillRectangularClusterMaxVar_%sx%s" % (prefix, neta, nphi), 
+      eta_size = neta,
+      phi_size = nphi),
+    neta = neta,
+    nphi = nphi,
+    **kw)
+
+def getClusterEnergyPerLayerDecoratorMinVar( neta, nphi, prefix = '', **kw ):
+  """Return a factory for ClusterEnergyPerLayerDecorator given neta, nphi"""
+  return ClusterEnergyPerLayerDecoratorMinVar.copy( 
+    name = "%sClusterEnergyPerLayerDecoratorMinVar_%sx%s" % (prefix, neta, nphi),
+    CaloFillRectangularTool = CaloFillRectangularCluster.copy( 
+      name = "%sCaloFillRectangularClusterMinVar_%sx%s" % (prefix, neta, nphi), 
+      eta_size = neta,
+      phi_size = nphi),
+    neta = neta,
+    nphi = nphi,
+    **kw)
 
 #####################################
 # getClusterEnergyPerLayerDecorations
@@ -154,7 +206,53 @@ def configureClusterCorrectionsWithNewCells(swTool):
                                version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
                                cells_name='NewCellContainer')
     setattr(swTool, x, _process_tools (swTool, y) )
+
+############################################
+# configureClusterCorrectionsWithMaxVarCells
+############################################
+def configureClusterCorrectionsWithMaxVarCells(swTool):
+  "Add attributes ClusterCorrectionToolsXX to egammaSwToolWithMaxVarCells object"
+  from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
+      etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
+  from CaloRec.CaloRecMakers import _process_tools
+
+  clusterTypes = dict(
+    Ele35='ele35', Ele55='ele55', Ele37='ele37',
+    Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
+    Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
+    )
+  for attrName, clName in clusterTypes.iteritems():
+    x = 'ClusterCorrectionTools' + attrName
+    if not hasattr(swTool, x) or getattr(swTool, x):
+      continue
+    y = make_CaloSwCorrections(clName, suffix='EGDF',
+                               version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+                               cells_name='MaxVarCellContainer')
+    setattr(swTool, x, _process_tools (swTool, y) )
     
+############################################
+# configureClusterCorrectionsWithMinVarCells
+############################################
+def configureClusterCorrectionsWithMinVarCells(swTool):
+  "Add attributes ClusterCorrectionToolsXX to egammaSwToolWithMinVarCells object"
+  from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
+      etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
+  from CaloRec.CaloRecMakers import _process_tools
+
+  clusterTypes = dict(
+    Ele35='ele35', Ele55='ele55', Ele37='ele37',
+    Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
+    Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
+    )
+  for attrName, clName in clusterTypes.iteritems():
+    x = 'ClusterCorrectionTools' + attrName
+    if not hasattr(swTool, x) or getattr(swTool, x):
+      continue
+    y = make_CaloSwCorrections(clName, suffix='EGDF',
+                               version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+                               cells_name='MinVarCellContainer')
+    setattr(swTool, x, _process_tools (swTool, y) )   
+
 
 ##############
 # egammaSwTool
@@ -163,7 +261,6 @@ egammaSwTool = ToolFactory( egammaToolsConf.egammaSwTool,
                             name = 'DFEgammaSWTool',
                             postInit=[configureClusterCorrections])
 
-
 ##########################
 # egammaSwToolWithNewCells
 ##########################
@@ -171,7 +268,19 @@ egammaSwToolWithNewCells = ToolFactory( egammaToolsConf.egammaSwTool,
                                         name = 'DFEgammaSWToolWithNewCells',
                                         postInit=[configureClusterCorrectionsWithNewCells])
 
+#############################
+# egammaSwToolWithMaxVarCells
+#############################
+egammaSwToolWithMaxVarCells = ToolFactory( egammaToolsConf.egammaSwTool,
+                                        name = 'DFEgammaSWToolWithMaxVarCells',
+                                        postInit=[configureClusterCorrectionsWithMaxVarCells])
 
+#############################
+# egammaSwToolWithMaxVarCells
+#############################
+egammaSwToolWithMinVarCells = ToolFactory( egammaToolsConf.egammaSwTool,
+                                        name = 'DFEgammaSWToolWithMinVarCells',
+                                        postInit=[configureClusterCorrectionsWithMinVarCells])
 
 ##################
 # ClusterDecorator
@@ -193,7 +302,21 @@ ClusterDecoratorWithNewCells = ToolFactory( DerivationFramework__ClusterDecorato
                                             OutputClusterLink="NewSwClusterLink",
                                             SGKey_caloCells = 'NewCellContainer' )
 
+ClusterDecoratorWithMaxVarCells = ToolFactory( DerivationFramework__ClusterDecorator,
+                                               ClusterCorrectionToolName = FullNameWrapper(egammaSwToolWithMaxVarCells),  
+                                               SGKey_electrons = egammaKeys.outputElectronKey(),
+                                               SGKey_photons = egammaKeys.outputPhotonKey(), 
+                                               OutputClusterSGKey="EGammaSwClusterWithMaxVarCells",
+                                               OutputClusterLink="MaxVarSwClusterLink",
+                                               SGKey_caloCells = 'MaxVarCellContainer' )
 
+ClusterDecoratorWithMinVarCells = ToolFactory( DerivationFramework__ClusterDecorator,
+                                               ClusterCorrectionToolName = FullNameWrapper(egammaSwToolWithMinVarCells),  
+                                               SGKey_electrons = egammaKeys.outputElectronKey(),
+                                               SGKey_photons = egammaKeys.outputPhotonKey(), 
+                                               OutputClusterSGKey="EGammaSwClusterWithMinVarCells",
+                                               OutputClusterLink="MinVarSwClusterLink",
+                                               SGKey_caloCells = 'MinVarCellContainer' )
 #######################
 # getClusterDecorations
 #######################
@@ -212,22 +335,55 @@ theCaloCellContainerFinalizerTool=  ToolFactory( CaloCellContainerFinalizerTool 
 
 #############
 # NewCellTool
-# this is the tool that reweights the cell energies
+# this is the tool that reweights the cell energies, using the nominal weights
 #############
 NewCellTool = ToolFactory( DerivationFramework__CellReweight,
-                           ReweightCellContainerName="NewCellContainer",
+                           ReweightCellContainerName = "NewCellContainer",
+                           ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs10.root",
                            SGKey_electrons = egammaKeys.outputElectronKey(),
                            SGKey_photons = egammaKeys.outputPhotonKey(),
                            CaloFillRectangularTool711=CaloFillRectangularCluster.copy(name = "NewCaloFillRectangularCluster_%sx%s" % (7, 11), eta_size = 7, phi_size = 11),
                            CaloFillRectangularTool37=CaloFillRectangularCluster.copy(name = "NewCaloFillRectangularCluster_%sx%s" % (3, 7), eta_size = 3, phi_size = 7),
                            CaloFillRectangularTool55=CaloFillRectangularCluster.copy(name = "NewCaloFillRectangularCluster_%sx%s" % (5, 5), eta_size = 5, phi_size = 5),
                            CaloCellContainerFinalizerTool=theCaloCellContainerFinalizerTool
-                           )
+)
+
+################
+# MaxVarCellTool
+# this is the tool that reweights the cell energies, using the maximum variations
+################
+MaxVarCellTool = ToolFactory( DerivationFramework__CellReweight,
+                              ReweightCellContainerName = "MaxVarCellContainer",
+                              ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs11.root",
+                              SGKey_electrons = egammaKeys.outputElectronKey(),
+                              SGKey_photons = egammaKeys.outputPhotonKey(),
+                              CaloFillRectangularTool711=CaloFillRectangularCluster.copy(name = "MaxVarCaloFillRectangularCluster_%sx%s" % (7, 11), eta_size = 7, phi_size = 11),
+                              CaloFillRectangularTool37=CaloFillRectangularCluster.copy(name = "MaxVarCaloFillRectangularCluster_%sx%s" % (3, 7), eta_size = 3, phi_size = 7),
+                              CaloFillRectangularTool55=CaloFillRectangularCluster.copy(name = "MaxVarCaloFillRectangularCluster_%sx%s" % (5, 5), eta_size = 5, phi_size = 5),
+                              CaloCellContainerFinalizerTool=theCaloCellContainerFinalizerTool
+)
+
+################
+# MinVarCellTool
+# this is the tool that reweights the cell energies, using the minimum variations
+################
+MinVarCellTool = ToolFactory( DerivationFramework__CellReweight,
+                              ReweightCellContainerName = "MinVarCellContainer",
+                              ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs00.root",
+                              SGKey_electrons = egammaKeys.outputElectronKey(),
+                              SGKey_photons = egammaKeys.outputPhotonKey(),
+                              CaloFillRectangularTool711=CaloFillRectangularCluster.copy(name = "MinVarCaloFillRectangularCluster_%sx%s" % (7, 11), eta_size = 7, phi_size = 11),
+                              CaloFillRectangularTool37=CaloFillRectangularCluster.copy(name = "MinVarCaloFillRectangularCluster_%sx%s" % (3, 7), eta_size = 3, phi_size = 7),
+                              CaloFillRectangularTool55=CaloFillRectangularCluster.copy(name = "MinVarCaloFillRectangularCluster_%sx%s" % (5, 5), eta_size = 5, phi_size = 5),
+                              CaloCellContainerFinalizerTool=theCaloCellContainerFinalizerTool
+)
 
 #################
 # EMShowerBuilder
 #################
-EMShowerBuilderTool = EMShowerBuilder("EMShowerBuilderTool", CellsName="NewCellContainer")
+EMNewShowerBuilderTool = EMShowerBuilder("EMNewShowerBuilderTool", CellsName="NewCellContainer")
+EMMaxVarShowerBuilderTool = EMShowerBuilder("EMMaxVarShowerBuilderTool", CellsName="MaxVarCellContainer")
+EMMinVarShowerBuilderTool = EMShowerBuilder("EMMinVarShowerBuilderTool", CellsName="MinVarCellContainer")
 
 
 ######################
@@ -237,8 +393,37 @@ EGammaReweightTool = ToolFactory( DerivationFramework__EGammaReweight,
                                   NewCellContainerName = "NewCellContainer",
                                   SGKey_photons="Photons",
                                   SGKey_electrons="Electrons",
-                                  EMShowerBuilderTool = EMShowerBuilderTool,
+                                  EMShowerBuilderTool = EMNewShowerBuilderTool,
                                   NewElectronContainer = "NewSwElectrons",
                                   NewPhotonContainer = "NewSwPhotons",
-                                  CaloClusterLinkName="NewSwClusterLink"
-                                  )
+                                  CaloClusterLinkName="NewSwClusterLink",
+                                  DecorateEGammaObjects = True,
+                                  DecorationPrefix = "RW_",
+                                  SaveReweightedContainer = True
+)
+
+EGammaMaxVarReweightTool = ToolFactory( DerivationFramework__EGammaReweight,
+                                        NewCellContainerName = "MaxVarCellContainer",
+                                        SGKey_photons="Photons",
+                                        SGKey_electrons="Electrons",
+                                        EMShowerBuilderTool = EMMaxVarShowerBuilderTool,
+                                        NewElectronContainer = "MaxVarSwElectrons",
+                                        NewPhotonContainer = "MaxVarSwPhotons",
+                                        CaloClusterLinkName="MaxVarSwClusterLink",
+                                        DecorateEGammaObjects = True, 
+                                        DecorationPrefix = "Max_",
+                                        SaveReweightedContainer = False
+)
+
+EGammaMinVarReweightTool = ToolFactory( DerivationFramework__EGammaReweight,
+                                        NewCellContainerName = "MinVarCellContainer",
+                                        SGKey_photons="Photons",
+                                        SGKey_electrons="Electrons",
+                                        EMShowerBuilderTool = EMMinVarShowerBuilderTool,
+                                        NewElectronContainer = "MinVarSwElectrons",
+                                        NewPhotonContainer = "MinVarSwPhotons",
+                                        CaloClusterLinkName="MinVarSwClusterLink", 
+                                        DecorateEGammaObjects = True,
+                                        DecorationPrefix = "Min_",
+                                        SaveReweightedContainer = False
+)

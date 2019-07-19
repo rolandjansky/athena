@@ -125,6 +125,7 @@ DerivationFrameworkJob += FTAG5Seq
 
 #put custom jet names here
 FTAG5BTaggedJets = [
+    "AntiKt2PV0TrackJets",
     "AntiKtVR30Rmax4Rmin02TrackJets",
     "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
@@ -233,6 +234,7 @@ fatJetCollections = [
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
+    "BTagging_AntiKt2Track",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
@@ -251,6 +253,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
+    "AntiKt10LCTopoJets.GhostAntiKt2TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",

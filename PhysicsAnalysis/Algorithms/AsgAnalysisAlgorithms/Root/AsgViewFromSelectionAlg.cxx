@@ -20,6 +20,7 @@
 #include <xAODMuon/MuonContainer.h>
 #include <xAODTau/TauJetContainer.h>
 #include <xAODTau/DiTauJetContainer.h>
+#include <xAODTracking/TrackParticleContainer.h>
 
 //
 // method implementations
@@ -142,6 +143,11 @@ namespace CP
     {
       m_function =
         &AsgViewFromSelectionAlg::executeTemplate<xAOD::DiTauJetContainer>;
+    }
+    else if (dynamic_cast<const xAOD::TrackParticleContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::TrackParticleContainer>;
     }
     else
     {

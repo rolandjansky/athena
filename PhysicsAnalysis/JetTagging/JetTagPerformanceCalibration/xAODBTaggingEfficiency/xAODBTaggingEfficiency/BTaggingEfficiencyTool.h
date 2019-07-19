@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 
 #include "xAODBTagging/BTagging.h"
 
+#include <fstream>
 #include <string>
 #include <set>
 #include <vector>
@@ -163,6 +164,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    * documentation for more detail on the meaning of the map index
    */
   bool setMapIndex(const std::string& flavour, unsigned int index);
+  bool setMapIndex(unsigned int dsid);
   // bool setMapIndex(const std::string& flavour, const std::string & type);
   /// @}
 
@@ -276,6 +278,7 @@ private:
   std::string m_SFFile;
   /// name of the optional MC efficiency file (may be changed by the @c PathResolver)
   std::string m_EffFile;
+  std::string m_EffConfigFile;
   /// names of the data/MC scale factor calibrations
   std::map<std::string, std::string> m_SFNames;
   /// specification of the eigenvector reduction strategy (if eigenvectors are used)
@@ -337,6 +340,9 @@ private:
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
 
+
+  //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
+  std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;
   /// @}
 
 };

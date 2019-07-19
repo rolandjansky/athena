@@ -47,15 +47,29 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 # THINNING TOOL
 #====================================================================\
 
-# TrackParticles associated with Vertices from soft tagging
+# TrackParticles associated with Vertices from soft tagging x3 OPs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
 
-SUSY1VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY1VertexTPThinningTool",
+SUSY1VertexTPThinningToolTight = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolTight",
 									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
-									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 VertexKey		 = "SoftBVrtClusterTool_Tight_Vertices",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY1VertexTPThinningTool
-thinningTools.append(SUSY1VertexTPThinningTool)
+ToolSvc += SUSY1VertexTPThinningToolTight
+thinningTools.append(SUSY1VertexTPThinningToolTight)
+
+SUSY1VertexTPThinningToolMedium = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolMedium",
+									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Medium_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY1VertexTPThinningToolMedium
+thinningTools.append(SUSY1VertexTPThinningToolMedium)
+
+SUSY1VertexTPThinningToolLoose = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolLoose",
+									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Loose_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY1VertexTPThinningToolLoose
+thinningTools.append(SUSY1VertexTPThinningToolLoose)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -291,7 +305,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
 OutputJets["SUSY1"] = []
 
 #reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets","AntiKt4TruthDressedWZJets"]
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
@@ -309,19 +323,48 @@ from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
 SeqSUSY1 += CfgMgr.BTagVertexAugmenter()
 
-BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
-ToolSvc += BJetSVFinderTool
-BJetSVFinderTool.ConeForTag = 0.6
+# used by Loose and Medium
+SoftBJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
+ToolSvc += SoftBJetSVFinderTool
+SoftBJetSVFinderTool.ConeForTag = 0.75
 
-softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+softTagAlgLoose = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolLoose",
                            OutputLevel=INFO, #DEBUG                                                                                          
                            )
 
-softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
-softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgLoose.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgLoose.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.OperatingPoint = 'Loose'
 
-SeqSUSY1 += softTagAlg
+SeqSUSY1 += softTagAlgLoose
 
+softTagAlgMedium = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolMedium",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgMedium.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgMedium.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgMedium.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgMedium.OperatingPoint = 'Medium'
+
+SeqSUSY1 += softTagAlgMedium
+
+# used by Tight
+SoftBJetSVFinderToolTight      = InDetVKalVxInJetFinder("SoftBJetSVFinderTight")
+ToolSvc += SoftBJetSVFinderToolTight
+SoftBJetSVFinderToolTight.ConeForTag = 0.6
+
+softTagAlgTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolTight",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgTight.SVFinderName = 'SoftBJetSVFinderTight'
+softTagAlgTight.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgTight.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgTight.OperatingPoint = 'Tight'
+
+SeqSUSY1 += softTagAlgTight
 
 #==============================================================================
 # Augment after skim
@@ -364,7 +407,7 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKtVR30Rmax4Rmin02TrackJets",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]
@@ -398,8 +441,12 @@ SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 StaticContent = []
-StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
-StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
 
 SUSY1SlimmingHelper.StaticContent = StaticContent
 

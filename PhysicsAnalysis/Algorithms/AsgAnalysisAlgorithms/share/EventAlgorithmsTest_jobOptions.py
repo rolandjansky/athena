@@ -17,42 +17,9 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Config:
-GRLFiles = ['GoodRunsLists/data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml']
-
-# Import(s) needed for the job configuration.
-from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-
-# Set up the main analysis algorithm sequence.
-algSeq = AlgSequence( 'AnalysisSequence' )
-
-# Set up the systematics loader/handler algorithm:
-algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-algSeq.SysLoaderAlg.sigmaRecommended = 1
-
-# Include, and then set up the pileup analysis sequence:
-from AsgAnalysisAlgorithms.EventSelectionAnalysisSequence import \
-    makeEventSelectionAnalysisSequence
-eventSelectionSequence = \
-    makeEventSelectionAnalysisSequence( dataType, userGRLFiles=GRLFiles )
-algSeq += eventSelectionSequence
-
-# Set up an ntuple to check the job with:
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
-ntupleMaker.TreeName = 'events'
-ntupleMaker.Branches = [
-    'EventInfo.runNumber   -> runNumber',
-    'EventInfo.eventNumber -> eventNumber',
-]
-ntupleMaker.systematicsRegex = '.*'
-algSeq += ntupleMaker
-
-# For debugging.
-print( algSeq )
-
-# Add all algorithms from the sequence to the job.
-athAlgSeq += algSeq
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeEventAlgorithmsSequence
+algSeq = makeEventAlgorithmsSequence (dataType)
+print algSeq # For debugging
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

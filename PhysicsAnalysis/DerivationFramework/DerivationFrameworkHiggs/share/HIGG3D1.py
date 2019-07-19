@@ -179,9 +179,6 @@ mmSelection_symdilepton = '((count('+muonsRequirements+') >= 2) && (count('+lead
 
 emSelection = '(((count('+electronRequirements+') >= 1) && (count('+muonsRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 
-#preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection
-
-# Adding in the new category
 preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection+' || '+mmSelection_symdilepton
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -246,28 +243,29 @@ addHbbTagger(higg3d1Seq, ToolSvc)
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d1Seq)
 
 #====================================================================
+# QG tagging
+#====================================================================
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d1Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets')
+
+#====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
 # import the JetTagNonPromptLepton config and add to the private sequence
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-
-#========================================
-# CREATE THE DERIVATION KERNEL ALGORITHMS
-#========================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
-                                                           SkimmingTools = skimmingTools
+#====================================================================
+# Truth decoration tool
+#====================================================================
+augmentationTools=[]
+if globalflags.DataSource()=='geant4':
+    from DerivationFrameworkHiggs.HIGG3DxAugmentation import getHIGG3TruthDecoratorTool
+    HIGG3D1TruthDecoratorTool = getHIGG3TruthDecoratorTool(outputStream = HIGG3D1Stream,
+                                                           toolNamePrefix = "HIGG3D1"
                                                            )
-higg3d1PreSeq += higg3d1Seq
-
-higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
-                                                           ThinningTools = thinningTools
-                                                           )
-DerivationFrameworkJob += higg3d1PreSeq
-
-applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
+    ToolSvc += HIGG3D1TruthDecoratorTool
+    augmentationTools.append(HIGG3D1TruthDecoratorTool)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -293,8 +291,10 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
-from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+# needed to calculate electron LH downstream
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent, GSFTracksCPDetailedContent
 HIGG3D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+HIGG3D1SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
                                             'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
                                             'AntiKtVR30Rmax4Rmin02Track':'xAOD::JetContainer',
@@ -332,6 +332,26 @@ if globalflags.DataSource()=='geant4':
                                                }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
+    HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1TruthDecoratorVariables)
+
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
+                                                           SkimmingTools = skimmingTools
+                                                           )
+higg3d1PreSeq += higg3d1Seq
+
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
+                                                           ThinningTools = thinningTools
+                                                           )
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_augmentation",
+                                                           AugmentationTools = augmentationTools
+                                                           )
+DerivationFrameworkJob += higg3d1PreSeq
+
+applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
 
 # Add Trigger content
 HIGG3D1SlimmingHelper.IncludeMuonTriggerContent = True

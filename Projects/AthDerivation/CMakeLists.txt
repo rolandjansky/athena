@@ -12,7 +12,7 @@ unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
 set( TDAQ-COMMON_VERSION "02-02-00" )
-set( TDAQ-COMMON_ROOT
+set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
 # Find the ATLAS CMake code:

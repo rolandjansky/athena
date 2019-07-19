@@ -6,7 +6,10 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 import ROOT
 
 def makeMuonAnalysisSequence( dataType, workingPoint,
-                              deepCopyOutput = False, postfix = '' ):
+                              deepCopyOutput = False,
+                              shallowViewOutput = True,
+                              postfix = '',
+                              ptSelectionOutput = False ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
@@ -15,10 +18,13 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
       deepCopyOutput -- If set to 'True', the output containers will be
                         standalone, deep copies (slower, but needed for xAOD
                         output writing)
+      shallowViewOutput -- Create a view container if required
       postfix -- a postfix to apply to decorations and algorithm
                  names.  this is mostly used/needed when using this
                  sequence with multiple working points to ensure all
                  names are unique.
+      ptSelectionOutput -- Whether or not to apply pt selection when creating
+                           output containers.
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -27,6 +33,10 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if postfix != '' :
         postfix = '_' + postfix
         pass
+
+    # Make sure selection options make sense
+    if deepCopyOutput and shallowViewOutput:
+        raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
 
     splitWP = workingPoint.split ('.')
     if len (splitWP) != 2 :
@@ -63,104 +73,128 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MuonAnalysisSequence" + postfix )
 
-    # tracking variables for selection decorations
-    selectList = []
-    nCutsList = []
+    # Variables keeping track of the selections being applied.
+    selectionDecorNames = []
+    selectionDecorCount = []
+
+    # Set up the eta-cut on all muons prior to everything else
+    alg = createAlgorithm( 'CP::AsgSelectionAlg',
+                           'MuonEtaCutAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+    alg.selectionTool.maxEta = 2.5
+    alg.selectionDecoration = 'selectEta' + postfix + ',as_bits'
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut',
+                stageName = 'selection' )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 2 )
+
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'MuonTrackSelectionAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
+    alg.selectionDecoration = 'trackSelection' + postfix + ',as_bits'
+    alg.maxD0Significance = 3
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles',
+                stageName = 'selection' )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 3 )
 
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
                            'MuonCalibrationAndSmearingAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::MuonCalibrationPeriodTool' )
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)',
                 stageName = 'calibration' )
 
-    # Set up the muon selection algorithm(s):
-    alg = createAlgorithm( 'CP::AsgSelectionAlg',
-                           'MuonKinSelectionAlg' + postfix )
+    # Set up the the pt selection
+    ptSelectionDecoration = 'selectPt' + postfix + ',as_bits'
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonPtCutAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
+    alg.selectionDecoration = ptSelectionDecoration
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-    alg.selectionTool.maxEta = 2.5
-    selectList.append ('kin_select' + postfix + ',as_bits')
-    nCutsList.append (2)
-    alg.selectionDecoration = selectList[-1]
+    alg.selectionTool.minPt = 3e3
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'selection' )
-
-    # Set up the track selection algorithm:
-    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
-                           'MuonTrackSelectionAlg' + postfix )
-    selectList.append ('trackSelection' + postfix + ',as_bits')
-    nCutsList.append (2)
-    alg.selectionDecoration = selectList[-1]
-    alg.maxD0Significance = 3
-    alg.maxDeltaZ0SinTheta = 0.5
-    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut',
-                stageName = 'selection' )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 2 )
 
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
-                           'MuonSelectionAlg' + postfix )
+                           'MuonQualitySelectionAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
-    selectList.append ('good_muon' + postfix + ',as_bits')
-    nCutsList.append (4)
-    alg.selectionDecoration = selectList[-1]
+    alg.selectionDecoration = 'good_muon' + postfix + ',as_bits'
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'selection' )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 4 )
 
     # Set up the isolation calculation algorithm:
     if splitWP[1] != 'NonIso' :
         alg = createAlgorithm( 'CP::MuonIsolationAlg',
                                'MuonIsolationAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
         addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
-        selectList.append ('isolated_muon' + postfix + ',as_bits')
-        nCutsList.append (1)
-        alg.isolationDecoration = selectList[-1]
+        alg.isolationDecoration = 'isolated_muon' + postfix + ',as_bits'
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection' )
+        selectionDecorNames.append( alg.isolationDecoration )
+        selectionDecorCount.append( 1 )
         pass
 
-    # Set up an algorithm used for debugging the muon selection:
+    # Set up an algorithm used for decorating baseline muon selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
-                           'SummarySelection' + postfix )
+                           'MuonSelectionSummary' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-    alg.selectionTool.selectionFlags = selectList[:]
-    alg.selectionDecoration = 'select' + postfix + ',as_char'
+    alg.selectionTool.selectionFlags = selectionDecorNames[ : ]
+    alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'selection' )
 
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'MuonCutFlowDumperAlg' + postfix )
     alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
-    alg.selection = selectList[:]
-    alg.selectionNCuts = nCutsList[:]
+    alg.selection = selectionDecorNames[ : ]
+    alg.selectionNCuts = selectionDecorCount[ : ]
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
 
+    # Set up the output selection
+    if shallowViewOutput or deepCopyOutput:
+        selectionDecorNamesOutput = selectionDecorNames[ : ]
+        if not ptSelectionOutput:
+            selectionDecorNamesOutput.remove(ptSelectionDecoration)
+
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'MuonViewFromSelectionAlg' + postfix )
-    alg.selection = selectList[:]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                stageName = 'selection' )
+    if shallowViewOutput:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                            'MuonViewFromSelectionAlg' + postfix )
+        alg.selection = selectionDecorNames[ : ]
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
 
     # Set up the efficiency scale factor calculation algorithm:
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg',
                            'MuonEfficiencyScaleFactorAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'efficiencyScaleFactorTool',
                     'CP::MuonEfficiencyScaleFactors' )
-    alg.scaleFactorDecoration = 'muon_effSF' + postfix
+    alg.scaleFactorDecoration = 'muon_effSF' + postfix + "_%SYS%"
+    alg.scaleFactorDecorationRegex = '(^MUON_EFF_RECO.*)'
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix
     alg.efficiencyScaleFactorTool.WorkingPoint = sfWorkingPoint
     if dataType != 'data':
-        seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                    affectingSystematics = '(^MUON_EFF_.*)',
+        seq.append( alg, inputPropName = 'muons',
+                    affectingSystematics = '(^MUON_EFF_RECO.*)',
                     stageName = 'efficiency' )
 
     # Set up an algorithm dumping the properties of the muons, for debugging:

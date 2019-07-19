@@ -134,7 +134,7 @@ void test04()
   using namespace std;
   using namespace SG;
 
-  unordered_map<int, char, SG::hash<int>, equal_to<int>,
+  SG::unordered_map<int, char, SG::hash<int>, equal_to<int>,
     allocator<pair<const int, char> >, true> m;
  
   for (int i = 0; i < 1000; ++i)

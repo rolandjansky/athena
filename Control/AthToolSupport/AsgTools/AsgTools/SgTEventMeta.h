@@ -66,6 +66,10 @@ namespace asg {
       template< typename T >
       StatusCode retrieve( const T*& obj, const std::string& name );
 
+      /// Record an object/container using a smart pointer for ownership
+      template< typename T >
+      StatusCode record( std::unique_ptr<T> obj, const std::string& cname );
+
       /// Record an object into the store
       template< typename T >
       StatusCode record( T* obj, const std::string& name );

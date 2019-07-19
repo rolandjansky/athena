@@ -79,14 +79,15 @@ enum topSFSyst{nominal = 0,
                TAU_SF_RECO_AF2_DOWN, TAU_SF_RECO_AF2_UP,
                // Photon SFs
                PHOTON_IDSF_UP, PHOTON_IDSF_DOWN, PHOTON_EFF_ISO,
-               PHOTON_EFF_LOWPTISO_UP, PHOTON_EFF_TRKISO_UP,
-               PHOTON_EFF_LOWPTISO_DOWN, PHOTON_EFF_TRKISO_DOWN,
+	       PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
                // B-tagging SFs
                BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
                BTAG_SF_EIGEN_LIGHT,
                BTAG_SF_NAMED_UP, BTAG_SF_NAMED_DOWN,
                // JVT SFs
                JVT_UP, JVT_DOWN,
+               // FWD Electron ID SFs
+               FWDEL_SF_ID_UP, FWDEL_SF_ID_DOWN,
 
                lastsys
 };
@@ -128,7 +129,12 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF(const top::Event& event,
                    const top::topSFSyst SFSyst,
                    const top::topSFComp SFComp) const;
-
+  
+  // Obtain the fwd electron SF
+  float fwdElectronSF(const top::Event& event,
+                   const top::topSFSyst SFSyst,
+                   const top::topSFComp SFComp=top::topSFComp::ALL) const;
+  
   // Obtain the muon SF
   float muonSF(const top::Event& event,
                const top::topSFSyst SFSyst,
@@ -207,6 +213,10 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF_ChargeMisID(const xAOD::Electron& x,
 			       const top::topSFSyst SFSyst,
 			       bool isLoose) const;
+			       
+  float fwdElectronSF_ID(const xAOD::Electron& x,
+                      const top::topSFSyst SFSyst,
+                      bool isLoose) const;
 
   float muonSF_Trigger(const xAOD::Muon& x,
                        const top::topSFSyst SFSyst,
@@ -275,7 +285,11 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF_ChargeMisID(const xAOD::Electron& x,
 			       const std::string& id, const std::string& iso,
 			       const top::topSFSyst SFSyst) const;
-
+  
+  float fwdElectronSF_ID(const xAOD::Electron& x,
+                      const std::string& id,
+                      const top::topSFSyst SFSyst) const;
+  
   float photonSF_Isol(const xAOD::Photon& x,
 		      const std::string& iso,
 		      const top::topSFSyst SFSyst) const;

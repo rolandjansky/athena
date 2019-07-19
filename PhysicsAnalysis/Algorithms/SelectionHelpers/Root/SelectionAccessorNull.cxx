@@ -60,4 +60,11 @@ namespace CP
     // the implication is that you can simply forget to set the
     // decoration property and not get an error
   }
+
+
+  std::string SelectionAccessorNull ::
+  label () const
+  {
+    return "(null)";
+  }
 }

@@ -195,19 +195,14 @@ namespace ana
     std::string my_idStr = "LooseAndBLayerLLH";
     if (WP == WPType::_ZHinv || WP == WPType::_Hmumu) my_idStr = "MediumLLH";
 
-    std::string my_isoStr = input_isoStr;
-//    std::string my_isoStr = "FixedCutLoose";
-//    if(WP == WPType::_ZHinv) my_isoStr = "Loose";
-//    else if(WP == WPType::_SMZZ4l) my_isoStr = "LooseTrackOnly";
+    std::string my_isoStr = (input_isoStr=="FixedCutPflowLoose") ? "FCLoose" : input_isoStr;
 
     if (args.firstWP()){
       // Set up the appropriate global config option
       //  Have to swap around the LH string
       args.configuration()->setElectronWP (my_idStr);
-
       args.configuration()->setElectronIsolationWP (my_isoStr);
     }
-
 
     const std::string inputContainer = "Electrons";
 
@@ -225,7 +220,7 @@ namespace ana
     std::unique_ptr<HZZElectronTool> selectTool
       ( new HZZElectronTool(args.prefix() + "_select") );
     selectTool->m_wp = WP;
-    selectTool->m_isoStr = my_isoStr;
+    selectTool->m_isoStr = input_isoStr;
     ANA_CHECK( selectTool->setProperty("SelectionString", selection) );
     args.add( std::move(selectTool) );
 
@@ -249,5 +244,7 @@ namespace ana
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l_veryloose", makeHZZElectronTool (args, "VLooseLLH", WPType::_SMZZ4l))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FCLoose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FCLoose"))
-  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "Loose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "FixedCutPflowLoose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "FCLoose"))
 }

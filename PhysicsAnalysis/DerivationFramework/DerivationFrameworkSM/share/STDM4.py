@@ -19,6 +19,10 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 #===========================================================================================\
 # AUGMENTATION  TOOL
 #===========================================================================================\
@@ -186,8 +190,6 @@ ToolSvc += STDM4SkimmingTool
 
 #Augmentation
 
-
-
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
@@ -230,6 +232,18 @@ for contain in ["Electrons","Photons","Muons"]:
                           Trigger_di_mu_list])
     NewTrigVars.append(contain+"."+new_content)
 
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+STDM4_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "STDM4_MaxCellDecoratorTool",
+                                                                    SGKey_electrons = "Electrons",
+                                                                    SGKey_photons   = "Photons"
+                                                                  )
+ToolSvc += STDM4_MaxCellDecoratorTool
+
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 # CREATE THE PRIVATE SEQUENCE
@@ -241,7 +255,7 @@ STDM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM4Kernel",
                                                               ThinningTools = thinningTools,
 # removed temporarily to build in rel21
 #                                                              AugmentationTools=[STDM4_PFlowAugmentationTool,STDM4_TriggerMatchingAugmentation])
-                                                              AugmentationTools=[STDM4_PFlowAugmentationTool])
+                                                              AugmentationTools=[STDM4_PFlowAugmentationTool,STDM4_MaxCellDecoratorTool])
 
 
 # JET REBUILDING
@@ -296,6 +310,13 @@ addDefaultTrimmedJets(STDM4Sequence, "STDM4")
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM4Sequence)
 
+#q/g tagging
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM4Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM4Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -331,10 +352,15 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"
 ]
 
-
+STDM4SlimmingHelper.ExtraVariables += ["Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]+["Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]
 
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
+
+#QGTagger
+STDM4SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+STDM4SlimmingHelper.ExtraVariables += ["AntiKt4EMPFlowJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+
 
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *

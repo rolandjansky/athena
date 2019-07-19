@@ -108,18 +108,48 @@ from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
 FTAG4Seq += CfgMgr.BTagVertexAugmenter()
 
-BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
-ToolSvc += BJetSVFinderTool
-BJetSVFinderTool.ConeForTag = 0.6
+# used by Loose and Medium
+SoftBJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
+ToolSvc += SoftBJetSVFinderTool
+SoftBJetSVFinderTool.ConeForTag = 0.75
 
-softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+softTagAlgLoose = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolLoose",
                            OutputLevel=INFO, #DEBUG                                                                                          
                            )
 
-softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
-softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgLoose.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgLoose.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.OperatingPoint = 'Loose'
 
-FTAG4Seq += softTagAlg
+FTAG4Seq += softTagAlgLoose
+
+softTagAlgMedium = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolMedium",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgMedium.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgMedium.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgMedium.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgMedium.OperatingPoint = 'Medium'
+
+FTAG4Seq += softTagAlgMedium
+
+# used by Tight
+SoftBJetSVFinderToolTight      = InDetVKalVxInJetFinder("SoftBJetSVFinderTight")
+ToolSvc += SoftBJetSVFinderToolTight
+SoftBJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlgTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolTight",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgTight.SVFinderName = 'SoftBJetSVFinderTight'
+softTagAlgTight.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgTight.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgTight.OperatingPoint = 'Tight'
+
+FTAG4Seq += softTagAlgTight
 
 applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
 
@@ -252,8 +282,12 @@ FTAG4SlimmingHelper.AppendToDictionary = {
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 StaticContent = []
-StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
-StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
 

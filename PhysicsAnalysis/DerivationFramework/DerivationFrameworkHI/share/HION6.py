@@ -15,7 +15,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import * 
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -24,10 +24,11 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_HION6Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HION6Stream )
@@ -36,13 +37,13 @@ HION6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HION6Stream.AcceptAlgs(["HION6Kernel"])
 
 #====================================================================
-# PDF Weight Metadata  
+# PDF Weight Metadata
 #====================================================================
 if DFisMC:
   from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
-# TRIGGER NAVIGATION THINNING   
+# TRIGGER NAVIGATION THINNING
 #====================================================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 import DerivationFrameworkTop.TOPQCommonThinning
@@ -75,7 +76,7 @@ HION6StringSkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool(
 
 ToolSvc += HION6StringSkimmingTool_lep
 
-print "hion6expression: ", hion6expression_lep
+print "hion6expression_lep: ", hion6expression_lep
 print "StringSkimmingTool_lep: ", HION6StringSkimmingTool_lep
 
 
@@ -100,56 +101,62 @@ print "StringSkimmingTool_jet: ", HION6StringSkimmingTool_jet
 # THINNING TOOLS
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonThinning
-thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ2',HION6ThinningHelper.ThinningSvc(), ToolSvc)
+thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('HION6',HION6ThinningHelper.ThinningSvc(), ToolSvc)
 
 #====================================================================
-# CREATE THE KERNEL(S) 
+# CREATE THE KERNEL(S)
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 # Create the private sequence
 HION6Sequence = CfgMgr.AthSequencer("HION6Sequence")
 
-# Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-ReTag(['IP2D', 'IP3D', 'SV0',  'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'MV2c00', 'MV2c10', 'MV2c20', 'MV2c100', 'MV2m'],['AntiKt4EMPFlowJets'], HION6Sequence)
-
-if not hasattr(HION6Sequence,"ELReset"):
-  HION6Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
-
-
 # First skim on leptons
 HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_lep", SkimmingTools = [HION6StringSkimmingTool_lep])
 
-# Then build fat/trimmed jets
-import DerivationFrameworkTop.TOPQCommonJets
-addDefaultTrimmedJets(HION6Sequence,'HION6')
+# add fat/trimmed jets
+from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
+addStandardJetsForTop(HION6Sequence,'HION6')
 
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",HION6Sequence)
+# apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
+applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",HION6Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
-# HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
+HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
-# Then apply the TruthWZ fix
-if DFisMC:
-  replaceBuggyAntiKt4TruthWZJets(HION6Sequence,'HION6')
+# Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
 
-# Then apply truth tools in the form of aumentation
+TaggerList = BTaggingFlags.StandardTaggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
+ReTag(TaggerList,['AntiKt4EMPFlowJets'],HION6Sequence)
+
+# Then apply truth tools in the form of augmentation
 if DFisMC:
   from DerivationFrameworkTop.TOPQCommonTruthTools import *
   HION6Sequence += TOPQCommonTruthKernel
 
-DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", HION6Sequence, ToolSvc)
+# add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
+addMSVVariables("AntiKt4EMTopoJets", HION6Sequence, ToolSvc)
 
 # Then apply thinning
 HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6Kernel", ThinningTools = thinningTools)
 
+#====================================================================
 # JetTagNonPromptLepton decorations
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-HION6Sequence += Config.GetDecoratePromptLeptonAlgs()
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# Build AntiKt4PV0TrackJets and run b-tagging
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(HION6Sequence, 'HION6')
+
+# Add BDT decoration algs
+HION6Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+HION6Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += HION6Sequence
@@ -158,17 +165,11 @@ DerivationFrameworkJob += HION6Sequence
 # SLIMMING
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonSlimming
-DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ2', HION6Stream)
-
-
+DerivationFrameworkTop.TOPQCommonSlimming.setup('HION6', HION6Stream)
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-
 HION6SlimmingHelper = SlimmingHelper("HION6SlimmingHelper")
-
 HION6SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt3HIJets","AntiKt4HIJets","AntiKt4HITrackJets","CaloSums","HIEventShape","ZdcModules","ZdcTriggerTowers","ZdcSums","MBTSForwardEventInfo", "MBTSModules"]
-
-
 HION6SlimmingHelper.AppendContentToStream(HION6Stream)
 
 #This enables L1EnergySums

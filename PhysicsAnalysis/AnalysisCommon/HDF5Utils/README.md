@@ -133,6 +133,23 @@ are free to create several writers, each of which will write a dataset
 corresponding to a different type of object. These can write to the
 same file, but aligning the indices after the fact is up to you!
 
+### Lossy Compression
+
+Many machine learning frameworks use 'half-precision' (16 bit)
+floats. This means you probably won't gain much by saving data as 32
+bit `float` or, much less, 64 bit `double`. By default atomic types
+are saved at their native precision, but if you want to reduce this
+you can specify a `Compression`:
+
+```C++
+consumers.add(name, function, default_value, COMPRESSION);
+```
+
+Currently we support:
+ - `STANDARD`: use standard native precision
+ - `HALF_PRECISION`: 16 bit
+
+
 Hacking This Code
 =================
 

@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: Check.h 615760 2014-09-09 12:50:01Z krasznaa $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASGTOOLS_CHECK_H
 #define ASGTOOLS_CHECK_H
 
@@ -59,6 +61,8 @@
 /// In standalone mode use the ASG specific macro as a replacement for ATH_CHECK
 #ifdef ASGTOOL_STANDALONE
 #   define ATH_CHECK( EXP ) ASG_CHECK( EXP )
+#else
+#   include "AthenaBaseComps/AthCheckMacros.h"
 #endif
 
 #endif // ASGTOOLS_CHECK_H

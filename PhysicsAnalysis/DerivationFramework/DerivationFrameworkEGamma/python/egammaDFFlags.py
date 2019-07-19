@@ -36,6 +36,13 @@ class doEGammaCellReweighting (egammaDFFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+# enable or disable cell-level reweighting variations
+class doEGammaCellReweightingVariations (egammaDFFlagsJobProperty):
+    """ switch for enabling cell-level reweighting of e/gamma clusters with max/min variations
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 class doEGammaDAODTrackThinning (egammaDFFlagsJobProperty):
     """ switch for enabling track-thinning in egamma DAODs
@@ -60,7 +67,7 @@ class egammaDFFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaDFFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEGammaCellReweighting,doEGammaDAODTrackThinning]
+_list_Egamma=[Enabled,doEGammaCellReweighting,doEGammaCellReweightingVariations,doEGammaDAODTrackThinning]
 
 for j in _list_Egamma: 
     jobproperties.egammaDFFlags.add_JobProperty(j)

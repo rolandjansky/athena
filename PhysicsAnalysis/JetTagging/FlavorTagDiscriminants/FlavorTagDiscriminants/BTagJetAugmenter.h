@@ -6,6 +6,7 @@
 #define BTAG_JET_AUGMENTER_HH
 
 #include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/FlipTagEnums.h"
 
 // ATLAS things
 #include "xAODJet/Jet.h"
@@ -15,7 +16,9 @@ class BTagJetAugmenter
 {
 public:
   typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
-  BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
+  typedef FlavorTagDiscriminants::FlipTagConfig FlipTagConfig;
+  BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018,
+                   FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augment(const xAOD::Jet &jet);
@@ -23,6 +26,7 @@ public:
 private:
   typedef SG::AuxElement AE;
   bool m_use_floats;
+  bool m_write_unflippable;
 
   AE::Decorator<double> pt_uncalib;
   AE::Decorator<double> eta_uncalib;

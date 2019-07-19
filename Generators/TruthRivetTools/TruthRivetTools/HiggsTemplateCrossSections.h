@@ -444,7 +444,7 @@ namespace Rivet {
     if (Njets==1)  return Category(GG2H_1J_PTH_0_60+getBin(higgs.pt(),{0,60,120,200}));
     if (Njets>1){
         //VBF topology
-        if(vbfTopo) return Category(GG2H_MJJ_350_700_PTHJJ_0_25+vbfTopo-1);
+        if(vbfTopo) return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
         //Njets >= 2jets without VBF topology (mjj<350)
         return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60+getBin(higgs.pt(),{0,60,120,200}));
     }
@@ -458,12 +458,12 @@ namespace Rivet {
     else if (Njets==1)   return QQ2HQQ_1J;
     else if (Njets>=2) {
         double mjj = (jets[0].mom()+jets[1].mom()).mass();
-        if ( mjj < 60 )      return QQ2HQQ_MJJ_0_60;
-        else if ( 60 < mjj && mjj < 120 ) return QQ2HQQ_MJJ_60_120;
-        else if ( 120 < mjj && mjj < 350 ) return QQ2HQQ_MJJ_120_350;
+        if ( mjj < 60 )      return QQ2HQQ_GE2J_MJJ_0_60;
+        else if ( 60 < mjj && mjj < 120 ) return QQ2HQQ_GE2J_MJJ_60_120;
+        else if ( 120 < mjj && mjj < 350 ) return QQ2HQQ_GE2J_MJJ_120_350;
         else if (  mjj > 350 ) {
-            if (higgs.pt()>200) return QQ2HQQ_MJJ_GT350_PTH_GT200;
-            if(vbfTopo) return Category(QQ2HQQ_MJJ_GT350_PTH_GT200+vbfTopo);
+            if (higgs.pt()>200) return QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200;
+            if(vbfTopo) return Category(QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200+vbfTopo);
         }
     }
       }
@@ -520,7 +520,7 @@ namespace Rivet {
         //double mjj = (jets[0].mom()+jets[1].mom()).mass();
         double pTHjj = (jets[0].momentum()+jets[1].momentum()+higgs.momentum()).pt();
         //VBF topology
-        if(vbfTopo) return Category(GG2H_MJJ_350_700_PTHJJ_0_25+vbfTopo-1);
+        if(vbfTopo) return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
         //Njets >= 2jets without VBF topology (mjj<350)
         if (pTHjj<25) return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_0_25+getBin(higgs.pt(),{0,60,120,200}));
         else return Category(GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_GT25+getBin(higgs.pt(),{0,60,120,200}));
@@ -537,13 +537,13 @@ namespace Rivet {
         double mjj = (jets[0].mom()+jets[1].mom()).mass();
         double pTHjj = (jets[0].momentum()+jets[1].momentum()+higgs.momentum()).pt();
         if (mjj<350){
-            if (pTHjj<25) return Category(QQ2HQQ_MJJ_0_60_PTHJJ_0_25+getBin(mjj,{0,60,120,350}));
-            else return Category(QQ2HQQ_MJJ_0_60_PTHJJ_GT25+getBin(mjj,{0,60,120,350}));
+            if (pTHjj<25) return Category(QQ2HQQ_GE2J_MJJ_0_60_PTHJJ_0_25+getBin(mjj,{0,60,120,350}));
+            else return Category(QQ2HQQ_GE2J_MJJ_0_60_PTHJJ_GT25+getBin(mjj,{0,60,120,350}));
         } else { //mjj>350 GeV
             if (higgs.pt()<200){
-                return Category(QQ2HQQ_MJJ_350_700_PTHJJ_0_25+vbfTopo-1);
+                return Category(QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25+vbfTopo-1);
             } else {
-                return Category(QQ2HQQ_PTH_GT200_MJJ_350_700_PTHJJ_0_25+vbfTopo-1);
+                return Category(QQ2HQQ_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25+vbfTopo-1);
             }
         }
     }

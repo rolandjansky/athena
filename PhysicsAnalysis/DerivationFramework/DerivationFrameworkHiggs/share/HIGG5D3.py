@@ -193,7 +193,8 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_j80_bmv2c2070_split_j60_bmv2c2085_split_j45_320eta490',
                   'HLT_j80_0eta240_j60_j45_320eta490', # added on May 2016
                   'HLT_j80_0eta240_j60_j45_320eta490_AND_2j45_bmv2c2070_split', # added on Nov 2016
-                  'HLT_2j35_bmv2c2060_split_2j35_L14J15'] # added on Dec 2016
+                  'HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25',
+                  'HLT_2j35_bmv2c2060_split_2j35_L14J15'] 
 
 
 
@@ -297,12 +298,13 @@ if not "HIGG5D3Jets" in OutputJets:
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets']
     replaceAODReducedJets(reducedJetList, higg5d3Seq, "HIGG5D3Jets")
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
     include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    runTCCReconstruction(higg5d3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+    
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d3Seq, "HIGG5D3Jets")
 
@@ -313,7 +315,8 @@ addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
 addVRJets(higg5d3Seq)
 addHbbTagger(higg5d3Seq, ToolSvc)
 # QGTaggerTool ###
-addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")
 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d3Seq)
 
@@ -349,6 +352,7 @@ HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
                                            "MET_Reference_AntiKt4EMTopo",
+                                           "MET_Reference_AntiKt4EMPFlow",
                                            "AntiKt4EMTopoJets",
                                            "AntiKt4EMPFlowJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",

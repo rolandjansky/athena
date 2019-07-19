@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureUtils/HEPTopTaggerImpl.h"
@@ -409,7 +409,7 @@ HEPTopTaggerImpl::HTTResult HEPTopTaggerImpl::runTaggerFixedR(
         // NOTE: taken from original BoostedJetTaggers impl. don't know what it's for
         try {
           csTopChildren->delete_self_when_unused(); // Because we'll need this sequence when dealing with subjets
-        } catch (fastjet::Error) {
+        } catch (const fastjet::Error&) {
           continue;
         }
 

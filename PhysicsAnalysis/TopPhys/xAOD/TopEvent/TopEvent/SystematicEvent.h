@@ -45,6 +45,7 @@ namespace xAOD{
 
       std::vector<std::vector<unsigned int>> goodPhotons;
       std::vector<std::vector<unsigned int>> goodElectrons;
+      std::vector<std::vector<unsigned int>> goodFwdElectrons;
       std::vector<std::vector<unsigned int>> goodMuons;
       std::vector<std::vector<unsigned int>> goodTaus;
       std::vector<std::vector<unsigned int>> goodJets;
@@ -84,6 +85,11 @@ namespace xAOD{
       const std::vector<unsigned int>& goodElectrons() const;
       /// set Electrons
       void setGoodElectrons(const std::vector<unsigned int>&);  
+      
+      /// get FWD Electrons
+      const std::vector<unsigned int>& goodFwdElectrons() const;
+      /// set FWD Electrons
+      void setGoodFwdElectrons(const std::vector<unsigned int>&);  
       
       /// get Muons
       const std::vector<unsigned int>& goodMuons() const;

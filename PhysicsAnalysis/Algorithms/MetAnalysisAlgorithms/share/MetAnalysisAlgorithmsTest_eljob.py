@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -59,75 +59,14 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Set up the systematics loader/handler algorithm:
-sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-job.algsAdd( sysLoader )
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetContainer = 'AntiKt4EMTopoJets'
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-print( jetSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in jetSequence:
-    job.algsAdd( alg )
-    pass
-
-# Set up a selection alg for demonstration purposes
-# Also to avoid warnings from building MET with very soft electrons
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
-selalg = createAlgorithm( 'CP::AsgSelectionAlg', 'METEleSelAlg' )
-addPrivateTool( selalg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-selalg.selectionTool.minPt = 10e3
-selalg.selectionTool.maxEta = 2.47
-selalg.selectionDecoration = 'selectPtEta'
-selalg.particles = 'Electrons'
-# We need to copy here, because w/o an output container, it's assumed
-# that the input container is non-const
-selalg.particlesOut = 'DecorElectrons_%SYS%'
-job.algsAdd( selalg )
-print( selalg ) # For debugging
-
-# Now make a view container holding only the electrons for the MET calculation
-viewalg = createAlgorithm( 'CP::AsgViewFromSelectionAlg','METEleViewAlg' )
-viewalg.selection = [ 'selectPtEta' ]
-viewalg.input = 'DecorElectrons_%SYS%'
-viewalg.output = 'METElectrons_%SYS%'
-job.algsAdd( viewalg )
-print( viewalg ) # For debugging
-
-# Include, and then set up the met analysis algorithm sequence:
-from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, metSuffix = jetContainer[:-4] )
-metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
-                                     'muons'     : 'Muons',
-                                     'electrons' : 'METElectrons_%SYS%' },
-                       outputName = 'AnalysisMET_%SYS%',
-                       affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
-                                                'muons'     : '(^$)',
-                                                'electrons' : '(^$)' } )
-print( metSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in metSequence:
-    job.algsAdd( alg )
-    pass
-
-# Write the freshly produced MET object(s) to an output file:
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
-ntupleMaker.TreeName = 'met'
-ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
-                         'EventInfo.eventNumber   -> eventNumber',
-                         'AnalysisMET_%SYS%.mpx   -> met_%SYS%_mpx',
-                         'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
-                         'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
-                         'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
-ntupleMaker.systematicsRegex = '.*'
-job.algsAdd( ntupleMaker )
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
+
+from MetAnalysisAlgorithms.MetAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
+for alg in algSeq:
+    job.algsAdd( alg )
+    pass
 
 # Find the right output directory:                                                                                      
 submitDir = options.submission_dir

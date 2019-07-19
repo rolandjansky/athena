@@ -280,13 +280,14 @@ if not "HIGG5D2Jets" in OutputJets:
     OutputJets["HIGG5D2Jets"] = []
 
     # have to run TCC reconstruction prior to TCC jet finding
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
     include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
+    
     #AntiKt2PV0TrackJets
     reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
     if jetFlags.useTruth:

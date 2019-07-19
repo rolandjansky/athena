@@ -1,6 +1,6 @@
 // this is -*- C++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HDF_TUPLE_HH
 #define HDF_TUPLE_HH
@@ -14,6 +14,7 @@
  **/
 
 #include "H5Traits.h"
+#include "CompressedTypes.h"
 #include "common.h"
 
 #include "H5Cpp.h"
@@ -47,6 +48,7 @@ namespace H5Utils {
       virtual data_buffer_t getBuffer(I) const = 0;
       virtual data_buffer_t getDefault() const = 0;
       virtual H5::DataType getType() const = 0;
+      virtual H5::DataType getWriteType() const = 0;
       virtual std::string name() const = 0;
       typedef I input_type;
     };
@@ -58,23 +60,28 @@ namespace H5Utils {
     public:
       DataConsumer(const std::string&,
                    const std::function<T(I)>&,
-                   const T default_value = T());
+                   const T default_value = T(),
+                   Compression = Compression::STANDARD);
       data_buffer_t getBuffer(I) const override;
       data_buffer_t getDefault() const override;
       H5::DataType getType() const override;
+      H5::DataType getWriteType() const override;
       std::string name() const override;
     private:
       std::function<T(I)> m_getter;
       std::string m_name;
       T m_default_value;
+      H5::DataType m_write_type;
     };
     template <typename T, typename I>
     DataConsumer<T, I>::DataConsumer(const std::string& name,
                                      const std::function<T(I)>& func,
-                                     const T default_value):
+                                     const T default_value,
+                                     Compression comp):
       m_getter(func),
       m_name(name),
-      m_default_value(default_value)
+      m_default_value(default_value),
+      m_write_type(getCompressedType<T>(comp))
     {
     }
     template <typename T, typename I>
@@ -94,9 +101,14 @@ namespace H5Utils {
       return H5Traits<T>::type;
     }
     template <typename T, typename I>
+    H5::DataType DataConsumer<T, I>::getWriteType() const {
+      return m_write_type;
+    }
+    template <typename T, typename I>
     std::string DataConsumer<T, I>::name() const {
       return m_name;
     }
+
   }
   /// @}
 
@@ -118,13 +130,16 @@ namespace H5Utils {
     /// This should be the only method you need in this class
     template <typename T>
     void add(const std::string& name, const std::function<T(I)>&,
-             const T& default_value = T());
+             const T& default_value = T(),
+             Compression = Compression::STANDARD);
 
     /// overload to cast lambdas into functions
     template <typename T, typename F>
-    void add(const std::string& name, const F func, const T& def = T()) {
-      add(name, std::function<T(I)>(func), def);
+    void add(const std::string& name, const F func, const T& def = T(),
+             Compression comp = Compression::STANDARD) {
+      add(name, std::function<T(I)>(func), def, comp);
     }
+
 
     std::vector<SharedConsumer<I> > getConsumers() const;
 
@@ -140,15 +155,17 @@ namespace H5Utils {
   template <typename T>
   void Consumers<I>::add(const std::string& name,
                          const std::function<T(I)>& fun,
-                         const T& def_val)
+                         const T& def_val,
+                         Compression comp)
   {
     if (m_used.count(name)) {
       throw std::logic_error("tried to insert '" + name + "' twice");
     }
     m_consumers.push_back(
-      std::make_shared<internal::DataConsumer<T, I> >(name, fun, def_val));
+      std::make_shared<internal::DataConsumer<T,I>>(name, fun, def_val, comp));
     m_used.insert(name);
   }
+
   template <typename I>
   std::vector<SharedConsumer<I> > Consumers<I>::getConsumers() const {
     return m_consumers;
@@ -251,6 +268,17 @@ namespace H5Utils {
       }
       return type;
     }
+    template<typename I>
+    H5::CompType buildWriteType(const std::vector<SharedConsumer<I> >& con) {
+      H5::CompType type(con.size() * sizeof(data_buffer_t));
+      size_t dt_offset = 0;
+      for (const SharedConsumer<I>& filler: con) {
+        type.insertMember(filler->name(), dt_offset, filler->getWriteType());
+        dt_offset += sizeof(data_buffer_t);
+      }
+      type.pack();
+      return type;
+    }
 
     /// Constant parameters for the writer
     template <typename I, size_t N>
@@ -345,7 +373,6 @@ namespace H5Utils {
     m_consumers(consumers.getConsumers()),
     m_file_space(H5S_SIMPLE)
   {
-    using internal::packed;
     using internal::data_buffer_t;
     if (batch_size < 1) {
       throw std::logic_error("batch size must be > 0");
@@ -362,7 +389,8 @@ namespace H5Utils {
 
     // create ds
     internal::throwIfExists(name, group);
-    m_ds = group.createDataSet(name, packed(m_par.type), space, params);
+    H5::CompType packed_type = buildWriteType(consumers.getConsumers());
+    m_ds = group.createDataSet(name, packed_type, space, params);
     m_file_space = m_ds.getSpace();
     m_file_space.selectNone();
   }

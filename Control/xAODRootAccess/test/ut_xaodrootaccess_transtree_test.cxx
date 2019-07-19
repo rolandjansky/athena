@@ -59,28 +59,30 @@ int main() {
    // Clean up the event tree memory:
    xAOD::ClearTransientTrees();
 
-   // Set up a chain with this one file:
-   ::TChain eventChain( "CollectionTree" );
-   eventChain.Add( "$ASG_TEST_FILE_MC" );
+   {
+      // Set up a chain with this one file:
+      ::TChain eventChain( "CollectionTree" );
+      eventChain.Add( "$ASG_TEST_FILE_MC" );
 
-   // Create a transient tree using it:
-   tree = xAOD::MakeTransientTree( &eventChain );
-   if( ! tree ) {
-      ::Error( APP_NAME,
-               XAOD_MESSAGE( "Couldn't create transient tree from TChain "
-                             "input" ) );
-      return 1;
-   }
+      // Create a transient tree using it:
+      tree = xAOD::MakeTransientTree( &eventChain );
+      if( ! tree ) {
+         ::Error( APP_NAME,
+                  XAOD_MESSAGE( "Couldn't create transient tree from TChain "
+                                "input" ) );
+         return 1;
+      }
 
-   // Make a test plot:
-   tree->Draw( "Electrons.eta()-"
-               "Electrons.trackParticle().eta()>>dummyHist2" );
-   dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist2" ) );
-   if( ! dummyHist ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist2\"" ) );
-      return 1;
+      // Make a test plot:
+      tree->Draw( "Electrons.eta()-"
+                  "Electrons.trackParticle().eta()>>dummyHist2" );
+      dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist2" ) );
+      if( ! dummyHist ) {
+         ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist2\"" ) );
+         return 1;
+      }
+      //dummyHist->Print( "all" );
    }
-   //dummyHist->Print( "all" );
 
    // Clean up the event tree memory:
    xAOD::ClearTransientTrees();
@@ -104,27 +106,29 @@ int main() {
    }
    //dummyHist->Print( "all" );
 
-   // Set up a chain with this one file:
-   ::TChain metaChain( "MetaData" );
-   metaChain.Add( "$ASG_TEST_FILE_MC" );
+   {
+      // Set up a chain with this one file:
+      ::TChain metaChain( "MetaData" );
+      metaChain.Add( "$ASG_TEST_FILE_MC" );
 
-   // Create a transient tree using it:
-   tree = xAOD::MakeTransientMetaTree( &metaChain );
-   if( ! tree ) {
-      ::Error( APP_NAME,
-               XAOD_MESSAGE( "Couldn't create transient metadata tree from "
-                             "TChain input" ) );
-      return 1;
-   }
+      // Create a transient tree using it:
+      tree = xAOD::MakeTransientMetaTree( &metaChain );
+      if( ! tree ) {
+         ::Error( APP_NAME,
+                  XAOD_MESSAGE( "Couldn't create transient metadata tree from "
+                                "TChain input" ) );
+         return 1;
+      }
 
-   // Make a test plot:
-   tree->Draw( "TriggerMenu.l1psk()>>dummyHist4" );
-   dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist4" ) );
-   if( ! dummyHist ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist4\"" ) );
-      return 1;
+      // Make a test plot:
+      tree->Draw( "TriggerMenu.l1psk()>>dummyHist4" );
+      dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist4" ) );
+      if( ! dummyHist ) {
+         ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist4\"" ) );
+         return 1;
+      }
+      //dummyHist->Print( "all" );
    }
-   //dummyHist->Print( "all" );
 
    // Clean up the metadata tree memory:
    xAOD::ClearTransientTrees();

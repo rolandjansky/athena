@@ -13,6 +13,7 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -67,27 +68,18 @@ namespace CP
 
     /// \brief the decoration for the muon scale factor
   private:
-    std::string m_scaleFactorDecoration;
+    SysDecorationHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the muon efficiency scale factor"};
 
     /// \brief the decoration for the muon mc efficiency
   private:
-    std::string m_mcEfficiencyDecoration;
+    SysDecorationHandle<float> m_mcEfficiencyDecoration {
+      this, "mcEfficiencyDecoration", "", "the decoration for the muon MC efficiency"};
 
     /// \brief the decoration for the muon data efficiency
   private:
-    std::string m_dataEfficiencyDecoration;
-
-    /// \brief the accessor for \ref m_scaleFactorDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
-
-    /// \brief the accessor for \ref m_mcEfficiencyDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_mcEfficiencyAccessor;
-
-    /// \brief the accessor for \ref m_dataEfficiencyDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_dataEfficiencyAccessor;
+    SysDecorationHandle<float> m_dataEfficiencyDecoration {
+      this, "dataEfficiencyDecoration", "", "the decoration for the muon data efficiency"};
   };
 }
 

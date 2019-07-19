@@ -97,9 +97,9 @@ namespace CP
                                      m_electronsKey));
         ANA_CHECK (processParticles (m_photonsHandle, xAOD::Type::Photon,
                                      m_photonsKey));
+        ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
         ANA_CHECK (processParticles (m_muonsHandle, xAOD::Type::Muon,
                                      m_muonsKey));
-        ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
 
         const xAOD::JetContainer *jets {nullptr};
         ANA_CHECK (m_jetsHandle.retrieve (jets, sys));

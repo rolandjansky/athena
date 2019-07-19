@@ -9,6 +9,7 @@
 #include "TopObjectSelectionTools/TopObjectSelection.h"
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
 #include "TopObjectSelectionTools/ElectronCutBasedMC15.h"
+#include "TopObjectSelectionTools/FwdElectronMC15.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
 #include "TopObjectSelectionTools/MuonMC15.h"
 #include "TopObjectSelectionTools/AntiMuonMC15.h"
@@ -90,7 +91,11 @@ namespace top {
           exit(1);
       }
     }
-
+    
+    ///-- Fwd Electrons --///
+    if (topConfig->useFwdElectrons()) {
+       objectSelection->fwdElectronSelection(new top::FwdElectronMC15(topConfig->fwdElectronPtcut(),topConfig->fwdElectronMinEtacut(),topConfig->fwdElectronMaxEtacut(),topConfig));
+    }
     ///-- Muons --///
     if (topConfig->useMuons()) {
 

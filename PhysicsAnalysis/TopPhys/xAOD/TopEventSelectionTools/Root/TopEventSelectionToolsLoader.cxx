@@ -7,6 +7,7 @@
 
 #include "TopEventSelectionTools/ExamplePlots.h"
 #include "TopEventSelectionTools/JetFlavorPlots.h"
+#include "TopEventSelectionTools/JetFtagEffPlots.h"
 #include "TopEventSelectionTools/FakesMMConfigs.h"
 #include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
 #include "TopEventSelectionTools/GlobalTrigMatchSelector.h"
@@ -31,6 +32,8 @@
 #include "TopEventSelectionTools/NElectronNMuonTightSelector.h"
 #include "TopEventSelectionTools/NElectronSelector.h"
 #include "TopEventSelectionTools/NElectronTightSelector.h"
+#include "TopEventSelectionTools/NFwdElectronSelector.h"
+#include "TopEventSelectionTools/NFwdElectronTightSelector.h"
 #include "TopEventSelectionTools/NJetSelector.h"
 #include "TopEventSelectionTools/NJetBtagSelector.h"
 #include "TopEventSelectionTools/NMuonSelector.h"
@@ -106,6 +109,10 @@ namespace top {
         return new top::NElectronSelector(param);
     else if (toolname == "EL_N_TIGHT")
         return new top::NElectronTightSelector(param);
+     else if (toolname == "FWDEL_N")
+        return new top::NFwdElectronSelector(param);
+    else if (toolname == "FWDEL_N_TIGHT")
+        return new top::NFwdElectronTightSelector(param);
     else if (toolname == "MU_N")
         return new top::NMuonSelector(param);
     else if (toolname == "MU_N_TIGHT")
@@ -148,6 +155,8 @@ namespace top {
       return new top::ExamplePlots(name, outputFile, wk, config);
     else if (toolname == "JETFLAVORPLOTS")
       return new top::JetFlavorPlots(name, outputFile, param, config, wk);
+    else if (toolname == "JETFTAGEFFPLOTS")
+        return new top::JetFtagEffPlots(name,outputFile,param,config, wk);
     else if (toolname == "GRL")
         return new top::GRLSelector();
     else if (toolname == "GTRIGDEC")
