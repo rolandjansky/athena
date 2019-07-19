@@ -182,11 +182,12 @@ namespace Trk
     msg(MSG::DEBUG) << "findMultiSeeds using ImagingSeedFinder has been called" << endmsg;
 
     // Make the image from tracks, and immediately
-    VertexImage image = m_vertexImageMaker->makeVertexImage( parametersList, constraint );
+    std::unique_ptr<VertexImage> image =
+      m_vertexImageMaker->makeVertexImage( parametersList, constraint );
 
     //Run clustering tool to find vertices
     //Coordinates are relative to the center of the histogram (constraint or (0,0,0) if no constraint)
-    std::vector<Amg::Vector3D> relCoordVertices = m_VertexClusterFinder->findVertexClusters( image );
+    std::vector<Amg::Vector3D> relCoordVertices = m_VertexClusterFinder->findVertexClusters( *image );
 
     msg(MSG::DEBUG) << "Found " << relCoordVertices.size() << " candidate clusters" << endmsg;
  
