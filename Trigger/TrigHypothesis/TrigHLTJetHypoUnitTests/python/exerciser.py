@@ -10,7 +10,6 @@ from TrigHLTJetHypo.TrigJetHypoToolConfig import (
     trigJetHypoToolHelperFromDict,
     trigJetHypoToolHelperFromDict_)
 
-from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -28,7 +27,7 @@ class PartitionvsFlowNetworkTests(object):
         self.run_with_partitions = run_with_partitions
 
     
-    def make_chain_dict():
+    def make_chain_dict(self):
         """Chaindicts for Partion vs flownetwork strudies"""
     
         chainNameDecoder = DictFromChainName.DictFromChainName()
@@ -38,7 +37,7 @@ class PartitionvsFlowNetworkTests(object):
 
         
         chain_dict = chainNameDecoder.getChainDict(self.chain_name)
-        assert len(chain_dict['chainParts']) == n_conds
+        assert len(chain_dict['chainParts']) == self.n_conds
 
         if (self.run_with_partitions):
             for cp in chain_dict['chainParts']:
@@ -58,7 +57,7 @@ class PartitionvsFlowNetworkTests(object):
         return generator
 
     def logfile_name(self, chain_name):
-        if (run_with_partitions):
+        if (self.run_with_partitions):
             lfn = self.chain_name + '_b' + str(self.n_bkgd) + '_part.log'
         else:
             lfn = self.chain_name + '_b' + str(self.n_bkgd) + '.log'
@@ -94,7 +93,7 @@ class CombinationsTests(object):
         return chain_dict
 
     def make_helper_tool(self):
-        chain_dict = self._make_chain_dict();
+        chain_dict = self._make_chain_dict()
         print(chain_dict['chainParts'][0])
         return trigJetHypoToolHelperFromDict(chain_dict)
 
@@ -131,7 +130,7 @@ class PartitionsTests(CombinationsTests) :
         return chain_dict
 
     def make_helper_tool(self):
-        chain_dict = self._make_chain_dict();
+        chain_dict = self._make_chain_dict()
         print(chain_dict['chainParts'][0])
         return trigJetHypoToolHelperFromDict(chain_dict)
 
@@ -176,7 +175,6 @@ def JetHypoExerciserCfg():
     test_conditions = FlowNetworkVsPartitionsTests(n_sgnl=3, n_bkgd=10)
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
-    generator = test_conditions.make_event_generator()
     chain_name = test_conditions.chain_name
 
     ht = test_conditions.make_helper_tool()
@@ -202,12 +200,6 @@ def JetHypoExerciserCfg():
 if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)
-
-    
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
