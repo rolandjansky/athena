@@ -69,7 +69,7 @@ def PixelCablingSvcCfg(flags, name="PixelCablingSvc", **kwargs):
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
                 elif flags.GeoModel.Type == "BrlExt3.2_ref":
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-                logger.info("Using ITk pixel mapping: %s" % IdMappingDat)
+                logger.info("Using ITk pixel mapping: %s", IdMappingDat)
                 PixelCablingCondAlg.MappingFile=IdMappingDat
             # IBL
             elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
@@ -92,7 +92,7 @@ def PixelCablingSvcCfg(flags, name="PixelCablingSvc", **kwargs):
         # DATA
         elif not flags.Input.isMC:
             runNum = GetRunNumber()
-            logger.debug("Running on data, run number %d" % runNum)
+            logger.debug("Running on data, run number %d", runNum)
 
 
             # For data older than run number 222222, use the appropriate text file

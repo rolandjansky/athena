@@ -3,11 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon import Logging
+from AthenaCommon.Logging import logging
 from SCT_Digitization.SCT_DigitizationConf import (
     SCT_RandomDisabledCellGenerator,
     SCT_Amp,
-    SCT_DetailedSurfaceChargesGenerator,
     SCT_SurfaceChargesGenerator,
     SCT_FrontEnd,
     SCT_DigitizationTool,
@@ -22,7 +21,6 @@ from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconCondition
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-from StoreGate.StoreGateConf import StoreGateSvc
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the SCT Digitization code
@@ -169,7 +167,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("NOShortMiddles", 2.0e-9)
     kwargs.setdefault("NOOuters", 3.5e-5)
     if not flags.Digitization.DoInnerDetectorNoise:
-        Logging.logging.getLogger("SCT_FrontEndCfg")
+        log = logging.getLogger("SCT_FrontEndCfg")
         log.info("SCT_Digitization:::: Turned off Noise in SCT_FrontEnd")
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
