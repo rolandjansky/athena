@@ -10,6 +10,7 @@ def MdtCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
     folders = []
     if flags.Common.isOnline:
+        return result ## avoid adding algo to the component accumulator
         kwargs["isOnline"] = True
     else:
         kwargs["isOnline"] = False
@@ -29,6 +30,7 @@ def RpcCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
     folders = []
     if flags.Common.isOnline:
+        return result ## avoid adding algo to the component accumulator
         kwargs["isOnline"] = True
     else:
         kwargs["isOnline"] = False
@@ -48,6 +50,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
     folders = ["/CSC/STAT"]
     if flags.Common.isOnline:
+        return result ## avoid adding algo to the component accumulator
         kwargs["isOnline"] = True
     else:
         kwargs["isOnline"] = False
@@ -65,6 +68,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###    result  = ComponentAccumulator()
 ###    folders = [] # which folders?
 ###    if flags.Common.isOnline:
+###        return result ## avoid adding algo to the component accumulator
 ###        kwargs["isOnline"] = True
 ###    else:
 ###        kwargs["isOnline"] = False
@@ -76,7 +80,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###    alg = TgcCondDbAlg(**kwargs)
 ###    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
 ###    result.addCondAlgo(alg)
-###    return result, alg
+###    return result
 
 
 
