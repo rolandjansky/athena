@@ -18,7 +18,7 @@
 namespace CP
 {
   SelectionAccessorNull ::
-  SelectionAccessorNull ()
+  SelectionAccessorNull (bool value) : m_value(value)
   {}
 
 
@@ -26,7 +26,7 @@ namespace CP
   SelectionType SelectionAccessorNull ::
   getBits (const SG::AuxElement& /*element*/) const
   {
-    return selectionAccept();
+    return m_value ? selectionAccept() : selectionReject();
   }
 
 
@@ -46,7 +46,7 @@ namespace CP
   bool SelectionAccessorNull ::
   getBool (const SG::AuxElement& /*element*/) const
   {
-    return true;
+    return m_value;
   }
 
 
@@ -65,6 +65,6 @@ namespace CP
   std::string SelectionAccessorNull ::
   label () const
   {
-    return "(null)";
+    return m_value ? "true" : "false";
   }
 }

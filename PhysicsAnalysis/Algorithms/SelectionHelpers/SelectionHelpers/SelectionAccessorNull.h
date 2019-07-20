@@ -26,7 +26,7 @@ namespace CP
     //
 
   public:
-    SelectionAccessorNull ();
+    SelectionAccessorNull (bool value = true);
 
   public:
     virtual SelectionType
@@ -51,6 +51,8 @@ namespace CP
     //
     // private interface
     //
+  private:
+    bool m_value;
   };
 }
 

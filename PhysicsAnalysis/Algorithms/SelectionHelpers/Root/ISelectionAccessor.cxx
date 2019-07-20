@@ -123,7 +123,7 @@ namespace CP
 
     if (name.empty())
     {
-      accessor = std::make_unique<SelectionAccessorNull> ();
+      accessor = std::make_unique<SelectionAccessorNull> (true);
       return StatusCode::SUCCESS;
     }
 
