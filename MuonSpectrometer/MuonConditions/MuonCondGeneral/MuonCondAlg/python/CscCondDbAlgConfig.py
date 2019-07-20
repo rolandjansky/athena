@@ -2,8 +2,10 @@
 
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonCondAlg.MuonTopCondAlgConfigRUN2 import CscCondDbAlg
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-condSequence = AthSequencer("AthCondSeq")
-if not hasattr(condSequence,"CscCondDbAlg"): 
-    condSequence += CscCondDbAlg("CscCondDbAlg")
+if not athenaCommonFlags.isOnline:
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"CscCondDbAlg"): 
+        condSequence += CscCondDbAlg("CscCondDbAlg")
 

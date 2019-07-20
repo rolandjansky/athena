@@ -2,14 +2,16 @@
 
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg,TgcCondDbAlg
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-condSequence = AthSequencer("AthCondSeq")
-if not hasattr(condSequence,"MdtCondDbAlg"):
-    condSequence += MdtCondDbAlg("MdtCondDbAlg")
-if not hasattr(condSequence,"RpcCondDbAlg"):
-    condSequence += RpcCondDbAlg("RpcCondDbAlg")
-#if not hasattr(condSequence,"CscCondDbAlg"):
-#    condSequence += CscCondDbAlg("CscCondDbAlg")
-#if not hasattr(condSequence,"TgcCondDbAlg"):
-#    condSequence += TgcCondDbAlg("TgcCondDbAlg")
+if not athenaCommonFlags.isOnline:
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MdtCondDbAlg"):
+        condSequence += MdtCondDbAlg("MdtCondDbAlg")
+    if not hasattr(condSequence,"RpcCondDbAlg"):
+        condSequence += RpcCondDbAlg("RpcCondDbAlg")
+#    if not hasattr(condSequence,"CscCondDbAlg"):
+#        condSequence += CscCondDbAlg("CscCondDbAlg")
+#    if not hasattr(condSequence,"TgcCondDbAlg"):
+#        condSequence += TgcCondDbAlg("TgcCondDbAlg")
 
