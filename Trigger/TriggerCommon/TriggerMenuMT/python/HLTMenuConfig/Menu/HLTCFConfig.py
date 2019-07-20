@@ -601,7 +601,7 @@ def findCFSequences(filter_name, cfseqList):
 def buildFilter(filter_name,  filter_input):
     """
      Build the FILTER
-     one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
+     one filter per previous sequence at the start of the sequence: always create a new one    
      if the previous hypo has more than one output, try to get all of them
      one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
     """
