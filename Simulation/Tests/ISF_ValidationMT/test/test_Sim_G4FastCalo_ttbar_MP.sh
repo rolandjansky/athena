@@ -12,6 +12,8 @@
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
 
+export ATHENA_CORE_NUMBER=4
+
 Sim_tf.py \
 --multiprocess \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
