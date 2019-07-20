@@ -18,7 +18,6 @@
 #include <SelectionHelpers/SelectionAccessorList.h>
 #include <SelectionHelpers/SelectionAccessorNull.h>
 #include <SelectionHelpers/SelectionExprParser.h>
-#include <SelectionHelpers/SelectionAccessorExpr.h>
 #include <exception>
 #include <unordered_map>
 
@@ -44,78 +43,29 @@ namespace CP
       return result;
     }
 
-
-    StatusCode
-    makeSelectionAccessorList (const std::string& name,
-                               std::unique_ptr<ISelectionAccessor>& accessor,
-                               bool defaultToChar)
-    {
-      using namespace msgSelectionHelpers;
-
-      std::vector<std::string> subnames = splitString (name, "&&");
-
-      std::vector<std::unique_ptr<ISelectionAccessor> > list;
-      for (const std::string& subname : subnames)
-      {
-        if (subname.empty())
-        {
-          ANA_MSG_ERROR ("provided empty selection decoration in decoration list: " << name);
-          return StatusCode::FAILURE;
-        }
-
-        std::unique_ptr<ISelectionAccessor> subaccessor;
-        ANA_CHECK (makeSelectionAccessor (subname, subaccessor, defaultToChar));
-        list.emplace_back (std::move (subaccessor));
-      }
-      accessor = std::make_unique<SelectionAccessorList> (std::move (list));
-      return StatusCode::SUCCESS;
-    }
-
+  }
+  
     StatusCode 
-    makeSelectionAccessorFromExpression(const std::string& name, 
+    makeSelectionAccessor(const std::string& name, 
                                       std::unique_ptr<ISelectionAccessor>& accessor,
                                       bool defaultToChar)
     {
       using namespace msgSelectionHelpers;
 
       try {
-        SelectionExprParser parser(name);
-        std::unique_ptr<SelectionExprParser::BooleanExpression> ex =
-            parser.build();
-        ANA_MSG_VERBOSE("Expression: " << ex->toString());
-
-        std::unordered_map<std::string, std::unique_ptr<ISelectionAccessor>>
-            accessors;
-        ex->visit([&](const SelectionExprParser::BooleanExpression& subex) {
-          const SelectionExprParser::VariableExpr* var 
-            = dynamic_cast<const SelectionExprParser::VariableExpr*>(&subex);
-          if (var == nullptr) {
-            return;
-          }
-
-          accessors[var->name()] = nullptr;
-        });
-
-        for (const auto& it : accessors) {
-          ANA_CHECK(makeSelectionAccessor(it.first, accessors[it.first], defaultToChar));
-        }
-
-        accessor = std::make_unique<SelectionAccessorExpr>(std::move(ex), std::move(accessors));
-
-      } catch (...) {
-        ANA_MSG_FATAL("Failure to parse expression: '" << name << "'");
+        SelectionExprParser parser(name, defaultToChar);
+        ANA_CHECK(parser.build(accessor));
+      } catch (const std::exception& e) {
+        ANA_MSG_FATAL("Failure to parse expression: '" << name << "': " << e.what());
         return StatusCode::FAILURE;
       }
 
       return StatusCode::SUCCESS;
     }
 
-  }
-
-
 
   StatusCode
-  makeSelectionAccessor (const std::string& name,
+  makeSelectionAccessorVar (const std::string& name,
                          std::unique_ptr<ISelectionAccessor>& accessor,
                          bool defaultToChar)
   {
@@ -125,25 +75,6 @@ namespace CP
     {
       accessor = std::make_unique<SelectionAccessorNull> (true);
       return StatusCode::SUCCESS;
-    }
-
-    // treat decoration lists separately
-
-    // if && and NO OTHER operators are found: use SelectionAccessorList
-    if (name.find("&&") != std::string::npos &&
-        name.find("||") == std::string::npos &&
-        name.find("(") == std::string::npos &&
-        name.find(")") == std::string::npos &&
-        name.find("!") == std::string::npos) {
-      return makeSelectionAccessorList(name, accessor, defaultToChar);
-    }
-
-    // if ANY OTHER operator is present: ise SelectionAccessorExpr
-    if (name.find("||") != std::string::npos ||
-        name.find("(") != std::string::npos ||
-        name.find(")") != std::string::npos ||
-        name.find("!") != std::string::npos) {
-      return makeSelectionAccessorFromExpression(name, accessor, defaultToChar);
     }
 
     std::string var;

@@ -11,6 +11,8 @@
 //
 
 #include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/SelectionAccessorChar.h>
+#include <SelectionHelpers/SelectionAccessorBits.h>
 #include <AsgTools/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <xAODJet/Jet.h>
@@ -31,6 +33,9 @@ namespace CP
     // check a basic char accessor
     std::unique_ptr<ISelectionAccessor> accA;
     ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char", accA));
+    auto* selA = dynamic_cast<SelectionAccessorChar*>(accA.get());
+    // check that this is actually nothing but a simple char accessor
+    EXPECT_NE(selA, nullptr);
     accA->setBool (*jet, false);
     EXPECT_EQ (jet->auxdata<char> ("a"), 0);
     accA->setBool (*jet, true);
@@ -51,6 +56,9 @@ namespace CP
     // check a basic bits accessor
     std::unique_ptr<ISelectionAccessor> accC;
     ASSERT_SUCCESS (makeSelectionAccessor ("c,as_bits", accC));
+    // check that this is actually nothing but a simple bits accessor
+    auto* selC = dynamic_cast<SelectionAccessorBits*>(accC.get());
+    EXPECT_NE(selC, nullptr);
     accC->setBool (*jet, false);
     EXPECT_EQ (jet->auxdata<SelectionType> ("c"), selectionReject());
     accC->setBool (*jet, true);
@@ -82,11 +90,11 @@ namespace CP
     accA->setBool (*jet, true);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
-    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)2);
+    EXPECT_EQ (accAnd->getBits (*jet), selectionReject());
     accA->setBool (*jet, false);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
-    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
+    EXPECT_EQ (accAnd->getBits (*jet), selectionReject());
 
     // check an OR of two accessors
     std::unique_ptr<ISelectionAccessor> accOr;
@@ -171,7 +179,7 @@ namespace CP
   }
 
   TEST (SelectionExprParser, tokenizer) {
-    using tok = SelectionExprParser::Tokenizer;
+    using tok = DetailSelectionExprParser::Tokenizer;
 
     std::string s = "A && B";
     tok tokens(s, {});
@@ -217,7 +225,7 @@ namespace CP
   }
 
   TEST (SelectionExprParser, lexer) {
-    using lexer = SelectionExprParser::Lexer;
+    using lexer = DetailSelectionExprParser::Lexer;
     using type = lexer::Type;
 
     lexer::Symbol s;
@@ -237,7 +245,8 @@ namespace CP
     }
 
     {
-      lexer lex{"alpha,as_bits && beta,as_char"};
+      std::string str = "alpha,as_bits && beta,as_char";
+      lexer lex{str};
       s = lex.nextSymbol();
       EXPECT_EQ(s.type, type::VAR);
       EXPECT_EQ(s.value, "alpha,as_bits");
@@ -253,7 +262,8 @@ namespace CP
 
 
     {
-      lexer lex{"alpha,as_bits&&beta,as_char"};
+      std::string str = "alpha,as_bits&&beta,as_char";
+      lexer lex{str};
       s = lex.nextSymbol();
       EXPECT_EQ(s.type, type::VAR);
       EXPECT_EQ(s.value, "alpha,as_bits");
@@ -268,7 +278,8 @@ namespace CP
     }
 
     {
-      lexer lex{"alpha,as_bits || beta,as_char"};
+      std::string str = "alpha,as_bits || beta,as_char";
+      lexer lex{str};
       s = lex.nextSymbol();
       EXPECT_EQ(s.type, type::VAR);
       EXPECT_EQ(s.value, "alpha,as_bits");
@@ -284,7 +295,8 @@ namespace CP
 
 
     {
-      lexer lex{"alpha,as_bits||beta,as_char"};
+      std::string str = "alpha,as_bits||beta,as_char";
+      lexer lex{str};
       s = lex.nextSymbol();
       EXPECT_EQ(s.type, type::VAR);
       EXPECT_EQ(s.value, "alpha,as_bits");
@@ -331,87 +343,127 @@ namespace CP
   }
 
   TEST (SelectionExprParser, parser) {
-    auto parse = [](std::string s) {
-      SelectionExprParser p(s);
-      auto ex = p.build(); 
-      return ex->toString();
+    auto parse = [](std::string s) -> std::string {
+      SelectionExprParser p(s, true);
+      std::unique_ptr<ISelectionAccessor> acc;
+      if(!p.build(acc).isSuccess()) {
+        ADD_FAILURE() << "unable to parse expression";
+      } 
+      return acc->label();
     };
 
+    std::string s;
     // this asserts the tree structure
-    EXPECT_EQ(parse("A&&(C||!B)"),
-              "And<Variable<A>,Or<Variable<C>,Not<Variable<B>>>>");
-    EXPECT_EQ(parse("A&&(C||!(B&&true)"),
-              "And<Variable<A>,Or<Variable<C>,Not<And<Variable<B>,True<>>>>>");
+    s = parse("A&&(C||!B)");
+    EXPECT_EQ(s, "( A && ( C || !B ) )");
+    // and this asserts the label output can be parse again,
+    // leading to the exact same expression
+    EXPECT_EQ(parse(s), s);
 
-    EXPECT_EQ(parse("alpha && ( beta || ! gamma )"),
-              "And<Variable<alpha>,Or<Variable<beta>,Not<Variable<gamma>>>>");
+    s = parse("A&&(C||!(B&&true))");
+    EXPECT_EQ(s, "( A && ( C || !( B && true ) ) )");
+    EXPECT_EQ(parse(s), s);
 
-    EXPECT_EQ(parse(" alpha&&beta || !gamma "),
-              "Or<And<Variable<alpha>,Variable<beta>>,Not<Variable<gamma>>>");
+    s = parse("alpha && ( beta || ! gamma )");
+    EXPECT_EQ(s, "( alpha && ( beta || !gamma ) )");
+    EXPECT_EQ(parse(s), s);
 
-    EXPECT_EQ(parse(" (alpha&&beta) || !gamma "),
-              "Or<And<Variable<alpha>,Variable<beta>>,Not<Variable<gamma>>>");
+    s = parse(" alpha&&beta || !gamma ");
+    EXPECT_EQ(s, "( ( alpha && beta ) || !gamma )");
+    EXPECT_EQ(parse(s), s);
+
+    s = parse(" (alpha&&beta) || !gamma ");
+    EXPECT_EQ(s, "( ( alpha && beta ) || !gamma )");
+    EXPECT_EQ(parse(s), s);
+
+
+   EXPECT_THROW(parse("alpha &&"), std::runtime_error);
+   EXPECT_THROW(parse("&&"), std::runtime_error);
+   EXPECT_THROW(parse("&& alpha"), std::runtime_error);
+   EXPECT_THROW(parse("alpha ||"), std::runtime_error);
+   EXPECT_THROW(parse("||"), std::runtime_error);
+   EXPECT_THROW(parse("|| alpha"), std::runtime_error);
+   EXPECT_THROW(parse("(alpha && beta || gamma"), std::runtime_error);
+   EXPECT_THROW(parse("alpha && beta) || gamma"), std::runtime_error);
+   EXPECT_THROW(parse("!"), std::runtime_error);
+   EXPECT_THROW(parse("alpha !"), std::runtime_error);
+   EXPECT_THROW(parse("()"), std::runtime_error);
+   EXPECT_THROW(parse(")"), std::runtime_error);
+   EXPECT_THROW(parse("("), std::runtime_error);
   }
   
   TEST (SelectionExprParser, evaluate) {
-    std::unordered_map<std::string, bool> values = {
-        {"alpha", true}, {"beta", true}, {"gamma", true}};
-    auto val = [&](const std::string& key) { return values.at(key); };
     auto mkex = [](const std::string& s) {
-      SelectionExprParser p(s);
-      return p.build();
+      SelectionExprParser p(s, true);
+      std::unique_ptr<ISelectionAccessor> acc;
+      if(!p.build(acc).isSuccess()) {
+        ADD_FAILURE() << "unable to parse expression";
+      }
+      return acc;
     };
 
+    auto jet_ptr = std::make_unique<xAOD::Jet> ();
+    auto& jet = *jet_ptr;
+    jet.makePrivateStore();
+
+    xAOD::Jet::Decorator<char> alpha("alpha");
+    xAOD::Jet::Decorator<char> beta("beta");
+    xAOD::Jet::Decorator<char> gamma("gamma");
+
     {
+
       std::string s = "alpha && ( beta || ! gamma )";
       auto ex = mkex(s);
 
-      EXPECT_EQ(ex->evaluate(val), true);
+      alpha(jet) = true;
+      beta(jet) = true;
+      gamma(jet) = true;
+      EXPECT_EQ(ex->getBool(jet), true);
 
-      values["alpha"] = false;
-      EXPECT_EQ(ex->evaluate(val), false);
+      alpha(jet) = false;
+      EXPECT_EQ(ex->getBool(jet), 0);
 
-      values["alpha"] = true;
-      values["beta"] = false;
-      EXPECT_EQ(ex->evaluate(val), false);
+      alpha(jet) = true;
+      beta(jet) = false;
+      EXPECT_EQ(ex->getBool(jet), 0);
 
-      values["gamma"] = false;
-      EXPECT_EQ(ex->evaluate(val), true);
+      gamma(jet) = false;
+      EXPECT_EQ(ex->getBool(jet), 1);
     }
     {
       std::string s = "true||(alpha && ( beta || ! gamma ))";
       auto ex = mkex(s);
 
-      EXPECT_EQ(ex->evaluate(val), true);
+      EXPECT_TRUE(ex->getBool(jet));
 
-      values["alpha"] = false;
-      EXPECT_EQ(ex->evaluate(val), true);
+      alpha(jet) = false;
+      EXPECT_TRUE(ex->getBool(jet));
 
-      values["alpha"] = true;
-      values["beta"] = false;
-      EXPECT_EQ(ex->evaluate(val), true);
+      alpha(jet) = true;
+      beta(jet) = false;
+      EXPECT_TRUE(ex->getBool(jet));
 
-      values["gamma"] = false;
-      EXPECT_EQ(ex->evaluate(val), true);
+      gamma(jet) = false;
+      EXPECT_TRUE(ex->getBool(jet));
     }
     {
       auto ex = mkex("true");
-      EXPECT_EQ(ex->evaluate(val), true);
+      EXPECT_TRUE(ex->getBool(jet));
 
       ex = mkex("false");
-      EXPECT_EQ(ex->evaluate(val), false);
+      EXPECT_FALSE(ex->getBool(jet));
 
       ex = mkex("true && false");
-      EXPECT_EQ(ex->evaluate(val), false);
+      EXPECT_FALSE(ex->getBool(jet));
 
       ex = mkex("true || false");
-      EXPECT_EQ(ex->evaluate(val), true);
+      EXPECT_TRUE(ex->getBool(jet));
 
       ex = mkex("true && !false");
-      EXPECT_EQ(ex->evaluate(val), true);
+      EXPECT_TRUE(ex->getBool(jet));
 
       ex = mkex("!true && !false");
-      EXPECT_EQ(ex->evaluate(val), false);
+      EXPECT_FALSE(ex->getBool(jet));
 
     }
   }

@@ -74,6 +74,11 @@ namespace CP
   makeSelectionAccessor (const std::string& name,
                          std::unique_ptr<ISelectionAccessor>& accessor,
                          bool defaultToChar = false);
+
+  StatusCode
+  makeSelectionAccessorVar (const std::string& name,
+                         std::unique_ptr<ISelectionAccessor>& accessor,
+                         bool defaultToChar = false);
 }
 
 #endif

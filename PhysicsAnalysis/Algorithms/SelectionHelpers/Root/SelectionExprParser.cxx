@@ -3,106 +3,74 @@
 */
 
 #include "SelectionHelpers/SelectionExprParser.h"
+#include "SelectionHelpers/SelectionAccessorNull.h"
 
 #include <iostream>
 #include <regex>
 #include <string>
 
 namespace CP {
+using namespace msgSelectionHelpers;
 
-namespace {
+SelectionType SelectionAccessorExprBase::getBits(
+    const SG::AuxElement& element) const {
+  return getBool(element) ? selectionAccept() : selectionReject();
+}
 
-using BooleanExpression = SelectionExprParser::BooleanExpression;
-using BoolPtr = std::unique_ptr<BooleanExpression>;
-using ValFunc = BooleanExpression::ValueGetter;
-using Visitor = BooleanExpression::Visitor;
+void SelectionAccessorExprBase::setBool(SG::AuxElement& /*element*/,
+                                        bool /*value*/) const {
+  throw std::runtime_error(
+      "setting not supported for CP::SelectionAccessorExprBase");
+}
 
-class TrueExpr : public BooleanExpression {
- public:
-  bool evaluate(const ValFunc&) const override { return true; }
+void SelectionAccessorExprBase::setBits(SG::AuxElement& /*element*/,
+                                        SelectionType /*selection*/) const {
+  throw std::runtime_error(
+      "setting not supported for CP::SelectionAccessorExprBase");
+}
 
-  void visit(const Visitor& func) const override { func(*this); }
+SelectionAccessorExprAnd::SelectionAccessorExprAnd(
+    std::unique_ptr<ISelectionAccessor> left,
+    std::unique_ptr<ISelectionAccessor> right)
+    : m_left(std::move(left)), m_right(std::move(right)) {}
 
-  std::string toString() const override { return "True<>"; }
-};
+bool SelectionAccessorExprAnd::getBool(const SG::AuxElement& element) const {
+  return m_left->getBool(element) && m_right->getBool(element);
+}
 
-class FalseExpr : public BooleanExpression {
- public:
-  bool evaluate(const ValFunc&) const override { return false; }
-  void visit(const Visitor& func) const override { func(*this); }
-  std::string toString() const override { return "False<>"; }
-};
+std::string SelectionAccessorExprAnd::label() const {
+  return "( " + m_left->label() + " && " + m_right->label() + " )";
+}
 
-class NotExpr : public BooleanExpression {
- public:
-  NotExpr(BoolPtr child) : m_child(std::move(child)) {}
-  bool evaluate(const ValFunc& func) const override {
-    return !m_child->evaluate(func);
-  }
-  std::string toString() const override {
-    return "Not<" + m_child->toString() + ">";
-  }
-  void visit(const Visitor& func) const override {
-    func(*this);
-    m_child->visit(func);
-  }
+SelectionAccessorExprOr::SelectionAccessorExprOr(
+    std::unique_ptr<ISelectionAccessor> left,
+    std::unique_ptr<ISelectionAccessor> right)
+    : m_left(std::move(left)), m_right(std::move(right)) {}
 
- private:
-  BoolPtr m_child;
-};
+bool SelectionAccessorExprOr::getBool(const SG::AuxElement& element) const {
+  return m_left->getBool(element) || m_right->getBool(element);
+}
 
-class OrExpr : public BooleanExpression {
- public:
-  OrExpr(BoolPtr left, BoolPtr right)
-      : m_left(std::move(left)), m_right(std::move(right)) {}
+std::string SelectionAccessorExprOr::label() const {
+  return "( " + m_left->label() + " || " + m_right->label() + " )";
+}
 
-  bool evaluate(const ValFunc& func) const override {
-    return m_left->evaluate(func) || m_right->evaluate(func);
-  }
+SelectionAccessorExprNot::SelectionAccessorExprNot(
+    std::unique_ptr<ISelectionAccessor> child)
+    : m_child(std::move(child)) {}
 
-  std::string toString() const override {
-    return "Or<" + m_left->toString() + "," + m_right->toString() + ">";
-  }
+bool SelectionAccessorExprNot::getBool(const SG::AuxElement& element) const {
+  return !m_child->getBool(element);
+}
 
-  void visit(const Visitor& func) const override {
-    func(*this);
-    m_left->visit(func);
-    m_right->visit(func);
-  }
+std::string SelectionAccessorExprNot::label() const {
+  return "!" + m_child->label();
+}
 
- private:
-  BoolPtr m_left;
-  BoolPtr m_right;
-};
-
-class AndExpr : public BooleanExpression {
- public:
-  AndExpr(BoolPtr left, BoolPtr right)
-      : m_left(std::move(left)), m_right(std::move(right)) {}
-
-  bool evaluate(const ValFunc& func) const override {
-    return m_left->evaluate(func) && m_right->evaluate(func);
-  }
-  std::string toString() const override {
-    return "And<" + m_left->toString() + "," + m_right->toString() + ">";
-  }
-  void visit(const Visitor& func) const override {
-    func(*this);
-    m_left->visit(func);
-    m_right->visit(func);
-  }
-
- private:
-  BoolPtr m_left;
-  BoolPtr m_right;
-};
-
-}  // namespace
-
-
-bool SelectionExprParser::Separator::operator()(
-    std::string::const_iterator& next, const std::string::const_iterator& end,
-    std::string& tok) const {
+namespace DetailSelectionExprParser {
+bool Separator::operator()(std::string::const_iterator& next,
+                           const std::string::const_iterator& end,
+                           std::string& tok) const {
   if (next == end) {
     return false;
   }
@@ -110,7 +78,6 @@ bool SelectionExprParser::Separator::operator()(
   static const std::regex base_regex(
       "^( ?((?:[^|&()! ]+)|(?:&&)|(?:!)|(?:\\()|(?:\\))|(?:\\|\\|))).*");
   std::smatch m;
-
 
   if (std::regex_match(next, end, m, base_regex)) {
     tok = m[2].str();
@@ -128,12 +95,11 @@ bool SelectionExprParser::Separator::operator()(
   return true;
 }
 
-SelectionExprParser::Lexer::Lexer(const std::string& s)
-    : m_string(s), m_tokenizer(s, {}) {
+Lexer::Lexer(const std::string& s) : m_string(s), m_tokenizer(s, {}) {
   m_iterator = m_tokenizer.begin();
 }
 
-auto SelectionExprParser::Lexer::nextSymbol() -> Symbol {
+auto Lexer::nextSymbol() -> Symbol {
   if (m_iterator == m_tokenizer.end()) {
     return Symbol{END, ""};
   }
@@ -158,7 +124,6 @@ auto SelectionExprParser::Lexer::nextSymbol() -> Symbol {
     const std::regex base_regex("^([^|()&! ]*)$");
     std::smatch base_match;
 
-
     if (!std::regex_match(t, base_match, base_regex)) {
       throw std::runtime_error("illegal variable encountered");
     } else {
@@ -170,54 +135,82 @@ auto SelectionExprParser::Lexer::nextSymbol() -> Symbol {
   return Symbol{type, t};
 }
 
-SelectionExprParser::SelectionExprParser(Lexer lexer)
-    : m_lexer(std::move(lexer)) {}
+}  // namespace DetailSelectionExprParser
 
-BoolPtr SelectionExprParser::build() {
-  expression();
-  return std::move(m_root);
+namespace {
+// typedef to much short name to make the code below a lot more readable
+typedef DetailSelectionExprParser::Lexer Lexer;
+}  // namespace
+
+SelectionExprParser::SelectionExprParser(Lexer lexer, bool defaultToChar)
+    : m_lexer(std::move(lexer)), m_defaultToChar(defaultToChar) {}
+
+StatusCode SelectionExprParser::build(
+    std::unique_ptr<ISelectionAccessor>& accessor) {
+  ANA_CHECK(expression());
+
+  if (m_symbol.type != Lexer::END) {
+    throw std::runtime_error(
+        "Not all symbols in expression were consumed. Check your expression.");
+  }
+
+  accessor = std::move(m_root);
+  return StatusCode::SUCCESS;
 }
 
-void SelectionExprParser::expression() {
-  term();
+StatusCode SelectionExprParser::expression() {
+  ANA_CHECK(term());
   while (m_symbol.type == Lexer::OR) {
-    BoolPtr left = std::move(m_root);
-    term();
-    BoolPtr right = std::move(m_root);
-    m_root = std::make_unique<OrExpr>(std::move(left), std::move(right));
+    std::unique_ptr<ISelectionAccessor> left = std::move(m_root);
+    ANA_CHECK(term());
+    std::unique_ptr<ISelectionAccessor> right = std::move(m_root);
+    m_root = std::make_unique<SelectionAccessorExprOr>(std::move(left),
+                                                       std::move(right));
   }
+  return StatusCode::SUCCESS;
 }
 
-void SelectionExprParser::term() {
-  factor();
+StatusCode SelectionExprParser::term() {
+  ANA_CHECK(factor());
   while (m_symbol.type == Lexer::AND) {
-    BoolPtr left = std::move(m_root);
-    factor();
-    BoolPtr right = std::move(m_root);
-    m_root = std::make_unique<AndExpr>(std::move(left), std::move(right));
+    std::unique_ptr<ISelectionAccessor> left = std::move(m_root);
+    ANA_CHECK(factor());
+    std::unique_ptr<ISelectionAccessor> right = std::move(m_root);
+    m_root = std::make_unique<SelectionAccessorExprAnd>(std::move(left),
+                                                        std::move(right));
   }
+  return StatusCode::SUCCESS;
 }
 
-void SelectionExprParser::factor() {
+StatusCode SelectionExprParser::factor() {
   m_symbol = m_lexer.nextSymbol();
   if (m_symbol.type == Lexer::TRUE_LITERAL) {
-    m_root = std::make_unique<TrueExpr>();
+    m_root = std::make_unique<SelectionAccessorNull>(true);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::FALSE_LITERAL) {
-    m_root = std::make_unique<FalseExpr>();
+    m_root = std::make_unique<SelectionAccessorNull>(false);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::NOT) {
-    factor();
-    BoolPtr notEx = std::make_unique<NotExpr>(std::move(m_root));
+    ANA_CHECK(factor());
+    std::unique_ptr<ISelectionAccessor> notEx =
+        std::make_unique<SelectionAccessorExprNot>(std::move(m_root));
     m_root = std::move(notEx);
   } else if (m_symbol.type == Lexer::LEFT) {
-    expression();
+    ANA_CHECK(expression());
+    if (m_symbol.type != Lexer::RIGHT) {
+      throw std::runtime_error(
+          "Missing closing bracket, check your expression.");
+    }
     m_symbol = m_lexer.nextSymbol();
+
   } else if (m_symbol.type == Lexer::VAR) {
-    m_root = std::make_unique<VariableExpr>(m_symbol.value);
+    ANA_CHECK(
+        makeSelectionAccessorVar(m_symbol.value, m_root, m_defaultToChar));
     m_symbol = m_lexer.nextSymbol();
   } else {
     throw std::runtime_error("Malformed expression.");
   }
+
+  return StatusCode::SUCCESS;
 }
 }  // namespace CP
