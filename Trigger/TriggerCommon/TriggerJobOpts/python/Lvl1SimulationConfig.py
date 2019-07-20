@@ -16,7 +16,7 @@ def Lvl1SimulationSequence( flags = None ):
     #
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+    from AthenaCommon.AlgSequence import AthSequencer
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from AthenaCommon.Constants import DEBUG
     
@@ -48,14 +48,10 @@ def Lvl1SimulationSequence( flags = None ):
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
 
     from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
     from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
 
-    
-    from AthenaCommon.CFElements import seqAND
-    
     l1CaloSim = seqAND('l1CaloSim',[
         caloTowerMaker,
         #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
@@ -144,7 +140,6 @@ def Lvl1SimulationSequence( flags = None ):
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
-    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
     condSeq = AthSequencer("AthCondSeq")
