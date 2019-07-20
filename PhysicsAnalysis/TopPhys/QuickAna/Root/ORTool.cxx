@@ -39,6 +39,7 @@ namespace ana
     declareProperty("ApplyRelPt", m_applyRelPt=false);
     declareProperty("OnlyRejJets", m_onlyRejJets=false);
     declareProperty("OnlyVBS4l", m_onlyVBS4l=false);
+    declareProperty("ApplyMuPF", m_applyMuPF=false);
   }
 
   //---------------------------------------------------------------------------
@@ -71,6 +72,7 @@ namespace ana
     // Trying out the new OR config function
     m_orToolBox.msg().setLevel( msg().level() );
     if(m_onlyRejJets) m_orFlags.doEleEleOR = true;
+    if(m_applyMuPF)   m_orFlags.doMuPFJetOR = true;
     ATH_CHECK( ORUtils::recommendedTools(m_orFlags, m_orToolBox) );
 
     // We don't currently have a good way to determine here which object
@@ -230,7 +232,8 @@ namespace
                         const bool useJVT = false,
                         const bool applyRelPt = false,
                         const bool onlyRejJets = false,
-                        const bool onlyVBS4l   = false)
+                        const bool onlyVBS4l   = false,
+                        const bool applyMuPF   = false)
   {
     using namespace ana::msgObjectDefinition;
 
@@ -248,6 +251,7 @@ namespace
     ANA_CHECK( orTool->setProperty("ApplyRelPt", applyRelPt) );
     ANA_CHECK( orTool->setProperty("OnlyRejJets", onlyRejJets) );
     ANA_CHECK( orTool->setProperty("OnlyVBS4l", onlyVBS4l) );
+    ANA_CHECK( orTool->setProperty("ApplyMuPF", applyMuPF) );
     args.add( std::move(orTool) );
 
     return StatusCode::SUCCESS;
@@ -262,7 +266,7 @@ namespace
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF_JVT", makeORTool(args, "bjet_OR", "both", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedMuHF_JVT", makeORTool(args, "bjet_OR", "muon", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv", makeORTool(args, "", "", true, true) )
-  QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv_nojvt", makeORTool(args, "", "", false, true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv_nojvt", makeORTool(args, "", "", false, true, false, false, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllll", makeORTool(args, "", "", true, true, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "vbs_4l", makeORTool(args, "", "", true, true, true, true) )
 

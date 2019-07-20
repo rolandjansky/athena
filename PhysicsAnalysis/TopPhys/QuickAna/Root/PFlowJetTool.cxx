@@ -37,9 +37,9 @@ namespace
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root";
-  const char *jesFile_pflow = "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config";
-  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
-  const std::string uncertConfigFile = "rel21/Fall2018/R4_SR_Scenario1.config";
+  const char *jesFile_pflow = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config";
+  const std::string uncertConfigFile = "rel21/Summer2018/R4_CategoryReduction_SimpleJER.config";
   const char *mcType = "MC16";
 }
 
@@ -144,10 +144,8 @@ namespace ana
     registerTool( &*m_smearing_tool );
 
     // JVT tool
-    const std::string jvtFile = "JetMomentTools/JVTlikelihood_20140805.root";
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvt_tool, JetVertexTaggerTool) );
-    ATH_CHECK( m_jvt_tool.setProperty("JVTFileName", jvtFile) );
     ATH_CHECK( m_jvt_tool.initialize() );
 
     // JVT efficiency SF
@@ -204,8 +202,7 @@ namespace ana
     float jvt = m_jvt_tool->updateJvt(jet);
     // Update "Jvt" of the jet - required by the MET tool
     jet.auxdata<float>("Jvt") = jvt;
-    //bool jvt_pass = m_jvtEffTool->passesJvtCut(jet);
-    bool jvt_pass = (jvt>0.5) ? 1 : 0 ; 
+    bool jvt_pass = m_jvtEffTool->passesJvtCut(jet);
     jet.auxdata<char>("Jvt_pass") = jvt_pass;
 
     // B-tagging section
