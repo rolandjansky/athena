@@ -77,7 +77,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       
       SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
       if ( !accResult.isAvailable(jet) ){
-	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
+	ATH_MSG_ERROR(m_result_name+" is not decorated to the jet.");
       } else {
 	FatjetCutResult::TypeEnum myCutResult=FatjetCutResult::intToEnum(accResult(jet));
 	if ( m_region==CompTaggerRegionVar::passMpassD2_2Var ||

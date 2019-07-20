@@ -57,6 +57,15 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   
   declareProperty( "DSID",             m_DSID = -1);
   declareProperty( "IsMC",             m_IsMC = true);
+
+  declareProperty( "dR_truthJet",      m_dR_truthJet = 0.75);
+  declareProperty( "dR_truthPart",     m_dR_truthPart = 0.75);
+  declareProperty( "mLowTop",          m_mLowTop = 140.);
+  declareProperty( "mHighTop",         m_mHighTop = -1);
+  declareProperty( "mLowW",            m_mLowW = 50.);
+  declareProperty( "mHighW",           m_mHighW = 100.);
+  declareProperty( "mLowZ",            m_mLowZ = 60.);
+  declareProperty( "mHighZ",           m_mHighZ = 110.);
 }
 
 SmoothedWZTagger::~SmoothedWZTagger() {}
@@ -419,7 +428,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   if ( m_calcSF && (!m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN) ){
     if ( m_IsMC ){
-      if (decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE){
+      if (decorateTruthLabel(jet) == StatusCode::FAILURE){
 	ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
       }
     }
