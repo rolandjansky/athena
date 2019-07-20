@@ -36,7 +36,8 @@ def MuonPrdCacheCfg():
 # The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-converting algorithm, which should be added to the right sequence by the user
 def RpcRDODecodeCfg(flags, forTrigger=False):
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    acc = RpcCondDbAlgCfg(flags)
 
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
