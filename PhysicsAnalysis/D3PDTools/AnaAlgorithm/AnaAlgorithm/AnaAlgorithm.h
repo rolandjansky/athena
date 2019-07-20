@@ -250,7 +250,7 @@ namespace EL
     /// \par Guarantee
     ///   strong
     /// \par Failures
-    ///   fileexecute not supported
+    ///   fileExecute not supported
   public:
     ::StatusCode requestFileExecute ();
 
@@ -348,6 +348,13 @@ namespace EL
     ///
     /// \warn The execution order of \ref beginInputFile and \ref
     /// fileExecute is currently unspecified.
+    ///
+    /// \warn fileExecute does not work with sub-file splitting in
+    /// Athena, i.e. processing half the events of a file in one job
+    /// the other half in another job.  this should not *normally*
+    /// happen, unless you do crazy things like run AthenaMP or
+    /// explicitly select sub-file splitting in panda.  in that case
+    /// you are on your own.
   protected:
     virtual ::StatusCode fileExecute ();
 
@@ -560,17 +567,13 @@ namespace EL
     IWorker *m_wk = nullptr;
 #endif
 
-#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasFileExecute
   private:
     bool m_hasFileExecute {false};
-#endif
 
-#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
-#endif
 
 #ifdef XAOD_STANDALONE
     /// \brief a list of objects to clean up when releasing the
