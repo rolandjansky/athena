@@ -26,7 +26,7 @@
 
   
   <class name="std::pair<std::string,std::vector<const xAOD::IParticle*> >" />
-  <class name="std::pair<std::string,std::vector<std::vector<int> > >" />
+  <class pattern="std::*pair*<*string*vector<*vector<int*" />
   <!--pair<string,vector<float> >, pair<string,vector<vector<float> > >,
       and associated pair_base if existing. -->
   <class pattern="std::*pair*<*string*vector<float*"/>
