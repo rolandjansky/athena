@@ -25,8 +25,6 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 
   ASG_TOOL_CLASS(ZdcAnalysisTool, ZDC::IZdcAnalysisTool)
 
-  static ZdcAnalysisTool* m_currentInstance;
-
 public:
   ZdcAnalysisTool(const std::string& name);
   virtual ~ZdcAnalysisTool() override;
