@@ -31,7 +31,8 @@ namespace CP
     declareProperty ("etaGapLow", m_etaGapLow, "low end of the eta gap");
     declareProperty ("etaGapHigh", m_etaGapHigh, "high end of the eta gap (or 0 for no eta gap)");
     declareProperty ("useClusterEta", m_useClusterEta, "whether to use the cluster eta (for electrons only)");
-    declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning when the cast fails");
+    declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning/error when the cast fails");
+    declareProperty ("printClusterWarning", m_printClusterWarning, "whether to print a warning/error when the cluster is missing");
   }
 
 
@@ -77,6 +78,7 @@ namespace CP
     if (m_useClusterEta) {
        ATH_MSG_DEBUG( "Performing eta cut on the e/gamma cluster" );
        m_egammaCastCutIndex = m_accept.addCut ("castEgamma", "cast to egamma");
+       m_egammaClusterCutIndex = m_accept.addCut ("caloCluster", "egamma object has cluster");
     }
     if (m_maxEta > 0) {
        ATH_MSG_DEBUG( "Performing |eta| < " << m_maxEta << " selection" );
@@ -88,6 +90,7 @@ namespace CP
        m_etaGapCutIndex = m_accept.addCut ("etaGap", "eta gap cut");
     }
     m_shouldPrintCastWarning = m_printCastWarning;
+    m_shouldPrintClusterWarning = m_printClusterWarning;
 
     return StatusCode::SUCCESS;
   }
@@ -129,7 +132,16 @@ namespace CP
           return m_accept;
         }
         m_accept.setCutResult (m_egammaCastCutIndex, true);
-        absEta = std::abs (egamma->caloCluster()->etaBE(2));
+        const xAOD::CaloCluster *const caloCluster {egamma->caloCluster()};
+        if (!caloCluster)
+        {
+          if (m_shouldPrintClusterWarning)
+            ANA_MSG_ERROR ("no calo-cluster associated with e-gamma object");
+          m_shouldPrintClusterWarning = false;
+          return m_accept;
+        }
+        m_accept.setCutResult (m_egammaClusterCutIndex, true);
+        absEta = std::abs (caloCluster->etaBE(2));
       } else
       {
         absEta = std::abs (particle->eta());
