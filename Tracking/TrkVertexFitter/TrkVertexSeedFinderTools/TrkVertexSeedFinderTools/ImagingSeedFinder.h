@@ -71,21 +71,11 @@ namespace Trk
     virtual void getCorrelationDistance( double &cXY, double &cZ );
 
   private:
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key for retrieval of EventInfo" };
-
     //Tool that actually makes the image to process
     ToolHandle< Trk::IVertexImageMaker > m_vertexImageMaker;
 
     //Clustering util
     ToolHandle< Trk::IVertexClusterFinder > m_VertexClusterFinder;
-    
-    //where the seeds to return are stored
-    std::vector<Amg::Vector3D> m_seeds;
-    //cache control variables
-    unsigned int m_cacheRunNumber; ///< cached results for given run/event number
-    unsigned int m_cacheEventNumber; ///< cached results for given run/event number
-    unsigned int m_currentSeedIdx; ///< keep track of what seeds we've given already
-
   };
 }
 #endif
