@@ -176,17 +176,17 @@ class FlowNetworkVsPartitionsTestsDijets(CombinationsTests) :
     def __init__(self,
                  n_sgnl=4,
                  n_bkgd=4,
-                 bkgd_etmax=50000.,  # MeV
+                 bkgd_etmax=20000.,  # MeV
     ):
         CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
         self.chain_name = 'HLT_FNvsPartitionDijets'
 
     def make_helper_tool(self):
         chain_label = """agree([]
-                         dijet([(80mass)(81mass)])
+                         dijet([(130mass)(131mass)])
                          partgen([]
-                         dijet([(80mass)])
-                         dijet([(81mass)]))
+                         dijet([(130mass)])
+                         dijet([(131mass)]))
         )"""
       
         return trigJetHypoToolHelperFromDict_(chain_label,
@@ -271,9 +271,8 @@ class FlowNetworkVsCombinationsTests(CombinationsTests) :
     
 def JetHypoExerciserCfg():
 
-    # test_conditions =  PartitionsTests()
-    # test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=3, n_bkgd=10)
-    test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
+    test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
+    # test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
 
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
@@ -313,7 +312,7 @@ if __name__=="__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
     cfg.merge(JetHypoExerciserCfg())
-    cfg.setAppProperty("EvtMax", 1)
+    cfg.setAppProperty("EvtMax", 100)
     cfg.run()
 
     #f=open("HelloWorld.pkl","w")
