@@ -213,7 +213,7 @@ void FTKClusteringEngine::makeClusterFromSeed(hitVector& currentHits, cluList& c
 
     std::unique_ptr<cluster> clu = std::make_unique<cluster>();
     clu->seed = seed;
-    clu->hitlist.push_back(std::move(std::make_unique<FTKRawHit>(seed)));
+    clu->hitlist.push_back(std::make_unique<FTKRawHit>(seed));
     clu->isSafe = false;
     clu->isKilled = false;
     buildUpCluster(currentHits, *clu.get());
@@ -332,7 +332,6 @@ void FTKClusteringEngine::averageCluster(std::unique_ptr<cluster>& clu)
     int qColMin = 0;
     int qColMax = 0;
 
-    hitVector::iterator p;
     /// precalculate values for case m_pixelClusteringMode>0
     int BarrelEndCap = first.getBarrelEC();
 

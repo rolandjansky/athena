@@ -45,7 +45,8 @@ namespace LArG4
       std::vector<std::string> m_posOWVolumes;
       std::vector<std::string> m_negOWVolumes;
       std::vector<std::string> m_presVolumes;
-      std::vector<std::string> m_bobVolumes;
+      std::vector<std::string> m_posBOBVolumes;
+      std::vector<std::string> m_negBOBVolumes;
       /// @}
 
       ServiceHandle<ILArCalculatorSvc> m_emepiwcalc; //EnergyCalculator(LArG4::InnerAbsorberWheel, LArG4::EMEC_ECOR_ROPT, 1)
@@ -53,7 +54,8 @@ namespace LArG4
       ServiceHandle<ILArCalculatorSvc> m_emepowcalc; //EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel, EC::EnergyCalculator::EMEC_ECOR_ROPT, 1),
       ServiceHandle<ILArCalculatorSvc> m_emenowcalc; //EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel, EC::EnergyCalculator::EMEC_ECOR_ROPT, -1),
       ServiceHandle<ILArCalculatorSvc> m_emepscalc; //LArEndcapPresamplerCalculator::GetCalculator()
-      ServiceHandle<ILArCalculatorSvc> m_emeobarcalc; //EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteWheel)
+      ServiceHandle<ILArCalculatorSvc> m_emepobarcalc; //EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteWheel) / Pos
+      ServiceHandle<ILArCalculatorSvc> m_emenobarcalc; //EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteWheel) / Neg
 
 
 

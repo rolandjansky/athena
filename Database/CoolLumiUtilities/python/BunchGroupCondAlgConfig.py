@@ -11,11 +11,9 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from AthenaCommon.Logging import logging
 
 
 def BunchGroupCondAlgCfg (configFlags):
-    log = logging.getLogger ('BunchGroupCondAlgCfg')
     name = 'BunchGroupCondAlg'
     result = ComponentAccumulator()
 
@@ -27,8 +25,7 @@ def BunchGroupCondAlgCfg (configFlags):
         result.merge (addFolders (configFlags, folder, 'TRIGGER', tag='HEAD',
                                   className='AthenaAttributeList'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import \
-         BunchGroupCondAlg
+    from CoolLumiUtilities.CoolLumiUtilitiesConf import BunchGroupCondAlg
     alg = BunchGroupCondAlg (name,
                              BunchGroupFolderInputKey = folder,
                              BunchGroupOutputKey = 'BunchGroupCondData')

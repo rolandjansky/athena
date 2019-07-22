@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -68,12 +68,12 @@ class KalmanUpdatorSMatrix : virtual public IUpdator, public AthAlgTool {
   public:	
     //! AlgTool standard constuctor
     KalmanUpdatorSMatrix(const std::string&,const std::string&,const IInterface*);
-    ~KalmanUpdatorSMatrix();
+    virtual ~KalmanUpdatorSMatrix();
 		
     //! AlgTool initialisation
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     //! AlgTool termination
-    StatusCode finalize();	
+    virtual StatusCode finalize() override;
 			
     //! measurement updator for the KalmanFitter getting the meas't coord' from Amg::Vector2D (use eg with PRD)
     // fails: @copydoc Trk::IUpdator::addToState(const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&)

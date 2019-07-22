@@ -1,7 +1,7 @@
 //  -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWL1_PADDATA_H
@@ -23,7 +23,8 @@ namespace NSWL1 {
     as well as the resulting trigger primitive.
 
     */
-    struct PadTrigger {
+    class PadTrigger {
+    public:
         uint16_t m_bandid; ///< see bandId below
         float m_eta;
         float m_phi;

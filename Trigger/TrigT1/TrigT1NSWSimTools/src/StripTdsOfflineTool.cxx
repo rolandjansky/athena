@@ -37,7 +37,8 @@
 
 namespace NSWL1 {
 
-    struct StripHits {
+    class StripHits {
+    public:
       Identifier      t_id;
       StripOfflineData* t_strip;
       int             t_cache_index;

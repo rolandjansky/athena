@@ -67,9 +67,10 @@ StatusCode TrigMonTHistSvc::finalize()
 
 template <typename T>
 StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std::string& id,
-                                      bool shared)
+                                      bool shared, THistID*& phid)
 {
   // We need to pass ownership to the hist registry now
+  phid = nullptr;
   T* hist = nullptr;
   if (hist_unique.get() != nullptr) {
     hist = hist_unique.release();
@@ -81,7 +82,13 @@ StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std:
 
   if (hist->Class()->InheritsFrom(TH1::Class())) {
     if (hltinterface::IInfoRegister::instance()->registerTObject(name(), id, hist)) {
-      m_hists[id] = THistID{id, hist, shared ? new std::mutex : nullptr};
+      auto [iter,inserted] = m_hists.try_emplace(id, id, hist);
+      if (not inserted) {
+        ATH_MSG_ERROR("Histogram with name " << id << " already registered");
+        return StatusCode::FAILURE;
+      }
+      if (shared) iter->second.mutex = new std::mutex;
+      phid = &iter->second;
       ATH_MSG_DEBUG((shared ? "Shared histogram " : "Histogram ")
                     << hist->GetName() << " registered under " << id << " " << name());
     }
@@ -107,8 +114,9 @@ LockedHandle<T> TrigMonTHistSvc::regShared_i(const std::string& id, std::unique_
   // No histogram under that id yet
   if (h == m_hists.end()) {
     T* phist = hist.get();
-    if (regHist_i(std::move(hist), id, true).isSuccess()) {
-      lh.set(phist, m_hists[id].mutex);
+    THistID* phid = nullptr;
+    if (regHist_i(std::move(hist), id, true, phid).isSuccess()) {
+      lh.set(phist, phid->mutex);
     }
   }
   // Histogram already registered under that id
@@ -252,28 +260,32 @@ bool TrigMonTHistSvc::exists(const std::string& name) const
 StatusCode TrigMonTHistSvc::regHist(const std::string& id)
 {
   std::unique_ptr<TH1> hist = nullptr;
-  return regHist_i(std::move(hist), id, false);
+  THistID* hid = nullptr;
+  return regHist_i(std::move(hist), id, false, hid);
 }
 
 StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist)
 {
-  return regHist_i(std::move(hist), id, false);
+  THistID* hid = nullptr;
+  return regHist_i(std::move(hist), id, false, hid);
 }
 
 StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist, TH1* hist_ptr)
 {
+  THistID* hid = nullptr;
   // This is only to support a common use case where the histogram is used after
   // its registration
   if (hist_ptr != nullptr) {
     hist_ptr = hist.get();
   }
-  return regHist_i(std::move(hist), id, false);
+  return regHist_i(std::move(hist), id, false, hid);
 }
 
 StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH1* hist_ptr)
 {
+  THistID* hid = nullptr;
   std::unique_ptr<TH1> hist(hist_ptr);
-  return regHist_i(std::move(hist), id, false);
+  return regHist_i(std::move(hist), id, false, hid);
 }
 
 /**************************************************************************************/

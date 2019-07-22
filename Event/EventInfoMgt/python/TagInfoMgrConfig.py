@@ -37,7 +37,6 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True    
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
@@ -46,4 +45,4 @@ if __name__ == "__main__":
     acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
     print tagInfoMgr
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    print("All OK")

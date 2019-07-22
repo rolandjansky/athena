@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvTool.cxx 793565 2017-01-23 22:00:14Z leggett $
@@ -317,8 +317,7 @@ namespace xAODMaker {
          xaod->setSubEvents( subEvents );
       }
 
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE)
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
          xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
@@ -332,7 +331,8 @@ namespace xAODMaker {
          xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
          xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
       }
-#endif
+#else
+      (void)ctx; // silence "unused" compiler warnings
 #endif
 
       // Finish with some printout:

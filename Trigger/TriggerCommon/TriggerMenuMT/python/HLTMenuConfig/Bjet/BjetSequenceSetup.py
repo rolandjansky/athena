@@ -37,8 +37,8 @@ def bJetStep1Sequence():
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    from TrigBjetHypo.TrigBjetHypoConf import TrigRoIFromJetsMT
+    RoIBuilder = TrigRoIFromJetsMT("TrigRoIFromJetsMT")
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "BjetRoIs"
     RoIs=RoIBuilder.RoIOutputKey
@@ -105,8 +105,8 @@ def bJetStep1SequenceALLTE():
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
-    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    from TrigBjetHypo.TrigBjetHypoConf import TrigRoIFromJetsMT
+    RoIBuilder = TrigRoIFromJetsMT("TrigRoIFromJetsMT")
     RoIBuilder.JetInputKey = sequenceOut
     RoIs="EMViewRoIs" # Default for Fast Tracking Algs
     RoIBuilder.RoIOutputKey = RoIs
@@ -149,7 +149,7 @@ def bJetStep1SequenceALLTE():
     jetSplitter.OutputRoi = "SplitJets"
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
+    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,prmVtx,jetSplitter] )
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
@@ -231,8 +231,8 @@ def bJetStep2SequenceALLTE():
     InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )  
-    
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
+
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE")

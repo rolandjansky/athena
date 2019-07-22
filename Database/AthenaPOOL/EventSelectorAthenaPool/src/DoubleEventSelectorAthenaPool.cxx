@@ -479,7 +479,7 @@ void DoubleEventSelectorAthenaPool::fireEndFileIncidents(bool processMetadata, c
       // Assume that the end of collection file indicates the end of payload file.
       if (inputGuid != Guid::null()) {
         // Fire EndInputFile incident
-        FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + inputGuid.toString());
+         FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + inputGuid.toString(), inputGuid.toString());
         m_incidentSvc->fireIncident(endInputFileIncident);
       }
     }
@@ -567,7 +567,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       // Assume that the end of collection file indicates the end of payload file.
       if (m_processPrimaryMetadata.value()) {
         // Fire EndInputFile incident
-        FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_primaryGuid.toString());
+         FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_primaryGuid.toString(), m_primaryGuid.toString());
         m_incidentSvc->fireIncident(endInputFileIncident);
       }
       // zero the current DB ID (m_primaryGuid) before disconnect() to indicate it is no longer in use
@@ -605,7 +605,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       // Assume that the end of collection file indicates the end of payload file.
       if (m_processSecondaryMetadata.value()) {
         // Fire EndInputFile incident
-        FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_secondaryGuid.toString());
+         FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_secondaryGuid.toString(), m_secondaryGuid.toString());
         m_incidentSvc->fireIncident(endInputFileIncident);
       }
       // zero the current DB ID (m_secondaryGuid) before disconnect() to indicate it is no longer in use
@@ -649,7 +649,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       if (m_primaryGuid != Guid::null()) {
         if (m_processPrimaryMetadata.value()) {
           // Fire EndInputFile incident
-          FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_primaryGuid.toString());
+           FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_primaryGuid.toString(),  m_primaryGuid.toString());
           m_incidentSvc->fireIncident(endInputFileIncident);
         }
         // zero the current DB ID (m_primaryGuid) before disconnect() to indicate it is no longer in use
@@ -692,7 +692,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       if (m_secondaryGuid != Guid::null()) {
         if (m_processSecondaryMetadata.value()) {
           // Fire EndInputFile incident
-          FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_secondaryGuid.toString());
+           FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_secondaryGuid.toString(), m_secondaryGuid.toString());
           m_incidentSvc->fireIncident(endInputFileIncident);
         }
         // zero the current DB ID (m_secondaryGuid) before disconnect() to indicate it is no longer in use

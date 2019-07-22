@@ -31,8 +31,8 @@ private:
 protected:
   
   const MmIdHelper*  m_idHelper;
-  SG::WriteHandleKey<Muon::MM_RawDataContainer> m_rdoContainer;
-  SG::ReadHandleKey<MmDigitContainer> m_digitContainer;
+  SG::WriteHandleKey<Muon::MM_RawDataContainer> m_rdoContainer{this, "OutputObjectName", "MMRDO","WriteHandleKey for Output MM_RawDataContainer"};
+  SG::ReadHandleKey<MmDigitContainer> m_digitContainer{this, "InputObjectName", "MM_DIGITS", "ReadHAndleKey for Input MmDigitContainer"};
 };
 
 #endif

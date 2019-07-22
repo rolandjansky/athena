@@ -19,6 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArIdentifier
+                          LArCalorimeter/LArRecUtils
+                          LArCalorimeter/LArTools
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Calorimeter/CaloConditions
@@ -47,5 +49,5 @@ atlas_add_component( CaloCondPhysAlgs
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/CaloRescaleNoiseHV.sh share/CaloNoise_fillDB.py share/CaloPedestalShift.sh share/CaloPedestal_fillDB.py )
+atlas_install_scripts( share/CaloRescaleNoiseHV.sh share/CaloNoise_fillDB.py share/CaloPedestalShift.sh share/CaloPedestal_fillDB.py share/CaloScaleNoise_jobOptions.py )
 

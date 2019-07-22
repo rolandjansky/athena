@@ -24,7 +24,7 @@ class TestAlg (Alg):
     def initialize (self):
         #ROOT.Muon.IMuonRdoToPrepDataTool
 
-        self.tool = ROOT.ToolHandle(ROOT.AthAlgTool)('TrigL2MuonSA__MdtDataPreparator')
+        self.tool = ROOT.ToolHandle(ROOT.AthAlgTool)('TrigL2MuonSA::MdtDataPreparator')
         if not self.tool.retrieve():
             assert 0
         return StatusCode.Success
@@ -44,7 +44,7 @@ def testCfg (configFlags):
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-    result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA__MdtDataPreparator', OutputLevel = 1))
+    result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1))
     
     result.addEventAlgo (TestAlg ('TestAlg'))
     return result

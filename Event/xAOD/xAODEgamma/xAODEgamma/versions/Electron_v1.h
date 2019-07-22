@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Electron_v1.h 636327 2014-12-16 16:34:24Z christos $
@@ -19,10 +19,6 @@
 //TrackParticle Includes
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 namespace xAOD {
 
@@ -73,7 +69,7 @@ namespace xAOD {
     /// @{
 
     /// @brief The type of the object as a simple enumeration
-    virtual Type::ObjectType type() const ATH_FINAL; //Always an Electron.
+    virtual Type::ObjectType type() const final; //Always an Electron.
 
     /// @}
 

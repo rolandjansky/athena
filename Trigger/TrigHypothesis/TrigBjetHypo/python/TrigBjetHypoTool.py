@@ -60,9 +60,9 @@ def TrigBjetHypoToolFromName( name, conf ):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
     
     decoder = DictFromChainName()        
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict = decoder.getChainDict( conf )
     decodedDict['chainName'] = name # override
-	
+    
     return TrigBjetHypoToolFromDict( decodedDict )
 
 
@@ -122,16 +122,16 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_split","HLT_j35_gsc45_boffperf_split" )
+    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_split_L1J20","HLT_j35_gsc45_boffperf_split_L1J20" )
     assert t, "can't configure gsc boffperf split"
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf","HLT_j35_gsc45_boffperf" )
+    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_L1J20","HLT_j35_gsc45_boffperf_L1J20" )
     assert t, "can't configure gsc boffperf"
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_split","HLT_j35_boffperf_split" )
+    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_split_L1J20","HLT_j35_boffperf_split_L1J20" )
     assert t, "can't configure boffperf split"
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf","HLT_j35_boffperf" )
+    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_L1J20","HLT_j35_boffperf_L1J20" )
     assert t, "can't configure boffperf"
 
     print ( "\n\n TrigBjetHypoToolFromName ALL OK\n\n" )

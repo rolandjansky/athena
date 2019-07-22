@@ -35,7 +35,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -65,7 +65,7 @@ svcMgr.EventSelector.RunNumber         =  IOVBeginRun
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2016-04"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 
 
 ## get a handle to the default top-level algorithm sequence

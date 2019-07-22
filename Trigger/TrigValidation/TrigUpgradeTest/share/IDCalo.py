@@ -16,6 +16,7 @@ topSequence += viewSeq
 
   
 # View maker alg
+from AthenaCommon import CfgMgr
 viewNodeName = "allViewAlgorithms"
 viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
 viewMaker.ViewBaseName = "testView"

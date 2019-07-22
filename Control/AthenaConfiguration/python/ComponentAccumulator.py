@@ -782,7 +782,7 @@ class ComponentAccumulator(object):
             PyAlg = type(None)
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
-            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
@@ -809,6 +809,9 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        from AthenaCommon.Debugging import allowPtrace
+        allowPtrace()
+
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 

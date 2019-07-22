@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -127,7 +127,8 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
   }
 
   // Check for minimum fraction of valid states
-  double validWeightFraction = cache.validWeightSum / ( cache.validWeightSum + cache.invalidWeightSum );
+  double den = cache.validWeightSum + cache.invalidWeightSum;
+  double validWeightFraction = den > 0 ? cache.validWeightSum / den : 0;
   if (cache.invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
     ATH_MSG_DEBUG( "Insufficient valid states in the state... returning false \n");
     return false;
@@ -165,7 +166,6 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) c
      cache.multiComponentState.erase(itr.base()-1);
    }
   }
-
   // Now recheck to make sure the state is now still valid
   if ( !isStateValid (cache) ){
      ATH_MSG_DEBUG("After removal of small weights, state is invalid... returning false \n");
@@ -180,18 +180,15 @@ const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState (Cache& cache)  const{
 
   ATH_MSG_DEBUG( "Finalising assembly... no specified reweighting \n");
-
   if ( !prepareStateForAssembly(cache) ) {
     ATH_MSG_DEBUG ("Unable to prepare state for assembly... returning 0 \n");
     return 0;
   }
-
   if ( cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
     double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
     const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache,totalWeight);
     return stateAssembly;
   }
-
   return doStateAssembly(cache,cache.validWeightSum ); ;
 }
 

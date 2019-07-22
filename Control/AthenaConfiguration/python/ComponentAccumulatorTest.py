@@ -300,7 +300,7 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm,ConfigurableAlgTool
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
 
-        self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
+        self.assertEqual( len(ca.getEventAlgos()), 1 , "Found single alg")
 # no idea why this assersts do not recognise exceptions
 #        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
 

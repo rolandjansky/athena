@@ -10,7 +10,7 @@ atlas_subdir( ISF_FastCaloSimEvent )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
-   Control/SGTools
+   Control/AthenaKernel
    Calorimeter/CaloGeoHelpers
    TileCalorimeter/TileSimEvent
    PRIVATE
@@ -87,7 +87,7 @@ atlas_add_library( ISF_FastCaloSimEvent
    PUBLIC_HEADERS ISF_FastCaloSimEvent
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaKernel
    CaloGeoHelpers TileSimEvent
    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

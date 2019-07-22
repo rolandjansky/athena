@@ -155,7 +155,7 @@ if TriggerFlags.doMT():
         TriggerFlags.MuonSlice.setAll()
         TriggerFlags.METSlice.setAll()
         TriggerFlags.JetSlice.setAll()
-        #TriggerFlags.TauSlice.setAll()
+        TriggerFlags.TauSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)

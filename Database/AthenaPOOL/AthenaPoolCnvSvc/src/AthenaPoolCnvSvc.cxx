@@ -429,6 +429,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
             return(StatusCode::FAILURE);
          }
+         bool dataHeaderSeen = false;
          while (num > 0 && strncmp(placementStr, "release", 7) != 0) {
             std::string objName = "ALL";
             if (m_useDetailChronoStat.value()) {
@@ -488,27 +489,41 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   tokenStr = token->toString();
                   delete token; token = nullptr;
 
-                  // For DataHeaderForm, Token needs to be inserted to DataHeader Object
-                  if (className == "DataHeaderForm_p5") {
-                     GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
+                  if (className == "DataHeader_p6") {
+                     // Found DataHeader
+                     GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
+                                            tokenStr, placement.auxString());
                      IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
-                     if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
-                        ATH_MSG_ERROR("Failed updateRepRefs for obj = " << tokenStr);
-                        return(StatusCode::FAILURE);
-                     }
-                  // Found DataHeader
-                  } else if (className == "DataHeader_p5") {
-                     GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
-                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+                     // call DH converter to add the ref to DHForm (stored earlier) and to itself
                      if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                         ATH_MSG_ERROR("Failed updateRep for obj = " << tokenStr);
                         return(StatusCode::FAILURE);
                      }
-                     commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
-                  } else if (className != "Token" && !classDesc.IsFundamental()) {
+                     dataHeaderSeen = true;
+                  } else if( dataHeaderSeen ) {
+                     dataHeaderSeen = false;
+                     // next object after DataHeader - may be a DataHeaderForm
+                     // need to call the DH converter in any case
+                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+                     if( className == "DataHeaderForm_p6") {
+                        // Tell DataHeaderCnv that it should use a new DHForm 
+                        GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
+                                               tokenStr, placement.auxString());
+                        if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
+                           ATH_MSG_ERROR("Failed updateRepRefs for obj = " << tokenStr);
+                           return(StatusCode::FAILURE);
+                        }
+                     } else {
+                        // Tell DataHeaderCnv that it should use the old DHForm 
+                        if( !cnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
+                           ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
+                           return StatusCode::FAILURE;
+                        }
+                     }
+                  }
+                  if (className != "Token" && className != "DataHeaderForm_p6" && !classDesc.IsFundamental()) {
                      commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
                   }
-
                }
             }
 
@@ -707,13 +722,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          }
       }
       // Lock object
-      std::string placementStr = placement->toString();
-      std::size_t formPos = placementStr.find("[FORM=");
-      if (formPos != std::string::npos) {
-         placementStr = placementStr.substr(0, formPos) + "[PNAME=" + classDesc.Name() + "]" + placementStr.substr(formPos);
-      } else {
-         placementStr += "[PNAME=" + classDesc.Name() + "]";
-      }
+      std::string placementStr = placement->toString() + "[PNAME=" + classDesc.Name() + "]";
       ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       while (sc.isRecoverable()) {

@@ -61,8 +61,6 @@ namespace
       square(vectorOfPositions[j][1] - allLocalPositions[1][1]) / allErrorMatrix[1](1, 1) +
       square(vectorOfPositions[k][1] - allLocalPositions[2][1]) / allErrorMatrix[2](1, 1);
   }
-
-  constexpr double TOPHAT_SIGMA = 1. / std::sqrt(12.);
 }
 
 InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
@@ -321,6 +319,8 @@ const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correctDefault
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
   using CLHEP::micrometer;
+
+  const double TOPHAT_SIGMA = 1. / std::sqrt(12.);
 
   //  const InDet::SiCluster* SC = dynamic_cast<const InDet::SiCluster*> (&rio);
   const InDet::PixelCluster *pix = nullptr;

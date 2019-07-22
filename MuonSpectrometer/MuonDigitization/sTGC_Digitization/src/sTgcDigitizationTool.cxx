@@ -100,18 +100,12 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_rndmEngine(0),
     m_rndmSvc("AtRndmGenSvc", name),
     m_rndmEngineName("MuonDigitization"),
-    m_sgSvc("StoreGateSvc", name), 
-    m_activeStore(0), 
     m_hitIdHelper(0), 
-    m_digitContainer(0),
     m_idHelper(0),
     m_mdManager(0),
     m_digitizer(0),
     m_thpcsTGC(0),
-    m_sdoContainer(0), 
     m_inputHitCollectionName("sTGCSensitiveDetector"),
-    m_outputDigitCollectionName("sTGC_DIGITS"),
-    m_outputSDO_CollectionName("sTGC_SDO"),
     m_doToFCorrection(0),
     m_doChannelTypes(3),
     m_readoutThreshold(0),
@@ -149,10 +143,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareInterface<IMuonDigitizationTool>(this);
   declareProperty("RndmSvc",                 m_rndmSvc,                                             "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",              m_rndmEngineName,                                      "Random engine name");
-  declareProperty("MCStore",                 m_sgSvc,                                               "Simulated Data Event Store"); 
   declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
-  declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
-  declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
   declareProperty("doToFCorrection",         m_doToFCorrection); 
   declareProperty("doChannelTypes",          m_doChannelTypes); 
   declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
@@ -172,22 +163,9 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_INFO ( "Configuration  sTgcDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
-  ATH_MSG_INFO ( "MCStore                " << m_sgSvc               );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
-  ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
-  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); 
-
-  // initialize transient event store 
-  if(m_sgSvc.retrieve().isFailure()) { 
-    ATH_MSG_FATAL("Could not retrieve StoreGateSvc!");
-    return StatusCode::FAILURE; 
-  } 
-
-  status = service("ActiveStoreSvc", m_activeStore);
-  if(!status.isSuccess()) { 
-    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg; 
-    return status;
-  }
+  ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionKey.key() );
+  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionKey.key()  );
 
   // retrieve MuonDetctorManager from DetectorStore
   status = detStore()->retrieve(m_mdManager);
@@ -212,14 +190,15 @@ StatusCode sTgcDigitizationTool::initialize() {
     ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
   }
 
-  // check the output object name
-  if(m_outputDigitCollectionName=="") {
+  //initialize the output WriteHandleKeys
+  if(m_outputDigitCollectionKey.key()=="") {
     ATH_MSG_FATAL("Property OutputObjectName not set !");
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Output digits: '" << m_outputDigitCollectionName << "'");
   }
-  
+  ATH_CHECK(m_outputDigitCollectionKey.initialize());
+  ATH_CHECK(m_outputSDO_CollectionKey.initialize());
+  ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
+
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
@@ -243,11 +222,6 @@ StatusCode sTgcDigitizationTool::initialize() {
   }
 
   readDeadtimeConfig();
-
-  // initialize digit container
-  m_digitContainer = new sTgcDigitContainer(m_idHelper->detectorElement_hash_max());
-  m_digitContainer->addRef();
-
 
   // initialize digit parameters
   //m_noiseFactor = 0.09;
@@ -396,13 +370,6 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
 
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in mergeEvent()" );
 
-  // Cleanup and record the Digit container in StoreGate
-  status = recordDigitAndSdoContainers();
-  if(!status.isSuccess()) {
-    ATH_MSG_FATAL("sTgcDigitizationTool::recordDigitAndSdoContainers failed.");
-    return StatusCode::FAILURE; 
-  }
-    
   status = doDigitization();
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
@@ -426,32 +393,6 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
   return status;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() { 
-  // cleanup digit container
-  m_digitContainer->cleanup();
-  
-  // record the digit container in StoreGate
-  m_activeStore->setStore(&*m_sgSvc);
-  StatusCode status = m_sgSvc->record(m_digitContainer, m_outputDigitCollectionName);
-  if(status.isFailure()) {
-    ATH_MSG_FATAL("Unable to record sTGC digit container in StoreGate");
-    return status;
-  }
-  ATH_MSG_DEBUG("sTgcDigitContainer recorded in StoreGate.");
-  
-  // create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = m_sgSvc->record(m_sdoContainer, m_outputSDO_CollectionName);
-  if(status.isFailure())  {
-    ATH_MSG_FATAL("Unable to record sTGC SDO collection in StoreGate");
-    return status;
-  } else {
-    ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
-  }
-
-  return status;
-}
-/*******************************************************************************/
 StatusCode sTgcDigitizationTool::digitize() {
   return this->processAllSubEvents(); 
 } 
@@ -461,13 +402,7 @@ StatusCode sTgcDigitizationTool::processAllSubEvents() {
   StatusCode status = StatusCode::SUCCESS;
   //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
-  
-  status = recordDigitAndSdoContainers();
-  /*if(!status.isSuccess()) {
-    ATH_MSG_FATAL("sTgcDigitizationTool::recordDigitAndSdoContainers failed.");
-    return StatusCode::FAILURE;
-  }
-  */
+
   //merging of the hit collection in getNextEvent method    	
   if (0 == m_thpcsTGC) {
     status = getNextEvent();
@@ -490,8 +425,6 @@ StatusCode sTgcDigitizationTool::processAllSubEvents() {
 }
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::finalize() {
-  ATH_MSG_INFO("sTgcDigitizationTool::finalize() ---- m_digitContainer->digit_size() = "<<m_digitContainer->digit_size()); 
-  m_digitContainer->release(); 
   delete m_digitizer; 
   m_digitizer = 0;
 
@@ -511,6 +444,16 @@ StatusCode sTgcDigitizationTool::finalize() {
 StatusCode sTgcDigitizationTool::doDigitization() {
   
   ATH_MSG_DEBUG ("sTgcDigitizationTool::doDigitization()" );
+
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelper->detectorElement_hash_max())));
+  ATH_MSG_DEBUG ( "sTgcDigitContainer recorded in StoreGate." );
+
+  // Create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
+  ATH_MSG_DEBUG ( "sTgcSDOCollection recorded in StoreGate." );
     
   TimedHitCollection<sTGCSimHit>::const_iterator i, e; 
 
@@ -792,7 +735,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
             // Add element to SDO container
             Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
-            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+            sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
 
             // List of digits for VMM
             merged_pad_digits.push_back( digit_hit.getSTGCDigit() );
@@ -903,7 +846,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
             // Add element to SDO container
             Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
-            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+            sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
 
             // Save digit for further processing with VMM
             merged_strip_digits.push_back( digit_hit.getSTGCDigit() );
@@ -1042,7 +985,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         std::vector<sTgcDigit> merged_wire_digits;
         for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
             Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
-            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+            sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
 
             // Save digit for further processing with VMM
             merged_wire_digits.push_back( digit_hit.getSTGCDigit() );
@@ -1099,8 +1042,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    /*************************************************
     * Output the digits to the StoreGate collection *
     ************************************************/
-  m_activeStore->setStore(&*m_sgSvc);
-
   for(std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_coll = outputDigits.begin(); it_coll != outputDigits.end(); ++it_coll){
 	  IdentifierHash coll = it_coll->first;
 	  msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;
@@ -1120,8 +1061,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 	  if(digitCollection->size()){
 		  ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
-		  if(m_digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
-			  ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());
+		  if(digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
+			  ATH_MSG_WARNING("Failed to add sTGC collection with hash " << digitCollection->identifierHash());
               
               ATH_MSG_VERBOSE("Collection added to m_digitcontainer : HashId = " << digitCollection->identifierHash() << " of size " << digitCollection->size());
 

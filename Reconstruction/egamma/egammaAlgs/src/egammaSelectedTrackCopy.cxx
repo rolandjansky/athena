@@ -276,9 +276,13 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2] );
     return true;
   }
-  
-  //passes the eta but not the phi, try with rescale
-  if(fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
+  /*
+   * Passes the eta but not the phi, and we have a cluster with higher Et. 
+   * Try to rescale up the track to account for radiative loses 
+   * and retry
+   */
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta && 
+     cluster->et() > track->pt()){ 
     ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
                   << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
@@ -299,17 +303,12 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
                                              IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
       return false;
     }
- 
     //Redo the check with rescale
     if( fabs(deltaEta1[2]) < m_narrowDeltaEta 
         && deltaPhi1[2] < m_narrowRescale
         && deltaPhi1[2] > -m_narrowRescaleBrem) {
       ATH_MSG_DEBUG("Rescale Match success " << deltaPhi1[2] );
       return true;
-    }
-    else {
-      ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " 
-                    << deltaPhi1[2] <<" / "<< deltaEta1[2] );
     }
   }
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);

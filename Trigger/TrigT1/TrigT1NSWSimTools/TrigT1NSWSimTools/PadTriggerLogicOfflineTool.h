@@ -84,10 +84,6 @@ namespace NSWL1 {
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
-        int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
-        int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
-
-
         StringProperty   m_rndmEngineName;                      //!< property, todo
         StringProperty   m_sTgcDigitContainer;                  //!< property, todo
         StringProperty   m_sTgcSdoContainer;                    //!< property, todo

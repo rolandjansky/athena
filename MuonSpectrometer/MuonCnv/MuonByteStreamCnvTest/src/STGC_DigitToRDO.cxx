@@ -19,9 +19,6 @@ STGC_DigitToRDO::STGC_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode STGC_DigitToRDO::initialize()
 {
-  declareProperty("RDOContainerName", m_rdoContainer = "sTGCRDO");
-  declareProperty("DigitContainerName", m_digitContainer = "sTGC_DIGITS");
-  
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_rdoContainer.initialize() );
   ATH_CHECK( m_digitContainer.initialize() );  

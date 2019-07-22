@@ -127,8 +127,11 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
   {
     SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
-    ATH_CHECK( saveChainsInfo( activeChains, handleFSDecisions.ptr(), "unprescaled") );    
-    handleFSDecisions.ptr()->at(0)->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
+    auto decision  = TrigCompositeUtils::newDecisionIn( handleFSDecisions.ptr(), "L1" );
+    for ( auto chain: activeChains ) 
+      TrigCompositeUtils::addDecisionID( chain, decision );
+    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
+
   }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_enableCostMonitoring) {

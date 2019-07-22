@@ -151,7 +151,6 @@ StatusCodeSvc        INFO initialize
 DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-16-07
 EventPersistenc...   INFO "CnvServices": ["DetDescrCnvSvc", "AthenaPoolCnvSvc", "AthenaPoolCnvSvc"]
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-16-07
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-04-14
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-10-02
 AthenaSealSvc        INFO loadDictFiller - dictionary filler name:STLRflx
 AthenaSealSvc        INFO loadDictFiller - dictionary filler name:DetDescrDict

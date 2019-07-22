@@ -8,6 +8,8 @@
 # art-output: mc15_2015_ttbar_no_pileup.RDO.pool.root
 # art-output: log.*
 
+export ATHENA_CORE_NUMBER=1
+
 Digi_tf.py \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 \
 --conditionsTag default:OFLCOND-RUN12-SDR-25 \
@@ -20,7 +22,7 @@ Digi_tf.py \
 --postInclude 'Digitization/FixDataDependenciesForMT.py' \
 --skipEvents 0  \
 --maxEvents 10 \
---athenaopts '--threads 1'
+--multithreaded
 
 rc=$?
 echo  "art-result: $rc Digi_tf.py"
@@ -33,4 +35,4 @@ then
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
 fi
-echo  "art-result: $rc2 art-compare"
+echo  "art-result: $rc2 regression"
