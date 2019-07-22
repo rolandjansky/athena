@@ -149,7 +149,7 @@ def bJetStep1SequenceALLTE():
     jetSplitter.OutputRoi = "SplitJets"
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
+    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,prmVtx,jetSplitter] )
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
@@ -231,8 +231,8 @@ def bJetStep2SequenceALLTE():
     InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )  
-    
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
+
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE")
