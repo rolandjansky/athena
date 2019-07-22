@@ -272,6 +272,7 @@ def isFilterAlg(alg):
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
+        assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
@@ -637,7 +638,7 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
+            self.viewMakerAlg = EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',

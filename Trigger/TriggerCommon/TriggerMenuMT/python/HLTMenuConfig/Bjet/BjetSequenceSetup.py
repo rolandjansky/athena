@@ -177,7 +177,7 @@ def bJetStep2Sequence():
 
     # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step2", RoIsLink="initialRoI")
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
     InputMakerAlg.Views = "BJetViews" # Name of output view
@@ -228,7 +228,7 @@ def bJetStep2Sequence():
 def bJetStep2SequenceALLTE():
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
+    InputMakerAlg = InputMakerForRoI("IMBJet_step2_ALLTE", RoIsLink="initialRoI")
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )  
@@ -268,7 +268,7 @@ def bJetStep3Sequence():
 
    # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step3")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step3")
     InputMakerAlg.ViewNodeName = bJetSequenceSequence.name()
     InputMakerAlg.RoIsLink = "step1RoI"
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data

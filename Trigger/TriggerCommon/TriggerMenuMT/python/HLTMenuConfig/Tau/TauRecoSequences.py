@@ -59,7 +59,7 @@ def tauCaloSequence(ConfigFlags):
     InViewRoIs="TAUCaloRoIs"
     RecoSequenceName="tauCaloInViewSequence"
 
-    tauCaloViewsMaker = EventViewCreatorAlgorithm( "tauCaloViewsMaker")
+    tauCaloViewsMaker = EventViewCreatorAlgorithm( "IMtauCalo")
     tauCaloViewsMaker.ViewFallThrough = True
     tauCaloViewsMaker.RoIsLink = "initialRoI"
     tauCaloViewsMaker.InViewRoIs = InViewRoIs
@@ -76,7 +76,7 @@ def tauCaloMVASequence(ConfigFlags):
     InViewRoIs="TAUCaloRoIs"
     RecoSequenceName="tauCaloMVAInViewSequence"
 
-    tauCaloMVAViewsMaker = EventViewCreatorAlgorithm( "tauCaloMVAViewsMaker")
+    tauCaloMVAViewsMaker = EventViewCreatorAlgorithm( "IMtauCaloMVA")
     tauCaloMVAViewsMaker.ViewFallThrough = True
     tauCaloMVAViewsMaker.RoIsLink = "initialRoI"
     tauCaloMVAViewsMaker.InViewRoIs = InViewRoIs

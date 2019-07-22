@@ -59,7 +59,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   const EventContext& ctx1 = Gaudi::Hive::currentContext();
   std::cout << "Current context: " << ctx1 << std::endl;
 
-  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("MyDecisionContainer");
+  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_MyDecisionContainer");
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
