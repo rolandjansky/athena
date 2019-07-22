@@ -21,6 +21,9 @@ from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeEventAlgorithmsS
 algSeq = makeEventAlgorithmsSequence (dataType)
 print algSeq # For debugging
 
+# Add all algorithms from the sequence to the job.
+athAlgSeq += algSeq
+
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
