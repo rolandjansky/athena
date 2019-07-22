@@ -45,10 +45,6 @@ namespace Overlay
 TRTOverlay::TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.110);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.090);
-  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE", m_HTOccupancyCorrectionB_noE=0.060);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE", m_HTOccupancyCorrectionEC_noE=0.050);
 }
 
 
