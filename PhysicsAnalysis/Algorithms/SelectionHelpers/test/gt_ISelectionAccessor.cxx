@@ -432,6 +432,7 @@ namespace CP
 
     s = parse(" A && B && C && D");
     EXPECT_EQ(s, "( A && B && C && D )");
+    EXPECT_EQ(parse(s), s);
 
 
     EXPECT_THROW(parse("alpha &&"), std::runtime_error);
