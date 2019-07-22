@@ -6,7 +6,8 @@ import os
 #
 print ' == runzmumu == START == TestArea = ',os.getenv("TestArea")
 print ' == runzmumu == CHECK if the TestArea is setup such that the setup.sh is sourced '
-theCommand = "source %s/build/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
+#theCommand = "source %s/build/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
+theCommand = "source %s/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
 theOutput =  commands.getoutput(theCommand)
 print ' == runzmumu == Rel21 init command: ',theCommand
 print '                output: ', theOutput
@@ -62,7 +63,7 @@ if (readPool):
 useWeightInMonitoring = False
 
 # use configuration for conditions (True) or autoconfigured (False)
-useConfigConditions = False
+useConfigConditions = True
 
 # use IDAlignment dynamic folders for 2016 data
 useIDADynamicFolders = True
@@ -90,8 +91,8 @@ if (grid_bool):
     #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
     PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/DAOD_HIGG2D1.14773488._000014.pool.root.1"]
 if (MC_bool): 
-    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
-    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
+    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
 
 EvtMax= -1
 EvtMax = 1000
@@ -127,11 +128,15 @@ from AthenaCommon.GlobalFlags import globalflags
 
 myConditionsTag = "auto-configured" #"CONDBR2-BLKPA-2018-10"
 if (useConfigConditions):
+    if MC_bool: # -> MC
+        #myConditionsTag = "OFLCOND-MC15c-SDR-05" # mc15
+        myConditionsTag = "OFLCOND-MC16-SDR-25"
     if not MC_bool: # --> real data 
-        myConditionsTag = "CONDBR2-BLKPA-2018-10" # 
-        print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
-        globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
-        #globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC15c-SDR-05")
+        myConditionsTag = "CONDBR2-BLKPA-2018-10" # RD
+
+    print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
+    globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
+        
 else: 
     print " == runzmumu == globalflags.ConditionsTag -> use default: ", myConditionsTag 
 
