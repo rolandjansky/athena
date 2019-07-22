@@ -45,7 +45,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   //  auto tool = getGroup("TrigBjetMonitor");
 
 
-  /*
+  
   // Read off-line PV's  and fill histograms 
 
   auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
@@ -70,9 +70,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     //    fill(tool,OffzVtx);
   }
   fill("TrigBjetMonitor",OffNVtx,OffxVtx,OffyVtx,OffzVtx);
-  */
+  
 
-  /* print the trigger chain names */
+  // print the trigger chain names 
 
   std::string chainName;
 
@@ -83,7 +83,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     ATH_MSG_INFO("  Chain number: " << i << " AllChains Chain Name: " << chainName );
   }
 
-  /*
+  
   // Verifiy if the trigger chain was fired and if yes, fill the corresponding histogram
 
   // Define keys of retrival
@@ -95,7 +95,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   bool mujetChain = false;
   bool bjetChain = true;
   bool splitChain = false;
-  */
+  
 
 
   for ( auto& trigName : m_AllChains ) {
@@ -107,14 +107,16 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     fill("TrigBjetMonitor",d0);
     ATH_MSG_INFO(" =====> Histogram " << NameH << " is filled with d0: " << d0);
 
-    /*
+    
     if ( m_trigDecTool->isPassed(trigName) ) {
       std::cout << " Trigger chain from AllChains list: " << trigName << " has fired !!! " << std::endl;
 
 
       // Trigger type
+
       // Access to TrigFeature
       bool Run2_Access = true;
+
       // split vs unsplit
       std::size_t found = trigName.find("split");
       if (found!=std::string::npos) {
@@ -123,6 +125,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	priVtxKey = "xPrimVx";
 	trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }// found
+
       // FTK vs non FTK
       std::size_t found1 = trigName.find("FTK");
       if (found1!=std::string::npos) {
@@ -137,11 +140,13 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
 	}// found3
       }// found1
+
       // gsc vs non-gsc chain
       std::size_t found4 = trigName.find("gsc");
       if (found4!=std::string::npos) {
 	jetKey = "GSCJet";
       }// found4
+
       // bjet vs mujet
       found = trigName.find("HLT_mu");
       if (found!=std::string::npos) {
@@ -261,7 +266,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 		const xAOD::Muon::MuonType muontype = muon->muonType();
 		if( muontype != xAOD::Muon::MuonType::Combined ) continue;
 		// if muon type is "Combined" and jet container is not empty loop on jets and plot muon-jet combined quantitites
-		   see Run2 code: https://gitlab.cern.ch/atlas/athena/blob/21.3/Trigger/TrigMonitoring/TrigBjetMonitoring/src/HLTBjetMonTool.cxx 
+		//   see Run2 code: https://gitlab.cern.ch/atlas/athena/blob/21.3/Trigger/TrigMonitoring/TrigBjetMonitoring/src/HLTBjetMonTool.cxx 
 		if( not onlinejets.empty()) { 
 		  const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
 		  for(const auto* jet : *onlinejet) {
@@ -289,7 +294,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     } else {
       std::cout << " Trigger chain from AllChains list: " << trigName << " has not fired " << std::endl;
     }
-    */
+    
 
   } // for AllChains
 
