@@ -25,15 +25,16 @@ from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__TrackSelectionP
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 
 # Muon
-from CscSegmentMakers.CscSegmentMakersConf import CscSegmentUtilTool, Csc2dSegmentMaker, Csc4dSegmentMaker
+from CscSegmentMakers.CscSegmentMakersConf import Csc2dSegmentMaker, Csc4dSegmentMaker
 from DCMathSegmentMaker.DCMathSegmentMakerConf import Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool
 from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonTrackCleaner, Muon__MuonTrackScoringTool
 from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
 from MuonStationIntersectSvc.MuonStationIntersectSvcConf import MuonStationIntersectSvc
-from MuonSegmentSelectionTools.MuonSegmentSelectionToolsConf import Muon__MuonSegmentSelectionTool, Muon__MuonSegmentHitSummaryTool
+from MuonSegmentSelectionTools.MuonSegmentSelectionToolsConf import Muon__MuonSegmentSelectionTool
 from MdtSegmentT0Fitter.MdtSegmentT0FitterConf import TrkDriftCircleMath__MdtSegmentT0Fitter
 from MuonClusterSegmentMakerTools.MuonClusterSegmentMakerToolsConf import Muon__MuonClusterSegmentFinder
 from MuonAmbiTrackSelectionTool.MuonAmbiTrackSelectionToolConf import Muon__MuonAmbiTrackSelectionTool
+from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
 import MuonConfig.MuonRIO_OnTrackCreatorConfig # Trying to avoid circular dependencies here
@@ -272,7 +273,7 @@ def MdtMathSegmentFinder(flags,**kwargs):
         kwargs.setdefault("RecoverMdtOutliers", False)
         kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter" )
 
-    if flags.Beam.Type == 'singlebeam' or flags.Beam.Type == 'cosmics' or flags.Input.isMC == False:
+    if flags.Beam.Type == 'singlebeam' or flags.Beam.Type == 'cosmics' or flags.Input.isMC is False:
         kwargs.setdefault("AssociationRoadWidth", 2.)
         kwargs.setdefault("MDTAssocationPullcut", 4.)
         kwargs.setdefault("RecoverMdtOutliers", True )
@@ -473,8 +474,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     # DCMathSegmentMaker, MdtDriftCircleOnTrackCreator, MuonClusterOnTrackCreator, MuonEDMPrinterTool, MuonIdHelperTool
     result=ComponentAccumulator()
     from MuonPatternSegmentMaker.MuonPatternSegmentMakerConf import Muon__MuonPatternSegmentMaker
-    from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
-    
+
     if "MdtCreator" not in kwargs: 
         # on data configure a MdtDriftCircleOnTrackCreator for the segment finding with reduced errors
         # when using the t0 refit enlarge the time window

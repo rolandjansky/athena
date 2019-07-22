@@ -93,10 +93,9 @@ topSequence.LArCollisionTimeAlg.cutIteration = False
 topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 ###################################################################
 
-if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   
+from PyUtils.MetaReaderPeeker import metadata
+if 'IS_SIMULATION' not in metadata['eventTypes']:
    from IOVDbSvc.CondDB import conddb
-   
    if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
       conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
    if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):

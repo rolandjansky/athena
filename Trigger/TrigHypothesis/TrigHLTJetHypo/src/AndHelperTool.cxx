@@ -64,3 +64,8 @@ StatusCode AndHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }
+
+std::size_t AndHelperTool::requiresNJets() const {
+  return m_lhs->requiresNJets() + m_rhs->requiresNJets();
+}
+

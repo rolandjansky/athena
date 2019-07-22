@@ -62,6 +62,6 @@ atlas_add_component( DataQualityTools
                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib TagEvent RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib )
 
 # Install files from the package:
-#atlas_install_headers( DataQualityTools )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

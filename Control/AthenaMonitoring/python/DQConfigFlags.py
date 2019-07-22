@@ -74,5 +74,3 @@ def allSteeringFlagsOff():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     for flag in _steeringFlags:
         setattr(getattr(ConfigFlags, 'DQ.Steering'), flag, False)
-        #print flag
-        #getattr(ConfigFlags, 'DQ.Steering.' + flag).set(False)

@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include "GaudiKernel/Property.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
-
-
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
@@ -19,44 +17,38 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_finalDecisionKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
   ATH_CHECK( m_histSvc.retrieve() );
-      
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoniMT::start() {
+
+  const int x = nBinsX();
+  const int y = nBinsY();
+  ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
+
+  std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCount", "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
+
+  ATH_CHECK( initHist( h1 ) );
+  ATH_CHECK( initHist( h2 ) );
+  ATH_CHECK( initHist( h3 ) );
+
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCount", std::move(h3), m_rateHistogram));
   
-  {
-    const int x = nBinsX();
-    const int y = nBinsY();
-    ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
-    // this type to be replaced by LBN tagged hist available for MT
-    // the new way, (does not work)
-    /*
-    auto hist = std::make_unique<TH2I>( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
-					x, -0.5, x -0.5,
-					y, -0.5, y - 0.5 );
-
-    std::string fullName = m_bookingPath + "/SignatureAcceptance";
-
-    m_histSvc->regHist( fullName, std::move( hist ) );
-    m_outputHistogram = m_histSvc.getHist( fullName );
-    */
-
-    std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
-    std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
-    std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCount", "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
-
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCount", std::move(h3), m_rateHistogram));
-  
-  }
-  
-  ATH_CHECK( initHist( m_passHistogram ) );
-  ATH_CHECK( initHist( m_countHistogram ) );
-  ATH_CHECK( initHist( m_rateHistogram ) );
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigSignatureMoniMT::finalize() {
 
+  /**
+   * This should really be done during stop(). However, at the moment
+   * the EventContext is printed for each message in the stop transition
+   * making the use of the count printout in regtests impossible (!20776).
+   */
   if (m_chainIDToBinMap.empty()) {
     ATH_MSG_INFO( "No chains configured, no counts to print" );
     return StatusCode::SUCCESS;
@@ -106,7 +98,6 @@ StatusCode TrigSignatureMoniMT::finalize() {
     }
   }		 
 
-  
   return StatusCode::SUCCESS;
 }
 
@@ -206,11 +197,14 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
+int TrigSignatureMoniMT::nBinsX() const {
+  return m_allChains.size()+1;
+}
 int TrigSignatureMoniMT::nBinsY() const {     
   return m_collectorTools.size()+3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist) {
+StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist) {
 
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");

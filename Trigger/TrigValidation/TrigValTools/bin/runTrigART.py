@@ -30,7 +30,9 @@ def package_prefix(package):
             'TrigP1Test':       'trigP1_',
             'TrigAnalysisTest': 'trigAna_',
             'TrigUpgradeTest':  'trigUpgr_'}
-    if package in dict:
+    if package=='ALL':
+        return '({})'.format('|'.join(dict.values()))
+    elif package in dict:
         return dict[package]
     else:
         return None
@@ -39,14 +41,14 @@ def package_prefix(package):
 def minimal_pattern(package):
     dict = {'TriggerTest':      None,
             'TrigP1Test':       None,
-            'TrigAnalysisTest': None,
-            'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build)'}
-    if package in dict and dict[package] is not None:
+            'TrigAnalysisTest': 'trigAna_q221_RDOtoRDOTrig_mt1_build',
+            'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build|trigUpgr_full_menu_cf_configOnly_build)'}
+    if package=='ALL':
+        return '({})'.format('|'.join([v for v in dict.values() if v]))
+    elif package in dict and dict[package] is not None:
         return dict[package]
     else:
-        logging.error(
-            "Minimal set of tests for %s is not defined.",
-            "Please select specific tests using the name patter (option -n).")
+        logging.error("Minimal set of tests for %s is not defined.", package)
         exit(1)
 
 def duplicate_filename(list, filename):
@@ -60,7 +62,7 @@ def find_scripts(patterns):
     for path in os.environ['PATH'].split(':'):
         try:
             files = os.listdir(path)
-        except:
+        except OSError:
             continue
         for filename in files:
             matched = True
@@ -75,11 +77,14 @@ def find_scripts(patterns):
 
 
 def get_parser():
-    packages=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest']
-    parser = argparse.ArgumentParser(usage='%(prog)s [options] PackageName which is one of: {}'.format(" ".join(packages)))
+    packages=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
+    parser = argparse.ArgumentParser(usage='%(prog)s [options] [PackageName]')
     parser.add_argument('package',
                         metavar='PackageName',
-                        help='Name of the package from which to run ART tests. Options are: %(choices)s',
+                        default='ALL',
+                        nargs='?',
+                        help='Name of the package from which to run ART tests. Options are: %(choices)s.'
+                             ' If no name is provided, %(default)s is used.',
                         choices=packages)
     parser.add_argument('-m', '--minimal',
                         action='store_true',
@@ -198,6 +203,14 @@ def main():
     logging.info("The following %d tests will be executed: ", len(scripts))
     for filename in scripts:
         logging.info("    %s", os.path.basename(filename))
+
+    if len(scripts) > 5*args.maxJobs:
+        if args.maxJobs==1:
+            logging.warning("You are running %d tests in sequence. This may take "
+                            "a long time, consider using -j N option.", len(scripts))
+        else:
+            logging.warning("You are running %d tests with %d parallel jobs. "
+                            "This may take a long time.", len(scripts), args.maxJobs)
 
     if args.dryRun:
         return 0

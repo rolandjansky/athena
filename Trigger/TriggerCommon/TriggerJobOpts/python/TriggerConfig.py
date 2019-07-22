@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -89,7 +89,8 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     __log.info("Collecting decision objects from hypos")
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
-            __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
+            __log.debug( "Hypo %s with input %s and output %s ",
+                         hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
                 if inputs:
                     [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
@@ -370,7 +371,7 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( monitoringAcc )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
-    __log.info( "Number of decision objects found in HLT CF %d" % len( decObj ) )
+    __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
     __log.info( str( decObj ) )
 
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )

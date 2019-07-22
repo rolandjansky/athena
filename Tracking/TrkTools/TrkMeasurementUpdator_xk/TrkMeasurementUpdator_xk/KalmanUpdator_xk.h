@@ -135,7 +135,7 @@ namespace Trk {
 	 PatternTrackParameters&,double&,int&) const override final;
       virtual bool removeFromState 
 	(PatternTrackParameters&,const LocalParameters&,const Amg::MatrixX&,
-	 PatternTrackParameters&,double&,int&) const;
+	 PatternTrackParameters&,double&,int&) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Combine two state with or without Xi2 calculation

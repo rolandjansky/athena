@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,6 +66,8 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "GeoModelUtilities/GeoVisitVolumes.h"
+
 
 static const InterfaceID IID_IMuonStationTypeBuilder("MuonStationTypeBuilder", 1, 0);
 
@@ -148,11 +150,11 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
       double halfX2=0.;
       double halfY1=0.;
       double halfY2=0.;
-      for (unsigned int ich =0; ich< mv->getNChildVols(); ++ich) 
+      for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (mv))
       {
-        const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
+        const GeoVPhysVol* cv = p.first;
         const GeoLogVol* clv = cv->getLogVol();
-        Amg::Transform3D transf = mv->getXToChildVol(ich);        
+        const Amg::Transform3D& transf = p.second;
         // TEMPORARY CORRECTION 
         //if ( (mv->getLogVol()->getName()).substr(0,3)=="BMF" && (clv->getName()).substr(0,2)=="LB" ) {
         //	  ATH_MSG_DEBUG( "TEMPORARY MANUAL CORRECTION OF BMF SPACER LONG BEAM POSITION");
@@ -443,13 +445,11 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
       double halfX2=0.;
       double halfY1=0.;
       double halfY2=0.;
-      for (unsigned int ich =0; ich< mv->getNChildVols(); ++ich) 
+      for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (mv))
       {
-        //std::cout << "next component:"<< ich << std::endl;
-        const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
+        const GeoVPhysVol* cv = p.first;
         const GeoLogVol* clv = cv->getLogVol();
-        Amg::Transform3D transf = mv->getXToChildVol(ich);        
-        //std::cout << "component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","  <<transf.getTranslation()<<std::endl;
+        Amg::Transform3D transf = p.second;
         // retrieve volumes for components
 	Trk::VolumeBounds* volBounds=0; 
 	Trk::Volume* vol; 
@@ -718,11 +718,10 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
   std::vector<int> x_active;
   double currX = -100000; 
   // here one could save time by not reading all tubes  
-  for (unsigned int ich =0; ich< gv->getNChildVols(); ++ich) {
-    const GeoVPhysVol* cv = &(*(gv->getChildVol(ich))); 
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (gv)) {
+    const GeoVPhysVol* cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transfc = gv->getXToChildVol(ich);        
-    //std::cout << "MDT component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transfc.getTranslation()<<std::endl;
+    const Amg::Transform3D& transfc = p.second;
     // printChildren(cv);
     Trk::MaterialProperties* mdtMat=0;
     double xv = 0.;
@@ -884,11 +883,10 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
   std::vector<double> x_ref;
   std::vector<int> x_active;
   double currX = -100000; 
-  for (unsigned int ich =0; ich< gv->getNChildVols(); ++ich) {
-    const GeoVPhysVol* cv = &(*(gv->getChildVol(ich))); 
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (gv)) {
+    const GeoVPhysVol* cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transfc = gv->getXToChildVol(ich);        
-    //std::cout << "MDT component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transfc.translation()<<std::endl;
+    const Amg::Transform3D& transfc = p.second;
     double xv = 0.;
     int active = 0;
     if (clv->getShape()->type()=="Trd"){
@@ -1618,10 +1616,11 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const
   std::vector<const GeoVPhysVol*> compGeoVol;
   std::vector<double> xSizes;
   double xmn = +10000.; double xmx = -10000.;
-  for (unsigned int ich =0; ich< mv->getNChildVols(); ++ich) {
-    const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (mv)) {
+    const GeoVPhysVol* cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
-    Amg::Transform3D transform = mv->getXToChildVol(ich);        
+    const Amg::Transform3D& transform = p.second;
+    unsigned int ich = compTransf.size();
     compTransf.push_back(transform);
     compName.push_back(clv->getName());
     compGeoVol.push_back(cv);
@@ -1776,13 +1775,11 @@ std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgc
  //  printChildren(mv);
   Trk::TrapezoidVolumeBounds* tgcBounds;
   Trk::Volume* envelope;
-  for (unsigned int ich =0; ich< mv->getNChildVols(); ++ich) {
-     const GeoVPhysVol* cv = &(*(mv->getChildVol(ich))); 
-     const GeoLogVol* clv = cv->getLogVol();
-     std::string tgc_name = clv->getName();
-     //std::cout << "tgc name:" << tgc_name << std::endl; 
-     Amg::Transform3D transform = mv->getXToChildVol(ich);        
-     //std::cout << "TGC component:"<<ich<<":" << clv->getName() <<", made of "<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<<","<<transform.translation()<<std::endl;
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (mv)) {
+    const GeoVPhysVol* cv = p.first;
+    const GeoLogVol* clv = cv->getLogVol();
+    const Amg::Transform3D& transform = p.second;
+    std::string tgc_name = clv->getName();
      const GeoShape* baseShape = clv->getShape();
      if (baseShape->type()=="Subtraction") {
        const GeoShapeSubtraction* sub = dynamic_cast<const GeoShapeSubtraction*> (baseShape);
@@ -1823,22 +1820,12 @@ std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgc
 void Muon::MuonStationTypeBuilder::printChildren(const GeoVPhysVol* pv) const
 {
   // subcomponents
-  unsigned int nc = pv->getNChildVols();
-  for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = pv->getXToChildVol(ic);
- 
-    //
-    /*
-    std::cout << " dumping transform to subcomponent" << std::endl;
-    std::cout << transf[0][0]<<"," <<transf[0][1]<<"," <<transf[0][2]<<","<<transf[0][3] << std::endl;
-    std::cout << transf[1][0]<<"," <<transf[1][1]<<"," <<transf[1][2]<<","<<transf[1][3] << std::endl;
-    std::cout << transf[2][0]<<"," <<transf[2][1]<<"," <<transf[2][2]<<","<<transf[2][3] << std::endl;
-    */
-    //
-    const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (pv)) {
+    const GeoVPhysVol* cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
+    const Amg::Transform3D& transf = p.second;
     std::cout << "  ";
-    std::cout << "subcomponent:"<<ic<<":"<<clv->getName()<<", made of"<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<< ","<< transf.translation()<<std::endl;
+    std::cout << "subcomponent:"<<clv->getName()<<", made of"<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<< ","<< transf.translation()<<std::endl;
 	 
           if ( clv->getShape()->type()=="Trd") {
 	      const GeoTrd* trd = dynamic_cast<const GeoTrd*> (clv->getShape());
@@ -1870,8 +1857,8 @@ double Muon::MuonStationTypeBuilder::get_x_size(const GeoVPhysVol* pv) const
   double xlow = 0;
   double xup  = 0; 
   // subcomponents
-  unsigned int nc = pv->getNChildVols();
-  if (nc==0) {
+  GeoVolumeVec_t vols = geoGetVolumes (pv);
+  if (vols.empty()) {
     const GeoLogVol* clv = pv->getLogVol();
     double xh=0;
     std::string type =  clv->getShape()->type();
@@ -1895,9 +1882,9 @@ double Muon::MuonStationTypeBuilder::get_x_size(const GeoVPhysVol* pv) const
 
   }
 
-  for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = pv->getXToChildVol(ic);
-    const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
+  for (const GeoVolumeVec_t::value_type& p : vols) {
+    const Amg::Transform3D& transf = p.second;
+    const GeoVPhysVol* cv = p.first;
     const GeoLogVol* clv = cv->getLogVol();
     double xh=0;
     std::string type =  clv->getShape()->type();
@@ -1952,8 +1939,7 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::getAveragedLayerMaterial( 
 void Muon::MuonStationTypeBuilder::collectMaterial(const GeoVPhysVol* pv, Trk::MaterialProperties& layMat, double sf) const
 {
   // sf is surface of the new layer used to calculate the average 'thickness' of components
-  // number of child volumes
-  unsigned int nc = pv->getNChildVols();
+  GeoVolumeVec_t vols = geoGetVolumes (pv);
   // add current volume 
   const GeoLogVol* lv = pv->getLogVol(); 
   //std::cout << "collect material:component:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type()<<std::endl;
@@ -1969,8 +1955,8 @@ void Muon::MuonStationTypeBuilder::collectMaterial(const GeoVPhysVol* pv, Trk::M
     // current volume
     double vol = getVolume(lv->getShape());
     // subtract children volumes
-    for (unsigned int ic=0; ic<nc; ic++) {
-      const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
+    for (const GeoVolumeVec_t::value_type& p : vols) {
+      const GeoVPhysVol* cv = p.first;
       if ( getVolume(cv->getLogVol()->getShape()) > vol ) {
 	//std::cout << "WARNING:collect material : child volume bigger than mother volume" << std::endl; 
       } else {
@@ -1991,9 +1977,8 @@ void Muon::MuonStationTypeBuilder::collectMaterial(const GeoVPhysVol* pv, Trk::M
   // subcomponents
   // skip children volume if we deal with G10 ( not correctly described )
   //if ( lv->getName() != "G10" ) { 
-  for (unsigned int ic=0; ic<nc; ic++) {
-    const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
-    ATH_MSG_VERBOSE( " collectMaterial child " << ic);
+  for (const GeoVolumeVec_t::value_type& p : vols) {
+    const GeoVPhysVol* cv = p.first;
     collectMaterial( cv, layMat, sf);
   }
 }
@@ -2055,9 +2040,9 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
     // retrieve number of gas gaps and their position -> turn them into active layers
     // step 1 level below
     const GeoVPhysVol* cv1 = &(*(pv->getChildVol(0)));
-    for (unsigned int ic=0; ic < cv1->getNChildVols(); ic++) {
-      Amg::Transform3D transfc = cv1->getXToChildVol(ic);
-      const GeoVPhysVol* cv = &(*(cv1->getChildVol(ic)));
+    for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (cv1)) {
+      const GeoVPhysVol* cv = p.first;
+      const Amg::Transform3D& transfc = p.second;
       const GeoLogVol* clv = cv->getLogVol();
       if ( clv->getName() == "CscArCO2" ) {
         double xl = transfc.translation()[0];
@@ -2187,9 +2172,9 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
     // retrieve number of gas gaps and their position -> turn them into active layers
     // step 1 level below
     const GeoVPhysVol* cv1 = &(*(pv->getChildVol(0)));
-    for (unsigned int ic=0; ic < cv1->getNChildVols(); ic++) {
-      Amg::Transform3D transfc = cv1->getXToChildVol(ic);
-      const GeoVPhysVol* cv = &(*(cv1->getChildVol(ic)));
+    for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (cv1)) {
+      const GeoVPhysVol* cv = p.first;
+      const Amg::Transform3D& transfc = p.second;
       const GeoLogVol* clv = cv->getLogVol();
       if ( clv->getName() == "CscArCO2" ) {
         double xl = transfc.translation()[0];
@@ -2321,9 +2306,9 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const G
     std::cout << "unknown TGC material:" << tgcBounds->halflengthZ()  << std::endl;
   }
 
-  for (unsigned int ic=0; ic < pv->getNChildVols(); ic++) {
-    Amg::Transform3D transfc = pv->getXToChildVol(ic);
-    const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
+  for (const GeoVolumeVec_t::value_type& p : geoGetVolumes (pv)) {
+    const GeoVPhysVol* cv = p.first;
+    const Amg::Transform3D& transfc = p.second;
     const GeoLogVol* clv = cv->getLogVol();
     if ( clv->getName() == "muo::TGCGas" ) {
       double xl = transfc.translation()[0];

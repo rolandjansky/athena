@@ -4,4 +4,4 @@
 
 #include "AthenaMonitoring/OHLockedHist.h"
 
-boost::mutex* oh_lock_histogram_mutex::m_mutex = nullptr;
+std::mutex* oh_lock_histogram_mutex::m_mutex = nullptr;

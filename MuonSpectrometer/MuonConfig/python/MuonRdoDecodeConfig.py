@@ -2,10 +2,10 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE, DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
-class MuonPrdCacheNames:
+class MuonPrdCacheNames(object):
     MdtCache  = "MdtPrdCache"
     CscCache  = "CscPrdCache"
     RpcCache  = "RpcPrdCache"
@@ -175,7 +175,7 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     if not forTrigger:
         from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
         CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                   cluster_builder = CscClusterBuilderTool ) 
+                                                       cluster_builder = CscClusterBuilderTool )
         acc.addEventAlgo(CscClusterBuilder)
 
     return acc

@@ -11,7 +11,6 @@
 //====================================================================
 
 #include "StorageSvc/pool.h"
-//#include "StorageSvc/DbType.h"
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>

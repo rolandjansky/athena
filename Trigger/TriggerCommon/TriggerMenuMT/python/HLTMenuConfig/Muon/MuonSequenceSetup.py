@@ -87,25 +87,6 @@ def muCombAlgSequence(ConfigFlags):
 
     return (l2muCombSequence, l2muCombViewsMaker, sequenceOut)
 
-def muNotCombAlgSequence(ConfigFlags):
-
-    ### set the EVCreator ###
-    l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker")
-    l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # -||- this NEEDS to be set. probably should be roi for anything not immediately after L1
-    l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
-    l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
-    l2muCombViewsMaker.RequireParentView = True
-    
-    ### get muComb reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muonIDFastTrackingSequence
-    muNotCombRecoSequence, eventAlgs, TrackParticlesName, _ = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs )
- 
-    l2muCombViewsMaker.ViewNodeName = muNotCombRecoSequence.name()
-       
-    l2muNotCombSequence = seqAND("l2muNotCombSequence", eventAlgs + [l2muCombViewsMaker, muNotCombRecoSequence] )
-
-    return (l2muNotCombSequence, l2muCombViewsMaker)
 
 
 def muCombSequence():
@@ -259,7 +240,6 @@ def muEFSAFSAlgSequence(ConfigFlags):
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
     efsafsInputMaker.CreateFSRoI=True
-    efsafsInputMaker.ViewPerRoI=True
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
@@ -295,7 +275,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker") #can we call it EFCBFSEventViewCreator?
     efcbfsInputMaker.ViewFallThrough = True
-    efcbfsInputMaker.ViewPerRoI = True
+    efcbfsInputMaker.mergeOutputs = False
     efcbfsInputMaker.Views = "MUCBFSViews"
     efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
     efcbfsInputMaker.RoIsLink = "roi"
@@ -378,7 +358,6 @@ def muEFIsoAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("efmuIsoViewsMaker")
     efmuIsoViewsMaker.ViewFallThrough = True
-    efmuIsoViewsMaker.ViewPerRoI = True
     efmuIsoViewsMaker.RoIsLink = "roi" # -||-
     efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs" # contract with the consumer
     efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
@@ -387,7 +366,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker.RoIEtaWidth=0.15
     efmuIsoViewsMaker.RoIPhiWidth=0.15
     efmuIsoViewsMaker.LinkToParent=False
-
+    efmuIsoViewsMaker.mergeOutputs = False
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence

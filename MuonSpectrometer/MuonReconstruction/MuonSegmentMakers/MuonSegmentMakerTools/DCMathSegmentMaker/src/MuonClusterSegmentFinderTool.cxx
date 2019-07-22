@@ -726,10 +726,11 @@ namespace Muon {
     Trk::Track* segtrack = m_slTrackFitter->fit(vec2,startpar,false,Trk::nonInteracting);
     if(segtrack) {
       ATH_MSG_VERBOSE( "segment fit succeeded");
-      Trk::Track* cleanedTrack = m_trackCleaner->clean(*segtrack);
-      if( cleanedTrack && cleanedTrack != segtrack ){
+      std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*segtrack);
+      if( cleanedTrack && !(cleanedTrack->perigeeParameters() == segtrack->perigeeParameters()) ){
 	delete segtrack;
-	segtrack = cleanedTrack;
+	//using release until the entire code can be migrated to use smart pointers
+	segtrack = cleanedTrack.release();
       }
       if( !m_helper->goodTrack(*segtrack,10) ) {
 	if(segtrack->fitQuality()) {
@@ -741,6 +742,7 @@ namespace Muon {
     }
     return segtrack;
   }
+
   std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > 
   MuonClusterSegmentFinderTool::segmentSeedFromPads(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters,
 						    const Muon::MuonSegment* etaSeg) const {

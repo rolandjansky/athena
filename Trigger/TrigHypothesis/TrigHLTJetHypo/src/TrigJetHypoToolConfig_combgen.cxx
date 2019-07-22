@@ -11,22 +11,10 @@
 // ********************************************************************
 
 #include "TrigJetHypoToolConfig_combgen.h"
-
-#include "GaudiKernel/StatusCode.h"
-
 #include "./conditionsFactoryMT.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-
-#include "DecisionHandling/TrigCompositeUtils.h"
-
-using TrigCompositeUtils::DecisionID;
-using TrigCompositeUtils::Decision;
-using TrigCompositeUtils::DecisionContainer;
+#include "./CombinationsGroupsToHelpersMatcherMT.h"
 
 TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& type,
                                                  const std::string& name,
@@ -47,13 +35,25 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 
 
 
-ConditionsMT TrigJetHypoToolConfig_combgen::getConditions() const {
+std::optional<ConditionsMT>
+TrigJetHypoToolConfig_combgen::getConditions() const {
+
   auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
                                              m_etaMaxs,
                                              m_EtThresholds,
                                              m_asymmetricEtas);
-
-  return conditions;
+  
+  auto capacity0 = conditions[0]->capacity();
+  if(std::any_of(conditions.begin(),
+		 conditions.end(),
+		 [capacity0](const auto& c) {
+		   return c->capacity() != capacity0;}))
+    {
+      ATH_MSG_ERROR("Conditions have differing capacities");
+      return std::optional<ConditionsMT>();
+    }
+  
+  return std::make_optional<ConditionsMT>(std::move(conditions));
 }
 
  
@@ -67,8 +67,7 @@ StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
       m_EtThresholds.size() != m_etaMaxs.size() or
       m_asymmetricEtas.size() != m_etaMaxs.size()){
     
-    ATH_MSG_ERROR(name()
-                  << ": mismatch between number of thresholds "
+    ATH_MSG_ERROR(name()<< ": mismatch between number of thresholds "
                   << "and eta min, max boundaries or asymmetric eta flags: "
                   << m_EtThresholds.size() << " "
                   << m_etaMins.size() << " "
@@ -78,6 +77,12 @@ StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
     
     return StatusCode::FAILURE;
   }
+
+  if(m_children.empty()){
+    ATH_MSG_ERROR(name()<< ": No children ");
+    return StatusCode::FAILURE;
+  }
+    
   return StatusCode::SUCCESS;
 }
 
@@ -90,6 +95,15 @@ TrigJetHypoToolConfig_combgen::getCleaners() const {
 
 std::unique_ptr<IGroupsMatcherMT>
 TrigJetHypoToolConfig_combgen::getMatcher () const {
-  // method needed for interface. Combgen nneds no matcher
-  return std::unique_ptr<IGroupsMatcherMT> (nullptr);
+  /* Provides a matcher that matcheZ<s single HypoJetVectors to
+     multiple ITrigJetHypoToolHelperMT*/
+
+  return std::make_unique<CombinationsGroupsToHelpersMatcherMT>(m_children);
+}
+
+std::size_t
+TrigJetHypoToolConfig_combgen::requiresNJets() const {
+  std::size_t result{0};
+  for(const auto& c : m_children){result += c->requiresNJets();}
+  return result;
 }

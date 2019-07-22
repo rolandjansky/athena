@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKFITTER_H
@@ -231,9 +231,9 @@ namespace Muon {
 
   private:
     /** clean and evaluate the track, 
-        @return 0 if Track does not forfill criteria, a pointer to the input track if nothing was done, a new track if cleaning was performed
+        @return 0 if Track does not forfill criteria, a unique_ptr otherwise (could be to a track which is the same as the current)
     */
-    Trk::Track* cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const;
+    std::unique_ptr<Trk::Track> cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const;
 
     
     /** extract all information needed for the fit from the track */

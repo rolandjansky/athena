@@ -21,9 +21,10 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 
 #use filepeeker to set some variables
-from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DataSource = 'data' if "IS_DATA" in inputFileSummary['evt_type'] else 'geant4'
-globalflags.DetDescrVersion = inputFileSummary['geometry']
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if "IS_DATA" in metadata['eventTypes'] else 'geant4'
+globalflags.DetDescrVersion = metadata['GeoAtlas']
+
 ##before loading det description, turn off everything except Calorimeter - quicker
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()

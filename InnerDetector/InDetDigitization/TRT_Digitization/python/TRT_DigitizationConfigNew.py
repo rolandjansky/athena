@@ -11,7 +11,6 @@ from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from PartPropSvc.PartPropSvcConf import PartPropSvc
-from StoreGate.StoreGateConf import StoreGateSvc
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 

@@ -13,11 +13,11 @@ TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU109         9         9         0         0         0         0         9
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    44        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      174       12197     413       0         0
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      174       12199     413       0         0
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      154       11287     214       0         0
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      154       11289     214       0         0
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      104       8285      118       0         0
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      104       8288      118       0         0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      154       154       214       0         0
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2019        19        0         0         0         0         0         0
@@ -50,8 +50,14 @@ TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4      
 TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      24        22        32        30        0
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             10        10        10        0         0         0         0         10
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       14        0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        10        6         0         0         0         6
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       27        8         0         0         0
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        10        10        0         0         0         10
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       27        21        0         0         0
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12  18        18        18        18        0         0         0         18
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12 decisions                    39        29        0         0         0
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo_L1TAU12IM18        18        17        16        0         0         0         16
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo_L1TAU12IM decisions                    37        27        0         0         0
+TrigSignatureMoniMT                                INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM18        18        15        10        0         0         0         10
+TrigSignatureMoniMT                                INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM decisions                    34        12        0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       0         0         0         0         0         0         0         0

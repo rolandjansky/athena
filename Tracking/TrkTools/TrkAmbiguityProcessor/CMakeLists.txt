@@ -8,7 +8,7 @@ atlas_subdir( TrkAmbiguityProcessor )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/AtlasDetDescr
                           GaudiKernel			  
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -36,7 +36,7 @@ atlas_add_library(   TrkAmbiguityProcessorLib
                      src/DenseEnvironmentsAmbiguityProcessorTool.cxx
                      PUBLIC_HEADERS TrkAmbiguityProcessor
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)
 
 atlas_add_component( TrkAmbiguityProcessor
                      src/SimpleAmbiguityProcessorTool.cxx  src/TrackScoringTool.cxx  src/TrackSelectionProcessorTool.cxx
