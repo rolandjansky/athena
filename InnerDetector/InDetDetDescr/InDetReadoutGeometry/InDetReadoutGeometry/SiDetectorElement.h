@@ -498,7 +498,8 @@ namespace InDetDD {
      
       /// Signal that cached values are no longer valid.
       /// Invalidate general cache
-      void invalidate() const;
+      void invalidate ATLAS_NOT_THREAD_SAFE () const;
+      void invalidate();
     
       /// Recalculate all cached values. 
       void updateCache() const;
@@ -769,6 +770,11 @@ namespace InDetDD {
       m_cacheValid = false;
     }
     
+    inline void SiDetectorElement::invalidate()
+    {
+      m_cacheValid = false;
+    }
+
     inline void SiDetectorElement::updateAllCaches() const
     {
       std::lock_guard<std::recursive_mutex> lock(m_mutex);
