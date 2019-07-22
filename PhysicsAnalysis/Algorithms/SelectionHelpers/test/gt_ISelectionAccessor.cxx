@@ -430,20 +430,23 @@ namespace CP
     EXPECT_EQ(s, "( ( alpha && beta ) || !gamma )");
     EXPECT_EQ(parse(s), s);
 
+    s = parse(" A && B && C && D");
+    EXPECT_EQ(s, "( A && B && C && D )");
 
-   EXPECT_THROW(parse("alpha &&"), std::runtime_error);
-   EXPECT_THROW(parse("&&"), std::runtime_error);
-   EXPECT_THROW(parse("&& alpha"), std::runtime_error);
-   EXPECT_THROW(parse("alpha ||"), std::runtime_error);
-   EXPECT_THROW(parse("||"), std::runtime_error);
-   EXPECT_THROW(parse("|| alpha"), std::runtime_error);
-   EXPECT_THROW(parse("(alpha && beta || gamma"), std::runtime_error);
-   EXPECT_THROW(parse("alpha && beta) || gamma"), std::runtime_error);
-   EXPECT_THROW(parse("!"), std::runtime_error);
-   EXPECT_THROW(parse("alpha !"), std::runtime_error);
-   EXPECT_THROW(parse("()"), std::runtime_error);
-   EXPECT_THROW(parse(")"), std::runtime_error);
-   EXPECT_THROW(parse("("), std::runtime_error);
+
+    EXPECT_THROW(parse("alpha &&"), std::runtime_error);
+    EXPECT_THROW(parse("&&"), std::runtime_error);
+    EXPECT_THROW(parse("&& alpha"), std::runtime_error);
+    EXPECT_THROW(parse("alpha ||"), std::runtime_error);
+    EXPECT_THROW(parse("||"), std::runtime_error);
+    EXPECT_THROW(parse("|| alpha"), std::runtime_error);
+    EXPECT_THROW(parse("(alpha && beta || gamma"), std::runtime_error);
+    EXPECT_THROW(parse("alpha && beta) || gamma"), std::runtime_error);
+    EXPECT_THROW(parse("!"), std::runtime_error);
+    EXPECT_THROW(parse("alpha !"), std::runtime_error);
+    EXPECT_THROW(parse("()"), std::runtime_error);
+    EXPECT_THROW(parse(")"), std::runtime_error);
+    EXPECT_THROW(parse("("), std::runtime_error);
   }
   
   TEST (SelectionExprParser, evaluate) {
