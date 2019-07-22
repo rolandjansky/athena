@@ -15,60 +15,6 @@
 
 namespace CP {
 
-class SelectionAccessorExprBase : public ISelectionAccessor {
-  // leave getBool pure virtual
-  // leave label pure virtual
-
- public:
-  virtual SelectionType getBits(const SG::AuxElement &element) const override;
-
-  virtual void setBool(SG::AuxElement & /*element*/,
-                       bool /*value*/) const override;
-
-  virtual void setBits(SG::AuxElement & /*element*/,
-                       SelectionType /*selection*/) const override;
-};
-
-class SelectionAccessorExprAnd : public SelectionAccessorExprBase {
- public:
-  SelectionAccessorExprAnd(std::unique_ptr<ISelectionAccessor> left,
-                           std::unique_ptr<ISelectionAccessor> right);
-
-  virtual bool getBool(const SG::AuxElement &element) const override;
-
-  virtual std::string label() const override;
-
- private:
-  std::unique_ptr<ISelectionAccessor> m_left;
-  std::unique_ptr<ISelectionAccessor> m_right;
-};
-
-class SelectionAccessorExprOr : public SelectionAccessorExprBase {
- public:
-  SelectionAccessorExprOr(std::unique_ptr<ISelectionAccessor> left,
-                          std::unique_ptr<ISelectionAccessor> right);
-
-  virtual bool getBool(const SG::AuxElement &element) const override;
-
-  virtual std::string label() const override;
-
- private:
-  std::unique_ptr<ISelectionAccessor> m_left;
-  std::unique_ptr<ISelectionAccessor> m_right;
-};
-
-class SelectionAccessorExprNot : public SelectionAccessorExprBase {
- public:
-  SelectionAccessorExprNot(std::unique_ptr<ISelectionAccessor> child);
-
-  virtual bool getBool(const SG::AuxElement &element) const override;
-
-  virtual std::string label() const override;
-
- private:
-  std::unique_ptr<ISelectionAccessor> m_child;
-};
-
 namespace DetailSelectionExprParser {
 class Separator {
  public:

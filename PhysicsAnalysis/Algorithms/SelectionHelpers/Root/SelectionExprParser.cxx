@@ -3,6 +3,8 @@
 */
 
 #include "SelectionHelpers/SelectionExprParser.h"
+#include "SelectionHelpers/SelectionAccessorExprNot.h"
+#include "SelectionHelpers/SelectionAccessorExprOr.h"
 #include "SelectionHelpers/SelectionAccessorList.h"
 #include "SelectionHelpers/SelectionAccessorNull.h"
 
@@ -12,61 +14,6 @@
 
 namespace CP {
 using namespace msgSelectionHelpers;
-
-SelectionType SelectionAccessorExprBase::getBits(
-    const SG::AuxElement& element) const {
-  return getBool(element) ? selectionAccept() : selectionReject();
-}
-
-void SelectionAccessorExprBase::setBool(SG::AuxElement& /*element*/,
-                                        bool /*value*/) const {
-  throw std::runtime_error(
-      "setting not supported for CP::SelectionAccessorExprBase");
-}
-
-void SelectionAccessorExprBase::setBits(SG::AuxElement& /*element*/,
-                                        SelectionType /*selection*/) const {
-  throw std::runtime_error(
-      "setting not supported for CP::SelectionAccessorExprBase");
-}
-
-SelectionAccessorExprAnd::SelectionAccessorExprAnd(
-    std::unique_ptr<ISelectionAccessor> left,
-    std::unique_ptr<ISelectionAccessor> right)
-    : m_left(std::move(left)), m_right(std::move(right)) {}
-
-bool SelectionAccessorExprAnd::getBool(const SG::AuxElement& element) const {
-  return m_left->getBool(element) && m_right->getBool(element);
-}
-
-std::string SelectionAccessorExprAnd::label() const {
-  return "( " + m_left->label() + " && " + m_right->label() + " )";
-}
-
-SelectionAccessorExprOr::SelectionAccessorExprOr(
-    std::unique_ptr<ISelectionAccessor> left,
-    std::unique_ptr<ISelectionAccessor> right)
-    : m_left(std::move(left)), m_right(std::move(right)) {}
-
-bool SelectionAccessorExprOr::getBool(const SG::AuxElement& element) const {
-  return m_left->getBool(element) || m_right->getBool(element);
-}
-
-std::string SelectionAccessorExprOr::label() const {
-  return "( " + m_left->label() + " || " + m_right->label() + " )";
-}
-
-SelectionAccessorExprNot::SelectionAccessorExprNot(
-    std::unique_ptr<ISelectionAccessor> child)
-    : m_child(std::move(child)) {}
-
-bool SelectionAccessorExprNot::getBool(const SG::AuxElement& element) const {
-  return !m_child->getBool(element);
-}
-
-std::string SelectionAccessorExprNot::label() const {
-  return "!" + m_child->label();
-}
 
 namespace DetailSelectionExprParser {
 bool Separator::operator()(std::string::const_iterator& next,
