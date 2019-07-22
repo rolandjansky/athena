@@ -64,6 +64,7 @@ FourMuonEvent::~FourMuonEvent()
 void FourMuonEvent::Init()
 {
   m_xMuonID.Init();
+  m_xElecID.Init();
 
   PARENT::Init();
 }

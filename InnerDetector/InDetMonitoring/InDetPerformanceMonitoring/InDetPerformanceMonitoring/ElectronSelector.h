@@ -33,7 +33,7 @@ class ElectronSelector : public EventAnalysis
   //  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
  
   // Override functions from EventAnalysis
-  virtual void Init();
+  void  Init();
   // virtual bool Reco();
 
  protected:

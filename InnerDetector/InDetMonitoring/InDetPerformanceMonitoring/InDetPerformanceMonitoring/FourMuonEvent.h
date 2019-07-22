@@ -10,10 +10,10 @@
 //==============================================================================
 #include "CLHEP/Vector/LorentzVector.h"
 #include "InDetPerformanceMonitoring/MuonSelector.h"
+#include "InDetPerformanceMonitoring/ElectronSelector.h"
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
-
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
@@ -111,6 +111,7 @@ class FourMuonEvent : public EventAnalysis
 
   // Active mu-cuts for the analysis
   MuonSelector            m_xMuonID;
+  ElectronSelector        m_xElecID;
   PerfMonServices::CONTAINERS m_container;
 
   // Tag Setup variables

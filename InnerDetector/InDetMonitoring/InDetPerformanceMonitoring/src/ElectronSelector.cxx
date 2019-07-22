@@ -57,6 +57,7 @@ ElectronSelector::~ElectronSelector()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::Init()
 {
+  std::cout << " --ElectronSelector::Init -- START -- " << std::endl;
   ISvcLocator* serviceLocator = Gaudi::svcLocator();
   IToolSvc* toolSvc;
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
@@ -67,6 +68,7 @@ void ElectronSelector::Init()
   }
   
   PARENT::Init();
+  std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< std::endl;
 }
 
 
