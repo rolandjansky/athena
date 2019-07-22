@@ -6,6 +6,7 @@ from DumpEventDataToJSON.DumpEventDataToJSONConf import DumpEventDataToJsonAlg
 
 def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
     result=ComponentAccumulator()
+    extrapolationEngine=""
     if doExtrap:
       from TrkExEngine.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
       extrapAcc = AtlasExtrapolationEngineCfg(configFlags)
@@ -29,16 +30,13 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
 
     # Uncomment for debugging
-    log.setLevel(DEBUG)
-    log.debug('Set up input')
+    # log.setLevel(DEBUG)
     
     # To run on MC do e.g.
     ConfigFlags.Input.Files = ["../q221/myESD.pool.root"]
     # To run on data do e.g.
     # ConfigFlags.Input.Files = ["../q431/myESD.pool.root"]
-    
-    log.debug('Set up Detector')
-    
+        
     # Just enable ID for the moment.
     ConfigFlags.Detector.GeometryPixel = True     
     ConfigFlags.Detector.GeometrySCT   = True 
