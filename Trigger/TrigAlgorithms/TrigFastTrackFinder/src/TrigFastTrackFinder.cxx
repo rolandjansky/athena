@@ -162,6 +162,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
+  declareProperty( "TrigL2ResidualCalculator",   m_trigZFinder );
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "TrigL2SpacePointTruthTool", m_TrigL2SpacePointTruthTool);

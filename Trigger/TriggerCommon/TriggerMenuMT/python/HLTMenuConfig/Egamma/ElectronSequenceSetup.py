@@ -15,12 +15,7 @@ def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs( separateTrackParticleCreator="_Electron")
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
-
-    theFTF = TrigFastTrackFinder_eGamma()
-    theFTF.isRoI_Seeded = True
-    viewAlgs.append(theFTF)
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron")
 
 
     # A simple algorithm to confirm that data has been inherited from parent view
@@ -35,8 +30,6 @@ def fastElectronSequence(ConfigFlags):
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
             TrackCollection = viewAlg.TrackName
-
-    theFTF.TracksName=TrackCollection
       
     from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
     theElectronFex= L2ElectronFex_1()
