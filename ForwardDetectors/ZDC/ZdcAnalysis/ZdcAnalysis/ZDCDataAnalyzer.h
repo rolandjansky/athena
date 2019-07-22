@@ -5,12 +5,13 @@
 #ifndef _ZDCDataAnalyzer_h
 #define _ZDCDataAnalyzer_h
 
-#include <AsgTools/MessageCheck.h>
 #include <ZdcAnalysis/ZDCPulseAnalyzer.h>
 #include <TSpline.h>
 
 #include <array>
 #include <string>
+
+#include "ZdcAnalysis/ZDCMsg.h"
 
 class ZDCDataAnalyzer
 {
@@ -19,6 +20,7 @@ public:
   typedef std::array<std::array<bool, 4>, 2> ZDCModuleBoolArray;
 
 private:
+  ZDCMsg::MessageFunctionPtr m_msgFunc_p;
   size_t m_nSample;
   float m_deltaTSample;
   size_t m_preSampleIdx;
@@ -69,47 +71,14 @@ private:
   std::array<bool, 2> m_fail;
 
 
-  /// @name Functions providing the same interface as AthMessaging
-  /// @{
-
-  /// Test the output level of the object
-  ///
-  /// @param lvl The message level to test against
-  /// @return boolean Indicting if messages at given level will be printed
-  /// @returns <code>true</code> If messages at level "lvl" will be printed
-  ///
-  bool msgLvl( const MSG::Level lvl ) const {
-    return m_msg->level() <= lvl;};
-
-  /// The standard message stream.
-  ///
-  /// @param lvl The message level to set the stream to
-  /// @returns A reference to the default message stream, set to level "lvl"
-  ///
-  MsgStream& msg( const MSG::Level lvl ) const {
-    (*m_msg) << lvl;return *m_msg;};
-
-  /// The standard message stream.
-  ///
-  /// @returns A reference to the default message stream of this object.
-  ///
-  MsgStream& msg() const {
-    return *m_msg;};
-
-
-  /// the message stream we use
-  MsgStream *m_msg;
-
-  /// @}
-
 public:
 
-  ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSample,
+  ZDCDataAnalyzer(ZDCMsg::MessageFunctionPtr messageFunc_p, int nSample, float deltaTSample,
                   size_t preSampleIdx, std::string fitFunction,
-		  const ZDCModuleFloatArray& peak2ndDerivMinSamples, 
-		  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
-		  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG, 
-		  bool forceLG = false); 
+                  const ZDCModuleFloatArray& peak2ndDerivMinSamples,
+                  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
+                  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
+                  bool forceLG = false);
 
   ~ZDCDataAnalyzer();
 
@@ -123,7 +92,7 @@ public:
 
   float GetCalibModuleSum(size_t side) const {return m_calibModuleSum.at(side);}
   float GetCalibModuleSumErr(size_t side) const {return std::sqrt(m_calibModuleSumErrSq.at(side));}
-  
+
   float GetModuleSumPreSample(size_t side) const {return m_moduleSumPreSample.at(side);}
 
   float GetAverageTime(size_t side) const {return m_averageTime.at(side);}
@@ -137,6 +106,8 @@ public:
   float GetModuleCalibTime(size_t side, size_t module) const {return m_calibTime.at(side).at(module);}
   float GetModuleStatus(size_t side, size_t module) const {return m_moduleStatus.at(side).at(module);}
 
+  float GetdelayedBS(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module)->GetdelayBS();}
+
   const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module).get();}
 
   bool DisableModule(size_t side, size_t module);
@@ -145,35 +116,35 @@ public:
 
   void SetFitTimeMax(float tmax);
 
-  void SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC, 
-				 const ZDCModuleFloatArray& LGOverflowADC);
+  void SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC,
+                                 const ZDCModuleFloatArray& LGOverflowADC);
 
-  void SetTauT0Values(const ZDCModuleBoolArray& fxiTau1, const ZDCModuleBoolArray& fxiTau2, 
-		      const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2, 
-		      const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
+  void SetTauT0Values(const ZDCModuleBoolArray& fxiTau1, const ZDCModuleBoolArray& fxiTau2,
+                      const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
+                      const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
 
   void SetCutValues(const ZDCModuleFloatArray& chisqDivAmpCutHG, const ZDCModuleFloatArray& chisqDivAmpCutLG,
-		    const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG, 
-		    const ZDCModuleFloatArray&  deltaT0MinLG, const ZDCModuleFloatArray& deltaT0MaxLG);
+                    const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG,
+                    const ZDCModuleFloatArray&  deltaT0MinLG, const ZDCModuleFloatArray& deltaT0MaxLG);
 
 
   void SetTimingCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGParamArr,
-			   const std::array<std::array<std::vector<float>, 4>, 2>& LGParamArr);
+                           const std::array<std::array<std::vector<float>, 4>, 2>& LGParamArr);
 
   void SetNonlinCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGNonlinCorrParams);
 
-  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> calibSplines) 
+  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> calibSplines)
   {
-    ANA_MSG_DEBUG ("Loading energy calibrations");
+    (*m_msgFunc_p)(ZDCMsg::Verbose, "Loading energy calibrations");
 
     m_LBDepEcalibSplines = std::move (calibSplines);
     m_haveECalib = true;
   }
 
-  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines, 
-                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines) 
+  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines,
+                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines)
   {
-    ANA_MSG_DEBUG ("Loading timing calibrations");
+    (*m_msgFunc_p)(ZDCMsg::Verbose, "Loading timing calibrations");
 
     m_T0HGOffsetSplines = std::move (T0HGOffsetSplines);
     m_T0LGOffsetSplines = std::move (T0LGOffsetSplines);
@@ -183,10 +154,10 @@ public:
 
   void StartEvent(int lumiBlock);
 
-  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples); 
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples);
 
   void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-			  const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed); 
+                          const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed);
 
   bool FinishEvent();
 
