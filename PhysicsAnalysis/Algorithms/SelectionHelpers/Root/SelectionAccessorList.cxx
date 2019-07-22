@@ -24,10 +24,12 @@ namespace CP
     for (const std::unique_ptr<ISelectionAccessor> &acc : m_list)
     {
       if (!m_label.empty())
-        m_label.append(" and ");
+        m_label.append(" && ");
       
       m_label.append(acc->label());
     }
+
+    m_label = "( " + m_label + " )";
   }
 
 
