@@ -94,7 +94,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       if (msgLvl(MSG::DEBUG)) msg() << "Pixel outlier info storing" << endreq;
 
       information[Trk::numberOfPixelOutliers]++;
-      if (m_pixelId->is_blayer(id)){
+      if (m_pixelId->is_innermost(id)){
 	information[Trk::numberOfBLayerOutliers]++;
       }
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)){
@@ -108,7 +108,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endreq;
 
       information[Trk::numberOfPixelHits]++;
-      if ((m_pixelId->is_blayer(id))) information[Trk::numberOfBLayerHits]++; // found b layer hit
+      if ((m_pixelId->is_innermost(id))) information[Trk::numberOfBLayerHits]++; // found b layer hit
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
       if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
       
@@ -130,7 +130,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 	if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
 	  if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
 	  information[Trk::numberOfPixelSharedHits]++;
-	  if ( (m_pixelId->is_blayer(id) ) ) {
+	  if ( (m_pixelId->is_innermost(id) ) ) {
 	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
 	    information[Trk::numberOfBLayerSharedHits]++;        
 	  }

@@ -552,7 +552,7 @@ namespace InDet {
       
       // check what we're filling
       Trk::AlignModule * mod = 0;
-      if( m_idHelper->is_barrel(id) && m_idHelper->is_blayer(id) && m_idHelper->layer_disk(id)==0) {
+      if( m_idHelper->is_barrel(id) && m_idHelper->is_innermost(id) && m_idHelper->layer_disk(id)==0) {
         ATH_MSG_DEBUG("pixel element "<<id<<" at index "<<index<<" is in IBL-layer");
         mod = ibl;
       }
@@ -1978,7 +1978,7 @@ namespace InDet {
 	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotX   && m_alignBarrelRotX)
 	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotY   && m_alignBarrelRotY)
 	     || (fullModPars->at(ipar)->paramType() == Trk::AlignModule::RotZ   && m_alignBarrelRotZ)
-	     || (m_idHelper->layer_disk(modID)==0 && m_idHelper->is_blayer(modID)  && fullModPars->at(ipar)->paramType() == Trk::AlignModule::BowX   && m_alignBarrelBowX) )  { //Bowing is only allowed for the IBL for now
+	     || (m_idHelper->layer_disk(modID)==0 && m_idHelper->is_innermost(modID) && fullModPars->at(ipar)->paramType() == Trk::AlignModule::BowX   && m_alignBarrelBowX) )  { //Bowing is only allowed for the IBL for now
           ATH_MSG_DEBUG("parameter type "<<fullModPars->at(ipar)->paramType()<<" \'"<<fullModPars->at(ipar)->dumpType()<<"\' is now active");
           activeModPars->push_back(fullModPars->at(ipar));
         }

@@ -599,7 +599,7 @@ namespace InDetAlignment
                             else {
                               ScaleFactor=m_ScalePixelEndcap;
                             }
-                            if (m_pixelIdHelper->is_blayer(ModuleID))   {  // IBL
+                            if (m_pixelIdHelper->is_innermost(ModuleID))   {  // IBL
                               ScaleFactor=m_ScalePixelIBL;
                             }
                             if (m_pixelIdHelper->is_dbm(ModuleID))   {    // DBM
@@ -722,7 +722,7 @@ namespace InDetAlignment
                         else if (m_MisalignmentMode==3) {
                           //shift whole detector                                                                                                        
                           double deltaX;
-                          if ( m_idHelper->is_pixel(ModuleID) && m_pixelIdHelper->is_blayer(ModuleID) )   {
+                          if ( m_idHelper->is_pixel(ModuleID) && m_pixelIdHelper->is_innermost(ModuleID) )   {
                             //function is parameterized in global z                                                                                     
 			    deltaX = getBowingTx( getBowingMagParam(m_IBLBowingTshift), z);
                                                   
