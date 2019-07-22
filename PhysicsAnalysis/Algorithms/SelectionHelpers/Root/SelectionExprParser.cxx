@@ -3,6 +3,7 @@
 */
 
 #include "SelectionHelpers/SelectionExprParser.h"
+#include "SelectionHelpers/SelectionAccessorList.h"
 #include "SelectionHelpers/SelectionAccessorNull.h"
 
 #include <iostream>
@@ -172,12 +173,18 @@ StatusCode SelectionExprParser::expression() {
 
 StatusCode SelectionExprParser::term() {
   ANA_CHECK(factor());
+  std::vector<std::unique_ptr<ISelectionAccessor>> factors;
+  factors.push_back(std::move(m_root));
+
   while (m_symbol.type == Lexer::AND) {
-    std::unique_ptr<ISelectionAccessor> left = std::move(m_root);
     ANA_CHECK(factor());
-    std::unique_ptr<ISelectionAccessor> right = std::move(m_root);
-    m_root = std::make_unique<SelectionAccessorExprAnd>(std::move(left),
-                                                        std::move(right));
+    factors.push_back(std::move(m_root));
+  }
+
+  if (factors.size() == 1) {
+    m_root = std::move(factors[0]);
+  } else {
+    m_root = std::make_unique<SelectionAccessorList>(std::move(factors));
   }
   return StatusCode::SUCCESS;
 }

@@ -13,6 +13,7 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionAccessorChar.h>
 #include <SelectionHelpers/SelectionAccessorBits.h>
+#include <SelectionHelpers/SelectionAccessorList.h>
 #include <AsgTools/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <xAODJet/Jet.h>
@@ -90,11 +91,64 @@ namespace CP
     accA->setBool (*jet, true);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
-    EXPECT_EQ (accAnd->getBits (*jet), selectionReject());
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)2);
     accA->setBool (*jet, false);
     accB->setBool (*jet, false);
     EXPECT_FALSE (accAnd->getBool (*jet));
-    EXPECT_EQ (accAnd->getBits (*jet), selectionReject());
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
+
+    // check AND of three accessors
+    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char&&b,as_char&&c,as_bits", accAnd));
+    auto* selAnd = dynamic_cast<SelectionAccessorList*>(accAnd.get());
+    EXPECT_NE(selAnd, nullptr);
+
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, true);
+    EXPECT_TRUE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)0);
+
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)1);
+
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)2);
+
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, true);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
+
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)4);
+
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, true);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)5);
+
+    accA->setBool (*jet, true);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)6);
+
+    accA->setBool (*jet, false);
+    accB->setBool (*jet, false);
+    accC->setBool (*jet, false);
+    EXPECT_FALSE (accAnd->getBool (*jet));
+    EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)7);
 
     // check an OR of two accessors
     std::unique_ptr<ISelectionAccessor> accOr;
