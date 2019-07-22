@@ -46,17 +46,17 @@ namespace CP
   }
   
     StatusCode 
-    makeSelectionAccessor(const std::string& name, 
+    makeSelectionAccessor(const std::string& expr, 
                                       std::unique_ptr<ISelectionAccessor>& accessor,
                                       bool defaultToChar)
     {
       using namespace msgSelectionHelpers;
 
       try {
-        SelectionExprParser parser(name, defaultToChar);
+        SelectionExprParser parser(expr, defaultToChar);
         ANA_CHECK(parser.build(accessor));
       } catch (const std::exception& e) {
-        ANA_MSG_FATAL("Failure to parse expression: '" << name << "': " << e.what());
+        ANA_MSG_FATAL("Failure to parse expression: '" << expr << "': " << e.what());
         return StatusCode::FAILURE;
       }
 
