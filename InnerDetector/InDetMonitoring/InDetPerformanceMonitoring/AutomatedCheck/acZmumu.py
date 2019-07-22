@@ -154,7 +154,9 @@ def extractRunsAndProperties (listOfDataSets):
         print (" <acZmumu> #data sets= %d" %(len(listOfDataSets)))
         # extract data set name
         # first is the data project
+        linecount = -1 # init line count
         for theLine in listOfDataSets: 
+            linecount += 1
             # lines with the main data (warning: there could be lines with left over content
             # Warning: there could be some dataset name left over in the next line
             if(m_dataProject in theLine):
@@ -162,7 +164,19 @@ def extractRunsAndProperties (listOfDataSets):
                 tempString = theLine[1:] # already remove the first "|"
                 theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
                 theDataSet.rstrip()
-                print " Data set: ", theDataSet
+                # check if the dataset name spilled over the next line
+                if ("--------" not in listOfDataSets[linecount+1]):
+                    # retrieve the remainings of the dataset name
+                    theNextLine = listOfDataSets[linecount+1]
+                    tempString2 = theNextLine[1:]
+                    tempString2 = tempString2[1:tempString2.find("|")]
+                    tempString2.strip()
+                    print " --> dataset name spilled in next line: \"%s\"" %tempString2
+                    print " --> original: \"%s\"" %theDataSet
+                    theDataSet = "%s%s" %(theDataSet[:-1],tempString2)
+                    theDataSet.strip()
+
+                print " Data set: \"%s\"" %theDataSet
                 # remove the data project and the point behind
                 tempString = tempString[tempString.find(m_dataProject) + len(m_dataProject) +1:]
                 theRunNumber = int(tempString[:tempString.find(".")])
@@ -170,30 +184,33 @@ def extractRunsAndProperties (listOfDataSets):
                 # finding number events
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfEvents = int(tempString[:tempString.find("|")])
-                print " Number of events: ", theNumberOfEvents
                 # finding number of files
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfFiles = int(tempString[:tempString.find("|")])
-                print " Number of files: ", theNumberOfFiles
+                # only store runs with some events and files
+                if (theNumberOfEvents > 1 and theNumberOfFiles > 0):
+                    infoFromAMI[theRunNumber] = {}
+                    infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
+                    infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
+                    infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
+                    if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
+                    print "     --> run: %d stored in infoFromAMI with %d events and %d files " %(theRunNumber, infoFromAMI[theRunNumber]["events"], infoFromAMI[theRunNumber]["nfiles"]) 
                 print (" ")
-                infoFromAMI[theRunNumber] = {}
-                infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
-                
-                infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
-                infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
-                if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
 
-            if (m_dataProject not in theLine):
-                # this means this line has leftover content
-                tempString = theLine[1:] # already remove the first "|"
-                theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
-                theDataSet = theDataSet[:theDataSet.find(" ")] # remove trailing blanks
-                infoFromAMI[theRunNumber]["dataset"] = "%s%s" %(infoFromAMI[theRunNumber]["dataset"],theDataSet)
-                continue
+                if (m_dataProject not in theLine and theRunNumber in dict):
+                    print " pasa 1 per al run %d i dataproject %s  i theLine %s" %(theRunNumber,m_dataProject,theLine) 
+                    # this means this line has leftover content
+                    tempString = theLine[1:] # already remove the first "|"
+                    theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
+                    theDataSet = theDataSet[:theDataSet.find(" ")] # remove trailing blanks
+                    infoFromAMI[theRunNumber]["dataset"] = "%s%s" %(infoFromAMI[theRunNumber]["dataset"],theDataSet)
+                    continue
     else:
         if ("NONE" in m_userDataSet):
             print (" <acZmumu> ERROR ** list of data sets is empty. Stop Execution")
             exit ()
+
+    print (" <acZmumu> extractRunsAndProperties completed ")
 
     return infoFromAMI
 
@@ -394,7 +411,6 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     filewithdatasets= open("acZmumu_listofsubmitteddatasets.txt","wb")
     for thedataset in listOfSubmittedDatasets:
         filewithdatasets.write("%s\n" %thedataset)
-        print " data set: ",thedataset
     filewithdatasets.close()
 
     return listOfSubmittedRuns
