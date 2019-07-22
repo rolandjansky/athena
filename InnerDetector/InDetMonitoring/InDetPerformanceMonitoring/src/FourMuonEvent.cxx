@@ -82,57 +82,73 @@ bool FourMuonEvent::Reco()
 
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
-  if (pxMuonContainer != nullptr && (m_workAsFourMuons || m_workAsFourLeptons) ) {
-    if (m_doDebug || thisdebug) {std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
-					   << " track list has "<< pxMuonContainer->size() 
-					   << " combined muons in container " << m_container 
-					   << std::endl; }
-    xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
-    xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
-    int theCount = 0;
-    while ( xMuonItr != xMuonItrE ){ // start loop on muons
-      const xAOD::Muon* pxCMuon = *xMuonItr;
-      theCount++;
-      if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** attempt on muon " << theCount << " with xMuonItr "<< *xMuonItr << std::endl;
-
-      // Apply muon cuts
-      if ( m_xMuonID.passSelection( pxCMuon)) {
-	RecordMuon( pxCMuon );
-	if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** muon " << theCount << " is accepted " << std::endl;
+  // if muons are requested 
+  if (m_workAsFourMuons || m_workAsFourLeptons) {
+    // check if muon container does exist
+    if (pxMuonContainer != nullptr) { 
+      if (m_doDebug || thisdebug) {
+	std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
+					     << " track list has "<< pxMuonContainer->size() 
+					     << " combined muons in container " << m_container 
+					     << std::endl; 
       }
-      xMuonItr++;
-    } // end loop on muons
-    
-    // ordering of muons
-    this->OrderMuonList();
-    
+      xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
+      xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
+      int theCount = 0;
+      while ( xMuonItr != xMuonItrE ){ // start loop on muons
+	const xAOD::Muon* pxCMuon = *xMuonItr;
+	theCount++;
+	if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** attempt on muon " << theCount << " with xMuonItr "<< *xMuonItr << std::endl;
+	
+	// Apply muon cuts
+	if ( m_xMuonID.passSelection( pxCMuon)) {
+	  RecordMuon( pxCMuon );
+	  if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** muon " << theCount << " is accepted " << std::endl;
+	}
+	xMuonItr++;
+      } // end loop on muons
+      
+      // ordering of muons
+      this->OrderMuonList();      
+    } // end muon container exists
+    if (!pxMuonContainer) {
+      std::cout << " * FourMuonEvent::Reco * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
+      return false;
+    } // end muon container does not exist
+  } // end requesting muons
+
+  //  
+  // here must go the electron selection
+  //
+  // if muons are requested 
+  if (m_workAsFourElectrons || m_workAsFourLeptons) {
+  }  
+
+  // now check if the particles in the event make them to satisfy the event selection
+  if (m_workAsFourMuons) {
     m_passedFourMuonSelection = false; // unless the event has 4 muons, assume it is not good
+
     if (m_numberOfFullPassMuons == 4) {
       m_passedFourMuonSelection = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
       if ( m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
-
+      
       m_passedFourMuonSelection = this->ReconstructKinematics(); // try the event kinematics 
-
+      
       if (m_passedFourMuonSelection) {   
 	m_passedFourMuonSelection = EventSelection(ID);
 	m_FourMuonInvMass = m_fInvariantMass[ID];
       }
+      else {
+	if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco * This events has no 4 good muons :( " << std::endl;
+      }          
       if (!m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
-    }
-    else {
-      if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco * This events has no 4 good muons :( " << std::endl;
-    }    
-  }
-  
-  if (!pxMuonContainer && m_workAsFourMuons) {
-    std::cout << " * FourMuonEvent::Reco * Can't retrieve combined muon collection (container: " << m_container <<") " << std::endl;
-    return false;
-  }
+    }  
+  } // end of workAsFourMuons
   
   if (m_workAsFourElectrons) {
     std::cout << " * FourMuonEvent::Reco * work in progress to use 4 electrons as well " << std::endl;
   }
-
+  
   if (m_workAsFourLeptons) {
     std::cout << " * FourMuonEvent::Reco * work in progress to use 4 leptons (electrons or muons) " << std::endl;
   }
@@ -789,8 +805,9 @@ void FourMuonEvent::OrderMuonList()
   int munegcount = 0;
 
   int nMuonsAtEntry = m_numberOfFullPassMuons;
+  m_numberOfFullPassMuons = 0; // reset the number of full pass muons
 
-  if (nMuonsAtEntry >= 4) { // we need at least 4 muons
+  if (nMuonsAtEntry >= 2) { // we need at least 2 muons
     for (int imuon=0; imuon < (int) nMuonsAtEntry; imuon++) {
       if(m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * testing imuon= " << imuon 
 			       << "   with charge= " << m_pxRecMuon[imuon]->charge()
@@ -832,36 +849,25 @@ void FourMuonEvent::OrderMuonList()
 	}
       } // muon exist
     } // for (int imuon)
-  } // if (m_numberOfFullPassMuons >= 4)
-  
-  if(m_doDebug && m_numberOfFullPassMuons >= 4){ 
-    std::cout << " -- debug -- * FourMuonEvent::OrderMuonList * Ordered list of the input " << nMuonsAtEntry << " muons is (taking 4): " << std::endl
-	      << "                                              muPlus1Id : " << muPlus1Id  << "   pt: " << muPlus1Pt << std::endl
-	      << "                                              muPlus1Id : " << muPlus2Id  << "   pt: " << muPlus2Pt << std::endl
-	      << "                                              muMinus1Id: " << muMinus1Id << "   pt: " << muMinus1Pt << std::endl
-	      << "                                              muMinus1Id: " << muMinus2Id << "   pt: " << muMinus2Pt << std::endl
-	      << std::endl;
-  }
-  
-  
-  if (muPlus1Id>=0 && muPlus2Id >= 0 && muMinus1Id>=0 && muMinus2Id>=0) {
-    m_muonpos1 = muPlus1Id;
-    m_muonpos2 = muPlus2Id;
-    m_muonneg1 = muMinus1Id;
-    m_muonneg2 = muMinus2Id;
-    m_muon1 = m_muonpos1; // to be deleted when no more m_muon is left
-    m_muon2 = m_muonneg1; // to be deleted when no more m_muon is left
-    
-    m_numberOfFullPassMuons = 4; // keep only 4 muons
-    if (m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * taking 4 muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl
-				      << "                                  leading mu-: " << muMinus1Id << "   Pt = " << muMinus1Pt << std::endl
-				      << "                                  second  mu-: " << muMinus2Id << "   Pt = " << muMinus2Pt << std::endl
-				      << "                                  leading mu+: " << muPlus1Id  << "   Pt = " << muPlus1Pt << std::endl
-				      << "                                  second  mu+: " << muPlus2Id  << "   Pt = " << muPlus2Pt << std::endl;
-    }
+  } // if (nMuonsAtEntry >= 2)
+
+  if (muPlus1Id>=0) {m_muonpos1 = muPlus1Id; m_numberOfFullPassMuons++;}
+  if (muPlus2Id>=0) {m_muonpos2 = muPlus2Id; m_numberOfFullPassMuons++;}
+  if (muMinus1Id>=0) {m_muonneg1 = muMinus1Id; m_numberOfFullPassMuons++;}
+  if (muMinus2Id>=0) {m_muonneg2 = muMinus2Id; m_numberOfFullPassMuons++;}
+
+  m_muon1 = m_muonpos1; // to be deleted when no more m_muon is left
+  m_muon2 = m_muonneg1; // to be deleted when no more m_muon is left
+
+  if (m_doDebug && m_numberOfFullPassMuons >= 2){ 
+    std::cout << " * FourMuonEvent::OrderMuonList * taking " << m_numberOfFullPassMuons << "  muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl;
+    if (muMinus1Id >= 0) std::cout << "                                  leading mu-: " << muMinus1Id << "   Pt = " << muMinus1Pt << std::endl;
+    if (muMinus2Id >= 0) std::cout << "                                  second  mu-: " << muMinus2Id << "   Pt = " << muMinus2Pt << std::endl;
+    if (muPlus1Id >= 0)  std::cout << "                                  leading mu+: " << muPlus1Id  << "   Pt = " << muPlus1Pt << std::endl;
+    if (muPlus2Id >= 0)  std::cout << "                                  second  mu+: " << muPlus2Id  << "   Pt = " << muPlus2Pt << std::endl;
   }
   else {
-    if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event is No-4-muon event :("  << std::endl;
+    if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event has less than 2 muons :("  << std::endl;
   }
   
   if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * m_numberOfFullPassMuons= " << m_numberOfFullPassMuons << std::endl;

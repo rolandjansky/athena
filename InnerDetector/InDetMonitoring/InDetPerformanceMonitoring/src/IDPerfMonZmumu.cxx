@@ -838,7 +838,8 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.SetSecondMuonPtCut(m_SecondMuonPtCut);
     m_4mu.SetOpeningAngleCut(m_OpeningAngleCut);
     m_4mu.SetZ0GapCut(m_Z0GapCut);
-    m_4mu.setDebugMode(m_doDebug);
+    // m_4mu.setDebugMode(m_doDebug);
+    m_4mu.setDebugMode(true);
 
     if(m_4mu.Reco()){
       ATH_MSG_INFO ("Sucessfull 4-muon reconstruction. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
