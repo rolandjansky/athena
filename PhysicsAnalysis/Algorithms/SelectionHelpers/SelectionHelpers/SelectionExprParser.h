@@ -66,13 +66,12 @@ class SelectionExprParser {
   StatusCode build(std::unique_ptr<ISelectionAccessor> &accessor);
 
  private:
-  StatusCode expression();
-  StatusCode term();
-  StatusCode factor();
+  StatusCode expression(std::unique_ptr<ISelectionAccessor> &root);
+  StatusCode term(std::unique_ptr<ISelectionAccessor> &root);
+  StatusCode factor(std::unique_ptr<ISelectionAccessor> &root);
 
   DetailSelectionExprParser::Lexer m_lexer;
   DetailSelectionExprParser::Lexer::Symbol m_symbol;
-  std::unique_ptr<ISelectionAccessor> m_root;
   bool m_defaultToChar;
 };
 

@@ -95,62 +95,66 @@ SelectionExprParser::SelectionExprParser(Lexer lexer, bool defaultToChar)
 
 StatusCode SelectionExprParser::build(
     std::unique_ptr<ISelectionAccessor>& accessor) {
-  ANA_CHECK(expression());
+  std::unique_ptr<ISelectionAccessor> root{nullptr};
+  ANA_CHECK(expression(root));
 
   if (m_symbol.type != Lexer::END) {
     throw std::runtime_error(
         "Not all symbols in expression were consumed. Check your expression.");
   }
 
-  accessor = std::move(m_root);
+  accessor = std::move(root);
   return StatusCode::SUCCESS;
 }
 
-StatusCode SelectionExprParser::expression() {
-  ANA_CHECK(term());
+StatusCode SelectionExprParser::expression(
+    std::unique_ptr<ISelectionAccessor>& root) {
+  ANA_CHECK(term(root));
   while (m_symbol.type == Lexer::OR) {
-    std::unique_ptr<ISelectionAccessor> left = std::move(m_root);
-    ANA_CHECK(term());
-    std::unique_ptr<ISelectionAccessor> right = std::move(m_root);
-    m_root = std::make_unique<SelectionAccessorExprOr>(std::move(left),
-                                                       std::move(right));
+    std::unique_ptr<ISelectionAccessor> left = std::move(root);
+    ANA_CHECK(term(root));
+    std::unique_ptr<ISelectionAccessor> right = std::move(root);
+    root = std::make_unique<SelectionAccessorExprOr>(std::move(left),
+                                                     std::move(right));
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode SelectionExprParser::term() {
-  ANA_CHECK(factor());
+StatusCode SelectionExprParser::term(
+    std::unique_ptr<ISelectionAccessor>& root) {
+  ANA_CHECK(factor(root));
   std::vector<std::unique_ptr<ISelectionAccessor>> factors;
-  factors.push_back(std::move(m_root));
+  factors.push_back(std::move(root));
 
   while (m_symbol.type == Lexer::AND) {
-    ANA_CHECK(factor());
-    factors.push_back(std::move(m_root));
+    ANA_CHECK(factor(root));
+    factors.push_back(std::move(root));
   }
 
   if (factors.size() == 1) {
-    m_root = std::move(factors[0]);
+    root = std::move(factors[0]);
   } else {
-    m_root = std::make_unique<SelectionAccessorList>(std::move(factors));
+    root = std::make_unique<SelectionAccessorList>(std::move(factors));
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode SelectionExprParser::factor() {
+StatusCode SelectionExprParser::factor(
+    std::unique_ptr<ISelectionAccessor>& root) {
   m_symbol = m_lexer.nextSymbol();
   if (m_symbol.type == Lexer::TRUE_LITERAL) {
-    m_root = std::make_unique<SelectionAccessorNull>(true);
+    root = std::make_unique<SelectionAccessorNull>(true);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::FALSE_LITERAL) {
-    m_root = std::make_unique<SelectionAccessorNull>(false);
+    root = std::make_unique<SelectionAccessorNull>(false);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::NOT) {
-    ANA_CHECK(factor());
+    ANA_CHECK(factor(root));
     std::unique_ptr<ISelectionAccessor> notEx =
-        std::make_unique<SelectionAccessorExprNot>(std::move(m_root));
-    m_root = std::move(notEx);
+        std::make_unique<SelectionAccessorExprNot>(std::move(root));
+    root = std::move(notEx);
   } else if (m_symbol.type == Lexer::LEFT) {
-    ANA_CHECK(expression());
+    ANA_CHECK(expression(root));
     if (m_symbol.type != Lexer::RIGHT) {
       throw std::runtime_error(
           "Missing closing bracket, check your expression.");
@@ -158,8 +162,7 @@ StatusCode SelectionExprParser::factor() {
     m_symbol = m_lexer.nextSymbol();
 
   } else if (m_symbol.type == Lexer::VAR) {
-    ANA_CHECK(
-        makeSelectionAccessorVar(m_symbol.value, m_root, m_defaultToChar));
+    ANA_CHECK(makeSelectionAccessorVar(m_symbol.value, root, m_defaultToChar));
     m_symbol = m_lexer.nextSymbol();
   } else {
     throw std::runtime_error("Malformed expression.");
@@ -167,4 +170,5 @@ StatusCode SelectionExprParser::factor() {
 
   return StatusCode::SUCCESS;
 }
+
 }  // namespace CP
