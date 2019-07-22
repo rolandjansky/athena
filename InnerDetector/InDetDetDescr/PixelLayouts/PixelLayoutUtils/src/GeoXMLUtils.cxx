@@ -45,7 +45,6 @@ bool GeoXMLUtils::TerminateXML()
 {
   releaseStrings();
   if (m_ConfigFileParser) delete m_ConfigFileParser;
-  //  if (m_doc) m_doc->release();
 
   try {
     XMLPlatformUtils::Terminate();  // Terminate after release of memory
@@ -60,8 +59,7 @@ bool GeoXMLUtils::TerminateXML()
 void GeoXMLUtils::PrintErrorXML(const XMLException &e, std::string message)
 {
   char* err_message = XMLString::transcode( e.getMessage() );
-  std::cerr << "XML: " << message << ": " << err_message << std::endl;
-  //XMLString::release(&err_message); 
+  std::cerr << "XML: " << message << ": " << err_message << std::endl; 
 }
 
 const char* GeoXMLUtils::getString(DOMNode *node) const
@@ -242,13 +240,15 @@ double GeoXMLUtils::getDouble(const char* parentTag,int parentIndex,
 {
   double res=defaultValue;
 
+
+  //We have multiple cases where values cannot be retrieved that do not seem problematic. We should decide if things are allowed not to be defined (in which case we should not print a message that could be misleading) or if they must be defined, but can be zero.
   try {
     std::string tmp = getChildValue( parentTag, parentIndex, childTag, childIndex);
     if(tmp.length()>0)
       res = atof(tmp.c_str());
     else {
-      //     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
-      std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      
+       std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
     }
   }
   catch(...){

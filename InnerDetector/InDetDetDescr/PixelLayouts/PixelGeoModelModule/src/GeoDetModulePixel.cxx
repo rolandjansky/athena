@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelModule/GeoDetModulePixel.h"
-/*#include "PixelGeoModelAlpineTool/GeoPixelReadoutGeometry.h"*/
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -124,6 +123,7 @@ void GeoDetModulePixel::preBuild()
 
   m_chipWidth = widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth")+(widthChip-1)*2.*edgew;
   m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength")+(lengthChip-1)*2.*edgel;
+  //This is not always present, and so is usually zero
   m_chipGap =  getDouble("FrontEndChip", chipIndex, "chipGap", 0, 0.);
 
   // sensor geometry

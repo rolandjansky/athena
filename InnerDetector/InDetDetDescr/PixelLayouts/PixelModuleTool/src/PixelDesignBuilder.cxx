@@ -1,4 +1,4 @@
-/*
+ /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -122,14 +122,14 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     }
   else
     {
-      msg(MSG::INFO)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
     }
 
   if(!bParsed){
-    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
+    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
     return 0;
   }
 
@@ -139,11 +139,8 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int lengthChip = getInt("Module", moduleIndex, "lengthInChips");
   int circuitsEta = lengthChip;
 
-  //  int widthChip = getInt("Module", moduleIndex, "widthInChips", 0, -1);
   int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0, -1);
-  //  int widthChipMin = getInt("Module", moduleIndex , "widthMinInChips", 0, -1);
-  //  widthChip = std::max(widthChip, widthChipMax);
-  //   widthChip = std::max(widthChip, widthChipMin);
+ 
   int widthChip=widthChipMax;
   int circuitsPhi = widthChip;
 
@@ -151,20 +148,13 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   double thick = getDouble("Module", moduleIndex, "sensorThickness");
 
-  //  basics->msgStream()<<MSG::INFO<<"PixelDesignBuilder sizes : "<<width<<" "<<length<<" "<<thick<<"  module/readout -> "<<moduleIndex<<" "<<readoutIndex<<endmsg;
-
   int readoutIndex = getChildValue_Index("FrontEndChip","name",-1,chipName);
   double phiPitch = getDouble( "FrontEndChip", readoutIndex,"pitchPhi");
   double etaPitch = getDouble( "FrontEndChip",  readoutIndex,"pitchEta");
 
-//   double etaPitchLong = getDouble( "FrontEndChip", readoutIndex,"pitchEtaLong",0,-1.);
-//   if(etaPitchLong<0) etaPitchLong = etaPitch;
-//   double etaPitchLongEnd = getDouble( "FrontEndChip", readoutIndex,"pitchEtaEnd",0,0.);
-
   double etaPitchLong = etaPitch;
   double etaPitchLongEnd = etaPitch;
 
-  // rowsPerSensor = DesignNumChipsPhi() * (DesignNumRowsPerChip()+DesignNumEmptyRowsInGap()) - DesignNumEmptyRowsInGap();
   int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows"); 
   int emptyRows = 0;
   int rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
@@ -210,7 +200,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -218,14 +208,14 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     }
   else
     {
-      msg(MSG::INFO)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       InitializeXML();
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       bParsed = ParseFile(file);
     }
 
   if(!bParsed){
-    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
+    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
     return 0;
   }
 
@@ -317,14 +307,6 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
       connections[v_emptyrows[iConnect]-minRow] = v_connectrows[iConnect];
     }
     
-//     basics->msgStream() << "empty rows : MinRow = " << minRow << endmsg;
-//     basics->msgStream() << "empty rows : MaxRow = " << maxRow << endmsg;
-//     basics->msgStream() << "empty rows : ";
-//     for (unsigned int iRow = 0; iRow < connections.size(); iRow++){
-//       basics->msgStream() << iRow << " " << connections[iRow] << " / ";
-//     }
-//     msg(MSG::DEBUG)<<endmsg;
-    
     design->addMultipleRowConnection(minRow, connections);
   }
   
@@ -375,15 +357,14 @@ PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double eta
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
-    // normal:normal:normal
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:normal)" << endmsg;
+    
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							0, normalCell, circuitsEta*diodeColPerCirc, 0);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
+    
     // normal:normal:long: > 2 chips
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -409,7 +390,7 @@ PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double eta
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
     // normal:normal:long: 2 chips (current SLHC case)
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, 2 chips)" << endmsg;
+   
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     
@@ -430,7 +411,7 @@ PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double eta
   } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
     // end:normal:end  (for single chip)
     // end:normal:normal  (not likely)
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
+  
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
     
@@ -443,7 +424,7 @@ PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double eta
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else {
     // end:normal:long    (not likely)
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:long)" << endmsg;
+   
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 

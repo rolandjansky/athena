@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,13 +14,12 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
 
   std::string fileName="GenericRingSupport.xml";
   if(const char* env_p = std::getenv("PIXEL_PIXELDISCSUPPORT_GEO_XML")) fileName = std::string(env_p);
-  //  std::cout<<"XML disc support : "<<fileName<<std::endl;
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      basics->msgStream()<<MSG::DEBUG<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -27,14 +27,14 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      basics->msgStream()<<MSG::DEBUG<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
     } 
 
   if(!bParsed){
-    //    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+        basics->msgStream()<<MSG::ERROR<<"XML file "<<fileName<<" not found"<<endreq;
     return;
   }
 

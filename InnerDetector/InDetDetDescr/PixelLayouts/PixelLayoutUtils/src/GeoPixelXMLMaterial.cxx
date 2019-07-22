@@ -37,7 +37,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::INFO)<< "XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG)<< "XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(m_xmlFileName);
       InitializeXML();
@@ -45,7 +45,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
     }
   else
     {
-      msg(MSG::INFO) <<"XML input : from file "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      msg(MSG::DEBUG) <<"XML input : from file "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (m_xmlFileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
@@ -53,7 +53,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
 
   // No XML file was parsed    
   if(!bParsed){
-    msg(MSG::WARNING) << "XML file "<<m_xmlFileName<<" not found"<<endmsg;
+    msg(MSG::ERROR) << "XML file "<<m_xmlFileName<<" not found"<<endmsg;
     return 0;
   }
   
