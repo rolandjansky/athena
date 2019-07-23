@@ -71,11 +71,9 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
 
-        bool m_bDoEtaEDParPUcorrection;
-
-        std::string m_sEtaEDParPUCorrectionInput;
-
-        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_mapIsoTypeZetaPU;
+        bool m_apply_etaEDParPU_corr;
+        std::string m_corr_etaEDParPU_file;
+        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_map_isotype_zetaPU;
 
         bool m_usemetadata;
 	bool m_is_mc;

@@ -38,8 +38,8 @@ namespace CP {
     declareProperty("Correct_etcone",              m_correct_etcone       = false);
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
-    declareProperty("DoEtaEDParPUcorrection", m_bDoEtaEDParPUcorrection = false);
-    declareProperty("EtaEDParPUcorrectionInput", m_sEtaEDParPUCorrectionInput = "IsolationCorrections/zetas_pu.root");
+    declareProperty("Apply_etaEDParPU_correction",    m_apply_etaEDParPU_corr= false);
+    declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/zetas_pu.root");
 
     m_isol_corr = new IsolationCorrection(name);
   }
@@ -125,18 +125,18 @@ namespace CP {
       m_isol_corr->SetDataMC(m_is_mc);    
     }
 
-    if(m_bDoEtaEDParPUcorrection){
-      std::string filename = PathResolverFindCalibFile( m_sEtaEDParPUCorrectionInput );
+    if(m_apply_etaEDParPU_corr){
+      std::string filename = PathResolverFindCalibFile( m_corr_etaEDParPU_file );
       if (filename.empty()){
-        ATH_MSG_ERROR ( "Could NOT resolve file name " << m_sEtaEDParPUCorrectionInput );
+        ATH_MSG_ERROR ( "Could NOT resolve file name " << m_corr_etaEDParPU_file );
         return StatusCode::FAILURE ;
       }
       ATH_MSG_INFO(" Path found = "<<filename);
       std::unique_ptr<TFile> f(new TFile(filename.c_str(), "READ"));
 
-      m_mapIsoTypeZetaPU[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20")->Clone());
-      m_mapIsoTypeZetaPU[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30")->Clone());
-      m_mapIsoTypeZetaPU[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40")->Clone());
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20")->Clone());
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30")->Clone());
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40")->Clone());
     }
     
 
@@ -354,7 +354,7 @@ namespace CP {
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
 
-      if(m_bDoEtaEDParPUcorrection){
+      if(m_apply_etaEDParPU_corr && !m_AFII_corr){
         float abseta = fabs(eg.caloCluster()->etaBE(2));
         const xAOD::EventShape* evtShapeCentral;
 
@@ -379,7 +379,7 @@ namespace CP {
         float a_core = 5*7*0.025*TMath::Pi()/128;
         float area = TMath::Pi()*dR*dR-a_core;
         float oldpu_corr = densityOldCorrection*area;
-        float newpu_corr = m_mapIsoTypeZetaPU[type]->Eval(abseta)*centralDensity*area;
+        float newpu_corr = m_map_isotype_zetaPU[type]->Eval(abseta)*centralDensity*area;
         iso = iso + oldpu_corr - newpu_corr;
         ATH_MSG_VERBOSE("Old parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<oldpu_corr);
         ATH_MSG_VERBOSE("New parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<newpu_corr);
