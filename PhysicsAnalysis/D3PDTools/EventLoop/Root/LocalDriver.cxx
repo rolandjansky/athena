@@ -58,11 +58,16 @@ namespace EL
 
 
   void LocalDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& /*options*/,
+  batchSubmit (const std::string& location, const SH::MetaObject& options,
                const std::vector<std::size_t>& jobIndices, bool resubmit)
     const
   {
     RCU_READ_INVARIANT (this);
+
+    const std::string dockerImage {
+      options.castString(Job::optDockerImage)};
+    const std::string dockerOptions {
+      options.castString(Job::optDockerOptions)};
 
     std::ostringstream basedirName;
     basedirName << location << "/tmp";
@@ -80,7 +85,9 @@ namespace EL
 
       std::ostringstream cmd;
       cmd << "cd " << dirName.str() << " && ";
-      cmd << location << "/submit/run " << index;
+      if (!dockerImage.empty())
+        cmd << "docker run --rm -v " << RCU::Shell::quote (location) << ":" << RCU::Shell::quote (location) << " " << dockerOptions << " " << dockerImage << " ";
+      cmd << RCU::Shell::quote (location) << "/submit/run " << index;
       RCU::Shell::exec (cmd.str());
     }
   }

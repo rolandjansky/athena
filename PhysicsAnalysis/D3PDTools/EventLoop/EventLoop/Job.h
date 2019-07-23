@@ -423,6 +423,13 @@ namespace EL
     /// This overrides the asetup command if you need to use a custom one
     static const std::string optBatchSetupCommand;
 
+    /// \brief this is the name of the docker image, when using docker
+    /// with a supported batch driver
+    static const std::string optDockerImage;
+
+    /// \brief any extra options we may want to pass to docker
+    static const std::string optDockerOptions;
+
 
   public:
     /// @name Options controlling the memory monitoring behaviour of the job
