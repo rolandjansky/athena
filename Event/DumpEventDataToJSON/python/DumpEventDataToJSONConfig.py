@@ -21,7 +21,7 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
 if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+    # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     # from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg    
