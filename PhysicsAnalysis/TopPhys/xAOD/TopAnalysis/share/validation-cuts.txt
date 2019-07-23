@@ -80,7 +80,7 @@ LargeRJESUncertaintyConfig Split23,Tau32WTA
 
 ### Electron configuration
 ElectronID TightLH
-ElectronIDLoose MediumLH
+ElectronIDLoose LooseAndBLayerLH
 ElectronIsolation Gradient
 ElectronIsolationLoose None
 
