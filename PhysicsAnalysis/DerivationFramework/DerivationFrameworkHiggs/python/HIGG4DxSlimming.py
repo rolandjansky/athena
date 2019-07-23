@@ -14,7 +14,18 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     
     #smart slimming
     #main collections:
-    HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
+    if HIGG4DxName in ['HDBS1']:
+        HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
+                                              "Muons",
+                                              "TauJets",
+                                              "MET_Reference_AntiKt4EMTopo",
+                                              "AntiKt4EMTopoJets",
+                                              "BTagging_AntiKt4EMTopo",
+                                              "InDetTrackParticles",
+                                              "PrimaryVertices"
+                                              ]
+    else:
+        HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                               "Muons",
                                               "TauJets",
                                               "MET_Reference_AntiKt4EMTopo",
@@ -30,6 +41,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     # extra containers for some formats                                                  
     if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
+
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
         HIGG4DxSlimmingHelper.SmartCollections += ["AntiKt4LCTopoJets"]  # used as seeds for taus
@@ -101,6 +113,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         ExtraContentTaus[0] += ".centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.absipSigLeadTrk.massTrkSys.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.trFlightPathSig"
         ExtraContentTaus += ["TauTracks.CaloSamplingEtaEM.CaloSamplingEtaHad.CaloSamplingPhiEM.CaloSamplingPhiHad"]
 
+
     ExtraTausTruth = [
         "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"
         ]
@@ -147,17 +160,16 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from DerivationFrameworkJetEtMiss.JetCommon import *
     if HIGG4DxName in OutputJets:
         if HIGG4DxName == 'HDBS1':
-            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets']) # last two arguments: smart slimming collection list, veto collection list 
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets','AntiKt4EMPFlowJets']) # last two arguments: smart slimming collection list, veto collection list 
         else:
-            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets']) # last argument: smart slimming applied for these collections 
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets'])
         
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
        HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
     if HIGG4DxName in ['HDBS1']:
        HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPt"] = 'xAOD::DiTauJetContainer' #Added
        HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPtAux"] = 'xAOD::DiTauJetAuxContainer' #Added
-       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Added
-
+       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Added "DiTauJetsLowPt"
     if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AppendToDictionary.update( {
               "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
@@ -189,7 +201,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                "TruthNeutrinos", 
                                                "TruthTaus", 
                                                "TruthBoson",
-                                               "TruthPhotons",
+                                               "TruthPhotons"
                                                ]
 
     #trigger content
@@ -212,7 +224,8 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     elif HIGG4DxName == "HIGG4D6":
         pass
     elif HIGG4DxName == "HDBS1":
-        pass
+        HIGG4DxSlimmingHelper.IncludeMuonTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeEGammaTriggerContent = True
     else:
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 
