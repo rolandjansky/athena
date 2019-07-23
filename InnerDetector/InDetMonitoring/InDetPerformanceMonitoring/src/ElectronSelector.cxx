@@ -68,7 +68,23 @@ void ElectronSelector::Init()
   }
   
   PARENT::Init();
+
+  //---Electron Likelihood tool---
+  // m_doIDCuts = true;
+  (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << endreq;
+  m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
+  //  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
+  //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
+
+  if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure())
+    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << endreq;
+
+  StatusCode lhm = m_LHTool2015->initialize();
+  if(lhm.isFailure())
+    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << endreq;
+
   std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< std::endl;
+  return;
 }
 
 

@@ -19,6 +19,8 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/ToolHandle.h" 
+
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
@@ -52,6 +54,9 @@ class ElectronSelector : public EventAnalysis
 
   // 
   bool m_debug;
+
+  // Electron likelihood tool:
+  AsgElectronLikelihoodTool* m_LHTool2015; //!
 };
 
 #endif

@@ -63,13 +63,15 @@ FourMuonEvent::~FourMuonEvent()
 //==================================================================================
 void FourMuonEvent::Init()
 {
+  bool thisdebug = true;
+  if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Init * START *" << std::endl; }
+  
   m_xMuonID.Init();
   m_xElecID.Init();
 
   PARENT::Init();
+  if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Init * Completed * " << std::endl; }
 }
-
-
 
 //==================================================================================
 bool FourMuonEvent::Reco()

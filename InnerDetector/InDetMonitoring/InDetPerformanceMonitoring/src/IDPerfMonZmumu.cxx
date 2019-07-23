@@ -210,8 +210,10 @@ StatusCode IDPerfMonZmumu::initialize()
   ATH_CHECK( m_extrapolator.retrieve());
   
   m_xZmm.setDebugMode(false);
-  if (m_doFourMuAnalysis) m_4mu.setDebugMode(false);
-
+  if (m_doFourMuAnalysis) {
+    m_4mu.Init();
+    m_4mu.setDebugMode(false);
+  }
   m_LooseT2VAssociationTool = std::make_unique<CP::LooseTrackVertexAssociationTool>("Loose");
 
   ATH_CHECK( this->bookTrees() );
