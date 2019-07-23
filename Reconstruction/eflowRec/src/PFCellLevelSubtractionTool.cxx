@@ -175,13 +175,13 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
     continue;
     }
     
-    const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*,bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
     int nTrackMatches = thisEflowCaloObject->nTracks();
     
     for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
       
-      eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+      eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
       
       std::vector<eflowRecCluster*> matchedClusters;
       matchedClusters.clear();
@@ -359,10 +359,10 @@ void PFCellLevelSubtractionTool::performSubtraction() {
     } else {
     
       /* Subtract the track from all matched clusters */
-      const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
+      const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
       
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
-	eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+	eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
 	
 	ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
 	

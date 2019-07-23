@@ -104,7 +104,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
 
-      std::vector<eflowTrackClusterLink*> trackClusterLinks = energyFlowCaloObject.efRecLink();
+      std::vector<std::pair<eflowTrackClusterLink*,bool> > trackClusterLinks = energyFlowCaloObject.efRecLink();
 
       /*
 	We need to track which clusters we have added for the following use case:
@@ -115,7 +115,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
       std::vector<ElementLink<xAOD::CaloClusterContainer> > usedClusterList;
       
       for (auto trackClusterLink : trackClusterLinks){
-	eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
+	eflowRecCluster* efRecCluster = (trackClusterLink.first)->getCluster();
 	ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
 
 	bool continueLoop = false;
