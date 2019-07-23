@@ -7,6 +7,7 @@ PixelRDOAnalysis = PixelRDOAnalysis()
 PixelRDOAnalysis.NtupleFileName = '/PixelRDOAnalysis/'
 PixelRDOAnalysis.HistPath = '/PixelRDOAnalysis/'
 PixelRDOAnalysis.DoITk = True
+PixelRDOAnalysis.DoPosition = True
 
 from RDOAnalysis.RDOAnalysisConf import SCT_RDOAnalysis
 topSequence += SCT_RDOAnalysis()
@@ -14,6 +15,7 @@ SCT_RDOAnalysis = SCT_RDOAnalysis()
 SCT_RDOAnalysis.NtupleFileName = '/SCT_RDOAnalysis/'
 SCT_RDOAnalysis.HistPath = '/SCT_RDOAnalysis/'
 SCT_RDOAnalysis.DoITk = True
+SCT_RDOAnalysis.DoPosition = True
 
 #----------------------------
 # Histogram and Tree Service

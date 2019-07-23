@@ -6,6 +6,7 @@
 #include "PixelRDOAnalysis.h"
 #include "StoreGate/ReadHandle.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiLocalPosition.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -33,6 +34,12 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_BCID(0)
   , m_LVL1A(0)
   , m_LVL1ID(0)
+  , m_globalX(0)
+  , m_globalY(0)
+  , m_globalZ(0)
+  , m_localX(0)
+  , m_localY(0)
+  , m_localZ(0)
   , m_sdoID(0)
   , m_sdoWord(0)
   , m_barrelEndcap_sdo(0)
@@ -93,6 +100,7 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_path("/PixelRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
   , m_doITk(false)
+  , m_doPos(false)
 {
   declareProperty("InputKey", m_inputKey);
   declareProperty("InputTruthKey", m_inputTruthKey);
@@ -101,6 +109,7 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   declareProperty("NtupleTreeName", m_ntupleTreeName);
   declareProperty("HistPath", m_path);
   declareProperty("DoITk", m_doITk);
+  declareProperty("DoPosition", m_doPos);
 }
 
 StatusCode PixelRDOAnalysis::initialize() {
@@ -135,6 +144,17 @@ StatusCode PixelRDOAnalysis::initialize() {
     m_tree->Branch("BCID", &m_BCID); // beam crossing ID
     m_tree->Branch("LVL1A", &m_LVL1A); // Level1 accept (0-15)
     m_tree->Branch("LVL1ID", &m_LVL1ID); // ATLAS LVL1 (0-255)
+    // Global coordinates
+    if(m_doPos){
+      m_tree->Branch("globalX", &m_globalX);
+      m_tree->Branch("globalY", &m_globalY);
+      m_tree->Branch("globalZ", &m_globalZ);
+      m_tree->Branch("localX", &m_localX);
+      m_tree->Branch("localY", &m_localY);
+      m_tree->Branch("localZ", &m_localZ);
+    }
+
+
     // PIXEL SDO DEPOSITS
     m_tree->Branch("sdoID", &m_sdoID);
     m_tree->Branch("sdoWord", &m_sdoWord);
@@ -330,7 +350,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_eventIndex->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_eventIndex->GetName(), m_h_eventIndex));
 
-  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 1e7);
+  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 1000, 0, 500);
   m_h_charge->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_charge->GetName(), m_h_charge));
   
@@ -385,7 +405,17 @@ StatusCode PixelRDOAnalysis::initialize() {
     ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ecEtaIndex_perLayer[layer]->GetName(), m_h_ecEtaIndex_perLayer[layer]));
   
   }
-  
+
+  m_h_globalZR = new TH2F("m_h_globalZR","m_h_globalZR; z [mm]; r [mm]",1500,-3000.,3000,400,0.,400);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZR->GetName(), m_h_globalZR));
+  m_h_globalX = new TH1F("m_h_globalX","m_h_globalX; x [mm]",400,-400.,400.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalX->GetName(), m_h_globalX));
+  m_h_globalY = new TH1F("m_h_globalY","m_h_globalY; y [mm]",400,-400.,400.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalY->GetName(), m_h_globalY));
+  m_h_globalZ = new TH1F("m_h_globalZ","m_h_globalZ; z [mm]",750,-3000.,3000.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZ->GetName(), m_h_globalZ));
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -422,7 +452,14 @@ StatusCode PixelRDOAnalysis::execute() {
   m_barcode_vec->clear();
   m_eventIndex_vec->clear();
   m_charge_vec->clear();
-
+  if(m_doPos){
+    m_globalX->clear();
+    m_globalY->clear();
+    m_globalZ->clear();
+    m_localX->clear();
+    m_localY->clear();
+    m_localZ->clear();
+  }
   // Raw Data
   SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputKey);
   if(p_pixelRDO_cont.isValid()) {
@@ -447,6 +484,24 @@ StatusCode PixelRDOAnalysis::execute() {
         const int pixLVL1A((*rdo_itr)->getLVL1A());
         const int pixLVL1ID((*rdo_itr)->getLVL1ID());
 
+        const InDetDD::SiDetectorElement *detEl = m_pixelManager->getDetectorElement(rdoID);
+
+        InDetDD::SiLocalPosition localPos = detEl->localPositionOfCell(rdoID);
+        Amg::Vector3D globalPos = detEl->globalPosition(localPos);
+        if(m_doPos){
+          m_globalX->push_back(globalPos[Amg::x]);
+          m_globalY->push_back(globalPos[Amg::y]);
+          m_globalZ->push_back(globalPos[Amg::z]);
+
+          m_localX->push_back(localPos.xPhi());
+          m_localY->push_back(localPos.xEta());
+          m_localZ->push_back(localPos.xDepth());
+        }
+        float pixelRadius = sqrt(globalPos[Amg::x]*globalPos[Amg::x]+globalPos[Amg::y]*globalPos[Amg::y]);
+        m_h_globalZR->Fill(globalPos[Amg::z],pixelRadius);
+        m_h_globalX->Fill(globalPos[Amg::x]);
+        m_h_globalY->Fill(globalPos[Amg::y]);
+        m_h_globalZ->Fill(globalPos[Amg::z]);
         const unsigned long long rdoID_int = rdoID.get_compact();
         m_rdoID->push_back(rdoID_int);
         m_rdoWord->push_back(rdoWord);
@@ -485,7 +540,7 @@ StatusCode PixelRDOAnalysis::execute() {
           m_h_brlLVL1A->Fill(pixLVL1A);
           m_h_brlLVL1ID->Fill(pixLVL1ID);
           if (m_doITk) {
-            const InDetDD::SiDetectorElement* detEl = m_pixelManager->getDetectorElement(rdoID); 
+           // const InDetDD::SiDetectorElement* detEl = m_pixelManager->getDetectorElement(rdoID); 
             if (detEl->isInclined())  {
               m_h_brlinclPhiIndex_perLayer[pixLayerDisk]->Fill(pixPhiIx);
               m_h_brlinclEtaIndex_perLayer[pixLayerDisk]->Fill(pixEtaIx);

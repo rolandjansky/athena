@@ -4,6 +4,9 @@
 
 
 #include "SCT_RDOAnalysis.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "StoreGate/ReadHandle.h"
 #include "TTree.h"
 #include "TString.h"
@@ -27,6 +30,15 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_side(0)
   , m_strip(0)
   , m_groupSize(0)
+  , m_globalX0(0)
+  , m_globalY0(0)
+  , m_globalZ0(0)
+  , m_globalX1(0)
+  , m_globalY1(0)
+  , m_globalZ1(0)
+  , m_localX(0)
+  , m_localY(0)
+  , m_localZ(0)
   , m_sdoID(0)
   , m_sdoWord(0)
   , m_barrelEndcap_sdo(0)
@@ -92,6 +104,7 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/SCT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
   , m_doITk(false)
+  , m_doPos(false)
 {
   declareProperty("InputKey", m_inputKey);
   declareProperty("InputTruthKey", m_inputTruthKey);
@@ -100,6 +113,7 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   declareProperty("NtupleTreeName", m_ntupleTreeName);
   declareProperty("HistPath", m_path);
   declareProperty("DoITk", m_doITk);
+  declareProperty("DoPosition", m_doPos);
 }
 
 StatusCode SCT_RDOAnalysis::initialize() {
@@ -113,6 +127,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
   // Grab SCT_ID helper
   ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
 
+  ATH_CHECK(detStore()->retrieve(m_SCT_Manager, "SCT"));
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 
@@ -130,6 +145,18 @@ StatusCode SCT_RDOAnalysis::initialize() {
     m_tree->Branch("side", &m_side);
     m_tree->Branch("strip", &m_strip);
     m_tree->Branch("groupSize", &m_groupSize);
+    // Global coordinates
+    if(m_doPos){
+      m_tree->Branch("globalX0", &m_globalX0);
+      m_tree->Branch("globalY0", &m_globalY0);
+      m_tree->Branch("globalZ0", &m_globalZ0);
+      m_tree->Branch("globalX1", &m_globalX1);
+      m_tree->Branch("globalY1", &m_globalY1);
+      m_tree->Branch("globalZ1", &m_globalZ1);
+      m_tree->Branch("localX", &m_localX);
+      m_tree->Branch("localY", &m_localY);
+      m_tree->Branch("localZ", &m_localZ);
+    }
     // SCT SDO deposits
     m_tree->Branch("sdoID", &m_sdoID);
     m_tree->Branch("sdoWord", &m_sdoWord);
@@ -331,7 +358,17 @@ StatusCode SCT_RDOAnalysis::initialize() {
     m_h_ec_strip_perLayer[layer]->StatOverflows();
     ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ec_strip_perLayer[layer]->GetName(), m_h_ec_strip_perLayer[layer]));
   }
-  
+ 
+  m_h_globalZR = new TH2F("m_h_globalZR","m_h_globalZR; z [mm]; r [mm]",1500,-3000.,3000,400,400.,1200);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZR->GetName(), m_h_globalZR));
+  m_h_globalX = new TH1F("m_h_globalX","m_h_globalX; x [mm]",400,-1200.,1200.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalX->GetName(), m_h_globalX));
+  m_h_globalY = new TH1F("m_h_globalY","m_h_globalY; y [mm]",400,-1200.,1200.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalY->GetName(), m_h_globalY));
+  m_h_globalZ = new TH1F("m_h_globalZ","m_h_globalZ; z [mm]",750,-3000.,3000.);
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZ->GetName(), m_h_globalZ));
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -347,6 +384,17 @@ StatusCode SCT_RDOAnalysis::execute() {
   m_side->clear();
   m_strip->clear();
   m_groupSize->clear();
+  if(m_doPos){
+    m_globalX0->clear();
+    m_globalY0->clear();
+    m_globalZ0->clear();
+    m_globalX1->clear();
+    m_globalY1->clear();
+    m_globalZ1->clear();
+    m_localX->clear();
+    m_localY->clear();
+    m_localZ->clear();
+  }
   m_sdoID->clear();
   m_sdoWord->clear();
   m_barrelEndcap_sdo->clear();
@@ -389,6 +437,38 @@ StatusCode SCT_RDOAnalysis::execute() {
         const int sctGroupSize((*rdo_itr)->getGroupSize());
 
         const unsigned long long rdoID_int = rdoID.get_compact();
+
+
+        const InDetDD::SiDetectorElement *detEl = m_SCT_Manager->getDetectorElement(rdoID);
+
+        Amg::Vector2D localPos = detEl->localPositionOfCell(rdoID);
+        std::pair<Amg::Vector3D, Amg::Vector3D> endsOfStrip = detEl->endsOfStrip(localPos);
+        
+        if(m_doPos){
+          m_globalX0->push_back(endsOfStrip.first.x());
+          m_globalY0->push_back(endsOfStrip.first.y());
+          m_globalZ0->push_back(endsOfStrip.first.z());
+
+          m_globalX1->push_back(endsOfStrip.second.x());
+          m_globalY1->push_back(endsOfStrip.second.y());
+          m_globalZ1->push_back(endsOfStrip.second.z());
+
+          m_localX->push_back(localPos.x());
+          m_localY->push_back(localPos.y());
+          m_localZ->push_back(0.0);
+        }
+        float stripradius0 = sqrt(endsOfStrip.first.x()*endsOfStrip.first.x()+endsOfStrip.first.y()*endsOfStrip.first.y());
+        float stripradius1 = sqrt(endsOfStrip.second.x()*endsOfStrip.second.x()+endsOfStrip.second.y()*endsOfStrip.second.y());
+
+        m_h_globalZR->Fill(endsOfStrip.first.z(),stripradius0);
+        m_h_globalZR->Fill(endsOfStrip.second.z(),stripradius1);
+        m_h_globalX->Fill(endsOfStrip.first.x());
+        m_h_globalY->Fill(endsOfStrip.first.y());
+        m_h_globalZ->Fill(endsOfStrip.first.z());
+        m_h_globalX->Fill(endsOfStrip.second.x());
+        m_h_globalY->Fill(endsOfStrip.second.y());
+        m_h_globalZ->Fill(endsOfStrip.second.z());    
+
         m_rdoID->push_back(rdoID_int);
         m_rdoWord->push_back(rdoWord);
         m_barrelEndcap->push_back(sctBrlEc);
