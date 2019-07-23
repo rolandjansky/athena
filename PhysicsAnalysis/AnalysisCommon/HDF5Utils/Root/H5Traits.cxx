@@ -15,6 +15,7 @@ namespace H5Utils {
     typedef H5::PredType PT;
     const H5::DataType H5Traits<int>::type = PT::NATIVE_INT;
     const H5::DataType H5Traits<long long>::type = PT::NATIVE_LLONG;
+    const H5::DataType H5Traits<unsigned long long>::type = PT::NATIVE_ULLONG;
     const H5::DataType H5Traits<unsigned int>::type = PT::NATIVE_UINT;
     const H5::DataType H5Traits<unsigned char>::type = PT::NATIVE_UCHAR;
     const H5::DataType H5Traits<float>::type = PT::NATIVE_FLOAT;
