@@ -200,14 +200,17 @@ namespace H5Utils {
           sourceSize.data(),
           targetOffset.data() );
 
+      H5::DataSpace memorySpace(sourceSize.size(), sourceSize.data() );
+      memorySpace.selectAll();
+
       // Prepare the buffer
       buffer.allocate(nRowsToWrite*rowSize);
       // Read into it
-      source.read(buffer.data, source.getDataType(), sourceSpace, sourceSpace);
+      source.read(buffer.data, source.getDataType(), memorySpace, sourceSpace);
       // Write from it
-      target.write(buffer.data, target.getDataType(), sourceSpace, targetSpace);
+      target.write(buffer.data, target.getDataType(), memorySpace, targetSpace);
       // Increment the target offset
-      targetOffset.at(mergeAxis) += nSourceRows;
+      targetOffset.at(mergeAxis) += nRowsToWrite;
     }
     // Sanity check - make sure that the final targetOffset is where we think it
     // should be
