@@ -381,9 +381,11 @@ namespace CP {
         float oldpu_corr = densityOldCorrection*area;
         float newpu_corr = m_map_isotype_zetaPU[type]->Eval(abseta)*centralDensity*area;
         iso = iso + oldpu_corr - newpu_corr;
+        ATH_MSG_VERBOSE("Applying parametrized pileup correction to " << eg.type() << " with |eta|="<< abseta);
         ATH_MSG_VERBOSE("Old parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<oldpu_corr);
         ATH_MSG_VERBOSE("New parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<newpu_corr);
         ATH_MSG_VERBOSE("Isolation after new correction for "<<xAOD::Iso::toString(type)<< ": "<<iso);
+        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr); 
       }
 
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30 && eg.type() == xAOD::Type::Photon) {
