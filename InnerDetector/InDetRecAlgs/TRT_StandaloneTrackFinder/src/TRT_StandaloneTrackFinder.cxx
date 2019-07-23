@@ -93,12 +93,14 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   }
 
   SG::ReadHandle<Trk::PRDtoTrackMap > prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap >(m_prdToTrackMap);
     if(!prd_to_track_map.isValid()){
       ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap.key() << ".");
       return StatusCode::FAILURE;
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   // statistics...
@@ -129,7 +131,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
       }
 
       // Check if segment has already been assigned to a BackTrack
-      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map.cptr())) {
+      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map_cptr)) {
       	// Statistics...
 	counter[kNUsedSeg]++;
 	ATH_MSG_DEBUG ("Segment excluded by BackTrack, drop it !");

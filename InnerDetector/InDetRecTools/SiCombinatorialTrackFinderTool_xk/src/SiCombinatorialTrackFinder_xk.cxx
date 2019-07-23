@@ -70,14 +70,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     ATH_MSG_INFO("Retrieved tool " << m_riocreator);
   }
 
-  // Get tool for track-prd association
-  //
-  if (not m_assoTool.empty()) {
-    ATH_CHECK(m_assoTool.retrieve());
-  } else {
-    m_assoTool.disable();
-  }
-
   if (m_usePIX) {  
     if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
@@ -192,13 +184,6 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   for (int i=0; i<n; ++i) s8.append(" ");
   s8.append("|");
 
-  std::string s9;
-  if (not m_assoTool.empty()) {
-    n     = 62-m_assoTool.type().size();
-    for (int i=0; i<n; ++i) s9.append(" ");
-    s9.append("|");
-  }
-
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<std::endl;
@@ -211,9 +196,6 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
   out<<"| Tool for rio  on track  | "<<m_riocreator .type()<<s5<<std::endl;
-  if (not m_assoTool.empty()) {
-    out<<"| Tool for track-prd assos| "<<m_assoTool   .type()<<s9<<std::endl;
-  }
   out<<"| Magnetic field mode     | "<<fieldmode[mode]     <<s3<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -245,7 +227,7 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackF
      <<"                              |"<<std::endl;
   out<<"| Max holes  gap          | "<<std::setw(12)<<data.dholesmax()
      <<"                              |"<<std::endl;
-  out<<"| Use association tool ?  | "<<std::setw(12)<<data.tools().useassoTool()
+  out<<"| Use PRD to track assoc.?| "<<std::setw(12)<<(data.PRDtoTrackMap() ? "yes" : "no ")
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -756,7 +738,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
 
   int multitrack;
   if (!Cuts.getIntCut   ("doMultiTracksProd"   ,multitrack   )) multitrack      =    0;
- 
+
   // Double cuts
   //
   if (!Cuts.getDoubleCut("pTmin"              ,data.pTmin()      )) data.pTmin()         = 500.;
@@ -788,7 +770,6 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(SiCombina
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,
-                ((not m_assoTool.empty()) ? &*m_assoTool : nullptr),
                 &*m_fieldServiceHandle,
                 (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),

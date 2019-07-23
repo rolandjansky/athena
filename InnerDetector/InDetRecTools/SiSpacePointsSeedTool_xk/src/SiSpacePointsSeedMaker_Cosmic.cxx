@@ -96,11 +96,13 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(EventData& data, int) const
   float errorsc[4] = {16.,16.,100.,16.};
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr=prd_to_track_map.cptr();
   }
 
   // Get pixels space points containers from store gate 
@@ -115,7 +117,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(EventData& data, int) const
 	  
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
@@ -140,7 +142,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(EventData& data, int) const
 
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 	  
 	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
@@ -163,7 +165,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(EventData& data, int) const
 
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (prd_to_track_map.cptr() && isUsed(sp, *prd_to_track_map)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp, *prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
@@ -196,11 +198,13 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   float errorsc[4] = {16.,16.,100.,16.};
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   // Get pixels space points containers from store gate 
@@ -219,7 +223,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
         for (const Trk::SpacePoint* sp: **w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
@@ -248,7 +252,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
         for (const Trk::SpacePoint* sp: **w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);

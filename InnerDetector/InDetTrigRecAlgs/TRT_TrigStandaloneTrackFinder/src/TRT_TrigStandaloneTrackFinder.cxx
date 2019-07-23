@@ -24,6 +24,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "TrigNavigation/NavigationCore.icc"
+
 using Amg::Vector3D;
 using CLHEP::mm;
 
@@ -71,10 +73,6 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltInitialize()
     msg() << MSG::FATAL << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
-  if (m_prdToTrackMap.initialize(!m_prdToTrackMap.key().empty()).isFailure()) {
-    msg() << MSG::FATAL << "Failed to initialize PRD-to-track-map key " << m_prdToTrackMap.key() << endmsg;
-    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-  }
 
   // Get output print level
   //
@@ -103,11 +101,11 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
   m_nTrtSeg = 0; m_nTrtSegGood = 0; m_nBckTrk = 0; m_nUsedSeg = 0;
   m_nTRTTracks = 0;
 
-  SG::ReadHandle<Trk::PRDtoTrackMap > prd_to_track_map;
-  if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap >(m_prdToTrackMap);
-    if(!prd_to_track_map.isValid()){
-      ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap.key() << ".");
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.empty()) {
+    HLT::ErrorCode stat = getFeature(outputTE, prd_to_track_map_cptr, m_prdToTrackMap.value());
+    if(stat!= HLT::OK){
+      ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap << ".");
       return HLT::ERROR;
     }
   }
@@ -143,7 +141,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     } else {
       
       ///Check if segment has already been assigned a Si extension
-      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map.cptr())) {m_nUsedSeg++; continue;}
+      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map_cptr)) {m_nUsedSeg++; continue;}
       
       ///Cases where the min number of required TRT drift circles drops to 10
       if(int(trackTRT->numberOfMeasurementBases())<=m_minNumDriftCircles) {
@@ -181,7 +179,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     }
   }
 
-  m_finalTracks = m_segToTrackTool->resolveTracks(prd_to_track_map.cptr());
+  m_finalTracks = m_segToTrackTool->resolveTracks(prd_to_track_map_cptr);
 
   m_nBckTrk = m_segToTrackTool->GetnTRTTrk();
 

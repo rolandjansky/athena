@@ -35,8 +35,6 @@ InDetTrigSiSpacePointsSeedMakerLowPt =  \
                                                SpacePointsPixelName = 'PixelTrigSpacePoints',
                                                SpacePointsOverlapName = 'SPTrigOverlap',
                                                PRDtoTrackMap = "", # @TODO
-#                                                UseAssociationTool     = True,
-#                                               AssociationTool        = InDetTrigPrdAssociationTool,
                                                radMax = EFIDTrackingCutsLowPt.radMax(),
                                                mindRadius = 4.0
                                                )
@@ -82,7 +80,6 @@ InDetTrigSiComTrackFinderLowPt = \
                                          PropagatorTool	= InDetTrigPatternPropagator,
                                          UpdatorTool	= InDetTrigPatternUpdator,
                                          RIOonTrackTool   = InDetTrigRotCreator,
-                                         AssosiationTool  = InDetTrigPrdAssociationTool,
                                          usePixel         = DetFlags.haveRIO.pixel_on(),
                                          useSCT           = DetFlags.haveRIO.SCT_on(),   
                                          PixelClusterContainer = 'PixelTrigClusters',

@@ -272,11 +272,13 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   // retrieve SP Container
@@ -342,9 +344,9 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	      SpacePointCollection::const_iterator itColl  = (*itCont)->begin();
 	      SpacePointCollection::const_iterator endColl = (*itCont)->end  ();
 	      for(; itColl != endColl; ++itColl) 
-		if (    !prd_to_track_map.cptr()
-			|| !(    prd_to_track_map->isUsed(*((*itColl)->clusterList().first))
-				 || prd_to_track_map->isUsed(*((*itColl)->clusterList().second)) ) )
+		if (    !prd_to_track_map_cptr
+			|| !(    prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().first))
+				 || prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().second)) ) )
 		  {
 		    relevantSpacePoints.insert(std::make_pair( SCT_LayerNumber   ,*itColl));
 		    msg(MSG::VERBOSE) << "Added SpacePoint for layer " << SCT_LayerNumber << " at  ( " 
@@ -374,7 +376,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	  {
 
 	    // find out if one of the Clusters has already been used, if relevant
-	    if(prd_to_track_map.cptr())
+	    if(prd_to_track_map_cptr)
 	      {
 		bool u1=false; 
 		bool u2=false;

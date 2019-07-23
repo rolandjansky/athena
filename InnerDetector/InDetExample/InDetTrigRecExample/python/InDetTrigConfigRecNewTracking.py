@@ -160,7 +160,6 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
       InDetTrigSiTrackMaker.pTmin = EFIDTrackingCutsBeamGas.minPT()
       InDetTrigSiTrackMaker.nClustersMin = EFIDTrackingCutsBeamGas.minClusters()
       InDetTrigSiTrackMaker.nHolesMax = EFIDTrackingCutsBeamGas.nHolesMax()
-      InDetTrigSiTrackMaker.UseAssociationTool = True       #for BG and LowPt
     elif type=="cosmicsN":   
       #create an additional for cosmics
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics

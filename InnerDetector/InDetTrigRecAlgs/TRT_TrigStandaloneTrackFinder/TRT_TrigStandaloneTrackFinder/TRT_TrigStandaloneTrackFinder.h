@@ -90,9 +90,9 @@ namespace InDet {
       ToolHandle< ITRT_SegmentToTrackTool >      m_segToTrackTool
          {this,"TRT_SegToTrackTool","InDet::TRT_SegmentToTrackTool"}; //!< Segment to track tool
 
-      SG::ReadHandleKey<Trk::PRDtoTrackMap>      m_prdToTrackMap
+      StringProperty m_prdToTrackMap
          {this,"PRDtoTrackMap",""};                                   //!< map between PRDs and tracks to identify shared hits.
-      
+
       const Trk::SegmentCollection      *m_Segments{}         ;  //!< TRT segments to use
 
       /**Tracks that will be passed out of AmbiProcessor. 

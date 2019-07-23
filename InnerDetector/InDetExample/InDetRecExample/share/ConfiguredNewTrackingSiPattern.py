@@ -261,7 +261,6 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.useSSSseedsFilter = False
             InDetSiTrackMaker.doCaloSeededBrem = False
             InDetSiTrackMaker.doHadCaloSeedSSS = False
-            InDetSiTrackMaker.UseAssociationTool = False
 					
          elif InDetFlags.doCosmics():
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
@@ -321,6 +320,8 @@ class  ConfiguredNewTrackingSiPattern:
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
+                                                                    PRDtoTrackMap  = prefix+'PRDtoTrackMap'+suffix \
+                                                                                       if usePrdAssociationTool else '',
                                                                     TracksLocation = self.__SiTrackCollection,
                                                                     SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                                     useZvertexTool = InDetFlags.useZvertexTool(),
@@ -334,6 +335,8 @@ class  ConfiguredNewTrackingSiPattern:
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
+                                                                    PRDtoTrackMap  = prefix+'PRDtoTrackMap'+suffix \
+                                                                                       if usePrdAssociationTool else '',
                                                                     TracksLocation = self.__SiTrackCollection,
                                                                     SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                                     useZvertexTool = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM",

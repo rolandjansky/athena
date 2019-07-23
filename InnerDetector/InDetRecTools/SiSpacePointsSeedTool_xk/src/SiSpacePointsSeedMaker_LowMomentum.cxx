@@ -101,11 +101,13 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   int   irmax  = m_r_size-1;
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   // Get pixels space points containers from store gate 
@@ -120,7 +122,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -147,7 +149,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -183,11 +185,13 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   float irstep = 1./m_r_rstep;
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   // Get pixels space points containers from store gate 
@@ -206,7 +210,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
         for (const Trk::SpacePoint* sp: **w) {
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 
@@ -238,7 +242,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
         for (const Trk::SpacePoint* sp: **w) {
           float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-          if (prd_to_track_map.cptr() && isUsed(sp,*prd_to_track_map)) continue;
+          if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           int ir = static_cast<int>(sps->radius()*irstep);
           if (ir>irmax) ir = irmax;

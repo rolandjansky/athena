@@ -142,8 +142,7 @@ class ConfiguredBackTracking:
                                                                       Xi2maxNoAdd              = NewTrackingCuts.SecondaryXi2maxNoAdd(),
                                                                       ConsistentSeeds          = True,
                                                                       #BremCorrection           = True,
-                                                                      BremCorrection           = False,
-                                                                      UseAssociationTool       = usePrdAssociationTool)
+                                                                      BremCorrection           = False)
          if InDetFlags.doCosmics():
             InDetTRT_SeededTrackTool.nWClustersMin = 0
       
@@ -163,6 +162,8 @@ class ConfiguredBackTracking:
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
                                                                    RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
+                                                                   PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
+                                                                                               if usePrdAssociationTool else "",
                                                                    TrackExtensionTool    = InDetTRTExtensionTool,
                                                                    MinTRTonSegment       = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                                    MinTRTonly            = NewTrackingCuts.minTRTonly(),

@@ -141,11 +141,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   data.ns = data.nr = 0;
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
     prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
     if (!prd_to_track_map.isValid()) {
-      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
   data.r_first = 0;
@@ -159,7 +161,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
       for (const SpacePointCollection* spc: *spacepointsPixel) {
         for (const Trk::SpacePoint* sp: *spc) {
 
-          if ((prd_to_track_map.cptr() &&  isUsed(sp,*prd_to_track_map)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map_cptr &&  isUsed(sp,*prd_to_track_map_cptr)) || sp->r() > m_r_rmax) continue;
 
           // Remove DBM space points
           //
@@ -193,7 +195,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
       for (const SpacePointCollection* spc: *spacepointsSCT) {
         for (const Trk::SpacePoint* sp: *spc) {
 
-          if ((prd_to_track_map.cptr() &&  isUsed(sp,*prd_to_track_map)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map_cptr &&  isUsed(sp,*prd_to_track_map_cptr)) || sp->r() > m_r_rmax) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           if (!sps) continue;
@@ -217,7 +219,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
 
-          if ((prd_to_track_map.cptr() &&  isUsed(sp, *prd_to_track_map)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map_cptr &&  isUsed(sp, *prd_to_track_map_cptr)) || sp->r() > m_r_rmax) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           if (!sps) continue;
