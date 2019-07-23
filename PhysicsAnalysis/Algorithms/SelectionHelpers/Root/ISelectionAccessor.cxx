@@ -52,6 +52,12 @@ namespace CP
     {
       using namespace msgSelectionHelpers;
 
+      if (expr.empty())
+      {
+        accessor = std::make_unique<SelectionAccessorNull> (true);
+        return StatusCode::SUCCESS;
+      }
+
       try {
         SelectionExprParser parser(expr, defaultToChar);
         ANA_CHECK(parser.build(accessor));
@@ -70,12 +76,6 @@ namespace CP
                          bool defaultToChar)
   {
     using namespace msgSelectionHelpers;
-
-    if (name.empty())
-    {
-      accessor = std::make_unique<SelectionAccessorNull> (true);
-      return StatusCode::SUCCESS;
-    }
 
     std::string var;
     bool asChar = false;

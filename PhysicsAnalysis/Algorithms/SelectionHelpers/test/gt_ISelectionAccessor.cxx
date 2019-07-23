@@ -14,6 +14,7 @@
 #include <SelectionHelpers/SelectionAccessorChar.h>
 #include <SelectionHelpers/SelectionAccessorBits.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
+#include <SelectionHelpers/SelectionAccessorNull.h>
 #include <AsgTools/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <xAODJet/Jet.h>
@@ -230,6 +231,16 @@ namespace CP
     accC->setBool (*jet, true);
     EXPECT_TRUE (accEx->getBool (*jet));
     EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
+
+
+    // test that an empty string produces a SelectionAccessorNull(true)
+    std::unique_ptr<ISelectionAccessor> accEmpty;
+    ASSERT_SUCCESS (makeSelectionAccessor ("", accEmpty));
+    auto accNull = dynamic_cast<SelectionAccessorNull*>(accEmpty.get());
+    EXPECT_NE (accNull, nullptr); // is in fact a null accessor
+    // can either be true or false, let's test that it is true
+    EXPECT_TRUE (accEmpty->getBool (*jet));
+
   }
 
   TEST (SelectionExprParser, tokenizer) {
