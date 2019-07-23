@@ -63,8 +63,15 @@ def generateChains(flags, chainDict):
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
     import pprint
     pprint.pprint(chainDict)
 
-    chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep, l2PhotonStep])
+
+
+    chain = Chain(chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
     return chain

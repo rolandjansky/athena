@@ -31,8 +31,8 @@ def getBJetSequence( step ):
 
 def bJetStep1Sequence():
 
-    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-    (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+    from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+    (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
 				 
 
     # Start with b-jet-specific algo sequence
@@ -100,8 +100,8 @@ def bJetStep1Sequence():
 def bJetStep1SequenceALLTE():
 
     # Construct jets
-    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-    (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+    from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+    (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking

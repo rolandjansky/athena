@@ -9,13 +9,13 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 
-CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
-                     "HLT_e5_etcut":  "L1_EM3",
-                     "HLT_e7_etcut":  "L1_EM7",
-                     "HLT_2e3_etcut": "L1_2EM3",
-                     "HLT_e3_e5_etcut":"L1_2EM3"}
+CTPToChainMapping = {"HLT_e3_etcut_L1EM3": "L1_EM3",
+                     "HLT_e5_etcut_L1EM3":  "L1_EM3",
+                     "HLT_e7_etcut_L1EM7":  "L1_EM7",
+                     "HLT_2e3_etcut_L1EM3": "L1_2EM3",
+                     "HLT_e3_e5_etcut_L1EM3":"L1_2EM3"}
 
-topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut_L1EM3:2", "HLT_2e3_etcut_L1EM3:2.5"]
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]

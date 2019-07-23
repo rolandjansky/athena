@@ -2,11 +2,10 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence#, metJetMenuSequence
 
@@ -49,7 +48,7 @@ class MetChainConfiguration(ChainConfigurationBase):
             "tcpufit":[self.getMetClusterPufitStep()],
  #           "mht":[self.getMetJetStep()],
         }
-
+        
 
         key = self.chainPart['EFrecoAlg']
         steps=stepDictionary[key]
@@ -58,17 +57,15 @@ class MetChainConfiguration(ChainConfigurationBase):
             
         myChain = self.buildChain(chainSteps)
         return myChain
-        
+
+
+   
     # --------------------
     # Configuration of cell chain
     # --------------------
     def getMetCellStep(self):
-        stepName = "Step1_met_cell"
-        log.debug("Configuring step " + stepName)
-        metCellSeq = metCellMenuSequence()
-        chainStep =ChainStep(stepName, [metCellSeq])
-        log.debug("Returning chainStep from getMetCellStep function: " + stepName)
-        return chainStep
+        return self.getStep(1,"met_cell", [MetCellSequenceCfg] )
+
             
     # --------------------
     # Configuration of Jet chain
@@ -85,13 +82,8 @@ class MetChainConfiguration(ChainConfigurationBase):
     # Configuration of pufit chain
     # --------------------
     def getMetClusterPufitStep(self):
-        stepName = "Step1_met_clusterpufit"
-        log.debug("Configuring step " + stepName)
-        metClusterPufitSeq = metClusterPufitMenuSequence()
-        chainStep =ChainStep(stepName, [metClusterPufitSeq])
-        log.debug("Returning chainStep from getMetClusterPufitStep function: " + stepName)
-        return chainStep
-            
+        return self.getStep(1,"met_clusterpufit", [MetClusterPufitSequenceCfg] )
+     
             
 
         

@@ -9,8 +9,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
@@ -98,14 +97,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
         }
        
         return stepDictionary
-
-    def getStep(self, stepID, stepPartName, sequenceCfgArray):
-        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
-        log.debug("Configuring step " + stepName)
-        seqArray = []
-        for sequenceCfg in sequenceCfgArray:
-            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, self.mult)
+  
         
     # --------------------
     def getmuFast(self):
