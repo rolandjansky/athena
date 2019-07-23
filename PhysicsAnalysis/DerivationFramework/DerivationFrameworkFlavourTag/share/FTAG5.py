@@ -19,11 +19,11 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
 
 # JetEtMiss
 from DerivationFrameworkJetEtMiss.JetCommon import (
-    OutputJets, addJetOutputs, addSoftDropJets)
+    OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets,
-    addCSSKSoftDropJets)
+    addDefaultTrimmedJets, addTCCTrimmedJets, replaceAODReducedJets, addConstModJets)
 from JetRec.JetRecStandard import jtm
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -78,7 +78,6 @@ FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
 FTAG5ThinningHelper.TriggerChains = ''
 FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
-
 from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
     DerivationFramework__HbbTrackThinner as HbbThinner )
 FTAG5HbbThinningTool = HbbThinner(
@@ -93,6 +92,20 @@ FTAG5HbbThinningTool = HbbThinner(
     addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
 log_setup(FTAG5HbbThinningTool)
+
+# Tracks and CaloClusters associated with TCCs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
+FTAG5TCCThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "FTAG5TCCThinningTool",
+                                                                     ThinningService              = FTAG5ThinningHelper.ThinningSvc(),
+                                                                     JetKey                       = "AntiKt10TrackCaloClusterJets",
+                                                                     TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
+                                                                     InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                     CaloCalTopoClustersKey       = "CaloCalTopoClusters",
+                                                                     ThinOriginCorrectedClusters  = True,
+                                                                     OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
+ToolSvc += FTAG5TCCThinningTool
+log_setup(FTAG5TCCThinningTool)
+
 
 #====================================================================
 # TRUTH SETUP
@@ -135,17 +148,28 @@ FTAG5BTaggedJets = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
+# running TCC reconstruction
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(FTAG5Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+
 # I don't understand why we need some of these. We don't use
 # AntiKt4PV0TrackJets in the output, but without them we get a crash
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets", # <- Crashes without this,
                   "AntiKt10LCTopoJets", # <- while building this collection
+                  "AntiKt10TrackCaloClusterJets",
                   "AntiKt4TruthJets"]
 
 extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
 replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
 
+
+#===================================================================
+# Add trimmed large-R jets
+#===================================================================
 addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
+addTCCTrimmedJets(FTAG5Seq,"FTAG5")
 
 #===================================================================
 # Variable Radius (VR) Jets
@@ -159,12 +183,6 @@ addVRJets(FTAG5Seq, logger=ftag5_log, do_ghost=True)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-#===================================================================
-# Add SoftDrop Jets
-#===================================================================
-
-addCSSKSoftDropJets(FTAG5Seq, "FTAG5")
 
 #===================================================================
 # ExKt subjets for each trimmed large-R jet
@@ -216,7 +234,7 @@ addRecommendedXbbTaggers(FTAG5Seq, ToolSvc, ftag5_log)
 FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "FTAG5Kernel",
     SkimmingTools = [FTAG5StringSkimmingTool],
-    ThinningTools = [FTAG5HbbThinningTool],
+    ThinningTools = [FTAG5HbbThinningTool,FTAG5TCCThinningTool],
     AugmentationTools = []
 )
 
@@ -229,7 +247,7 @@ FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
 fatJetCollections = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
 ]
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
@@ -257,6 +275,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+    "TrackCaloClustersCombinedAndNeutral.m.pt.phi.eta.taste.trackParticleLink.DetectorEta.iparticleLinks"
 ]
 FTAG5SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
@@ -279,7 +298,7 @@ ghost_particles = [
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
 ghost_subjets = ['GhostVR30Rmax4Rmin02TrackJetGhostTag']
-for jc in ['AntiKt10LCTopoJets', 'AntiKt10LCTopoCSSKJets']:
+for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
     FTAG5SlimmingHelper.ExtraVariables.append(
         '.'.join([jc] + ghost_counts + ghost_pts + ghost_subjets))
 
