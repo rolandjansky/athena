@@ -2,10 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
-//   @file    TrigRoiBuilderMT.h        
+//   @file    TrigBjetRoiBuilderMT.h        
 //
-#ifndef  TRIGBJETHYPO_TRIGROIBUILDER_MT_H
-#define  TRIGBJETHYPO_TRIGROIBUILDER_MT_H
+#ifndef  TRIGROI_FROMJETS_MT_H
+#define  TRIGROI_FROMJETS_MT_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -14,10 +14,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-class TrigRoiBuilderMT : public AthAlgorithm {
+class TrigRoIFromJetsMT : public AthAlgorithm {
 
  public:
-  TrigRoiBuilderMT(const std::string&, ISvcLocator*);
+  TrigRoIFromJetsMT(const std::string&, ISvcLocator*);
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

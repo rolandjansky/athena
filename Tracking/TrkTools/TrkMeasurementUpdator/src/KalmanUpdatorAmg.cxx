@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -571,7 +571,8 @@ Trk::KalmanUpdatorAmg::calculateFilterStep_1D (const TrackParameters& TP, const 
   AmgSymMatrix(5) newCov; newCov.setZero();
   if (!m_useFruehwirth8a) {
     // either: use formula C = M * trkCov * M.T() +/- K * rioCov * K.T()
-    AmgSymMatrix(1) measuredSMatrix1D(measCov);
+    AmgSymMatrix(1) measuredSMatrix1D;
+    measuredSMatrix1D(0,0) = measCov;
     newCov = M*trkCov*M.transpose() + sign*K*measCov*K.transpose();
   } else {
     // or: original Fruehwirth eq. 8a is simpler, expression checked to be symm.
