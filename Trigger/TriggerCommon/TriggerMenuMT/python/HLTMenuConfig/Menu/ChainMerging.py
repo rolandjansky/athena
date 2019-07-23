@@ -33,6 +33,7 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     chainName = ''
     #l1Seed = ''
     l1Seed = chainL1Item
+    l1Thresholds = []
 
 
     for cConfig in chainDefList:
@@ -48,6 +49,7 @@ def mergeParallel(chainDefList, chainL1Item, offset):
 
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
+        l1Thresholds.extend(cConfig.vseeds)
 
     from itertools import izip_longest
     orderedSteps = list(izip_longest(*allSteps))
@@ -66,7 +68,8 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     else:
         log.debug("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
                                   
-    combinedChainDef = Chain(chainName, l1Seed, combChainSteps)
+    combinedChainDef = Chain(chainName, L1Item=l1Seed, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
+
     for step in combinedChainDef.steps:
         log.debug('  Step %s', step)
 

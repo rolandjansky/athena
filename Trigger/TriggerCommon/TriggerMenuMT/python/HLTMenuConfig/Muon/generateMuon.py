@@ -36,11 +36,17 @@ def generateChains( flags, chainDict ):
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
 
     ### Set muon step2 ###
-    # Please set up L2muComb step here 
+    # Please set up L2muComb step here
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
 
     import pprint
     pprint.pprint(chainDict)
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [ l2muFastStep ] )
+    chain = Chain( name=chainDict['chainName'], L1Item=chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep ] )
+
 
     return chain

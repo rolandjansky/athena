@@ -60,6 +60,8 @@ TrigSignatureMoniMT                                INFO HLT_tau35_mediumRNN_trac
 TrigSignatureMoniMT                                INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM decisions                    34        12        0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpufit_L1XE100         0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpufit_L1XE10 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50          0         0         0         0         0         0         0         0
