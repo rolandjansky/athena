@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Instantiates tools for LowPt tracking
 """
@@ -34,8 +34,9 @@ InDetTrigSiSpacePointsSeedMakerLowPt =  \
                                                SpacePointsSCTName = 'SCT_TrigSpacePoints',
                                                SpacePointsPixelName = 'PixelTrigSpacePoints',
                                                SpacePointsOverlapName = 'SPTrigOverlap',
-                                               UseAssociationTool     = True,
-                                               AssociationTool        = InDetTrigPrdAssociationTool,
+                                               PRDtoTrackMap = "", # @TODO
+#                                                UseAssociationTool     = True,
+#                                               AssociationTool        = InDetTrigPrdAssociationTool,
                                                radMax = EFIDTrackingCutsLowPt.radMax(),
                                                mindRadius = 4.0
                                                )

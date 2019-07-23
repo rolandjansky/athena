@@ -29,8 +29,12 @@ class ConfiguredBackTracking:
       if len(InputCollections) > 0:
          usePrdAssociationTool = True
          print 'DEBUG ConfiguredBackTracking extension ? %s ' % NewTrackingCuts.extension()
-         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetSegment',suffix = "")
+         prefix = 'InDetSegment'
+         suffix = ''
+         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix = prefix,suffix = suffix)
       else:
+         prefix = ''
+         suffix = ''
          usePrdAssociationTool = False
 
       # --- the PRD association tool is filled by the Segment making
@@ -51,15 +55,16 @@ class ConfiguredBackTracking:
             # --- defaul space point finder
             #
             from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__TRT_SeededSpacePointFinder_ATL
-            InDetTRT_SeededSpacePointFinder = InDet__TRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
-                                                                                    SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
-                                                                                    SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                                    AssociationTool        = InDetPrdAssociationTool    ,
-                                                                                    UseAssociationTool     = usePrdAssociationTool      ,
-                                                                                    NeighborSearch         = True,
-                                                                                    LoadFull               = False,
-                                                                                    DoCosmics              = InDetFlags.doCosmics(),
-                                                                                    pTmin                  = NewTrackingCuts.minSecondaryPt())
+            InDetTRT_SeededSpacePointFinder = \
+                  InDet__TRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
+                                                        SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
+                                                        SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
+                                                        PRDtoTrackMap          = prefix+'PRDtoTrackMap'+suffix \
+                                                                                    if usePrdAssociationTool else "",
+                                                        NeighborSearch         = True,
+                                                        LoadFull               = False,
+                                                        DoCosmics              = InDetFlags.doCosmics(),
+                                                        pTmin                  = NewTrackingCuts.minSecondaryPt())
             #InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
 
          elif InDetFlags.loadSimpleTRTSeededSPFinder():

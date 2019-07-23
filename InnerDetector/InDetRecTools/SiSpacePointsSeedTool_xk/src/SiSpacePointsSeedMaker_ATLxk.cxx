@@ -57,18 +57,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
 
-  // Get tool for track-prd association
-  //
-  if ( m_useassoTool ) {
-    if ( m_assoTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool "<< m_assoTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_assoTool);
-    }
-  } else {
-    m_assoTool.disable();
-  }
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
   
   // Build framework
   //
@@ -150,9 +140,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   }
   data.ns = data.nr = 0;
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+    }
+  }
+
+  data.r_first = 0;
   // Get pixels space points containers from store gate 
   //
-  data.r_first = 0;
   if (!m_dbm && m_pixel) {
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
@@ -161,7 +159,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
       for (const SpacePointCollection* spc: *spacepointsPixel) {
         for (const Trk::SpacePoint* sp: *spc) {
 
-          if ((m_useassoTool &&  isUsed(sp)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map.cptr() &&  isUsed(sp,*prd_to_track_map)) || sp->r() > m_r_rmax) continue;
 
           // Remove DBM space points
           //
@@ -195,7 +193,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
       for (const SpacePointCollection* spc: *spacepointsSCT) {
         for (const Trk::SpacePoint* sp: *spc) {
 
-          if ((m_useassoTool &&  isUsed(sp)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map.cptr() &&  isUsed(sp,*prd_to_track_map)) || sp->r() > m_r_rmax) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           if (!sps) continue;
@@ -219,7 +217,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
 
-          if ((m_useassoTool &&  isUsed(sp)) || sp->r() > m_r_rmax) continue;
+          if ((prd_to_track_map.cptr() &&  isUsed(sp, *prd_to_track_map)) || sp->r() > m_r_rmax) continue;
 
           InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
           if (!sps) continue;
@@ -1117,16 +1115,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::erase(EventData& data) const
 // Test is space point used
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSpacePointsSeedMaker_ATLxk::isUsed(const Trk::SpacePoint* sp) const
-{
-  const Trk::PrepRawData* d = sp->clusterList().first;
-  if (!d || !m_assoTool->isUsed(*d)) return false;
-
-  d = sp->clusterList().second;
-  if (!d || m_assoTool->isUsed(*d)) return true;
-
-  return false;
-}
 
 
 ///////////////////////////////////////////////////////////////////

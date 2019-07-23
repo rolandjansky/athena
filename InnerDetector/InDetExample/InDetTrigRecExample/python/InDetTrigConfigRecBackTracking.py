@@ -421,7 +421,9 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_StandaloneScoringTool
 
-      asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels()
+      # asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels()
+      prefix = 'InDet'
+      suffix = ''
       #
       # set up TRT_SegmentToTrackTool
       #
@@ -429,17 +431,14 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       InDetTrigTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTrigTRT_SegmentToTrackTool_'+type+suffixTRT,
                                                                       RefitterTool          = InDetTrigTrackFitterTRT,
                                                                       Extrapolator          = InDetTrigExtrapolator,
-                                                                      AssociationTool       = asso_tool,
+                                                                      PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
+                                                                         if seqType is not "InsideOutAndTRTOnly" else "",
                                                                       ScoringTool           = InDetTrigTRT_StandaloneScoringTool,
                                                                       FinalRefit            = True,
                                                                       SuppressHoleSearch    = True,
                                                                       MaxSharedHitsFraction = InDetTrigCutValues.maxTRTonlyShared()
                                                                       )
-      
-      if seqType is "InsideOutAndTRTOnly":
-         InDetTrigTRT_SegmentToTrackTool.AssociationTool       = None
-         InDetTrigTRT_SegmentToTrackTool.UseAssociationTool    = False
-      
+
       ToolSvc += InDetTrigTRT_SegmentToTrackTool
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_SegmentToTrackTool

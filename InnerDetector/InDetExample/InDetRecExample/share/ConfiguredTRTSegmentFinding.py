@@ -33,14 +33,12 @@ class ConfiguredTRTSegmentFinding:
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    asso_tool = None
+    prefix = 'InDetSegment'
+    suffix     = extension
     if usePrdAssociationTool:
-      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDetSegment',
-                                                                                suffix     = extension,
+      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
+                                                                                suffix     = suffix,
                                                                                 TracksName = list(InputCollections))
-
-      asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetSegment',suffix     = extension)
-
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):
         print InDetSegmentPRD_Association
@@ -102,8 +100,8 @@ class ConfiguredTRTSegmentFinding:
                                                                         TRT_ClustersContainer   = InDetKeys.TRT_DriftCircles(),
                                                                         PropagatorTool          = InDetPatternPropagator,
                                                                         TrackExtensionTool      = InDetTRTExtensionTool,
-                                                                        UseAssosiationTool      = usePrdAssociationTool,
-                                                                        AssosiationTool         = asso_tool,
+                                                                        PRDtoTrackMap           = prefix+'PRDtoTrackMap'+suffix \
+                                                                                                    if usePrdAssociationTool else '',
                                                                         RemoveNoiseDriftCircles = InDetFlags.removeTRTNoise(),
                                                                         MinNumberDriftCircles   = MinNumberDCs,
                                                                         NumberMomentumChannel   = NewTrackingCuts.TRTSegFinderPtBins(),

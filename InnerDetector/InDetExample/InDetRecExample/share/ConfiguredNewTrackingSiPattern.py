@@ -36,11 +36,13 @@ class  ConfiguredNewTrackingSiPattern:
       #
       asso_tool = None
       if usePrdAssociationTool:
-         InDetPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDet',
-                                                                            suffix     = NewTrackingCuts.extension(),
+         prefix     = 'InDet'
+         suffix     = NewTrackingCuts.extension()
+         InDetPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
+                                                                            suffix     = suffix,
                                                                             TracksName = list(InputCollections))
 
-         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix     = 'InDet', suffix     = NewTrackingCuts.extension())
+         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix     = prefix, suffix = suffix)
 
          topSequence += InDetPRD_Association
          if (InDetFlags.doPrintConfigurables()):
@@ -92,8 +94,8 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
          if usePrdAssociationTool:
             # not all classes have that property !!!
-            InDetSiSpacePointsSeedMaker.UseAssociationTool = True
-            InDetSiSpacePointsSeedMaker.AssociationTool    = asso_tool
+            InDetSiSpacePointsSeedMaker.PRDtoTrackMap      = prefix+'PRDtoTrackMap'+suffix \
+                                                                if usePrdAssociationTool else ''
          if not InDetFlags.doCosmics():
             InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()

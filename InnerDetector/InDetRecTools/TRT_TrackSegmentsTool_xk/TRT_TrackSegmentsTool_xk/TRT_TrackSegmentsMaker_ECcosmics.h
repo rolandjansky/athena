@@ -26,6 +26,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 class MsgStream;
 
@@ -121,11 +122,12 @@ namespace InDet{
       const TRT_ID*                            m_trtid       ; 
 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
+
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerD   ; //!< RI0_onTrack creator with drift information
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerN   ; //!< RI0_onTrack creator without drift information
-      ToolHandle<Trk::IPRD_AssociationTool>    m_assoTool    ; // Track-PRD association tool
 
-      bool                                     m_useassoTool ;
       bool                                     m_useDriftTime; //!< Shall the drifttime be used or only tube hits?
       bool                                     m_removeSuspicious; //!< Remove hits from segments that are suspicious
       bool                                     m_truthCollectionTRT;
