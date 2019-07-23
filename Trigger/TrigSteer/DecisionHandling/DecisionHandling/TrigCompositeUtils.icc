@@ -116,15 +116,20 @@ namespace TrigCompositeUtils {
           try {
             // Slices may have added link collections
             if (decision->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-              featureLinks = decision->objectCollectionLinks<CONTAINER>( featureNameToGet );
+              ElementLinkVector<CONTAINER> collectionLinks = decision->objectCollectionLinks<CONTAINER>( featureNameToGet );
+              std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
             }
+          } catch (SG::ExcCLIDMismatch&) {
+            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+          }
+          try {
             // Framework specified "feature" is always a single link
             if (decision->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
               featureLinks.push_back( decision->objectLink<CONTAINER>( featureNameToGet ) );
             }
           } catch (SG::ExcCLIDMismatch&) {
-            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
-            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+            // As above
           }
         }
 
