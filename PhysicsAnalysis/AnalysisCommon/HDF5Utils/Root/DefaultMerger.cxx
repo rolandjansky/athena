@@ -70,6 +70,11 @@ namespace H5Utils {
         case H5G_DATASET:
           {
             H5::DataSet sd = source.openDataSet(childName);
+            if (sd.getSpace().getSimpleExtentNdims() == 0) {
+              std::cerr << "WARNING: skipping scalar '"
+                        << childName << "'" << std::endl;
+              break;
+            }
             H5::DataSet td = found ? 
               target.openDataSet(childName) : 
               createFrom(target, sd);

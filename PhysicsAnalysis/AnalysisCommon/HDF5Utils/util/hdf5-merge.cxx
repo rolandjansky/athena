@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
      "The axis along which to merge datasets")
     ("chunkSize,c", po::value(&chunkSize),
      "The chunk size to use along the merge axis. If left negative uses the same chunks as the first input.")
-    ("bufferSizeMB,b", po::value(&bufferSizeMB),
+    ("bufferSizeMB,B", po::value(&bufferSizeMB),
      "The size of the buffer to use in MB. Cannot be set with 'bufferSizeRows'")
     ("bufferSizeRows,b", po::value(&bufferSizeRows),
      "The size of the buffer to use in rows. Cannot be set with 'bufferSizeMB'")
