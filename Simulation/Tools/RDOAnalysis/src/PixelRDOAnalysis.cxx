@@ -350,7 +350,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_eventIndex->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_eventIndex->GetName(), m_h_eventIndex));
 
-  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 1000, 0, 500);
+  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 5000, 0, 50000);
   m_h_charge->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_charge->GetName(), m_h_charge));
   
