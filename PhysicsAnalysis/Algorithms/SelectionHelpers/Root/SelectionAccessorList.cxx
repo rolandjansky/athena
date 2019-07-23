@@ -21,13 +21,15 @@ namespace CP
   SelectionAccessorList (std::vector<std::unique_ptr<ISelectionAccessor> > val_list)
     : m_list (std::move (val_list))
   {
-    for (const std::unique_ptr<ISelectionAccessor> &acc : val_list)
+    for (const std::unique_ptr<ISelectionAccessor> &acc : m_list)
     {
       if (!m_label.empty())
-        m_label.append(" and ");
+        m_label.append(" && ");
       
       m_label.append(acc->label());
     }
+
+    m_label = "( " + m_label + " )";
   }
 
 
