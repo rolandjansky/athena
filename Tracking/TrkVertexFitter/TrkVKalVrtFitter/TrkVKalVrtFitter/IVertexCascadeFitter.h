@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // IVertexCascadeFitter.h  - 
 //---------------------------------------------------------------
-#ifndef TRKVKALVRTFITTER_IVERTEXCASCADEFITTER_H
-#define TRKVKALVRTFITTER_IVERTEXCASCADEFITTER_H
+#ifndef _TrkVKalVrtFitter_IVertexCascadeFitter_H
+#define _TrkVKalVrtFitter_IVertexCascadeFitter_H
 // Normal STL and physical vectors
 #include <vector>
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/IToolSvc.h"
 //
-#include  "VxVertex/Vertex.h"
 #include  "TrkVKalVrtFitter/VxCascadeInfo.h"
 #include  "xAODTracking/TrackParticle.h" 
 

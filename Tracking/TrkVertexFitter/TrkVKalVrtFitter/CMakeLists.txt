@@ -46,10 +46,4 @@ atlas_add_component( TrkVKalVrtFitter
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
 
-
-atlas_add_test( TrkVKalVrtFitter_test
-                SCRIPT athena.py TrkVKalVrtFitter/TrkVKalVrtFitter_test.py
-                PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|frontier.c" )
