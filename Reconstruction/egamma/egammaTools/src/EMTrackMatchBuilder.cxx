@@ -73,6 +73,12 @@ StatusCode EMTrackMatchBuilder::initialize()
   }
   else ATH_MSG_INFO("initialize: useCandidateMatch is turned off");
 
+  // set things up for the sorting
+  m_sorter = TrackMatchSorter(m_distanceForScore);
+  m_deltaEtaWeight = 1.0/m_deltaEtaResolution;
+  m_deltaPhiWeight = 1.0/m_deltaPhiResolution;
+  m_deltaPhiRescaleWeight = 1.0/m_deltaPhiRescaleResolution;
+
   return StatusCode::SUCCESS;
 }
 
@@ -160,7 +166,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
   if(trkMatches.size()>0)
   {
     //sort the track matches
-    std::sort(trkMatches.begin(), trkMatches.end(), TrackMatchSorter);
+    std::sort(trkMatches.begin(), trkMatches.end(), m_sorter);
 
     //set the matching values
     TrackMatch bestTrkMatch=trkMatches.at(0);
@@ -181,7 +187,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: "<< m.dR
                     <<" second  dR: "<< m.seconddR
-                    <<" score: "<< m.score
+                    <<" hasPix: "<< m.hasPix
                     <<" hitsScore: " << m.hitsScore 
                     <<" isTRT : "<< m.isTRT);
       if (key.empty())
@@ -366,13 +372,17 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   trkmatch.isTRT=trkTRT;
   trkmatch.trackNumber=trackNumber;
   if (!trkTRT) {
-    if(m_UseRescaleMetric){
-      trkmatch.dR = sqrt(deltaEta[2]*deltaEta[2] + deltaPhiRescale*deltaPhiRescale);
-      trkmatch.seconddR = sqrt(deltaEta[2]*deltaEta[2] + deltaPhi[2]*deltaPhi[2]);
+    if(m_useRescaleMetric){
+      trkmatch.dR = sqrt(std::pow(m_deltaEtaWeight*deltaEta[2], 2) +
+			 std::pow(m_deltaPhiRescaleWeight*deltaPhiRescale, 2));
+      trkmatch.seconddR = sqrt(std::pow(m_deltaEtaWeight*deltaEta[2], 2) +
+			       std::pow(m_deltaPhiWeight*deltaPhi[2], 2));
     }
     else{
-      trkmatch.dR = sqrt(deltaEta[2]*deltaEta[2] + deltaPhi[2]*deltaPhi[2]);
-      trkmatch.seconddR = sqrt(deltaEta[2]*deltaEta[2] + deltaPhiRescale*deltaPhiRescale);
+      trkmatch.dR = sqrt(std::pow(m_deltaEtaWeight*deltaEta[2], 2) +
+			 std::pow(m_deltaPhiWeight*deltaPhi[2], 2));
+      trkmatch.seconddR = sqrt(std::pow(m_deltaEtaWeight*deltaEta[2], 2) +
+			       std::pow(m_deltaPhiRescaleWeight*deltaPhiRescale, 2));
     }
     ATH_MSG_DEBUG("TRTSA = " << trkTRT << " DR " << trkmatch.dR <<" deltaPhi " 
                   << deltaPhi[2] <<" deltaEta "<< deltaEta[2]);   
@@ -383,12 +393,10 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
     ATH_MSG_DEBUG("TRTSA = " << trkTRT << " DPhi " << trkmatch.dR <<" deltaPhi " << deltaPhi[2]);   
   }
   /*
-   * Primary Score. 
    * The first thing to check in 
    * finding the best track match
    * Prefer pixel over SCT only 
    */
-  trkmatch.score=0; 
   int nPixel=0;
   uint8_t uint8_value=0;
   //Check number of pixel hits
@@ -398,9 +406,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   if (trkPB.summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
     nPixel+=uint8_value;
   }
-  if (nPixel > 0)  {
-    trkmatch.score+=1;
-  }
+  trkmatch.hasPix = (nPixel > 0);
+
   /*
    * Seconday score based on hits to be used 
    * for track that are very close
@@ -440,7 +447,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
       trkmatch.hitsScore+=10;
     }
   }  
-  ATH_MSG_DEBUG("Score : " <<trkmatch.score <<" hitsScore : " <<trkmatch.hitsScore);   
+  ATH_MSG_DEBUG("hasPix : " <<trkmatch.hasPix <<" hitsScore : " <<trkmatch.hitsScore);
 
   trackMatches.push_back(trkmatch);
   return true;
@@ -505,16 +512,16 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   return true; 
 }
 
-bool EMTrackMatchBuilder::TrackMatchSorter(const EMTrackMatchBuilder::TrackMatch& match1,
-                                           const EMTrackMatchBuilder::TrackMatch& match2)
+bool EMTrackMatchBuilder::TrackMatchSorter::operator()(const EMTrackMatchBuilder::TrackMatch& match1,
+						       const EMTrackMatchBuilder::TrackMatch& match2)
 {
-  if(match1.score!= match2.score) {//Higher score
-    return match1.score>match2.score;
+  if(match1.hasPix != match2.hasPix) {// prefer pixels first
+    return match1.hasPix;
   }
   //sqrt(0.025**2)*sqrt(2)/sqrt(12) ~ 0.01
-  if(fabs(match1.dR-match2.dR)<1e-02) {
+  if(fabs(match1.dR-match2.dR) < m_distance) {
 
-    if(fabs(match1.seconddR-match2.seconddR)>1e-02 ){ //Can the second distance separate them?
+    if(fabs(match1.seconddR-match2.seconddR) > m_distance ){ //Can the second distance separate them?
       return match1.seconddR < match2.seconddR	;
     }
     if((match1.hitsScore!= match2.hitsScore)){ //use the one with more pixel
@@ -522,5 +529,5 @@ bool EMTrackMatchBuilder::TrackMatchSorter(const EMTrackMatchBuilder::TrackMatch
     }
   }
   //closest DR
-  return match1.dR < match2.dR	;
+  return match1.dR < match2.dR;
 }
