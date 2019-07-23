@@ -373,6 +373,11 @@ namespace EL
     static const std::string optBackgroundProcess;
 
 
+    /// \brief the output sample name
+  public:
+    static const std::string optOutputSampleName;
+
+
     /// description: grid-specific options
     /// rationale: these are named so as to correspond to prun equivalents,
     ///   bare the optGrid prefix.
@@ -393,6 +398,10 @@ namespace EL
     static const std::string optGridExpress;
     static const std::string optGridNoSubmit;
     static const std::string optGridMergeOutput;
+    static const std::string optGridUseContElementBoundary;
+    static const std::string optGridAddNthFieldOfInDSToLFN;
+    static const std::string optGridWorkingGroup;
+    static const std::string optGridShowCmd;
     static const std::string optTmpDir;
     static const std::string optRootVer;
     static const std::string optCmtConfig;
