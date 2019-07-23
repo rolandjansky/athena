@@ -116,7 +116,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       // Trigger type
 
       // Access to TrigFeature
-      bool Run2_Access = true;
+      //bool Run2_Access = true;
+      bool Run2_Access = false;
 
       // split vs unsplit
       std::size_t found = trigName.find("split");
@@ -162,6 +163,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
       // if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 trigger
       if (Run2_Access) { // Run 2 trigger
+
 	ATH_MSG_INFO("  ===> Run 2 access to Trigger feature: " );
 	Trig::FeatureContainer fc = m_trigDec->features(trigName);
 	const std::vector< Trig::Combination >& triggerCombs = fc.getCombinations();
@@ -289,12 +291,28 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	
       } else { // Run 3 trigger
 	ATH_MSG_INFO("  ===> Run 3 access to Trigger feature: " );
-	//	const std::vector< LinkInfo<xAOD::JetContainer> > fc = m_trigDec->features(trigName);
-      } 
+	//bjet or mujet chains 
+	if (bjetChain || mujetChain) {
+
+	  // Jets
+	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, jetKey);
+	  for(const auto jetLinkInfo : onlinejets) {
+	    // jetPt 
+	    const xAOD::Jet* jet = *(jetLinkInfo.link);
+	    std::string NameH = "jetPt_"+trigName;
+	    std::cout << " NameH: " << NameH << std::endl;
+	    auto jetPt = Monitored::Scalar<float>(NameH,0.0);
+	    jetPt = (jet->pt())*1.e-3;
+	    ATH_MSG_INFO("        jetPt: " << jetPt);
+	    fill("TrigBjetMonitor",jetPt);
+	  } // onlinejets
+
+	} //bjet or mujet
+      } // else Run3  
 
     } else {
       std::cout << " Trigger chain from AllChains list: " << trigName << " has not fired " << std::endl;
-    }
+    } // trigger not fired
     
 
   } // for AllChains
