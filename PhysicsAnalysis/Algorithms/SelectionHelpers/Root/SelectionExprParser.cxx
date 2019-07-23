@@ -12,6 +12,8 @@
 #include <regex>
 #include <string>
 
+using CP::DetailSelectionExprParser::Lexer;
+
 namespace CP {
 using namespace msgSelectionHelpers;
 
@@ -84,11 +86,6 @@ auto Lexer::nextSymbol() -> Symbol {
 }
 
 }  // namespace DetailSelectionExprParser
-
-namespace {
-// typedef to much short name to make the code below a lot more readable
-typedef DetailSelectionExprParser::Lexer Lexer;
-}  // namespace
 
 SelectionExprParser::SelectionExprParser(Lexer lexer, bool defaultToChar)
     : m_lexer(std::move(lexer)), m_defaultToChar(defaultToChar) {}
