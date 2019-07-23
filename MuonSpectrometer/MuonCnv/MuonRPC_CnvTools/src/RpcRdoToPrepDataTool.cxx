@@ -185,7 +185,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   }
   
 
-  ATH_CHECK(m_readKey.initialize());
+  if (m_RPCInfoFromDb){
+    ATH_CHECK(m_readKey.initialize());
+  }
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
@@ -936,9 +938,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-  const RpcCondDbData* readCdo{*readHandle};
-
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
 		<<" ---# of coll.s with data until now is "<<idWithDataVect.size());
@@ -1331,6 +1330,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 
 	      //correct prd time from cool db
 	      if (m_RPCInfoFromDb){
+        SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+        const RpcCondDbData* readCdo{*readHandle};
 		ATH_MSG_DEBUG( " Time correction from COOL " << " size of  RPC_TimeMapforStrip " <<readCdo->getStripTimeMap().size() );	     
 		std::vector<double> StripTimeFromCool;
 		if( readCdo->getStripTimeMap().find(channelId) != readCdo->getStripTimeMap().end()){
