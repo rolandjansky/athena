@@ -984,10 +984,11 @@ else:
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
       else:
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                              AssoTool                = InDetPrdAssociationTool_setup,
+                                                              AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1029,11 +1030,12 @@ else:
        if InDetFlags.doTRTExtension() :
          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
-         DummyCollection += [ InDetKeys.ResolvedDisappearingTracks()]
+         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+       from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
-                                                                 AssoTool                = InDetPrdAssociationTool_setup,
+                                                                 AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
                                                                  SummaryTool             = InDetTrackSummaryToolSharedHits)
