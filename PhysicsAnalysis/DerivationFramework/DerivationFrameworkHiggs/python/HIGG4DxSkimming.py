@@ -98,24 +98,22 @@ def setup(HIGG4DxName, ToolSvc):
         skim_expression = ditaujet + "&&" + trigger_all
 
     elif HIGG4DxName == 'HDBS1':
-	#NADAV- Removed ditau cut, removed jet triggers 
-	#NADAV- Added lepton selection (Quality, pt, eta)
-        #NADAV- Added jet requirement. The final selection here (exactly on at least two leptons +  at least 2 jets ; this covers all WW decay channels )
+        #The final selection here: (At least two leptons (and triggers) +  at least 2 jets) OR (At least one lepton (and veto the other, trigger) + at least 3 jets)
         eReq = '( Electrons.pt > 28.0*GeV && abs(Electrons.eta) < 2.5 && '+eleTight+' )'
-        muReq = '( Muons.pt > 28.0*GeV && abs(Muons.eta) < 2.5 && '+muonQual+' )'
+        muReq = '( Muons.pt > 28.0*GeV && abs(Muons.eta) < 2.5 && Muons.DFCommonGoodMuon)'
         jetReq = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 )' 
         trigger_electron = '(HLT_e26_lhtight_nod0_ivarloose || HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0 || HLT_e300_etcut)' 
         trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)' 
-        onelep = '( ((count('+eReq+') == 1) && ('+trigger_electron+') && (count('+muReq+') == 0)) || ((count('+muReq+') == 1) && ('+trigger_muon+') && (count('+eReq+') == 0)) )' #Single Lepton (with matching trigger, changed now to include no overlap (exactly 1 electron and trigger or 1 muon and trigger)
-        dilep = '( (count('+eReq+') == 1) && ('+trigger_electron+') && (count('+muReq+') == 1) && ('+trigger_muon+') )' #Exactly two leptons with matching triggers
-        multilep = '( ((count('+eReq+') >= 2) && ('+trigger_electron+')) || ((count('+muReq+') >= 2) && ('+trigger_muon+')) || ('+dilep+') )' #Multilepton events with matching trigger
+        onelep = '( ((count('+eReq+') >= 1) && ('+trigger_electron+') && (count('+muReq+') == 0)) || ((count('+muReq+') >= 1) && ('+trigger_muon+') && (count('+eReq+') == 0)) )' #Single Lepton+trigger and veto on other lep type
+        dilep = '( (count('+eReq+') >= 1) && ('+trigger_electron+') && (count('+muReq+') >= 1) && ('+trigger_muon+') )' #e-mu Dilepton + triggers
+        multilep = '( ((count('+eReq+') >= 2) && ('+trigger_electron+') && (count('+muReq+') == 0)) || ((count('+muReq+') >= 2) && ('+trigger_muon+') && (count('+eReq+') == 0)) || ('+dilep+') )' #multi-e/mu with veto on other lep type
         fullLep = '( '+multilep+' && (count('+jetReq+') >= 2) )' #At least 2 jets (from t->bW and fully leptonic Ws)
-        semiLep = '( '+onelep+' && (count('+jetReq+') >= 3) )' #At least 3 jets (from t->bW and semileptonic Ws) 
+        semiLep = '( '+onelep+' && (count('+jetReq+') >= 2) )' #At least 3 jets (from t->bW and semileptonic Ws) 
         #trigger_all      = '({} || {})'.format(trigger_electron, trigger_muon)
-        skim_expression = semiLep  + "||" + fullLep 
-    
+        skim_expression = semiLep + "||" + fullLep
+
     else:
-        assert False, "HIGG4DxSkimming: Unknown derivation stream '{}'".format(HIGG4DxName)
+        assert False, "HIGG4DxSkimming: Unknown derivation stream '{}'".format(HIGG4DxName) 
 
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
     HIGG4DxSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name 		= HIGG4DxName+"SkimmingTool",
@@ -136,7 +134,7 @@ def setupFatJetSkim(HIGG4DxName, ToolSvc):
         ditau = '(count( (DiTauJetsLowPt.pt > 50.0*GeV) && (DiTauJetsLowPt.nSubjets >=2 ) ) >= 1)'
         twotau = '(count( TauJets.pt > 20.0*GeV && '+tauProngs13+' ) >= 2)'
         tauReq = '( '+ditau+' || '+twotau+' )'
-        Bjet = '(count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV) && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1)'
+        Bjet = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1)'
         skim_expression = tauReq + "&&" + Bjet 
     elif HIGG4DxName == 'HIGG4D6':
         fatjet   = '(count((AntiKt10LCTopoJets.pt > 300.0*GeV)) >= 2)'

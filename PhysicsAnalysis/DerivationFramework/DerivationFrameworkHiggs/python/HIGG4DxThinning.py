@@ -28,7 +28,8 @@ def TriggerChains(HIGG4DxName):
     elif HIGG4DxName in ['HIGG4D6']:
         return ''
     elif HIGG4DxName in ['HDBS1']:
-        return ''
+        # single-e, single-mu
+        return '(^(?!.*_[0-9]*(tau|mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))|(^(?!.*_[0-9]*(tau|e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
@@ -46,6 +47,18 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
                                                                                       ApplyAnd               = True)
         ToolSvc += HIGG4DxJetTrackThinningTool1
         thinningTools.append(HIGG4DxJetTrackThinningTool1)
+    
+    if HIGG4DxName in ['HDBS1']: #Tracks associated with jets
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+        HIGG4DxJetTrackThinningTool3 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool3",
+                                                                                      ThinningService        = HIGG4DxThinningSvc,
+                                                                                      JetKey                 = "AntiKt4EMTopoJets",
+                                                                                      SelectionString        = "AntiKt4EMTopoJets.pt > 20*GeV",
+                                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                      ApplyAnd               = False)
+        ToolSvc += HIGG4DxJetTrackThinningTool3
+        thinningTools.append(HIGG4DxJetTrackThinningTool3)
+
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
@@ -174,6 +187,8 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
             # adding more samples
             dsids = []
+            #ttX
+            dsids+= [345919,345920,345921]
             #graviton, 2HDM, Non-resonant HH samples
             dsids += range(303349,303436+1)
             dsids += range(342626,342643+1)
