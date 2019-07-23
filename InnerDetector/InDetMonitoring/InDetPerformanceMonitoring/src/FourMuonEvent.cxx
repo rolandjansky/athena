@@ -21,8 +21,6 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
 //==================================================================================
 // Public Methods
 //==================================================================================
@@ -123,9 +121,21 @@ bool FourMuonEvent::Reco()
   //  
   // here must go the electron selection
   //
-  // if muons are requested 
+  // if electrons are requested 
   if (m_workAsFourElectrons || m_workAsFourLeptons) {
-  }  
+    // Get the electron AOD container
+    const xAOD::ElectronContainer* pxElecContainer = PerfMonServices::getContainer<xAOD::ElectronContainer>( PerfMonServices::ELECTRON_COLLECTION );
+
+    if (pxElecContainer->size() < 1 ){
+      //deleteAction();
+      return StatusCode::SUCCESS;
+    }    
+    m_xElecID.PrepareElectronList(pxElecContainer);
+  } 
+ 
+  /////////////////////
+  // reached this point one has the list of muons and electrons in this event
+  /////////////////////
 
   // now check if the particles in the event make them to satisfy the event selection
   if (m_workAsFourMuons) {

@@ -688,17 +688,17 @@ StatusCode IDPerfMonZmumu::execute()
 
   //
   //Fill Staco muon parameters only
-  m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
-  m_xZmm.doIsoSelection(m_doIsoSelection);
-  m_xZmm.doIPSelection(m_doIPSelection);
-  m_xZmm.doMCPSelection (m_doMCPSelection);
-  m_xZmm.SetMassWindowLow(m_MassWindowLow);
-  m_xZmm.SetMassWindowHigh(m_MassWindowHigh);
+  m_xZmm.setContainer       (PerfMonServices::MUON_COLLECTION);
+  m_xZmm.doIsoSelection     (m_doIsoSelection);
+  m_xZmm.doIPSelection      (m_doIPSelection);
+  m_xZmm.doMCPSelection     (m_doMCPSelection);
+  m_xZmm.SetMassWindowLow   (m_MassWindowLow);
+  m_xZmm.SetMassWindowHigh  (m_MassWindowHigh);
   m_xZmm.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
-  m_xZmm.SetSecondMuonPtCut(m_SecondMuonPtCut);
-  m_xZmm.SetOpeningAngleCut(m_OpeningAngleCut);
-  m_xZmm.SetZ0GapCut(m_Z0GapCut);
-  m_xZmm.setDebugMode(m_doDebug);
+  m_xZmm.SetSecondMuonPtCut (m_SecondMuonPtCut);
+  m_xZmm.SetOpeningAngleCut (m_OpeningAngleCut);
+  m_xZmm.SetZ0GapCut        (m_Z0GapCut);
+  m_xZmm.setDebugMode       (m_doDebug);
 
   // check if the muon-pair passed the resonance selection cuts:
   if(!m_xZmm.Reco()){
@@ -831,15 +831,15 @@ StatusCode IDPerfMonZmumu::execute()
     // Four muon event
     ATH_MSG_DEBUG ("** IDPerfMonZmumu::execute ** Let's try FourMuon...");  
     m_4mu.setContainer(PerfMonServices::MUON_COLLECTION);
-    m_4mu.doIsoSelection (m_doIsoSelection);
-    m_4mu.doIPSelection  (m_doIPSelection);
-    m_4mu.doMCPSelection (m_doMCPSelection);
-    m_4mu.SetMassWindowLow(m_MassWindowLow);
-    m_4mu.SetMassWindowHigh(m_MassWindowHigh);
+    m_4mu.doIsoSelection     (m_doIsoSelection);
+    m_4mu.doIPSelection      (m_doIPSelection);
+    m_4mu.doMCPSelection     (m_doMCPSelection);
+    m_4mu.SetMassWindowLow   (m_MassWindowLow);
+    m_4mu.SetMassWindowHigh  (m_MassWindowHigh);
     m_4mu.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
-    m_4mu.SetSecondMuonPtCut(m_SecondMuonPtCut);
-    m_4mu.SetOpeningAngleCut(m_OpeningAngleCut);
-    m_4mu.SetZ0GapCut(m_Z0GapCut);
+    m_4mu.SetSecondMuonPtCut (m_SecondMuonPtCut);
+    m_4mu.SetOpeningAngleCut (m_OpeningAngleCut);
+    m_4mu.SetZ0GapCut        (m_Z0GapCut);
     // m_4mu.setDebugMode(m_doDebug);
     m_4mu.setDebugMode(true);
 

@@ -35,7 +35,7 @@ unsigned int ElectronSelector::s_uNumInstances;
 // Public Methods
 //==================================================================================
 ElectronSelector::ElectronSelector():
-  m_debug ( false )  
+  m_doDebug ( false )  
 {
   ++s_uNumInstances;
   
@@ -87,4 +87,21 @@ void ElectronSelector::Init()
   return;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer)
+{
+  typedef xAOD::ElectronContainer::const_iterator electron_iterator;
+  electron_iterator iter    = pxElecContainer->begin();
+  electron_iterator iterEnd = pxElecContainer->end();
+  
+  // Loop over the Electrons                                                                                                                                                       
+  //  ATH_MSG_VERBOSE("Electron info. being stored");
+  //std::cout << "No Electrons: " << ElectronInput_container->size() <<std::endl;
+  int electroncount = 0;
+  for(; iter != iterEnd ; iter++) {
+    electroncount++;
+  }
+  std::cout << " --ElectronSelector::PrepareElectronList -- electroncount -- " << electroncount << std::endl;
 
+  return;
+}

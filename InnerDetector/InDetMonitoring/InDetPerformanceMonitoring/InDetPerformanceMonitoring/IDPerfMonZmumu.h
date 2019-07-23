@@ -21,6 +21,7 @@
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
 
 #include "TrackVertexAssociationTool/LooseTrackVertexAssociationTool.h"

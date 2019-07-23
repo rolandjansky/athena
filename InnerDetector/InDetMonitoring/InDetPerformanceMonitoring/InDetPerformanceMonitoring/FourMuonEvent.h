@@ -14,6 +14,12 @@
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
+
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronContainer.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================

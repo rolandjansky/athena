@@ -19,7 +19,8 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/ToolHandle.h" 
-
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronContainer.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 //==============================================================================
 // Forward class declarations...
@@ -30,12 +31,11 @@ class ElectronSelector : public EventAnalysis
   ElectronSelector();
   ~ElectronSelector();
 
-
-  //  void setDebug(bool debug){m_doDebug = debug;}
-  //  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+  void setDebug (bool debug) {m_doDebug = debug;}
  
   // Override functions from EventAnalysis
-  void  Init();
+  void       Init();
+  void       PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer);
   // virtual bool Reco();
 
  protected:
@@ -53,10 +53,11 @@ class ElectronSelector : public EventAnalysis
   const xAOD::Muon*   m_pxElectron;
 
   // 
-  bool m_debug;
+  bool m_doDebug;
 
   // Electron likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!
 };
 
 #endif
+
