@@ -430,6 +430,10 @@ namespace EL
     /// \brief any extra options we may want to pass to docker
     static const std::string optDockerOptions;
 
+    /// \brief if we need to mount a data directory inside kubernetes,
+    /// this is it
+    static const std::string optDataDirectory;
+
 
   public:
     /// @name Options controlling the memory monitoring behaviour of the job
