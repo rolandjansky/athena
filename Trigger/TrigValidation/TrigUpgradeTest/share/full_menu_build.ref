@@ -325,11 +325,11 @@ TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU1020        20        10        0         0         0         0         1         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    17        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        17        0         0         17        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        168       80        0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        124       79        0         0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        15        15        0         0         15        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        163       46        0         0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        121       45        0         0         
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        15        13        11        0         0         11        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        127       24        0         0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        98        23        0         0         
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        17        17        17        0         0         17        
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      50        50        58        0         0         
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        0         0         0         0         0         0         
