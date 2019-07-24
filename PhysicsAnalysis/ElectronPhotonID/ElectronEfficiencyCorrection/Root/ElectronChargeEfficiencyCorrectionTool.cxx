@@ -17,6 +17,7 @@
 #include "PathResolver/PathResolver.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/Electron.h"
+#include "PATInterfaces/SystematicRegistry.h"
 
 // ROOT includes
 #include "TFile.h"
@@ -297,6 +298,12 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   // Systematics // dynamic too?
   m_affectingSys = affectingSystematics();
+
+  // Add the recommended systematics to the registry
+  if (registerSystematics() != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("(registerSystematics() != CP::SystematicCode::Ok)");
+      return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 
@@ -616,6 +623,19 @@ CP::SystematicCode CP::ElectronChargeEfficiencyCorrectionTool::applySystematicVa
 
   return SystematicCode::Ok;
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Register the systematics with the registry and add them to the recommended list
+CP::SystematicCode CP::ElectronChargeEfficiencyCorrectionTool::registerSystematics() {
+  CP::SystematicRegistry &registry = CP::SystematicRegistry::getInstance();
+
+  if (registry.registerSystematics(*this) != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
+    return CP::SystematicCode::Unsupported;
+  }
+
+  return CP::SystematicCode::Ok;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
