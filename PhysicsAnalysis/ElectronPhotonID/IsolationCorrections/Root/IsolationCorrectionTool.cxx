@@ -315,6 +315,7 @@ namespace CP {
 
     static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
+
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									      /* xAOD::Iso::topoetcone30, */
 									      xAOD::Iso::topoetcone40};
@@ -407,7 +408,7 @@ namespace CP {
 	  decDDcor20(eg) = ddcorr;
 	else if (type == xAOD::Iso::topoetcone40)
 	  decDDcor40(eg) = ddcorr;
-  iso += ddcorr;
+    iso += ddcorr;
       }
       //if (eg.pt() > 25e3) ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
