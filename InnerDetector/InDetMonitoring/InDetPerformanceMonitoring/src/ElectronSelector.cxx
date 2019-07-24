@@ -35,7 +35,8 @@ unsigned int ElectronSelector::s_uNumInstances;
 // Public Methods
 //==================================================================================
 ElectronSelector::ElectronSelector():
-  m_doDebug ( true )  
+  m_doDebug ( true ),
+  m_ptCut ( 10 )
 {
   ++s_uNumInstances;
   
@@ -63,7 +64,7 @@ void ElectronSelector::Init()
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
   
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "  * ElectronSelector::Init * Unable to retrieve ToolSvc " << endreq;
+    (*m_msgStream) << MSG::ERROR << "  * ElectronSelector::Init * Unable to retrieve ToolSvc " << std::endl;
     return;
   }
   
@@ -71,26 +72,28 @@ void ElectronSelector::Init()
 
   //---Electron Likelihood tool---
   // m_doIDCuts = true;
-  (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << endreq;
+  (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << std::endl;
   m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
   //  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
   //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
   if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure())
-    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << endreq;
+    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << std::endl;
 
   StatusCode lhm = m_LHTool2015->initialize();
   if(lhm.isFailure())
-    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << endreq;
+    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << std::endl;
 
-  if (m_doDebug) std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< endreq;
+  if (m_doDebug) std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< std::endl;
   return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer)
 {
-  if (m_doDebug) std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << endreq;
+  if (m_doDebug) std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << std::endl;
+  Clear(); // clear current list records
+
   typedef xAOD::ElectronContainer::const_iterator electron_iterator;
   electron_iterator iter    = pxElecContainer->begin();
   electron_iterator iterEnd = pxElecContainer->end();
@@ -102,15 +105,15 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
     allelectroncount++;
     (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << allelectroncount 
 		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
-		   << endreq;
+		   << std::endl;
     const xAOD::Electron * ELE = (*iter);
     if ( RecordElectron(ELE) ) goodelectroncount++;
   }
 
-  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << endreq;
+  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << std::endl;
   if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
 			   << goodelectroncount << " / " << allelectroncount 
-			   << endreq;
+			   << std::endl;
 
   return;
 }
@@ -118,7 +121,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 {
-  if (m_doDebug) std::cout << " --ElectronSelector::RecordRlectron -- START  -- " << endreq;
+  if (m_doDebug) std::cout << " --ElectronSelector::RecordRlectron -- START  -- " << std::endl;
   
   // start assuming electron candidate is good 
   bool electronisgood = true;
@@ -128,30 +131,107 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   
   if (!theTrackParticle) {
     electronisgood = false;
-    if (m_doDebug) std::cout << "   -- electron fails trackparticle  -- " << endreq;
+    if (m_doDebug) std::cout << "   -- electron fails trackparticle  -- " << std::endl;
   }
 
   if (electronisgood && thisElec->author(xAOD::EgammaParameters::AuthorElectron) != 1) {
     electronisgood = false;
-    if (m_doDebug) std::cout << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << endreq;
+    if (m_doDebug) std::cout << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << std::endl;
+  }
+
+  if (electronisgood && theTrackParticle->pt() < m_ptCut) {
+    electronisgood = false;
+    if (m_doDebug) std::cout << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt() 
+			     << " < " << m_ptCut << " (cut value) " 
+			     << std::endl;
   }
 
   if (electronisgood) {
+    if (m_doDebug) std::cout << "   time to store this electron with pt " << theTrackParticle->pt() << std::endl;
     m_pxElTrackList.push_back(theTrackParticle);
-    if (m_doDebug) std::cout << "   time to store this electron :) " << endreq;
   }
 
-  if (m_doDebug) std::cout << " -- ElectronSelector::RecordElectrons -- COMPLETED  -- " << endreq;
+  if (m_doDebug) std::cout << " -- ElectronSelector::RecordElectrons -- COMPLETED  -- " << std::endl;
 
   return electronisgood;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
+void ElectronSelector::Clear()
+{
+  m_pxElTrackList.clear();
+
+  // -1 means not assigned
+  m_elecneg1 = -1;
+  m_elecneg2 = -1;
+  m_elecpos1 = -1;
+  m_elecpos2 = -1;
+
+  return;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
 void ElectronSelector::OrderElectronList()
 {
-  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << endreq;
-  if (m_pxElTrackList.size( )>= 2) { // we need at least 2 electrons
+  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << std::endl;
+  if (m_pxElTrackList.size() >= 2) { // we need at least 2 electrons
+
+    double ptMinus1 = 0.;
+    double ptMinus2 = 0.;
+    double ptPlus1  = 0.;
+    double ptPlus2  = 0.;
+
+    int elecnegcount = 0;
+    int elecposcount = 0;
+
+    for (int ielec=0; ielec < (int) m_pxElTrackList.size(); ielec++) {
+      // negative electrons
+      if (m_pxElTrackList.at(ielec)->charge()== -1) { // positive electron
+	if (m_doDebug) std::cout << "         -- Electron " << ielec << " is negative (e-) " << std::endl;
+	elecnegcount++;
+	if (m_pxElTrackList.at(ielec)->pt()> ptMinus1) {
+	  // store 1st in 2nd
+	  ptMinus2   =  ptMinus1;
+	  m_elecneg2 = m_elecneg1;
+	  // now store the new one in 1st place
+	  ptMinus1   = m_pxElTrackList.at(ielec)->pt();
+	  m_elecneg1 = ielec;	
+	} 
+	else if (m_pxElTrackList.at(ielec)->pt()> ptMinus2) {
+	  // store the new one in 2nd place
+	  ptMinus2   = m_pxElTrackList.at(ielec)->pt();
+	  m_elecneg2 = ielec;
+	}
+      }
+      // positive electrons
+      if (m_pxElTrackList.at(ielec)->charge()==  1) { // positive electron
+	if (m_doDebug) std::cout << "         -- Electron " << ielec << " is positive (e+) " << std::endl;
+	elecposcount++;
+	if (m_pxElTrackList.at(ielec)->pt()> ptPlus1) {
+	  // store 1st in 2nd
+	  ptPlus2   =  ptPlus1;
+	  m_elecpos2 = m_elecpos1;
+	  // now store the new one in 1st place
+	  ptPlus1   = m_pxElTrackList.at(ielec)->pt();
+	  m_elecpos1 = ielec;	
+	} 
+	else if (m_pxElTrackList.at(ielec)->pt()> ptPlus2) {
+	  // store the new one in 2nd place
+	  ptPlus2   = m_pxElTrackList.at(ielec)->pt();
+	  m_elecpos2 = ielec;
+	}
+      }
+    }
+
+    if (m_doDebug && elecposcount + elecnegcount >= 2){ 
+      std::cout << " -- ElectronSelector::OrderElectronsList * taking " << elecposcount + elecnegcount 
+		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
+      if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
+      if (m_elecneg2 >= 0) std::cout << "                                second  e-: " << m_elecneg2 << "   Pt = " << ptMinus2 << std::endl;
+      if (m_elecpos1 >= 0) std::cout << "                                leading e+: " << m_elecpos1 << "   Pt = " << ptPlus1 << std::endl;
+      if (m_elecpos2 >= 0) std::cout << "                                second  e+: " << m_elecpos2 << "   Pt = " << ptPlus2 << std::endl;
+    }
   }
-  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- " << endreq;
+
+  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- " << std::endl;
   return;
 }

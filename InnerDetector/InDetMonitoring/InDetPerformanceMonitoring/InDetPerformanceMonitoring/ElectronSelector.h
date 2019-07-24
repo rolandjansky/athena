@@ -48,6 +48,9 @@ class ElectronSelector : public EventAnalysis
 
   static unsigned int s_uNumInstances;
 
+  // functions 
+  void   Clear();
+
   // message stream
   MsgStream * m_msgStream;
 
@@ -57,9 +60,17 @@ class ElectronSelector : public EventAnalysis
 
   // 
   bool m_doDebug;
+  // 
+  float m_ptCut;
 
   // Electron likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!
+
+  // 
+  int m_elecneg1;
+  int m_elecneg2;
+  int m_elecpos1;
+  int m_elecpos2;
 };
 
 #endif
