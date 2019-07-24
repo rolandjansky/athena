@@ -101,12 +101,12 @@ if InDetFlags.doBeamGas():
 if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
 
-if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+if InDetFlags.doTrackSegmentsDisappearing():
   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
-      InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
+      InDetESDList+=["TrackCollection#"+InDetKeys.DisappearingTracks()]
   if InDetFlags.doTruth():
-      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
-      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.DisappearingTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DisappearingTracks()+'DetailedTruth']   
    
 # Add TRT Segments (only if standalone is off).
 # -----------------
@@ -172,9 +172,9 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]
-  if InDetFlags.doTrackSegmentsPixelPrdAssociation():
-    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
-    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsDisappearing():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDisappearingTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDisappearingTrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsSCT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]

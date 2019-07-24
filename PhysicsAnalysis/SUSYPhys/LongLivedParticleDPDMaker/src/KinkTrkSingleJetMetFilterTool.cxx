@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LongLivedParticleDPDMaker/KinkTrkSingleJetMetFilterTool.h"
@@ -214,7 +214,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     // Find IsolatedTracklet
     bool passIsolatedTracklet = false;
     const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
-    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles"), false );
+    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetDisappearingTrackParticles"), false );
     
     for(auto Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
