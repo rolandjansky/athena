@@ -44,25 +44,23 @@ globalflags.DataSource = 'data'
 
 
 ## input file parameters
+import PyUtils.MetaReader import read_metadata
+inputfile = read_metadata(collection[0])
 
-import PyUtils.AthFile as AthFile
-inputfile = AthFile.fopen( collection[0] )
-
-if inputfile.fileinfos['file_type'] == 'bs':
+if inputfile['file_type'] == 'BS':
   globalflags.InputFormat = 'bytestream'
-elif inputfile.fileinfos['file_type'] == 'pool':
+elif inputfile['file_type'] == 'POOL':
   globalflags.InputFormat = 'pool'
 else:
   raise RuntimeError, "Unable to read input file (format not supported)"
 
-
-if inputfile.fileinfos['file_type'] == 'pool':
-  globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
+if inputfile['file_type'] == 'POOL':
+  globalflags.DetDescrVersion = inputfile['GeoAtlas']
 else:
-  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2016-07' # yosuke
- # globalflags.ConditionsTag = 'CONDBR2-BLKPA-2015-10' # steffen
+  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2016-07'  # yosuke
+  # globalflags.ConditionsTag = 'CONDBR2-BLKPA-2015-10' # steffen
   globalflags.DatabaseInstance = 'CONDBR2'  ######################
-  #globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-22' #
+  # globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-22' #
 
 from IOVDbSvc.CondDB import conddb;
 conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-RUN2-DATA-UPD4-02");
