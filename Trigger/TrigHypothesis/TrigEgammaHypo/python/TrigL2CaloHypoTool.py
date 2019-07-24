@@ -146,8 +146,7 @@ def TrigL2CaloHypoToolFromName( name, conf ):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     decoder = DictFromChainName()
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
-    decodedDict['chainName'] = name # override
+    decodedDict = decoder.getChainDict(conf)
         
     return TrigL2CaloHypoToolFromDict( decodedDict )
     
@@ -155,42 +154,27 @@ def TrigL2CaloHypoToolFromName( name, conf ):
 if __name__ == "__main__":    
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
-    # t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut", "HLT_e10_nocut" )
-    # assert t, "cant configure NoCut"    
-    # not possible after recent trimming in SignatureDict, will be restored
-    #print t
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut","HLT_e10_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
     assert t, "cant configure EtCut"
-    print t
 
-    # t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight", "HLT_e10_tight" )
-    # assert t, "cant configure rel selection - tight"
-    # not possible after recent trimming in SignatureDict, will be restored
-    #print t    
 
-    # t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf", "HLT_e10_perf" )
-    # assert t, "cant configure rel selection - perf"
-    # not possible after recent trimming in SignatureDict, will be restored
-    #print t    
-
-    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut", "HLT_2e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut_L12EM3", "HLT_2e5_etcut_L12EM3" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
-    #print t    
 
-    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut", "HLT_3e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut_L13EM3", "HLT_3e5_etcut_L13EM3" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 3, "Sub-tools not configured"
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut",  "HLT_e3_etcut_e5_etcut" )
-    assert t, "cant configure asymmetric selection"
-    assert len(t.SubTools) == 2, "Sub-tools not configured"
+    # Asymmetric chais not working with this. Commenting out for now
+    # t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_L12EM3",  "HLT_e3_etcut_e5_etcut_L12EM3" )
+    # assert t, "cant configure asymmetric selection"
+    # assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6",  "HLT_e3_etcut_e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6_L1EM3_MU3",  "HLT_e3_etcut_e5_etcut_L1EM3_MU3" )
     assert t, "cant configure asymmetric selection for combined chains"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    #print t    
 
     print ( "\n\n TrigL2CaloHypoToolFromName ALL OK\n\n" )

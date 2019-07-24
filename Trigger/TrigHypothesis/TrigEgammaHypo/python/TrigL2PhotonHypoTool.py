@@ -51,14 +51,13 @@ def TrigL2PhotonHypoToolFromName( name, conf ):
     
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     decoder = DictFromChainName()
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
-    decodedDict['chainName'] = name # override
+    decodedDict = decoder.getChainDict(conf)
         
     return TrigL2PhotonHypoToolFromDict( decodedDict )
 
 
 if __name__ == "__main__":
-    tool = TrigL2PhotonHypoToolFromName("HLT_g5_etcut", "HLT_g5_etcut")   
+    tool = TrigL2PhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
     assert tool, "Not configured simple tool"
 
 
