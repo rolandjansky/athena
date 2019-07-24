@@ -56,6 +56,9 @@ namespace DerivationFramework {
     declareProperty("CheckEmptyChainGroups", m_checkEmptyChainGroups = true,
         "If set, discard any empty chain groups. Otherwise these will cause "
         "a job failure.");
+    declareProperty("AllowRetrievalErrors", m_allowRetrievalErrors = true,
+        "If set, a failure to retrieve a trigger's feature will not fail the "
+        "job, just the matching on the failed event.");
   }
 
   StatusCode TriggerMatchingTool::initialize()
@@ -112,7 +115,16 @@ namespace DerivationFramework {
 
       // Get the list of online combinations
       std::vector<particleVec_t> onlineCombinations;
-      ATH_CHECK( m_trigParticleTool->retrieveParticles(onlineCombinations, chain, m_rerun) );
+      if (!m_trigParticleTool->retrieveParticles(onlineCombinations, chain, m_rerun).isSuccess() ) {
+        if (m_allowRetrievalErrors) {
+          ATH_MSG_WARNING("Particle retrieval failed for chain " << chain << "! Failing matching.");
+          continue;
+        }
+        else {
+          ATH_MSG_ERROR("Particle retrieval failed for chain " << chain << "!");
+          return StatusCode::FAILURE;
+        }
+      }
 
       ATH_MSG_DEBUG(
           onlineCombinations.size() << " combinations found for chain" << chain);
