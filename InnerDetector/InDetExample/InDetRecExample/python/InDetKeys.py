@@ -516,23 +516,23 @@ class SiSpSeededPixelTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededPixelTracks'
 
-class SiSpSeededPixelPrdAssociationTracks(JobProperty):
+class SiSpSeededDisappearingTracks(JobProperty):
     """StoreGate key for SP seeded pixel tracks run after new tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'SiSPSeededPixelPrdAssociationTracks'
+    StoredValue  = 'SiSPSeededDisappearingTracks'
 
-class PixelPrdAssociationTracksTruth(JobProperty):
+class DisappearingTracksTruth(JobProperty):
     """StoreGate key for pixel tracks truth run after New Tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'PixelPrdAssociationTracksTruthCollection'
+    StoredValue  = 'DisappearingTracksTruthCollection'
 
-class PixelPrdAssociationDetailedTracksTruth(JobProperty):
+class DisappearingDetailedTracksTruth(JobProperty):
     """StoreGate key for detailed pixel tracks truth run after New Tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'PixelPrdAssociationTracksDetailedTruth'
+    StoredValue  = 'DisappearingTracksDetailedTruth'
 
 class SiSpSeededSCTTracks(JobProperty):
     """StoreGate key for SP seeded SCT standalone tracks """
@@ -559,29 +559,29 @@ class PixelTracksTruth(JobProperty):
     StoredValue  = 'ResolvedPixelTrackTruthCollection'
 
 
-class ResolvedPixelPrdAssociationTracks(JobProperty):
+class ResolvedDisappearingTracks(JobProperty):
     """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'ResolvedPixelPrdAssociationTracks'
+    StoredValue  = 'ResolvedDisappearingTracks'
 
-class ExtendedTracksPixelPrdAssociation(JobProperty):
+class ExtendedTracksDisappearing(JobProperty):
     """ Storegate key for new-tracking extended pixel tracks"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'ExtendedTracksPixelPrdAssociation'
+    StoredValue  = 'ExtendedTracksDisappearing'
 
-class PixelPrdAssociationTracks(JobProperty):
+class DisappearingTracks(JobProperty):
     """StoreGate key for rfinal pixel tracks run after New Tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'PixelPrdAssociationTracks'
+    StoredValue  = 'DisappearingTracks'
 
-class ExtendedTracksMapPixelPrdAssociation(JobProperty):
+class ExtendedTracksMapDisappearing(JobProperty):
     """ Storegate key for new-tracking extended pixel tracks map"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'ExtendedTracksMapPixelPrdAssociation'
+    StoredValue  = 'ExtendedTracksMapDisappearing'
 
 class SCTTracks(JobProperty):
     """StoreGate key for resolved SCT standalone tracks """
@@ -1056,17 +1056,17 @@ class xAODTRTTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetTRTTrackParticles"
 
-class xAODPixelPrdAssociationTrackParticleContainer(JobProperty):
+class xAODDisappearingTrackParticleContainer(JobProperty):
     """xAOD PixelTrackParticle with PRD association"""
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = "InDetPixelPrdAssociationTrackParticles"
+    StoredValue = "InDetDisappearingTrackParticles"
 
-class xAODPixelPrdAssociationExtendedTrackParticleContainer(JobProperty):
+class xAODDisappearingExtendedTrackParticleContainer(JobProperty):
     """xAOD Extended PixelTrackParticle with PRD association"""
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = "InDetPixelPrdAssociationExtendedTrackParticles"
+    StoredValue = "InDetDisappearingExtendedTrackParticles"
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1169,17 +1169,17 @@ jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelPrdAssociationTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDisappearingTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(ResolvedPixelPrdAssociationTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelPrdAssociation)
-jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelPrdAssociation)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(DisappearingTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedDisappearingTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksDisappearing)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapDisappearing)
+jobproperties.InDetContainerKeys.add_JobProperty(DisappearingTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(DisappearingDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
@@ -1255,8 +1255,8 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContaine
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)
-jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationTrackParticleContainer)
-jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationExtendedTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODDisappearingTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODDisappearingExtendedTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(DBMDetailedTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(DBMTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDBMTracks) 

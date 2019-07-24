@@ -1120,7 +1120,7 @@ class ForceCoolVectorPayload(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
-class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
+class doTrackSegmentsDisappearing(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
@@ -1321,7 +1321,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useMBTSTimeDiff        , True )
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
-       self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsDisappearing, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
        #self.checkThenSet(self.doRefitInvalidCov      ,True) temporarily commenting out due to ATLASRECTS-4691
 
@@ -1357,7 +1357,7 @@ class InDetJobProperties(JobPropertyContainer):
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
-       self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
@@ -1569,7 +1569,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBremRecovery          , True              )
        self.checkThenSet(self.doCaloSeededBrem        , True              )
        self.checkThenSet(self.doHadCaloSeededSSS      , False             )
-       self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False   )
+       self.checkThenSet(self.doTrackSegmentsDisappearing, False   )
        # --- Output
        self.checkThenSet(self.AODall                  , False             )
        self.checkThenSet(self.doxAOD                  , True              )
@@ -1590,7 +1590,7 @@ class InDetJobProperties(JobPropertyContainer):
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
-          self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsDisappearing, False)
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
@@ -1664,7 +1664,7 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
         self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
-        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+        self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
@@ -2787,7 +2787,7 @@ _list_InDetJobProperties = [Enabled,
                             pT_SSScut,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
-                            doTrackSegmentsPixelPrdAssociation,
+                            doTrackSegmentsDisappearing,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
