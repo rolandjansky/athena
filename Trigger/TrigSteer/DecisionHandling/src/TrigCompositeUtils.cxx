@@ -221,8 +221,9 @@ namespace TrigCompositeUtils {
         // I.e. the HypoTool for the chain returned a NEGATIVE decision
         DecisionIDContainer activeChainsPassedByThisDecision;
         decisionIDs(d, activeChainsPassedByThisDecision);
-        for (const DecisionID id : chainsToCheck) {
-          if (activeChainsPassedByThisDecision.count(id) == 0) { // I was REJECTED
+        for (const DecisionID checkID : chainsToCheck) {
+          if (activeChainsPassedByThisDecision.count(checkID) == 0 && // I was REJECTED here ...
+              activeChainsIntoThisDecision.count(checkID) == 1) { // ... but PASSSED by all my inputs
             output.push_back(d);
             break;
           }
