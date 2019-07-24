@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +11,14 @@
 #ifndef DERIVATIONFRAMEWORK_HNLSKIMMINGTOOL_H
 #define DERIVATIONFRAMEWORK_HNLSKIMMINGTOOL_H 1
 
-#include<string>
-#include<vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODMuon/MuonContainer.h"
+
+#include <string>
+#include <vector>
 
 namespace DerivationFramework {
 
@@ -23,21 +26,24 @@ namespace DerivationFramework {
    
   public: 
     /** Constructor with parameters */
-    HnlSkimmingTool( const std::string& t, const std::string& n, const IInterface* p );
+    HnlSkimmingTool(const std::string& t, const std::string& n, const IInterface* p);
 
     /** Destructor */
-    ~HnlSkimmingTool();
+    virtual ~HnlSkimmingTool() = default;
    
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
  
     /** Check that the current event passes this filter */
-    virtual bool eventPassesFilter() const;
- 		bool IsGood(const xAOD::Muon& mu) const;
+    virtual bool eventPassesFilter() const override;
+    bool isGood(const xAOD::Muon& mu) const;
+
   private:
+    // Trigger
     ToolHandle< Trig::TrigDecisionTool > m_trigDecisionTool;
     std::vector< std::string > m_triggers;
+    // Muon
     std::string m_muonSGKey;
     float m_mu1PtMin;
     float m_mu1AbsEtaMax;
