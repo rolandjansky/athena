@@ -291,6 +291,14 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	
       } else { // Run 3 trigger
 	ATH_MSG_INFO("  ===> Run 3 access to Trigger feature: " );
+
+	// bjet chains 
+	if (bjetChain) {
+
+	  // online PV  ==> to be done later
+
+	} // if bjetChain
+
 	//bjet or mujet chains 
 	if (bjetChain || mujetChain) {
 
