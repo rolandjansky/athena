@@ -540,7 +540,6 @@ StatusCode PixelRDOAnalysis::execute() {
           m_h_brlLVL1A->Fill(pixLVL1A);
           m_h_brlLVL1ID->Fill(pixLVL1ID);
           if (m_doITk) {
-           // const InDetDD::SiDetectorElement* detEl = m_pixelManager->getDetectorElement(rdoID); 
             if (detEl->isInclined())  {
               m_h_brlinclPhiIndex_perLayer[pixLayerDisk]->Fill(pixPhiIx);
               m_h_brlinclEtaIndex_perLayer[pixLayerDisk]->Fill(pixEtaIx);
