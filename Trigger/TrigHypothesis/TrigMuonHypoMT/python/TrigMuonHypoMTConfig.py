@@ -213,14 +213,6 @@ def TrigMufastHypoToolFromDict( chainDict ):
     return tool
 
 
-def TrigMufastHypoToolFromName( name,  thresholdHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMufastHypoToolFromDict( decodedDict )
-
-
 class TrigMufastHypoConfig():
     
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ): 
@@ -286,13 +278,6 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
     return tool
 
-def TrigmuCombHypoToolFromName( name, thresholdsHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigmuCombHypoToolFromDict( decodedDict )
-        
 class TrigmuCombHypoConfig():
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
@@ -340,15 +325,6 @@ def TrigMuisoHypoToolFromDict( chainDict ):
     return tool
     
 
-def TrigMuisoHypoToolFromName( name, thresholdHLT ):
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuisoHypoToolFromDict( decodedDict )
-
-
 class TrigMuisoHypoConfig() :
 
     def ConfigurationHypoTool( self, toolName ):	
@@ -384,14 +360,6 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
-    
-def TrigMuonEFMSonlyHypoToolFromName( name, thresholdHLT ) :
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFMSonlyHypoToolFromDict( decodedDict )
     
 class TrigMuonEFMSonlyHypoConfig(): 
         
@@ -434,15 +402,6 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
-def TrigMuonEFCombinerHypoToolFromName( name, thresholdHLT ) :
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFCombinerHypoToolFromDict( decodedDict )
-
-
 class TrigMuonEFCombinerHypoConfig(): 
         
 
