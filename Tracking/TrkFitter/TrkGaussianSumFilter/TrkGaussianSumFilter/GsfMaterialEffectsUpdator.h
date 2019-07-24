@@ -78,8 +78,8 @@ class GsfMaterialEffectsUpdator : public AthAlgTool, virtual public IMultiStateM
   bool updateP (Amg::VectorX&, double) const;
   
  private:
-
-  ToolHandle<IMultiStateMaterialEffects>    m_materialEffects;
+  ToolHandle<IMultiStateMaterialEffects>    m_materialEffects{this,
+    "MaterialEffects","Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects",""};
   bool                                      m_useReferenceMaterial;
   double                                    m_momentumCut;
 
