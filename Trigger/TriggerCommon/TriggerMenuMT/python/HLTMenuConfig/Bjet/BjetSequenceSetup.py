@@ -179,7 +179,7 @@ def bJetStep2Sequence():
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
     InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step2", RoIsLink="initialRoI")
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
@@ -272,7 +272,7 @@ def bJetStep3Sequence():
     InputMakerAlg.ViewNodeName = bJetSequenceSequence.name()
     InputMakerAlg.RoIsLink = "step1RoI"
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
