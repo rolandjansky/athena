@@ -381,7 +381,6 @@ def muonIDFastTrackingSequence( RoIs ):
           viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
           TrackParticlesName = viewAlg.TrackParticlesName
-          TrackCollection = viewAlg.TrackName
       if "TrigFastTrackFinder" in  viewAlg.name():
           theFTF_name = viewAlg.getName()
 

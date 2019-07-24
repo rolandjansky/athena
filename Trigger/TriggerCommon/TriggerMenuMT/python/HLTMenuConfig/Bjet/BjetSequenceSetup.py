@@ -51,9 +51,6 @@ def bJetStep1Sequence():
             viewAlg.RoIs = RoIs
         if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = RoIs
-        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-#            TrackParticlesName = viewAlg.TrackParticlesName # why we need this?
-            TrackCollection = viewAlg.TrackName
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
@@ -114,9 +111,6 @@ def bJetStep1SequenceALLTE():
             viewAlg.RoIs = RoIs
         if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = RoIs
-        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-#            TrackParticlesName = viewAlg.TrackParticlesName # why we need this?
-            TrackCollection = viewAlg.TrackName
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
