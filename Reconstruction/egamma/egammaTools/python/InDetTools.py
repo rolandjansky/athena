@@ -84,6 +84,6 @@ egammaInDetTrackSummaryTool = PublicToolFactory( Trk__TrackSummaryTool,
                                                  name = "egammaInDetTrackSummaryTool",
                                                  InDetSummaryHelperTool = egammaInDetTrackSummaryHelperTool,
                                                  doSharedHits           = False,
-                                                 InDetHoleSearchTool    = egammaInDetHoleSearchTool)
+                                                 doHolesInDet           = True)
 
 
