@@ -139,7 +139,6 @@ namespace CP {
       m_map_isotype_zetaPU[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30")->Clone());
       m_map_isotype_zetaPU[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40")->Clone());
     }
-    
 
     return m_isol_corr->initialize();
   }
@@ -315,7 +314,7 @@ namespace CP {
 
     static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
-
+	
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									      /* xAOD::Iso::topoetcone30, */
 									      xAOD::Iso::topoetcone40};
@@ -399,7 +398,7 @@ namespace CP {
         ATH_MSG_VERBOSE("Old parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<oldpu_corr);
         ATH_MSG_VERBOSE("New parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<newpu_corr);
         ATH_MSG_VERBOSE("Isolation after new correction for "<<xAOD::Iso::toString(type)<< ": "<<iso);
-        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr); 
+        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr);
       }
 
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30 && eg.type() == xAOD::Type::Photon) {
@@ -408,7 +407,7 @@ namespace CP {
 	  decDDcor20(eg) = ddcorr;
 	else if (type == xAOD::Iso::topoetcone40)
 	  decDDcor40(eg) = ddcorr;
-    iso += ddcorr;
+	iso += ddcorr;
       }
       //if (eg.pt() > 25e3) ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
