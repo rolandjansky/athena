@@ -65,13 +65,16 @@ class AthMonitorCfgHelper(object):
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
             algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
-        if getattr (algObj, 'EnableLumi', False):
+        if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
+            algObj.EnableLumi = True
             from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
             from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
             from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
             self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
             self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
             self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+        else:
+            algObj.EnableLumi = False
 
         self.monSeq += algObj
         return algObj
@@ -136,7 +139,7 @@ class AthMonitorCfgHelperOld(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
 
-    def addAlgorithm(self,algClassOrObj, *args, **kwargs):
+    def addAlgorithm(self,algClassOrObj, name = None, *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -155,6 +158,8 @@ class AthMonitorCfgHelperOld(object):
         '''
         from AthenaCommon.Configurable import Configurable
         if issubclass(algClassOrObj, Configurable):
+            if name is None:
+                raise TypeError('addAlgorithm with a class argument requires a name for the algorithm')
             algObj = algClassOrObj(*args, **kwargs)
         else:
             algObj = algClassOrObj
@@ -162,11 +167,26 @@ class AthMonitorCfgHelperOld(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.dqflags.monManEnvironment()
         algObj.DataType = self.dqflags.monManDataType()
+        if self.dqflags.useTrigger():
+            from AthenaCommon.AppMgr import ToolSvc
+            if not hasattr(ToolSvc, self.dqflags.nameTrigDecTool()):
+                # very bad, bomb out (in any case the top-level steering ought to set this up)
+                import logging
+                local_logger = logging.getLogger(__name__)
+                local_logger.warning("Unable to find TrigDecisionTool %s in ToolSvc, will not set up trigger in monitoring", self.dqflags.nameTrigDecTool())
+            else:
+                algObj.TrigDecisionTool = getattr(ToolSvc, self.dqflags.nameTrigDecTool())
+                algObj.TriggerTranslatorTool = getattr(ToolSvc, self.dqflags.nameTrigTransTool())
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.DataSource() != 'geant4' and self.dqflags.enableLumiAccess():
+            algObj.EnableLumi = True
+        else:
+            algObj.EnableLumi = False
 
         self.monSeq += algObj
         return algObj
 
-    def addGroup(self, alg, name, topPath=''):
+    def addGroup(self, alg, name, topPath='', defaultDuration='run'):
         '''
         Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
         here can be used to retrieve the group from within the algorithm when calling the fill()
@@ -189,6 +209,9 @@ class AthMonitorCfgHelperOld(object):
             svcMgr += THistSvc()
         tool.THistSvc = svcMgr.THistSvc
         tool.HistPath = self.dqflags.monManFileKey() + ('/%s' % topPath if topPath else '')
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        tool.convention = 'OFFLINE' if not athenaCommonFlags.isOnline() else 'ONLINE'
+        tool.defaultDuration = defaultDuration
         alg.GMTools += [tool]
         return tool
 
