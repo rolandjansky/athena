@@ -72,8 +72,7 @@ namespace top {
     }
 
     return sf;
-  }
-
+  }	
   
   // Obtain the lepton SF
   float ScaleFactorRetriever::leptonSF(const top::Event& event, const top::topSFSyst SFSyst) const {
@@ -180,6 +179,78 @@ namespace top {
       trigSF *= (1.0 - SF);
 
     return 1.0-trigSF;
+  }
+  
+  std::vector<float> ScaleFactorRetriever::electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var) const
+  {
+	  std::vector<float> sf;
+	  if(abs(var)!=1)
+	  {
+		  ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector must be called with var=+1 (up) or -1 (down)");
+		  return sf;
+	  }
+	  if(SFComp!=top::topSFComp::RECO && SFComp!=top::topSFComp::ID && SFComp!=top::topSFComp::ISOLATION)
+	  {
+		 ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector is currently implemented only for SFComp=RECO, ID, ISOLATION");
+		 return sf; 
+	  }
+	  
+	  std::string decorationName="EL_SF_";
+	  std::string electronID="";
+	  std::string electronIso="";
+	  
+	  if(SFComp==top::topSFComp::RECO) decorationName+="Reco_";
+	  if(SFComp==top::topSFComp::ID)
+	  {
+		   decorationName+="ID_";
+		   electronID = m_config->electronID();
+		   if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+			  electronID = m_config->electronIDLoose();
+		   }
+		   decorationName+=electronID;
+		   decorationName+="_";
+	  }
+	  if(SFComp==top::topSFComp::ISOLATION)
+	  {
+		   decorationName+="Iso_";
+		   electronIso = m_config->electronIsolationSF();
+		   if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
+				electronIso = m_config->electronIsolationSFLoose();
+		   }
+		   decorationName+=electronIso;
+		   decorationName+="_";
+	  }
+	  
+	  if(var==1) decorationName+="CorrModel_UP";
+	  else decorationName+="CorrModel_DOWN";
+	  
+	  for (auto elPtr : event.m_electrons) {
+		
+		std::vector<float> sf_aux;  
+		if (elPtr->isAvailable<std::vector<float> >(decorationName)) {
+			sf_aux = elPtr->auxdataConst<std::vector<float> >(decorationName);
+		}
+		else
+		{
+			ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector error in accessing decoration "<<decorationName);
+		}
+		
+		if(sf.size()==0) sf=std::vector<float>(sf_aux.size(),leptonSF(event,top::topSFSyst::nominal));
+		if(sf.size()!=sf_aux.size()) ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
+		double oldSF=1.;
+		if(SFComp==top::topSFComp::RECO) oldSF=electronSF_Reco(*elPtr , top::topSFSyst::nominal);
+		if(SFComp==top::topSFComp::ID) oldSF=electronSF_ID(*elPtr , electronID , top::topSFSyst::nominal);
+		if(SFComp==top::topSFComp::ISOLATION) oldSF=electronSF_Isol(*elPtr , electronIso , top::topSFSyst::nominal);
+				
+		for(unsigned int i=0; i<sf.size(); i++)
+		  {		
+		     sf[i]*=(sf_aux[i]/oldSF);
+		  }	
+		
+		  
+	  }//end of loop on electrons
+	  
+	  return sf;
   }
 
   // Obtain the electron SF

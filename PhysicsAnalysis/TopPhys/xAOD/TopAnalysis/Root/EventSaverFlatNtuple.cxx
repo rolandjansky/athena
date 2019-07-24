@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -161,6 +162,12 @@ namespace top {
     m_met_met(0.),
     m_met_phi(0.)
   {
+    m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = std::vector<float>();
+    m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = std::vector<float>();
+    m_weight_leptonSF_EL_SF_CorrModel_ID_UP = std::vector<float>();
+    m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN = std::vector<float>();
+    m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = std::vector<float>();
+    m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = std::vector<float>();
   }
 
   EventSaverFlatNtuple::~EventSaverFlatNtuple()
@@ -438,6 +445,16 @@ namespace top {
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_ID_DOWN,      "weight_leptonSF_EL_SF_ID_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_UP,      "weight_leptonSF_EL_SF_Isol_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_DOWN,    "weight_leptonSF_EL_SF_Isol_DOWN");
+          
+          if(m_config->electronEfficiencySystematicModel()!="TOTAL")
+          {
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Reco_UP, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_Reco_UP");
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_Reco_DOWN");
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_ID_UP, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_ID_UP");
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_ID_DOWN");
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Iso_UP, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_Iso_UP");
+		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_Iso_DOWN");
+	   }
 
           systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_STAT_UP,   "weight_leptonSF_MU_SF_Trigger_STAT_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN, "weight_leptonSF_MU_SF_Trigger_STAT_DOWN");
@@ -1745,7 +1762,16 @@ namespace top {
         m_weight_leptonSF_EL_SF_ID_DOWN      = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_ID_DOWN);
         m_weight_leptonSF_EL_SF_Isol_UP      = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_Isol_UP);
         m_weight_leptonSF_EL_SF_Isol_DOWN    = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_Isol_DOWN);
-
+        
+        if(m_config->electronEfficiencySystematicModel()!="TOTAL")
+        {
+		m_weight_leptonSF_EL_SF_CorrModel_Reco_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,1);
+		m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,-1);
+		m_weight_leptonSF_EL_SF_CorrModel_ID_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,1);
+		m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,-1);
+		m_weight_leptonSF_EL_SF_CorrModel_Iso_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,1);
+		m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,-1);
+	}
         m_weight_leptonSF_MU_SF_Trigger_STAT_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_STAT_UP);
         m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
         m_weight_leptonSF_MU_SF_Trigger_SYST_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_SYST_UP);

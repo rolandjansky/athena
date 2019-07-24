@@ -49,7 +49,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronID", "Type of electron. Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
     registerParameter("ElectronIDLoose", "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
-    registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , 1NP_v1 (default)","1NP_v1");
+    registerParameter("EgammaSystematicModel","Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)","1NP_v1");
+    registerParameter("ElectronEfficiencySystematicModel","Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)","TOTAL");
+    registerParameter("ElectronEfficiencySystematicModelEtaBinning","Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)","default");
+    registerParameter("ElectronEfficiencySystematicModelEtBinning","Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)","default");
     registerParameter("ElectronIsolation","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","Gradient");
     registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");

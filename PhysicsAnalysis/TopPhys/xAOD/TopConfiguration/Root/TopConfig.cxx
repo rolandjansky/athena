@@ -170,6 +170,9 @@ namespace top{
 
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
+    m_electronEfficiencySystematicModel("TOTAL"),
+    m_electronEfficiencySystematicModelEtaBinning(""),
+    m_electronEfficiencySystematicModelEtBinning(""),
     m_electronID("SetMe"),
     m_electronIDLoose("SetMe"),
     m_electronVetoLArCrack(true),
@@ -755,6 +758,9 @@ namespace top{
 
     // Electron configuration
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
+    this->electronEfficiencySystematicModel( settings->value("ElectronEfficiencySystematicModel") );
+    this->electronEfficiencySystematicModelEtaBinning( settings->value("ElectronEfficiencySystematicModelEtaBinning") );
+    this->electronEfficiencySystematicModelEtBinning( settings->value("ElectronEfficiencySystematicModelEtBinning") );
     this->electronID( settings->value("ElectronID") );
     this->electronIDLoose( settings->value("ElectronIDLoose") );
     {
