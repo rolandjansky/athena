@@ -177,6 +177,9 @@ namespace TrigCompositeUtils {
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
+      if ( key.find("HLTNav") != 0 ) {
+	continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNAV
+      }
       const DecisionContainer* container = nullptr;
       if ( eventStore->retrieve( container, key ).isFailure() ) {
         throw std::runtime_error("Unable to retrieve " + key + " from event store.");
