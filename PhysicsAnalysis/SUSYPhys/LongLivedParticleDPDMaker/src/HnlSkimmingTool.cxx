@@ -101,11 +101,10 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
   StatusCode sc = evtStore()->retrieve(muons, m_muonSGKey);  
   if (sc.isFailure()) {
     ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
-    return false;
+    return acceptEvent;
   }
 
-  bool muon1passed = false;
-  const xAOD::Muon* muon1 = nullptr;
+  std::vector<const xAOD::Muon*> promptMuonCandidates;
   for (const xAOD::Muon* muon : *muons) {
     if (not (muon->pt()>m_mu1PtMin)) continue;
 
@@ -132,18 +131,14 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
     } else {
       if (muon->isolation(isoValue, isoType) and (isoValue/muon->pt() < m_mu1IsoCut)) isIso = true;
     }
-    if (isIso) {
-      muon1passed = true;
-      muon1 = muon;
-      break;
-    }
+    if (not isIso) continue;
+
+    promptMuonCandidates.push_back(muon);
   }
-  if (not muon1passed) return acceptEvent;
+  if (promptMuonCandidates.empty()) return acceptEvent;
 
-  bool muon2passed = false;
+  std::vector<const xAOD::Muon*> displacedMuonCandidates;
   for (const xAOD::Muon* muon : *muons) {
-    if (muon==muon1) continue;
-
     if (not (muon->pt()>m_mu2PtMin)) continue;
 
     if (not (std::abs(muon->eta())<m_mu2AbsEtaMax)) continue;
@@ -178,13 +173,20 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
         if (std::abs(muon->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
       } else passD0cut = true;
     }
-    if (passD0cut) {
-      muon2passed = true;
-      break;
+    if (not passD0cut) continue;
+
+    displacedMuonCandidates.push_back(muon);
+  }
+  if (displacedMuonCandidates.empty()) return acceptEvent;
+
+  for (const xAOD::Muon* promptMuonCandidate : promptMuonCandidates) {
+    for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
+      if (promptMuonCandidate!=displacedMuonCandidate) {
+        acceptEvent = true;
+        break;
+      }
     }
   }
-
-  if (muon2passed) acceptEvent = true;
 
   return acceptEvent;
 }
