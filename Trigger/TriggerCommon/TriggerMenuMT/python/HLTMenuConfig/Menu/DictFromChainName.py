@@ -340,9 +340,11 @@ class DictFromChainName(object):
             assert len(L1thresholds) ==  len(multichainparts), 'ERROR IN CHAIN {} definition, l1 thresholds specified {} have different length than chain parts {}'\
                 .format(chainName, str(L1thresholds), str(multichainparts) )
 
-        if len(L1thresholds) == 0:
-            assert len( getUniqueThresholdsFromItem( L1item )) == len(multichainparts), 'ERROR IN CHAIN {} definition, l1 thresholds extracted from the L1 item name {} have different length than chain parts {}, set L1 thresholds ChainProp'\
-                .format( chainName, str( getUniqueThresholdsFromItem( L1item ) ), str(multichainparts))
+        # tmp removed this check since the L1seeds depend on sym or asym cases
+       # if len(L1thresholds) == 0:
+#            getAllThresholdsFromItem, getUniqueThresholdsFromItem
+        #    assert len( getAllThresholdsFromItem( L1item )) == len(multichainparts), 'ERROR IN CHAIN {} definition, l1 thresholds extracted from the L1 item name {} have different length than chain parts {}, set L1 thresholds ChainProp'\
+         #       .format( chainName, str( getAllThresholdsFromItem( L1item ) ), str(multichainparts))
 
         # check the case when _L1 appears more than once in the name
         if chainName.count("_L1") > 1:
@@ -360,7 +362,7 @@ class DictFromChainName(object):
             if len(L1thresholds) != 0:
                 chainProperties['L1threshold'] = L1thresholds[chainindex]
             else:
-                chainProperties['L1threshold'] = getUniqueThresholdsFromItem( L1item )[chainindex]
+                chainProperties['L1threshold'] = getAllThresholdsFromItem ( L1item )[chainindex]  #replced getUniqueThresholdsFromItem
 
 
             chainpartsNoL1 = chainparts

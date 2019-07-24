@@ -34,7 +34,7 @@ def generateChains(chain_names):
     from TrigUpgradeTest.HLTSignatureConfig import  genMenuSequence
 
     nsteps=2
-    seed = "L1_EM7"
+    seed = "EM7"
     chains = []
 
     for chain in chain_names:
@@ -61,7 +61,7 @@ def generateChains(chain_names):
             step = ChainStep(seq.name, [seq])
             chainSteps.append(step)
        # el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
-        chainObj=Chain(name=chain , L1Item=seed, ChainSteps=chainSteps )
+        chainObj=Chain(name=chain , L1Item="L1_"+seed, L1Thresholds=[seed], ChainSteps=chainSteps )
         log.debug("adding chain %s",chainObj)
         chains.append(chainObj)
            # Chain(name='HLT_e5'   , L1Item="L1_EM7", ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),

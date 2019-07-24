@@ -43,7 +43,7 @@ def dimuEFSequence(name = 'Dimu'):
 
     dimuefRecoSequence = parOR("dimuefViewNode")
     
-    dimuefViewsMaker = EventViewCreatorAlgorithm("dimuefViewsMaker")
+    dimuefViewsMaker = EventViewCreatorAlgorithm("IMdimuef")
     dimuefViewsMaker.ViewFallThrough = True
     dimuefViewsMaker.RoIsLink = "roi" # -||-
     dimuefViewsMaker.InViewRoIs = "DimuEFRoIs" # contract with the consumer

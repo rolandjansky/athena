@@ -272,6 +272,7 @@ def isFilterAlg(alg):
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
+        assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
@@ -352,7 +353,8 @@ class MenuSequence(object):
 #### CONFIGURATION FOR L1DECODER
 #################################################
 ## It might be moved somewhere in the cofiguration later one
-# This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
+# This is map between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
+# to be moved to L1Decoder package
 def DoMapSeedToL1Decoder(seed):
     mapSeedToL1Decoder = {  "EM" : "L1EM",
                             "MU" : "L1MU",
@@ -371,12 +373,12 @@ def DoMapSeedToL1Decoder(seed):
 
 #################################################
 
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
+#from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
 
 class Chain(object):
     """Basic class to define the trigger menu """
     __slots__='name','steps','L1Item','vseeds','group_seed'
-    def __init__(self, name, L1Item, ChainSteps=[], L1Thresholds=[]):
+    def __init__(self, name, L1Item, ChainSteps, L1Thresholds):
         """
         Construct the Chain from the steps
         Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages, the L1Item will be removed
@@ -386,18 +388,7 @@ class Chain(object):
         self.L1Item=L1Item
         self.vseeds=L1Thresholds
         assert name.endswith(L1Item.replace("_", "", 1)), "Chain name {} and L1 item {} do not follow the convention".format(name, L1Item)
-
-        max_seq= max(len(step.sequences) for step in self.steps)
-
-        if self.vseeds == []: # not configured threshold, what is below is a temporary measure            
-            allThresholds = getAllThresholdsFromItem( self.L1Item )
-            uniqueThresholds = getUniqueThresholdsFromItem( self.L1Item )
-            if max_seq == len( allThresholds ):
-                self.vseeds = allThresholds
-            elif max_seq == len( uniqueThresholds ):
-                self.vseeds = uniqueThresholds
-
-            log.info("Thresholds not provided while configuring {}, extracted them form the L1item {} are {}, please fix it by providing thresholds".format( self.name, self.L1Item, self.vseeds ) )
+     
 
         # group_seed is used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
@@ -461,8 +452,8 @@ class Chain(object):
 
                 
     def __repr__(self):
-        return "--- Chain %s ---\n + Seed: %s \n + Steps: %s \n"%(\
-                    self.name, self.L1Item, ' '.join(map(str, self.steps)))
+        return "--- Chain %s ---\n + L1Item: %s \n + Seeds: %s \n + Steps: \n %s \n"%(\
+                    self.name, self.L1Item, ' '.join(map(str, self.vseeds)), '\n '.join(map(str, self.steps)))
 
 
 
@@ -564,7 +555,7 @@ class ChainStep(object):
         self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
         duplicatedHypos = []
         for sequence in Sequences:
-            oldhypo=sequence.hypo.Alg
+            oldhypo=sequence.hypo.Alg            
             duplicatedHypos.append(oldhypo.name())
             ncopy=duplicatedHypos.count(oldhypo.name())
 
@@ -637,7 +628,7 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
+            self.viewMakerAlg = EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',

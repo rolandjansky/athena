@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -871,7 +871,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
                                     const std::vector<const  NeutralParameters*> & perigeeListN)
 {
     m_globalFirstHit = 0;
-    m_ApproximateVertex.clear();
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
     if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
