@@ -50,6 +50,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    if flags.Common.isOnline: RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
