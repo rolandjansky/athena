@@ -24,6 +24,8 @@
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
 #include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
+#include "TopConfiguration/Tokenize.h"
+
 namespace top {
 
 class TopConfig;
@@ -70,6 +72,16 @@ class EgammaCPTools final : public asg::AsgTool {
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLoose;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeID;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeIDLoose;
+  
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTriggerCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTriggerLooseCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffTriggerCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffTriggerLooseCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFRecoCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDLooseCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoCorrModel;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLooseCorrModel;
 
   ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_photonFudgeTool;
   ToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEffSF;
@@ -91,16 +103,17 @@ class EgammaCPTools final : public asg::AsgTool {
   StatusCode setupScaleFactors();
 
   IAsgElectronEfficiencyCorrectionTool*
-    setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list, int data_type);
+    setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list, const int& data_type);
 
   // Helper function to deal with path resolving the
   // egamma groups very long file names for SFs and efficiencies.
-  std::string electronSFFilePath(const std::string& type, const std::string& ID, std::string ISO);
+  std::string electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO);
 
   // Helper for using maps from egamma groups
-  IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type);
+  IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name, const std::string& map_path, const std::string& reco_key, const std::string& ID_key, const std::string& iso_key, const std::string& trigger_key, const int& data_type, const std::string& correlationModel, const std::string& correlationModelEtaBinning, const std::string& correlationModelEtBinning );
 
   std::string electronSFMapFilePath(const std::string& type);
+  void setCorrelationModelBinning(IAsgElectronEfficiencyCorrectionTool* tool, const std::string& binningName, const std::string& binning);
 
   std::string mapWorkingPoints(const std::string& type);
 

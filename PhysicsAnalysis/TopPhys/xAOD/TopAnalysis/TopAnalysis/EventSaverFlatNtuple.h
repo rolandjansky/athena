@@ -297,6 +297,14 @@ private:
     float m_weight_leptonSF_EL_SF_ID_DOWN;
     float m_weight_leptonSF_EL_SF_Isol_UP;
     float m_weight_leptonSF_EL_SF_Isol_DOWN;
+    ///-- electron SF advanded correlation model systematics --///
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Reco_UP;
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN;
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_ID_UP;
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN;
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Iso_UP;
+    std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN;
+    
     ///-- Lepton SF - muon SF systematics --///
     float m_weight_leptonSF_MU_SF_Trigger_STAT_UP;
     float m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN;

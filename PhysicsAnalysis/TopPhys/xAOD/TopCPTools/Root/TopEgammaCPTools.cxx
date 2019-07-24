@@ -58,6 +58,16 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
   declareProperty( "ElectronEffIsoLoose" , m_electronEffSFIsoLoose );
   declareProperty( "ElectronEffChargeID" , m_electronEffSFChargeID );
   declareProperty( "ElectronEffChargeIDLoose", m_electronEffSFChargeIDLoose );
+  
+  declareProperty( "ElectronEffTriggerCorrModel" , m_electronEffTriggerCorrModel );
+  declareProperty( "ElectronEffTriggerLooseCorrModel" , m_electronEffTriggerLooseCorrModel );
+  declareProperty( "ElectronEffSFTriggerCorrModel" , m_electronEffSFTriggerCorrModel );
+  declareProperty( "ElectronEffSFTriggerLooseCorrModel" , m_electronEffSFTriggerLooseCorrModel );
+  declareProperty( "ElectronEffRecoCorrModel" , m_electronEffSFRecoCorrModel );
+  declareProperty( "ElectronEffIDCorrModel" , m_electronEffSFIDCorrModel );
+  declareProperty( "ElectronEffIDLooseCorrModel" , m_electronEffSFIDLooseCorrModel );
+  declareProperty( "ElectronEffIsoCorrModel" , m_electronEffSFIsoCorrModel );
+  declareProperty( "ElectronEffIsoLooseCorrModel" , m_electronEffSFIsoLooseCorrModel );
 
   declareProperty( "PhotonIsEMSelectorLoose" ,  m_photonLooseIsEMSelector);
   declareProperty( "PhotonIsEMSelectorMedium" , m_photonMediumIsEMSelector);
@@ -277,22 +287,45 @@ StatusCode EgammaCPTools::setupScaleFactors() {
 
   // Define the tool prefix name
   const std::string elSFPrefix = "AsgElectronEfficiencyCorrectionTool_";
-
-  // Configure the tools with the maps - Name, map, reco_key, ID_key, iso_key, trigger_key, data_type
+  
+  ATH_MSG_INFO("Setting up Electrons SF tool for TOTAL correlation model");
+  // Configure the tools with the maps - Name, map, reco_key, ID_key, iso_key, trigger_key, data_type, for the TOTAL correlation model
   // Reco SFs
-  m_electronEffSFReco         = setupElectronSFToolWithMap(elSFPrefix + "Reco", m_electronEffSFRecoFile, "Reconstruction", "", "", "", dataType);
+  m_electronEffSFReco         = setupElectronSFToolWithMap(elSFPrefix + "Reco", m_electronEffSFRecoFile, "Reconstruction", "", "", "", dataType,"TOTAL","","");
   // ID SFs
-  m_electronEffSFID           = setupElectronSFToolWithMap(elSFPrefix + "ID", m_electronEffSFIDFile, "", electronID, "", "", dataType);
-  m_electronEffSFIDLoose      = setupElectronSFToolWithMap(elSFPrefix + "IDLoose", m_electronEffSFIDLooseFile, "", electronIDLoose, "", "", dataType);
+  m_electronEffSFID           = setupElectronSFToolWithMap(elSFPrefix + "ID", m_electronEffSFIDFile, "", electronID, "", "", dataType,"TOTAL","","");
+  m_electronEffSFIDLoose      = setupElectronSFToolWithMap(elSFPrefix + "IDLoose", m_electronEffSFIDLooseFile, "", electronIDLoose, "", "", dataType,"TOTAL","","");
   // Trigger SFs
-  m_electronEffSFTrigger      = setupElectronSFToolWithMap(elSFPrefix + "TriggerSF", m_electronEffSFTriggerFile, "", electronID, electronIsolation, trigger_string, dataType);
-  m_electronEffSFTriggerLoose = setupElectronSFToolWithMap(elSFPrefix + "TriggerSFLoose", m_electronEffSFTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, trigger_string, dataType);
+  m_electronEffSFTrigger      = setupElectronSFToolWithMap(elSFPrefix + "TriggerSF", m_electronEffSFTriggerFile, "", electronID, electronIsolation, trigger_string, dataType,"TOTAL","","");
+  m_electronEffSFTriggerLoose = setupElectronSFToolWithMap(elSFPrefix + "TriggerSFLoose", m_electronEffSFTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, trigger_string, dataType,"TOTAL","","");
   // Trigger Efficiencies
-  m_electronEffTrigger        = setupElectronSFToolWithMap(elSFPrefix + "Trigger", m_electronEffTriggerFile, "", electronID, electronIsolation, "Eff_"+trigger_string, dataType);
-  m_electronEffTriggerLoose   = setupElectronSFToolWithMap(elSFPrefix + "TriggerLoose", m_electronEffTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, "Eff_"+trigger_string, dataType);
+  m_electronEffTrigger        = setupElectronSFToolWithMap(elSFPrefix + "Trigger", m_electronEffTriggerFile, "", electronID, electronIsolation, "Eff_"+trigger_string, dataType,"TOTAL","","");
+  m_electronEffTriggerLoose   = setupElectronSFToolWithMap(elSFPrefix + "TriggerLoose", m_electronEffTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, "Eff_"+trigger_string, dataType,"TOTAL","","");
   // Isolation SFs
-  m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
-  m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
+  m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType,"TOTAL","","");
+  m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType,"TOTAL","","");
+  
+  ATH_MSG_INFO("Requested Electrons SF tool for "<< m_config->electronEfficiencySystematicModel()<<" correlation model");
+  
+  if(m_config->electronEfficiencySystematicModel()!="TOTAL")
+  {
+	  ATH_MSG_INFO("Setting up Electrons SF tool for "<< m_config->electronEfficiencySystematicModel()<<" correlation model");
+	  const std::string elSFPrefixCorrModel = elSFPrefix+"CorrModel_";
+	  // Reco SFs
+	  m_electronEffSFRecoCorrModel         = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Reco", m_electronEffSFRecoFile, "Reconstruction", "", "", "", dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  // ID SFs
+	  m_electronEffSFIDCorrModel           = setupElectronSFToolWithMap(elSFPrefixCorrModel + "ID", m_electronEffSFIDFile, "", electronID, "", "", dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  m_electronEffSFIDLooseCorrModel      = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IDLoose", m_electronEffSFIDLooseFile, "", electronIDLoose, "", "", dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  // Trigger SFs
+	  m_electronEffSFTriggerCorrModel      = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerSF", m_electronEffSFTriggerFile, "", electronID, electronIsolation, trigger_string, dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  m_electronEffSFTriggerLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerSFLoose", m_electronEffSFTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, trigger_string, dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  // Trigger Efficiencies
+	  m_electronEffTriggerCorrModel        = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Trigger", m_electronEffTriggerFile, "", electronID, electronIsolation, "Eff_"+trigger_string, dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  m_electronEffTriggerLooseCorrModel   = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerLoose", m_electronEffTriggerLooseFile, "", electronIDLoose, electronIsolationLoose, "Eff_"+trigger_string, dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  // Isolation SFs
+	  m_electronEffSFIsoCorrModel          = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+	  m_electronEffSFIsoLooseCorrModel     = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType,m_config->electronEfficiencySystematicModel(),m_config->electronEfficiencySystematicModelEtaBinning(),m_config->electronEfficiencySystematicModelEtBinning());
+  }
   
   if(m_config->useFwdElectrons())
   {
@@ -300,8 +333,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
 
 	  m_fwdElectronEffSFIDFile           = electronSFMapFilePath("FWDID");
 	  m_fwdElectronEffSFIDLooseFile           = electronSFMapFilePath("FWDID");
-	  m_fwdElectronEffSFID= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_ID", m_fwdElectronEffSFIDFile, "", "Fwd"+m_config->fwdElectronID(), "", "", dataType);
-	  m_fwdElectronEffSFIDLoose= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_IDLoose", m_fwdElectronEffSFIDLooseFile, "", "Fwd"+m_config->fwdElectronIDLoose(), "", "", dataType);
+	  m_fwdElectronEffSFID= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_ID", m_fwdElectronEffSFIDFile, "", "Fwd"+m_config->fwdElectronID(), "", "", dataType,"TOTAL","","");
+	  m_fwdElectronEffSFIDLoose= setupElectronSFToolWithMap("AsgFwdElectronEfficiencyCorrectionTool_IDLoose", m_fwdElectronEffSFIDLooseFile, "", "Fwd"+m_config->fwdElectronIDLoose(), "", "", dataType,"TOTAL","","");
 	  
 	  ATH_MSG_INFO("Finished setting up forward Electrons SF tool");
 	
@@ -310,6 +343,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
 
   // Charge ID cannot use maps at the moment so we default to the old method
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
+	 ATH_MSG_INFO("Setting up Electrons ChargeID SF tool");
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile        = electronSFFilePath("ChargeID", electronID,      electronIsolation);
     if(m_config->applyTightSFsInLooseTree()) // prevent crash on-supported loose electron WPs with ECIDS
@@ -338,7 +372,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
 
 
 IAsgElectronEfficiencyCorrectionTool*
-EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list, int data_type) {
+EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list, const int& data_type) {
+
   IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
   if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
     tool = asg::ToolStore::get<IAsgElectronEfficiencyCorrectionTool>(name);
@@ -357,9 +392,34 @@ EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<st
   return tool;
 }
 
+void EgammaCPTools::setCorrelationModelBinning(IAsgElectronEfficiencyCorrectionTool* tool, const std::string& binningName, const std::string& binning)
+{
+  std::vector<std::string> tokens;
+  top::tokenize(binning, tokens, ":");
+  if(tokens.size()<1)
+  {
+	  ATH_MSG_ERROR("EgammaCPTools::setupElectronSFToolWithMap, correlation model "<<binningName<<" binning must be in the form XXX:YYY:WWW:ZZZ...");
+  }
+  std::vector<float> bins;
+  for(unsigned int i=0; i<tokens.size(); i++){
+	  std::string token = tokens[i];
+	  float value=0.;
+	  try{
+		  value=std::stof(token);
+	  }
+	  catch (...){
+		  throw std::invalid_argument{"EgammaCPTools::setupElectronSFToolWithMap, correlation model "+binningName+" binning must be in the for XXX:YYY:WWW:ZZZ, couldn't convert correctly to float"};
+	  }
+	  bins.push_back(value);
+  }
+  ATH_MSG_INFO(" ---> electron SF tools will use "<<binningName<<" bins:");
+  for(unsigned int i=0; i<bins.size(); i++) ATH_MSG_INFO("       "<<bins[i]);
+  top::check(asg::setProperty(tool,binningName,bins), "Failed to set correlation model "+binningName+" binning to "+binning);
+}
+
 IAsgElectronEfficiencyCorrectionTool*
-EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type) {
-  std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" + ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" + std::to_string(data_type);
+EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, const std::string& map_path, const std::string& reco_key, const std::string& ID_key, const std::string& iso_key, const std::string& trigger_key, const int& data_type, const std::string& correlation_model, const std::string& correlationModelEtaBinning, const std::string& correlationModelEtBinning ) {
+  std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" + ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" + std::to_string(data_type)+" correlation_model="+correlation_model+" etaBinning="+correlationModelEtaBinning+" etBinning="+correlationModelEtBinning;
   ATH_MSG_INFO(infoStr);
   IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
   if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
@@ -371,16 +431,20 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
       // Set the data type for all tools
       top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
       // Set the correlation model for all tools
-      top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"), "Failed to set CorrelationModel to " + name);
+      top::check(asg::setProperty(tool, "CorrelationModel", correlation_model), "Failed to set CorrelationModel to " + name);
+      
+      if(correlationModelEtaBinning!="" && correlationModelEtaBinning!="default") this->setCorrelationModelBinning(tool,"UncorrEtaBinsUser",correlationModelEtaBinning);
+      if(correlationModelEtBinning!="" && correlationModelEtBinning!="default") this->setCorrelationModelBinning(tool,"UncorrEtBinsUser",correlationModelEtBinning);
+
       // Set the keys which configure the tool options (empty string means we do not include this key)
       if(reco_key != "" && reco_key != "None"){
 	ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
         top::check(asg::setProperty(tool, "RecoKey", reco_key), "Failed to set RecoKey to " + name);
       }
       if(ID_key != "" && ID_key != "None"){	
-	ID_key = mapWorkingPoints(ID_key);
-	ATH_MSG_INFO(" Adding IDKey      : " + ID_key);
-        top::check(asg::setProperty(tool, "IdKey", ID_key), "Failed to set IdKey to " + name);
+	std::string id_key = mapWorkingPoints(ID_key);
+	ATH_MSG_INFO(" Adding IDKey      : " + id_key);
+        top::check(asg::setProperty(tool, "IdKey", id_key), "Failed to set IdKey to " + name);
       }
       if(iso_key != "" && iso_key != "None"){
 	ATH_MSG_INFO(" Adding IsoKey     : " + iso_key);
@@ -396,7 +460,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, std::string ISO) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
 
   const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
@@ -421,17 +485,18 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
     file_path  = el_calib_path + file_path;
   } else if (type == "ChargeMisID") {
     // Protect against "None" Iso key
-    if (ISO=="None") ISO="";
+    std::string iso=ISO;
+    if (iso=="None") iso="";
     // Protect against Loose ID + any Iso
-    if (ID=="LooseAndBLayerLLH") ISO="";
+    if (ID=="LooseAndBLayerLLH") iso="";
     file_path  = "charge_misID/";
     file_path += "chargeEfficiencySF.";
     file_path += ID;
     file_path += "_d0z0_v13";
-    if (ISO!="") file_path += "_" + ISO;
+    if (iso!="") file_path += "_" + iso;
     if (m_config->useElectronChargeIDSelection()) {
       if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
-      else if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + ISO + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
+      else if (iso != "FCTight" && iso != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + iso + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
       else file_path += "_ECIDSloose";
     }
     file_path += ".root";
