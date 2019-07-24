@@ -57,6 +57,8 @@ class ElectronSelector : public EventAnalysis
   // Class variables
   const xAOD::Muon*           m_pxElectron;
   std::vector<const xAOD::TrackParticle*>  m_pxElTrackList; 
+  std::vector<const xAOD::TrackParticle*>  m_goodElecNegTrackParticleList; 
+  std::vector<const xAOD::TrackParticle*>  m_goodElecPosTrackParticleList; 
 
   // 
   bool m_doDebug;

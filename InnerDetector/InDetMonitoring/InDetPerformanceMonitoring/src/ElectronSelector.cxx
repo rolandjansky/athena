@@ -109,6 +109,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
     const xAOD::Electron * ELE = (*iter);
     if ( RecordElectron(ELE) ) goodelectroncount++;
   }
+  OrderElectronList();
 
   if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << std::endl;
   if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
@@ -139,7 +140,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     if (m_doDebug) std::cout << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << std::endl;
   }
 
-  if (electronisgood && theTrackParticle->pt() < m_ptCut) {
+  if (electronisgood && theTrackParticle->pt() * CGeV < m_ptCut ) { // pt cut given in GeV
     electronisgood = false;
     if (m_doDebug) std::cout << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt() 
 			     << " < " << m_ptCut << " (cut value) " 
@@ -160,6 +161,8 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 void ElectronSelector::Clear()
 {
   m_pxElTrackList.clear();
+  m_goodElecNegTrackParticleList.clear();
+  m_goodElecPosTrackParticleList.clear();
 
   // -1 means not assigned
   m_elecneg1 = -1;
@@ -229,6 +232,13 @@ void ElectronSelector::OrderElectronList()
       if (m_elecneg2 >= 0) std::cout << "                                second  e-: " << m_elecneg2 << "   Pt = " << ptMinus2 << std::endl;
       if (m_elecpos1 >= 0) std::cout << "                                leading e+: " << m_elecpos1 << "   Pt = " << ptPlus1 << std::endl;
       if (m_elecpos2 >= 0) std::cout << "                                second  e+: " << m_elecpos2 << "   Pt = " << ptPlus2 << std::endl;
+    }
+
+    if (elecposcount + elecnegcount >= 2){ // fill the final list of electrons
+      if (m_elecneg1 >= 0) m_goodElecNegTrackParticleList.push_back(m_pxElTrackList.at(m_elecneg1));
+      if (m_elecneg2 >= 0) m_goodElecNegTrackParticleList.push_back(m_pxElTrackList.at(m_elecneg2));
+      if (m_elecpos1 >= 0) m_goodElecPosTrackParticleList.push_back(m_pxElTrackList.at(m_elecpos1));
+      if (m_elecpos2 >= 0) m_goodElecPosTrackParticleList.push_back(m_pxElTrackList.at(m_elecpos2));
     }
   }
 
