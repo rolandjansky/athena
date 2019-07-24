@@ -55,7 +55,7 @@ from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
 TrackCountHypo.OutputLevel= DEBUG
 makeAndSetHypo( TrackCountHypo, TrackCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG )
-TrackCountHypo.HypoInputDecisions="FSDecisions"
+TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 TrackCountHypo.trackCountKey="HLT_TrackCount"
