@@ -222,6 +222,7 @@ for collection in toBeAssociatedTo:
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
 
 # Add in Xbb tagging variables
 HbbCommon.addRecommendedXbbTaggers(EXOT27Seq, ToolSvc, logger=logger)
@@ -383,6 +384,25 @@ EXOT27ThinningTools.append(
       SGKey = "TauJets",
       ChildThinningTools = [ToolSvc.EXOT27TauTrackLinksThinningTool]) )
 
+# subjet thinning, only applied to GhostTag selection for now
+ToolSvc += EleLinkThinningTool(
+    "EXOT27SubjetThinningTool",
+    LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
+        glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
+        jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+        btag="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"),
+    ThinningService = EXOT27ThinningHelper.ThinningSvc() )
+large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+# for now we only apply this above 100 GeV (same as the large-R jet
+# thinning above) but we could set ths separately if needed
+EXOT27ThinningTools.append(
+    ThinAssociatedObjectsTool(
+        "EXOT27SubjetAssocThinningTool",
+        ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+        SGKey = large_r,
+        SelectionString = "{0}.pt > 100*GeV".format(large_r),
+        ChildThinningTools = [ToolSvc.EXOT27SubjetThinningTool] ) )
+
 # TODO (perhaps): truth thinning
 # What I have here is extremely simplistic - designed to at least have what I
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
@@ -448,6 +468,7 @@ if sel_string:
       expression = sel_string
       )
   EXOT27SkimmingTools.append(EXOT27StringSkimmingTool)
+
 
 # Add additional skimming for events passing lepton and photon triggers
 # Ideally we would add similar requirements for events passing the MET triggers
@@ -552,6 +573,7 @@ JetCommon.addJetOutputs(
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
       "AntiKt2LCTopoJets",
+      "AntiKtVR30Rmax4Rmin02TrackGhostTagJets"
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",

@@ -56,6 +56,23 @@ BTaggingHighLevelAux = [
     "SV1_N2Tpair", "SV1_NGTinSvx"
 ]
 
+BTaggingXbbAux = [
+    'JetFitter_N2Tpair','JetFitter_dRFlightDir','JetFitter_deltaeta',
+    'JetFitter_deltaphi', 'JetFitter_energyFraction', 'JetFitter_mass',
+    'JetFitter_massUncorr', 'JetFitter_nSingleTracks',
+    'JetFitter_nTracksAtVtx',
+    'JetFitter_nVTX', 'JetFitter_significance3d',
+    'SV1_L3d','SV1_Lxy','SV1_N2Tpair','SV1_NGTinSvx','SV1_deltaR',
+    'SV1_dstToMatLay', 'SV1_efracsvx', 'SV1_masssvx', 'SV1_significance3d',
+    'rnnip_pb','rnnip_pc','rnnip_ptau','rnnip_pu'
+]
+
+JetGhostLabelAux = [
+    "GhostBHadronsFinalCount",
+    "GhostCHadronsFinalCount",
+    "GhostTausFinalCount",
+]
+
 BTaggingExtendedAux = [
     "BTagTrackToJetAssociator",
 ]
@@ -111,3 +128,23 @@ def BTaggingStandardContent(jetcol):
         [ btagging ] \
         + [ ".".join( [ btagging + "Aux" ] + BTaggingStandardAux ) ]
     return jetcontent + btagcontent
+
+
+def BTaggingXbbContent(jetcol):
+
+    btaggingtmp = "BTagging_" + jetcol.split('Jets')[0]
+    if 'BTagging' in jetcol:
+         stamp = jetcol.split('BTagging')[1]
+         btaggingtmp += '_'+stamp
+
+    # deal with name mismatch between PV0TrackJets and BTagging_Track
+    btagging = btaggingtmp.replace("PV0Track", "Track")
+
+    jetAllAux = JetStandardAux + JetGhostLabelAux
+    jetcontent = [ ".".join( [ jetcol + "Aux" ] + jetAllAux ) ]
+
+    # add aux variables
+    btaggingAllAux = BTaggingXbbAux + BTaggingStandardAux
+    btagcontent = [ ".".join( [ btagging + "Aux" ] + btaggingAllAux ) ]
+
+    return [jetcol] + jetcontent + [ btagging ] + btagcontent
