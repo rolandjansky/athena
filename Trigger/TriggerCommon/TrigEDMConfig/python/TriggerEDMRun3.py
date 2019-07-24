@@ -161,8 +161,8 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauIso',                 'BS ESD AODFULL', 'Tau', 'inViews:TIsoViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauIsoAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_FastTrack',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FastTrackAux.',          'BS ESD AODFULL', 'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Tau',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauAux.',          'BS ESD AODFULL', 'Tau'),
 
     # Jet
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
