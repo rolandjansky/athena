@@ -356,18 +356,23 @@ namespace CP {
 
 
       if(m_apply_SC_leak_corr){
-          float SC_correction = 0;
-          if(!eg.isolationCaloCorrection(SC_correction, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy)){
+          float topoetconecoreConeEnergyCorrection = 0;
+          if(!eg.isolationCaloCorrection(topoetconecoreConeEnergyCorrection, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy)){
               ATH_MSG_WARNING("Could not find SC based correction for " << eg.type());
           }
-          ATH_MSG_VERBOSE("Old leakage correction: " << newleak);
-          ATH_MSG_VERBOSE("SC based leakage correction value: " << SC_correction);
+          float core57cells = 0.;
+          if(!eg.isolationCaloCorrection(core57cells, xAOD::Iso::topoetcone, xAOD::Iso::core57cells, xAOD::Iso::coreEnergy)){
+              ATH_MSG_WARNING("Could not find core57cells for " << eg.type() << "to apply new SC correction");
+          }
+          ATH_MSG_VERBOSE("Old core correction + old leakage correction: " << core57cells + newleak);
+          ATH_MSG_VERBOSE("SC based leakage correction value: " << topoetconecoreConeEnergyCorrection);
           ATH_MSG_VERBOSE("Iso before SC correction: " << iso);
-          iso = iso + newleak - SC_correction;
+          iso = iso + newleak - topoetconecoreConeEnergyCorrection + core57cells;
           ATH_MSG_VERBOSE("Iso after SC correction: " << iso);
       }
 
-      if(m_apply_etaEDParPU_corr && !m_AFII_corr){
+      // this correction is derived purly from data, but can also be applied to mc
+      if(m_apply_etaEDParPU_corr){
         float abseta = fabs(eg.caloCluster()->etaBE(2));
         const xAOD::EventShape* evtShapeCentral;
 
