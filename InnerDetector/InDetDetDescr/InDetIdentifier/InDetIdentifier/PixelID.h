@@ -148,7 +148,8 @@ public:
 
     /// Test for b-layer - WARNING: id MUST be pixel id, otherwise answer is not accurate. Use SiliconID for generic test.
     bool        is_blayer       (const Identifier& id) const;    // obsolete  
-    bool        is_innermost    (const Identifier& id) const;  
+    bool        is_innermost    (const Identifier& id) const;
+    bool        is_nexttoinnermost(const Identifier& id) const;
 
     /// Values of different levels (failure returns 0)
     int         barrel_ec       (const Identifier& id) const;  
