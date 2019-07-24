@@ -21,7 +21,7 @@ atlas_add_root_dictionary( EventLoop
    EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/BatchWorker.h EventLoop/CondorDriver.h EventLoop/DirectDriver.h
-   EventLoop/GEDriver.h EventLoop/Job.h
+   EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h
    EventLoop/LLDriver.h EventLoop/LSFDriver.h EventLoop/LocalDriver.h
    EventLoop/OutputStream.h EventLoop/MetricsSvc.h EventLoop/SoGEDriver.h
    EventLoop/StatusCode.h EventLoop/TorqueDriver.h
