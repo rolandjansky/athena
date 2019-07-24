@@ -85,7 +85,7 @@ void SimpleServiceVolumeSchema::setSimpleSchema()
   m_volId = "";
 }
 
-SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
+  SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(const std::string & table, const SimpleServiceVolumeSchema & schema, 
 							 bool readDataFromDB,
 							 const PixelGeoBuilderBasics* basics)
   : GeoXMLUtils(),
@@ -98,7 +98,7 @@ SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table
  {
 
   if(!m_readFromDB){
-    m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper(table, schema, basics);
+    m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper(table,schema, basics);
     m_XMLdefined = true;
   }
 }
@@ -111,70 +111,52 @@ SimpleServiceVolumeMakerMgr::db() const {
 
 double SimpleServiceVolumeMakerMgr::rmin(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.rmin(), index) * CLHEP::mm;
-
+  
   return m_simpleSrvXMLHelper->rmin(index);
 }
 
 
 double SimpleServiceVolumeMakerMgr::rmax(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.rmax(), index) * CLHEP::mm;
-
+  
   return m_simpleSrvXMLHelper->rmax(index);
 }
 
 
 double SimpleServiceVolumeMakerMgr::rmin2(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.rmin2(), index) * CLHEP::mm;
+  
 
   return m_simpleSrvXMLHelper->rmin2(index);
 }
 
 double SimpleServiceVolumeMakerMgr::rmax2(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.rmax2(), index) * CLHEP::mm;
 
   return m_simpleSrvXMLHelper->rmax2(index);
 }
 
 double SimpleServiceVolumeMakerMgr::zmin(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.zmin(), index) * CLHEP::mm;
-
+  
   return m_simpleSrvXMLHelper->zmin(index);
 }
 
 double SimpleServiceVolumeMakerMgr::zmax(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.zmax(), index) * CLHEP::mm;
-
+  
   return m_simpleSrvXMLHelper->zmax(index);
 }
 
 double SimpleServiceVolumeMakerMgr::phiDelta(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.phiDelta(), index) * CLHEP::deg;
+  
 
   return m_simpleSrvXMLHelper->phiDelta(index);
 }
 
 double SimpleServiceVolumeMakerMgr::width(int index) const
 {
-  if(m_readFromDB){
-    if (m_schema.has_width()) {
-      return geoAccessor().getDouble(m_table, m_schema.width(), index) * CLHEP::mm;
-    }
-    return 0;
-  }
 
   if (m_schema.has_width()) {
     return m_simpleSrvXMLHelper->width(index);
@@ -184,20 +166,12 @@ double SimpleServiceVolumeMakerMgr::width(int index) const
 
 double SimpleServiceVolumeMakerMgr::phiStart(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getDouble(m_table, m_schema.phiStart(), index) * CLHEP::deg;
 
   return m_simpleSrvXMLHelper->phiStart(index);
 }
 
 double SimpleServiceVolumeMakerMgr::phiStep(int index) const
 {
-  if(m_readFromDB){
-    if (m_schema.has_phiStep()) {
-      return geoAccessor().getDouble(m_table, m_schema.phiStep(), index) * CLHEP::deg;
-    } 
-    return 0;
-  }
 
   if (m_schema.has_phiStep()) {
     return m_simpleSrvXMLHelper->phiStep(index);
@@ -207,8 +181,6 @@ double SimpleServiceVolumeMakerMgr::phiStep(int index) const
 
 bool SimpleServiceVolumeMakerMgr::zsymm(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getInt(m_table, m_schema.zsymm(), index);
 
   return m_simpleSrvXMLHelper->zsymm(index);
 }
@@ -216,21 +188,12 @@ bool SimpleServiceVolumeMakerMgr::zsymm(int index) const
 
 int SimpleServiceVolumeMakerMgr::repeat(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getInt(m_table, m_schema.repeat(), index);
 
   return m_simpleSrvXMLHelper->repeat(index);
 }
 
 int SimpleServiceVolumeMakerMgr::radialDiv(int index) const
 {
-  if(m_readFromDB){
-    if (m_schema.has_radial()) {  
-      return geoAccessor().getInt(m_table, m_schema.radialDiv(), index);
-    } else { 
-      return 0;
-    }
-  }
 
   if (m_schema.has_radial()) {  
     return m_simpleSrvXMLHelper->radialDiv(index);
@@ -241,16 +204,7 @@ int SimpleServiceVolumeMakerMgr::radialDiv(int index) const
 
 std::string SimpleServiceVolumeMakerMgr::shapeType(int index) const
 {
-  if(m_readFromDB){
-    if (m_schema.has_shapeType()) {  
-      if (geoAccessor().testField(m_table, m_schema.shapeType(), index)) {
-	return geoAccessor().getString(m_table, m_schema.shapeType(), index);
-      } else {
-	return "TUBE";
-      }
-    }
-    return "UNKNOWN";
-  }
+  
 
   if (m_schema.has_shapeType()) {  
     std::string tmp=m_simpleSrvXMLHelper->shapeType(index);
@@ -262,12 +216,7 @@ std::string SimpleServiceVolumeMakerMgr::shapeType(int index) const
 
 std::string SimpleServiceVolumeMakerMgr::volName(int index) const
 {
-  if(m_readFromDB){
-    if (geoAccessor().testField(m_table, m_schema.volName(), index)) {
-      return geoAccessor().getString(m_table, m_schema.volName(), index);
-    } 
-    return "";
-  }
+ 
 
   std::string tmp=m_simpleSrvXMLHelper->volName(index);
   tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
@@ -276,8 +225,7 @@ std::string SimpleServiceVolumeMakerMgr::volName(int index) const
 
 std::string SimpleServiceVolumeMakerMgr::materialName(int index) const
 {
-  if(m_readFromDB)
-    return geoAccessor().getString(m_table, m_schema.materialName(), index);
+ 
 
   std::string tmp=m_simpleSrvXMLHelper->materialName(index);
   tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
@@ -287,30 +235,24 @@ std::string SimpleServiceVolumeMakerMgr::materialName(int index) const
 
 unsigned int SimpleServiceVolumeMakerMgr::numElements() const
 {
-  if(m_readFromDB)
-    return geoAccessor().getTableSize(m_table); 
 
   return m_simpleSrvXMLHelper->numElements();
 }
 
 int SimpleServiceVolumeMakerMgr::volId(int index) const
 {
-  if(m_readFromDB){
-    if (m_schema.has_volId()) {  
-      return geoAccessor().getInt(m_table, m_schema.volId(), index);
-    }
-    return 0;
-  }
 
   return m_simpleSrvXMLHelper->volId(index);
 }
 
 
-SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & label,
-						   IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
-						   const PixelGeoBuilderBasics* basics,
+  SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & table,
+						     const std::string & label,
+						     const SimpleServiceVolumeSchema & schema, 
+						     const PixelGeoBuilderBasics* basics,
 						   bool readDataFromDB) 
-  : m_label(label)
+    : m_table(table),
+      m_label(label)
 {
   m_mgr = new SimpleServiceVolumeMakerMgr(table, schema, readDataFromDB, basics);
 }

@@ -13,7 +13,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelLayoutUtils/GeoXMLUtils.h" 
 
 class IGeometryDBSvc;
-class OraclePixGeoAccessor;
 class PixelSimpleServiceXMLHelper;
 
 namespace InDetDD {
@@ -98,7 +97,7 @@ namespace InDetDD {
   class SimpleServiceVolumeMakerMgr : public GeoXMLUtils, public PixelGeoBuilder {
 
   public:
-    SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
+    SimpleServiceVolumeMakerMgr(const std::string & table, const SimpleServiceVolumeSchema & schema, 
 				bool readDataFromDB,
 				const PixelGeoBuilderBasics* basics);
     
@@ -126,19 +125,17 @@ namespace InDetDD {
     const SimpleServiceVolumeSchema & schema() const {return m_schema;}
     
   private:
-    IRDBRecordset_ptr m_table;
+    std::string m_table;
     SimpleServiceVolumeSchema m_schema;
-    //    const InDetDD::AthenaComps * m_athenaComps;
-    //    const OraclePixGeoAccessor* m_geoAccessor;
     PixelSimpleServiceXMLHelper* m_simpleSrvXMLHelper;
     bool m_readFromDB;
-    bool m_XMLdefined;
+    bool m_XMLdefined; 
   };
 
   class SimpleServiceVolumeMaker {
   public:
-    SimpleServiceVolumeMaker(const std::string & label,
-			     IRDBRecordset_ptr table, 
+    SimpleServiceVolumeMaker(const std::string & table,
+			     const std::string & label, 
 			     const SimpleServiceVolumeSchema & schema,
 			     const PixelGeoBuilderBasics* basics,
 			     bool readDataFromDB) ;
@@ -149,6 +146,7 @@ namespace InDetDD {
     unsigned int numElements() const;
 
   private:
+    std::string m_table;
     std::string m_label;
     SimpleServiceVolumeMakerMgr * m_mgr;    
     std::vector<const ServiceVolume *> m_services;
