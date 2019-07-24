@@ -315,7 +315,6 @@ namespace CP {
 
     static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
-	
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									      /* xAOD::Iso::topoetcone30, */
 									      xAOD::Iso::topoetcone40};
@@ -354,6 +353,19 @@ namespace CP {
       
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
+
+
+      if(m_apply_SC_leak_corr){
+          float SC_correction = 0;
+          if(!eg.isolationCaloCorrection(SC_correction, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy)){
+              ATH_MSG_WARNING("Could not find SC based correction for " << eg.type());
+          }
+          ATH_MSG_VERBOSE("Old leakage correction: " << newleak);
+          ATH_MSG_VERBOSE("SC based leakage correction value: " << SC_correction);
+          ATH_MSG_VERBOSE("Iso before SC correction: " << iso);
+          iso = iso + newleak - SC_correction;
+          ATH_MSG_VERBOSE("Iso after SC correction: " << iso);
+      }
 
       if(m_apply_etaEDParPU_corr && !m_AFII_corr){
         float abseta = fabs(eg.caloCluster()->etaBE(2));
