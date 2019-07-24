@@ -29,12 +29,12 @@ FourMuonEvent::FourMuonEvent()
 {
   m_xSampleName = "FourMuon";
 
-  m_container = PerfMonServices::MUID_COLLECTION;
+  m_container = PerfMonServices::MUON_COLLECTION; //PerfMonServices::ELECTRON_COLLECTION
 
   m_doDebug = false;
   m_workAsFourMuons = true;
   m_workAsFourElectrons = false;
-  m_workAsFourLeptons = false;
+  m_workAsFourLeptons = true;
 
   // Setup the muon tags
   m_uMuonTags   = 4;
@@ -74,17 +74,20 @@ void FourMuonEvent::Init()
 //==================================================================================
 bool FourMuonEvent::Reco()
 {
-  bool thisdebug = false;
+  bool thisdebug = true;
   m_eventCount++;
   if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * starting * event count " << m_eventCount << std::endl; }
 
   // Clear out the previous events record.
   this->Clear();
 
-  const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
   // if muons are requested 
   if (m_workAsFourMuons || m_workAsFourLeptons) {
+    if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::MuonContainer " << m_container << std::endl; }
+
+    const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
+
     // check if muon container does exist
     if (pxMuonContainer != nullptr) { 
       if (m_doDebug || thisdebug) {
@@ -124,13 +127,18 @@ bool FourMuonEvent::Reco()
   // if electrons are requested 
   if (m_workAsFourElectrons || m_workAsFourLeptons) {
     // Get the electron AOD container
-    const xAOD::ElectronContainer* pxElecContainer = PerfMonServices::getContainer<xAOD::ElectronContainer>( PerfMonServices::ELECTRON_COLLECTION );
+    const xAOD::ElectronContainer* pxElecContainer = nullptr;
+    if (m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::ElectronContainer " << PerfMonServices::ELECTRON_COLLECTION << std::endl; }
+    pxElecContainer = PerfMonServices::getContainer<xAOD::ElectronContainer>( PerfMonServices::ELECTRON_COLLECTION );
 
-    if (pxElecContainer->size() < 1 ){
-      //deleteAction();
-      return StatusCode::SUCCESS;
-    }    
-    m_xElecID.PrepareElectronList(pxElecContainer);
+    if (pxElecContainer != nullptr) {
+      if (pxElecContainer->size() > 0 ){
+	m_xElecID.PrepareElectronList(pxElecContainer);
+      }    
+    }
+    else { // no pxElecContainer
+      if (m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::ElectronContainer failed " << std::endl; }
+    }
   } 
  
   /////////////////////

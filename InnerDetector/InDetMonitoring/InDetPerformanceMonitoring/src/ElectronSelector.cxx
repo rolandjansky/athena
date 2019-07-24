@@ -90,18 +90,25 @@ void ElectronSelector::Init()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer)
 {
+  std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << std::endl;
   typedef xAOD::ElectronContainer::const_iterator electron_iterator;
   electron_iterator iter    = pxElecContainer->begin();
   electron_iterator iterEnd = pxElecContainer->end();
   
   // Loop over the Electrons                                                                                                                                                       
-  //  ATH_MSG_VERBOSE("Electron info. being stored");
-  //std::cout << "No Electrons: " << ElectronInput_container->size() <<std::endl;
-  int electroncount = 0;
+  int allelectroncount = 0;
+  int goodelectroncount = 0;
   for(; iter != iterEnd ; iter++) {
-    electroncount++;
+    allelectroncount++;
+    std::cout << " --ElectronSelector::PrepareElectronList -- candiate electron " << allelectroncount 
+	      << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
+	      << std::endl;
+    if ((*iter)->author(xAOD::EgammaParameters::AuthorElectron) == 1) {
+      goodelectroncount++;
+    }
   }
-  std::cout << " --ElectronSelector::PrepareElectronList -- electroncount -- " << electroncount << std::endl;
+  std::cout << " --ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
+	    << goodelectroncount << " / " << allelectroncount << std::endl;
 
   return;
 }
