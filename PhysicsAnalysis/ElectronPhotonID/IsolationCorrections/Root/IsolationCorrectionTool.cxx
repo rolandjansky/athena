@@ -38,6 +38,7 @@ namespace CP {
     declareProperty("Correct_etcone",              m_correct_etcone       = false);
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
+    declareProperty("Apply_SC_leakcorr",           m_apply_SC_leak_corr   = false);
     declareProperty("Apply_etaEDParPU_correction",    m_apply_etaEDParPU_corr= false);
     declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/zetas_pu.root");
 
