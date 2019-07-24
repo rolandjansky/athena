@@ -1087,6 +1087,7 @@ else:
     #
     # ---------------------------------------------------------------- 
     if InDetFlags.doRefit():
+      from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
       from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
       from AthenaCommon import CfgGetter
       # @TODO for the track refit can a track fitter be used which requires a split cluster map ?
@@ -1095,7 +1096,7 @@ else:
                                          FitterTool     = CfgGetter.getPublicTool('InDetTrackFitter'),
                                          FitterToolTRT  = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                          SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool_setup,
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          fitRIO_OnTrack = InDetFlags.refitROT(),
