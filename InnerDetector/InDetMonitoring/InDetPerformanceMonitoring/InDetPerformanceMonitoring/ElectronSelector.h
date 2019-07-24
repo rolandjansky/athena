@@ -35,7 +35,9 @@ class ElectronSelector : public EventAnalysis
  
   // Override functions from EventAnalysis
   void       Init();
-  void       PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer);
+  void       PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
+  bool       RecordElectron (const xAOD::Electron *);
+  void       OrderElectronList ();
   // virtual bool Reco();
 
  protected:
@@ -50,7 +52,8 @@ class ElectronSelector : public EventAnalysis
   MsgStream * m_msgStream;
 
   // Class variables
-  const xAOD::Muon*   m_pxElectron;
+  const xAOD::Muon*           m_pxElectron;
+  std::vector<const xAOD::TrackParticle*>  m_pxElTrackList; 
 
   // 
   bool m_doDebug;

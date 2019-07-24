@@ -149,6 +149,7 @@ class FourMuonEvent : public EventAnalysis
   const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
   const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
   const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
+  //  const            xAOD::TrackParticle*  m_pxElTrack[NUM_MUONS];  // pointer to Track particle of the electrons
 
   // Keep kinematic information on the Z
   float m_fZPt[NUM_TYPES];

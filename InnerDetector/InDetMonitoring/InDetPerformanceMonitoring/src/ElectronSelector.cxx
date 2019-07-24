@@ -35,7 +35,7 @@ unsigned int ElectronSelector::s_uNumInstances;
 // Public Methods
 //==================================================================================
 ElectronSelector::ElectronSelector():
-  m_doDebug ( false )  
+  m_doDebug ( true )  
 {
   ++s_uNumInstances;
   
@@ -57,7 +57,7 @@ ElectronSelector::~ElectronSelector()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::Init()
 {
-  std::cout << " --ElectronSelector::Init -- START -- " << std::endl;
+  if (m_doDebug) std::cout << " --ElectronSelector::Init -- START -- " << std::endl;
   ISvcLocator* serviceLocator = Gaudi::svcLocator();
   IToolSvc* toolSvc;
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
@@ -83,14 +83,14 @@ void ElectronSelector::Init()
   if(lhm.isFailure())
     (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << endreq;
 
-  std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< std::endl;
+  if (m_doDebug) std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< endreq;
   return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer)
 {
-  std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << std::endl;
+  if (m_doDebug) std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << endreq;
   typedef xAOD::ElectronContainer::const_iterator electron_iterator;
   electron_iterator iter    = pxElecContainer->begin();
   electron_iterator iterEnd = pxElecContainer->end();
@@ -100,15 +100,58 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   int goodelectroncount = 0;
   for(; iter != iterEnd ; iter++) {
     allelectroncount++;
-    std::cout << " --ElectronSelector::PrepareElectronList -- candiate electron " << allelectroncount 
-	      << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
-	      << std::endl;
-    if ((*iter)->author(xAOD::EgammaParameters::AuthorElectron) == 1) {
-      goodelectroncount++;
-    }
+    (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << allelectroncount 
+		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
+		   << endreq;
+    const xAOD::Electron * ELE = (*iter);
+    if ( RecordElectron(ELE) ) goodelectroncount++;
   }
-  std::cout << " --ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
-	    << goodelectroncount << " / " << allelectroncount << std::endl;
 
+  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << endreq;
+  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
+			   << goodelectroncount << " / " << allelectroncount 
+			   << endreq;
+
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
+{
+  if (m_doDebug) std::cout << " --ElectronSelector::RecordRlectron -- START  -- " << endreq;
+  
+  // start assuming electron candidate is good 
+  bool electronisgood = true;
+
+  //Get the track particle                                                                                                                                                        
+  const xAOD::TrackParticle* theTrackParticle = thisElec->trackParticle();
+  
+  if (!theTrackParticle) {
+    electronisgood = false;
+    if (m_doDebug) std::cout << "   -- electron fails trackparticle  -- " << endreq;
+  }
+
+  if (electronisgood && thisElec->author(xAOD::EgammaParameters::AuthorElectron) != 1) {
+    electronisgood = false;
+    if (m_doDebug) std::cout << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << endreq;
+  }
+
+  if (electronisgood) {
+    m_pxElTrackList.push_back(theTrackParticle);
+    if (m_doDebug) std::cout << "   time to store this electron :) " << endreq;
+  }
+
+  if (m_doDebug) std::cout << " -- ElectronSelector::RecordElectrons -- COMPLETED  -- " << endreq;
+
+  return electronisgood;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
+void ElectronSelector::OrderElectronList()
+{
+  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << endreq;
+  if (m_pxElTrackList.size( )>= 2) { // we need at least 2 electrons
+  }
+  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- " << endreq;
   return;
 }

@@ -34,7 +34,7 @@ FourMuonEvent::FourMuonEvent()
   m_doDebug = false;
   m_workAsFourMuons = true;
   m_workAsFourElectrons = false;
-  m_workAsFourLeptons = true;
+  m_workAsFourLeptons = false;
 
   // Setup the muon tags
   m_uMuonTags   = 4;
@@ -125,7 +125,7 @@ bool FourMuonEvent::Reco()
   // here must go the electron selection
   //
   // if electrons are requested 
-  if (m_workAsFourElectrons || m_workAsFourLeptons) {
+  if (m_workAsFourElectrons || m_workAsFourLeptons || true) {
     // Get the electron AOD container
     const xAOD::ElectronContainer* pxElecContainer = nullptr;
     if (m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::ElectronContainer " << PerfMonServices::ELECTRON_COLLECTION << std::endl; }
