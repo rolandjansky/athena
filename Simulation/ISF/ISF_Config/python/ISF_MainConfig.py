@@ -251,7 +251,11 @@ def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    from G4AtlasApps.SimFlags import simFlags
+    if simFlags.SimulateCavern():
+        kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_FullGeant4Selector' ] )
+    else:
+        kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulator(name, **kwargs)
 
 ############## Simulator: GenericG4OnlyMT ###############
