@@ -77,8 +77,12 @@ namespace EL
       ANA_MSG_WARNING ("instead you need to provide your own kubernetes config file");
     }
 
+    /// \brief the setup file we use as a template
+    const std::string batchSetupFile {
+      options.castString(Job::optBatchSetupFile, "EventLoop/kubernetes_setup.yml")};
 
-    /// \brief the data directory, if we have one
+
+    /// \brief the config file we use as a template
     const std::string batchConfigFile {
       options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
     std::string baseConfig;
@@ -102,6 +106,17 @@ namespace EL
     {
       bool first {true};
       std::ofstream jobFile (jobFilePath.c_str());
+      if (!batchSetupFile.empty())
+      {
+        std::ifstream file (PathResolverFindDataFile (batchSetupFile).c_str());
+        std::string setupConfig {std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>()};
+        setupConfig = RCU::substitute (setupConfig, "%%DOCKERIMAGE%%", dockerImage);
+        setupConfig = RCU::substitute (setupConfig, "%%SUBMITDIR%%", location);
+        jobFile << setupConfig;
+        first = false;
+      }
+
       for (std::size_t jobIndex : jobIndices)
       {
         std::ostringstream dirName;

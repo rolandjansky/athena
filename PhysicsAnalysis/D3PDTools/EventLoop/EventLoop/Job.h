@@ -443,6 +443,11 @@ namespace EL
     /// drivers that need more complex configuration)
     static const std::string optBatchConfigFile;
 
+    /// \brief the job submission setup file.  unlike \ref
+    /// optBatchConfigFile this only gets used once per submission
+    /// instead of once per job.
+    static const std::string optBatchSetupFile;
+
 
   public:
     /// @name Options controlling the memory monitoring behaviour of the job
