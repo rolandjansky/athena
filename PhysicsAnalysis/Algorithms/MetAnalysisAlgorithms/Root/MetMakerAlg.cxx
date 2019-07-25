@@ -46,7 +46,7 @@ namespace CP
   {
     ANA_CHECK (m_makerTool.retrieve());
     for (auto* handle : {&m_electronsHandle, &m_photonsHandle,
-                         &m_muonsHandle, &m_tausHandle}) {
+                         &m_muonsHandle, &m_tausHandle, &m_invisHandle}) {
       if (*handle) {
         m_systematicsList.addHandle (*handle);
       }
@@ -75,6 +75,12 @@ namespace CP
         met->setStore (aux.get());
 
         metMap->resetObjSelectionFlags();
+
+        if (m_invisHandle) {
+          const xAOD::IParticleContainer* invisible = nullptr;
+          ATH_CHECK( m_invisHandle.retrieve(invisible, sys) );
+          ATH_CHECK( m_makerTool->markInvisible(invisible, metMap, met.get() ) );
+        }
 
         // Lambda helping with calculating the MET terms coming from the leptons
         // (and photons).
