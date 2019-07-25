@@ -140,6 +140,7 @@ class FourMuonEvent : public EventAnalysis
   bool m_workAsFourLeptons;
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
+  unsigned int     m_numberOfFullPassElectrons;
   bool             m_passedSelectionCuts;
   bool             m_passedFourMuonSelection;
   bool             m_passedFourElectronSelection;

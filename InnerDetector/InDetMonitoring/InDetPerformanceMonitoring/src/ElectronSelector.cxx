@@ -115,15 +115,12 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
 			   << goodelectroncount << " / " << allelectroncount 
 			   << std::endl;
-
   return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 {
-  if (m_doDebug) std::cout << " --ElectronSelector::RecordRlectron -- START  -- " << std::endl;
-  
   // start assuming electron candidate is good 
   bool electronisgood = true;
 
@@ -148,11 +145,9 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   }
 
   if (electronisgood) {
-    if (m_doDebug) std::cout << "   time to store this electron with pt " << theTrackParticle->pt() << std::endl;
+    if (m_doDebug) std::cout << "   good electron -> store this electron with pt " << theTrackParticle->pt() << std::endl;
     m_pxElTrackList.push_back(theTrackParticle);
   }
-
-  if (m_doDebug) std::cout << " -- ElectronSelector::RecordElectrons -- COMPLETED  -- " << std::endl;
 
   return electronisgood;
 }
@@ -189,7 +184,6 @@ void ElectronSelector::OrderElectronList()
     for (int ielec=0; ielec < (int) m_pxElTrackList.size(); ielec++) {
       // negative electrons
       if (m_pxElTrackList.at(ielec)->charge()== -1) { // positive electron
-	if (m_doDebug) std::cout << "         -- Electron " << ielec << " is negative (e-) " << std::endl;
 	elecnegcount++;
 	if (m_pxElTrackList.at(ielec)->pt()> ptMinus1) {
 	  // store 1st in 2nd
@@ -207,7 +201,6 @@ void ElectronSelector::OrderElectronList()
       }
       // positive electrons
       if (m_pxElTrackList.at(ielec)->charge()==  1) { // positive electron
-	if (m_doDebug) std::cout << "         -- Electron " << ielec << " is positive (e+) " << std::endl;
 	elecposcount++;
 	if (m_pxElTrackList.at(ielec)->pt()> ptPlus1) {
 	  // store 1st in 2nd

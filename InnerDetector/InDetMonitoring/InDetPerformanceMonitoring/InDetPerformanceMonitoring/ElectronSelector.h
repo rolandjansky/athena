@@ -34,10 +34,11 @@ class ElectronSelector : public EventAnalysis
   void setDebug (bool debug) {m_doDebug = debug;}
  
   // Override functions from EventAnalysis
-  void       Init();
-  void       PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
-  bool       RecordElectron (const xAOD::Electron *);
-  void       OrderElectronList ();
+  inline unsigned int GetElectronCollectionSize() {return m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size();}
+  void                Init();
+  void                OrderElectronList ();
+  void                PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
+  bool                RecordElectron (const xAOD::Electron *);
   // virtual bool Reco();
 
  protected:

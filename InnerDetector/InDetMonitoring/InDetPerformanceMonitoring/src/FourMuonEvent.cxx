@@ -134,6 +134,7 @@ bool FourMuonEvent::Reco()
     if (pxElecContainer != nullptr) {
       if (pxElecContainer->size() > 0 ){
 	m_xElecID.PrepareElectronList(pxElecContainer);
+	m_numberOfFullPassElectrons = m_xElecID.GetElectronCollectionSize();
       }    
     }
     else { // no pxElecContainer
@@ -170,8 +171,29 @@ bool FourMuonEvent::Reco()
     std::cout << " * FourMuonEvent::Reco * work in progress to use 4 electrons as well " << std::endl;
   }
   
-  if (m_workAsFourLeptons) {
+  if (m_workAsFourLeptons || true) {
+    m_passedFourLeptonSelection = false;
     std::cout << " * FourMuonEvent::Reco * work in progress to use 4 leptons (electrons or muons) " << std::endl;
+    if (m_numberOfFullPassMuons >= 2 && m_numberOfFullPassElectrons >= 2) {
+      std::cout << " * FourMuonEvent::Reco * Event with " << m_numberOfFullPassMuons
+		<< " muons & " << m_numberOfFullPassElectrons << " electrons"
+		<< std::endl;
+      
+      // in case of 4 muons -> check if the 4 muon kinematics is good 
+      if (m_numberOfFullPassMuons == 4) m_passedFourLeptonSelection = this->ReconstructKinematics();
+      if (m_passedFourLeptonSelection ) { 
+	// Good 4muon-kinematics --> take the event
+	std::cout << "                     * This event satisfies the 4 muon kinematics -> accept it :)" << std::endl; 
+      }
+      else {
+	std::cout << "                     * This event does not satisfy the 4 muon kinematics -> try other options" << std::endl; 
+      }
+    }
+    else {
+      std::cout << " * FourMuonEvent::Reco * Not enough muons or electrons. Event has " << m_numberOfFullPassMuons
+		<< " muons & " << m_numberOfFullPassElectrons << " electrons"
+		<< std::endl;
+    }
   }
 
   m_passedSelectionCuts = false; // assume event is not good, but check the selection according to the use case
@@ -519,6 +541,7 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
 void FourMuonEvent::Clear()
 {
   m_numberOfFullPassMuons = 0;
+  m_numberOfFullPassElectrons = 0;
   m_passedSelectionCuts   = false;
   m_passedFourMuonSelection = false;
   m_passedFourElectronSelection = false;
