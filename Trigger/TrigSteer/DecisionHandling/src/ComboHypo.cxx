@@ -117,7 +117,8 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
   return StatusCode::SUCCESS;
 }
 
-void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const EventContext& context) const {
+void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, std::map<TrigCompositeUtils::DecisionID,std::map<int,int>>& featureMap, const EventContext& context) const {
+
   for ( size_t i = 0; i < m_inputs.size(); ++i ) {   
     auto inputHandle = SG::makeHandle( m_inputs.at(i), context );
     if ( inputHandle.isValid() ) {
@@ -128,6 +129,22 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
         for ( DecisionID id: decisionIDs( decision ) ) {
           ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
           thisInputDmap[id] ++;
+	  //Map features to make sure we are considering unique objects. decision->linkColKeys()[idx] 
+	  //is the feature collection's name-hash, which is unique per-RoI. Adding the object index 
+	  //allows to correctly identify different objects within the same RoI (example: EF muons)
+	  //or different objects produced per event (example: MET) as being unique
+	  auto features = decision->linkColNames();
+	  int idx=-1;
+	  for(uint i=0; i<features.size(); i++){
+	    if(features[i]==featureString()){
+	      idx=i;
+	      break;
+	    }
+	  }
+	  if(idx>=0){
+	    featureMap[id][decision->linkColKeys()[idx]+decision->linkColIndices()[idx]] ++;
+	  }
+	  else ATH_MSG_DEBUG("Did not find "<<featureString());
         }     
       }
       dmap[i]= thisInputDmap; 
@@ -147,7 +164,7 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
       ATH_MSG_DEBUG(" +++ " << HLT::Identifier( m.first ) <<" mult: "<<m.second);
     }
     i++;
-  }
+  } 
 }
 
 StatusCode ComboHypo::execute(const EventContext& context ) const {
@@ -158,14 +175,19 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   // this map is filled with the count of positive decisions from each input
 
   std::vector< MultiplicityMap > dmap( m_inputs.size() );
-  fillDecisionsMap( dmap, context );
+  std::map<TrigCompositeUtils::DecisionID,std::map<int, int>> dmapFeatures;
+  uint nRequiredUnique;
+  fillDecisionsMap( dmap, dmapFeatures, context );
 
   for ( auto m: m_multiplicitiesReqMap ) {
+    nRequiredUnique=0;
     const DecisionID requiredDecisionID = HLT::Identifier( m.first ).numeric();
     bool overallDecision = true;
     
     for ( size_t inputContainerIndex = 0; inputContainerIndex <  m.second.size(); ++inputContainerIndex ) {
       const int requiredMultiplicity =  m.second[ inputContainerIndex ];
+      nRequiredUnique += requiredMultiplicity;
+      //check each leg of the chain passes with required multiplicity
       const int observedMultiplicity = dmap[ inputContainerIndex ][ requiredDecisionID ];
       ATH_MSG_DEBUG( "Required multiplicity " << requiredMultiplicity  << " for chain " << m.first<< ": observed multiplicity " << observedMultiplicity << " in container " << inputContainerIndex  );
       if ( observedMultiplicity < requiredMultiplicity ) {
@@ -173,6 +195,12 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         break;
       }
     }
+
+    //check that the multiplicity of unique features is high enough
+    ATH_MSG_DEBUG("Number of unique decisions: "<<(dmapFeatures[HLT::Identifier(m.first)]).size()<<", number of required unique decisions: "<<nRequiredUnique);
+    if((dmapFeatures[HLT::Identifier(m.first)]).size()<nRequiredUnique) overallDecision=false;
+
+    //Overall chain decision
     ATH_MSG_DEBUG( "Chain " << m.first <<  ( overallDecision ? " is accepted" : " is rejected") );
     if ( overallDecision == true ) {
       passing.insert( requiredDecisionID );
