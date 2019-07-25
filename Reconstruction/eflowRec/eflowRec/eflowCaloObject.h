@@ -82,7 +82,7 @@ public:
 
 private:
 
-  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(std::pair(trackClusterLink,true)); }
+  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(std::pair(trackClusterLink,false)); }
 
  private:
   /* Vector of clusters */
