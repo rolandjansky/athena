@@ -29,7 +29,6 @@ namespace EL
   class BatchWorker;
   class CondorDriver;
   class DirectDriver;
-  class DirectWorker;
   class Driver;
   struct EventRange;
   class GEDriver;
