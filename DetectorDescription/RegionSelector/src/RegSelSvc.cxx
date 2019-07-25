@@ -60,11 +60,11 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_disableTRTFromConditions(true),
     m_roiFileName        ("RSOutputTable.txt"),
     m_LArFebRodMapKey    ("/LAR/Identifier/FebRodMap"),
-    m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable"),
-    m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable"),
-    m_lutCreatorToolTRT  ("TRT_RegionSelectorTable/TRT_RegionSelectorTable"),
-    m_lutCreatorToolLAR  ("LArRegionSelectorTable"),
-    m_lutCreatorToolTile ("TileRegionSelectorTable"),
+    m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable", this),
+    m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable", this),
+    m_lutCreatorToolTRT  ("TRT_RegionSelectorTable", this),
+    m_lutCreatorToolLAR  ("LArRegionSelectorTable", this),
+    m_lutCreatorToolTile ("TileRegionSelectorTable", this),
     m_SCTCablingToolInc("SCT_CablingToolInc"),
     m_geoModelSvc("GeoModelSvc",name),
     m_DeltaZ(168),
@@ -74,15 +74,14 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_initCSC(true),
     m_initMM(true),
     m_initsTGC(true),
-    m_lutCreatorToolRPC  ("RPC_RegionSelectorTable"),
-    m_lutCreatorToolMDT  ("MDT_RegionSelectorTable"),
-    m_lutCreatorToolTGC  ("TGC_RegionSelectorTable"),
-    m_lutCreatorToolCSC  ("CSC_RegionSelectorTable"),
-    m_lutCreatorToolMM   ("MM_RegionSelectorTable"),
-    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),
-
+    m_lutCreatorToolRPC  ("RPC_RegionSelectorTable", this),
+    m_lutCreatorToolMDT  ("MDT_RegionSelectorTable", this),
+    m_lutCreatorToolTGC  ("TGC_RegionSelectorTable", this),
+    m_lutCreatorToolCSC  ("CSC_RegionSelectorTable", this),
+    m_lutCreatorToolMM   ("MM_RegionSelectorTable", this),
+    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable", this),
     m_initFTK(false),
-    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable/FTK_RegionSelectorTable"),
+    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable", this),
     m_ftklut(nullptr),
     m_duplicateRemoval( true )
 {
@@ -107,7 +106,15 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
   declareProperty( "SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
   declareProperty( "TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
+  declareProperty( "FTKRegionSelectorTable",     m_lutCreatorToolFTK);
   declareProperty( "LArRegionSelectorTable",     m_lutCreatorToolLAR);
+  declareProperty( "TileRegionSelectorTable",    m_lutCreatorToolTile);
+  declareProperty( "RPCRegionSelectorTable",     m_lutCreatorToolRPC);
+  declareProperty( "MDTRegionSelectorTable",     m_lutCreatorToolMDT);
+  declareProperty( "TGCRegionSelectorTable",     m_lutCreatorToolTGC);
+  declareProperty( "CSCRegionSelectorTable",     m_lutCreatorToolCSC);
+  declareProperty( "MMRegionSelectorTable",      m_lutCreatorToolMM);
+  declareProperty( "sTGCRegionSelectorTable",    m_lutCreatorToolsTGC);
   declareProperty( "readSiROBListFromOKS",       m_readSiROBListFromOKS, "read silicon rob list to from oks");
   declareProperty( "DeletePixelHashList",        m_deletePixelHashList,  "delete pixel modules with these ids");
   declareProperty( "DeleteSCTHashList",          m_deleteSCTHashList,    "delete sct modules with these ids");
@@ -244,7 +251,7 @@ StatusCode RegSelSvc::initialize() {
   
 #endif
 
-  // add the incident handler for the calo and id initialisation during BeginRun  
+  // add the incident handler for the calo and id initialisation
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc",name());
   StatusCode sc = incidentSvc.retrieve(); 	 
   if (sc.isFailure() ) { 	 
@@ -253,7 +260,7 @@ StatusCode RegSelSvc::initialize() {
     errorFlag = true; 	 
   }  
   else { 	 
-    incidentSvc->addListener( this , "BeginRun"); 	 
+    incidentSvc->addListener( this , "BeginEvent");
     ATH_MSG_INFO( " registered Listener with IncidentSvc" );
   } 	 
 
@@ -291,18 +298,16 @@ StatusCode RegSelSvc::handle( IOVSVC_CALLBACK_ARGS ) {
 // StatusCode RegSelSvc::handle( IOVSVC_CALLBACK_ARGS ) {
 void RegSelSvc::handle(const Incident& incident) { 
 
-  //static bool initialised = false;
+  static bool initialised = false;
   
-  // listen for BeginRun
-  if (incident.type()=="BeginRun") { 
+  // listen for BeginEvent
+  if (incident.type()=="BeginEvent") {
     
-    //    MuonCreator m;
-
-    // only initialise if this is the first BeginRun
-    //   if ( initialised ) return;
+    // only initialise if this is the first BeginEvent
+    if ( initialised ) return;
 
     ATH_MSG_INFO( " handle incident type " << incident.type() );
-
+    initialised = true;
 
     // call Innr detector, Calo and Muon handlers 
     if ( m_initOnlyID )    handleID();
