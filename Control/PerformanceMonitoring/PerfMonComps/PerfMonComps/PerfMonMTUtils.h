@@ -11,16 +11,12 @@
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
 // STL includes
-//#include <pthread.h>
 #include <ctime>
 #include <chrono>
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-//#include "AthenaBaseComps/AthMessaging.h"
-
-//#include <mutex>
 
 /*
  * Necessary tools
@@ -30,8 +26,6 @@ namespace PMonMT {
   double get_thread_cpu_time();
   double get_process_cpu_time();
   double get_wall_time();
-
-  pthread_t get_thread_id();
 
   // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
   struct StepComp {
@@ -63,39 +57,31 @@ namespace PMonMT {
 
   // Basic Measurement
   struct Measurement {
+
+    // These two variables stores the measurements captured outside the event loop
     double cpu_time;
     double wall_time;
     
-    // Clear -> get rid of pair
-    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_map;
-
-    std::map< StepCompEvent, int > thread_id_map;
+    // This map stores the measurements captured in the event loop
+    std::map< StepCompEvent, Measurement > meas_map;
 
 
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
-
-      /* Log to stdout
-      IMessageSvc *msgSvc;
-      MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      msg << MSG::INFO << std::fixed  <<  "capture: CPU: " << cpu_time << ", Wall: " << wall_time  << endmsg;
-      */
-      
     }
 
     // Could we make it argumentless?
     void capture_MT ( StepCompEvent sce ) {
-      
-
-     
+           
       cpu_time = get_thread_cpu_time();
       wall_time = get_wall_time(); // Does it really needed?
 
-      shared_measurement_map[ sce ] = std::make_pair(cpu_time,wall_time);
-      
-      thread_id_map[sce] = get_thread_id();
+      Measurement meas;
+      meas.cpu_time = cpu_time;
+      meas.wall_time = wall_time;
 
+      meas_map[sce] = meas;
     }
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
@@ -103,67 +89,37 @@ namespace PMonMT {
 
   // Basic Data
   struct MeasurementData {
+
+    // These variables are used to calculate the serial monitoring
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
 
+    // These maps are used to calculate the parallel monitoring
+    std::map< StepCompEvent, Measurement > m_tmp_map;
+    std::map< StepCompEvent, Measurement > m_delta_map;    
 
-    // Clear -> get rid of pair
-    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_tmp_map;
-
-    std::map< StepCompEvent, std::pair< double, double > > shared_measurement_delta_map;
-        
-   
-    std::map< StepCompEvent, int  > thread_id_tmp_map;
-    std::map< StepCompEvent, int  > thread_id_delta_map; 
     
-
     void addPointStart(const Measurement& meas) {          
 
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
-     
-      /* Log to stdout
-      IMessageSvc *msgSvc;
-      MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      msg << MSG::INFO << "addPointStart: CPU: " << m_tmp_cpu << ", Wall: " << m_tmp_wall  << endmsg;
-      */
     }
     void addPointStop(const Measurement& meas)  {     
 
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
-
-      /* Log to stdout
-      IMessageSvc *msgSvc;
-      MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      msg << MSG::INFO << "addPointStop: delta_CPU: " << meas.cpu_time << " - " << m_tmp_cpu << " = " << m_delta_cpu  << endmsg;
-      msg << MSG::INFO << "addPointStop: delta_Wall: " << meas.wall_time << " - " << m_tmp_wall << " = " << m_delta_wall  << endmsg;
-      */
     }
 
     // Clear -> Make generic + make meas const
     void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
 
-      shared_measurement_tmp_map[sce] = meas.shared_measurement_map[sce];
-
-      thread_id_tmp_map[sce] = meas.thread_id_map[sce];
-
+      m_tmp_map[sce] = meas.meas_map[sce];
     }
 
     void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
 
-      shared_measurement_delta_map[sce].first = meas.shared_measurement_map[sce].first - shared_measurement_tmp_map[sce].first;
-      shared_measurement_delta_map[sce].second = meas.shared_measurement_map[sce].second - shared_measurement_tmp_map[sce].second;
-
-      thread_id_delta_map[sce] = meas.thread_id_map[sce] - thread_id_tmp_map[sce];
-
-      /* Log to stdout
-      IMessageSvc *msgSvc;
-      MsgStream msg( msgSvc, "PerfMonMTUtils" );
-      msg << MSG::INFO << "addPointStop_thread: delta_CPU: " << meas.shared_measurement_map[sce].first << " - " << shared_measurement_tmp_map[sce].first << " = " << shared_measurement_delta_map[sce].first  << endmsg;
-      
-      msg << MSG::INFO << "addPointStop_thread: delta_CPU: " << meas.shared_measurement_map[sce].second << " - " << shared_measurement_tmp_map[sce].second << " = " << shared_measurement_delta_map[sce].second  << endmsg;
-      */
+      m_delta_map[sce].cpu_time = meas.meas_map[sce].cpu_time - m_tmp_map[sce].cpu_time;
+      m_delta_map[sce].wall_time = meas.meas_map[sce].wall_time - m_tmp_map[sce].wall_time;
     }
 
     
@@ -192,13 +148,6 @@ inline double PMonMT::get_thread_cpu_time() {
   // Return the measurement in ms
   return static_cast<double>(ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6);
 }
-
-inline pthread_t PMonMT::get_thread_id(){
-
-  return pthread_self();
-
-}
-
 
 /*
  * Process specific CPU time measurement in ms

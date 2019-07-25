@@ -26,7 +26,6 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
                             ISvcLocator* pSvcLocator )
   : AthService( name, pSvcLocator ) {
 
-  //ATH_MSG_INFO(" Pre initialization is captured!  ");
   m_measurement.capture();
   m_snapshotData[0].addPointStart(m_measurement);
  
@@ -79,7 +78,6 @@ StatusCode PerfMonMTSvc::initialize() {
  */
 StatusCode PerfMonMTSvc::finalize(){ 
  
-  //ATH_MSG_INFO("Post Finalization is captured!");
   m_measurement.capture();
   m_snapshotData[2].addPointStop(m_measurement);
 
@@ -119,8 +117,6 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
   if( compName != "PerfMonMTSvc" ){
     stopSnapshotAud(stepName, compName);
 
-
-    //if (stepName == "Execute")
     if( isLoop() )
       stopCompAud_MT(stepName, compName);
     else
@@ -134,23 +130,15 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
 
   // Last thing to be called before the event loop begins
   if( compName == "AthRegSeq" && stepName == "Start") {
-    //ATH_MSG_INFO("Pre Event Loop is captured!");
     m_measurement.capture();
     m_snapshotData[1].addPointStart(m_measurement);
   }
 
   // Last thing to be called before finalize step begins
   if ( compName == "AthMasterSeq" && stepName == "Finalize"){
-    //ATH_MSG_INFO("Pre Finalization is captured!");
     m_measurement.capture();
     m_snapshotData[2].addPointStart(m_measurement);
   }
-
-  /* Later we may need this
-  if ( compName == "AuditorSvc" && stepName == "Finalize"){
-    m_measurement.capture();
-  } 
-  */
 
 }
 
@@ -159,7 +147,6 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
 
   // First thing to be called after the initialize step ends
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
-    //ATH_MSG_INFO("Post Initialization is captured!");
     m_measurement.capture();
     m_snapshotData[0].addPointStop(m_measurement);
   }
@@ -167,7 +154,6 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
 
   // First thing to be called after the event loop ends
   if( compName == "AthMasterSeq" && stepName == "Stop") {
-    //ATH_MSG_INFO("Post Event Loop is captured!");
     m_measurement.capture();
     m_snapshotData[1].addPointStop(m_measurement);
   }
@@ -179,10 +165,7 @@ void PerfMonMTSvc::startCompAud_serial( const std::string& stepName,
                                       const std::string& compName) {
 
   // Current step - component pair. Ex: Initialize-StoreGateSvc 
-  PMonMT::StepComp currentState;
-  currentState.stepName = stepName;
-  currentState.compName = compName;
-
+  PMonMT::StepComp currentState = generate_serial_state (stepName, compName);
   
   // Capture the time
   m_measurement.capture(); 
@@ -203,14 +186,9 @@ void PerfMonMTSvc::stopCompAud_serial( const std::string& stepName,
   m_measurement.capture();
 
   // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepComp currentState;
-  currentState.stepName = stepName;
-  currentState.compName = compName;
- 
-  // We do not need this, because we have just created it in startCompAud_serial
-  //m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
-  m_compLevelDataMap[currentState]->addPointStop(m_measurement);
+  PMonMT::StepComp currentState = generate_serial_state (stepName, compName);
 
+  m_compLevelDataMap[currentState]->addPointStop(m_measurement);
 }
 
 void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
@@ -222,11 +200,7 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
   // Get the event number
   int eventNumber = getEventNumber();
 
-  // Make generic
-  PMonMT::StepCompEvent currentState;
-  currentState.stepName = stepName;
-  currentState.compName = compName;
-  currentState.eventNumber = eventNumber;
+  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventNumber);
 
   m_measurement.capture_MT( currentState );    
 
@@ -242,16 +216,11 @@ void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName,
   // Get the event number
   int eventNumber = getEventNumber();
 
-  // Make generic
-  PMonMT::StepCompEvent currentState;
-  currentState.stepName = stepName;
-  currentState.compName = compName;
-  currentState.eventNumber = eventNumber;
+  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventNumber);
         
   m_measurement.capture_MT( currentState );
     
   m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
-
 }
 
 bool PerfMonMTSvc::isLoop(){
@@ -268,33 +237,48 @@ int PerfMonMTSvc::getEventNumber(){
 
 void PerfMonMTSvc::parallelDataAggregator(){
 
-  std::map< PMonMT::StepComp, std::pair<double,double> >::iterator sc_itr;
+  std::map< PMonMT::StepComp, PMonMT::Measurement >::iterator sc_itr;
 
-  for(auto& sce_itr : m_parallelCompLevelData.shared_measurement_delta_map ){
+  for(auto& sce_itr : m_parallelCompLevelData.m_delta_map ){
 
-    // Write a function for these 3 lines
-    PMonMT::StepComp currentState;
-    currentState.stepName = sce_itr.first.stepName;
-    currentState.compName = sce_itr.first.compName;
-
+    PMonMT::StepComp currentState = generate_serial_state (sce_itr.first.stepName, sce_itr.first.compName);
+ 
+    // If the current state exists in the map, then aggregate it. o/w create a instance for it.
     sc_itr = m_aggParallelCompLevelDataMap.find(currentState);
     if(sc_itr != m_aggParallelCompLevelDataMap.end()){
-      // Clear!!!!!
-      m_aggParallelCompLevelDataMap[currentState].first += sce_itr.second.first;
-      m_aggParallelCompLevelDataMap[currentState].second += sce_itr.second.second;
+      m_aggParallelCompLevelDataMap[currentState].cpu_time += sce_itr.second.cpu_time;
+      m_aggParallelCompLevelDataMap[currentState].wall_time += sce_itr.second.wall_time;
     }
     else{
 
-      m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;
-
-      //m_aggParallelCompLevelDataMap[currentState].first = sce_itr.second.first;
-      //      m_aggParallelCompLevelDataMap[currentState].second = sce_itr.second.second;      
-
+      m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;      
     }
       
   } 
 
 }
+
+
+PMonMT::StepComp PerfMonMTSvc::generate_serial_state( const std::string& stepName,
+                                        const std::string& compName){
+
+  PMonMT::StepComp currentState;
+  currentState.stepName = stepName;
+  currentState.compName = compName;
+  return currentState;
+}
+
+PMonMT::StepCompEvent PerfMonMTSvc::generate_parallel_state( const std::string& stepName,
+                                               const std::string& compName,
+                                                 const int& eventNumber){
+
+  PMonMT::StepCompEvent currentState;
+  currentState.stepName = stepName;
+  currentState.compName = compName;
+  currentState.eventNumber = eventNumber;
+  return currentState;
+}
+
 
 // Report the results
 void PerfMonMTSvc::report(){
@@ -304,56 +288,6 @@ void PerfMonMTSvc::report(){
 
 }
 
-/*
- * JSON Format:
- *
- * {
- *   "Snapshot_level" : {
- *     "Initialize" : {
- *       "cpu_time" : cpu_measurement
- *       "wall_time": wall_measurement
- *     },
- *     "Event_loop" : {...},
- *     "Finalize" : {... }
- *   },
- *   "Serial_Component_level" : {
- *     "Initialize" : {
- *        "comp1" : {
- *          "cpu_time" : cpu_measurement
- *          "wall_time": wall_measurement
- *        },
- *        "comp2": ...
- *     },
- *      "Start": {...},
- *      "Stop" : {...},
- *      "Finalize": {...}  
- *   }
-     "Parallel_Component_level" : {
-        "Execute" : {
- *        "comp1" : {
- *          "cpu_time" : cpu_measurement
- *          "wall_time": wall_measurement
- *        },
- *        "comp2": ...
- *       },
-         "Stop" : {...}
-     },
-     "Detailed_Parallel_Component_level" : {
-       "Event_number_1" : {
-         "Execute" : {
- *        "comp1" : {
- *          "cpu_time" : cpu_measurement
- *          "wall_time": wall_measurement
- *        },
- *        "comp2": ...
- *       },
-         "Stop" : {...}
-       }   
-     }
- * }
- *
- * Output Filename: PerfMonMTSvc_result.json
- */
 
 void PerfMonMTSvc::report2JsonFile(){
 
@@ -391,15 +325,15 @@ void PerfMonMTSvc::report2JsonFile(){
     std::string stepName = it.first.stepName;
     std::string compName = it.first.compName;
 
-    double wall_time = it.second.second;
-    double cpu_time = it.second.first;
+    double wall_time = it.second.wall_time;
+    double cpu_time = it.second.cpu_time;
 
     j["Parallel_Component_level"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
   }
   
   /*
-  for(auto& it : m_parallelCompLevelData.shared_measurement_delta_map){
+  for(auto& it : m_parallelCompLevelData.m_delta_map){
 
     std::string stepName = it.first.stepName;
     std::string compName = it.first.compName;
@@ -462,26 +396,19 @@ void PerfMonMTSvc::report2Stdout(){
   double cpu_sum = 0;
   double wall_sum = 0;
 
-  double thread_id_diff_sum = 0; //should be 0 ideally
  
 
-  for(auto& it : m_parallelCompLevelData.shared_measurement_delta_map){
+  for(auto& it : m_parallelCompLevelData.m_delta_map){
 
-    PMonMT::StepCompEvent currentState;
-    currentState.stepName = it.first.stepName;
-    currentState.compName = it.first.compName;
-    currentState.eventNumber = it.first.eventNumber;
+    PMonMT::StepCompEvent currentState = generate_parallel_state(it.first.stepName, it.first.compName, it.first.eventNumber);
 
-    double cpu = it.second.first;
-    double wall = it.second.second;
+    double cpu = it.second.cpu_time;
+    double wall = it.second.wall_time;
 
     cpu_sum += cpu;
     wall_sum += wall;
 
     ATH_MSG_INFO("     " <<  it.first.eventNumber << ":     " <<  it.first.stepName << ": " <<  cpu  << "  -  "  << wall  <<   "     "  <<  it.first.compName  );
-
-    //thread_id_diff_sum += it.second.thread_id_delta_map[currentState];
-
 
   }
 
@@ -495,13 +422,12 @@ void PerfMonMTSvc::report2Stdout(){
 
   for(auto& it : m_aggParallelCompLevelDataMap){
 
-    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second.first << "  -  "  << it.second.second <<   "     "  <<  it.first.compName  );
-
+    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second.cpu_time << "  -  "  << it.second.wall_time <<   "     "  <<  it.first.compName  );
+    
   }
    
 
   ATH_MSG_INFO("Event loop CPU Sum:  " << cpu_sum );
   ATH_MSG_INFO("Event loop Wall Sum:  " << wall_sum );
-  //ATH_MSG_INFO("Thread id Diff Sum:  " << thread_id_diff_sum  );
 }
 

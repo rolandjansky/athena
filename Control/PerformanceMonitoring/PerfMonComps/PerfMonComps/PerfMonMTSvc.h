@@ -76,6 +76,15 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void stopCompAud_MT ( const std::string& stepName,
                             const std::string& compName );
 
+
+    PMonMT::StepComp generate_serial_state( const std::string& stepName,
+                                                 const std::string& compName);
+
+    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
+                                                 const std::string& compName,
+                                                 const int& eventNumber);
+
+
     int getEventNumber();
    
     // Returns true if the execution is at the event loop, false o/w.
@@ -83,6 +92,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void parallelDataAggregator();
 
+    
     // Report the results
     void report();
 
@@ -112,7 +122,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::MeasurementData m_parallelCompLevelData;
 
     // get rid of pair
-    std::map< PMonMT::StepComp, std::pair<double, double> > m_aggParallelCompLevelDataMap;
+    //std::map< PMonMT::StepComp, std::pair<double, double> > m_aggParallelCompLevelDataMap;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
 
     std::mutex m_mutex;
 
