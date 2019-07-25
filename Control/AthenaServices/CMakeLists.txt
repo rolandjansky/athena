@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 792174 2017-01-14 00:07:51Z ssnyder $
 ################################################################################
 # Package: AthenaServices
 ################################################################################
@@ -125,6 +124,7 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
    share/AthenaJobOptionsSvc_jobOptions.py
+   share/AthenaSealSvc_joboptions.py
    share/test_tpcnvdb.py )
 
 # Need to make sure that python file installation happens before genconf
