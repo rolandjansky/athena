@@ -3,7 +3,6 @@
 */
 
 #include "EventLoopGrid/GridDriver.h"
-#include "EventLoopGrid/GridWorker.h"
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/MessageCheck.h"
@@ -25,6 +24,7 @@
 #include "TTree.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "TROOT.h"
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
