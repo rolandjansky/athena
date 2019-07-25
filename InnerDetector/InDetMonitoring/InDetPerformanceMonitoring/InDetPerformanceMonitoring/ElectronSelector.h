@@ -34,12 +34,15 @@ class ElectronSelector : public EventAnalysis
   void setDebug (bool debug) {m_doDebug = debug;}
  
   // Override functions from EventAnalysis
-  inline unsigned int GetElectronCollectionSize() {return m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size();}
-  void                Init();
-  void                OrderElectronList ();
-  void                PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
-  bool                RecordElectron (const xAOD::Electron *);
-  // virtual bool Reco();
+  inline const xAOD::TrackParticle* GetElecNegTrackParticle (int i) {if (i<0 || i >= (int) m_goodElecNegTrackParticleList.size()) {return nullptr;} return m_goodElecNegTrackParticleList.at(i);}
+  inline const xAOD::TrackParticle* GetElecPosTrackParticle (int i) {if (i<0 || i >= (int) m_goodElecPosTrackParticleList.size()) {return nullptr;} return m_goodElecPosTrackParticleList.at(i);}
+
+  inline unsigned int               GetElectronCollectionSize() {return m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size();}
+  void                              Init();
+  void                              OrderElectronList ();
+  void                              PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
+  bool                              RecordElectron (const xAOD::Electron *);
+  inline void                       SetPtCut (float newpt) {m_ptCut = newpt;}
 
  protected:
   // virtual void BookHistograms();

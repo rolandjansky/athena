@@ -110,10 +110,13 @@ class FourMuonEvent : public EventAnalysis
   typedef EventAnalysis PARENT;
 
   // Private methods
-  void  Clear();
-  bool  EventSelection (ZTYPE eType);
-  bool  ReconstructKinematics();
-  void  RecordMuon( const xAOD::Muon* pxMuon );
+  void     Clear();
+  bool     EventSelection (ZTYPE eType);
+  bool     EventSelectionNew (ZTYPE eType);
+  bool     ReconstructKinematicsNew();
+  bool     ReconstructKinematics();
+  bool     ReconstructKinematics4Elec();
+  void     RecordMuon( const xAOD::Muon* pxMuon );
 
   // Active mu-cuts for the analysis
   MuonSelector            m_xMuonID;
@@ -150,7 +153,9 @@ class FourMuonEvent : public EventAnalysis
   const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
   const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
   const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
-  //  const            xAOD::TrackParticle*  m_pxElTrack[NUM_MUONS];  // pointer to Track particle of the electrons
+
+  const            xAOD::TrackParticle*  m_pxELTrack[NUM_MUONS];  // pointer to Track particle of the electrons
+  const            xAOD::TrackParticle*  m_pxMUTrack[NUM_MUONS];  // pointer to Track particle of the muons
 
   // Keep kinematic information on the Z
   float m_fZPt[NUM_TYPES];

@@ -58,13 +58,13 @@ ElectronSelector::~ElectronSelector()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::Init()
 {
-  if (m_doDebug) std::cout << " --ElectronSelector::Init -- START -- " << std::endl;
+  (*m_msgStream) << MSG::INFO << " -- ElectronSelector::Init -- START -- " << endreq;
   ISvcLocator* serviceLocator = Gaudi::svcLocator();
   IToolSvc* toolSvc;
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
   
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "  * ElectronSelector::Init * Unable to retrieve ToolSvc " << std::endl;
+    (*m_msgStream) << MSG::ERROR << "  * ElectronSelector::Init * Unable to retrieve ToolSvc " << endreq;
     return;
   }
   
@@ -72,19 +72,19 @@ void ElectronSelector::Init()
 
   //---Electron Likelihood tool---
   // m_doIDCuts = true;
-  (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << std::endl;
+  (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << endreq;
   m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
   //  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
   //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
   if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure())
-    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << std::endl;
+    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << endreq;
 
   StatusCode lhm = m_LHTool2015->initialize();
   if(lhm.isFailure())
-    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << std::endl;
+    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << endreq;
 
-  if (m_doDebug) std::cout << " --ElectronSelector::Init -- COMPLETED -- "<< std::endl;
+  (*m_msgStream) << MSG::INFO << " --ElectronSelector::Init -- COMPLETED -- " << endreq;
   return;
 }
 
@@ -111,7 +111,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   }
   OrderElectronList();
 
-  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << std::endl;
+  (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << endreq;
   if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
 			   << goodelectroncount << " / " << allelectroncount 
 			   << std::endl;
@@ -129,19 +129,19 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   
   if (!theTrackParticle) {
     electronisgood = false;
-    if (m_doDebug) std::cout << "   -- electron fails trackparticle  -- " << std::endl;
+    (*m_msgStream) << MSG::DEBUG << " -- electron fails trackparticle  -- " << endreq;
   }
 
   if (electronisgood && thisElec->author(xAOD::EgammaParameters::AuthorElectron) != 1) {
     electronisgood = false;
-    if (m_doDebug) std::cout << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << std::endl;
   }
 
   if (electronisgood && theTrackParticle->pt() * CGeV < m_ptCut ) { // pt cut given in GeV
     electronisgood = false;
-    if (m_doDebug) std::cout << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt() 
-			     << " < " << m_ptCut << " (cut value) " 
-			     << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt()
+		   << " < " << m_ptCut << " (cut value) "
+		   << std::endl;
   }
 
   if (electronisgood) {
@@ -167,6 +167,7 @@ void ElectronSelector::Clear()
 
   return;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
 void ElectronSelector::OrderElectronList()
 {
@@ -227,6 +228,14 @@ void ElectronSelector::OrderElectronList()
       if (m_elecpos2 >= 0) std::cout << "                                second  e+: " << m_elecpos2 << "   Pt = " << ptPlus2 << std::endl;
     }
 
+    if (elecposcount == 0 || elecnegcount == 0) {
+      // We need at least one e- and one e+
+      if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- No opposite charge electrons --> DISCARD ALL ELECTRONS -- " << std::endl;
+      elecposcount = 0;
+      elecnegcount = 0;
+      this->Clear();
+    }
+
     if (elecposcount + elecnegcount >= 2){ // fill the final list of electrons
       if (m_elecneg1 >= 0) m_goodElecNegTrackParticleList.push_back(m_pxElTrackList.at(m_elecneg1));
       if (m_elecneg2 >= 0) m_goodElecNegTrackParticleList.push_back(m_pxElTrackList.at(m_elecneg2));
@@ -238,3 +247,6 @@ void ElectronSelector::OrderElectronList()
   if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- " << std::endl;
   return;
 }
+
+
+

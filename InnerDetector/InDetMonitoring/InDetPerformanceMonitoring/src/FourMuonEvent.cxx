@@ -156,7 +156,7 @@ bool FourMuonEvent::Reco()
       
       m_passedFourMuonSelection = this->ReconstructKinematics(); // try the event kinematics 
       
-      if (m_passedFourMuonSelection) {   
+      if (m_passedFourMuonSelection) {
 	m_passedFourMuonSelection = EventSelection(ID);
 	m_FourMuonInvMass = m_fInvariantMass[ID];
       }
@@ -179,14 +179,30 @@ bool FourMuonEvent::Reco()
 		<< " muons & " << m_numberOfFullPassElectrons << " electrons"
 		<< std::endl;
       
+      std::cout << " * FourMuonEvent::Reco * try KinematicsNEW reconstruction" << std::endl; 
+      this->ReconstructKinematicsNew();
       // in case of 4 muons -> check if the 4 muon kinematics is good 
-      if (m_numberOfFullPassMuons == 4) m_passedFourLeptonSelection = this->ReconstructKinematics();
+      if (m_numberOfFullPassMuons == 4) {
+	m_passedFourLeptonSelection = this->ReconstructKinematics();
+	if (m_passedFourLeptonSelection) {
+	  m_passedFourLeptonSelection = EventSelection(ID);
+	  m_FourMuonInvMass = m_fInvariantMass[ID];
+	}
+      }
       if (m_passedFourLeptonSelection ) { 
 	// Good 4muon-kinematics --> take the event
-	std::cout << "                     * This event satisfies the 4 muon kinematics -> accept it :)" << std::endl; 
+	std::cout << "                       * This event satisfies the 4 muon kinematics -> TO BE ACCEPTED (not active yet)" << std::endl; 
       }
       else {
-	std::cout << "                     * This event does not satisfy the 4 muon kinematics -> try other options" << std::endl; 
+	std::cout << "                       * This event does not satisfy the 4 muon kinematics -> try other options" << std::endl; 
+	if (m_numberOfFullPassElectrons == 4) {
+	  std::cout << "                       * This event has 4 electrons -> try ReconstructKinematics4Elec()" << std::endl; 
+	  m_passedFourLeptonSelection = this->ReconstructKinematics4Elec();
+	  if (m_passedFourLeptonSelection) {
+	    // m_passedFourLeptonSelection = EventSelection(ID);
+	    m_FourMuonInvMass = m_fInvariantMass[ID];
+	  }
+	}
       }
     }
     else {
@@ -230,66 +246,126 @@ void FourMuonEvent::BookHistograms()
 //==================================================================================
 // Private Methods
 //==================================================================================
+bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
+{
+  bool eventisgood = true;
+  if(m_doDebug){  std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") ** started ** " << std::endl 
+			    << "                                            event count: " << m_eventCount  << std::endl
+			    << "                                m_NumberOfFullPassMuons: " << m_numberOfFullPassMuons << std::endl
+			    << "                            m_NumberOfFullPassElectrons: " << m_numberOfFullPassElectrons 
+			    << std::endl;
+  }
+
+  m_workAsFourMuons = true;
+  m_workAsFourElectrons = false;
+  m_workAsFourLeptons = false;
+
+  // Depending on mode: require a minimum of electrons or muons
+  if ( eventisgood && m_workAsFourMuons) {
+    if (m_numberOfFullPassMuons < 4) {
+      eventisgood = false;
+      if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good muons == 4 :( " 
+			       <<"  m_numberOfFullPassMuons= " <<  m_numberOfFullPassMuons << std::endl;
+      }
+    } 
+  }
+  
+  if ( eventisgood && m_workAsFourElectrons) {
+    if (m_numberOfFullPassElectrons < 4) {
+      eventisgood = false;
+      if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good electrons == 4 :( " 
+			       <<"  m_numberOfFullPassElectrons= " <<  m_numberOfFullPassElectrons << std::endl;
+      }
+    } 
+  }
+  
+  if ( eventisgood && m_workAsFourLeptons) {
+    bool thisselection = false;
+    if (m_numberOfFullPassMuons     == 4) thisselection = true;
+    if (m_numberOfFullPassElectrons == 4) thisselection = true;
+    if (m_numberOfFullPassMuons >= 2 && m_numberOfFullPassElectrons >= 2) thisselection = true;
+    if (!thisselection) {
+      if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good muons >= 2 && electrons >= 2 :( " 
+			       <<"  m_numberOfFullPassMuons= " <<  m_numberOfFullPassMuons
+			       <<"  m_numberOfFullPassElectrons= " <<  m_numberOfFullPassElectrons << std::endl;
+      }
+    }
+    eventisgood = thisselection;
+  } 
+
+  return eventisgood;
+}
+//==================================================================================
 bool FourMuonEvent::EventSelection(ZTYPE eType)
 {
   if(m_doDebug){  std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") ** started ** " << std::endl 
-			    << "                                            event count: " << m_eventCount
-			    << "                                m_NumberOfFullPassMuons: " << m_numberOfFullPassMuons 
+			    << "                                            event count: " << m_eventCount  << std::endl
+			    << "                                m_NumberOfFullPassMuons: " << m_numberOfFullPassMuons << std::endl
+			    << "                            m_NumberOfFullPassElectrons: " << m_numberOfFullPassElectrons 
 			    << std::endl;
   }
 
   // First require two muon-id's with cuts pre-applied.
-  if ( m_numberOfFullPassMuons < 4 ) {
-    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good muons == 4 :( " <<  m_numberOfFullPassMuons << std::endl;}
+  if ( (m_numberOfFullPassMuons + m_numberOfFullPassElectrons) < 4 ) {
+    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good muons and electrons == 4 :( " 
+			     << m_numberOfFullPassMuons + m_numberOfFullPassElectrons 
+			     << " = " << m_numberOfFullPassMuons << " + " << m_numberOfFullPassElectrons << std::endl;}
     return false;
   }
   
   if ( m_numberOfFullPassMuons > 4 ) {
-    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing number of good muons == 4 :( " <<  m_numberOfFullPassMuons << std::endl;}
+    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Too many muons !! Failing number of good muons == 4 :( " 
+			     <<  m_numberOfFullPassMuons << std::endl;}
+    return false;
+  }
+
+  if ( m_numberOfFullPassElectrons > 4 ) {
+    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Too many electrons !! Failing number of good electrons == 4 :( " 
+			     <<  m_numberOfFullPassElectrons << std::endl;}
     return false;
   }
   
   // momentum of the muons
-  double leadingMuonPt, secondMuonPt, thirdMuonPt, fourthMuonPt;
+  double leadingMuonPt = -1., secondMuonPt=-1., thirdMuonPt=-1, fourthMuonPt=-1.; // negative pt, means not computed yet
   switch ( eType ) {
   case MS :
     {
-      leadingMuonPt = m_pxMSTrack[m_muonpos1]->pt();
-      secondMuonPt =  m_pxMSTrack[m_muonpos2]->pt();
-      thirdMuonPt =   m_pxMSTrack[m_muonneg1]->pt();
-      fourthMuonPt =  m_pxMSTrack[m_muonneg2]->pt();
+      if (m_muonpos1 >= 0) leadingMuonPt = m_pxMSTrack[m_muonpos1]->pt();
+      if (m_muonpos2 >= 0) secondMuonPt =  m_pxMSTrack[m_muonpos2]->pt();
+      if (m_muonneg1 >= 0) thirdMuonPt =   m_pxMSTrack[m_muonneg1]->pt();
+      if (m_muonneg2 >= 0) fourthMuonPt =  m_pxMSTrack[m_muonneg2]->pt();
       break;
     }
   case ME:
     {
-      leadingMuonPt = m_pxMETrack[m_muonpos1]->pt();
-      secondMuonPt =  m_pxMETrack[m_muonpos2]->pt();
-      thirdMuonPt =   m_pxMETrack[m_muonneg1]->pt();
-      fourthMuonPt =  m_pxMETrack[m_muonneg2]->pt();
+      if (m_muonpos1 >= 0) leadingMuonPt = m_pxMETrack[m_muonpos1]->pt();
+      if (m_muonpos2 >= 0) secondMuonPt =  m_pxMETrack[m_muonpos2]->pt();
+      if (m_muonneg1 >= 0) thirdMuonPt =   m_pxMETrack[m_muonneg1]->pt();
+      if (m_muonneg2 >= 0) fourthMuonPt =  m_pxMETrack[m_muonneg2]->pt();
       break;
     }
   case CB:
     {
-      leadingMuonPt = m_pxRecMuon[m_muonpos1]->pt();
-      secondMuonPt =  m_pxRecMuon[m_muonpos2]->pt();
-      thirdMuonPt =   m_pxRecMuon[m_muonneg1]->pt();
-      fourthMuonPt =  m_pxRecMuon[m_muonneg2]->pt();
+      if (m_muonpos1 >= 0) leadingMuonPt = m_pxRecMuon[m_muonpos1]->pt();
+      if (m_muonpos2 >= 0) secondMuonPt =  m_pxRecMuon[m_muonpos2]->pt();
+      if (m_muonneg1 >= 0) thirdMuonPt =   m_pxRecMuon[m_muonneg1]->pt();
+      if (m_muonneg2 >= 0) fourthMuonPt =  m_pxRecMuon[m_muonneg2]->pt();
       break;
     }
   case ID:
     {
-      leadingMuonPt = m_pxIDTrack[m_muonpos1]->pt();
-      secondMuonPt =  m_pxIDTrack[m_muonpos2]->pt();
-      thirdMuonPt =   m_pxIDTrack[m_muonneg1]->pt();
-      fourthMuonPt =  m_pxIDTrack[m_muonneg2]->pt();
+      if (m_muonpos1 >= 0) leadingMuonPt = m_pxIDTrack[m_muonpos1]->pt();
+      if (m_muonpos2 >= 0) secondMuonPt =  m_pxIDTrack[m_muonpos2]->pt();
+      if (m_muonneg1 >= 0) thirdMuonPt =   m_pxIDTrack[m_muonneg1]->pt();
+      if (m_muonneg2 >= 0) fourthMuonPt =  m_pxIDTrack[m_muonneg2]->pt();
       break;
     }
     
   default:
-    leadingMuonPt = m_pxRecMuon[m_muonpos1]->pt();
-    secondMuonPt =  m_pxRecMuon[m_muonpos2]->pt();
-    thirdMuonPt =   m_pxRecMuon[m_muonneg1]->pt();
-    fourthMuonPt =  m_pxRecMuon[m_muonneg2]->pt();
+    if (m_muonpos1 >= 0) leadingMuonPt = m_pxRecMuon[m_muonpos1]->pt();
+    if (m_muonpos2 >= 0) secondMuonPt =  m_pxRecMuon[m_muonpos2]->pt();
+    if (m_muonneg1 >= 0) thirdMuonPt =   m_pxRecMuon[m_muonneg1]->pt();
+    if (m_muonneg2 >= 0) fourthMuonPt =  m_pxRecMuon[m_muonneg2]->pt();
   } // end switch
 
   // up to here the leading and second pt are not really in the right order.
@@ -300,11 +376,11 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
   if (fourthMuonPt > theLeadingPt) { theLeadingPt = fourthMuonPt;}
 
   double theTrailingPt = leadingMuonPt;
-  if (secondMuonPt < theTrailingPt) { theTrailingPt = secondMuonPt;}
-  if (thirdMuonPt  < theTrailingPt) {theTrailingPt = thirdMuonPt;}
-  if (fourthMuonPt < theTrailingPt) { theTrailingPt = fourthMuonPt;}
+  if (secondMuonPt < theTrailingPt && secondMuonPt > 0) { theTrailingPt = secondMuonPt;}
+  if (thirdMuonPt  < theTrailingPt && thirdMuonPt > 0)  { theTrailingPt = thirdMuonPt;}
+  if (fourthMuonPt < theTrailingPt && fourthMuonPt > 0) { theTrailingPt = fourthMuonPt;}
   
-  if (m_doDebug) {
+  if (m_doDebug || true) {
     std::cout << " * FourMuonEvent::EventSelection * muon pt selection -- cuts: Leading: " << m_LeadingMuonPtCut*CLHEP::GeV << std::endl
 	      << "                                                                  2nd: " << m_SecondMuonPtCut*CLHEP::GeV << std::endl;
     std::cout << "                                          Pt of muons in this event 1: " << leadingMuonPt << std::endl
@@ -562,6 +638,7 @@ void FourMuonEvent::Clear()
       m_pxMSTrack[u] = nullptr;
       m_pxMETrack[u] = nullptr;
       m_pxIDTrack[u] = nullptr;
+      m_pxMUTrack[u] = nullptr;
   }
   for ( unsigned int v = 0; v < NUM_TYPES; ++v ) {
     m_fZPt[v]            = -999.9f;
@@ -640,14 +717,20 @@ bool FourMuonEvent::ReconstructKinematics()
       if (m_pxIDTrack[m_muonpos1] == nullptr) goodtracks = false;
       if (m_pxIDTrack[m_muonpos2] == nullptr) goodtracks = false;
       
+      if (m_pxIDTrack[m_muonneg1] != nullptr) m_pxMUTrack[0] = m_pxIDTrack[m_muonneg1]; 
+      if (m_pxIDTrack[m_muonneg2] != nullptr) m_pxMUTrack[1] = m_pxIDTrack[m_muonneg2]; 
+      if (m_pxIDTrack[m_muonpos1] != nullptr) m_pxMUTrack[2] = m_pxIDTrack[m_muonpos1]; 
+      if (m_pxIDTrack[m_muonpos2] != nullptr) m_pxMUTrack[3] = m_pxIDTrack[m_muonpos2]; 
+
       if (goodtracks) { // Everything is ready
+	/* TO BE DELETED -- START--
 	// For the time being analysis is performed only with ID tracks
 	m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonpos2], m_pxIDTrack[m_muonneg1], m_pxIDTrack[m_muonneg2] );
 	m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
 	m_fZPt[ID]                = EvalPt(          m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
 	m_fZEtaDir[ID]            = EvalEta(         m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
 	m_fZPhiDir[ID]            = EvalPhi(         m_pxIDTrack[m_muonpos1], m_pxIDTrack[m_muonneg1] );
-	kinematicscomputed = true;
+
 
 	if(m_doDebug){ 
 	  std::cout << " * FourMuonEvent * ReconstructKinematics * -- ID Tracks -- " << std::endl
@@ -658,6 +741,26 @@ bool FourMuonEvent::ReconstructKinematics()
 		    << "                                           invariant mass (ID) = " << m_fInvariantMass[ID] << std::endl
 		    << std::endl; 
 	}
+	 TO BE DELETED -- END -- */
+	
+	m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxMUTrack[0], m_pxMUTrack[1], m_pxMUTrack[2], m_pxMUTrack[3] );
+	m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+	m_fZPt[ID]                = EvalPt(          m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+	m_fZEtaDir[ID]            = EvalEta(         m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+	m_fZPhiDir[ID]            = EvalPhi(         m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+	
+	kinematicscomputed = true;
+	
+	if(m_doDebug){ 
+	  std::cout << " * FourMuonEvent * ReconstructKinematics4Elec * -- Muon ID Tracks -- new -- " << std::endl
+		    << "                                           Pt(mu1-)= " << m_pxMUTrack[0]->pt() << std::endl
+		    << "                                           Pt(mu2-)= " << m_pxMUTrack[1]->pt() << std::endl
+		    << "                                           Pt(mu1+)= " << m_pxMUTrack[2]->pt() << std::endl
+		    << "                                           Pt(mu2+)= " << m_pxMUTrack[3]->pt() << std::endl
+		    << "                                           invariant mass (4mu) = " << m_fInvariantMass[ID] << std::endl
+		    << std::endl; 
+	}
+	
       } // good tracks  
     } // goodidentifiers
   } // goodmuons == 4
@@ -667,6 +770,176 @@ bool FourMuonEvent::ReconstructKinematics()
   }
 
   if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics * -- completed -- status: " << kinematicscomputed << std::endl; }
+  return kinematicscomputed;
+}
+
+//==================================================================================
+bool FourMuonEvent::ReconstructKinematics4Elec()
+{
+  if(m_doDebug){ std::cout << " * FourMuonEvent * ReconstructKinematics4Elec * -- start -- " << std::endl; }
+  bool kinematicscomputed = false;
+
+  // Three ways. No checks here. Thus make sure the pointers are ok before this.
+  if ( m_numberOfFullPassElectrons == 4 ) {
+    // before computing the kinematic parameters check track particles are ok
+    bool goodtracks = true;
+    m_pxELTrack[0] = m_xElecID.GetElecNegTrackParticle(0); 
+    m_pxELTrack[1] = m_xElecID.GetElecNegTrackParticle(1); 
+    m_pxELTrack[2] = m_xElecID.GetElecPosTrackParticle(0); 
+    m_pxELTrack[3] = m_xElecID.GetElecPosTrackParticle(1); 
+    if (m_pxELTrack[0] == nullptr) goodtracks = false;
+    if (m_pxELTrack[1] == nullptr) goodtracks = false;
+    if (m_pxELTrack[2] == nullptr) goodtracks = false;
+    if (m_pxELTrack[3] == nullptr) goodtracks = false;
+      
+    if (goodtracks) { // Everything is ready
+      // For the time being analysis is performed only with ID tracks
+      m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxELTrack[0], m_pxELTrack[1], m_pxELTrack[2], m_pxELTrack[3]);
+      m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZPt[ID]                = EvalPt(          m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZEtaDir[ID]            = EvalEta(         m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZPhiDir[ID]            = EvalPhi(         m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      kinematicscomputed = true;
+      
+      if(m_doDebug){ 
+	std::cout << " * FourMuonEvent * ReconstructKinematics4Elec * -- Electron Tracks -- " << std::endl
+		  << "                                           Pt(e1-)= " << m_pxELTrack[0]->pt() << std::endl
+		  << "                                           Pt(e2-)= " << m_pxELTrack[1]->pt() << std::endl
+		  << "                                           Pt(e1+)= " << m_pxELTrack[2]->pt() << std::endl
+		  << "                                           Pt(e2+)= " << m_pxELTrack[3]->pt() << std::endl
+		  << "                                           invariant mass (4e) = " << m_fInvariantMass[ID] << std::endl
+		  << std::endl; 
+      }
+    } // good tracks  
+  } // goodidentifiers
+
+  if (!kinematicscomputed) {
+    if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics4Elec * -- FAILED -- " << std::endl; }
+  }
+  
+  if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematics4Elec * -- completed -- status: " << kinematicscomputed << std::endl; }
+  return kinematicscomputed;
+}
+
+//==================================================================================
+bool FourMuonEvent::ReconstructKinematicsNew()
+{
+  if(m_doDebug){ std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- START -- " << std::endl; }
+  bool kinematicscomputed = false;
+
+  // first step get the list of TrackParticles for muons and electrons
+  // -- muons (a bit more complex than for electrons)
+  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- copy muons -- " << std::endl; 
+  if (m_muonneg1 >= 0) m_pxMUTrack[0] = m_pxIDTrack[m_muonneg1];  
+  if (m_muonneg2 >= 0) m_pxMUTrack[1] = m_pxIDTrack[m_muonneg2];  
+  if (m_muonpos1 >= 0) m_pxMUTrack[2] = m_pxIDTrack[m_muonpos1];  
+  if (m_muonpos2 >= 0) m_pxMUTrack[3] = m_pxIDTrack[m_muonpos2];  
+  
+  // -- electrons
+  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- copy electrons -- " << std::endl; 
+  m_pxELTrack[0] = m_xElecID.GetElecNegTrackParticle(0); 
+  m_pxELTrack[1] = m_xElecID.GetElecNegTrackParticle(1); 
+  m_pxELTrack[2] = m_xElecID.GetElecPosTrackParticle(0); 
+  m_pxELTrack[3] = m_xElecID.GetElecPosTrackParticle(1); 
+  
+  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassMuons =  " << m_numberOfFullPassMuons << std::endl;
+  if ( m_numberOfFullPassMuons == 4 ) {
+    bool goodtracks = true;
+    if (m_pxMUTrack[0] == nullptr) goodtracks = false;
+    if (m_pxMUTrack[1] == nullptr) goodtracks = false;
+    if (m_pxMUTrack[2] == nullptr) goodtracks = false;
+    if (m_pxMUTrack[3] == nullptr) goodtracks = false;
+    
+    if (goodtracks) { // Everything is ready
+      m_fInvariantMass[ID]      = EvalFourMuInvMass ( m_pxMUTrack[0], m_pxMUTrack[1], m_pxMUTrack[2], m_pxMUTrack[3] );
+      m_fMuonDispersion[ID]     = EvaluateAngle     ( m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+      m_fZPt[ID]                = EvalPt            ( m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+      m_fZEtaDir[ID]            = EvalEta           ( m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+      m_fZPhiDir[ID]            = EvalPhi           ( m_pxMUTrack[0], m_pxMUTrack[2]); // leading mu- and leading mu+ 
+      kinematicscomputed = true;
+    }      
+  }
+    
+  if(m_doDebug){ 
+    std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- Muon ID Tracks -- new -- " << std::endl;
+    if (m_pxMUTrack[0] != nullptr) std::cout << "                                           Pt(mu1-)= " << m_pxMUTrack[0]->pt() << std::endl;
+    if (m_pxMUTrack[1] != nullptr) std::cout << "                                           Pt(mu2-)= " << m_pxMUTrack[1]->pt() << std::endl;
+    if (m_pxMUTrack[2] != nullptr) std::cout << "                                           Pt(mu1+)= " << m_pxMUTrack[2]->pt() << std::endl;
+    if (m_pxMUTrack[3] != nullptr) std::cout << "                                           Pt(mu2+)= " << m_pxMUTrack[3]->pt() << std::endl;
+    if (kinematicscomputed)        std::cout << "                                           invariant mass (4mu) = " << m_fInvariantMass[ID] << std::endl;
+  }
+
+  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassElectrons =  " << m_numberOfFullPassElectrons << std::endl; 
+  double invmass_test = -1.; // default value
+  if ( m_numberOfFullPassElectrons == 4) { 
+    // before computing the kinematic parameters check track particles are ok
+    bool goodtracks = true;
+    if (m_pxELTrack[0] == nullptr) goodtracks = false;
+    if (m_pxELTrack[1] == nullptr) goodtracks = false;
+    if (m_pxELTrack[2] == nullptr) goodtracks = false;
+    if (m_pxELTrack[3] == nullptr) goodtracks = false;
+      
+    if (goodtracks && !kinematicscomputed) { // Everything is ready
+      // For the time being analysis is performed only with ID tracks
+      m_fInvariantMass[ID]      = EvalFourMuInvMass( m_pxELTrack[0], m_pxELTrack[1], m_pxELTrack[2], m_pxELTrack[3]);
+      invmass_test              = m_fInvariantMass[ID];
+      m_fMuonDispersion[ID]     = EvaluateAngle(   m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZPt[ID]                = EvalPt(          m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZEtaDir[ID]            = EvalEta(         m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      m_fZPhiDir[ID]            = EvalPhi(         m_pxELTrack[0], m_pxELTrack[2]); // leading e- and leading e+ 
+      kinematicscomputed = true;
+    } // good tracks  
+  }
+  if(m_doDebug){ 
+    std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- Electron Tracks -- " << std::endl;
+    if (m_pxELTrack[0] != nullptr) std::cout << "                                           Pt(e1-)= " << m_pxELTrack[0]->pt() << std::endl;
+    if (m_pxELTrack[1] != nullptr) std::cout << "                                           Pt(e2-)= " << m_pxELTrack[1]->pt() << std::endl;
+    if (m_pxELTrack[2] != nullptr) std::cout << "                                           Pt(e1+)= " << m_pxELTrack[2]->pt() << std::endl;
+    if (m_pxELTrack[3] != nullptr) std::cout << "                                           Pt(e2+)= " << m_pxELTrack[3]->pt() << std::endl;
+    std::cout << "                                           invariant mass (4e) = " <<  invmass_test << std::endl; 
+  }
+
+  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassMuons     =  " << m_numberOfFullPassMuons << std::endl; 
+  std::cout << "                                                 numberOfFullPassElectrons =  " << m_numberOfFullPassElectrons << std::endl; 
+  if ( m_numberOfFullPassMuons >= 2 && m_numberOfFullPassElectrons >= 2 && !kinematicscomputed) {
+    // before computing the kinematic parameters check track particles are ok
+    bool goodtracks = true;
+    if (m_pxMUTrack[0] == nullptr) goodtracks = false; // leading mu-
+    if (m_pxMUTrack[2] == nullptr) goodtracks = false; // leading mu+
+    if (m_pxELTrack[0] == nullptr) goodtracks = false; // leading e-
+    if (m_pxELTrack[2] == nullptr) goodtracks = false; // leading e+
+      
+    if (goodtracks && !kinematicscomputed) { // Everything is ready
+      // For the time being analysis is performed only with ID tracks
+      m_fInvariantMass[ID]      = EvalFourMuInvMass ( m_pxMUTrack[0], m_pxMUTrack[2], m_pxELTrack[0], m_pxELTrack[2]);
+      invmass_test              = m_fInvariantMass[ID];
+      m_fMuonDispersion[ID]     = EvaluateAngle     ( m_pxMUTrack[0], m_pxELTrack[0]); // leading mu- and leading e- 
+      m_fZPt[ID]                = EvalPt            ( m_pxMUTrack[0], m_pxELTrack[0]); // leading mu- and leading e- 
+      m_fZEtaDir[ID]            = EvalEta           ( m_pxMUTrack[0], m_pxELTrack[0]); // leading mu- and leading e- 
+      m_fZPhiDir[ID]            = EvalPhi           ( m_pxMUTrack[0], m_pxELTrack[0]); // leading mu- and leading e- 
+      kinematicscomputed = true;
+      std::cout << "                                        invariant mass (2mu2e) = " <<  invmass_test << std::endl;     
+    } // good tracks  
+  }
+  if(m_doDebug){ 
+    std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- Muon and Electron Tracks -- " << std::endl;
+    if (m_pxMUTrack[0] != nullptr) std::cout << "                                           Pt(mu1-)= " << m_pxMUTrack[0]->pt() << std::endl;
+    if (m_pxMUTrack[1] != nullptr) std::cout << "                                           Pt(mu2-)= " << m_pxMUTrack[1]->pt() << std::endl;
+    if (m_pxMUTrack[2] != nullptr) std::cout << "                                           Pt(mu1+)= " << m_pxMUTrack[2]->pt() << std::endl;
+    if (m_pxMUTrack[3] != nullptr) std::cout << "                                           Pt(mu2+)= " << m_pxMUTrack[3]->pt() << std::endl;
+    if (m_pxELTrack[0] != nullptr) std::cout << "                                           Pt(e1-)= " << m_pxELTrack[0]->pt() << std::endl;
+    if (m_pxELTrack[1] != nullptr) std::cout << "                                           Pt(e2-)= " << m_pxELTrack[1]->pt() << std::endl;
+    if (m_pxELTrack[2] != nullptr) std::cout << "                                           Pt(e1+)= " << m_pxELTrack[2]->pt() << std::endl;
+    if (m_pxELTrack[3] != nullptr) std::cout << "                                           Pt(e2+)= " << m_pxELTrack[3]->pt() << std::endl;
+    std::cout << "                                           invariant mass used = " <<  m_fInvariantMass[ID]  << std::endl; 
+    std::cout << "                                           invariant mass test = " <<  invmass_test << std::endl; 
+  }
+  
+  if (!kinematicscomputed) {
+    if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematicsNew * -- FAILED -- " << std::endl; }
+  }
+  
+  if(m_doDebug){  std::cout <<" * FourMuonEvent * ReconstructKinematicsNew * -- completed -- status: " << kinematicscomputed << std::endl; }
   return kinematicscomputed;
 }
 
@@ -795,7 +1068,7 @@ void FourMuonEvent::SetLeadingMuonPtCut (double newvalue)
 {
   // first set the new pt cut value
   m_LeadingMuonPtCut = newvalue;
-  
+
   // the second muon pt cut can not be higher than the leading muon pt cut:
   if (m_LeadingMuonPtCut < m_SecondMuonPtCut) this->SetSecondMuonPtCut(m_LeadingMuonPtCut);
 
@@ -814,6 +1087,9 @@ void FourMuonEvent::SetLeadingMuonPtCut (double newvalue)
 void FourMuonEvent::SetSecondMuonPtCut (double newvalue) 
 {
   m_SecondMuonPtCut = newvalue;
+
+  // use same for electrons  
+  m_xElecID.SetPtCut(m_SecondMuonPtCut);
 
   // second muon pt shouldn't be higher than the leading muon pt
   if (m_LeadingMuonPtCut < m_SecondMuonPtCut) this->SetLeadingMuonPtCut(m_LeadingMuonPtCut);
@@ -894,6 +1170,18 @@ void FourMuonEvent::OrderMuonList()
       } // muon exist
     } // for (int imuon)
   } // if (nMuonsAtEntry >= 2)
+
+  // require at least one opposite charge muon pair
+  if (muposcount == 0 || munegcount == 0) {
+    if (m_doDebug) std::cout << " -- FourMuonEvent::OrderMuonList -- No opposite charge muons --> DISCARD ALL MUONS -- " << std::endl;
+    muPlus1Id = -1;		   
+    muPlus1Id = -9;
+    muPlus2Id = -9;
+    muMinus1Id = -9;
+    muMinus2Id = -9;
+                   std::cout << " -- FourMuonEvent::OrderMuonList -- No opposite charge muons --> DISCARD ALL MUONS -- " << std::endl;
+  }
+
 
   if (muPlus1Id>=0) {m_muonpos1 = muPlus1Id; m_numberOfFullPassMuons++;}
   if (muPlus2Id>=0) {m_muonpos2 = muPlus2Id; m_numberOfFullPassMuons++;}
