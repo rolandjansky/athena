@@ -33,7 +33,8 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
     raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % source )
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-  if athenaCommonFlags.isOnline: kwargs["ReadKey"] = ""
+  if athenaCommonFlags.isOnline: 
+      kwargs["ReadKey"] = ""
   return Muon__RpcRdoToPrepDataTool(name,**kwargs)
 
 

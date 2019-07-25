@@ -155,7 +155,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-  if athenaCommonFlags.isOnline: RpcRdoToRpcPrepDataTool.ReadKey = ""
+  if athenaCommonFlags.isOnline: 
+      RpcRdoToRpcPrepDataTool.ReadKey = ""
 
   ToolSvc += RpcRdoToRpcPrepDataTool
 
@@ -312,7 +313,8 @@ def muFastRecoSequence( RoIs ):
                                                        OutputCollection        = MuonRpcRawDataProviderTool.RdoLocation,
                                                        TriggerOutputCollection = "RPC_Measurements_L2SA",
                                                        InputCollection         = "RPC_triggerHits_L2SA")
-  if athenaCommonFlags.isOnline: RpcRdoToRpcPrepDataTool.ReadKey = ""
+  if athenaCommonFlags.isOnline: 
+      RpcRdoToRpcPrepDataTool.ReadKey = ""
   ToolSvc += RpcRdoToRpcPrepDataTool
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
