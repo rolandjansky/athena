@@ -5,7 +5,6 @@
 #include <EventLoopGrid/GridWorker.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoopGrid/PrunDriver.h>
-#include <EventLoopGrid/PandaRootTools.h>
 
 #ifdef __CINT__
 
@@ -19,7 +18,6 @@
 #pragma link C++ class EL::GridWorker+;
 #pragma link C++ class EL::GridDriver+;
 #pragma link C++ class EL::PrunDriver+;
-#pragma link C++ class PandaRootTools+;
 #pragma link C++ function EL::getRootCoreConfig ();
 
 #endif

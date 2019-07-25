@@ -40,7 +40,6 @@
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/JobConfig.h"
 #include "EventLoopGrid/GridWorker.h"
-#include "EventLoopGrid/PandaRootTools.h"
 #include "EventLoop/Driver.h"
 #include "EventLoop/OutputStream.h"
 
@@ -54,16 +53,32 @@ namespace EL
   }
 
   GridWorker::GridWorker (const SH::MetaObject *meta, 
-			  const std::string& location,
-			  PandaRootTools& pandaTools)
-    : m_meta(meta), m_location(location), m_pandaTools(pandaTools) {
+			  const std::string& location)
+    : m_meta(meta), m_location(location) {
+
+    std::ifstream infile("input.txt");
+    while (infile) {
+      std::string sLine;
+      if (!getline(infile, sLine)) break;
+      std::istringstream ssLine(sLine);
+      while (ssLine) {
+        std::string sFile;
+        if (!getline(ssLine, sFile, ',')) break;
+        m_fileList.push_back(TString(sFile));
+      }
+    } 
+  
+    if (m_fileList.size() == 0) {
+      //not fatal, maybe input was not expected
+    }
+
+    m_currentFile = 0;
 
     RCU_NEW_INVARIANT (this);
   }
 
 
   void GridWorker::run(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location) {
-    using namespace std;
     using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
 
@@ -88,43 +103,43 @@ namespace EL
     addModule (std::make_unique<Detail::GridReportingModule> ());
     ANA_CHECK_THROW (initialize());
 
-    for (TString fileUrl = m_pandaTools.getNextFile();
+    for (TString fileUrl = getNextFile();
 	 fileUrl != "";
-	 fileUrl = m_pandaTools.getNextFile()) {
+	 fileUrl = getNextFile()) {
 
       EventRange eventRange;
       eventRange.m_url = fileUrl;
 
       try {
         if (processEvents (eventRange).isFailure()) {
-          m_pandaTools.Fail(eventsProcessed());
+          Fail(eventsProcessed());
         }
 
       }
-      catch (exception& e) {
-        cout << "Caught exception while executing algorithm:\n"
-             << e.what() << "\n";
-        m_pandaTools.Fail(eventsProcessed());
+      catch (std::exception& e) {
+        std::cout << "Caught exception while executing algorithm:\n"
+                  << e.what() << "\n";
+        Fail(eventsProcessed());
       }
       catch (char const* e) {
-        cout << "Caught exception while executing algorithm:\n"
-             << e << "\n";
-        m_pandaTools.Fail(eventsProcessed());
+        std::cout << "Caught exception while executing algorithm:\n"
+                  << e << "\n";
+        Fail(eventsProcessed());
       }
       catch (...) {
-        cout << "Caught unknown exception while executing algorithm";
-        m_pandaTools.Fail(eventsProcessed());
+        std::cout << "Caught unknown exception while executing algorithm";
+        Fail(eventsProcessed());
       }
     }    
 
     ANA_CHECK_THROW (finalize ());
 
     int nEvents = eventsProcessed();
-    int nFiles = m_pandaTools.GetFilesRead();
-    cout << "\nLoop finished. ";
-    cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
+    int nFiles = GetFilesRead();
+    std::cout << "\nLoop finished. ";
+    std::cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
 
-    m_pandaTools.NotifyJobFinished(eventsProcessed());
+    NotifyJobFinished(eventsProcessed());
   }
 
 
@@ -143,7 +158,6 @@ namespace EL
     TList bigOutputs;
     std::unique_ptr<JobConfig> jobConfig;
     SH::MetaObject *mo = 0;
-    PandaRootTools pandaTools;
 
     try {
       std::unique_ptr<TFile> f (TFile::Open("jobdef.root"));
@@ -186,8 +200,7 @@ namespace EL
       const std::string location = ".";
 
       EL::GridWorker worker(mo, 
-                            location, 
-			    pandaTools);
+                            location);
       worker.setMetaData (mo);
       worker.setOutputHist (location);
       worker.setSegmentName ("output");
@@ -203,7 +216,79 @@ namespace EL
       Detail::report_exception ();
       ANA_MSG_ERROR ("Aborting job due to internal GridWorker error");
       ANA_MSG_ERROR ("The cause of this is probably a misconfigured job");
-      pandaTools.Abort();
+      gSystem->Exit(EC_ABORT);
     }
+  }
+
+  TString GridWorker::getNextFile() {
+
+    m_currentFile++;
+
+    if (m_fileList.size() == 0) {
+      //User was expecting input after all.
+      gSystem->Exit(EC_BADINPUT);
+    }
+
+    if (m_currentFile == m_fileList.size() + 1) {
+      return "";
+    }
+
+    if (m_currentFile > m_fileList.size() + 1) {
+      //Error: User persists reading beyond end of list 
+      // - maybe we are stuck in a loop?
+      //Abort program or this could go on forever...
+      std::cout << "OpenNextFile() called after end of list\n" << std::endl;
+      std::cout << "Aborting\n" << std::endl;
+      Abort();
+    }
+
+    return m_fileList.at(m_currentFile - 1);
+  }
+
+  void GridWorker::NotifyJobFinished(uint64_t eventsProcessed) {
+    if (m_fileList.size() > m_currentFile + 1) {
+      //Error: Did not read all files!
+      gSystem->Exit(EC_NOTFINISHED);
+    }    
+    createJobSummary(eventsProcessed);
+  }
+
+  int GridWorker::GetNumberOfInputFiles() {
+    return m_fileList.size();
+  }
+
+  int GridWorker::GetFilesRead() {
+    unsigned int nFiles = m_currentFile;
+    if (nFiles > m_fileList.size())
+      nFiles = m_fileList.size();
+    return nFiles;
+  }
+
+  void GridWorker::createJobSummary(uint64_t eventsProcessed) {
+    std::ofstream summaryfile("../AthSummary.txt");
+    if (summaryfile.is_open()) {
+      unsigned int nFiles = m_currentFile;
+      if (nFiles > m_fileList.size()) 
+        nFiles = m_fileList.size();
+      summaryfile << "Files read: " << nFiles << std::endl;
+      for (unsigned int i = 0; i < nFiles; i++) {
+        summaryfile << "  " << m_fileList.at(i) << std::endl;
+      }      
+      summaryfile << "Events Read:    " << eventsProcessed << std::endl;
+      summaryfile.close();
+    }
+    else {
+      //cout << "Failed to write summary file.\n";
+    } 
+  }
+
+  void GridWorker::Fail(uint64_t eventsProcessed) {
+    try {
+      std::cerr << "Error reported at event " << eventsProcessed
+                << " in file " << m_currentFile << " (" 
+                << m_fileList.at(m_currentFile) << ")\n"
+                << "ending job with status \"failed\"\n";
+    } catch (...) {}
+    gSystem->Exit(EC_FAIL);
   }
 }

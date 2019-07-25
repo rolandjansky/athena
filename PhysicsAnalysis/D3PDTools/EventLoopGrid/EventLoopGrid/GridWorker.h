@@ -12,7 +12,16 @@
 #include "SampleHandler/MetaObject.h"
 #include "EventLoop/Worker.h"
 #include "EventLoop/Global.h"
-#include "EventLoopGrid/PandaRootTools.h"
+
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+#include <TROOT.h>
+#include <TSystem.h>
+#include <TString.h>
 
 namespace EL
 {
@@ -24,8 +33,7 @@ namespace EL
     void testInvariant() const;
 
     GridWorker(const SH::MetaObject *sample, 
-	       const std::string& location,
-	       PandaRootTools& pandaTools);
+	       const std::string& location);
 
     void run(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location);
 
@@ -38,7 +46,29 @@ namespace EL
 
     const std::string m_location;
 
-    PandaRootTools m_pandaTools;
+    TString getNextFile();
+
+    int GetNumberOfInputFiles();
+    int GetFilesRead();
+
+    void NotifyJobFinished(uint64_t eventsProcessed);
+
+    void Fail(uint64_t eventsProcessed);
+    void Abort();
+
+  private:    
+
+    enum ErrorCodes {
+      EC_FAIL = 220,
+      EC_ABORT = 221,
+      EC_NOTFINISHED = 222,
+      EC_BADINPUT = 223
+    };
+
+    std::vector<TString> m_fileList; 
+    unsigned int m_currentFile;
+
+    void createJobSummary(uint64_t eventsProcessed);
 
     ClassDef(EL::GridWorker, 1);
   };
