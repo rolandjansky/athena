@@ -48,8 +48,8 @@ StatusCode SPCountHypoTool::decide(  SPCountsInfo& spinfo )  const {
 			return StatusCode::SUCCESS;
 		}
 		else{
-			addDecisionID( m_decisionId.numeric(), spinfo.decision );
-			ATH_MSG_DEBUG ("EVENT ACCOUNTED SUCCESSFULLY!!");
+		        addDecisionID( m_decisionId.numeric(), spinfo.decision );
+		        ATH_MSG_DEBUG ("REGTEST event accepted");
 		}
 		return StatusCode::SUCCESS;
 	}

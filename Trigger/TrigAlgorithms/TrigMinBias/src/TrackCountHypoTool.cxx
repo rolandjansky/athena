@@ -41,11 +41,14 @@ StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 		}
 	}
 	if (!found ) {
-		ATH_MSG_DEBUG ("Unable to catch pT thresholds");
-		return StatusCode::FAILURE;
+	  ATH_MSG_ERROR ("Unable to find tracks count for requested pT threshold " << m_min_pt << " need to fix hypo tool configuratio or add new threshold in tracks counting");
+	  for ( size_t i = 0; i < counts.size(); ++i ) {
+	    ATH_MSG_ERROR( "Count of tracks of pT above " << pTcuts[i]  << " is available");
+	  }
+	  return StatusCode::FAILURE;
 	}
 	else{
-		ATH_MSG_DEBUG ("caught"<<countForConfiguredPtThreshold <<"tracks for "<<m_min_pt<<"");
+		ATH_MSG_DEBUG ("REGTEST found "<<countForConfiguredPtThreshold <<" tracks for "<<m_min_pt);
 	}
 	std::vector<bool> decisionCuts({
 		(m_required_ntrks != -1 ? m_required_ntrks <= countForConfiguredPtThreshold  :  (bool)m_logicAnd),
@@ -59,7 +62,7 @@ StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 		return StatusCode::SUCCESS;
 	}else{
 		addDecisionID( m_decisionId.numeric(), trkinfo.decision );
-		ATH_MSG_DEBUG ("EVENT ACCOUNTED SUCCESSFULLY!!");
+		ATH_MSG_DEBUG ("REGTEST event accepted");
 	}
 	return StatusCode::SUCCESS;
 }
