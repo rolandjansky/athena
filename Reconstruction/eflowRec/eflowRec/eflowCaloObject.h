@@ -54,6 +54,10 @@ public:
     }
   }
 
+  /* For a specific eflowTrackClusterLink indicate whether or not it has been fully/partially subtracted via the bool */
+  /* True indicates it has been fully or partially subtracted, whilst false indicates it has not been modified at all */
+  void setTrackClusterLinkSubtractionStatus(unsigned int index, bool status) { m_trackClusterLinks[index].second = status; }
+  
   /* Track accessor methods */
   eflowRecTrack* efRecTrack(int i) const { return m_eflowRecTracks[i]; }
   unsigned nTracks() const{ return m_eflowRecTracks.size(); }
