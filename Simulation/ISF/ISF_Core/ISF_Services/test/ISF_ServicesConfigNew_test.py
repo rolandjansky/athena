@@ -28,13 +28,14 @@ if __name__ == '__main__':
   # Finalize 
   ConfigFlags.lock()
 
-  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg
+  from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg
 
   ## Initialize a new component accumulator
   cfg = MainServicesSerialCfg()
 
   #add the algorithm
   cfg.merge(MC15aPlusTruthServiceCfg(ConfigFlags))
+  cfg.merge(GeoIDSvcCfg(ConfigFlags))
 
   # Dump config
   cfg.printConfig(withDetails=True, summariseProps = True)
