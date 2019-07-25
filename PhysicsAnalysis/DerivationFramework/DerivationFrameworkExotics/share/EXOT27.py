@@ -29,6 +29,8 @@ from ThinningUtils.ThinningUtilsConf import (
     EleLinkThinningTool,
     ThinAssociatedObjectsTool)
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+
 
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -165,6 +167,9 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 
+# schedule pflow tagging
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=EXOT27Seq)
+
 # *Something* is asking for the pseudo jet getters for the FR track jets so I'm
 # still producing them, just not outputting them.
 replace_jet_list = [
@@ -223,6 +228,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Schedule for output
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
+outputContainer("BTagging_AntiKt4EMPFlow")
 
 # Add in Xbb tagging variables
 HbbCommon.addRecommendedXbbTaggers(EXOT27Seq, ToolSvc, logger=logger)

@@ -448,6 +448,8 @@ class SlimmingHelper:
                         items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         items.append(collectionName)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
+                        items.append(collectionName)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
