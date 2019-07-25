@@ -63,7 +63,7 @@ def deduplicateComponent(newComp,comp):
                 newprop=None
 
             # both are defined but with distinct type
-            if type(oldprop) != type(newprop) and oldprop != None and newprop != None:
+            if type(oldprop) != type(newprop) and oldprop is not None and newprop is not None:
                 raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
                                           (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
 
