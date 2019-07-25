@@ -241,6 +241,23 @@ namespace EL
                                const std::string& location, const SH::MetaObject& options);
 
 
+    /// effects: run the job
+    /// guarantee: strong
+    /// failures: out of memory II
+    /// failures: job failures
+  public:
+    void batchRun (const BatchJob *job,
+                   const BatchSample *sample,
+                   const BatchSegment *segment);
+
+
+    /// effects: do what is needed to execute the given job segment
+    /// guarantee: basic
+    /// failures: job specific
+  public:
+    static void batchExecute (unsigned job_id, const char *confFile);
+
+
 
     //
     // protected interface
