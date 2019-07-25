@@ -52,27 +52,8 @@ namespace EL
     RCU_INVARIANT (this != 0);
   }
 
-  GridWorker::GridWorker (const SH::MetaObject *meta, 
-			  const std::string& location)
-    : m_meta(meta), m_location(location) {
-
-    std::ifstream infile("input.txt");
-    while (infile) {
-      std::string sLine;
-      if (!getline(infile, sLine)) break;
-      std::istringstream ssLine(sLine);
-      while (ssLine) {
-        std::string sFile;
-        if (!getline(ssLine, sFile, ',')) break;
-        m_fileList.push_back(TString(sFile));
-      }
-    } 
-  
-    if (m_fileList.size() == 0) {
-      //not fatal, maybe input was not expected
-    }
-
-    m_currentFile = 0;
+  GridWorker::GridWorker ()
+  {
 
     RCU_NEW_INVARIANT (this);
   }
@@ -103,43 +84,66 @@ namespace EL
     addModule (std::make_unique<Detail::GridReportingModule> ());
     ANA_CHECK_THROW (initialize());
 
-    for (TString fileUrl = getNextFile();
-	 fileUrl != "";
-	 fileUrl = getNextFile()) {
+    std::vector<std::string> fileList; 
+
+    std::ifstream infile("input.txt");
+    while (infile) {
+      std::string sLine;
+      if (!getline(infile, sLine)) break;
+      std::istringstream ssLine(sLine);
+      while (ssLine) {
+        std::string sFile;
+        if (!getline(ssLine, sFile, ',')) break;
+        fileList.push_back(sFile);
+      }
+    } 
+  
+    if (fileList.size() == 0) {
+      //not fatal, maybe input was not expected
+    }
+
+    if (fileList.size() == 0) {
+      //User was expecting input after all.
+      gSystem->Exit(EC_BADINPUT);
+    }
+
+    for (std::size_t currentFile = 0;
+	 currentFile != fileList.size();
+	 currentFile++) {
 
       EventRange eventRange;
-      eventRange.m_url = fileUrl;
+      eventRange.m_url = fileList.at(currentFile);
 
       try {
         if (processEvents (eventRange).isFailure()) {
-          Fail(eventsProcessed());
+          Fail(eventsProcessed(), currentFile, fileList.at(currentFile));
         }
 
       }
       catch (std::exception& e) {
         std::cout << "Caught exception while executing algorithm:\n"
                   << e.what() << "\n";
-        Fail(eventsProcessed());
+        Fail(eventsProcessed(), currentFile, fileList.at(currentFile));
       }
       catch (char const* e) {
         std::cout << "Caught exception while executing algorithm:\n"
                   << e << "\n";
-        Fail(eventsProcessed());
+        Fail(eventsProcessed(), currentFile, fileList.at(currentFile));
       }
       catch (...) {
         std::cout << "Caught unknown exception while executing algorithm";
-        Fail(eventsProcessed());
+        Fail(eventsProcessed(), currentFile, fileList.at(currentFile));
       }
     }    
 
     ANA_CHECK_THROW (finalize ());
 
     int nEvents = eventsProcessed();
-    int nFiles = GetFilesRead();
+    int nFiles = fileList.size();
     std::cout << "\nLoop finished. ";
     std::cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
 
-    NotifyJobFinished(eventsProcessed());
+    NotifyJobFinished(eventsProcessed(), fileList);
   }
 
 
@@ -199,8 +203,7 @@ namespace EL
     
       const std::string location = ".";
 
-      EL::GridWorker worker(mo, 
-                            location);
+      EL::GridWorker worker;
       worker.setMetaData (mo);
       worker.setOutputHist (location);
       worker.setSegmentName ("output");
@@ -220,59 +223,15 @@ namespace EL
     }
   }
 
-  TString GridWorker::getNextFile() {
-
-    m_currentFile++;
-
-    if (m_fileList.size() == 0) {
-      //User was expecting input after all.
-      gSystem->Exit(EC_BADINPUT);
-    }
-
-    if (m_currentFile == m_fileList.size() + 1) {
-      return "";
-    }
-
-    if (m_currentFile > m_fileList.size() + 1) {
-      //Error: User persists reading beyond end of list 
-      // - maybe we are stuck in a loop?
-      //Abort program or this could go on forever...
-      std::cout << "OpenNextFile() called after end of list\n" << std::endl;
-      std::cout << "Aborting\n" << std::endl;
-      Abort();
-    }
-
-    return m_fileList.at(m_currentFile - 1);
-  }
-
-  void GridWorker::NotifyJobFinished(uint64_t eventsProcessed) {
-    if (m_fileList.size() > m_currentFile + 1) {
-      //Error: Did not read all files!
-      gSystem->Exit(EC_NOTFINISHED);
-    }    
-    createJobSummary(eventsProcessed);
-  }
-
-  int GridWorker::GetNumberOfInputFiles() {
-    return m_fileList.size();
-  }
-
-  int GridWorker::GetFilesRead() {
-    unsigned int nFiles = m_currentFile;
-    if (nFiles > m_fileList.size())
-      nFiles = m_fileList.size();
-    return nFiles;
-  }
-
-  void GridWorker::createJobSummary(uint64_t eventsProcessed) {
+  void GridWorker::NotifyJobFinished(uint64_t eventsProcessed,
+                                     const std::vector<std::string>& fileList) {
+    // createJobSummary
     std::ofstream summaryfile("../AthSummary.txt");
     if (summaryfile.is_open()) {
-      unsigned int nFiles = m_currentFile;
-      if (nFiles > m_fileList.size()) 
-        nFiles = m_fileList.size();
+      unsigned int nFiles = fileList.size();
       summaryfile << "Files read: " << nFiles << std::endl;
       for (unsigned int i = 0; i < nFiles; i++) {
-        summaryfile << "  " << m_fileList.at(i) << std::endl;
+        summaryfile << "  " << fileList.at(i) << std::endl;
       }      
       summaryfile << "Events Read:    " << eventsProcessed << std::endl;
       summaryfile.close();
@@ -282,11 +241,12 @@ namespace EL
     } 
   }
 
-  void GridWorker::Fail(uint64_t eventsProcessed) {
+  void GridWorker::Fail(uint64_t eventsProcessed, std::size_t currentFile,
+                        const std::string& fileName) {
     try {
       std::cerr << "Error reported at event " << eventsProcessed
-                << " in file " << m_currentFile << " (" 
-                << m_fileList.at(m_currentFile) << ")\n"
+                << " in file " << currentFile << " (" 
+                << fileName << ")\n"
                 << "ending job with status \"failed\"\n";
     } catch (...) {}
     gSystem->Exit(EC_FAIL);

@@ -32,8 +32,7 @@ namespace EL
 
     void testInvariant() const;
 
-    GridWorker(const SH::MetaObject *sample, 
-	       const std::string& location);
+    GridWorker();
 
     void run(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location);
 
@@ -42,18 +41,11 @@ namespace EL
 
   private:
 
-    const SH::MetaObject *m_meta;
+    void NotifyJobFinished(uint64_t eventsProcessed,
+                           const std::vector<std::string>& fileList);
 
-    const std::string m_location;
-
-    TString getNextFile();
-
-    int GetNumberOfInputFiles();
-    int GetFilesRead();
-
-    void NotifyJobFinished(uint64_t eventsProcessed);
-
-    void Fail(uint64_t eventsProcessed);
+    void Fail(uint64_t eventsProcessed, std::size_t currentFile,
+              const std::string& fileName);
     void Abort();
 
   private:    
@@ -64,9 +56,6 @@ namespace EL
       EC_NOTFINISHED = 222,
       EC_BADINPUT = 223
     };
-
-    std::vector<TString> m_fileList; 
-    unsigned int m_currentFile;
 
     void createJobSummary(uint64_t eventsProcessed);
 
