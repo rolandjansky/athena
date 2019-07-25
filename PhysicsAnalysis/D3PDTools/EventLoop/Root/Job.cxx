@@ -90,7 +90,7 @@ namespace EL
   const std::string Job::optBatchSetupCommand = "nc_BatchSetupCommand";
   const std::string Job::optDockerImage = "nc_DockerImage";
   const std::string Job::optDockerOptions = "nc_DockerOptions";
-  const std::string Job::optDataDirectory = "nc_DataDirectory";
+  const std::string Job::optBatchConfigFile = "nc_BatchConfigFile";
   const std::string Job::optTmpDir = "nc_tmpDir";
   const std::string Job::optRootVer = "nc_rootVer";
   const std::string Job::optCmtConfig = "nc_cmtConfig";

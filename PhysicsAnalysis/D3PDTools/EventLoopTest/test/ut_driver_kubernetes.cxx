@@ -22,7 +22,7 @@ int main ()
 {
   KubernetesDriver driver;
   driver.options()->setString (Job::optDockerImage, "krumnack/el_docker_test");
-  driver.options()->setString (Job::optDataDirectory, "/Users/nils/cache/local");
+  driver.options()->setString (Job::optBatchConfigFile, "EventLoopTest/kubernetes_test_job.yml");
   driver.shellInit = "source setup.sh";
   UnitTest ut ("local_docker");
   ut.cleanup = false;
