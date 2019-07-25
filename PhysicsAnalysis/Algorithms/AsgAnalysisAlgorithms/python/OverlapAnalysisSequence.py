@@ -11,7 +11,8 @@ def makeOverlapAnalysisSequence( dataType,
                                  doMuons = True, doJets = True, doTaus = True,
                                  doPhotons = True, doFatJets = False,
                                  bJetLabel = '',
-                                 boostedLeptons = False ):
+                                 boostedLeptons = False,
+                                 postfix = ''):
     """Function creating the overlap removal algorithm sequence
 
     The function sets up a multi-input/multi-output analysis algorithm sequnce,
@@ -75,10 +76,10 @@ def makeOverlapAnalysisSequence( dataType,
         raise ValueError ("invalid data type: " + dataType)
 
     # Create the analysis algorithm sequence object:
-    seq = AnaAlgSequence( 'OverlapAnalysisSequence' )
+    seq = AnaAlgSequence( 'OverlapAnalysisSequence' + postfix )
 
     # Create the overlap removal algorithm:
-    alg = createAlgorithm( 'CP::OverlapRemovalAlg', 'OverlapRemovalAlg' )
+    alg = createAlgorithm( 'CP::OverlapRemovalAlg', 'OverlapRemovalAlg' + postfix )
 
     # Create its main tool, and set its basic properties:
     addPrivateTool( alg, 'overlapTool', 'ORUtils::OverlapRemovalTool' )
@@ -260,7 +261,7 @@ def makeOverlapAnalysisSequence( dataType,
 
         # Set up a view container for the type.
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'OverlapRemovalViewMaker_%s' % container[ 0 ] )
+                               'OverlapRemovalViewMaker_%s' % container[ 0 ] + postfix )
         alg.selection = [ '%s,as_char' % outputLabel ]
         seq.append( alg, inputPropName = { container[ 0 ] : 'input' },
                     outputPropName = { container[ 0 ] : 'output' } )
