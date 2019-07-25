@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 
 from AthenaCommon.JobProperties import jobproperties as jp
 from CaloRec.CaloClusterGetterBase import CaloClusterGetterBase
-from  CaloRec.CaloClusterTopoEMGetters  import CaloClusterTopoEM430Getter
-from AthenaCommon.SystemOfUnits import GeV, MeV
 from CaloRec.CaloRecTopoEM35Flags import jobproperties
 
 from CaloRec.CaloRecMakers import make_CaloClusterCopier
