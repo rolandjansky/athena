@@ -406,7 +406,6 @@ EXOT27ThinningTools.append(
         "EXOT27SubjetAssocThinningTool",
         ThinningService = EXOT27ThinningHelper.ThinningSvc(),
         SGKey = large_r,
-        SelectionString = "{0}.pt > 100*GeV".format(large_r),
         ChildThinningTools = [ToolSvc.EXOT27SubjetThinningTool] ) )
 
 # TODO (perhaps): truth thinning
@@ -579,7 +578,7 @@ JetCommon.addJetOutputs(
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
       "AntiKt2LCTopoJets",
-      "AntiKtVR30Rmax4Rmin02TrackGhostTagJets"
+      "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",
