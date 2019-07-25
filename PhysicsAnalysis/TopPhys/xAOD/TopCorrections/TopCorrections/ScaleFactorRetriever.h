@@ -79,7 +79,7 @@ enum topSFSyst{nominal = 0,
                TAU_SF_RECO_AF2_DOWN, TAU_SF_RECO_AF2_UP,
                // Photon SFs
                PHOTON_IDSF_UP, PHOTON_IDSF_DOWN, PHOTON_EFF_ISO,
-	       PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
+               PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
                // B-tagging SFs
                BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
                BTAG_SF_EIGEN_LIGHT,
@@ -129,6 +129,9 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float electronSF(const top::Event& event,
                    const top::topSFSyst SFSyst,
                    const top::topSFComp SFComp) const;
+  
+  //get vector of systematic variations of electron SFs, var=1 for up, var=-1 for down
+  std::vector<float> electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var=1) const;
   
   // Obtain the fwd electron SF
   float fwdElectronSF(const top::Event& event,

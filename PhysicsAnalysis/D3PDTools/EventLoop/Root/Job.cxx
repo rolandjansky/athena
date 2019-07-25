@@ -63,6 +63,7 @@ namespace EL
   const std::string Job::optResetShell = "nc_reset_shell";
   const std::string Job::optLocalNoUnsetup = "nc_local_no_unsetup";
   const std::string Job::optBackgroundProcess = "nc_background_process";
+  const std::string Job::optOutputSampleName = "nc_outputSampleName";
   const std::string Job::optGridDestSE = "nc_destSE";
   const std::string Job::optGridSite = "nc_site";
   const std::string Job::optGridCloud = "nc_cloud";
@@ -79,6 +80,10 @@ namespace EL
   const std::string Job::optGridExpress = "nc_express";
   const std::string Job::optGridNoSubmit = "nc_noSubmit";
   const std::string Job::optGridMergeOutput = "nc_mergeOutput";
+  const std::string Job::optGridUseContElementBoundary = "nc_useContElementBoundary";
+  const std::string Job::optGridAddNthFieldOfInDSToLFN = "nc_addNthFieldOfInDSToLFN";
+  const std::string Job::optGridWorkingGroup = "nc_workingGroup";
+  const std::string Job::optGridShowCmd = "nc_showCmd";
   const std::string Job::optBatchSharedFileSystem = "nc_sharedFileSystem";
   const std::string Job::optBatchSlurmExtraConfigLines = "nc_SlurmExtraConfig";
   const std::string Job::optBatchSlurmWrapperExec = "nc_SlurmWrapperExec";

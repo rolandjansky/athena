@@ -27,6 +27,7 @@
 
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
+#include "PATInterfaces/SystematicsUtil.h"
 
 // CP Tool include(s):
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
@@ -70,6 +71,11 @@ namespace top{
       CP::SystematicSet m_systChargeMisID_STAT_DOWN;
       CP::SystematicSet m_systChargeMisID_SYST_UP;
       CP::SystematicSet m_systChargeMisID_SYST_DOWN;
+      
+      std::vector<CP::SystematicSet> m_systTriggerCorrModel;
+      std::vector<CP::SystematicSet> m_systRecoCorrModel;
+      std::vector<CP::SystematicSet> m_systIDCorrModel;
+      std::vector<CP::SystematicSet> m_systIsoCorrModel;
      
       ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTrigger;
       ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTriggerLoose;
@@ -83,6 +89,8 @@ namespace top{
       bool m_electronEffIsoLoose_exists;
       ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIso;
       ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLoose;
+      
+      
       bool m_electronEffChargeID_exists;
       bool m_electronEffChargeIDLoose_exists;
       bool m_electronEffChargeMisID_exists;
@@ -91,6 +99,16 @@ namespace top{
       ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeIDLoose;
       ToolHandle<CP::ElectronChargeEfficiencyCorrectionTool> m_electronEffSFChargeMisID;
       ToolHandle<CP::ElectronChargeEfficiencyCorrectionTool> m_electronEffSFChargeMisIDLoose;
+      
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTriggerCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFTriggerLooseCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffTriggerCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffTriggerLooseCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFRecoCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDLooseCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoCorrModel;
+      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLooseCorrModel;
      
       std::string m_decor_triggerEff;
       std::string m_decor_triggerEff_loose;

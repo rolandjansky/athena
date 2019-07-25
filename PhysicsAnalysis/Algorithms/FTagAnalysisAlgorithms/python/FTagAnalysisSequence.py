@@ -7,6 +7,8 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makeFTagAnalysisSequence( seq, dataType, jetContainer,
                               btagWP = "FixedCutBEff_77",
                               btagger = "MV2c10",
+                              postfix = "",
+                              preselection=None,
                               kinematicSelection = False,
                               noEfficiency = False ):
     """Create a ftag analysis algorithm sequence
@@ -33,7 +35,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
 
     if kinematicSelection:
         # Set up the ftag kinematic selection algorithm(s):
-        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagKinSelectionAlg' )
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagKinSelectionAlg'+postfix )
         addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
         alg.selectionTool.minPt = 20e3
         alg.selectionTool.maxEta = 2.5
@@ -44,18 +46,20 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
         # Set up an algorithm that makes a view container using the selections
         # performed previously:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'FTagKinViewFromSelectionAlg' )
+                               'FTagKinViewFromSelectionAlg'+postfix )
         alg.selection = [ 'ftag_kin_select' ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
 
     # Set up the ftag selection algorithm(s):
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagSelectionAlg' + btagger + btagWP )
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagSelectionAlg' + btagger + btagWP + postfix )
     addPrivateTool( alg, 'selectionTool', 'BTaggingSelectionTool' )
     alg.selectionTool.TaggerName = btagger
     alg.selectionTool.OperatingPoint = btagWP
     alg.selectionTool.JetAuthor = jetContainer
     alg.selectionTool.FlvTagCutDefinitionsFileName = bTagCalibFile
+    if preselection is not None:
+        alg.preselection = preselection
     alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
@@ -64,7 +68,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
     if not noEfficiency and dataType != 'data':
         # Set up the efficiency calculation algorithm:
         alg = createAlgorithm( 'CP::BTaggingEfficiencyAlg',
-                               'FTagEfficiencyScaleFactorAlg' + btagger + btagWP )
+                               'FTagEfficiencyScaleFactorAlg' + btagger + btagWP + postfix )
         addPrivateTool( alg, 'efficiencyTool',
                         'BTaggingEfficiencyTool' )
         alg.efficiencyTool.TaggerName = btagger
@@ -77,13 +81,15 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
         alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_ftag_' + btagger + '_' + btagWP
+        if preselection is not None:
+            alg.preselection = preselection
         seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = '(^FT_EFF_.*)',
                     stageName = 'efficiency' )
         pass
 
     # Set up an algorithm used for debugging the f-tag selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'FTagCutFlowDumperAlg' + btagger + btagWP )
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'FTagCutFlowDumperAlg' + btagger + btagWP + postfix )
     alg.histPattern = 'ftag_cflow_' + btagger + '_' + btagWP + '_%SYS%'
     alg.selection = ['ftag_select_' + btagger + '_' + btagWP + ',as_char']
     alg.selectionNCuts = [1] # really we have 4 cuts, but we use char

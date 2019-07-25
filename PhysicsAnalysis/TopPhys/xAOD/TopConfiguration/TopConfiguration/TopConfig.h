@@ -468,6 +468,9 @@ class TopConfig final {
 
   // Electron configuration
   inline virtual void egammaSystematicModel( const std::string& s ){if(!m_configFixed){m_egammaSystematicModel = s;}}
+  inline virtual void electronEfficiencySystematicModel( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModel = s;}}
+  inline virtual void electronEfficiencySystematicModelEtaBinning( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModelEtaBinning = s;}}
+  inline virtual void electronEfficiencySystematicModelEtBinning( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModelEtBinning = s;}}
   inline virtual void electronID( const std::string& s    ){if(!m_configFixed){m_electronID    = s;}}
   inline virtual void electronIDLoose( const std::string& s ){if(!m_configFixed){m_electronIDLoose = s;}}
   inline         void removeElectronVetoLArCrack()         {if(!m_configFixed){m_electronVetoLArCrack = false;}}
@@ -480,6 +483,9 @@ class TopConfig final {
   inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
+  inline virtual const std::string& electronEfficiencySystematicModel(){return m_electronEfficiencySystematicModel;}
+  inline virtual const std::string& electronEfficiencySystematicModelEtaBinning(){return m_electronEfficiencySystematicModelEtaBinning;}
+  inline virtual const std::string& electronEfficiencySystematicModelEtBinning(){return m_electronEfficiencySystematicModelEtBinning;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
   inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
   inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
@@ -1199,6 +1205,9 @@ class TopConfig final {
 
   // Electron configuration
   std::string m_egammaSystematicModel;
+  std::string m_electronEfficiencySystematicModel;
+  std::string m_electronEfficiencySystematicModelEtaBinning;
+  std::string m_electronEfficiencySystematicModelEtBinning;
   std::string m_electronID;
   std::string m_electronIDLoose;
   bool m_electronVetoLArCrack;
