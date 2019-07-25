@@ -83,9 +83,6 @@ namespace DerivationFramework {
       ToolHandle<Trig::TrigDecisionTool> m_tdt
       {"Trig::TrigDecisionTool/TrigDecisionTool"};
 
-      /// Allow errors from the retrieval tool
-      bool m_allowRetrievalErrors;
-
       // Internal values
       mutable bool m_firstEvent{true};
 
