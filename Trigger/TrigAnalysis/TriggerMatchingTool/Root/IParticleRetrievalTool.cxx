@@ -259,8 +259,10 @@ namespace Trig {
     const HLT::TrigNavStructure* navigation = 
       m_tdt->ExperimentalAndExpertMethods()->getNavigation();
 
+
     /// Expand the typedGet function here
     auto typelessHolder = navigation->getHolder(feature);
+
     if (!typelessHolder) {
       std::string message = "Typeless holder for feature not present!";
       navFailure = true;
@@ -309,7 +311,7 @@ namespace Trig {
     std::vector<const xAOD::IParticle*> particleFeatures;
     particleFeatures.reserve(idx.objectsEnd() - idx.objectsBegin() );
     auto begin = cont->begin();
-    auto end = cont->end();
+    auto end = cont->begin();
     std::advance(begin, idx.objectsBegin() );
     std::advance(end, idx.objectsEnd() );
     particleFeatures.insert(particleFeatures.end(), begin, end);
