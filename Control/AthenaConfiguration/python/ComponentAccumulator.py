@@ -516,21 +516,22 @@ class ComponentAccumulator(object):
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
 
+        self._msg.debug("Merging services with global setup")
         for s in self._services:
-            deduplicate(s,ServiceMgr)
+            deduplicate(s, ServiceMgr.getChildren())
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
-
-
         for t in self._publicTools:
             deduplicate(t,ToolSvc)
 
+        self._msg.debug("Merging conditions algorithms with global setup")
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
-            deduplicate(c,condseq)
+            deduplicate(c, condseq.getChildren() )
+
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
