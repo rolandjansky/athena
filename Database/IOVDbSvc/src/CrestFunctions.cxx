@@ -111,6 +111,8 @@ namespace IOVDbNamespace{
     if (not testing){
       jsonReply= getPayloadForHash(getIovsForTag(descriptionTag));
     }
+
+
     return extractDescriptionFromJson(jsonReply);
   }
   

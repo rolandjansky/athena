@@ -378,7 +378,9 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         }
         if (m_foldertype==CoraCool) {
           // CoraCool retrieve
-          CoraCoolFolderPtr ccfolder=m_conn->getFolderPtr<CoraCoolFolderPtr>(m_foldername);
+          CoraCoolDatabasePtr ccDbPtr=m_conn->getCoraCoolDb();
+          CoraCoolFolderPtr ccfolder=ccDbPtr->getFolder(m_foldername);
+
           auto [since,until] = m_iovs.getCacheBounds();
           CoraCoolObjectIterPtr itr=ccfolder->browseObjects(since, until,m_chansel,m_tag);
           while (itr->hasNext()) {
