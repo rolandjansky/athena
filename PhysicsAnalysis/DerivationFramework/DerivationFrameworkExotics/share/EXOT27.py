@@ -42,12 +42,12 @@ import DerivationFrameworkInDet.InDetCommon as InDetCommon
 from JetRec.JetRecStandardToolManager import jtm
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
     DerivationFramework__GenericTruthThinning)
-import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import (
     FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
 if DerivationFrameworkIsMonteCarlo: 
+  import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
 
 import DerivationFrameworkExotics.EXOT27Utils as EXOT27Utils
