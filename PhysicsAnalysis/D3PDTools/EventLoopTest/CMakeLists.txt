@@ -87,4 +87,4 @@ endforeach (source ${util_sources})
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_wait )
-atlas_install_data( data/*.root )
+atlas_install_data( data/*.root data/*.yml )

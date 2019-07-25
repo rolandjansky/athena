@@ -430,9 +430,9 @@ namespace EL
     /// \brief any extra options we may want to pass to docker
     static const std::string optDockerOptions;
 
-    /// \brief if we need to mount a data directory inside kubernetes,
-    /// this is it
-    static const std::string optDataDirectory;
+    /// \brief the job submission configuration file (used by some
+    /// drivers that need more complex configuration)
+    static const std::string optBatchConfigFile;
 
 
   public:

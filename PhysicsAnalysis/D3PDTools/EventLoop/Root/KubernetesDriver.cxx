@@ -16,8 +16,11 @@
 #include <sstream>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
+#include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
+#include <RootCoreUtils/StringUtil.h>
 #include <RootCoreUtils/ThrowMsg.h>
 
 //
@@ -58,19 +61,34 @@ namespace EL
                const std::vector<std::size_t>& jobIndices, bool resubmit)
     const
   {
+    using namespace msgEventLoop;
+
     RCU_READ_INVARIANT (this);
 
     const std::string dockerImage {
       options.castString(Job::optDockerImage)};
 
-    /// \todo need to include this into my configuration file, once I
-    /// figure out how to do this
-    // const std::string dockerOptions {
-    //   options.castString(Job::optDockerOptions)};
+    const std::string dockerOptions {
+      options.castString(Job::optDockerOptions)};
+    if (!dockerOptions.empty())
+    {
+      ANA_MSG_WARNING ("you specified docker options for kubernetes driver");
+      ANA_MSG_WARNING ("this is not supported in this way");
+      ANA_MSG_WARNING ("instead you need to provide your own kubernetes config file");
+    }
+
 
     /// \brief the data directory, if we have one
-    const std::string dataDirectory {
-      options.castString(Job::optDataDirectory)};
+    const std::string batchConfigFile {
+      options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
+    std::string baseConfig;
+    {
+      std::ifstream file (PathResolverFindDataFile (batchConfigFile).c_str());
+      baseConfig = std::string (std::istreambuf_iterator<char>(file),
+                                std::istreambuf_iterator<char>() );
+    }
+    baseConfig = RCU::substitute (baseConfig, "%%DOCKERIMAGE%%", dockerImage);
+    baseConfig = RCU::substitute (baseConfig, "%%SUBMITDIR%%", location);
 
     std::ostringstream basedirName;
     basedirName << location << "/tmp";
@@ -96,56 +114,13 @@ namespace EL
         else
           jobFile << "---\n";
 
-        jobFile << "apiVersion: batch/v1\n";
-        jobFile << "kind: Job\n";
-        jobFile << "metadata:\n";
+        std::string myConfig = baseConfig;
+        myConfig = RCU::substitute (myConfig, "%%JOBINDEX%%", std::to_string (jobIndex));
+        std::ostringstream command;
+        command << location << "/submit/run " << jobIndex;
+        myConfig = RCU::substitute (myConfig, "%%COMMAND%%", command.str());
 
-        //use this when there is a fixed name
-        // jobFile << "  name: eventloop-" << jobIndex << "\n";
-
-        jobFile << "  generateName: eventloop-" << jobIndex << "-\n";
-        jobFile << "spec:\n";
-        jobFile << "  backoffLimit: 0\n";
-        jobFile << "  template:\n";
-        jobFile << "    spec:\n";
-        jobFile << "      restartPolicy: Never\n";
-        jobFile << "      containers:\n";
-        jobFile << "      - name: job\n";
-        jobFile << "        image: " << dockerImage << "\n";
-        jobFile << "        command:\n";
-        jobFile << "        - bash\n";
-        jobFile << "        - -c \n";
-        jobFile << "        - |\n";
-        jobFile << "          echo world\n";
-        jobFile << "          echo my job index is $JOB_INDEX\n";
-        jobFile << "          " << location << "/submit/run " << jobIndex << "\n";
-        jobFile << "        env:\n";
-        jobFile << "        - name: JOB_INDEX\n";
-        jobFile << "          value: \"" << jobIndex << "\"\n";
-        jobFile << "        volumeMounts:\n";
-        jobFile << "        - mountPath: " << location << "\n";
-        jobFile << "          name: submit-dir\n";
-        if (!dataDirectory.empty())
-        {
-          jobFile << "        - mountPath: " << dataDirectory << "\n";
-          jobFile << "          name: data-dir\n";
-        }
-        jobFile << "      volumes:\n";
-        jobFile << "      - name: submit-dir\n";
-        jobFile << "        hostPath:\n";
-        jobFile << "          # directory location on host\n";
-        jobFile << "          path: " << location << "\n";
-        jobFile << "          # this field is optional\n";
-        jobFile << "          type: Directory\n";
-        if (!dataDirectory.empty())
-        {
-          jobFile << "      - name: data-dir\n";
-          jobFile << "        hostPath:\n";
-          jobFile << "          # directory location on host\n";
-          jobFile << "          path: " << dataDirectory << "\n";
-          jobFile << "          # this field is optional\n";
-          jobFile << "          type: Directory\n";
-        }
+        jobFile << myConfig << "\n";
       }
     }
 

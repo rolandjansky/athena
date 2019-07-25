@@ -10,7 +10,8 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/SampleHandler
    PRIVATE
    Control/AthToolSupport/AsgTools
-   Control/xAODRootAccess )
+   Control/xAODRootAccess
+   Tools/PathResolver )
 
 # Find the needed external(s):
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
@@ -38,7 +39,7 @@ atlas_add_library( EventLoop
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
    SampleHandler AnaAlgorithmLib
-   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
+   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess PathResolver )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
 
@@ -55,4 +56,4 @@ atlas_add_test (EventLoop_gt_OutputStreamData
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )
-atlas_install_data( data/*.root data/Dockerfile data/docker_analysis_setup.sh )
+atlas_install_data( data/*.root data/Dockerfile data/docker_analysis_setup.sh data/*.yml )
