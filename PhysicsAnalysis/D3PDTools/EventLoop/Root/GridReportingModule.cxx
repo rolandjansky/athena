@@ -10,7 +10,7 @@
 // includes
 //
 
-#include <EventLoopGrid/GridReportingModule.h>
+#include <EventLoop/GridReportingModule.h>
 
 #include <EventLoop/MessageCheck.h>
 
