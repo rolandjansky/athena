@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 792174 2017-01-14 00:07:51Z ssnyder $
 ################################################################################
 # Package: AthenaServices
 ################################################################################
@@ -130,3 +129,8 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
 # Need to make sure that python file installation happens before genconf
 # in order for our custom __init__.py to be installed correctly.
 add_dependencies( AthenaServicesConfigurables AthenaServicesPythonInstall )
+
+# Check python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select ATL,F,E7,E9,W6 --extend-ignore E701,E702 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )
