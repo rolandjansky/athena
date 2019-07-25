@@ -54,7 +54,8 @@ def TrigBSReadCfg( inputFlags ):
     bsMetaDataTool = ByteStreamMetadataTool()
     acc.addPublicTool( bsMetaDataTool )
     
-    from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
+    from StoreGate.StoreGateConf import StoreGateSvc
+    from SGComps.SGCompsConf import ProxyProviderSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
     acc.addService( metaDataStore )
     inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
