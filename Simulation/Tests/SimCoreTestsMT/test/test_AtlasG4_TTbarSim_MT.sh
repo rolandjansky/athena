@@ -4,13 +4,14 @@
 # art-include: master/Athena
 
 # art-type: grid
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-output: log.*
 # art-output: test.HITS.pool.root
 
+export ATHENA_CORE_NUMBER=8
 
 AtlasG4_tf.py \
---athenaopts ' --threads=4 ' \
+--multithreaded \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' \
 --outputHITSFile 'test.HITS.pool.root' \
 --maxEvents '20' \

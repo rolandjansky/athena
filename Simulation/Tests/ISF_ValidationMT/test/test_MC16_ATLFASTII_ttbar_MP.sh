@@ -6,13 +6,13 @@
 # art-include: 21.9/Athena
 # art-include: master/Athena
 # art-type: grid
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-output: test.HITS.pool.root
 
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
 
-export ATHENA_CORE_NUMBER=4
+export ATHENA_CORE_NUMBER=8
 
 Sim_tf.py \
 --multiprocess \
@@ -37,7 +37,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --order-trees
     rc2=$?
 fi
 echo  "art-result: $rc2 regression"
