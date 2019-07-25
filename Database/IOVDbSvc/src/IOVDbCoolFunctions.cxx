@@ -154,6 +154,7 @@ namespace IOVDbNamespace{
     return std::make_pair(multiversion, folderdesc);
   }
   
+
   std::pair<std::vector<cool::ChannelId>, std::vector<std::string>>
   channelList(IOVDbConn * pConnection, const std::string & folderName, const bool named){
     std::vector<cool::ChannelId> channelNumbers;

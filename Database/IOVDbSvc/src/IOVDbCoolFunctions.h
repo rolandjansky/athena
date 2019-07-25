@@ -101,6 +101,7 @@ namespace IOVDbNamespace{
   ///Retrieve channel information
   std::pair<std::vector<cool::ChannelId>, std::vector<std::string>>
   channelList(IOVDbConn * pConnection, const std::string & folderName, const bool named=false);
+
 }
 
 #endif
