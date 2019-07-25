@@ -5,16 +5,6 @@
 #ifndef EVENT_LOOP_WORKER_HH
 #define EVENT_LOOP_WORKER_HH
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-
 #include <EventLoop/Global.h>
 
 #include <EventLoop/IWorker.h>
@@ -30,7 +20,7 @@ class TStopwatch;
 
 namespace EL
 {
-  class Worker : public IWorker, private Detail::ModuleData
+  class Worker final : public IWorker, private Detail::ModuleData
   {
     //
     // public interface
@@ -257,6 +247,35 @@ namespace EL
   public:
     static void batchExecute (unsigned job_id, const char *confFile);
 
+  public:
+    void gridRun(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location);
+
+  public:
+    static void gridExecute (const std::string& sampleName);
+
+
+  private:
+    void gridNotifyJobFinished(uint64_t eventsProcessed,
+                           const std::vector<std::string>& fileList);
+
+  private:
+    void gridFail(uint64_t eventsProcessed, std::size_t currentFile,
+              const std::string& fileName);
+
+  private:
+    void gridAbort();
+
+  private:    
+    enum GridErrorCodes {
+      EC_FAIL = 220,
+      EC_ABORT = 221,
+      EC_NOTFINISHED = 222,
+      EC_BADINPUT = 223
+    };
+
+  private:
+    void gridCreateJobSummary(uint64_t eventsProcessed);
+
 
 
     //
@@ -411,12 +430,6 @@ namespace EL
     ///   no-fail
   protected:
     uint64_t eventsProcessed () const noexcept;
-
-
-
-    //
-    // virtual interface
-    //
 
 
 

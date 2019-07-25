@@ -14,7 +14,7 @@ find_package( ROOT COMPONENTS Core RIO PyROOT Tree )
 
 # Library in the package:
 atlas_add_root_dictionary( EventLoopGrid EventLoopGridCintDict
-   ROOT_HEADERS EventLoopGrid/GridWorker.h EventLoopGrid/GridDriver.h
+   ROOT_HEADERS EventLoopGrid/GridDriver.h
    EventLoopGrid/PrunDriver.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )

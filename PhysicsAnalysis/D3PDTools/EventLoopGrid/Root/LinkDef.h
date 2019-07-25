@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <EventLoopGrid/GridWorker.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoopGrid/PrunDriver.h>
 
@@ -15,7 +14,6 @@
 
 #pragma link C++ namespace EL;
 
-#pragma link C++ class EL::GridWorker+;
 #pragma link C++ class EL::GridDriver+;
 #pragma link C++ class EL::PrunDriver+;
 #pragma link C++ function EL::getRootCoreConfig ();
