@@ -215,6 +215,28 @@ namespace EL
 
 
     //
+    // interface for specific drivers
+    //
+
+    /// effects: run the job
+    /// guarantee: strong
+    /// failures: out of memory II
+    /// failures: job failures
+  public:
+    void directRun (const SH::SamplePtr& sample, const Job& job,
+                    const std::string& location);
+
+
+    /// \brief run the job
+    /// \par Guarantee
+    ///   basic
+  public:
+    static void directExecute (const SH::SamplePtr& sample, const Job& job,
+                               const std::string& location, const SH::MetaObject& options);
+
+
+
+    //
     // protected interface
     //
 

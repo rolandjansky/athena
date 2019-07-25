@@ -21,13 +21,14 @@
 #include <memory>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/DirectWorker.h>
+#include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <SampleHandler/DiskOutputLocal.h>
 #include <SampleHandler/Sample.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/SampleLocal.h>
+#include <SampleHandler/SamplePtr.h>
 
 //
 // method implementations
@@ -79,7 +80,7 @@ namespace EL
     for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
 	   end = job.sampleHandler().end(); sample != end; ++ sample)
     {
-      DirectWorker::execute (*sample, job, location, *options());
+      Worker::directExecute (*sample, job, location, *options());
     }
     diskOutputSave (location, job);
   }
