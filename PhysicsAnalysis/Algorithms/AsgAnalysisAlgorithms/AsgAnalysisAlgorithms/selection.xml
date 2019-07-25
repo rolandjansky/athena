@@ -13,6 +13,7 @@
    <class name="CP::ObjectCutFlowHistAlg" />
    <class name="CP::OverlapRemovalAlg" />
    <class name="CP::PileupReweightingAlg" />
+   <class name="CP::SysListDumperAlg" />
    <class name="CP::SysListLoaderAlg" />
    <class name="CP::TreeFillerAlg" />
    <class name="CP::TreeMakerAlg" />
