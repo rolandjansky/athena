@@ -206,13 +206,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
 
-    // remove Insitu if it's in the string if not data, and add _Smear if not AFII
+    // remove Insitu if it's in the string if not data, and add _Smear
     if (!isData()) {
       std::string insitu("_Insitu");
       auto found = calibseq.find(insitu);
       if(found != std::string::npos){
 	calibseq.erase(found, insitu.length());
-	if ( ! isAtlfast() ) calibseq.append("_Smear");
+	calibseq.append("_Smear");
       }
     }
 
