@@ -58,6 +58,32 @@
 #include <iostream>
 #include <memory>
 
+#include <string>
+#include <EventLoop/Worker.h>
+#include <SampleHandler/SamplePtr.h>
+
+#include <EventLoop/Algorithm.h>
+#include <EventLoop/BatchJob.h>
+#include <EventLoop/BatchSample.h>
+#include <EventLoop/BatchSegment.h>
+#include <EventLoop/Driver.h>
+#include <EventLoop/EventRange.h>
+#include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
+#include <EventLoop/OutputStream.h>
+#include <RootCoreUtils/Assert.h>
+#include <RootCoreUtils/ThrowMsg.h>
+#include <SampleHandler/DiskOutput.h>
+#include <SampleHandler/DiskWriter.h>
+#include <SampleHandler/ToolsOther.h>
+#include <TFile.h>
+#include <TSystem.h>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+
 //
 // method implementations
 //
@@ -802,5 +828,84 @@ namespace EL
 
     ANA_MSG_INFO ("Running sample: " << sample->name());
     worker.directRun (sample, job, location);
+  }
+
+
+
+  void Worker ::
+  batchRun (const BatchJob *job,
+            const BatchSample *sample,
+            const BatchSegment *segment)
+  {
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+
+    setJobConfig (JobConfig (job->job.jobConfig()));
+
+    for (Job::outputIter out = job->job.outputBegin(),
+	   end = job->job.outputEnd(); out != end; ++ out)
+    {
+      Detail::OutputStreamData data {
+        out->output()->makeWriter (segment->sampleName, segment->segmentName, ".root")};
+      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
+    }
+ 
+    Long64_t beginFile = segment->begin_file;
+    Long64_t endFile   = segment->end_file;
+    Long64_t lastFile  = segment->end_file;
+    RCU_ASSERT (beginFile <= endFile);
+    Long64_t beginEvent = segment->begin_event;
+    Long64_t endEvent   = segment->end_event;
+    if (endEvent > 0) endFile += 1;
+
+    ANA_CHECK_THROW (initialize ());
+
+    for (Long64_t file = beginFile; file != endFile; ++ file)
+    {
+      RCU_ASSERT (std::size_t(file) < sample->files.size());
+      EventRange eventRange;
+      eventRange.m_url = sample->files[file];
+      eventRange.m_beginEvent = (file == beginFile ? beginEvent : 0);
+      eventRange.m_endEvent = (file == lastFile ? endEvent : EventRange::eof);
+      ANA_CHECK_THROW (processEvents (eventRange));
+    }
+    ANA_CHECK_THROW (finalize ());
+  }
+
+
+
+  void Worker ::
+  batchExecute (unsigned job_id, const char *confFile)
+  {
+    try
+    {
+      std::unique_ptr<TFile> file (TFile::Open (confFile, "READ"));
+      RCU_ASSERT_SOFT (file.get() != 0);
+      std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
+      RCU_ASSERT_SOFT (job.get() != 0);
+      RCU_ASSERT_SOFT (job_id < job->segments.size());
+      BatchSegment *segment = &job->segments[job_id];
+      RCU_ASSERT_SOFT (segment->job_id == job_id);
+      RCU_ASSERT_SOFT (segment->sample < job->samples.size());
+      BatchSample *sample = &job->samples[segment->sample];
+
+      gSystem->Exec ("pwd");
+      gSystem->MakeDirectory ("output");
+
+      Worker worker;
+      worker.setMetaData (&sample->meta);
+      worker.setOutputHist (job->location + "/fetch");
+      worker.setSegmentName (segment->fullName);
+      worker.batchRun (job.get(), sample, segment);
+
+      std::ostringstream job_name;
+      job_name << job_id;
+      std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
+    } catch (...)
+    {
+      Detail::report_exception ();
+      exit (EXIT_FAILURE);
+    }
   }
 }
