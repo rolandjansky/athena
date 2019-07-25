@@ -21,7 +21,7 @@
 #include "EventLoop/Job.h"
 #include "EventLoop/MessageCheck.h"
 #include "EventLoop/OutputStream.h"
-#include "EventLoopGrid/GridReportingModule.h"
+#include "EventLoop/GridReportingModule.h"
 
 #include <iostream>
 #include <string>
