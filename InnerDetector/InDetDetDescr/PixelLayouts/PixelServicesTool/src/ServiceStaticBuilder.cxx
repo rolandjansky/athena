@@ -119,12 +119,15 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   // We process all tables. 
+  //***Not anymore - the specific barrel and endcap services seem to not be built here anymore, but rather elsewhere. Leave commented for the moment...***
+  /*
   bool barrelPresent   = genDBHelper.isBarrelPresent();
   bool endcapAPresent  = genDBHelper.isEndcapPresentA();
   bool endcapCPresent  = genDBHelper.isEndcapPresentC();
 
   if (barrelPresent) initialize("barrel");
   if (endcapAPresent || endcapCPresent) initialize("endcap");
+  */  
   initialize("simple");
   
   msg(MSG::INFO)<<"GEOPIXELSERVICES constructor # services : "<<m_services.size()<<endreq;
