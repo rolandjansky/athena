@@ -3,8 +3,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "PixelServicesTool/ServiceDynamicBuilder.h"
-#include "PixelSCTDBHelper/GeoPixelGeneralDBHelper.h"
-#include "PixelSCTDBHelper/GeoPixelServicesDBHelper.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
 #include "PixelServicesTool/ServicesDynTracker.h"

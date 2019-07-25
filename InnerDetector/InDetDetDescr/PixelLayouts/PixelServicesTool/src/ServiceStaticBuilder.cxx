@@ -97,7 +97,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 //   **IMPORTANT NOTE** WIDTH can be in degrees or CLHEP::mm. See OraclePixGeoManager
 
 #include "PixelServicesTool/ServiceStaticBuilder.h"
-#include "PixelSCTDBHelper/GeoPixelGeneralDBHelper.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
 #include "PixelServicesTool/VolumeStandardBuilder.h"

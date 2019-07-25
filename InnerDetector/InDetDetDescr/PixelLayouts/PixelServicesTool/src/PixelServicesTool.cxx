@@ -4,10 +4,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "PixelServicesTool/PixelServicesTool.h"
 
-#include "PixelSCTDBHelper/GeoPixelServicesDBHelper.h"
-#include "PixelSCTDBHelper/GeoPixelGeneralDBHelper.h"
-#include "PixelSCTDBHelper/GeoPixelStaveDBHelper.h"
-
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "PixelLayoutUtils/GeoPixelXMLMaterial.h"
 #include "PixelServicesTool/PixelRoutingServiceXMLHelper.h"
