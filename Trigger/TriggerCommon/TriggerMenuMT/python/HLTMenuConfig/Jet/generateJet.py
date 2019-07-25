@@ -82,6 +82,6 @@ def generateChains( flags, chainDict ):
 
     acc.printConfig()
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
 
     return chain

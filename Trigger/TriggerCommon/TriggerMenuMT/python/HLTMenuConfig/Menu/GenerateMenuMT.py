@@ -330,10 +330,9 @@ class GenerateMenuMT(object):
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
             log.debug('ChainName %s', cc.name)
-            log.debug('  L1Item %s', cc.L1Item)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
-                log.info(step)
+                log.debug(step)
 
         makeHLTTree(HLTChains=finalListOfChainConfigs, newJO=False, triggerConfigHLT = self.triggerConfigHLT)
         # the return values used for debugging, might be removed later

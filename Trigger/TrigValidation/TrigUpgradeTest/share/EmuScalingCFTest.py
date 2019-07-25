@@ -61,7 +61,7 @@ def generateChains(chain_names):
             step = ChainStep(seq.name, [seq])
             chainSteps.append(step)
        # el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
-        chainObj=Chain(name=chain , L1Item="L1_"+seed, L1Thresholds=[seed], ChainSteps=chainSteps )
+        chainObj=Chain(name=chain ,L1Thresholds=[seed], ChainSteps=chainSteps )
         log.debug("adding chain %s",chainObj)
         chains.append(chainObj)
            # Chain(name='HLT_e5'   , L1Item="L1_EM7", ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
@@ -87,13 +87,14 @@ def process():
 
     data=generateInputData(nevents, chain_names)
     HLTChains=generateChains(chain_names)
-    EnabledChains= [c.L1Item.strip().split("_")[1] +" : "+ c.name for c in HLTChains]
+    
     
     from TrigUpgradeTest.TestUtils import writeEmulationFiles
     writeEmulationFiles(data)
 
     # this is a temporary hack to include new test chains
-    EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in HLTChains])
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getOverallL1item
+    EnabledChainNamesToCTP = dict([ (c.name,  getOverallL1item(c.name))  for c in HLTChains])
 
     ########################## L1 #################################################
 
@@ -108,7 +109,8 @@ def process():
     l1Decoder.ctpUnpacker = ctpUnpacker
 
     emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-    emUnpacker.ThresholdToChainMapping = EnabledChains
+    from TrigUpgradeTest.EmuStepProcessingConfig import thresholdToChains
+    emUnpacker.ThresholdToChainMapping = thresholdToChains( HLTChains )
     emUnpacker.Decisions="L1EM"
     log.debug("EMRoIsUnpackingTool enables chians:")
     log.debug(emUnpacker.ThresholdToChainMapping)

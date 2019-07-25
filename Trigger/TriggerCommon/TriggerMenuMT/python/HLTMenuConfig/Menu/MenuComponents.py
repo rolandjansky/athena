@@ -226,6 +226,7 @@ class ComboMaker(AlgNode):
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
         dictDecoding = DictFromChainName.DictFromChainName()
         allMultis = [int(mult) for mult in dictDecoding.getChainMultFromName(chain)]       
+       
         newdict = {chain : allMultis}
 
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
@@ -377,17 +378,16 @@ def DoMapSeedToL1Decoder(seed):
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    __slots__='name','steps','L1Item','vseeds','group_seed'
-    def __init__(self, name, L1Item, ChainSteps, L1Thresholds):
+    __slots__='name','steps','vseeds','group_seed'
+    def __init__(self, name, ChainSteps, L1Thresholds):
         """
         Construct the Chain from the steps
-        Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages, the L1Item will be removed
+        Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
         """
         self.name = name
         self.steps=ChainSteps
-        self.L1Item=L1Item
         self.vseeds=L1Thresholds
-        assert name.endswith(L1Item.replace("_", "", 1)), "Chain name {} and L1 item {} do not follow the convention".format(name, L1Item)
+
      
 
         # group_seed is used to set the seed type (EM, MU,JET), removing the actual threshold
@@ -452,8 +452,8 @@ class Chain(object):
 
                 
     def __repr__(self):
-        return "--- Chain %s ---\n + L1Item: %s \n + Seeds: %s \n + Steps: \n %s \n"%(\
-                    self.name, self.L1Item, ' '.join(map(str, self.vseeds)), '\n '.join(map(str, self.steps)))
+        return "--- Chain %s --- \n + Seeds: %s \n + Steps: \n %s \n"%(\
+                    self.name, ' '.join(map(str, self.vseeds)), '\n '.join(map(str, self.steps)))
 
 
 

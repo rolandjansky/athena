@@ -73,5 +73,5 @@ def generateChains(flags, chainDict):
 
 
 
-    chain = Chain(chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
+    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
     return chain

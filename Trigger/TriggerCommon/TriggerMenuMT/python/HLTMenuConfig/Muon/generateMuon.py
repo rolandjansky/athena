@@ -46,7 +46,7 @@ def generateChains( flags, chainDict ):
     import pprint
     pprint.pprint(chainDict)
 
-    chain = Chain( name=chainDict['chainName'], L1Item=chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep ] )
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep ] )
 
 
     return chain
