@@ -512,7 +512,11 @@ namespace EL
       m_inputTreeEntry = event;
       for (auto& module : m_modules)
         ANA_CHECK (module->onExecute (*this));
-      ANA_CHECK (algsExecute ());
+      if (algsExecute().isFailure())
+      {
+        ANA_MSG_ERROR ("processing event " << treeEntry() << " on file " << inputFileName());
+        return ::StatusCode::FAILURE;
+      }
       m_eventsProcessed += 1;
       if (m_eventsProcessed % 10000 == 0)
         ANA_MSG_INFO ("Processed " << m_eventsProcessed << " events");
@@ -634,7 +638,7 @@ namespace EL
         iter->m_executeCount += 1;
         if (iter->m_algorithm->execute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
+          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
           return ::StatusCode::FAILURE;
         }
 
@@ -647,7 +651,7 @@ namespace EL
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
+      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
       return ::StatusCode::FAILURE;
     }
 
@@ -660,14 +664,14 @@ namespace EL
       {
         if (jter->m_algorithm->postExecute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
+          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
           return ::StatusCode::FAILURE;
         }
       }
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
+      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
       return ::StatusCode::FAILURE;
     }
 
