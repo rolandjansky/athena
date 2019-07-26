@@ -914,12 +914,13 @@ else:
           PRD_TruthTrajectorySelector  = [ InDetTruthTrajectorySelector ]          
 
         # --- the truth track creation algorithm
+        from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
         InDetTruthTrackCreation = Trk__TruthTrackCreation(name = 'InDetTruthTrackCreation',
                                                           PRD_TruthTrajectoryBuilder = InDetPRD_TruthTrajectoryBuilder,
                                                           TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                          AssoTool                   = InDetPrdAssociationTool_setup,
+                                                          AssociationTool            = getInDetPRDtoTrackMapToolGangedPixels(),
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
