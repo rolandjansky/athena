@@ -1,6 +1,6 @@
 #====================================================================
-# HIGG2D5.py for JPSI filter
-# This requires the reductionConf flag HIGG2D5 in Reco_tf.py   
+# HDBS2.py for JPSI filter
+# This requires the reductionConf flag HDBS2 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
@@ -13,21 +13,27 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles
+    addStandardTruthContents(DerivationFrameworkJob)
+    addBosonsAndDownstreamParticles(DerivationFrameworkJob, -1)
 from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+from AthenaCommon.Logging import logging
+msg = logging.getLogger( "HDBS2" )
+_info = msg.info
+
+_info( "DerivationFrameworkIsMonteCarlo: %s", DerivationFrameworkIsMonteCarlo)
 #====================================================================
 # SET UP STREAM
 #====================================================================
-streamName = derivationFlags.WriteDAOD_HIGG2D5Stream.StreamName
-fileName = buildFileName(derivationFlags.WriteDAOD_HIGG2D5Stream)
-HIGG2D5Stream = MSMgr.NewPoolRootStream( streamName, fileName)
-HIGG2D5Stream.AcceptAlgs(["HIGG2D5Kernel"])
+streamName = derivationFlags.WriteDAOD_HDBS2Stream.StreamName
+fileName = buildFileName(derivationFlags.WriteDAOD_HDBS2Stream)
+HDBS2Stream = MSMgr.NewPoolRootStream( streamName, fileName)
+HDBS2Stream.AcceptAlgs(["HDBS2Kernel"])
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -41,8 +47,8 @@ include("JpsiUpsilonTools/configureServices.py")
 ##    These are general tools independent of DerivationFramework that do the
 ##    actual vertex fitting and some pre-selection.
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
-HIGG2D5JpsiFinder = Analysis__JpsiFinder(
-    name                        = "HIGG2D5JpsiFinder",
+HDBS2JpsiFinder = Analysis__JpsiFinder(
+    name                        = "HDBS2JpsiFinder",
     OutputLevel                 = INFO,
     muAndMu                     = True,
     muAndTrack                  = False,
@@ -63,11 +69,11 @@ HIGG2D5JpsiFinder = Analysis__JpsiFinder(
     ConversionFinderHelperTool  = InDetConversionHelper,
     VertexPointEstimator        = VtxPointEstimator,
     useMCPCuts                  = False)
-ToolSvc += HIGG2D5JpsiFinder
+ToolSvc += HDBS2JpsiFinder
 
 # For phi -> K+ K-
-HIGG2D5PhiFinder = Analysis__JpsiFinder(
-    name                        = "HIGG2D5PhiFinder",
+HDBS2PhiFinder = Analysis__JpsiFinder(
+    name                        = "HDBS2PhiFinder",
     OutputLevel                 = INFO,
     muAndMu                     = False,
     muAndTrack                  = False,
@@ -91,11 +97,11 @@ HIGG2D5PhiFinder = Analysis__JpsiFinder(
     ConversionFinderHelperTool  = InDetConversionHelper,
     VertexPointEstimator        = VtxPointEstimator,
     useMCPCuts                  = False)
-ToolSvc += HIGG2D5PhiFinder
+ToolSvc += HDBS2PhiFinder
 
 # For rho -> pi+ pi-
-HIGG2D5RhoFinder = Analysis__JpsiFinder(
-    name                        = "HIGG2D5RhoFinder",
+HDBS2RhoFinder = Analysis__JpsiFinder(
+    name                        = "HDBS2RhoFinder",
     OutputLevel                 = INFO,
     muAndMu                     = False,
     muAndTrack                  = False,
@@ -119,11 +125,11 @@ HIGG2D5RhoFinder = Analysis__JpsiFinder(
     ConversionFinderHelperTool  = InDetConversionHelper,
     VertexPointEstimator        = VtxPointEstimator,
     useMCPCuts                  = False)
-ToolSvc += HIGG2D5RhoFinder
+ToolSvc += HDBS2RhoFinder
 
 # For Kstar -> K+ pi- and D0
-HIGG2D5KstarFinder = Analysis__JpsiFinder(
-    name                        = "HIGG2D5KstarFinder",
+HDBS2KstarFinder = Analysis__JpsiFinder(
+    name                        = "HDBS2KstarFinder",
     OutputLevel                 = INFO,
     muAndMu                     = False,
     muAndTrack                  = False,
@@ -147,7 +153,7 @@ HIGG2D5KstarFinder = Analysis__JpsiFinder(
     ConversionFinderHelperTool  = InDetConversionHelper,
     VertexPointEstimator        = VtxPointEstimator,
     useMCPCuts                  = False)
-ToolSvc += HIGG2D5KstarFinder
+ToolSvc += HDBS2KstarFinder
 
 
 #--------------------------------------------------------------------
@@ -156,43 +162,43 @@ ToolSvc += HIGG2D5KstarFinder
 ##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
-HIGG2D5RefitPV = False
+HDBS2RefitPV = False
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-HIGG2D5Recomumu = DerivationFramework__Reco_mumu(
-    name                   = "HIGG2D5Recomumu",
-    JpsiFinder             = HIGG2D5JpsiFinder,
-    OutputVtxContainerName = "HIGG2D5OniaCandidates",
+HDBS2Recomumu = DerivationFramework__Reco_mumu(
+    name                   = "HDBS2Recomumu",
+    JpsiFinder             = HDBS2JpsiFinder,
+    OutputVtxContainerName = "HDBS2OniaCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "HIGG2D5OniaRefittedPrimaryVertices",
-    RefitPV = HIGG2D5RefitPV)
-ToolSvc += HIGG2D5Recomumu
+    RefPVContainerName     = "HDBS2OniaRefittedPrimaryVertices",
+    RefitPV = HDBS2RefitPV)
+ToolSvc += HDBS2Recomumu
 
-HIGG2D5Recotrktrk = DerivationFramework__Reco_mumu(
-    name                   = "HIGG2D5Recotrktrk",
-    JpsiFinder             = HIGG2D5PhiFinder,
-    OutputVtxContainerName = "HIGG2D5PhiCandidates",
+HDBS2Recotrktrk = DerivationFramework__Reco_mumu(
+    name                   = "HDBS2Recotrktrk",
+    JpsiFinder             = HDBS2PhiFinder,
+    OutputVtxContainerName = "HDBS2PhiCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "HIGG2D5PhiRefittedPrimaryVertices",
-    RefitPV = HIGG2D5RefitPV)
-ToolSvc += HIGG2D5Recotrktrk
+    RefPVContainerName     = "HDBS2PhiRefittedPrimaryVertices",
+    RefitPV = HDBS2RefitPV)
+ToolSvc += HDBS2Recotrktrk
 
-HIGG2D5Recopipi = DerivationFramework__Reco_mumu(
-    name                   = "HIGG2D5Recopipi",
-    JpsiFinder             = HIGG2D5RhoFinder,
-    OutputVtxContainerName = "HIGG2D5RhoCandidates",
+HDBS2Recopipi = DerivationFramework__Reco_mumu(
+    name                   = "HDBS2Recopipi",
+    JpsiFinder             = HDBS2RhoFinder,
+    OutputVtxContainerName = "HDBS2RhoCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "HIGG2D5RhoRefittedPrimaryVertices",
-    RefitPV = HIGG2D5RefitPV)
-ToolSvc += HIGG2D5Recopipi
+    RefPVContainerName     = "HDBS2RhoRefittedPrimaryVertices",
+    RefitPV = HDBS2RefitPV)
+ToolSvc += HDBS2Recopipi
 
-HIGG2D5RecoKpi = DerivationFramework__Reco_mumu(
-    name                   = "HIGG2D5RecoKpi",
-    JpsiFinder             = HIGG2D5KstarFinder,
-    OutputVtxContainerName = "HIGG2D5KstarCandidates",
+HDBS2RecoKpi = DerivationFramework__Reco_mumu(
+    name                   = "HDBS2RecoKpi",
+    JpsiFinder             = HDBS2KstarFinder,
+    OutputVtxContainerName = "HDBS2KstarCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "HIGG2D5KstarRefittedPrimaryVertices",
-    RefitPV = HIGG2D5RefitPV)
-ToolSvc += HIGG2D5RecoKpi
+    RefPVContainerName     = "HDBS2KstarRefittedPrimaryVertices",
+    RefitPV = HDBS2RefitPV)
+ToolSvc += HDBS2RecoKpi
 
 #--------------------------------------------------------------------
 ## 4/ setup the vertex selection and augmentation tool(s). These tools decorate the vertices with
@@ -205,119 +211,124 @@ ToolSvc += HIGG2D5RecoKpi
 ##    use different "HypothesisName" flags.
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 ## a/ augment and select Jpsi->mumu candidates
-HIGG2D5SelectJpsi2mumu = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectJpsi2mumu",
+HDBS2SelectJpsi2mumu = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectJpsi2mumu",
     HypothesisName        = "Jpsi",
-    InputVtxContainerName = HIGG2D5Recomumu.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recomumu.OutputVtxContainerName,
     VtxMassHypo           = 3.096916*Units.GeV,
     MassMin               = 2.2*Units.GeV,
     MassMax               = 3.6*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectJpsi2mumu
+ToolSvc += HDBS2SelectJpsi2mumu
 ## b/ augment and select Psi(2S)->mumu candidates
-HIGG2D5SelectPsi2mumu = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectPsi2mumu",
+HDBS2SelectPsi2mumu = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectPsi2mumu",
     HypothesisName        = "Psi",
-    InputVtxContainerName = HIGG2D5Recomumu.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recomumu.OutputVtxContainerName,
     VtxMassHypo           = 3.68609*Units.GeV,
     MassMin               = 3.3*Units.GeV,
     MassMax               = 4.3*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectPsi2mumu
+ToolSvc += HDBS2SelectPsi2mumu
 ## c/ augment and select Upsilon(nS)->mumu candidates
-HIGG2D5SelectUpsi2mumu = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectUpsi2mumu",
+HDBS2SelectUpsi2mumu = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectUpsi2mumu",
     HypothesisName        = "Upsi",
-    InputVtxContainerName = HIGG2D5Recomumu.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recomumu.OutputVtxContainerName,
     VtxMassHypo           = 9.46030*Units.GeV,
     MassMin               = 8.0*Units.GeV,
     MassMax               = 12.0*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectUpsi2mumu
+ToolSvc += HDBS2SelectUpsi2mumu
 ## d/ augment and select phi->KK candidates
-HIGG2D5SelectPhi2trktrk = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectPhi2trktrk",
+HDBS2SelectPhi2trktrk = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectPhi2trktrk",
     HypothesisName        = "Phi",
-    InputVtxContainerName = HIGG2D5Recotrktrk.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recotrktrk.OutputVtxContainerName,
     TrkMasses             = [0.493677*Units.GeV, 0.493677*Units.GeV], # charge kaon PDG mass
     VtxMassHypo           = 1.019461*Units.GeV, # phi meson PDG mass
     MassMin               = 2.*0.493677*Units.GeV,
     MassMax               = 1.2*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectPhi2trktrk
+ToolSvc += HDBS2SelectPhi2trktrk
 ## d/ augment and select Kstart->Kpi candidates
-HIGG2D5SelectKstar2Kpi = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectKstar2Kpi",
+HDBS2SelectKstar2Kpi = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectKstar2Kpi",
     HypothesisName        = "Kstar",
-    InputVtxContainerName = HIGG2D5RecoKpi.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2RecoKpi.OutputVtxContainerName,
     TrkMasses             = [0.493677*Units.GeV, 0.139570*Units.GeV], # charge kaon PDG mass
     VtxMassHypo           = 0.895*Units.GeV, # Kstar meson PDG mass
     MassMin               = (0.139570+0.493677)*Units.GeV,
     MassMax               = 1.3*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectKstar2Kpi
-HIGG2D5SelectD02Kpi = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectD02Kpi",
+ToolSvc += HDBS2SelectKstar2Kpi
+HDBS2SelectD02Kpi = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectD02Kpi",
     HypothesisName        = "D0",
-    InputVtxContainerName = HIGG2D5RecoKpi.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2RecoKpi.OutputVtxContainerName,
     TrkMasses             = [0.493677*Units.GeV, 0.139570*Units.GeV], # charge kaon PDG mass
     VtxMassHypo           = 1.864*Units.GeV, # D0 meson PDG mass
     MassMin               = 1.6*Units.GeV,
     MassMax               = 2.5*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectD02Kpi
+ToolSvc += HDBS2SelectD02Kpi
 ## d/ augment and select rho->pipi candidates
-HIGG2D5SelectRho2pipi = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectRho2pipi",
+HDBS2SelectRho2pipi = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectRho2pipi",
     HypothesisName        = "Rho",
-    InputVtxContainerName = HIGG2D5Recopipi.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recopipi.OutputVtxContainerName,
     TrkMasses             = [0.139570*Units.GeV, 0.139570*Units.GeV], # charge kaon PDG mass
     VtxMassHypo           = 0.769*Units.GeV, # rho meson PDG mass
     MassMin               = 2.*0.139570*Units.GeV,
     MassMax               = 1.4*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectRho2pipi
+ToolSvc += HDBS2SelectRho2pipi
 ## d/ augment and select K0s->pipi candidates
-HIGG2D5SelectK0s2pipi = DerivationFramework__Select_onia2mumu(
-    name                  = "HIGG2D5SelectK0s2pipi",
+HDBS2SelectK0s2pipi = DerivationFramework__Select_onia2mumu(
+    name                  = "HDBS2SelectK0s2pipi",
     HypothesisName        = "K0s",
-    InputVtxContainerName = HIGG2D5Recopipi.OutputVtxContainerName,
+    InputVtxContainerName = HDBS2Recopipi.OutputVtxContainerName,
     TrkMasses             = [0.139570*Units.GeV, 0.139570*Units.GeV], # charge kaon PDG mass
     VtxMassHypo           = 0.4976*Units.GeV, # Kshort meson PDG mass
     MassMin               = 2.*0.139570*Units.GeV,
     MassMax               = 0.6*Units.GeV,
     Chi2Max               = 200)
-ToolSvc += HIGG2D5SelectK0s2pipi
+ToolSvc += HDBS2SelectK0s2pipi
 
 ## Keep output containers
-HIGG2D5StaticContent = []
-if HIGG2D5RefitPV:
-    HIGG2D5StaticContent += ["xAOD::VertexContainer#%s" % HIGG2D5Recomumu.RefPVContainerName]
-    HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5Recomumu.RefPVContainerName]
-    HIGG2D5StaticContent += ["xAOD::VertexContainer#%s" % HIGG2D5Recotrktrk.RefPVContainerName]
-    HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5Recotrktrk.RefPVContainerName]
+HDBS2StaticContent = []
+if HDBS2RefitPV:
+    HDBS2StaticContent += ["xAOD::VertexContainer#%s" % HDBS2Recomumu.RefPVContainerName]
+    HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2Recomumu.RefPVContainerName]
+    HDBS2StaticContent += ["xAOD::VertexContainer#%s" % HDBS2Recotrktrk.RefPVContainerName]
+    HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2Recotrktrk.RefPVContainerName]
 ## J/psi, psi(2S), Upsilon candidates
-HIGG2D5StaticContent += ["xAOD::VertexContainer#%s"        % HIGG2D5Recomumu.OutputVtxContainerName]
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5Recomumu.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexContainer#%s"        % HDBS2Recomumu.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2Recomumu.OutputVtxContainerName]
 
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HIGG2D5Recomumu.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2Recomumu.OutputVtxContainerName]
 ## Phi candidates
-HIGG2D5StaticContent += ["xAOD::VertexContainer#%s"        % HIGG2D5Recotrktrk.OutputVtxContainerName]
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5Recotrktrk.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexContainer#%s"        % HDBS2Recotrktrk.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2Recotrktrk.OutputVtxContainerName]
 # ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HIGG2D5Recotrktrk.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2Recotrktrk.OutputVtxContainerName]
 ## Rho candidates
-HIGG2D5StaticContent += ["xAOD::VertexContainer#%s"        % HIGG2D5Recopipi.OutputVtxContainerName]
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5Recopipi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexContainer#%s"        % HDBS2Recopipi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2Recopipi.OutputVtxContainerName]
 # ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HIGG2D5Recopipi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2Recopipi.OutputVtxContainerName]
 ## Kstar candidates
-HIGG2D5StaticContent += ["xAOD::VertexContainer#%s"        % HIGG2D5RecoKpi.OutputVtxContainerName]
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HIGG2D5RecoKpi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexContainer#%s"        % HDBS2RecoKpi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2RecoKpi.OutputVtxContainerName]
 # ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-HIGG2D5StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HIGG2D5RecoKpi.OutputVtxContainerName]
+HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2RecoKpi.OutputVtxContainerName]
 
+if DerivationFrameworkIsMonteCarlo:
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticles"]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticlesAux."]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayVerticies"]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayVerticiesAux."]
 #================
 # THINNING
 #================
@@ -325,123 +336,81 @@ thinningTools=[]
 
 # Establish the thinning helper (which will set up the services behind the scenes)
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-HIGG2D5ThinningHelper = ThinningHelper("HIGG2D5ThinningHelper")
+HDBS2ThinningHelper = ThinningHelper("HDBS2ThinningHelper")
 #trigger navigation content
-HIGG2D5ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
-HIGG2D5ThinningHelper.AppendToStream(HIGG2D5Stream)
+HDBS2ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+HDBS2ThinningHelper.AppendToStream(HDBS2Stream)
 
 # MET/Jet tracks
 #thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5)"
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG2D5TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D5TPThinningTool",
-                                                                   ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HDBS2TPThinningTool",
+                                                                   ThinningService        = HDBS2ThinningHelper.ThinningSvc(),
                                                                    SelectionString        = thinning_expression,
                                                                    InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D5TPThinningTool
-thinningTools.append(HIGG2D5TPThinningTool)
+ToolSvc += HDBS2TPThinningTool
+thinningTools.append(HDBS2TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG2D5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D5JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HDBS2JetTPThinningTool",
+                                                                         ThinningService        = HDBS2ThinningHelper.ThinningSvc(),
                                                                          JetKey                 = "AntiKt4EMTopoJets",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D5JetTPThinningTool
-thinningTools.append(HIGG2D5JetTPThinningTool)
+ToolSvc += HDBS2JetTPThinningTool
+thinningTools.append(HDBS2JetTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-HIGG2D5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "HIGG2D5MuonTPThinningTool",
-                                                                           ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "HDBS2MuonTPThinningTool",
+                                                                           ThinningService        = HDBS2ThinningHelper.ThinningSvc(),
                                                                            MuonKey                = "Muons",
                                                                            InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D5MuonTPThinningTool
-thinningTools.append(HIGG2D5MuonTPThinningTool)
+ToolSvc += HDBS2MuonTPThinningTool
+thinningTools.append(HDBS2MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG2D5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HIGG2D5ElectronTPThinningTool",
-                                                                                 ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HDBS2ElectronTPThinningTool",
+                                                                                 ThinningService        = HDBS2ThinningHelper.ThinningSvc(),
                                                                                  SGKey                  = "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                  BestMatchOnly          = False)
-ToolSvc += HIGG2D5ElectronTPThinningTool
-thinningTools.append(HIGG2D5ElectronTPThinningTool)
+ToolSvc += HDBS2ElectronTPThinningTool
+thinningTools.append(HDBS2ElectronTPThinningTool)
 
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG2D5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "HIGG2D5PhotonTPThinningTool",
-                                                                                      ThinningService         = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "HDBS2PhotonTPThinningTool",
+                                                                                      ThinningService         = HDBS2ThinningHelper.ThinningSvc(),
                                                                                       SGKey                   = "Photons",
                                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                       BestMatchOnly           = True)
-ToolSvc += HIGG2D5PhotonTPThinningTool
-thinningTools.append(HIGG2D5PhotonTPThinningTool)
+ToolSvc += HDBS2PhotonTPThinningTool
+thinningTools.append(HDBS2PhotonTPThinningTool)
 
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-HIGG2D5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "HIGG2D5TauTPThinningTool",
-                                                                         ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
+HDBS2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "HDBS2TauTPThinningTool",
+                                                                         ThinningService        = HDBS2ThinningHelper.ThinningSvc(),
                                                                          TauKey                 = "TauJets",
                                                                          ConeSize               = 0.6,
                                                                          InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D5TauTPThinningTool
-thinningTools.append(HIGG2D5TauTPThinningTool)
+ToolSvc += HDBS2TauTPThinningTool
+thinningTools.append(HDBS2TauTPThinningTool)
 
-# Truth particles
-useGenericTruthThinning = True
-if useGenericTruthThinning:
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6))"                                      # Top quark
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
-
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
-
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    HIGG2D5TruthThinningTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG2D5TruthThinningTool", 
-                                                                         ThinningService              = HIGG2D5ThinningHelper.ThinningSvc(),
-                                                                         ParticleSelectionString      = truth_expression,
-                                                                         PreserveDescendants          = False,
-                                                                         PreserveGeneratorDescendants = True,
-                                                                         PreserveAncestors            = True)
-else:
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-    HIGG2D5TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG2D5TruthThinningTool",
-                                                                      ThinningService              = "HIGG2D5ThinningSvc",
-                                                                      WritePartons                 = False,
-                                                                      WriteHadrons                 = False,
-                                                                      WriteBHadrons                = True,
-                                                                      WriteGeant                   = False,
-                                                                      GeantPhotonPtThresh          = -1.0,
-                                                                      WriteTauHad                  = True,
-                                                                      PartonPtThresh               = -1.0,
-                                                                      WriteBSM                     = True,
-                                                                      WriteBosons                  = True,
-                                                                      WriteBSMProducts             = True,
-                                                                      WriteBosonProducts           = True,
-                                                                      WriteTopAndDecays            = True,
-                                                                      WriteEverything              = False,
-                                                                      WriteAllLeptons              = True,
-                                                                      WriteStatus3                 = False,
-                                                                      PreserveGeneratorDescendants = True,
-                                                                      WriteFirstN                  = -1)
-
-if DerivationFrameworkIsMonteCarlo:
-    ToolSvc += HIGG2D5TruthThinningTool
-    thinningTools.append(HIGG2D5TruthThinningTool)
-print "HIGG2D5.py thinningTools", thinningTools
+_info( "HDBS2.py thinningTools: %s", thinningTools)
 
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
 
 from AthenaCommon.BeamFlags import jobproperties
-print "HIGG2D5.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
+_info("HDBS2.py jobproperties.Beam.energy(): %d", jobproperties.Beam.energy())
 SkipTriggerRequirement= DerivationFrameworkIsMonteCarlo
 # no need to apply trigger requirements on MC 
-print "HIGG2D5.py SkipTriggerRequirement", SkipTriggerRequirement
+_info("HDBS2.py SkipTriggerRequirement: %s", SkipTriggerRequirement)
 TriggerJPSI= []
 TriggerPHI = [] 
 TriggerRHO = [] 
@@ -512,10 +481,9 @@ if not SkipTriggerRequirement:
                              "HLT_g25_medium_L1EM24VHI_tau25_singlepion_tracktwoMVA_50mVis10000"] #2018
 
 
-#print "HIGG2D5.py TriggerJPSI", TriggerJPSI
 
-from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
-SkimmingToolHIGG2D5 = DerivationFramework__SkimmingToolHIGG2(name                       = "SkimmingToolHIGG2D5",
+from DerivationFrameworkHDBS.DerivationFrameworkHDBSConf import DerivationFramework__SkimmingToolHDBS2
+SkimmingToolHDBS2 = DerivationFramework__SkimmingToolHDBS2(name                       = "SkimmingToolHDBS2",
                                                              SkipTriggerRequirement     = SkipTriggerRequirement,
                                                              FilterType                 = "JPSI", 
                                                              NumberOfLeptons            = 0,
@@ -553,8 +521,8 @@ SkimmingToolHIGG2D5 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              InvariantMassD0LowCut      =  1.700*Units.GeV,
                                                              InvariantMassD0UpCut       =  2.030*Units.GeV,
                                                              InvariantMassWLowCut       =  55.*Units.GeV)
-ToolSvc += SkimmingToolHIGG2D5
-print SkimmingToolHIGG2D5
+ToolSvc += SkimmingToolHDBS2
+_info( SkimmingToolHDBS2)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -562,23 +530,23 @@ print SkimmingToolHIGG2D5
 
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D5Kernel",
-                                                                       SkimmingTools = [SkimmingToolHIGG2D5],
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HDBS2Kernel",
+                                                                       SkimmingTools = [SkimmingToolHDBS2],
                                                                        ThinningTools = thinningTools,
-                                                                       AugmentationTools = [HIGG2D5Recomumu, HIGG2D5SelectJpsi2mumu,
-                                                                                            HIGG2D5SelectPsi2mumu, HIGG2D5SelectUpsi2mumu,
-                                                                                            HIGG2D5Recotrktrk, HIGG2D5SelectPhi2trktrk, 
-                                                                                            HIGG2D5Recopipi, HIGG2D5RecoKpi, HIGG2D5SelectRho2pipi, HIGG2D5SelectK0s2pipi, HIGG2D5SelectKstar2Kpi, HIGG2D5SelectD02Kpi
+                                                                       AugmentationTools = [HDBS2Recomumu, HDBS2SelectJpsi2mumu,
+                                                                                            HDBS2SelectPsi2mumu, HDBS2SelectUpsi2mumu,
+                                                                                            HDBS2Recotrktrk, HDBS2SelectPhi2trktrk, 
+                                                                                            HDBS2Recopipi, HDBS2RecoKpi, HDBS2SelectRho2pipi, HDBS2SelectK0s2pipi, HDBS2SelectKstar2Kpi, HDBS2SelectD02Kpi
                                                                                             ])
  
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
-from DerivationFrameworkHiggs.HIGG2D5ExtraContent import *
+from DerivationFrameworkHDBS.HDBS2ExtraContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-HIGG2D5SlimmingHelper = SlimmingHelper("HIGG2D5SlimmingHelper")
+HDBS2SlimmingHelper = SlimmingHelper("HDBS2SlimmingHelper")
 
-HIGG2D5SlimmingHelper.SmartCollections = ["Electrons",
+HDBS2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
                                           "TauJets",
@@ -588,22 +556,31 @@ HIGG2D5SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
-HIGG2D5SlimmingHelper.ExtraVariables = HIGG2D5ExtraContent
-HIGG2D5SlimmingHelper.AllVariables = HIGG2D5ExtraContainers
+HDBS2SlimmingHelper.ExtraVariables = HDBS2ExtraContent
+HDBS2SlimmingHelper.AllVariables = HDBS2ExtraContainers
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import PhotonsCPDetailedContent
-HIGG2D5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
-
-if DerivationFrameworkIsMonteCarlo:
-    HIGG2D5SlimmingHelper.ExtraVariables += HIGG2D5ExtraContentTruth
-    HIGG2D5SlimmingHelper.AllVariables += HIGG2D5ExtraContainersTruth
+HDBS2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # For J/psi vertex augmentation
-HIGG2D5SlimmingHelper.StaticContent = HIGG2D5StaticContent
+HDBS2SlimmingHelper.StaticContent = HDBS2StaticContent
 
-HIGG2D5SlimmingHelper.IncludeMuonTriggerContent = True
-HIGG2D5SlimmingHelper.IncludeBPhysTriggerContent = True
-HIGG2D5SlimmingHelper.IncludeTauTriggerContent = True
-HIGG2D5SlimmingHelper.IncludeEGammaTriggerContent = True
+if DerivationFrameworkIsMonteCarlo:
+    HDBS2SlimmingHelper.ExtraVariables += HDBS2ExtraContentTruth
+    HDBS2SlimmingHelper.AllVariables += HDBS2ExtraContainersTruth
 
-HIGG2D5SlimmingHelper.AppendContentToStream(HIGG2D5Stream)
+
+HDBS2SlimmingHelper.IncludeMuonTriggerContent = True
+HDBS2SlimmingHelper.IncludeBPhysTriggerContent = True
+HDBS2SlimmingHelper.IncludeTauTriggerContent = True
+HDBS2SlimmingHelper.IncludeEGammaTriggerContent = True
+HDBS2SlimmingHelper.AppendToDictionary = {
+    'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+    'TruthBosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+    'TruthBosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+    }
+
+
+HDBS2SlimmingHelper.AppendContentToStream(HDBS2Stream)
+if DerivationFrameworkIsMonteCarlo:
+    HDBS2Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

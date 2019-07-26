@@ -2,7 +2,7 @@
 
 #Content included in addition to the Smart Slimming Content
 
-HIGG2D5ExtraContent=[
+HDBS2ExtraContent=[
     "egammaClusters.rawE.phi_sampl.calM",
     "GSFTrackParticles.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers",
     "Muons.quality.etcone20",
@@ -10,8 +10,12 @@ HIGG2D5ExtraContent=[
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
     ]
 
-HIGG2D5ExtraContentTruth=[]
+HDBS2ExtraContentTruth=[
+    "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection",
+    ]
 
-HIGG2D5ExtraContainers=[]
+HDBS2ExtraContainers=[]
 
-HIGG2D5ExtraContainersTruth=[]
+HDBS2ExtraContainersTruth=[
+    "TruthBosonWithDecayParticles", "TruthBosonWithDecayVertices"
+    ]
