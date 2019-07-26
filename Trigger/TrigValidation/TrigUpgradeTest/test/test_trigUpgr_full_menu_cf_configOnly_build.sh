@@ -13,8 +13,8 @@ export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
 export ATHENAOPTS="--config-only=config.pkl"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
-export REGTESTEXP="leaving with code"
-export REGTESTREF=`find_data.py TrigUpgradeTest/dummy_regtest.ref`
+export REGTESTEXP="configuration complete, now exiting|ERROR"
+export REGTESTREF=`find_data.py TrigUpgradeTest/full_menu_cf_configOnly.ref`
 
 # Skip dumping chain counts because this test doesn't produce the histogram including them
 export SKIP_CHAIN_DUMP=1
