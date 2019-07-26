@@ -14,12 +14,10 @@
 #include <TAxis.h>
 #include <TH2F.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 class GlobalSequentialCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( GlobalSequentialCorrection, IJetCalibrationTool )

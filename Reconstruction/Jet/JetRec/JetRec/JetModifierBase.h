@@ -11,20 +11,16 @@
 ///
 /// \class JetModiferBase
 /// A base class for tool acting on a single jet, implementing IJetModifier
-/// by looping over ISingleJetModifier.
-/// 
-/// This class provides a default implementation for modify(JetContainer&) which simply
-/// loops over the container and calls modify(Jet&)
+/// by looping over the jet container and calling modifyJet(Jet&) for each
+/// one. The derived class must implement modifyJet(Jet&).
 ////////////////////////////////////////////
 
 #include "AsgTools/AsgTool.h"
-#include "JetInterface/ISingleJetModifier.h"
 #include "JetInterface/IJetModifier.h"
 
 class JetModifierBase : public asg::AsgTool, 
-                        virtual public IJetModifier ,
-                        virtual public ISingleJetModifier {
-  ASG_TOOL_CLASS(JetModifierBase, ISingleJetModifier)
+                        virtual public IJetModifier{
+  ASG_TOOL_CLASS(JetModifierBase, IJetModifier)
 
  public:
   
@@ -32,7 +28,12 @@ class JetModifierBase : public asg::AsgTool,
   JetModifierBase(const std::string& myname);
 
   /// Loop over calls to modifyJet.
-  virtual int modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const;
+
+ protected:
+
+  /// Modify a single jet. This is obsolete and set to be removed.
+  virtual int modifyJet(xAOD::Jet& jet) const;
 
 };
 
