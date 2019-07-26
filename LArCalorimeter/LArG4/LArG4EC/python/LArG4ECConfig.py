@@ -32,13 +32,13 @@ def getEMECNegOuterWheelCalibrationCalculator(name="EMECNegOuterWheelCalibration
 def getEMECPosBackOuterBarretteCalibrationCalculator(name="EMECPosBackOuterBarretteCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
     kwargs.setdefault("zSide", 1)
-    kwargs.setdefault("GeometryCalculator","EMECBackOuterBarretteCorrOffCalculator")
+    kwargs.setdefault("GeometryCalculator","EMECPosBackOuterBarretteCorrOffCalculator")
     return getCalibrationCalculator(name, **kwargs)
 
 def getEMECNegBackOuterBarretteCalibrationCalculator(name="EMECNegBackOuterBarretteCalibrationCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheelCalib)
     kwargs.setdefault("zSide", -1)
-    kwargs.setdefault("GeometryCalculator","EMECBackOuterBarretteCorrOffCalculator")
+    kwargs.setdefault("GeometryCalculator","EMECNegBackOuterBarretteCorrOffCalculator")
     return getCalibrationCalculator(name, **kwargs)
 
 def getEMECPresamplerCalibrationCalculator(name="EMECPresamplerCalibrationCalculator", **kwargs):
@@ -112,9 +112,13 @@ def getEMECNegOuterWheelCorrOffCalculator(name="EMECNegOuterWheelCorrOffCalculat
     kwargs.setdefault("EnergyCorrection", 1) #LArG4::EMEC_ECOR_OFF
     return getEMECNegOuterWheelCalculator(name, **kwargs)
 
-def getEMECBackOuterBarretteCorrOffCalculator(name="EMECBackOuterBarretteCorrOffCalculator", **kwargs):
+def getEMECPosBackOuterBarretteCorrOffCalculator(name="EMECPosBackOuterBarretteCorrOffCalculator", **kwargs):
     kwargs.setdefault("EnergyCorrection", 1) #LArG4::EMEC_ECOR_OFF
-    return getEMECBackOuterBarretteCalculator(name, **kwargs)
+    return getEMECPosBackOuterBarretteCalculator(name, **kwargs)
+
+def getEMECNegBackOuterBarretteCorrOffCalculator(name="EMECNegBackOuterBarretteCorrOffCalculator", **kwargs):
+    kwargs.setdefault("EnergyCorrection", 1) #LArG4::EMEC_ECOR_OFF
+    return getEMECNegBackOuterBarretteCalculator(name, **kwargs)
 
 def getEMECPresamplerCalculator(name="EMECPresamplerCalculator", **kwargs):
     return CfgMgr.LArEndcapPresamplerCalculator(name, **kwargs)

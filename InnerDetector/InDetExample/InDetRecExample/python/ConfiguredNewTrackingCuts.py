@@ -663,8 +663,8 @@ class ConfiguredNewTrackingCuts :
         self.__nWeightedClustersMin = 6
 
 
-    if mode == "PixelPrdAssociation":
-      self.__extension        = "PixelPrdAssociation" # this runs after NewTracking
+    if mode == "Disappearing":
+      self.__extension        = "Disappearing" # this runs after NewTracking
       self.__minPT            = 5.0 * Units.GeV
       self.__minClusters      = 4
       self.__maxHoles         = 0

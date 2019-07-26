@@ -31,7 +31,7 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 #include("CaloIdCnv/CaloIdCnv_joboptions.py")
 
-include ("AthenaSealSvc/AthenaSealSvc_joboptions.py")
+include ("AthenaServices/AthenaSealSvc_joboptions.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

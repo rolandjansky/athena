@@ -5,6 +5,7 @@
 from AthenaCommon.CFElements import parOR, seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -34,7 +35,6 @@ def bJetStep1Sequence():
     from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
     (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
 				 
-
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoIFromJetsMT
@@ -74,7 +74,7 @@ def bJetStep1Sequence():
     jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
     jetSplitter.ImposeZconstraint = True
     jetSplitter.Jets = sequenceOut
-    jetSplitter.OutputJets = "SplitJets"
+    jetSplitter.OutputJets = recordable("HLT_SplitJet")
     jetSplitter.OutputRoi = "SplitJets"
     jetSplitter.InputVertex = prmVtx.OutputVertexKey
 
@@ -179,7 +179,7 @@ def bJetStep2Sequence():
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
     InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step2", RoIsLink="initialRoI")
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
@@ -199,7 +199,7 @@ def bJetStep2Sequence():
     theGSC.JetKey = InputMakerAlg.InViewJets
     theGSC.TrackKey = PTTrackParticles[0]
     theGSC.PriVtxKey = "EFHistoPrmVtx"
-    theGSC.JetOutputKey = "GSCJets"
+    theGSC.JetOutputKey = recordable("HLT_GSCJet") 
 
     step2Sequence = seqAND("step2Sequence",[theGSC])
     InputMakerAlg.ViewNodeName = "step2Sequence"
@@ -272,7 +272,7 @@ def bJetStep3Sequence():
     InputMakerAlg.ViewNodeName = bJetSequenceSequence.name()
     InputMakerAlg.RoIsLink = "step1RoI"
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view

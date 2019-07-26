@@ -54,7 +54,7 @@ namespace Monitored {
         lbString = "";
       } else if ( conv.find("lowStat")!=std::string::npos ) {
         const unsigned lbBase = lumiBlock-(lumiBlock%20);
-        lbString = "/lowStat"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
+        lbString = "/lowStat_LB"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
       } else {
         lbString = "/lb_"+std::to_string(lumiBlock);
       }

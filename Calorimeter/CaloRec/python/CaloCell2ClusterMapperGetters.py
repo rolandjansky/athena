@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloCell2ClusterMapperGetters.py,v 1.7 2008-09-12 09:08:56 menke Exp $
 #
 # File: CaloRec/python/caloCell2ClusterMapperGetters.py
 # Created: Mar 2007, sss
@@ -31,7 +30,7 @@ class CaloCell2ClusterMapperGetterBase (Configured):
         mlog = logging.getLogger ('%s.configure' % clsname)
 
         input_getter = self.getInputGetter (self._inputGetter)
-        if input_getter == None: return False
+        if input_getter is None: return False
 
         # Create the configurable.
         try:
@@ -39,9 +38,9 @@ class CaloCell2ClusterMapperGetterBase (Configured):
                      make_CaloCell2ClusterMapper (self._name,
                                                   input_getter.outputKey(),
                                                   self._outputKey)
-        except:
+        except Exception:
             mlog.error("could not construct CaloCell2ClusterMapper Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         # register output in objKeyStore

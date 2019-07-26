@@ -27,12 +27,10 @@ Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& typ
                                                           const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_materialEffects("Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects"),
   m_useReferenceMaterial(false),
   m_momentumCut(250.*Gaudi::Units::MeV)
 {
   declareInterface<IMultiStateMaterialEffectsUpdator>(this);
-  declareProperty("MaterialEffects",         m_materialEffects         );
   declareProperty("UseReferenceMaterial",    m_useReferenceMaterial        );
   declareProperty("MinimalMomentum",         m_momentumCut                 );
 }

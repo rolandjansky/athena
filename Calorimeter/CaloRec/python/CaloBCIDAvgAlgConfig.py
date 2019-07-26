@@ -18,7 +18,7 @@ def CaloBCIDAvgAlgCfg (flags):
     from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
     result.merge (LArMCSymCondAlgCfg (flags))
 
-    if flags.Input.isMC == False:
+    if flags.Input.isMC is False:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         result.merge (LuminosityCondAlgCfg (flags))
         lumiAlg = result.getCondAlgo ('LuminosityCondAlg')

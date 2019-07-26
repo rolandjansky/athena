@@ -38,7 +38,7 @@ theApp.OutStreamType = "AthenaOutputStream"
 Stream1 = Algorithm( "Stream1" )
 Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
                                  
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = True
  
 # Output file name

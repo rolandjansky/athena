@@ -24,7 +24,8 @@ addService("LArG4EC.LArG4ECConfig.getEMECPosInnerWheelCorrOffCalculator","EMECPo
 addService("LArG4EC.LArG4ECConfig.getEMECNegInnerWheelCorrOffCalculator","EMECNegInnerWheelCorrOffCalculator")
 addService("LArG4EC.LArG4ECConfig.getEMECPosOuterWheelCorrOffCalculator","EMECPosOuterWheelCorrOffCalculator")
 addService("LArG4EC.LArG4ECConfig.getEMECNegOuterWheelCorrOffCalculator","EMECNegOuterWheelCorrOffCalculator")
-addService("LArG4EC.LArG4ECConfig.getEMECBackOuterBarretteCorrOffCalculator","EMECBackOuterBarretteCorrOffCalculator")
+addService("LArG4EC.LArG4ECConfig.getEMECPosBackOuterBarretteCorrOffCalculator","EMECPosBackOuterBarretteCorrOffCalculator")
+addService("LArG4EC.LArG4ECConfig.getEMECNegBackOuterBarretteCorrOffCalculator","EMECNegBackOuterBarretteCorrOffCalculator")
 addService("LArG4EC.LArG4ECConfig.getEMECPresamplerCalculator","EMECPresamplerCalculator")
 
 addService("LArG4EC.LArG4ECConfig.getEMECPresamplerGeometry","EMECPresamplerGeometry")

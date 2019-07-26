@@ -72,7 +72,7 @@ def muCombAlgSequence(ConfigFlags):
     ### set the EVCreator ###
     l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # -||- this NEEDS to be set. probably should be roi for anything not immediately after L1
+    l2muCombViewsMaker.RoIsLink = "initialRoI" # setting to initial RoI, since RoIs are not updated in HLT processing
     l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
     l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
@@ -115,7 +115,7 @@ def muEFSAAlgSequence(ConfigFlags):
 
     efsaViewsMaker = EventViewCreatorAlgorithm("IMefsa")
     efsaViewsMaker.ViewFallThrough = True
-    efsaViewsMaker.RoIsLink = "roi" # -||-
+    efsaViewsMaker.RoIsLink = "initialRoI" # -||-
     efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
     efsaViewsMaker.RequireParentView = True
@@ -177,7 +177,7 @@ def muEFCBAlgSequence(ConfigFlags):
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
     efcbViewsMaker.ViewFallThrough = True
-    efcbViewsMaker.RoIsLink = "roi" # -||-
+    efcbViewsMaker.RoIsLink = "initialRoI" # -||-
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs" # contract with the consumer
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
     efcbViewsMaker.RequireParentView = True
@@ -278,7 +278,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     efcbfsInputMaker.mergeOutputs = False
     efcbfsInputMaker.Views = "MUCBFSViews"
     efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
-    efcbfsInputMaker.RoIsLink = "roi"
+    efcbfsInputMaker.RoIsLink = "initialRoI"
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.MuonsLink = "feature"
     efcbfsInputMaker.RequireParentView = True
@@ -317,7 +317,7 @@ def muIsoAlgSequence(ConfigFlags):
 
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
     l2muIsoViewsMaker.ViewFallThrough = True
-    l2muIsoViewsMaker.RoIsLink = "roi" # -||-
+    l2muIsoViewsMaker.RoIsLink = "initialRoI" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
     l2muIsoViewsMaker.RequireParentView = True
@@ -358,7 +358,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("IMefmuIso")
     efmuIsoViewsMaker.ViewFallThrough = True
-    efmuIsoViewsMaker.RoIsLink = "roi" # -||-
+    efmuIsoViewsMaker.RoIsLink = "initialRoI" # -||-
     efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs" # contract with the consumer
     efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
     efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"

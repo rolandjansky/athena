@@ -68,7 +68,6 @@ StatusCode LArHVMapTool::execute() {
 std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
   std::set<int> hv;
 
-  int counter=0;
   // LAr EMB
   if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)>0) {
     if (abs(m_larem_id->barrel_ec(id))==1) {

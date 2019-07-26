@@ -48,7 +48,6 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
 
     // needs for views
     Gaudi::Property< std::string > m_schedulerName { this, "SchedulerName", "AvalancheSchedulerSvc", "Name of the scheduler" };
-    Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
 
     Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };

@@ -84,6 +84,4 @@ BOOST_AUTO_TEST_SUITE(CrestFunctionsTest)
     BOOST_TEST(folderDescriptionForTag(folderTag, dontUseRealDatabase) == expectedReply);
   }
   
-  
-  
 BOOST_AUTO_TEST_SUITE_END()
