@@ -1328,7 +1328,7 @@ const CscPrepDataCollection* MuonChamberHoleRecoveryTool::findCscPrdCollection( 
     return 0;
   }
   IdentifierHash hash_id;
-  m_idHelperTool->cscIdHelper().get_module_hash(detElId, hash_id );
+  m_idHelperTool->cscIdHelper().get_geo_module_hash(detElId, hash_id );
 
   CscPrepDataContainer::const_iterator colIt = m_cscPrdContainer->indexFind(hash_id);
   if ( colIt == m_cscPrdContainer->end() ) {

@@ -363,7 +363,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
     Identifier chId = m_mdtIdHelper->elementID(name,ieta,iphi,true,&isValid);
     if (!isValid) {
-    	ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << "is not valid, skipping...");
+    	ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
     	continue;
     }
 
