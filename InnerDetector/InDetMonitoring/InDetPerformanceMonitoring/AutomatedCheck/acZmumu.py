@@ -7,7 +7,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "merge" #"%"
+m_reconmerge = "merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
 # options
@@ -94,6 +94,12 @@ def checkOnFolder (folderName):
 def getYear ():
     theYear = m_year
     
+    if ('data16' in m_dataProject):
+        theYear = 2016
+
+    if ('data17' in m_dataProject):
+        theYear = 2017
+
     if ('data18' in m_dataProject):
         theYear = 2018
 
@@ -169,9 +175,10 @@ def extractRunsAndProperties (listOfDataSets):
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfFiles = int(tempString[:tempString.find("|")])
                 print " Number of files: ", theNumberOfFiles
-                print ("")
+                print (" ")
                 infoFromAMI[theRunNumber] = {}
                 infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
+                
                 infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
                 infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
                 if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
@@ -260,6 +267,10 @@ def crossCheckInfo(infoFromAMI, infoFromRecordsFile):
                 #listOfPendingRuns.append(runInAMI)
 
     print (" <acZmumu> List of new runs has: %d items " %len(listOfNewRuns)) 
+    
+    # sort run lists
+    listOfNewRuns.sort()
+    listOfPendingRuns.sort()
 
     return (listOfNewRuns, listOfPendingRuns)
 
@@ -285,7 +296,13 @@ def submitGridJobsUserDataSet ():
     if (m_submitExec): 
         print (" <acZmumu> m_submitExec = True --> job to be submmited");
         # move to the submission folder
-        submissionPath = "%s/run" %(m_testArea) 
+        submissionPath = "%s/run" %(m_testArea)
+        if (not os.path.exists(submissionPath)):
+            print (" <acZmumu> \"run\" folder (submission path: %s) does not exist " %submissionPath)
+            print ("          making the path available for you ;) ")
+            theMkdirCommand = "mkdir %s" %submissionPath
+            os.system(theMkdirCommand)
+            
         os.chdir(submissionPath)
         print (" <acZmumu> path: %s" %(submissionPath))
         os.system(theCommand)
@@ -297,20 +314,31 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     import os
 
     listOfSubmittedRuns = []
+    listOfSubmittedDatasets = []
+
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
+
     for runNumber in listOfNewRuns:
         listOfRunsToSubmit.append(runNumber)
     for runNumber in listOfPendingRuns:
         listOfRunsToSubmit.append(runNumber)
 
+    # sort list
+    listOfRunsToSubmit.sort()
+    print (" <acZmumu> sorted list of runs to submit (%d)" %len(listOfRunsToSubmit))
+    print listOfRunsToSubmit
+
+    runcount = 0
     for runNumber in listOfRunsToSubmit:
-        print (" <acZmumu> dealing with new run: %d" %(runNumber))
+        runcount += 1
+        print ("\n <acZmumu> dealing with new run: %d  [%d/%d]" %(runNumber, runcount,len(listOfRunsToSubmit)))
         readyForSubmission = True
         theRunProperties = infoFromAMI[runNumber]
         runEvents = int(theRunProperties["events"])
         runEvents = int(infoFromAMI[runNumber]["events"])
         # check stats
+        print " Run number: %d, events: %d, min req: %d " %(runNumber, runEvents, m_minEvents)
         if (runEvents < m_minEvents):
             readyForSubmission = False
             infoFromAMI[runNumber]["status"] = "LOW_STATS"
@@ -334,10 +362,12 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             infoFromAMI[runNumber]["status"] = "NEW"
             infoFromAMI[runNumber]["attempt"] = 0
             infoFromAMI[runNumber]["jeditaskid"] = 0
-            theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
+            theCommand, theDataset = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
-            print (" <acZmumu> testArea: %s" %(m_testArea))
+            listOfSubmittedDatasets.append(theDataset)
+
+            print (" <acZmumu> submiting job number %d" %(len(listOfSubmittedRuns)))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> job to be submmited");
                 # move to the submission folder
@@ -348,6 +378,24 @@ def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
                 infoFromAMI[runNumber]["status"] = "SUBMITTED"
                 infoFromAMI[runNumber]["jeditaskid"] = 1
                 infoFromAMI[runNumber]["attempt"] = infoFromAMI[runNumber]["attempt"] + 1
+            else:
+                print (" <acZmumu> dry test for run %d" %runNumber);
+
+    print (" <acZmumu> list of submitted runs has %d elements" %(len(listOfSubmittedRuns)))
+
+    import simplejson
+    listOfSubmittedRuns.sort()
+    filewithrunlist = open('acZmumu_listofsubmittedruns.txt', 'wb')
+    simplejson.dump(listOfSubmittedRuns, filewithrunlist)        
+    print " size of submitted runs: ",len(listOfSubmittedRuns)
+
+    listOfSubmittedDatasets.sort()
+    print " size of submitted datasets: ",len(listOfSubmittedDatasets)
+    filewithdatasets= open("acZmumu_listofsubmitteddatasets.txt","wb")
+    for thedataset in listOfSubmittedDatasets:
+        filewithdatasets.write("%s\n" %thedataset)
+        print " data set: ",thedataset
+    filewithdatasets.close()
 
     return listOfSubmittedRuns
 
@@ -359,18 +407,14 @@ def getAthenaBasics ():
     try:
         testArea = os.getenv("TestArea","")
         # make sure this points to the athena folder
-        if ("athena" not in testArea.split()[-1]):
+        if ("athena" not in testArea.split("/")[-1]):
             tempTestArea = testArea.split("/")
-            #print "tempTestArea = ", tempTestArea
-            #print "  old last = ", tempTestArea[-1]
             tempTestArea[-1] = "athena"
             # reform the string
-            #print "  new last = ", tempTestArea[-1]
             newTestArea = ""
             for tempword in tempTestArea:
                 if (len(tempword)>0):
                     newTestArea = "%s/%s" %(newTestArea, tempword)
-                    #print " newTestArea: %s" %newTestArea
             testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
@@ -438,10 +482,13 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     theScript = "%s%sshare/%s" %(m_testArea, m_packagePath, m_scriptName)
 
     theInput = "NONE"
+    theDataSet = "NONE"
     if (runNumber>0):
-        theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
+        theDataSet = "%s" %(infoFromAMI[runNumber]["dataset"])
+        theInput = "--inDS=%s" %(theDataSet)
     else:
         if ("NONE" not in m_userDataSet):
+            theDataSet = "%s" %m_userDataSet
             theInput = "--inDS=%s" %m_userDataSet
     if ("NONE" in theInput):
         sys.exit(" <acZmumu> ** ERROR ** no input available for the grid submission command. ** STOP execution **")
@@ -463,18 +510,27 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
         theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            theOptions = "--useShortLivedReplicas  --forceStaged"
+            #theOptions = "--useShortLivedReplicas  --forceStaged"
+            theOptions = "--useShortLivedReplicas" # under test. Suggested by Ilija Vukotic on 14/July/2019
 
     theExtraOptions = "" 
-    theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+    if (len(m_workDirPlatform)>0): 
+        theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+    else:
+        theExtraOptions = "--excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC"
+    theExtraOptions = " " 
 
     theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print "%s " %theCommand
 
-    return theCommand
+    return theCommand,theDataSet
 
 ###################################################################################################                                                                                
 def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
+
+    import pickle
+
+    print " listOfSubmittedRuns: dimension:", len(listOfSubmittedRuns), "  list: ", listOfSubmittedRuns 
 
     if ("NONE" in m_userDataSet):
         print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
@@ -484,6 +540,11 @@ def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
             fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
     
         fileToUpdate.close()
+
+        # alternative method
+        with open('acZmumu_listofsubmittedruns.txt', 'wb') as fp:
+            pickle.dump(listOfSubmittedRuns, fp)
+        
 
     return
 
@@ -622,10 +683,11 @@ if __name__ == '__main__':
     (listOfNewRuns, listOfPendingRuns) = crossCheckInfo(infoFromAMI, infoFromRecordsFile)
 
     # submit the necessary jobs
-    listOfSubmitedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    listOfSubmittedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    print (" <acZmumu> main returned a list of submitted runs with %d elements" %(len(listOfSubmittedRuns)))
 
     # store new status
-    updateRecordsFile(listOfSubmitedRuns, infoFromAMI)
+    updateRecordsFile(listOfUsedRuns, infoFromAMI)
 
     endBanner ()
 #
