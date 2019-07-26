@@ -220,8 +220,13 @@ namespace asg
       return 0;}
 
     /// \brief produce a status code to report failure
+    ///
+    /// This could be any code really, but this is the code that
+    /// should report that the job failed when running on the grid.
+    /// There are actually two codes: FAIL=220, ABORT=221, not sure
+    /// which of the two I ought to be using here.
     static inline int failureCode () {
-      return 1;}
+      return 220;}
   };
 
   template<> struct CheckHelper<bool>
