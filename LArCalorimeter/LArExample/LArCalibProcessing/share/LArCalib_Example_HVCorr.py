@@ -130,6 +130,9 @@ include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 
 from LArConditionsCommon import LArHVDB #Sets HV Cabling and DCS Database folders
+#block to read the existing HVCorr
+conddb.blockFolder(LArHVScaleCorrFolder);
+
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
 
 from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker

@@ -4,6 +4,8 @@
 
 #include "LArByteStream/LArDigitContByteStreamCnv.h"
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
+#include "LArByteStream/LArABBADecoder.h"
+#include "LArByteStream/ABBAMapping.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -97,6 +99,13 @@ LArDigitContByteStreamCnv::initialize()
     (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endmsg;
     return StatusCode::FAILURE;
   }
+  
+  //Get SuperCellTool
+  sc=toolSvc->retrieveTool("LArABBADecoder",m_scTool);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Can't get LArABBADecoder Tool" << endmsg;
+    return sc;
+  }
 
   //Get StoreGateSvc
   return service("StoreGateSvc", m_storeGate); 
@@ -128,17 +137,26 @@ LArDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
   const std::string& key = *(pAddr->par()); // Get key used in the StoreGateSvc::retrieve function
   // get gain and pass to convert function.
   CaloGain::CaloGain gain=CaloGain::LARNGAIN; //At this place, LARNGAINS means Automatic gain.
+  bool isSC=false;
   if (key=="HIGH")
     gain=CaloGain::LARHIGHGAIN;
   else if (key=="MEDIUM")
     gain=CaloGain::LARMEDIUMGAIN;
   else if (key=="LOW")
     gain=CaloGain::LARLOWGAIN;
+  else if (key=="SC")
+    isSC=true;
 
   // Convert the RawEvent to  LArDigitContainer
   (*m_log) << MSG::DEBUG << "Converting LArDigits (from ByteStream). key=" << key << " ,gain=" << gain << endmsg; 
   LArDigitContainer *DigitContainer=new LArDigitContainer;
-  StatusCode sc=m_tool->convert(re,DigitContainer,gain);
+  StatusCode sc;
+  if (!isSC) {//Regular readout
+    sc=m_tool->convert(re,DigitContainer,gain);
+  }
+  else { //Supercell readout
+    sc=m_scTool->convert(re,DigitContainer);
+  }
   if (sc!=StatusCode::SUCCESS)
     (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArDigitContainer might be empty." << endmsg;
     

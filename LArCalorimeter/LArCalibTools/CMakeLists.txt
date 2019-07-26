@@ -16,6 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawConditions
                           LArCalorimeter/LArRecConditions
+                          LArCalorimeter/LArRawEvent
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          LumiBlock/LumiBlockComps
                           PRIVATE
                           Calorimeter/CaloCondBlobObjs
                           Control/AthenaKernel
@@ -25,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LumiBlock/LumiBlockData
                           LArCalorimeter/LArCOOLConditions
                           LArCalorimeter/LArRawEvent
+                          LArCalorimeter/LArCondUtils
                           LArCalorimeter/LArTools )
 
 # External dependencies:
@@ -36,7 +40,7 @@ atlas_add_component( LArCalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LumiBlockData LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel TrigDecisionTool AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib TrigDecisionTool LumiBlockComps )
 
 # Install files from the package:
 atlas_install_headers( LArCalibTools )
