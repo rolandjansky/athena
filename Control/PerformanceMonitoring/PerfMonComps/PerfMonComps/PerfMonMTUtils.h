@@ -26,6 +26,7 @@ namespace PMonMT {
   double get_thread_cpu_time();
   double get_process_cpu_time();
   double get_wall_time();
+  std::string get_cpu_model();
 
   // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
   struct StepComp {
@@ -162,6 +163,12 @@ inline double PMonMT::get_process_cpu_time() {
 inline double PMonMT::get_wall_time() {
   return static_cast<double>(std::chrono::system_clock::now().time_since_epoch() /
                              std::chrono::milliseconds(1));
+}
+
+inline std::string PMonMT::get_cpu_model(){
+  std::stringstream s;
+  //s << get_field("/proc/cpuinfo","model name",'_') << "/" << get_field("/proc/cpuinfo","cache size",'_');
+  return s.str();
 }
 
 #endif // PERFMONCOMPS_PERFMONMTUTILS_H

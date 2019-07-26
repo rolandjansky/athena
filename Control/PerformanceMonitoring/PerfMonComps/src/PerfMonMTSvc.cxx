@@ -15,7 +15,7 @@
 
 // Input/Output includes
 #include <fstream>
-#include <nlohmann/json.hpp> 
+
 
 using json = nlohmann::json; // for convenience
 
@@ -28,6 +28,12 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
 
   m_measurement.capture();
   m_snapshotData[0].addPointStart(m_measurement);
+
+  declareProperty( "doEventLoopMonitoring",
+                  m_isEventLoopMonitoring = false,
+                  "True if event loop monitoring is enable, false o/w."
+                  "Event loop monitoring may cause a decrease in the performance"
+                  "due to the usage of locks" );
  
 }
 
@@ -56,7 +62,8 @@ StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
  * Initialize the Service
  */
 StatusCode PerfMonMTSvc::initialize() {
-  ATH_MSG_INFO("Initialize");
+  if(m_isEventLoopMonitoring)
+    ATH_MSG_INFO("----------------------------!!!!!!!!!!!!!!!!!!!!!!-----------------------------");
   
   // TODO: Define this array as a class member !
   // Name the steps whose snapshots will be captured as a whole
@@ -100,7 +107,7 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
     startSnapshotAud(stepName, compName);
 
     //if (stepName == "Execute")
-    if( isLoop() )
+    if( isLoop() && m_isEventLoopMonitoring == true)
       startCompAud_MT(stepName, compName);
     else
       startCompAud_serial(stepName, compName);
@@ -117,7 +124,7 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
   if( compName != "PerfMonMTSvc" ){
     stopSnapshotAud(stepName, compName);
 
-    if( isLoop() )
+    if( isLoop() &&  m_isEventLoopMonitoring == true)
       stopCompAud_MT(stepName, compName);
     else
       stopCompAud_serial(stepName, compName);
@@ -279,6 +286,58 @@ PMonMT::StepCompEvent PerfMonMTSvc::generate_parallel_state( const std::string& 
   return currentState;
 }
 
+std::string PerfMonMTSvc::get_cpu_model_info(){
+
+  std::string cpu_model;
+
+  std::ifstream file("/proc/cpuinfo");
+  std::string line;
+  if(file.is_open()){
+
+    std::string delimiter = ":";
+    while(getline( file, line)){
+
+      std::string key = line.substr(0, line.find(delimiter));
+      if(key == "model name	"){
+      	cpu_model = line.substr(line.find(delimiter)+1, line.length());
+      	break;
+      }
+    }
+    file.close();
+    return cpu_model;
+  }
+  else{
+    std::cout << "Unable to open /proc/cpuinfo" << std::endl;
+    return "Unable to open /proc/cpuinfo";
+  }
+
+}
+
+int PerfMonMTSvc::get_cpu_core_info(){
+
+  int logical_core_num = 0;
+
+  std::ifstream file("/proc/cpuinfo");
+  std::string line;
+  if(file.is_open()){
+
+    std::string delimiter = ":";
+    while(getline( file, line)){
+
+      std::string key = line.substr(0, line.find(delimiter));
+      if(key == "processor	"){
+      	logical_core_num++;
+      }
+    }
+    file.close();
+    return logical_core_num;
+  }
+  else{
+    std::cout << "Unable to open /proc/cpuinfo" << std::endl;
+    return -1;
+  }
+}
+
 
 // Report the results
 void PerfMonMTSvc::report(){
@@ -288,10 +347,7 @@ void PerfMonMTSvc::report(){
 
 }
 
-
-void PerfMonMTSvc::report2JsonFile(){
-
-  json j;
+void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j){
 
   // Report snapshot level results
   for(int i = 0; i < 3; i++ ){
@@ -303,7 +359,10 @@ void PerfMonMTSvc::report2JsonFile(){
     j["Snapshot_level"][m_snapshotStepNames[i]] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} };
 
   }
- 
+
+}
+void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j){
+
   // Report component level results
   for(auto& it : m_compLevelDataMap){
 
@@ -319,6 +378,9 @@ void PerfMonMTSvc::report2JsonFile(){
     // Free the dynamically allocated space
     delete it.second;
   }
+}
+
+void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j){
 
   for(auto& it : m_aggParallelCompLevelDataMap){
 
@@ -331,64 +393,43 @@ void PerfMonMTSvc::report2JsonFile(){
     j["Parallel_Component_level"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
   }
-  
-  /*
-  for(auto& it : m_parallelCompLevelData.m_delta_map){
+}
 
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
-    int eventNumber = it.first.eventNumber;
 
-    double wall_time = it.second.second;
-    double cpu_time = it.second.first;
+void PerfMonMTSvc::report2JsonFile(){
 
-    j["Detailed_Parallel_Component_level"][eventNumber][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+  json j;
 
-  }
-  */
+  report2JsonFile_Summary(j);
+  report2JsonFile_Serial(j);
+
+  if(m_isEventLoopMonitoring)
+    report2JsonFile_Parallel(j);
+ 
+
   std::ofstream o("PerfMonMTSvc_result.json");
   o << std::setw(4) << j << std::endl;
 
 }
 
+
+
+
 void PerfMonMTSvc::report2Stdout(){ 
+  
+  report2Stdout_Serial();
 
-  ATH_MSG_INFO("=========================================================");
-  ATH_MSG_INFO("                PerfMonMT Results Summary                ");
-  ATH_MSG_INFO("=========================================================");
+  if(m_isEventLoopMonitoring)
+    report2Stdout_Parallel();
 
-  ATH_MSG_INFO("Total Wall time in the Initialization is " << m_snapshotData[0].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Initialization is " << m_snapshotData[0].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the Initialization is " <<
-               m_snapshotData[0].m_delta_cpu/m_snapshotData[0].m_delta_wall );
-  ATH_MSG_INFO("");
+  report2Stdout_Summary();
+  report2Stdout_CpuInfo();
 
-  ATH_MSG_INFO("Total Wall time in the event loop is " << m_snapshotData[1].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_snapshotData[1].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the event loop is " <<
-                m_snapshotData[1].m_delta_cpu/m_snapshotData[1].m_delta_wall );
-  ATH_MSG_INFO("");
+  ATH_MSG_INFO( get_cpu_model_info() );
+  
 
-  ATH_MSG_INFO("Total Wall time in the Finalize is " << m_snapshotData[2].m_delta_wall << " ms ");
-  ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_snapshotData[2].m_delta_cpu  << " ms ");
-  ATH_MSG_INFO("Average CPU utilization in the Finalize is " <<
-                m_snapshotData[2].m_delta_cpu/m_snapshotData[2].m_delta_wall );
-
-
-  ATH_MSG_INFO("=========================================================");
-
-  ATH_MSG_INFO("=========================================================");
-  ATH_MSG_INFO("               Serial Component Level Monitoring                ");
-  ATH_MSG_INFO("=========================================================");
-
-  // Clear! ->
-  ATH_MSG_INFO( "Step  CPU  Wall  Component"  );
-  for(auto& it : m_compLevelDataMap){
-    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second->m_delta_cpu << "  -  "  << it.second->m_delta_wall <<   "     "  <<  it.first.compName  );
-  } 
- 
-  ATH_MSG_INFO("=========================================================");
-
+  
+  /*
   ATH_MSG_INFO("=========================================================");
   ATH_MSG_INFO("                Event Loop Monitoring                ");
   ATH_MSG_INFO("=========================================================");
@@ -412,6 +453,54 @@ void PerfMonMTSvc::report2Stdout(){
 
   }
 
+  ATH_MSG_INFO("Event loop CPU Sum:  " << cpu_sum );
+  ATH_MSG_INFO("Event loop Wall Sum:  " << wall_sum );
+  */
+}
+
+void PerfMonMTSvc::report2Stdout_Summary(){
+
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("                PerfMonMT Results Summary                ");
+  ATH_MSG_INFO("=========================================================");
+
+  ATH_MSG_INFO("Total Wall time in the Initialization is " << m_snapshotData[0].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the Initialization is " << m_snapshotData[0].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Average CPU utilization in the Initialization is " <<
+               m_snapshotData[0].m_delta_cpu/m_snapshotData[0].m_delta_wall );
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO("Total Wall time in the event loop is " << m_snapshotData[1].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the event loop is " << m_snapshotData[1].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Average CPU utilization in the event loop is " <<
+                m_snapshotData[1].m_delta_cpu/m_snapshotData[1].m_delta_wall );
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO("Total Wall time in the Finalize is " << m_snapshotData[2].m_delta_wall << " ms ");
+  ATH_MSG_INFO("Total CPU  time in the Finalize is " << m_snapshotData[2].m_delta_cpu  << " ms ");
+  ATH_MSG_INFO("Average CPU utilization in the Finalize is " <<
+                m_snapshotData[2].m_delta_cpu/m_snapshotData[2].m_delta_wall );
+
+  ATH_MSG_INFO("=========================================================");
+
+}
+void PerfMonMTSvc::report2Stdout_Serial(){
+
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("               Serial Component Level Monitoring                ");
+  ATH_MSG_INFO("=========================================================");
+
+  // Clear! ->
+  ATH_MSG_INFO( "Step  CPU  Wall  Component"  );
+  for(auto& it : m_compLevelDataMap){
+    ATH_MSG_INFO( it.first.stepName << ": " <<  it.second->m_delta_cpu << "  -  "  << it.second->m_delta_wall <<   "     "  <<  it.first.compName  );
+  } 
+ 
+  ATH_MSG_INFO("=========================================================");
+  
+}
+void PerfMonMTSvc::report2Stdout_Parallel(){
+
   parallelDataAggregator();
 
   ATH_MSG_INFO("=========================================================");
@@ -425,9 +514,22 @@ void PerfMonMTSvc::report2Stdout(){
     ATH_MSG_INFO( it.first.stepName << ": " <<  it.second.cpu_time << "  -  "  << it.second.wall_time <<   "     "  <<  it.first.compName  );
     
   }
-   
 
-  ATH_MSG_INFO("Event loop CPU Sum:  " << cpu_sum );
-  ATH_MSG_INFO("Event loop Wall Sum:  " << wall_sum );
+  ATH_MSG_INFO("=========================================================");
+
 }
 
+void PerfMonMTSvc::report2Stdout_CpuInfo(){
+
+  ATH_MSG_INFO("=========================================================");
+
+  ATH_MSG_INFO("=========================================================");
+  ATH_MSG_INFO("                  System Information                     ");
+  ATH_MSG_INFO("=========================================================");
+
+  ATH_MSG_INFO("CPU Model:" << get_cpu_model_info());
+  ATH_MSG_INFO("Number of Logical Cores:" << get_cpu_core_info());
+
+  ATH_MSG_INFO("=========================================================");
+
+}

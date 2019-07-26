@@ -18,6 +18,8 @@
 // PerfMonComps includes
 #include "PerfMonComps/PerfMonMTUtils.h"
 
+#include <nlohmann/json.hpp> 
+
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
  * Initialize, Event Loop and Finalize
@@ -92,12 +94,25 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void parallelDataAggregator();
 
+    std::string get_cpu_model_info();
+    int get_cpu_core_info();
+    
     
     // Report the results
     void report();
 
     void report2Stdout();
+  
+    void report2Stdout_Summary();
+    void report2Stdout_Serial();
+    void report2Stdout_Parallel();
+    void report2Stdout_CpuInfo();
+
     void report2JsonFile();
+
+    void report2JsonFile_Summary(nlohmann::json& j);
+    void report2JsonFile_Serial(nlohmann::json& j);
+    void report2JsonFile_Parallel(nlohmann::json& j);
 
     
   private:
@@ -126,6 +141,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
 
     std::mutex m_mutex;
+
+    BooleanProperty m_isEventLoopMonitoring;
 
 }; // class PerfMonMTSvc
 
