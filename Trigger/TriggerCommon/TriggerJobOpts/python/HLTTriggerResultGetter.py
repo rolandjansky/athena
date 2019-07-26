@@ -371,7 +371,7 @@ class HLTTriggerResultGetter(Configured):
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
             topSequence += RoiWriter()
             # write out the RoiDescriptorStores
-            from TrigEDMConfig.TriggerEDM import TriggerRoiList
+            from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
         #Are we adding operational info objects in ESD?

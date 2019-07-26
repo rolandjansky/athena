@@ -65,12 +65,12 @@ if opt.doESD:
       __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
       __log.debug(decObj)
 
-      from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+      from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
       ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
       ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-      ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-      ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-      ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+      ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
+      ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+      ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
       ItemList += [ "xAOD::EventInfo#EventInfo" ]
       ItemList += [ "xAOD::EventAuxInfo#EventInfoAux." ]
       ItemList = list(set(ItemList))

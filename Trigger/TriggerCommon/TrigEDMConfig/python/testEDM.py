@@ -3,6 +3,7 @@
 
 
 from TriggerEDM import *
+from TriggerEDMRun2 import EDMDetails
 from CLIDComps.clidGenerator import clidGenerator
 cgen = clidGenerator("", False)
 

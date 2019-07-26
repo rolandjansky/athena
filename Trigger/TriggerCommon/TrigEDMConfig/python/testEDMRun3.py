@@ -15,7 +15,7 @@ def main():
   import re
   serializable_names = []
   serializable_names_no_label = []
-  for TriggerSerializable in TriggerHLTList:
+  for TriggerSerializable in TriggerHLTListRun3:
     #print TriggerSerializable
     serializable_name = TriggerSerializable[0]
     serializable_name_no_label = re.sub(r"\#.*", "", serializable_name)
