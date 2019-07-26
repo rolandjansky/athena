@@ -110,6 +110,7 @@ namespace FlavorTagDiscriminants {
         {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
         {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
         {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
+        {"softMuon_p[bcu]"_r, EDMType::DOUBLE},
         {"softMuon_.*"_r, EDMType::FLOAT},
       };
     }
