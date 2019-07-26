@@ -331,9 +331,11 @@ namespace CP {
       SCsub = - topoetconecoreConeEnergyCorrection + core57cells;
     }
 	
-    const xAOD::EventShape* evtShapeCentral;
-    const xAOD::EventShape* evtShapeForward;
+    float centralDensity = 0.;
+    float forwardDensity = 0.;
     if(m_apply_etaEDParPU_corr){
+      const xAOD::EventShape* evtShapeCentral;
+      const xAOD::EventShape* evtShapeForward;
       if(evtStore()->retrieve(evtShapeCentral, "TopoClusterIsoCentralEventShape").isFailure()){
         ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoCentralEventShape" << " for isolation correction.");
         return CP::CorrectionCode::Error;
@@ -342,6 +344,8 @@ namespace CP {
         ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoForwardEventShape" << " for isolation correction.");
         return CP::CorrectionCode::Error;
       }
+      centralDensity = evtShapeCentral->getDensity(xAOD::EventShape::Density);
+      forwardDensity = evtShapeForward->getDensity(xAOD::EventShape::Density);
     }
 
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
@@ -395,13 +399,12 @@ namespace CP {
       // this correction is derived purly from data, but can also be applied to mc
       if(m_apply_etaEDParPU_corr){
         float abseta = fabs(eg.caloCluster()->etaBE(2));
-        float centralDensity = evtShapeCentral->getDensity(xAOD::EventShape::Density);
         float densityOldCorrection = 0.;
         if(abseta <= 1.5){
           densityOldCorrection = centralDensity;
         }
         else{
-          densityOldCorrection = evtShapeForward->getDensity(xAOD::EventShape::Density);
+          densityOldCorrection = forwardDensity;
         }
         float dR = xAOD::Iso::coneSize(type);
         static const float a_core = 5*7*0.025*TMath::Pi()/128;
