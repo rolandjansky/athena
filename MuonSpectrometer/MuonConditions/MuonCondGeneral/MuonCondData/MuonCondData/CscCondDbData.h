@@ -14,7 +14,6 @@
 #include "AthenaKernel/CondCont.h" 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-//#include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/BaseInfo.h" 
 
 
@@ -33,27 +32,27 @@ public:
     CscCondDbData();
     virtual ~CscCondDbData() = default;
 
-    virtual void setChannelStatus(IdentifierHash, int);
-    virtual void setDeadChannelHash(IdentifierHash);
+    void setChannelStatus(IdentifierHash, int);
+    void setDeadChannelHash(IdentifierHash);
 
-    virtual void setDeadLayer     (std::string, Identifier);
-    virtual void setDeadStation   (std::string, Identifier);
+    void setDeadLayer     (std::string, Identifier);
+    void setDeadStation   (std::string, Identifier);
    
-    virtual const std::vector<std::string>& getDeadLayers     () const;
-    virtual const std::vector<std::string>& getDeadStations   () const;
+    const std::vector<std::string>& getDeadLayers     () const;
+    const std::vector<std::string>& getDeadStations   () const;
     
-    virtual const std::vector<Identifier>& getDeadLayersId     () const;
-    virtual const std::vector<Identifier>& getDeadStationsId   () const;
+    const std::vector<Identifier>& getDeadLayersId     () const;
+    const std::vector<Identifier>& getDeadStationsId   () const;
 
-    virtual const std::vector<unsigned int>& getDeadChannelsHash() const;
+    const std::vector<unsigned int>& getDeadChannelsHash() const;
     
-    virtual const int& getChannelStatus(IdentifierHash) const;
+    const int& getChannelStatus(IdentifierHash) const;
 
-    virtual bool isGood           (const Identifier &    ) const;
-    virtual bool isGoodLayer      (const Identifier &    ) const;
-    virtual bool isGoodStation    (const Identifier &    ) const;
+    bool isGood           (const Identifier &    ) const;
+    bool isGoodLayer      (const Identifier &    ) const;
+    bool isGoodStation    (const Identifier &    ) const;
 
-    virtual bool isGoodChannelHash(const IdentifierHash &) const;
+    bool isGoodChannelHash(const IdentifierHash &) const;
 
 
  

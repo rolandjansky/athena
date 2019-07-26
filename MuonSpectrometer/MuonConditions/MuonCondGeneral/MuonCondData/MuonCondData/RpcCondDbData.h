@@ -11,7 +11,6 @@
 
 //Athena includes
 #include "Identifier/Identifier.h"
-//#include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/CondCont.h" 
 #include "AthenaKernel/BaseInfo.h" 
 
@@ -29,48 +28,48 @@ public:
     RpcCondDbData();
     virtual ~RpcCondDbData() = default;
 
-    virtual void setDeadPanel       (std::string, Identifier        );
-    virtual void setDeadStrip       (Identifier                     );
-    virtual void setDeadStripInt    (Identifier, int                );
-    virtual void setDeadStripList   (Identifier, std::string        );
-    virtual void setEfficiency      (Identifier, double             );
-    virtual void setFracClusterSize1(Identifier, double             );
-    virtual void setFracClusterSize2(Identifier, double             );
-    virtual void setFracClusterSize3(Identifier, double             );
-    virtual void setFracDeadStrip   (Identifier, double             );
-    virtual void setGapEfficiency   (Identifier, double             );
-    virtual void setLowEffPanel     (Identifier                     );
-    virtual void setMeanClusterSize (Identifier, double             );
-    virtual void setOffPanel        (std::string, Identifier        );
-    virtual void setProjectedTrack  (Identifier, int                );
-    virtual void setStripTime       (Identifier, std::vector<double>);
+    void setDeadPanel       (std::string, Identifier        );
+    void setDeadStrip       (Identifier                     );
+    void setDeadStripInt    (Identifier, int                );
+    void setDeadStripList   (Identifier, std::string        );
+    void setEfficiency      (Identifier, double             );
+    void setFracClusterSize1(Identifier, double             );
+    void setFracClusterSize2(Identifier, double             );
+    void setFracClusterSize3(Identifier, double             );
+    void setFracDeadStrip   (Identifier, double             );
+    void setGapEfficiency   (Identifier, double             );
+    void setLowEffPanel     (Identifier                     );
+    void setMeanClusterSize (Identifier, double             );
+    void setOffPanel        (std::string, Identifier        );
+    void setProjectedTrack  (Identifier, int                );
+    void setStripTime       (Identifier, std::vector<double>);
 
-    virtual const std::vector<std::string>& getDeadPanels() const;
-    virtual const std::vector<std::string>& getOffPanels () const;
+    const std::vector<std::string>& getDeadPanels() const;
+    const std::vector<std::string>& getOffPanels () const;
     
-    virtual const std::vector<Identifier>& getDeadPanelsId() const;
-    virtual const std::vector<Identifier>& getDeadStrips  () const;
-    virtual const std::vector<Identifier>& getLowEffPanels() const;
-    virtual const std::vector<Identifier>& getOffPanelsId () const;
+    const std::vector<Identifier>& getDeadPanelsId() const;
+    const std::vector<Identifier>& getDeadStrips  () const;
+    const std::vector<Identifier>& getLowEffPanels() const;
+    const std::vector<Identifier>& getOffPanelsId () const;
 
-    virtual const std::string&         getDeadStripList   (const Identifier& );
-    virtual const int&                 getDeadStripInt    (const Identifier& );
-    virtual const double&              getEfficiency      (const Identifier& );
-    virtual const double&              getFracClusterSize1(const Identifier& );
-    virtual const double&              getFracClusterSize2(const Identifier& );
-    virtual const double&              getFracClusterSize3(const Identifier& );
-    virtual const double&              getFracDeadStrip   (const Identifier& );
-    virtual const double&              getGapEfficiency   (const Identifier& );
-    virtual const double&              getMeanClusterSize (const Identifier& );
-    virtual const int&                 getProjectedTrack  (const Identifier& );
-    virtual const std::vector<double>& getStripTime       (const Identifier& );
+    const std::string&         getDeadStripList   (const Identifier& );
+    const int&                 getDeadStripInt    (const Identifier& );
+    const double&              getEfficiency      (const Identifier& );
+    const double&              getFracClusterSize1(const Identifier& );
+    const double&              getFracClusterSize2(const Identifier& );
+    const double&              getFracClusterSize3(const Identifier& );
+    const double&              getFracDeadStrip   (const Identifier& );
+    const double&              getGapEfficiency   (const Identifier& );
+    const double&              getMeanClusterSize (const Identifier& );
+    const int&                 getProjectedTrack  (const Identifier& );
+    const std::vector<double>& getStripTime       (const Identifier& );
  
  
-    virtual bool isEffPanel      (const Identifier & Id) const;
-    virtual bool isGood          (const Identifier & Id) const;
-    virtual bool isGoodPanel     (const Identifier & Id) const;
-    virtual bool isGoodStrip     (const Identifier & Id) const;
-    virtual bool isOffPanel      (const Identifier & Id) const;
+    bool isEffPanel      (const Identifier & Id) const;
+    bool isGood          (const Identifier & Id) const;
+    bool isGoodPanel     (const Identifier & Id) const;
+    bool isGoodStrip     (const Identifier & Id) const;
+    bool isOffPanel      (const Identifier & Id) const;
 
 
  

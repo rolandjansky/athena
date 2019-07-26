@@ -4,15 +4,6 @@
 
 #include "MuonCondData/TgcCondDbData.h"
 
-//STL includes
-#include <vector>
-#include <string>
-
-#include "Identifier/Identifier.h"
-
-using namespace std;
-
-
 // constructor
 TgcCondDbData::TgcCondDbData(){
 }

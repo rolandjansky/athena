@@ -12,7 +12,6 @@
 //Athena includes
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "Identifier/Identifier.h"
-//#include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/CondCont.h" 
 #include "AthenaKernel/BaseInfo.h" 
 
@@ -31,49 +30,49 @@ public:
     MdtCondDbData();
     virtual ~MdtCondDbData() = default;
 
-    virtual void setDeadTube      (std::string, Identifier);
-    virtual void setDeadLayer     (std::string, Identifier);
-    virtual void setDeadMultilayer(std::string, Identifier);
-    virtual void setDeadStation   (std::string, Identifier);
-    virtual void setDeadChamber   (Identifier);
+    void setDeadTube      (std::string, Identifier);
+    void setDeadLayer     (std::string, Identifier);
+    void setDeadMultilayer(std::string, Identifier);
+    void setDeadStation   (std::string, Identifier);
+    void setDeadChamber   (Identifier);
 
-    virtual void setNoisyTube      (Identifier);
-    virtual void setNoisyLayer     (Identifier);
-    virtual void setNoisyMultilayer(Identifier);
-    virtual void setNoisyStation   (Identifier);
-    virtual void setNoisyChamber   (Identifier);
+    void setNoisyTube      (Identifier);
+    void setNoisyLayer     (Identifier);
+    void setNoisyMultilayer(Identifier);
+    void setNoisyStation   (Identifier);
+    void setNoisyChamber   (Identifier);
    
-    virtual const std::vector<std::string>& getDeadTubes      () const;
-    virtual const std::vector<std::string>& getDeadLayers     () const;
-    virtual const std::vector<std::string>& getDeadMultilayers() const;
-    virtual const std::vector<std::string>& getDeadStations   () const;
-    virtual const std::vector<std::string>& getDeadChambers   () const;
+    const std::vector<std::string>& getDeadTubes      () const;
+    const std::vector<std::string>& getDeadLayers     () const;
+    const std::vector<std::string>& getDeadMultilayers() const;
+    const std::vector<std::string>& getDeadStations   () const;
+    const std::vector<std::string>& getDeadChambers   () const;
     
-    virtual const std::vector<Identifier>& getDeadTubesId      () const;
-    virtual const std::vector<Identifier>& getDeadLayersId     () const;
-    virtual const std::vector<Identifier>& getDeadMultilayersId() const;
-    virtual const std::vector<Identifier>& getDeadStationsId   () const;
-    virtual const std::vector<Identifier>& getDeadChambersId   () const;
+    const std::vector<Identifier>& getDeadTubesId      () const;
+    const std::vector<Identifier>& getDeadLayersId     () const;
+    const std::vector<Identifier>& getDeadMultilayersId() const;
+    const std::vector<Identifier>& getDeadStationsId   () const;
+    const std::vector<Identifier>& getDeadChambersId   () const;
 
-    virtual const std::vector<std::string>& getNoisyTubes      () const;
-    virtual const std::vector<std::string>& getNoisyLayers     () const;
-    virtual const std::vector<std::string>& getNoisyMultilayers() const;
-    virtual const std::vector<std::string>& getNoisyStations   () const;
-    virtual const std::vector<std::string>& getNoisyChambers   () const;
+    const std::vector<std::string>& getNoisyTubes      () const;
+    const std::vector<std::string>& getNoisyLayers     () const;
+    const std::vector<std::string>& getNoisyMultilayers() const;
+    const std::vector<std::string>& getNoisyStations   () const;
+    const std::vector<std::string>& getNoisyChambers   () const;
     
-    virtual const std::vector<Identifier>& getNoisyTubesId      () const;
-    virtual const std::vector<Identifier>& getNoisyLayersId     () const;
-    virtual const std::vector<Identifier>& getNoisyMultilayersId() const;
-    virtual const std::vector<Identifier>& getNoisyStationsId   () const;
-    virtual const std::vector<Identifier>& getNoisyChambersId   () const;
+    const std::vector<Identifier>& getNoisyTubesId      () const;
+    const std::vector<Identifier>& getNoisyLayersId     () const;
+    const std::vector<Identifier>& getNoisyMultilayersId() const;
+    const std::vector<Identifier>& getNoisyStationsId   () const;
+    const std::vector<Identifier>& getNoisyChambersId   () const;
   
-    virtual bool isGood          (const Identifier & Id) const;
-    virtual bool isGoodChannel   (const Identifier & Id) const;
-    virtual bool isGoodTube      (const Identifier & Id) const;
-    virtual bool isGoodLayer     (const Identifier & Id) const;
-    virtual bool isGoodMultilayer(const Identifier & Id) const;
-    virtual bool isGoodStation   (const Identifier & Id) const;
-    virtual bool isGoodChamber   (const Identifier & Id) const;
+    bool isGood          (const Identifier & Id) const;
+    bool isGoodChannel   (const Identifier & Id) const;
+    bool isGoodTube      (const Identifier & Id) const;
+    bool isGoodLayer     (const Identifier & Id) const;
+    bool isGoodMultilayer(const Identifier & Id) const;
+    bool isGoodStation   (const Identifier & Id) const;
+    bool isGoodChamber   (const Identifier & Id) const;
 
 
  

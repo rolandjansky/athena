@@ -4,14 +4,6 @@
 
 #include "MuonCondData/CscCondDbData.h"
 
-//STL includes
-#include <vector>
-#include <string>
-
-
-using namespace std;
-
-
 // constructor
 CscCondDbData::CscCondDbData() {
 }

@@ -11,7 +11,6 @@
 
 //Athena includes
 #include "Identifier/Identifier.h"
-//#include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/CondCont.h" 
 #include "AthenaKernel/BaseInfo.h" 
 
@@ -29,12 +28,12 @@ public:
     TgcCondDbData();
     virtual ~TgcCondDbData() = default;
 
-    virtual void setDeadStation(Identifier);
+    void setDeadStation(Identifier);
 
-    virtual const std::vector<Identifier>& getDeadStationsId() const;
+    const std::vector<Identifier>& getDeadStationsId() const;
 
-    virtual bool isGood          (const Identifier & Id) const;
-    virtual bool isGoodStation   (const Identifier & Id) const;
+    bool isGood          (const Identifier & Id) const;
+    bool isGoodStation   (const Identifier & Id) const;
 
 
  
