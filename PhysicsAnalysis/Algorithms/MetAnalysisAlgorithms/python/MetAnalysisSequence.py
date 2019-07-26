@@ -55,7 +55,8 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True ):
                                   'electrons' : 'electrons',
                                   'photons'   : 'photons',
                                   'muons'     : 'muons',
-                                  'taus'      : 'taus' },
+                                  'taus'      : 'taus',
+                                  'invisible' : 'invisible'},
                 outputPropName = 'met',
                 affectingSystematics = '(^MET_.*)' )
 
