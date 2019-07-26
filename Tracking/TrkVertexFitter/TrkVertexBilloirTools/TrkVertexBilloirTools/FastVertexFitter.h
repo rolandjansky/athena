@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERBILLOIR_FASTVERTEXFITTER_H
@@ -39,7 +39,6 @@ namespace Trk
     StatusCode initialize();
     StatusCode finalize();
 
-    enum FitError {FITOK,MATINV,NEGTRCHI2,MAXCHI2,MAXTRCHI2,NOTRKS,NOFIT};
     FastVertexFitter(const std::string& t, const std::string& n, const IInterface*  p);
     virtual ~FastVertexFitter(); //!< standard destructor
 
@@ -111,9 +110,6 @@ namespace Trk
   private:
     unsigned int m_maxIterations;
     double       m_maxDchi2PerNdf;
-
-    /** Data members to store the results */
-    FitError                m_error;
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
     ToolHandle< Trk::IVertexLinearizedTrackFactory > m_linFactory;
