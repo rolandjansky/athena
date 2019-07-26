@@ -87,7 +87,7 @@ trigDecStream.TrigDecMaker.OutputLevel = VERBOSE
 ########################
 AthenaSealSvc = Service( "AthenaSealSvc" )
 # Set up service
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 include( "FourMom/FourMomDict_joboptions.py" )
 include( "Navigation/NavigationDict_joboptions.py" )
 include( "EventKernel/EventKernelDict_joboptions.py" )
