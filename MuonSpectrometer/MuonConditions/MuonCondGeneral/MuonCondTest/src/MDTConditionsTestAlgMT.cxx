@@ -1,18 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondTest/MDTConditionsTestAlgMT.h"
-#include "MuonCondSvc/MuonHierarchy.h"
 
-
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-
-//Athena includes
-#include "Identifier/Identifier.h"
-
-
+//Constructor
 MDTConditionsTestAlgMT::MDTConditionsTestAlgMT(
                          const std::string& name,
                          ISvcLocator* pSvcLocator ) :
@@ -20,20 +12,17 @@ MDTConditionsTestAlgMT::MDTConditionsTestAlgMT(
 			
 }
 
-MDTConditionsTestAlgMT::~MDTConditionsTestAlgMT()
-{
+//Destructor
+MDTConditionsTestAlgMT::~MDTConditionsTestAlgMT(){
   ATH_MSG_VERBOSE( "Calling destructor"  );
 }
 
 //Initialize
 StatusCode
-MDTConditionsTestAlgMT::initialize(){
- 
-  StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endmsg;
+MDTConditionsTestAlgMT::initialize(){ 
+  ATH_MSG_INFO("Calling initialize");
   ATH_CHECK(m_readKey.initialize());
- 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //Execute
@@ -41,62 +30,74 @@ StatusCode
 MDTConditionsTestAlgMT::execute(){
   StatusCode sc(StatusCode::SUCCESS);
 
-  msg(MSG::INFO)<< "Calling execute" << endmsg;
-  msg(MSG::INFO)<< "Now setting up read handle: "; 
+  ATH_MSG_INFO("Calling execute");
+  std::stringstream ss;
+  ss << "Now setting up read handle: "; 
   SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
   const MdtCondDbData* readCdo{*readHandle};
   if(readCdo==0){
-    msg(MSG::INFO)<< "DID NOT WORK!"<< endmsg;
+    ss << "DID NOT WORK!";
+    ATH_MSG_INFO(ss.str());
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
   else {
-    msg(MSG::INFO)<< "worked!"<< endmsg;
+    ss << "WORKED!";
+    ATH_MSG_INFO(ss.str());
   }
 
-
-  msg(MSG::INFO)<<"Reading Dead Tubes: ";
+  ss.clear();
+  ss << "Reading Dead Tubes: ";
   int size = readCdo->getDeadTubesId().size();
-  msg(MSG::INFO)<<"found "<<size<<" from Id"<<endmsg;
+  ss << "found "<<size<<" via Id; containing:";
+  ATH_MSG_INFO(ss.str());
   for(int k=0;k<size;++k){
-    msg(MSG::INFO)<<"\t"<<k<<": "<<readCdo->getDeadTubes()[k]<<endmsg;
+    ATH_MSG_INFO("\t"<<k<<": "<<readCdo->getDeadTubes()[k]);
   } 
 
-  msg(MSG::INFO)<<"Reading Dead Layers: ";
+  ss.clear();
+  ss << "Reading Dead Layers: ";
   size = readCdo->getDeadLayersId().size();
-  msg(MSG::INFO)<<"found "<<size<<" from Id"<<endmsg;
+  ss << "found "<<size<<" via Id; containing:";
+  ATH_MSG_INFO(ss.str());
   for(int k=0;k<size;++k){
-    msg(MSG::INFO)<<"\t"<<k<<": "<<readCdo->getDeadLayers()[k]<<endmsg;
+    ATH_MSG_INFO("\t"<<k<<": "<<readCdo->getDeadLayers()[k]);
   } 
 
-  msg(MSG::INFO)<<"Reading Dead Multilayers: ";
+  ss.clear();
+  ss << "Reading Dead Multilayers: ";
   size = readCdo->getDeadMultilayersId().size();
-  msg(MSG::INFO)<<"found "<<size<<" from Id"<<endmsg;
+  ss << "found "<<size<<" via Id; containing:";
+  ATH_MSG_INFO(ss.str());
   for(int k=0;k<size;++k){
-    msg(MSG::INFO)<<"\t"<<k<<": "<<readCdo->getDeadMultilayers()[k]<<endmsg;
+    ATH_MSG_INFO("\t"<<k<<": "<<readCdo->getDeadMultilayers()[k]);
   } 
 
-  msg(MSG::INFO)<<"Reading Dead Stations: ";
+  ss.clear();
+  ss << "Reading Dead Stations: ";
   size = readCdo->getDeadStationsId().size();
-  msg(MSG::INFO)<<"found "<<size<<" from Id"<<endmsg;
+  ss << "found "<<size<<" via Id; containing:";
+  ATH_MSG_INFO(ss.str());
   for(int k=0;k<size;++k){
-    msg(MSG::INFO)<<"\t"<<k<<": "<<readCdo->getDeadStations()[k]<<endmsg;
+    ATH_MSG_INFO("\t"<<k<<": "<<readCdo->getDeadStations()[k]);
   } 
 
-  msg(MSG::INFO)<<"Reading Chambers with Dead Channels: ";
+  ss.clear();
+  ss << "Reading Chambers with Dead Channels: ";
   size = readCdo->getDeadChambersId().size();
-  msg(MSG::INFO)<<"found "<<size<<" from Id"<<endmsg;
+  ss << "found "<<size<<" via Id; containing:";
+  ATH_MSG_INFO(ss.str());
   for(int k=0;k<size;++k){
-    msg(MSG::INFO)<<"\t"<<k<<": "<<readCdo->getDeadChambersId()[k]<<endmsg;
+    ATH_MSG_INFO("\t"<<k<<": "<<readCdo->getDeadChambersId()[k]);
   } 
 
 
-  msg(MSG::INFO)<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<endmsg;
+  ATH_MSG_INFO("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
-  msg(MSG::INFO)<<"Now probing Ids"<<endmsg;
-  msg(MSG::INFO)<<"ID=1699348480; isGood? "<<readCdo->isGood(Identifier(1699348480))<<endmsg;
+  ATH_MSG_INFO("Now going to probe some Ids");
+  ATH_MSG_INFO("ID=1699348480; isGood? "<<readCdo->isGood(Identifier(1699348480)));
 
-  msg(MSG::INFO)<<"MADE IT TO THE END"<<endmsg;
+  ATH_MSG_INFO("MADE IT TO THE END!!");
   return sc;
 }
 
@@ -104,7 +105,6 @@ MDTConditionsTestAlgMT::execute(){
 //Finalize
 StatusCode
 MDTConditionsTestAlgMT::finalize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endmsg;
-  return sc;
+  ATH_MSG_INFO("Calling finalize");
+  return StatusCode::SUCCESS;
 }
