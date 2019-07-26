@@ -80,7 +80,7 @@
     return StatusCode::SUCCESS;
   }
 
-  int JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
+  StatusCode JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
     getPV();
     m_pileupMomenta.clear();
     for(const auto& jetF : jetCont) {
@@ -92,7 +92,7 @@
       if (fjvt>m_fjvtThresh) (*m_Dec_out)(*jetF) = 0;
       fjvt_dec(*jetF) = fjvt;
     }
-    return 0;
+    return StatusCode::SUCCESS;
   }
 
   float JetForwardJvtTool::getFJVT(const xAOD::Jet *jet) const {

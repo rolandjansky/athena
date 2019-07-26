@@ -63,14 +63,14 @@ StatusCode JetVertexTaggerTool::initialize() {
 
 //**********************************************************************
 
-int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
+StatusCode JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
   // Get input vertex collection
   auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
   if (!vertexContainer.isValid()){
     ATH_MSG_ERROR("Invalid VertexContainer datahandle: " 
                   << m_vertexContainer_key.key());
-    return 1;
+    return StatusCode::FAILURE;
   }
 
   auto vertices = vertexContainer.cptr();
@@ -82,7 +82,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
   if (vertices->size() == 0 ) {
     ATH_MSG_WARNING("There are no vertices in the container. Exiting");
-    return 2;
+    return StatusCode::SUCCESS;
   }
 
   const xAOD::Vertex* HSvertex = findHSVertex(vertices);
@@ -108,7 +108,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
     }
 
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
