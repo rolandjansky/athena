@@ -18,6 +18,8 @@
 // PerfMonComps includes
 #include "PerfMonMTUtils.h"
 
+#include <set>
+
 #include <nlohmann/json.hpp> 
 
 /*
@@ -96,6 +98,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     std::string get_cpu_model_info();
     int get_cpu_core_info();
+
+    void eventCounter(int eventNumber);
     
     
     // Report the results
@@ -143,6 +147,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::mutex m_mutex;
 
     BooleanProperty m_isEventLoopMonitoring;
+    
+    int m_minEventNum = INT_MAX;  
+    int m_maxEventNum = -1;  
+
+    std::set<int> m_eventIds;
 
 }; // class PerfMonMTSvc
 

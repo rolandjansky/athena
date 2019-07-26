@@ -206,6 +206,7 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
    
   // Get the event number
   int eventNumber = getEventNumber();
+  eventCounter(eventNumber);
 
   PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventNumber);
 
@@ -338,6 +339,17 @@ int PerfMonMTSvc::get_cpu_core_info(){
   }
 }
 
+void PerfMonMTSvc::eventCounter(int eventNumber){
+/*
+  if(m_minEventNum > eventNumber)
+    m_minEventNum = eventNumber;
+
+  if(m_maxEventNum < eventNumber)
+    m_maxEventNum = eventNumber;
+*/
+  m_eventIds.insert(eventNumber);
+}
+
 
 // Report the results
 void PerfMonMTSvc::report(){
@@ -425,8 +437,10 @@ void PerfMonMTSvc::report2Stdout(){
   report2Stdout_Summary();
   report2Stdout_CpuInfo();
 
-  ATH_MSG_INFO( get_cpu_model_info() );
-  
+  //ATH_MSG_INFO( "Max/Min:  " << m_maxEventNum << " "  <<  m_minEventNum);
+  ATH_MSG_INFO( "Number of Events processed so far:  " << m_eventIds.size() );
+  for(auto it : m_eventIds)
+    ATH_MSG_INFO( "Event ID: " << it );
 
   
   /*
