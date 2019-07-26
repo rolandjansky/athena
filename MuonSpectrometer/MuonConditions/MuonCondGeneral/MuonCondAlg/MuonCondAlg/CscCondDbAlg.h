@@ -46,7 +46,6 @@ public:
     virtual ~CscCondDbAlg() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode execute   () override;
-    virtual StatusCode finalize  () override;
 
  
 private:
@@ -57,12 +56,12 @@ private:
     virtual StatusCode cacheVersion2(std::string   , std::unique_ptr<CscCondDbData>&);
 	virtual StatusCode onlineToOfflineIds(const unsigned int &, Identifier &, Identifier &) const;
 
-    bool m_isOnline;
-    bool m_isData;  
-    bool m_isRun1;   
+    bool m_isOnline{false};
+    bool m_isData{false};  
+    bool m_isRun1{false};   
 
-    bool m_phiSwapVersion1Strings;
-    bool m_onlineOfflinePhiFlip;
+    bool m_phiSwapVersion1Strings{false};
+    bool m_onlineOfflinePhiFlip{false};
 
     ServiceHandle<ICondSvc> m_condSvc;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;

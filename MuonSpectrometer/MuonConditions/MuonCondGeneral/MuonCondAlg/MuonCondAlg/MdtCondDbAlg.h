@@ -44,7 +44,6 @@ public:
     virtual ~MdtCondDbAlg() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode execute   () override;
-    virtual StatusCode finalize  () override;
 
  
 private:
@@ -59,10 +58,10 @@ private:
     virtual StatusCode loadMcDeadTubes        (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
     virtual StatusCode loadMcNoisyChannels    (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
 
-    bool m_isOnline;
-    bool m_isData;  
-    bool m_isRun1;   
-    bool m_checkOnSetPoint;
+    bool m_isOnline{false};
+    bool m_isData{false};  
+    bool m_isRun1{false};   
+    bool m_checkOnSetPoint{false};
 
     ServiceHandle<ICondSvc> m_condSvc;
     ToolHandle<IMDT_MapConversion> m_condMapTool;

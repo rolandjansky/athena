@@ -3,7 +3,13 @@
 */
 
 #include "MuonCondAlg/TgcCondDbAlg.h"
-#include <zlib.h>
+
+/*
+  ATTENTION: This is the migrated thread-safe version of the original TGCCondSummarySvc;
+  at the time of writing (Summer 2019) it is not clear whether or not it will be actually
+  used; so this algorithm is merely a template!
+*/  
+
 
 // constructor
 TgcCondDbAlg::TgcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -12,11 +18,10 @@ TgcCondDbAlg::TgcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
  
-    declareProperty("IdHelper"         , m_idHelper   );
-
-    declareProperty("isOnline"                 , m_isOnline                                                );
-    declareProperty("isData"                   , m_isData                                                  );
-    declareProperty("isRun1"                   , m_isRun1                                                  );
+    declareProperty("IdHelper", m_idHelper);
+    declareProperty("isOnline", m_isOnline);
+    declareProperty("isData"  , m_isData  );
+    declareProperty("isRun1"  , m_isRun1  );
 }
 
 
@@ -36,13 +41,6 @@ TgcCondDbAlg::initialize(){
     }
 
     return StatusCode::SUCCESS;
-}
-
-
-// finalize
-StatusCode
-TgcCondDbAlg::finalize(){
-  return StatusCode::SUCCESS;
 }
 
 
@@ -68,10 +66,10 @@ TgcCondDbAlg::execute(){
     std::unique_ptr<TgcCondDbData> writeCdo{std::make_unique<TgcCondDbData>()};
     EventIDRange rangeW;
     StatusCode sc  = StatusCode::SUCCESS;
-    StatusCode sc0 = StatusCode::SUCCESS;
 
     // retrieving data
-    sc0 = loadDetectorStatus(rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
+    //if(loadDetectorStatus(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
+
     if(sc.isFailure()){
         ATH_MSG_WARNING("Could not read data from the DB");
         return StatusCode::FAILURE;
@@ -83,7 +81,7 @@ TgcCondDbAlg::execute(){
   		  << " into Conditions Store");
       return StatusCode::FAILURE;
     }		  
-    ATH_MSG_INFO("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
     return StatusCode::SUCCESS;
 }
@@ -105,8 +103,8 @@ TgcCondDbAlg::loadDetectorStatus(EventIDRange & rangeW, std::unique_ptr<TgcCondD
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {

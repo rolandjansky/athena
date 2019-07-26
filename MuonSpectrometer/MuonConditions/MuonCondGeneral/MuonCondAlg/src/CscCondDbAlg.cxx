@@ -3,7 +3,6 @@
 */
 
 #include "MuonCondAlg/CscCondDbAlg.h"
-#include <zlib.h>
 
 // constructor
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -44,13 +43,6 @@ CscCondDbAlg::initialize(){
 }
 
 
-// finalize
-StatusCode
-CscCondDbAlg::finalize(){
-  return StatusCode::SUCCESS;
-}
-
-
 // execute
 StatusCode 
 CscCondDbAlg::execute(){
@@ -73,18 +65,17 @@ CscCondDbAlg::execute(){
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
     EventIDRange rangeW;
     StatusCode sc  = StatusCode::SUCCESS;
-    StatusCode sc0 = StatusCode::SUCCESS;
 
     // retrieving data
     if(m_isData) {
-        //sc0 = loadDataHv  (rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
-        sc0 = loadDataStat(rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
+        //if(loadDataHv  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
+        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
     }
     else {
-        sc0 = loadDataStat(rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
+        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
     }
 
-    if(sc.isFailure() || sc0.isFailure()){
+    if(sc.isFailure()){
         ATH_MSG_WARNING("Could not read data from the DB");
         return StatusCode::FAILURE;
     }
@@ -95,7 +86,7 @@ CscCondDbAlg::execute(){
   		  << " into Conditions Store");
       return StatusCode::FAILURE;
     }		  
-    ATH_MSG_INFO("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
     return StatusCode::SUCCESS;
 }
@@ -117,8 +108,8 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& 
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
 	std::map<Identifier, int> layerMap;
@@ -130,7 +121,6 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& 
         unsigned int chanNum      = readCdo->chanNum (chan_index);
         std::string csc_chan_name = readCdo->chanName(chanNum);
 
-        //itr=readCdo->chanAttrListPair(chanNum);
         const coral::AttributeList& atr = itr->second;
     
         if(atr.size()){
@@ -205,8 +195,8 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
  
     CondAttrListCollection::const_iterator itr;
 
@@ -265,7 +255,7 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
 StatusCode 
 CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
 
-	// careful, this is untested yet!
+	// ATTENTION: careful, this is untested yet!
 
     std::string valueStr;
 	std::istringstream ss(data);
@@ -404,79 +394,81 @@ CscCondDbAlg::onlineToOfflineIds(const unsigned int & onlineId, Identifier &elem
 
 
 
+/*
+keep for future development:
 
-//// loadDataDeadChambers
-//StatusCode
-//CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-//  
-//    ATH_CHECK(m_readKey_folder_da_chambers.initialize());
-//    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_chambers};
-//    const CondAttrListCollection* readCdo{*readHandle}; 
-//    if(readCdo==0){
-//      ATH_MSG_ERROR("Null pointer to the read conditions object");
-//      return StatusCode::FAILURE; 
-//    } 
-//  
-//    if ( !readHandle.range(rangeW) ) {
-//      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-//      return StatusCode::FAILURE;
-//    } 
-//  
-//    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-//    ATH_MSG_INFO("Range of input is " << rangeW);
-//
-//    std::vector<std::string> goodChambers;
-//    std::vector<std::string> deadChambers;
-//
-//    CondAttrListCollection::const_iterator itr;
-//    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
-//
-//        const coral::AttributeList& atr = itr->second;
-//        std::string chamber_enabled = *(static_cast<const std::string*>((atr["enabledChambers"]).addressOfData()));
-//    
-//        std::string delimiter = " ";
-//        std::vector<std::string> tokens;
-//        MuonCalib::MdtStringUtils::tokenize(chamber_enabled,tokens,delimiter);
-//    
-//        for (unsigned int i=0; i<tokens.size(); i++) goodChambers.push_back(tokens[i]);
-//    }
-//  
-//    std::string chamber_all[] = {"A01","A02","A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A16",
-//                                 "C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C11","C12","C13","C14","C15","C16"};
-//    std::vector<std::string> chamber_v(chamber_all,chamber_all+32);
-//    sort(chamber_v.begin(), chamber_v.end());
-//    
-//    for(unsigned int i=0; i<chamber_v.size(); ++i){
-//        if(!binary_search(goodChambers.begin(), goodChambers.end(), chamber_v[i]))
-//            deadChambers.push_back(chamber_v[i]);
-//    } 
-//
-//    for(unsigned int i=0; i<deadChambers.size(); ++i){
-//        int eta = 0; 
-//        std::string eta_side = deadChambers[i].substr(0,1);
-//        if(eta_side == "A") eta = +1;
-//        if(eta_side == "C") eta = -1;
-//
-//        int phi = 0;
-//        std::string sector_side = deadChambers[i].substr(2,4);
-//        if(sector_side == "01" || sector_side == "02") phi=1;
-//        if(sector_side == "03" || sector_side == "04") phi=2;
-//        if(sector_side == "05" || sector_side == "06") phi=3;
-//        if(sector_side == "07" || sector_side == "08") phi=4;
-//        if(sector_side == "09" || sector_side == "10") phi=5;
-//        if(sector_side == "11" || sector_side == "12") phi=6;
-//        if(sector_side == "13" || sector_side == "14") phi=7;
-//        if(sector_side == "15" || sector_side == "16") phi=8;
-//
-//        std::string chamber_name = "";
-//        if(sector_side == "01" || sector_side == "03" ||sector_side == "05" ||sector_side == "07" || sector_side == "09" || sector_side == "11" || sector_side == "13" || sector_side == "15" ) chamber_name = "CSL";
-//        if(sector_side == "02" || sector_side == "04" || sector_side == "06"|| sector_side == "08" || sector_side == "10"|| sector_side == "12"|| sector_side == "14"|| sector_side == "16") chamber_name = "CSS";
-//
-//        Identifier ChamberId = m_idHelper->cscIdHelper().elementID(chamber_name, eta, phi);
-//		writeCdo->setDeadStation(deadChambers[i], ChamberId);
-//    }
-//
-//    return StatusCode::SUCCESS;
-//}
+// loadDataDeadChambers
+StatusCode
+CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+  
+    ATH_CHECK(m_readKey_folder_da_chambers.initialize());
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_chambers};
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==0){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE; 
+    } 
+  
+    if ( !readHandle.range(rangeW) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    } 
+  
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
+    std::vector<std::string> goodChambers;
+    std::vector<std::string> deadChambers;
+
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+
+        const coral::AttributeList& atr = itr->second;
+        std::string chamber_enabled = *(static_cast<const std::string*>((atr["enabledChambers"]).addressOfData()));
+    
+        std::string delimiter = " ";
+        std::vector<std::string> tokens;
+        MuonCalib::MdtStringUtils::tokenize(chamber_enabled,tokens,delimiter);
+    
+        for (unsigned int i=0; i<tokens.size(); i++) goodChambers.push_back(tokens[i]);
+    }
+  
+    std::string chamber_all[] = {"A01","A02","A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15","A16",
+                                 "C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C11","C12","C13","C14","C15","C16"};
+    std::vector<std::string> chamber_v(chamber_all,chamber_all+32);
+    sort(chamber_v.begin(), chamber_v.end());
+    
+    for(unsigned int i=0; i<chamber_v.size(); ++i){
+        if(!binary_search(goodChambers.begin(), goodChambers.end(), chamber_v[i]))
+            deadChambers.push_back(chamber_v[i]);
+    } 
+
+    for(unsigned int i=0; i<deadChambers.size(); ++i){
+        int eta = 0; 
+        std::string eta_side = deadChambers[i].substr(0,1);
+        if(eta_side == "A") eta = +1;
+        if(eta_side == "C") eta = -1;
+
+        int phi = 0;
+        std::string sector_side = deadChambers[i].substr(2,4);
+        if(sector_side == "01" || sector_side == "02") phi=1;
+        if(sector_side == "03" || sector_side == "04") phi=2;
+        if(sector_side == "05" || sector_side == "06") phi=3;
+        if(sector_side == "07" || sector_side == "08") phi=4;
+        if(sector_side == "09" || sector_side == "10") phi=5;
+        if(sector_side == "11" || sector_side == "12") phi=6;
+        if(sector_side == "13" || sector_side == "14") phi=7;
+        if(sector_side == "15" || sector_side == "16") phi=8;
+
+        std::string chamber_name = "";
+        if(sector_side == "01" || sector_side == "03" ||sector_side == "05" ||sector_side == "07" || sector_side == "09" || sector_side == "11" || sector_side == "13" || sector_side == "15" ) chamber_name = "CSL";
+        if(sector_side == "02" || sector_side == "04" || sector_side == "06"|| sector_side == "08" || sector_side == "10"|| sector_side == "12"|| sector_side == "14"|| sector_side == "16") chamber_name = "CSS";
+
+        Identifier ChamberId = m_idHelper->cscIdHelper().elementID(chamber_name, eta, phi);
+		writeCdo->setDeadStation(deadChambers[i], ChamberId);
+    }
+
+    return StatusCode::SUCCESS;
+}
+*/
 

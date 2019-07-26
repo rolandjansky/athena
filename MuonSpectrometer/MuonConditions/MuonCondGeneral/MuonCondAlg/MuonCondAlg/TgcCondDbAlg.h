@@ -43,16 +43,15 @@ public:
     virtual ~TgcCondDbAlg() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode execute   () override;
-    virtual StatusCode finalize  () override;
 
  
 private:
 
     virtual StatusCode loadDetectorStatus(EventIDRange &, std::unique_ptr<TgcCondDbData>&);
 
-    bool m_isOnline;
-    bool m_isData;  
-    bool m_isRun1;   
+    bool m_isOnline{false};
+    bool m_isData{false};  
+    bool m_isRun1{false};   
 
     ServiceHandle<ICondSvc> m_condSvc;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;

@@ -3,7 +3,6 @@
 */
 
 #include "MuonCondAlg/RpcCondDbAlg.h"
-#include <zlib.h>
 
 // constructor
 RpcCondDbAlg::RpcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -12,11 +11,11 @@ RpcCondDbAlg::RpcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
  
-    declareProperty("IdHelper"         , m_idHelper   );
-    declareProperty("isOnline"                 , m_isOnline                                           );
-    declareProperty("isData"                   , m_isData                                             );
-    declareProperty("isRun1"                   , m_isRun1                                             );
-	declareProperty("PanelEfficiency"          , m_panelEfficiency        = 0.50                      ); 
+    declareProperty("IdHelper"         , m_idHelper              );
+    declareProperty("isOnline"         , m_isOnline              );
+    declareProperty("isData"           , m_isData                );
+    declareProperty("isRun1"           , m_isRun1                );
+	declareProperty("PanelEfficiency"  , m_panelEfficiency = 0.50); 
 }
 
 
@@ -38,13 +37,6 @@ RpcCondDbAlg::initialize(){
     }
 
     return StatusCode::SUCCESS;
-}
-
-
-// finalize
-StatusCode
-RpcCondDbAlg::finalize(){
-  return StatusCode::SUCCESS;
 }
 
 
@@ -70,16 +62,15 @@ RpcCondDbAlg::execute(){
     std::unique_ptr<RpcCondDbData> writeCdo{std::make_unique<RpcCondDbData>()};
     EventIDRange rangeW;
     StatusCode sc  = StatusCode::SUCCESS;
-    StatusCode sc0 = StatusCode::SUCCESS;
 
     // retrieving data
     if(m_isData) {
-        sc0 = loadDataDeadPanels (rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
-        sc0 = loadDataOffPanels  (rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
-        sc0 = loadMcElementStatus(rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
+        if(loadDataDeadPanels (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+        if(loadDataOffPanels  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+        if(loadMcElementStatus(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
     }
     else {
-        sc0 = loadMcElementStatus(rangeW, writeCdo); if(sc0.isFailure()) {sc = sc0;}
+        if(loadMcElementStatus(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
     } 
     if(sc.isFailure()){
         ATH_MSG_WARNING("Could not read data from the DB");
@@ -92,7 +83,7 @@ RpcCondDbAlg::execute(){
   		  << " into Conditions Store");
       return StatusCode::FAILURE;
     }		  
-    ATH_MSG_INFO("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
     return StatusCode::SUCCESS;
 }
@@ -114,8 +105,8 @@ RpcCondDbAlg::loadDataDeadPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondD
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -179,8 +170,8 @@ RpcCondDbAlg::loadDataOffPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondDb
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -244,8 +235,8 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, std::unique_ptr<RpcCond
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
 

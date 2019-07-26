@@ -3,8 +3,6 @@
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
-#include "MuonCondTool/MDT_MapConversion.h"
-#include <zlib.h>
 
 // constructor
 MdtCondDbAlg::MdtCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -53,13 +51,6 @@ MdtCondDbAlg::initialize(){
 }
 
 
-// finalize
-StatusCode
-MdtCondDbAlg::finalize(){
-  return StatusCode::SUCCESS;
-}
-
-
 // execute
 StatusCode 
 MdtCondDbAlg::execute(){
@@ -79,9 +70,9 @@ MdtCondDbAlg::execute(){
         	  << " if multiple concurrent events are being processed out of order.");
         return StatusCode::SUCCESS; 
     }
-
     std::unique_ptr<MdtCondDbData> writeCdo{std::make_unique<MdtCondDbData>()};
     EventIDRange rangeW;
+
     StatusCode sc = StatusCode::SUCCESS;
 
     // retrieving data
@@ -97,10 +88,10 @@ MdtCondDbAlg::execute(){
     else {
 		if(loadMcDroppedChambers  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
 		if(loadMcNoisyChannels    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-		//if(loadMcDeadElements     (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-		//if(loadMcDeadTubes        (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+		//if(loadMcDeadElements     (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
+		//if(loadMcDeadTubes        (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
     } 
-    if(sc.isFailure()){ // checking both to avoid "Unchecked StatusCode" error
+    if(sc.isFailure()){
         ATH_MSG_WARNING("Could not read data from the DB");
         return StatusCode::FAILURE;
     }
@@ -111,7 +102,7 @@ MdtCondDbAlg::execute(){
   		  << " into Conditions Store");
       return StatusCode::FAILURE;
     }		  
-    ATH_MSG_INFO("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
     return StatusCode::SUCCESS;
 }
@@ -133,8 +124,8 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
 
     std::vector<Identifier> cachedDeadMultiLayersId_standby;
@@ -178,7 +169,6 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
                 cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
-                //m_Chamber_Naming_standby[int(chanNum)] = MultiLayerId;
             }
         }
         chan_index++;
@@ -205,8 +195,8 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_v0.fullKey() << " readCdo->size()= " << readCdo_v0->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle_v0.fullKey() << " readCdo->size()= " << readCdo_v0->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     // V1
     SG::ReadCondHandle<CondAttrListCollection> readHandle_v1{m_readKey_folder_da_psv1};
@@ -221,8 +211,8 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_v1.fullKey() << " readCdo->size()= " << readCdo_v1->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle_v1.fullKey() << " readCdo->size()= " << readCdo_v1->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     // V0 iteration
     CondAttrListCollection::const_iterator itr_v0;
@@ -242,7 +232,6 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
             std::string delimiter2 = "_";
             std::vector<std::string> tokens2;
             MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload, tokens2, delimiter2);
-            //chamberML_V0_chanum[int(chanNum)] = float(setPointsV0_name);
         
             int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
             std::string chamber_name     = tokens2[2];
@@ -273,7 +262,6 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
             std::string delimiter2 = "_";
             std::vector<std::string> tokens2;
             MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload, tokens2, delimiter2);
-            //chamberML_V1_chanum[int(chanNum)] = float(setPointsV1_name);
            
             int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
             std::string chamber_name     = tokens2[2];
@@ -323,8 +311,8 @@ MdtCondDbAlg::loadDataPsLv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -376,8 +364,8 @@ MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& 
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -476,8 +464,8 @@ MdtCondDbAlg::loadDataLv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>& 
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -530,11 +518,10 @@ MdtCondDbAlg::loadDataDroppedChambers(EventIDRange & rangeW, std::unique_ptr<Mdt
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
-    //unsigned int chan_index=0; 
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         const coral::AttributeList& atr = itr->second;
         std::string chamber_dropped;
@@ -572,8 +559,8 @@ MdtCondDbAlg::loadMcDroppedChambers(EventIDRange & rangeW, std::unique_ptr<MdtCo
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
@@ -588,6 +575,8 @@ MdtCondDbAlg::loadMcDroppedChambers(EventIDRange & rangeW, std::unique_ptr<MdtCo
 
     return StatusCode::SUCCESS;
 }
+
+
 
 // loadMcDeadElements
 StatusCode
@@ -605,8 +594,8 @@ MdtCondDbAlg::loadMcDeadElements(EventIDRange & rangeW, std::unique_ptr<MdtCondD
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
@@ -684,8 +673,8 @@ MdtCondDbAlg::loadMcDeadTubes(EventIDRange & rangeW, std::unique_ptr<MdtCondDbDa
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
@@ -737,8 +726,8 @@ MdtCondDbAlg::loadMcNoisyChannels(EventIDRange & rangeW, std::unique_ptr<MdtCond
       return StatusCode::FAILURE;
     } 
   
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -784,60 +773,6 @@ MdtCondDbAlg::loadMcNoisyChannels(EventIDRange & rangeW, std::unique_ptr<MdtCond
     }
 	return StatusCode::SUCCESS;
 }
-
-
-//inline bool 
-//MdtCondDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
-//    if (!m_decompression_buffer) {
-//        m_buffer_length= 50000;
-//        m_decompression_buffer = new Bytef[m_buffer_length];
-//    }
-//    uLongf actual_length; 
-//    while(1) {
-//        actual_length=m_buffer_length;
-//        int res(uncompress(m_decompression_buffer, &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
-//        if (res == Z_OK) break;
-//        //double buffer if it was not big enough
-//        if( res == Z_BUF_ERROR) {
-//          m_buffer_length*=2;
-//          ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
-//          delete [] m_decompression_buffer;
-//          m_decompression_buffer = new Bytef[m_buffer_length];
-//          continue;
-//        }
-//        //something else is wrong
-//        return false;
-//    }
-//    //append 0 to terminate string, increase buffer if it is not big enough
-//    if (actual_length >= m_buffer_length) {
-//        Bytef * old_buffer=m_decompression_buffer;
-//        size_t old_length=m_buffer_length;
-//        m_buffer_length*=2;
-//        m_decompression_buffer = new Bytef[m_buffer_length];
-//        memcpy(m_decompression_buffer, old_buffer, old_length);
-//        delete [] old_buffer;
-//    }
-//    m_decompression_buffer[actual_length]=0;
-//    return true;
-//} 
-//
-//
-//inline StatusCode 
-//MdtCondDbAlg::extractString(std::string &input, std::string &output, std::string separator) {
-//    unsigned long int pos = 0;
-//    std::string::size_type start = input.find_first_not_of(separator.c_str(),pos);
-//    if(start == std::string::npos) {
-//        ATH_MSG_ERROR("MdtCondDbAlg::extractString: Cannot extract string in a proper way!");
-//        return StatusCode::FAILURE;
-//    }
-//    std::string::size_type stop = input.find_first_of(separator.c_str(),start+1);
-//    if (stop == std::string::npos) stop = input.size();
-//    output = input.substr(start,stop-start);
-//    input.erase(pos,stop-pos);
-//
-//    return StatusCode::SUCCESS;
-//}  
-
 
 
 
