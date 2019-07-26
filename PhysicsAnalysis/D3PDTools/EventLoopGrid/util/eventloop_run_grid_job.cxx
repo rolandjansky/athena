@@ -24,5 +24,7 @@ int main (int argc, char **argv)
 
   std::string sampleName = argv[1];
 
-  EL::Worker::gridExecute (sampleName);
+  EL::Worker worker;
+  ANA_CHECK (worker.gridExecute (sampleName));
+  return 0;
 }

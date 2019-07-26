@@ -21,6 +21,7 @@
 #include <memory>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
@@ -76,11 +77,13 @@ namespace EL
   doSubmit (const Job& job, const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
+    using namespace msgEventLoop;
 
     for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
 	   end = job.sampleHandler().end(); sample != end; ++ sample)
     {
-      Worker::directExecute (*sample, job, location, *options());
+      Worker worker;
+      ANA_CHECK_THROW (worker.directExecute (*sample, job, location, *options()));
     }
     diskOutputSave (location, job);
   }

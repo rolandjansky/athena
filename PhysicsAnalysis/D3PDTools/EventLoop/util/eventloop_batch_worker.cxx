@@ -32,5 +32,7 @@ int main (int argc, char **argv)
 
   auto confFile = argv[2];
 
-  EL::Worker::batchExecute (job_id, confFile);
+  EL::Worker worker;
+  ANA_CHECK (worker.batchExecute (job_id, confFile));
+  return 0;
 }
