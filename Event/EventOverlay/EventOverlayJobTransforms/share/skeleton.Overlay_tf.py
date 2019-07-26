@@ -95,7 +95,7 @@ rec.projectName = 'IS_SIMULATION'
 #----------------------------
 OverlayLog.info("================ DetFlags ================ ")
 if 'DetFlags' in dir():
-    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+    OverlayLog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
     from AthenaCommon.DetFlags import DetFlags
 
@@ -120,7 +120,7 @@ DetFlags.Print()
 # Read Simulation MetaData (unless override flag set to True)
 # ------------------------------------------------------------
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-    overlaylog.info("Skipping input file MetaData check.")
+    OverlayLog.info("Skipping input file MetaData check.")
 else:
     from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
     readInputFileMetadata()
