@@ -16,7 +16,7 @@
 #include "PerfMonKernel/IPerfMonMTSvc.h"
 
 // PerfMonComps includes
-#include "PerfMonComps/PerfMonMTUtils.h"
+#include "PerfMonMTUtils.h"
 
 #include <nlohmann/json.hpp> 
 

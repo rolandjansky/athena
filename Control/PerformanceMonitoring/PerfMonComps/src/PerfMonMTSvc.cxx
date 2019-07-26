@@ -10,7 +10,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // PerfMonComps includes
-#include "PerfMonComps/PerfMonMTSvc.h"
+#include "PerfMonMTSvc.h"
 #include "PerfMonUtils.h" // borrow from existing code
 
 // Input/Output includes

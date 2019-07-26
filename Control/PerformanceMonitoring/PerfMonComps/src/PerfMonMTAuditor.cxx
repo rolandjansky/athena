@@ -9,7 +9,7 @@
 #include "PerfMonKernel/IPerfMonMTSvc.h"
 
 // PerfMonComps includes
-#include "PerfMonComps/PerfMonMTAuditor.h"
+#include "PerfMonMTAuditor.h"
 #include "GaudiKernel/MsgStream.h"
 
 /*
