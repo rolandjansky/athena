@@ -519,6 +519,7 @@ def defineMenu():
 
         # combined tau - xe
         "L1_TAU20IM_2J20_XE45", 
+        "L1_TAU20IM_2J20_XE50", 
 #        "L1_TAU20_2J20_XE45", 
 #        "L1_TAU20IM_2J20_XE50",   
 
@@ -1063,6 +1064,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_4J12.0ETA23' : 316,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_TAU20IM_2J20_XE45' : 74,
+        'L1_TAU20IM_2J20_XE50' : 48,
         'L1_TAU30_UNPAIRED_ISO' :343,
         'L1_TAU60_DR-TAU20ITAU12I' : 76,
         'L1_EM15VHI_2TAU12IM_XE35' : 78,

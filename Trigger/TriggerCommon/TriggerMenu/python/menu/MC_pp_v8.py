@@ -691,13 +691,13 @@ def setupMenu():
         #ATR-19317
         ['g35_loose_L1EM30VHI_j0_perf',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","j0_perf"]]],
         ['g35_loose_L1EM30VHI_j0_perf_gsc0_boffperf_split',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","j0_perf_gsc0_boffperf_split"]]],
-        ['g35_loose_L1EM30VHI_2j25',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","2j25"]]],
-        ['g35_loose_L1EM30VHI_2j15_gsc25_boffperf_split',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","2j15_gsc25_boffperf_split"]]],
+        ['g35_loose_L1EM30VHI_3j25',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","3j25"]]],
+        ['g35_loose_L1EM30VHI_3j15_gsc25_boffperf_split',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","3j15_gsc25_boffperf_split"]]],
 
         ['e9_lhvloose_nod0_mu11_nomucomb_L1LFV-EM8I-MU11',        'L1_LFV-EM8I-MU11',  ['L1_EM7', 'L1_MU11'],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
         ['e14_lhvloose_nod0_mu6_nomucomb_L1LFV-EM12I-MU6',        'L1_LFV-EM12I-MU6',  ['L1_EM12', 'L1_MU6'],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
 
-        ['tau50_mediumRNN_tracktwoMVA_xe80_pufit_xe50_L1XE50', 'L1_XE50',['L1_TAU20IM','',''], [PhysicsStream], ['RATE:TauMET', 'BW:Tau'], -1,['serial',-1,["tau50_mediumRNN_tracktwoMVA","xe80_pufit","xe50_L1XE50"]]], # it should be reordered in athenaMT
+        ['tau50_mediumRNN_tracktwoMVA_xe80_pufit_xe50_L1XE50', 'L1_TAU20IM_2J20_XE50',['L1_TAU20IM','',''], [PhysicsStream], ['RATE:TauMET', 'BW:Tau'], -1,['serial',-1,["tau50_mediumRNN_tracktwoMVA","xe80_pufit","xe50_L1XE50"]]], # it should be reordered in athenaMT
         ['g90_loose_xe90noL1',           'L1_EM22VHI',  ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g90_loose","xe90noL1"]]],
         ['mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt',      'L1_MU10_TAU12IM_J25_2J12',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu14_ivarloose","tau25_mediumRNN_tracktwoMVA"]]],
         ['mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1DR-MU10TAU12I_TAU12I-J25', 'L1_DR-MU10TAU12I_TAU12I-J25',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14_ivarloose","tau25_mediumRNN_tracktwoMVA"]]],
@@ -750,7 +750,7 @@ def setupMenu():
  
             #ATR-19317
             ['g35_loose_L1EM30VHI_j0_perf_gsc0_boffperf_split_FTK',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","j0_perf_gsc0_boffperf_split_FTK"]]],
-            ['g35_loose_L1EM30VHI_2j15_gsc25_boffperf_split_FTK',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","2j15_gsc25_boffperf_split_FTK"]]],
+            ['g35_loose_L1EM30VHI_3j15_gsc25_boffperf_split_FTK',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","3j15_gsc25_boffperf_split_FTK"]]],
 
             ]
 
