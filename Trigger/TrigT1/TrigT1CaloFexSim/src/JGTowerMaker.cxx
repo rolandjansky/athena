@@ -27,7 +27,7 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
   declareProperty("useSCQuality",m_useSCQuality=true);
   declareProperty("useAllCalo",m_useAllCalo=false);
-  declareProperty("useAllRun2TT",m_useAllCalo=false);
+  declareProperty("useAllRun2TT",m_useAllRun2TT=false);
   declareProperty("SuperCellType",m_scType="SCell");
   declareProperty("SuperCellQuality",m_scQuality=0x200);
 }
