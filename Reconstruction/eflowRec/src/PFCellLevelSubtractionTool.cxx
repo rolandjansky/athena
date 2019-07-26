@@ -188,8 +188,8 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
       std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
       for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
       
-      std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
@@ -353,10 +353,10 @@ void PFCellLevelSubtractionTool::performSubtraction() {
     
     if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
       /* Check if we can annihilate right away */
-      std::vector<xAOD::CaloCluster*> clusterList;
+      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
       for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getCluster());
+        clusterList.push_back(std::pair(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false));
       }
       Subtractor::annihilateClusters(clusterList);
 
@@ -389,8 +389,8 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 
 	ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
 	
-	std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+	std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
+	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
 
 	ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       

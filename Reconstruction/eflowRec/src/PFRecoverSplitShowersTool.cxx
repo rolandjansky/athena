@@ -219,9 +219,9 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     for ( auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
     /* Do subtraction */
-    std::vector<xAOD::CaloCluster*> clusterSubtractionList;
+    std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
     clusterSubtractionList.reserve(matchedClusters.size());
-    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
 
     if (getSumEnergy(clusterSubtractionList) - thisEfRecTrack->getEExpect() < m_subtractionSigmaCut
         * sqrt(thisEfRecTrack->getVarEExpect())) {
@@ -250,8 +250,8 @@ void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj) {
 
 }
 
-double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters) {
+double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) {
   double result = 0.0;
-  for (auto thisCluster : clusters) result += thisCluster->e();
+  for (auto thisPair : clusters) result += (thisPair.first)->e();
   return result;
 }

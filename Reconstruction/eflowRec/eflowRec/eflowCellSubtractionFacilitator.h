@@ -31,32 +31,32 @@ class eflowCellSubtractionFacilitator{
   eflowCellSubtractionFacilitator();
 
   double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksClus, eflowCellList& orderedCells);
-  double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, std::vector<xAOD::CaloCluster*> tracksClus, eflowCellList& orderedCells);
+  double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, std::vector<std::pair<xAOD::CaloCluster*, bool> > tracksClus, eflowCellList& orderedCells);
   bool annFlag() {return m_annFlag;}
   void setAnnFlag() { m_annFlag = true; }
 
  private:
   bool m_annFlag;
   CaloClusterCellLink::iterator getCellIterator(const xAOD::CaloCluster* thisCluster, const CaloCell* thisCell);
-  void updateClusterKinematics(std::vector<xAOD::CaloCluster*>& tracksClusters);
+  void updateClusterKinematics(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters);
   void updateClusterKinematics(xAOD::CaloCluster*);
 
-  double getTotalEnergy(std::vector<xAOD::CaloCluster*> tracksClusters);
+  double getTotalEnergy(std::vector<std::pair<xAOD::CaloCluster*, bool> > tracksClusters);
 
-  double getRingsEnergy(const std::vector<xAOD::CaloCluster*>& tracksClusters, CellIt beginRing,
+  double getRingsEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                         CellIt endRing);
-  void subtractPartialRings(const std::vector<xAOD::CaloCluster*>& tracksClusters, CellIt beginRing,
+  void subtractPartialRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                             CellIt endRing, double targetRingEnergy, double eRing);
-  void subtractFullRings(const std::vector<xAOD::CaloCluster*>& tracksClusters, CellIt beginRing,
+  void subtractFullRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                          CellIt endRing);
   bool subtractRings(eflowRingSubtractionManager& ringSubtractionManager,
                      const std::pair<eflowCaloENUM, short>& ring, double & eSubtracted,
                      const double eExpect, eflowCellList& orderedCells,
-                     std::vector<xAOD::CaloCluster*>& tracksClusters);
+                     std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters);
 
   bool subtractCaloCell(double & eSubtracted, const double eExpect, xAOD::CaloCluster* cluster, CaloCell* cell);
-  void annihilateClusters(std::vector<xAOD::CaloCluster*>& tracksClusters);
-  bool subtractReorderedCells(const std::vector<xAOD::CaloCluster*>& tracksClusters,
+  void annihilateClusters(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters);
+  bool subtractReorderedCells(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters,
                             double eSubtracted, const double eExpect, eflowCellList& orderedCells);
 };
 #endif

@@ -45,7 +45,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
   int matchAndCreateEflowCaloObj();
   void performRecovery(int const nOriginalObj);
   void subtractTrackFromClusters(const eflowTrackCaloPoints& trackCalo, eflowRingSubtractionManager& ranking, eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
-  double getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters);
+  double getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters);
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix);
   void performSubtraction(eflowCaloObject* thisEflowCaloObject);
