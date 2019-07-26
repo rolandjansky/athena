@@ -634,7 +634,7 @@ namespace EL
         iter->m_executeCount += 1;
         if (iter->m_algorithm->execute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
           return ::StatusCode::FAILURE;
         }
 
@@ -647,7 +647,7 @@ namespace EL
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
       return ::StatusCode::FAILURE;
     }
 
@@ -660,14 +660,14 @@ namespace EL
       {
         if (jter->m_algorithm->postExecute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
           return ::StatusCode::FAILURE;
         }
       }
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName() << " on event " << treeEntry() << " on file " << inputFileName());
       return ::StatusCode::FAILURE;
     }
 
@@ -716,25 +716,34 @@ namespace EL
 
 
 
-  void Worker ::
-  directRun (const SH::SamplePtr& sample, const Job& job,
-             const std::string& location)
+  ::StatusCode Worker ::
+  directExecute (const SH::SamplePtr& sample, const Job& job,
+                 const std::string& location, const SH::MetaObject& options)
   {
     using namespace msgEventLoop;
-
     RCU_CHANGE_INVARIANT (this);
+
+    SH::MetaObject meta (*sample->meta());
+    meta.fetchDefaults (*job.options());
+    meta.fetchDefaults (options);
+
+    setMetaData (&meta);
+    setOutputHist (location);
+    setSegmentName (sample->name());
+
+    ANA_MSG_INFO ("Running sample: " << sample->name());
 
     setJobConfig (JobConfig (job.jobConfig()));
 
     for (Job::outputIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
+           end = job.outputEnd(); out != end; ++ out)
     {
       Detail::OutputStreamData data {
         out->output()->makeWriter (sample->name(), "", ".root")};
-      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
+      ANA_CHECK (addOutputStream (out->label(), std::move (data)));
     }
 
-    ANA_CHECK_THROW (initialize ());
+    ANA_CHECK (initialize ());
 
     Long64_t maxEvents
       = metaData()->castDouble (Job::optMaxEvents, -1);
@@ -748,11 +757,11 @@ namespace EL
       eventRange.m_url = fileName;
       if (skipEvents == 0 && maxEvents == -1)
       {
-        ANA_CHECK_THROW (processEvents (eventRange));
+        ANA_CHECK (processEvents (eventRange));
       } else
       {
         // just open the input file to inspect it
-        ANA_CHECK_THROW (openInputFile (fileName));
+        ANA_CHECK (openInputFile (fileName));
         eventRange.m_endEvent = inputFileNumEntries();
 
         if (skipEvents >= eventRange.m_endEvent)
@@ -770,207 +779,105 @@ namespace EL
           maxEvents -= eventRange.m_endEvent - eventRange.m_beginEvent;
           assert (maxEvents >= 0);
         }
-        ANA_CHECK_THROW (processEvents (eventRange));
+        ANA_CHECK (processEvents (eventRange));
         if (maxEvents == 0)
           break;
       }
     }
-    ANA_CHECK_THROW (finalize ());
+    ANA_CHECK (finalize ());
+    return ::StatusCode::SUCCESS;
   }
 
 
 
-  void Worker ::
-  directExecute (const SH::SamplePtr& sample, const Job& job,
-                 const std::string& location, const SH::MetaObject& options)
-  {
-    using namespace msgEventLoop;
-
-    SH::MetaObject meta (*sample->meta());
-    meta.fetchDefaults (*job.options());
-    meta.fetchDefaults (options);
-
-    Worker worker;
-    worker.setMetaData (&meta);
-    worker.setOutputHist (location);
-    worker.setSegmentName (sample->name());
-
-    ANA_MSG_INFO ("Running sample: " << sample->name());
-    worker.directRun (sample, job, location);
-  }
-
-
-
-  void Worker ::
-  batchRun (const BatchJob *job,
-            const BatchSample *sample,
-            const BatchSegment *segment)
-  {
-    using namespace msgEventLoop;
-
-    RCU_CHANGE_INVARIANT (this);
-
-    setJobConfig (JobConfig (job->job.jobConfig()));
-
-    for (Job::outputIter out = job->job.outputBegin(),
-	   end = job->job.outputEnd(); out != end; ++ out)
-    {
-      Detail::OutputStreamData data {
-        out->output()->makeWriter (segment->sampleName, segment->segmentName, ".root")};
-      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
-    }
- 
-    Long64_t beginFile = segment->begin_file;
-    Long64_t endFile   = segment->end_file;
-    Long64_t lastFile  = segment->end_file;
-    RCU_ASSERT (beginFile <= endFile);
-    Long64_t beginEvent = segment->begin_event;
-    Long64_t endEvent   = segment->end_event;
-    if (endEvent > 0) endFile += 1;
-
-    ANA_CHECK_THROW (initialize ());
-
-    for (Long64_t file = beginFile; file != endFile; ++ file)
-    {
-      RCU_ASSERT (std::size_t(file) < sample->files.size());
-      EventRange eventRange;
-      eventRange.m_url = sample->files[file];
-      eventRange.m_beginEvent = (file == beginFile ? beginEvent : 0);
-      eventRange.m_endEvent = (file == lastFile ? endEvent : EventRange::eof);
-      ANA_CHECK_THROW (processEvents (eventRange));
-    }
-    ANA_CHECK_THROW (finalize ());
-  }
-
-
-
-  void Worker ::
+  ::StatusCode Worker ::
   batchExecute (unsigned job_id, const char *confFile)
   {
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
     try
     {
       std::unique_ptr<TFile> file (TFile::Open (confFile, "READ"));
-      RCU_ASSERT_SOFT (file.get() != 0);
+      if (file.get() == nullptr || file->IsZombie())
+      {
+        ANA_MSG_ERROR ("failed to open file: " << confFile);
+        return ::StatusCode::FAILURE;
+      }
+
       std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
-      RCU_ASSERT_SOFT (job.get() != 0);
-      RCU_ASSERT_SOFT (job_id < job->segments.size());
+      if (job.get() == nullptr)
+      {
+        ANA_MSG_ERROR ("failed to retrieve BatchJob object");
+        return ::StatusCode::FAILURE;
+      }
+
+      if (job_id >= job->segments.size())
+      {
+        ANA_MSG_ERROR ("invalid job-id " << job_id << ", max is " << job->segments.size());
+        return ::StatusCode::FAILURE;
+      }
       BatchSegment *segment = &job->segments[job_id];
-      RCU_ASSERT_SOFT (segment->job_id == job_id);
-      RCU_ASSERT_SOFT (segment->sample < job->samples.size());
+      RCU_ASSERT (segment->job_id == job_id);
+      RCU_ASSERT (segment->sample < job->samples.size());
       BatchSample *sample = &job->samples[segment->sample];
 
       gSystem->Exec ("pwd");
       gSystem->MakeDirectory ("output");
 
-      Worker worker;
-      worker.setMetaData (&sample->meta);
-      worker.setOutputHist (job->location + "/fetch");
-      worker.setSegmentName (segment->fullName);
-      worker.batchRun (job.get(), sample, segment);
+      setMetaData (&sample->meta);
+      setOutputHist (job->location + "/fetch");
+      setSegmentName (segment->fullName);
+
+      setJobConfig (JobConfig (job->job.jobConfig()));
+
+      for (Job::outputIter out = job->job.outputBegin(),
+             end = job->job.outputEnd(); out != end; ++ out)
+      {
+        Detail::OutputStreamData data {
+          out->output()->makeWriter (segment->sampleName, segment->segmentName, ".root")};
+        ANA_CHECK (addOutputStream (out->label(), std::move (data)));
+      }
+
+      Long64_t beginFile = segment->begin_file;
+      Long64_t endFile   = segment->end_file;
+      Long64_t lastFile  = segment->end_file;
+      RCU_ASSERT (beginFile <= endFile);
+      Long64_t beginEvent = segment->begin_event;
+      Long64_t endEvent   = segment->end_event;
+      if (endEvent > 0) endFile += 1;
+
+      ANA_CHECK (initialize ());
+
+      for (Long64_t file = beginFile; file != endFile; ++ file)
+      {
+        RCU_ASSERT (std::size_t(file) < sample->files.size());
+        EventRange eventRange;
+        eventRange.m_url = sample->files[file];
+        eventRange.m_beginEvent = (file == beginFile ? beginEvent : 0);
+        eventRange.m_endEvent = (file == lastFile ? endEvent : EventRange::eof);
+        ANA_CHECK (processEvents (eventRange));
+      }
+      ANA_CHECK (finalize ());
 
       std::ostringstream job_name;
       job_name << job_id;
       std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
+      return ::StatusCode::SUCCESS;
     } catch (...)
     {
       Detail::report_exception ();
-      exit (EXIT_FAILURE);
+      return ::StatusCode::FAILURE;
     }
   }
 
-  void Worker::gridRun(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location) {
-    using namespace msgEventLoop;
-    RCU_CHANGE_INVARIANT (this);
-
-    {//Create and register the "big" output files with base class
-      TIter itr(&bigOutputs);
-      TObject *obj = 0;
-      while ((obj = itr())) {
-	EL::OutputStream *os = dynamic_cast<EL::OutputStream*>(obj);
-	if (os) {
-          Detail::OutputStreamData data {
-            location + "/" + os->label() + ".root", "RECREATE"};
-          ANA_CHECK_THROW (addOutputStream (os->label(), std::move (data)));
-	}
-	else {
-	  throw "ERROR: Bad input"; 
-	}
-      }
-    }
-
-    setJobConfig (std::move (jobConfig));
-
-    addModule (std::make_unique<Detail::GridReportingModule> ());
-    ANA_CHECK_THROW (initialize());
-
-    std::vector<std::string> fileList; 
-
-    std::ifstream infile("input.txt");
-    while (infile) {
-      std::string sLine;
-      if (!getline(infile, sLine)) break;
-      std::istringstream ssLine(sLine);
-      while (ssLine) {
-        std::string sFile;
-        if (!getline(ssLine, sFile, ',')) break;
-        fileList.push_back(sFile);
-      }
-    } 
-  
-    if (fileList.size() == 0) {
-      //not fatal, maybe input was not expected
-    }
-
-    if (fileList.size() == 0) {
-      //User was expecting input after all.
-      gSystem->Exit(EC_BADINPUT);
-    }
-
-    for (std::size_t currentFile = 0;
-	 currentFile != fileList.size();
-	 currentFile++) {
-
-      EventRange eventRange;
-      eventRange.m_url = fileList.at(currentFile);
-
-      try {
-        if (processEvents (eventRange).isFailure()) {
-          gridFail(eventsProcessed(), currentFile, fileList.at(currentFile));
-        }
-
-      }
-      catch (std::exception& e) {
-        std::cout << "Caught exception while executing algorithm:\n"
-                  << e.what() << "\n";
-        gridFail(eventsProcessed(), currentFile, fileList.at(currentFile));
-      }
-      catch (char const* e) {
-        std::cout << "Caught exception while executing algorithm:\n"
-                  << e << "\n";
-        gridFail(eventsProcessed(), currentFile, fileList.at(currentFile));
-      }
-      catch (...) {
-        std::cout << "Caught unknown exception while executing algorithm";
-        gridFail(eventsProcessed(), currentFile, fileList.at(currentFile));
-      }
-    }    
-
-    ANA_CHECK_THROW (finalize ());
-
-    int nEvents = eventsProcessed();
-    int nFiles = fileList.size();
-    std::cout << "\nLoop finished. ";
-    std::cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
-
-    gridNotifyJobFinished(eventsProcessed(), fileList);
-  }
 
 
-
-  void Worker ::
+  ::StatusCode Worker ::
   gridExecute (const std::string& sampleName)
   {
     using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
 
     ANA_MSG_INFO ("Running with ROOT version " << gROOT->GetVersion()
                   << " (" << gROOT->GetVersionDate() << ")");
@@ -982,64 +889,121 @@ namespace EL
     std::unique_ptr<JobConfig> jobConfig;
     SH::MetaObject *mo = 0;
 
-    try {
-      std::unique_ptr<TFile> f (TFile::Open("jobdef.root"));
-      if (f && !f->IsZombie()) {
-	
-	mo = dynamic_cast<SH::MetaObject*>(f->Get(sampleName.c_str()));
-	if (!mo) {
-	  throw "Could not read in sample meta object";
-	}
-	
-        jobConfig.reset (dynamic_cast<JobConfig*>(f->Get("jobConfig")));
-        if (jobConfig == nullptr)
-          RCU_THROW_MSG ("failed to read jobConfig object");
-
-        std::unique_ptr<TList> outs ((TList*)f->Get("outputs"));
-	if (outs) {  
-	  TIter itr(outs.get());
-	  TObject *obj = 0;
-	  while ((obj = itr())) {
-	    EL::OutputStream * out = dynamic_cast<EL::OutputStream*>(obj);
-	    if (out) {
-	      bigOutputs.Add(out);
-	    }
-	    else {
-	      throw "Encountered unexpected entry in list of outputs"; 
-	    }
-	  }
-	}
-	else {
-	  throw "Could not read list of outputs"; 
-	}
-      }
-      else {
-	throw "Could not read jobdef"; 
-      }
-
-      f->Close();
-      f.reset ();
-    
-      const std::string location = ".";
-
-      EL::Worker worker;
-      worker.setMetaData (mo);
-      worker.setOutputHist (location);
-      worker.setSegmentName ("output");
-      
-      ANA_MSG_INFO ("Starting EventLoop Grid worker");
-
-      worker.gridRun (std::move (*jobConfig), bigOutputs, location);
-
-      ANA_MSG_INFO ("EventLoop Grid worker finished");
-      ANA_MSG_INFO ("Saving output");
-    } catch (...)
-    {
-      Detail::report_exception ();
-      ANA_MSG_ERROR ("Aborting job due to internal Worker error");
-      ANA_MSG_ERROR ("The cause of this is probably a misconfigured job");
-      gSystem->Exit(EC_ABORT);
+    std::unique_ptr<TFile> f (TFile::Open("jobdef.root"));
+    if (f == nullptr || f->IsZombie()) {
+      ANA_MSG_ERROR ("Could not read jobdef");
+      return ::StatusCode::FAILURE;
     }
+
+    mo = dynamic_cast<SH::MetaObject*>(f->Get(sampleName.c_str()));
+    if (!mo) {
+      ANA_MSG_ERROR ("Could not read in sample meta object");
+      return ::StatusCode::FAILURE;
+    }
+
+    jobConfig.reset (dynamic_cast<JobConfig*>(f->Get("jobConfig")));
+    if (jobConfig == nullptr)
+    {
+      ANA_MSG_ERROR ("failed to read jobConfig object");
+      return ::StatusCode::FAILURE;
+    }
+
+    {
+      std::unique_ptr<TList> outs ((TList*)f->Get("outputs"));
+      if (outs == nullptr)
+      {
+        ANA_MSG_ERROR ("Could not read list of outputs");
+        return ::StatusCode::FAILURE;
+      }
+
+      TIter itr(outs.get());
+      TObject *obj = 0;
+      while ((obj = itr())) {
+        EL::OutputStream * out = dynamic_cast<EL::OutputStream*>(obj);
+        if (out) {
+          bigOutputs.Add(out);
+        }
+        else {
+          ANA_MSG_ERROR ("Encountered unexpected entry in list of outputs");
+          return ::StatusCode::FAILURE;
+        }
+      }
+    }
+
+    f->Close();
+    f.reset ();
+
+    const std::string location = ".";
+
+    setMetaData (mo);
+    setOutputHist (location);
+    setSegmentName ("output");
+
+    ANA_MSG_INFO ("Starting EventLoop Grid worker");
+
+    {//Create and register the "big" output files with base class
+      TIter itr(&bigOutputs);
+      TObject *obj = 0;
+      while ((obj = itr())) {
+        EL::OutputStream *os = dynamic_cast<EL::OutputStream*>(obj);
+        if (os == nullptr)
+        {
+          ANA_MSG_ERROR ("Bad input");
+          return ::StatusCode::FAILURE;
+        }
+        {
+          Detail::OutputStreamData data {
+            location + "/" + os->label() + ".root", "RECREATE"};
+          ANA_CHECK (addOutputStream (os->label(), std::move (data)));
+        }
+      }
+    }
+
+    setJobConfig (std::move (*jobConfig));
+
+    addModule (std::make_unique<Detail::GridReportingModule> ());
+    ANA_CHECK (initialize());
+
+    std::vector<std::string> fileList; 
+    {
+      std::ifstream infile("input.txt");
+      while (infile) {
+        std::string sLine;
+        if (!getline(infile, sLine)) break;
+        std::istringstream ssLine(sLine);
+        while (ssLine) {
+          std::string sFile;
+          if (!getline(ssLine, sFile, ',')) break;
+          fileList.push_back(sFile);
+        }
+      }
+    } 
+    if (fileList.size() == 0) {
+      ANA_MSG_ERROR ("no input files provided");
+      //User was expecting input after all.
+      gSystem->Exit(EC_BADINPUT);
+    }
+
+    for (const std::string& file : fileList)
+    {
+      EventRange eventRange;
+      eventRange.m_url = file;
+
+      ANA_CHECK (processEvents (eventRange));
+    }
+
+    ANA_CHECK (finalize ());
+
+    int nEvents = eventsProcessed();
+    int nFiles = fileList.size();
+    ANA_MSG_INFO ("Loop finished.");
+    ANA_MSG_INFO ("Read " << nEvents << " events in " << nFiles << " files.");
+
+    gridNotifyJobFinished(eventsProcessed(), fileList);
+
+    ANA_MSG_INFO ("EventLoop Grid worker finished");
+    ANA_MSG_INFO ("Saving output");
+    return ::StatusCode::SUCCESS;
   }
 
   void Worker::gridNotifyJobFinished(uint64_t eventsProcessed,
@@ -1058,16 +1022,5 @@ namespace EL
     else {
       //cout << "Failed to write summary file.\n";
     } 
-  }
-
-  void Worker::gridFail(uint64_t eventsProcessed, std::size_t currentFile,
-                        const std::string& fileName) {
-    try {
-      std::cerr << "Error reported at event " << eventsProcessed
-                << " in file " << currentFile << " (" 
-                << fileName << ")\n"
-                << "ending job with status \"failed\"\n";
-    } catch (...) {}
-    gSystem->Exit(EC_FAIL);
   }
 }

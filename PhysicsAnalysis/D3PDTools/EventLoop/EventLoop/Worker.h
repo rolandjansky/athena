@@ -28,7 +28,6 @@ namespace EL
 
     /// effects: standard destructor
     /// guarantee: no-fail
-    /// rationale: virtual destructor for base class
   public:
     virtual ~Worker ();
 
@@ -205,56 +204,44 @@ namespace EL
 
 
     //
-    // interface for specific drivers
+    // public interface for the drivers
     //
 
-    /// effects: run the job
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// failures: job failures
+    /// \brief standard constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I
   public:
-    void directRun (const SH::SamplePtr& sample, const Job& job,
-                    const std::string& location);
+    Worker ();
 
+
+
+    //
+    // old interface for the drivers
+    //
 
     /// \brief run the job
     /// \par Guarantee
     ///   basic
   public:
-    static void directExecute (const SH::SamplePtr& sample, const Job& job,
+    ::StatusCode directExecute (const SH::SamplePtr& sample, const Job& job,
                                const std::string& location, const SH::MetaObject& options);
-
-
-    /// effects: run the job
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// failures: job failures
-  public:
-    void batchRun (const BatchJob *job,
-                   const BatchSample *sample,
-                   const BatchSegment *segment);
 
 
     /// effects: do what is needed to execute the given job segment
     /// guarantee: basic
     /// failures: job specific
   public:
-    static void batchExecute (unsigned job_id, const char *confFile);
+    ::StatusCode batchExecute (unsigned job_id, const char *confFile);
 
   public:
-    void gridRun(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location);
-
-  public:
-    static void gridExecute (const std::string& sampleName);
+    ::StatusCode gridExecute (const std::string& sampleName);
 
 
   private:
     void gridNotifyJobFinished(uint64_t eventsProcessed,
                            const std::vector<std::string>& fileList);
-
-  private:
-    void gridFail(uint64_t eventsProcessed, std::size_t currentFile,
-              const std::string& fileName);
 
   private:
     void gridAbort();
@@ -269,22 +256,6 @@ namespace EL
 
   private:
     void gridCreateJobSummary(uint64_t eventsProcessed);
-
-
-
-    //
-    // protected interface
-    //
-
-    /// effects: standard constructor
-    /// guarantee: strong
-    /// failures: low level errors I
-    /// requires: val_metaData != 0
-    /// requires: output != 0
-    /// warning: you have to keep the meta-data object around until
-    ///   the worker object is destroyed.
-  protected:
-    Worker ();
 
 
     /// \brief set the \ref metaData
