@@ -4,6 +4,7 @@
 
 // Package includes
 #include "TriggerMatchingTool/IParticleRetrievalTool.h"
+#include <ostream>
 
 // Anonymous namespace contains helper functions
 namespace {
@@ -55,6 +56,9 @@ namespace Trig {
   {
     declareProperty("TrigDecisionTool", m_tdt,
         "The trigger decision tool to use.");
+    declareProperty("WarnOnNavigationError", m_warnOnNavigationFailure = true,
+        "Only spit a warning on a navigation error, don't cause a job failure.");
+
   }
 
   IParticleRetrievalTool::~IParticleRetrievalTool() {}
@@ -98,21 +102,30 @@ namespace Trig {
       // the types of trigger that this tool expects to examine. It won't be
       // true for (e.g.) jet triggers. 
       std::vector<const xAOD::IParticle*> currentCombination;
+      bool navFailure = false;
       for (const HLT::TriggerElement* te : combo.tes() ) {
-        if (!retrieveParticles(currentCombination, te).isSuccess() ) {
+        if (!retrieveParticles(currentCombination, te, navFailure).isSuccess() ) {
           // Interpret a failure this way so that we can report the chain name
           ATH_MSG_ERROR("Failed to retrieve particles for chain " << chain );
           return StatusCode::FAILURE;
         }
+        // If the navigation failed for this combination ignore it completely
+        if (navFailure)
+          break;
       }
-      combinations.push_back(currentCombination);
+      if (navFailure)
+        ATH_MSG_WARNING("Skipping combination for chain " << chain 
+            << " due to navigation failure");
+      else
+        combinations.push_back(currentCombination);
     }
     return StatusCode::SUCCESS;
   }
 
   StatusCode IParticleRetrievalTool::retrieveParticles(
       std::vector<const xAOD::IParticle*>& combination,
-      const HLT::TriggerElement* te) const
+      const HLT::TriggerElement* te,
+      bool& navFailure) const
   {
     ATH_MSG_DEBUG( "Processing TE " << Trig::getTEName(*te) );
     // Keep track of whether or not we found a particle here.
@@ -127,9 +140,17 @@ namespace Trig {
         // looking for a CaloCluster instead!
         xAOD::Type::ObjectType egType = getEGammaTEType(te);
         if (egType == xAOD::Type::Other) {
-          ATH_MSG_ERROR("Unable to determine the correct type for TE "
-              << Trig::getTEName(*te) );
-          return StatusCode::FAILURE;
+          std::string message = 
+            "Unable to determine the correct type for TE " + Trig::getTEName(*te);
+          navFailure = true;
+          if (m_warnOnNavigationFailure) {
+            ATH_MSG_WARNING( message );
+            return StatusCode::SUCCESS;
+          }
+          else {
+            ATH_MSG_ERROR( message );
+            return StatusCode::FAILURE;
+          }
         }
         else if (egType == xAOD::Type::CaloCluster) {
           HLT::class_id_type clid = 0;
@@ -142,11 +163,22 @@ namespace Trig {
           HLT::TriggerElement::FeatureAccessHelper egFeature = 
             navigation->getFeatureRecursively(te, clid, "", sourceTE);
           if (!sourceTE) {
-            ATH_MSG_ERROR("Unable to retrieve feature of type " << egType
-                << " from TE " << Trig::getTEName(*te) );
-            return StatusCode::FAILURE;
+            std::ostringstream os;
+            os << "Unable to retrieve feature of type " << egType
+                << " from TE " << Trig::getTEName(*te);
+            navFailure = true;
+            if (m_warnOnNavigationFailure) {
+              ATH_MSG_WARNING( os.str() );
+              return StatusCode::SUCCESS;
+            }
+            else {
+              ATH_MSG_ERROR( os.str() );
+              return StatusCode::FAILURE;
+            }
           }
-          ATH_CHECK( retrieveFeatureParticle(part, egFeature, sourceTE) );
+          ATH_CHECK( retrieveFeatureParticle(part, egFeature, sourceTE, navFailure) );
+          if (navFailure)
+            return StatusCode::SUCCESS;
           // If it's a calo-cluster like TE then stop here, otherwise we'll
           // encounter the other EG type again and fail...
           break;
@@ -160,13 +192,21 @@ namespace Trig {
       // If we found a particle from another feature access helper then this is
       // a problem. Our assumption is that there is only one particle per leg!
       if (part) {
-        ATH_MSG_ERROR(
-            "TE " << Trig::getTEName(*te) 
-            << " has multiple 'final' particles attached to it!"
-            << " This breaks this tool's assumptions!");
-        return StatusCode::FAILURE;
+        std::string message = "TE" + Trig::getTEName(*te) + "has multiple " +
+          "'final' particles attached to it! This breaks this tool's asumptions!";
+        navFailure = true;
+        if (m_warnOnNavigationFailure) {
+          ATH_MSG_WARNING(message);
+          return StatusCode::SUCCESS;
+        }
+        else {
+          ATH_MSG_ERROR(message);
+          return StatusCode::FAILURE;
+        }
       }
-      ATH_CHECK( retrieveFeatureParticle(part, feature, te) );
+      ATH_CHECK( retrieveFeatureParticle(part, feature, te, navFailure) );
+      if (navFailure)
+        return StatusCode::SUCCESS;
     } //> end loop over features
 
     // If we found a particle then we can stop going through this branch of the
@@ -179,7 +219,7 @@ namespace Trig {
     // Otherwise look at each of the next TEs separately
     for (const HLT::TriggerElement* nextTE : 
         HLT::TrigNavStructure::getDirectPredecessors(te) )
-      ATH_CHECK( retrieveParticles(combination, nextTE) );
+      ATH_CHECK( retrieveParticles(combination, nextTE, navFailure) );
 
     return StatusCode::SUCCESS;
   }
@@ -203,34 +243,95 @@ namespace Trig {
   StatusCode IParticleRetrievalTool::retrieveFeatureParticle(
       const xAOD::IParticle*& particle,
       const HLT::TriggerElement::FeatureAccessHelper& feature,
-      const HLT::TriggerElement* te) const
+      const HLT::TriggerElement* te,
+      bool& navFailure) const
   {
     // Get the right container type name
     std::string containerType;
     if (!CLIDToContainerType(containerType, feature.getCLID() ) ) {
       ATH_MSG_ERROR("Unrecognised CLID " << feature.getCLID() << " received!");
+      // This isn't a navigation error - this is a failure in the tool's
+      // internal logic!
       return StatusCode::FAILURE;
     }
     // Build a vector of typeless features so that we can use the central
     // functions.
     const HLT::TrigNavStructure* navigation = 
       m_tdt->ExperimentalAndExpertMethods()->getNavigation();
-    std::vector<Trig::TypelessFeature> featureVec;
-    featureVec.emplace_back(
-        feature,
-        te,
-        navigation->label(feature.getCLID(), feature.getIndex().subTypeIndex() ) );
-    auto particleFeatures = Trig::FeatureAccessImpl::typedGet<
-      xAOD::IParticle, xAOD::IParticleContainer, xAOD::IParticleContainer>(
-          featureVec, const_cast<HLT::TrigNavStructure*>(navigation),
-          &*evtStore(), containerType);
+
+
+    /// Expand the typedGet function here
+    auto typelessHolder = navigation->getHolder(feature);
+
+    if (!typelessHolder) {
+      std::string message = "Typeless holder for feature not present!";
+      navFailure = true;
+      if (m_warnOnNavigationFailure) {
+        ATH_MSG_WARNING(message);
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR(message);
+        return StatusCode::FAILURE;
+      }
+    }
+    const xAOD::IParticleContainer* cont(nullptr);
+    // Get the name used in the event store
+    std::string key = HLTNavDetails::formatSGkey(
+        "HLT", containerType, typelessHolder->label() );
+    // Now things are *much* more familiar
+    if (!evtStore()->contains<xAOD::IParticleContainer>(key) ) {
+      std::string message = "Store does not contain " + key + "!";
+      navFailure = true;
+      if (m_warnOnNavigationFailure) {
+        ATH_MSG_WARNING(message);
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR(message);
+        return StatusCode::FAILURE;
+      }
+    }
+    ATH_CHECK( evtStore()->retrieve(cont, key) );
+    HLT::TriggerElement::ObjectIndex idx = feature.getIndex();
+    if (cont->size() < idx.objectsEnd() ) {
+      std::ostringstream os; 
+      os << "Featured object end " << idx.objectsEnd()
+        << " is *after* the end of container " << key;
+      navFailure = true;
+      if (m_warnOnNavigationFailure) {
+        ATH_MSG_WARNING( os.str() );
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR( os.str() );
+        return StatusCode::FAILURE;
+      }
+    }
+    std::vector<const xAOD::IParticle*> particleFeatures;
+    particleFeatures.reserve(idx.objectsEnd() - idx.objectsBegin() );
+    auto begin = cont->begin();
+    auto end = cont->begin();
+    std::advance(begin, idx.objectsBegin() );
+    std::advance(end, idx.objectsEnd() );
+    particleFeatures.insert(particleFeatures.end(), begin, end);
+
     // Make sure the answer is what we expect
+    std::ostringstream os;
     switch (particleFeatures.size() ) {
       case 0:
-        ATH_MSG_ERROR("No particles retrieved from feature "
+        os << "No particles retrieved from feature "
             << navigation->label(feature.getCLID(), feature.getIndex().subTypeIndex() )
-            << " from TE " << Trig::getTEName(*te) );
-        return StatusCode::FAILURE;
+            << " from TE " << Trig::getTEName(*te);
+        navFailure = true;
+        if (m_warnOnNavigationFailure) {
+          ATH_MSG_WARNING(os.str() );
+          return StatusCode::SUCCESS;
+        }
+        else {
+          ATH_MSG_ERROR(os.str() );
+          return StatusCode::FAILURE;
+        }
       case 1:
         // Set the output.
         particle = particleFeatures.at(0);
