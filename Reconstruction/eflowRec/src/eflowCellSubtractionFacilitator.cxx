@@ -46,11 +46,9 @@ double eflowCellSubtractionFacilitator::getRingsEnergy(const std::vector<std::pa
   double eRing(0.0);
   for (CellIt it = beginRing; it != endRing; ++it) {
     /* Loop over Rings */
-    std::vector<std::pair<CaloCell*, int> >::iterator itEntry = it->second.begin();
-    std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = it->second.end();
-    for (; itEntry != lastEntry; itEntry++) {
+    for (auto thisCell : it->second){
       /* Loop over Cells */
-      std::pair<CaloCell*, int> thisPair = *itEntry;
+      std::pair<CaloCell*, int> thisPair = thisCell;
       const xAOD::CaloCluster* clus = tracksClusters[thisPair.second].first;
       CaloClusterCellLink::iterator theIterator = this->getCellIterator(clus, thisPair.first);
       double cellWeight = theIterator.weight();
@@ -79,11 +77,9 @@ void eflowCellSubtractionFacilitator::subtractPartialRings(const std::vector<std
     double targetRingEnergy, double eRings) {
   for (CellIt itRing = beginRing; itRing != endRing; ++itRing) {
     /* Loop over Rings */
-    std::vector<std::pair<CaloCell*, int> >::iterator itEntry = itRing->second.begin();
-    std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = itRing->second.end();
-    for (; itEntry != lastEntry; itEntry++) {
+    for (auto thisCell : itRing->second){
       /* Loop over Cells */
-      std::pair<CaloCell*, int> thisPair = *itEntry;
+      std::pair<CaloCell*, int> thisPair = thisCell;
       xAOD::CaloCluster* cluster = tracksClusters[thisPair.second].first;
       CaloCell* cell = thisPair.first;
       CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster, cell);
@@ -99,11 +95,9 @@ void eflowCellSubtractionFacilitator::subtractFullRings(const std::vector<std::p
 
   for (CellIt itRing = beginRing; itRing != endRing; ++itRing) {
     /* Loop over Rings */
-    std::vector<std::pair<CaloCell*, int> >::iterator itEntry = itRing->second.begin();
-    std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = itRing->second.end();
-    for (; itEntry != lastEntry; itEntry++) {
+    for (auto thisCell : itRing->second){
       /* Loop over Cells */
-      std::pair<CaloCell*, int> thisPair = *itEntry;
+      std::pair<CaloCell*, int> thisPair = thisCell;
       xAOD::CaloCluster* cluster = tracksClusters[thisPair.second].first;
       cluster->removeCell(thisPair.first);
     }
