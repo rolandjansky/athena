@@ -382,7 +382,7 @@ StatusCode LArPulseShape::initialize() {
   return StatusCode::SUCCESS;
 }
 /////////////////////////////////////////////////////////////////////
-StatusCode LArPulseShape::execute()  {
+StatusCode LArPulseShape::execute() {
 
 
   short int bunchStr[8] = {1, 101, 201, 301, 1786, 1886, 1986, 2086}; //move to JO

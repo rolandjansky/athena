@@ -19,9 +19,11 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
 #include <cassert>
 
@@ -32,8 +34,8 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-          m_onlineID(nullptr),
           m_calo_dd_man(nullptr),
+          m_onlineID(nullptr),
 	  m_larPhysWaveBin(nullptr),
 	  m_groupingType("SubDetector"), // SubDetector, Single, FeedThrough
           m_DSPConfig(nullptr)
@@ -84,6 +86,8 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("DSPConfigFolder",   m_DSPConfigFolder="/LAR/Configuration/DSPConfiguration");
 
   declareProperty("ForceShift",        m_forceShift=false);
+  
+  declareProperty("isSC",              m_isSC=false);
 
   m_nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
 }
@@ -119,10 +123,34 @@ StatusCode LArOFCAlg::initialize(){
   }
 
 
-  sc = detStore()->retrieve(m_onlineID); 
+  /*sc = detStore()->retrieve(m_onlineID); 
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "failed to retrieve LArOnlineID " );
     return sc;
+  }*/
+  
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
   }
 
   ATH_CHECK(m_cablingKey.initialize());
@@ -156,11 +184,35 @@ StatusCode LArOFCAlg::stop()
 
   StatusCode sc;
   if (m_useDelta == 3 || m_useDeltaV2==3){
-    sc = detStore()->retrieve(m_calo_dd_man); 
+    if ( m_isSC ) {
+      const CaloSuperCellDetDescrManager* ll;
+      sc = detStore()->retrieve(ll, "CaloSuperCellDetDescrManager");
+      if (sc.isFailure()) {
+	msg(MSG::ERROR) << "Could not get CaloSuperCellDetDescrManager helper !" << endmsg;
+	return StatusCode::FAILURE;
+      }
+      else {
+	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
+	ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager helper");
+      }
+    } else { // m_isSC
+      const CaloDetDescrManager* ll;
+      sc = detStore()->retrieve(ll, "CaloDetDescrManager");
+      if (sc.isFailure()) {
+	msg(MSG::ERROR) << "Could not get CaloDetDescrManager helper !" << endmsg;
+	return StatusCode::FAILURE;
+      }
+      else {
+	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
+	ATH_MSG_DEBUG(" Found the CaloDetDescrManager helper. ");
+      }
+    }
+    
+    /*sc = detStore()->retrieve(m_calo_dd_man); 
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "failed to CaloDetDescrManager " );
       return sc;
-    }
+    }*/
   }
 
   if ( m_timeShift ) {
@@ -896,13 +948,25 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 	  ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< chid<<" "<<ofl_id );
 	  return false; // Exception better? 
 	}
-	CaloCell_ID::CaloSample sampling = dde->getSampling();
-	if (sampling==CaloCell_ID::FCAL0){
-	  return true;
-	}
-	else {
-	  if (fabs(dde->eta())>4.0){
-	   return true;
+	if ( m_isSC ) {
+	  CaloCell_SuperCell_ID::CaloSample sampling = dde->getSampling();
+	  if (sampling==CaloCell_ID::FCAL0){
+	    return true;
+	  }
+	  else {
+	    if (fabs(dde->eta())>4.0){
+	     return true;
+	    }
+	  }
+	} else {
+	  CaloCell_ID::CaloSample sampling = dde->getSampling();
+	  if (sampling==CaloCell_ID::FCAL0){
+	    return true;
+	  }
+	  else {
+	    if (fabs(dde->eta())>4.0){
+	     return true;
+	    }
 	  }
 	}
 	
