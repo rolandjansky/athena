@@ -1,19 +1,29 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-# definition of trigger EDM for the Run 3, mostly similar to Run 2
-# however there are different set of EDM to stream and different functionalities required
+# Definition of trigger EDM for the Run 3, mostly similar to Run 2 (TriggerEDM.py).
+# Some different sets of EDM to stream and some different functionalities are required.
+
+
+# Concept of categories is kept, categories are: 
+#   Bjet, Bphys, Egamma, ID/Tracking (to be concluded if can be merged), 
+#   Jet, L1, MET, MinBias, Muon Steer, Tau, Calo
+
+# Please note: 
+#   Dynamic varialbes/Container slimming: All dyn vars are removed unless explicitly specified to be kept!
+
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
+
+
 def recordable( name ):
     """
     Verify that the name is in the list of recorded objects and conform to the name convention
 
+    In Run 2 it was a delicate process to configure correctly what got recorded
+    as it had to be set in the algorithm that produced it as well in the TriggerEDM.py in a consistent manner.
 
-    In Run 2 it was a delicate process to configure correctly what get recorded
-    as it had to be set in the produce arlgoirhm as well in here in a consistent manner.
-
-    For Run 3 every alg input/output key can be crosschecked agains the list of objects to record defined here.
+    For Run 3 every alg input/output key can be crosschecked against the list of objects to record which is defined here.
     I.e. in the configuration alg developer would do this:
     from TriggerEDM.TriggerEDMRun3 import recordable
 
@@ -29,15 +39,15 @@ def recordable( name ):
         if "Aux" in name and not name[-1] != ".":
             __log.error( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
 
-    for entry in TriggerHLTList:
+    for entry in TriggerHLTListRun3:
         if entry[0].split( "#" )[1] == name:
             return name
     msg = "The collection name {0} is not declared to be stored by HLT. Add it to TriggerEDMRun3.py".format( name )
     __log.error("ERROR in recordable() - see following stack trace.")
     raise RuntimeError( msg )
-    return name
 
-TriggerHLTList = [
+
+TriggerHLTListRun3 = [
 
     #framework/steering
     ('xAOD::TrigCompositeContainer#HLTSummary',              'BS ESD AODFULL AODSLIM', 'Steer'),
@@ -75,9 +85,8 @@ TriggerHLTList = [
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
+
     # Egamma
-
-
     ('xAOD::TrigEMClusterContainer#HLT_L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
     ('xAOD::TrigEMClusterAuxContainer#HLT_L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
     ('xAOD::TrigPhotonContainer#HLT_L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:L2PhotonRecoViews'),
@@ -218,7 +227,6 @@ TriggerHLTList = [
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #bjet
-
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_FS',                     'BS ESD AODFULL', 'Bjet'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FSAux.',              'BS ESD AODFULL', 'Bjet'),
 
@@ -231,12 +239,10 @@ TriggerHLTList = [
     ('xAOD::JetContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # MinBias
-
     ('xAOD::TrackParticleContainer#HLT_xAODTracksMinBias',                 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksMinBiasAux.',          'BS ESD AODFULL', 'MinBias'),
 
     # ID
-
     # Requested by TrigUpgradeTest/IDCalo.py
     ('xAOD::TrackParticleContainer#HLT_xAODTracks',                        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
@@ -247,6 +253,7 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
     ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
+
 
 EDMDetails = {}
 
@@ -279,3 +286,5 @@ def tpMap():
             continue
         l[tr] = persistent(tr)
     return l
+
+

@@ -69,8 +69,8 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     from RecExConfig.ObjKeyStore import objKeyStore
     if TriggerFlags.doMT():
         # Note this mirrors skeleton.RDOtoRDOTrigger_tf and skeleton.ESDtoAOD_tf. It should migrate to a getTriggerEDMList style function
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-        for item in TriggerHLTList:
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+        for item in TriggerHLTListRun3:
             if "ESD" in item[1]:
                 objKeyStore.addManyTypesStreamESD( [item[0]] )
             if "AOD" in item[1]:
