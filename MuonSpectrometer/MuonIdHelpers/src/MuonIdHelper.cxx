@@ -511,7 +511,8 @@ int MuonIdHelper::init_hashes(void) {
     m_module_vec[nids] = (*first);
     nids++;
   }
-    
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_module_vec.begin(), m_module_vec.end());
   return (0);
 }
 
@@ -569,7 +570,8 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
     m_detectorElement_vec[nids] = (*first);
     nids++;
   }
-
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_detectorElement_vec.begin(), m_detectorElement_vec.end());
   return (0);
 }
 
@@ -629,6 +631,8 @@ int MuonIdHelper::init_channel_hashes(void) {
     nids++;
     }
   */
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_channel_vec.begin(), m_channel_vec.end());
   return (0);
 }
 
