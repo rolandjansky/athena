@@ -184,7 +184,7 @@ PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG P
 PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 
 # Transient frontier warnings.
-PP="$PP"'|^warn  .fn-'
+PP="$PP"'|^warn  .fn-|^warn  .frontier.c'
 
 # ubsan
 PP="$PP"'|bits/regex.h:11'

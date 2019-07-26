@@ -76,6 +76,10 @@ def generateChains( flags,  chainDict ):
                                       CA = accTrk)
 
     fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
     
     # # # EF calo
 
@@ -83,5 +87,6 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [fastCaloStep, fastInDetStep] )
+    chain = Chain( chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep] )
+    
     return chain

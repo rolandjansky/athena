@@ -31,8 +31,6 @@
 /** Constructor */
 DetDescrDBEnvelopeSvc::DetDescrDBEnvelopeSvc(const std::string& name, ISvcLocator* svc) :
   base_class(name,svc),
-  m_dbAccess(0),
-  m_geoModel(0),
   m_atlasNode("ATLAS"),
   m_atlasVersionTag("AUTO"),
   m_node(),
@@ -96,14 +94,13 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
   ATH_MSG_INFO("Initializing ...");
 
   // retrieve DataBase access service
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  if ( svcLocator->service("RDBAccessSvc", m_dbAccess).isFailure()) {
+  if ( m_dbAccess.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not locate RDBAccessSvc");
     if ( !enableFallback()) return StatusCode::FAILURE;
   }
 
   // retrieve the GeoModelSvc
-  if ( !m_doFallback && svcLocator->service("GeoModelSvc", m_geoModel).isFailure()) {
+  if ( !m_doFallback && (m_geoModelSvc.retrieve().isFailure()) ) {
     ATH_MSG_ERROR("Could not locate GeoModelSvc");
     if ( !enableFallback()) return StatusCode::FAILURE;
   }
@@ -112,7 +109,7 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
   // (#) use the DB to retrieve the RZ values
   if ( !m_doFallback) {
     // geo model tag
-    m_atlasVersionTag = m_geoModel->atlasVersion();
+    m_atlasVersionTag = m_geoModelSvc->atlasVersion();
     if( m_atlasVersionTag == "AUTO") m_atlasVersionTag = "ATLAS-00";
 
     // cache the volume definitions locally

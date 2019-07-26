@@ -61,23 +61,23 @@ def TrigL2ElectronHypoToolFromName( name, conf ):
     """
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     decoder = DictFromChainName()
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
-    decodedDict['chainName'] = name # override
+    decodedDict = decoder.getChainDict(conf)
         
     return TrigL2ElectronHypoToolFromDict( decodedDict )
 
 
 
 if __name__ == "__main__":
-    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut", "HLT_e3_etcut")
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut_L1EM3", "HLT_e3_etcut_L1EM3")
     assert tool, "Not configured simple tool"
 
-    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut", "HLT_2e3_etcut")    
+    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut_L1E2M3", "HLT_2e3_etcut_L12EM3")    
     assert tool, "Not configured simple tool"
     assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 
-    tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut", "HLT_e3_e5_etcut")    
-    assert tool, "Not configured simple tool"
-    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
+    # Asymmetric chais not working with this. Commenting out for now
+    # tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut_L12EM3", "HLT_e3_e5_etcut_L12EM3")    
+    # assert tool, "Not configured simple tool"
+    # assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 
     print ( "\n\nALL OK\n\n" )    

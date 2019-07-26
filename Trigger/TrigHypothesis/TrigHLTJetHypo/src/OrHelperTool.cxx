@@ -66,3 +66,7 @@ StatusCode OrHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }
+
+std::size_t OrHelperTool::requiresNJets() const {
+  return m_lhs->requiresNJets() + m_rhs->requiresNJets();
+}

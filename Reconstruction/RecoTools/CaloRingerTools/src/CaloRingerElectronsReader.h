@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRingerElectronsReader.h 668867 2015-05-20 20:23:22Z wsfreund $
@@ -13,10 +13,6 @@
 #include "CaloRingerInputReader.h"
 #include "CaloRingerTools/ICaloRingerElectronsReader.h"
 #include "CaloRingerReaderUtils.h"
-
-// CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 // xAOD includes:
 #include "xAODEgamma/ElectronContainer.h"
@@ -56,16 +52,16 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     /**
      * @brief initialize method
      **/
-    virtual StatusCode initialize() ATH_OVERRIDE;
+    virtual StatusCode initialize() override;
     /**
      * @brief read electrons and populates @name decoMap with them and their
      * respective CaloRings.
      **/
-    virtual StatusCode execute() ATH_OVERRIDE;
+    virtual StatusCode execute() override;
     /**
      * @brief finalize method
      **/
-    virtual StatusCode finalize() ATH_OVERRIDE;
+    virtual StatusCode finalize() override;
     /// @}
 
 

@@ -67,7 +67,8 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
                const TrackParameters&,
                const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
-  /** The interface will later be extended so that the initial state can be additionally a MultiComponentState object! */
+  /** The interface will later be extended so that the initial 
+   * state can be additionally a MultiComponentState object! */
 
  private:
 
@@ -80,11 +81,15 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
       const ParticleHypothesis particleHypothesis = nonInteracting ) const;
 
  private:
+
+  /**These are passed via the configure tools so not retrieved from this tool*/
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator>           m_rioOnTrackCreator;
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
+  /** MultiComponentStateCombiner tool
+   */
+  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner{this,
+    "MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
   double                                    m_cutChiSquaredPerNumberDOF;
 
   bool                                      m_overideMaterialEffectsSwitch;

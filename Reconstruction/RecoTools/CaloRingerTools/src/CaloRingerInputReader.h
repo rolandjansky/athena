@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRingerInputReader.h 667886 2015-05-18 17:26:59Z wsfreund $
@@ -13,10 +13,6 @@
 #include "CaloRingerTools/ICaloRingerInputReader.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 // Other interfaces include:
 #include "CaloRingerTools/ICaloRingsBuilder.h"
@@ -49,16 +45,16 @@ class CaloRingerInputReader : public ::AthAlgTool,
     /**
      * @brief initialize method
      **/
-    virtual StatusCode initialize() ATH_OVERRIDE;
+    virtual StatusCode initialize() override;
     /**
      * @brief read electrons and populates @name decoMap with them and their
      * respective CaloRings.
      **/
-    virtual StatusCode execute() ATH_OVERRIDE;
+    virtual StatusCode execute() override;
     /**
      * @brief finalize method
      **/
-    virtual StatusCode finalize() ATH_OVERRIDE;
+    virtual StatusCode finalize() override;
     /// @}
 
 

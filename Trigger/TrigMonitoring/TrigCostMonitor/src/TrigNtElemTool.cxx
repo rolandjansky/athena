@@ -421,7 +421,8 @@ bool Trig::TrigNtElemTool::PassFilter(TrigMonTE &elem) const
 }
 
 //---------------------------------------------------------------------------------------
-void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE UNUSED(&elem), const HLT::TriggerElement UNUSED(*hlt_te))
+void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE& /*elem*/,
+                                     const HLT::TriggerElement* /*hlt_te*/)
 {
 
 //   //

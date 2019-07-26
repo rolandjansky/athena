@@ -5,12 +5,15 @@
 //@author Shaun Roe
 
 #include "IOVDbCoolFunctions.h"
+#include "IOVDbConn.h"
 #include "CoralBase/Blob.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 //
 #include "CoolKernel/ChannelSelection.h"
+#include "CoolKernel/IDatabase.h"
+#include "CoolKernel/IFolder.h"
 #include "AthenaKernel/IOVRange.h"
 //
 #include <unordered_map>
@@ -129,6 +132,55 @@ namespace IOVDbNamespace{
     return defchan;
   }
   
- 
+  std::pair<bool, std::string>
+  folderMetadata(IOVDbConn * pConnection, const std::string & folderName){
+    bool multiversion{};
+    std::string folderdesc{};
+    // folder being read from COOL
+    // get COOL database - will wake up connection on first access
+    cool::IDatabasePtr dbPtr=pConnection->getCoolDb();
+    if (not dbPtr.get()) {
+      throw std::runtime_error( "Conditions database connection " + pConnection->name() + " cannot be opened - STOP" );
+    }
+    // get folder and read information
+    if (!dbPtr->existsFolder(folderName)) {
+      throw std::runtime_error( "Folder " + folderName + " does not exist" );
+    }
+    cool::IFolderPtr fldPtr=dbPtr->getFolder(folderName);
+    // get versiontype of folder
+    multiversion=(fldPtr->versioningMode()==cool::FolderVersioning::MULTI_VERSION);
+    // read and process description string
+    folderdesc=fldPtr->description();
+    return std::make_pair(multiversion, folderdesc);
+  }
+  
+
+  std::pair<std::vector<cool::ChannelId>, std::vector<std::string>>
+  channelList(IOVDbConn * pConnection, const std::string & folderName, const bool named){
+    std::vector<cool::ChannelId> channelNumbers;
+    std::vector<std::string> channelNames;
+    //
+    cool::IDatabasePtr dbPtr=pConnection->getCoolDb();
+    // get folder and read information
+    if (!dbPtr->existsFolder(folderName)) {
+      throw std::runtime_error( "Folder " + folderName + " does not exist" );
+    }
+    cool::IFolderPtr fldPtr=dbPtr->getFolder(folderName);
+    if (named) {
+      typedef std::map<cool::ChannelId,std::string> ChanMap_t;
+      const ChanMap_t & chanmap=fldPtr->listChannelsWithNames();
+      channelNumbers.reserve(chanmap.size());
+      channelNames.reserve(chanmap.size());
+      auto unzipElement = [&](const ChanMap_t::value_type & element){
+        channelNumbers.push_back(element.first);
+        channelNames.push_back(element.second);
+      };
+      std::for_each(chanmap.begin(), chanmap.end(),unzipElement);
+    } else {
+      channelNumbers=fldPtr->listChannels();
+    }
+    return std::make_pair(channelNumbers, channelNames);
+  }
+  
 }
 

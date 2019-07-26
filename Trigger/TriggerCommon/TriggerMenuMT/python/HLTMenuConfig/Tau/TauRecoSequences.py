@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 
 def _algoTauRoiUpdater(inputRoIs, clusters):
@@ -39,7 +39,7 @@ def _algoTauCaloOnlyMVA(inputRoIs, clusters):
 
 def tauCaloRecoSequence(InViewRoIs, SeqName):
     # lc sequence
-    (lcTopoInViewSequence, lcCaloSequenceOut) = HLTLCTopoRecoSequence(InViewRoIs)
+    (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, InViewRoIs)
     tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
     tauCaloOnlyAlg       = _algoTauCaloOnly(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
     RecoSequence = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyAlg] )
@@ -47,7 +47,7 @@ def tauCaloRecoSequence(InViewRoIs, SeqName):
 
 def tauCaloMVARecoSequence(InViewRoIs, SeqName):
     # lc sequence
-    (lcTopoInViewSequence, lcCaloSequenceOut) = HLTLCTopoRecoSequence(InViewRoIs)
+    (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, InViewRoIs)
     tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
     tauCaloOnlyMVAAlg	 = _algoTauCaloOnlyMVA(inputRoIs   = InViewRoIs, clusters = lcCaloSequenceOut)
     RecoSequence = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyMVAAlg] )
@@ -59,13 +59,13 @@ def tauCaloSequence(ConfigFlags):
     InViewRoIs="TAUCaloRoIs"
     RecoSequenceName="tauCaloInViewSequence"
 
-    tauCaloViewsMaker = EventViewCreatorAlgorithm( "tauCaloViewsMaker")
+    tauCaloViewsMaker = EventViewCreatorAlgorithm( "IMtauCalo")
     tauCaloViewsMaker.ViewFallThrough = True
     tauCaloViewsMaker.RoIsLink = "initialRoI"
     tauCaloViewsMaker.InViewRoIs = InViewRoIs
     tauCaloViewsMaker.Views = "TAUCaloViews"
     tauCaloViewsMaker.ViewNodeName = RecoSequenceName
-    (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence(InViewRoIs, RecoSequenceName)
+    (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence( InViewRoIs, RecoSequenceName)
 
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
@@ -76,7 +76,7 @@ def tauCaloMVASequence(ConfigFlags):
     InViewRoIs="TAUCaloRoIs"
     RecoSequenceName="tauCaloMVAInViewSequence"
 
-    tauCaloMVAViewsMaker = EventViewCreatorAlgorithm( "tauCaloMVAViewsMaker")
+    tauCaloMVAViewsMaker = EventViewCreatorAlgorithm( "IMtauCaloMVA")
     tauCaloMVAViewsMaker.ViewFallThrough = True
     tauCaloMVAViewsMaker.RoIsLink = "initialRoI"
     tauCaloMVAViewsMaker.InViewRoIs = InViewRoIs

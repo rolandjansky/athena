@@ -213,14 +213,6 @@ def TrigMufastHypoToolFromDict( chainDict ):
     return tool
 
 
-def TrigMufastHypoToolFromName( name,  thresholdHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMufastHypoToolFromDict( decodedDict )
-
-
 class TrigMufastHypoConfig():
     
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ): 
@@ -286,13 +278,6 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
     return tool
 
-def TrigmuCombHypoToolFromName( name, thresholdsHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigmuCombHypoToolFromDict( decodedDict )
-        
 class TrigmuCombHypoConfig():
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
@@ -340,15 +325,6 @@ def TrigMuisoHypoToolFromDict( chainDict ):
     return tool
     
 
-def TrigMuisoHypoToolFromName( name, thresholdHLT ):
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuisoHypoToolFromDict( decodedDict )
-
-
 class TrigMuisoHypoConfig() :
 
     def ConfigurationHypoTool( self, toolName ):	
@@ -384,14 +360,6 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
-    
-def TrigMuonEFMSonlyHypoToolFromName( name, thresholdHLT ) :
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFMSonlyHypoToolFromDict( decodedDict )
     
 class TrigMuonEFMSonlyHypoConfig(): 
         
@@ -434,15 +402,6 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
-def TrigMuonEFCombinerHypoToolFromName( name, thresholdHLT ) :
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFCombinerHypoToolFromDict( decodedDict )
-
-
 class TrigMuonEFCombinerHypoConfig(): 
         
 
@@ -524,24 +483,28 @@ if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1 
 
-    configToTest = [ 'HLT_mu6fast',
-                     'HLT_mu6Comb',
-                     'HLT_mu6'                    
-                     'HLT_mu20_ivar',
-                     'HLT_2mu6Comb',
-                     'HLT_2mu6']
+    configToTest = [ 'HLT_mu6fast_L1MU6',
+                     'HLT_mu6Comb_L1MU6',
+                     'HLT_mu6_L1MU6',                    
+                     'HLT_mu20_ivar_L1MU20',
+                     'HLT_2mu6Comb_L12MU6',
+                     'HLT_2mu6_L12MU6']
+
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+    chainNameDecoder = DictFromChainName.DictFromChainName()
                     
     for c in configToTest:
         print "testing config ", c
-        toolMufast = TrigMufastHypoToolFromName(c, c)
+        chainDict = chainNameDecoder.getChainDict(c)
+        toolMufast = TrigMufastHypoToolFromDict(chainDict)
         assert toolMufast
-        toolmuComb = TrigmuCombHypoToolFromName(c, c)
+        toolmuComb = TrigmuCombHypoToolFromDict(chainDict)
         assert toolmuComb
-        toolMuiso = TrigMuisoHypoToolFromName(c, c)
+        toolMuiso = TrigMuisoHypoToolFromDict(chainDict)
         assert toolMuiso
-        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromName(c, c)
+        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromDict(chainDict)
         assert toolEFMSonly
-        toolEFCombiner = TrigMuonEFCombinerHypoToolFromName(c, c)
+        toolEFCombiner = TrigMuonEFCombinerHypoToolFromDict(chainDict)
         assert toolEFCombiner
         
     print "All OK"

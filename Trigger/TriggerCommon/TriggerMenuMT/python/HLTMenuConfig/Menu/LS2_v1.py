@@ -23,7 +23,7 @@ def setupMenu():
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
     #MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
     SingleMETGroup = ['RATE:MET', 'BW:MET']
-    #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
+    MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
     SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
@@ -37,19 +37,18 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        ChainProp(name='HLT_mu6fast_L1MU6',  groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup), 
-        ChainProp(name='HLT_mu6_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu20_ivar_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6noL1_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6noL1_L1MU6',        groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
-
-        ChainProp(name='HLT_2mu6Comb_L12MU6', groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6_L12MU6', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu6_mu4_L12MU4', l1SeedThresholds=['MU4']*2,  groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
      ]
 
@@ -80,7 +79,7 @@ def setupMenu():
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
 
         # MultiMET Chain
-        #ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', groups=MultiMETGroup),
+        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
     TriggerFlags.JetSlice.signatures = [

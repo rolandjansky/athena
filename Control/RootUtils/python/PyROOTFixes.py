@@ -16,7 +16,7 @@ of TTree.  These may be enabled by calling enable_tree_speedups().
 __docformat__ = "restructuredtext en"
 
 import ROOT
-import cppyy
+import cppyy  # noqa: F401
 ROOT.TClass
 
 def fix_method (clname, methname):

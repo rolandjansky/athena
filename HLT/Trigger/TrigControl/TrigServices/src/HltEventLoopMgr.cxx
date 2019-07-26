@@ -273,6 +273,12 @@ StatusCode HltEventLoopMgr::start()
 // =============================================================================
 StatusCode HltEventLoopMgr::stop()
 {
+  // Need to reinitialize IO in the mother process
+  if (m_workerId.empty()) {
+    ATH_CHECK(m_ioCompMgr->io_update_all(boost::filesystem::current_path().string()));
+    ATH_CHECK(m_ioCompMgr->io_reinitialize());
+  }
+
   // temporary: endRun will eventually be deprecated
   for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysEndRun());
 
@@ -409,6 +415,13 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
+
+    // Assert that scheduler has not been initialised before forking
+    SmartIF<IService> svc = serviceLocator()->service(m_schedulerName, /*createIf=*/ false);
+    if (svc.isValid()) {
+      ATH_MSG_FATAL("Misconfiguration - Scheduler was initialised before forking!");
+      return StatusCode::FAILURE;
+    }
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;

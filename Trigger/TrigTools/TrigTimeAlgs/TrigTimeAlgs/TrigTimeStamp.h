@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigTimeAlgs_TrigTimeStamp_h
 #define TrigTimeAlgs_TrigTimeStamp_h
 
 #include <chrono>
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 /**
  * utility class to measure time duration in AthenaMT
  * The pattern when it is useful: 

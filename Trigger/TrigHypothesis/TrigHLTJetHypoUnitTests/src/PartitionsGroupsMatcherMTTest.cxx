@@ -75,7 +75,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, debugFlagIsFalse){
 TEST_F(PartitionsGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   // 
   EXPECT_TRUE(true);
   HypoJetVector jets;
@@ -102,7 +102,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, tooFewSelectedJets){
    if(m_debug){
      visitor.reset(new DebugInfoCollector("toofewselectedjets"));
    }
-   PartitionsGroupsMatcherMT matcher(m_conditions);
+   PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
  
    xAODJetCollector jetCollector;
 
@@ -143,32 +143,38 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
 
   EXPECT_EQ(ets.size(), jets.size());
   EXPECT_EQ(m_conditions.size(), 3);
-
+  // --------
   std::vector<std::size_t> mults{1, 1, 1};
   PartitionsGrouper g(mults);  // single jet groups
 
-  //--
   auto b = jets.begin();
   auto e = jets.end();
   auto groupsVec = g.group(b, e);
+  //{[(1),(2), (3)], [(1), (3), (2)], [(2), (1), (3)], [(2), (3), (1)],
+  // [(3), (1), (2)], [(3), (2), (1)]}
+  EXPECT_EQ(groupsVec.size(), 6);  
+  
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
-  m_debug = false;
+
   if(m_debug){
-    visitor.reset(new DebugInfoCollector("toofewselectedjetsTest"));
+    visitor.reset(new DebugInfoCollector("PassingJetsTest"));
   }
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   xAODJetCollector jetCollector;
   
   for (const auto& groups : groupsVec){
+    EXPECT_EQ(groups.size(), 3);
+
     auto pass = matcher.match(groups.begin(),
 			      groups.end(),
 			      jetCollector,
 			      visitor);
-    //f(visitor){visitor->write();}
     EXPECT_TRUE(pass.has_value());
     EXPECT_TRUE(*pass);
     EXPECT_TRUE(jetCollector.empty());  // test jets not xAOD::Jets
   }
+  if(visitor){visitor->write();}
+
 }
  
 
@@ -208,7 +214,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
   if(m_debug){
     visitor.reset(new DebugInfoCollector("Passing3Failing1Test"));
   }
-  PartitionsGroupsMatcherMT matcher(m_conditions);
+  PartitionsGroupsMatcherMT matcher(std::move(m_conditions));
   xAODJetCollector jetCollector;
 
   std::size_t npass{0};

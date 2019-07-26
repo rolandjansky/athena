@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <sstream>
 
-FlowNetworkBuilderBase::FlowNetworkBuilderBase(const ConditionsMT& conditions):
-m_conditions(conditions){
+FlowNetworkBuilderBase::FlowNetworkBuilderBase(ConditionsMT conditions):
+  m_conditions(std::move(conditions)){
 }
 
 
@@ -55,11 +55,11 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
 
     auto ijg{0};
     for (auto jg = groups_b; jg != groups_e; ++jg){
-      if (cond.isSatisfied(*jg, collector)){
+      if (cond->isSatisfied(*jg, collector)){
 	if (collector){
 	  collector->collect("FlowNetworkBuilder",
 			     "Satisfied Condition jet node "
-			     + std::to_string(ijg) + " " + cond.toString());
+			     + std::to_string(ijg) + " " + cond->toString());
 	}
 	groups.push_back(ijg);
 	// add source-condition link if condition satisfied
@@ -69,7 +69,7 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
     if(groups.empty()){
       if(collector){
         collector->collect("FlowNetworkBuilder",
-                           "Unsatisfied Condition" + cond.toString());
+                           "Unsatisfied Condition" + cond->toString());
       }
       return std::optional<std::vector<std::vector<int>>>();     
     }
@@ -86,8 +86,18 @@ FlowNetworkBuilderBase::getSourceToConditionsEdges() const {
   for(const auto& cond : m_conditions){
     initialEdges.push_back(std::make_shared<FlowEdge>(0,
 						      ++icond,
-						      cond.capacity()));
+						      cond->capacity()));
   }
   return initialEdges;
 }
 
+
+std::string FlowNetworkBuilderBase::toString() const {
+  std::stringstream ss;
+  ss << "FlowNetworkBuilderBase Conditions ["
+     << m_conditions.size() << "]: \n";
+  for(const auto& c : m_conditions){
+    ss << c->toString() + '\n';
+  }
+  return ss.str();
+}

@@ -66,6 +66,8 @@ if [ -z ${ART_SKIP_CHECKLOG} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running checklog"
   timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
   echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+  echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
+  timeout 1m check_log.pl --config checklogTrigP1Test.conf --noerrors --warnings --showexcludestats ${JOB_athenaHLT_LOG} >warnings.log 2>&1
 fi
 
 # TODO
@@ -157,8 +159,20 @@ else
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
 
+### HISTOGRAM COUNT
+echo $(date "+%FT%H:%M %Z")"     Running histSizes"
+timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
+
+### GENERATE JSON WITH POST-PROCESSING INFORMATION
+echo $(date "+%FT%H:%M %Z")"     Running trig-test-json.py"
+timeout 5m trig-test-json.py
+if [ -f ros_hitstats_reject.txt ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running ros-hitstats-to-json.py"
+  timeout 5m ros-hitstats-to-json.py
+fi
+cat extra-results.json && echo
+
 echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
 ls -lh
 
 echo  $(date "+%FT%H:%M %Z")"     Finished TrigP1Test post processing"
-

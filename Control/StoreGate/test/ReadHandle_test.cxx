@@ -21,7 +21,6 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/unused.h"
 #include "boost/timer/timer.hpp"
 #include <cassert>
 #include <iostream>
@@ -204,7 +203,8 @@ void test3()
   assert (h2.cachedPtr() == nullptr);
   assert (h2.ptr() == nullptr);
   assert (h2.cptr() == nullptr);
-  int UNUSED(xx) = 0;
+  [[maybe_unused]]
+  int xx = 0;
   EXPECT_EXCEPTION (SG::ExcNullReadHandle, xx = (*h2).x);
   EXPECT_EXCEPTION (SG::ExcNullReadHandle, xx = h2->x );
 

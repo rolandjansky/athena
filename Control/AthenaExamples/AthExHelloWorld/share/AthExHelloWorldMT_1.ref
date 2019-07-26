@@ -195,7 +195,7 @@ HelloWorld                              9   0      INFO Let the tool MyPrivateHe
 HelloWorld.HelloTool                    9   0      INFO my message to the world: A Private Message!
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0287302
-HelloWorld                              9   0      INFO stop()
+HelloWorld                                         INFO stop()
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

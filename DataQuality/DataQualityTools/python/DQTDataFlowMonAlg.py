@@ -4,10 +4,21 @@
 
 def DQTDataFlowMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
+    helper = AthMonitorCfgHelper(flags, 'DQTDataFlowMonAlgCfg')
+    _DQTDataFlowMonAlgConfigCore(helper, flags.Input.isMC)
+    return helper.result()
+
+def DQTDataFlowMonAlgConfigOld(flags):
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from AthenaCommon.GlobalFlags import globalflags
+    helper = AthMonitorCfgHelperOld(flags, 'DQTDataFlowMonAlgCfg')
+    _DQTDataFlowMonAlgConfigCore(helper, globalflags.DataSource() == 'geant4')
+    return helper.result()
+
+def _DQTDataFlowMonAlgConfigCore(helper, isMC):
     from .DataQualityToolsConf import DQTDataFlowMonAlg
     from ROOT import EventInfo
 
-    helper = AthMonitorCfgHelper(flags,'DQTDataFlowMonAlgCfg')
     monAlg = helper.addAlgorithm(DQTDataFlowMonAlg,'DQTDataFlowMonAlg')
 
     # arguments are: algorithm, name of group used to access it from the alg,
@@ -16,7 +27,7 @@ def DQTDataFlowMonAlgConfig(flags):
     group = helper.addGroup(monAlg, 'default', 'GLOBAL/DQTDataFlow', 'lowStat')
 
     # only make this plot if MC
-    if flags.Input.isMC:
+    if isMC:
         group.defineHistogram("LB;m_sumweights",
                               weight='mcweight',
                               title="Sum of MC event weights",
@@ -71,5 +82,3 @@ def DQTDataFlowMonAlgConfig(flags):
                                   "tier0ESD", "AOD", "altprod"],
                           duration='lb',
     )
-    
-    return helper.result()

@@ -94,7 +94,7 @@ def tauCoreTrackSequence():
     TrackRoiUpdater.RoIOutputKey = "RoiForID2"
 
 
-    fastTrackViewsMaker = EventViewCreatorAlgorithm("fastTrackViewsMaker")
+    fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
     fastTrackViewsMaker.RoIsLink = "roi" # -||-
     fastTrackViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     fastTrackViewsMaker.Views = "TAUIDViews"
@@ -180,7 +180,7 @@ def tauPrecisionSequence():
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 
-    precisionViewsMaker = EventViewCreatorAlgorithm("precisionViewsMaker")
+    precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
     precisionViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"

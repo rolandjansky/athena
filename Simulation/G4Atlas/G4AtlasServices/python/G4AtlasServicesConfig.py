@@ -14,8 +14,7 @@ def getATLAS_RegionCreatorList():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
     from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-           (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         regionCreatorList += ['SX1PhysicsRegionTool', 'BedrockPhysicsRegionTool', 'CavernShaftsConcretePhysicsRegionTool']
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if DetFlags.ID_on():
@@ -249,8 +248,7 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
     else:
         from AthenaCommon.BeamFlags import jobproperties
-        if jobproperties.Beam.beamType() == 'cosmics' or \
-                (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+        if simFlags.SimulateCavern.get_Value():
             kwargs.setdefault("World", 'Cavern')
         else:
             kwargs.setdefault("World", 'Atlas')

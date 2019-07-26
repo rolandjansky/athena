@@ -768,7 +768,7 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
       if( token.dbID() == name() ) {
          // Regular read operation, make sure we know the container name
          if( containerName.empty() ) {
-             containerName = m_linkVec[ oid.first ]->contID();
+            containerName = m_linkVec[ m_indexMap[oid.first] ]->contID();
          }
          Sections::const_iterator j = m_sections.find( containerName );
          if( j != m_sections.end() ) {

@@ -73,11 +73,15 @@ def generateChains( flags, chainDict ):
 
     jetStep = ChainStep(stepName, [jetSequence])
 
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
     import pprint
     pprint.pprint(chainDict)
 
     acc.printConfig()
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [ jetStep ] )
+    chain = Chain( chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
 
     return chain

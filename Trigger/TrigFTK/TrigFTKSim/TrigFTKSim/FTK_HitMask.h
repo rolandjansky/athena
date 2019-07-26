@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __H_FTK_HITMASKVECTOR
-#define __H_FTK_HITMASKVECTOR
+#ifndef TRIGFTKSIM_FTK_HITMASKVECTOR_H
+#define TRIGFTKSIM_FTK_HITMASKVECTOR_H
 
 #include <inttypes.h>
 #include <vector>
@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 #include <iomanip>
+#include "CxxUtils/restrict.h"
 
 typedef uint8_t FTK_HitMask;
 
@@ -44,7 +45,7 @@ class FTK_HitMaskIterator {
    }
    inline FTK_HitMask const *getPtr(void) const { return m_ptr; }
  protected:
-   FTK_HitMask __restrict *m_ptr;
+   FTK_HitMask * ATH_RESTRICT m_ptr;
    FTK_HitMask m_mask;
 };
 

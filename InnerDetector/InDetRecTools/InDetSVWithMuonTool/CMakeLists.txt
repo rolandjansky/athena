@@ -36,7 +36,7 @@ atlas_add_library(
 
     LINK_LIBRARIES
     ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES}
-    AthenaBaseComps GaudiKernel TrkVKalVrtFitter xAODTracking
+    AthenaBaseComps GaudiKernel TrkVKalVrtFitterLib xAODTracking
 
     PRIVATE_LINK_LIBRARIES
     AnalysisUtils xAODBTagging

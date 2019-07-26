@@ -60,3 +60,7 @@ StatusCode NotHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return m_hypoTool->getDescription(c);
 }
+
+std::size_t NotHelperTool::requiresNJets() const {
+  return m_hypoTool->requiresNJets();
+}

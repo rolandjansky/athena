@@ -337,7 +337,7 @@ void LArCellCont::updateBCID() {
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
   int indexsetmax = m_indexset.size();
   //m_corrBCID.resize(1);
-  if ( (m_larCablingSvc == 0) ) return;
+  if ( m_larCablingSvc == 0 ) return;
     std::vector<float>& BCID0=m_corrBCID[0];
     BCID0.resize(indexsetmax+1);
     std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();

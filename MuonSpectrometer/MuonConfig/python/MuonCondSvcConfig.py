@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Based on http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc/python/
 
@@ -7,9 +7,8 @@
 # FIXME - in general my impression is that this is overly complicated and needs a huge clean up (the code, not just the configuration)
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonStationIntersectSvc.MuonStationIntersectSvcConf import MuonStationIntersectSvc
 from MuonCondSvc.MuonCondSvcConf import MDTCondSummarySvc, RPCCondSummarySvc, CSCCondSummarySvc, \
-    TGCCondSummarySvc, MDT_DQConditionsSvc, MDT_DCSConditionsRun2Svc, MDT_DCSConditionsSvc
+    TGCCondSummarySvc, MDT_DCSConditionsRun2Svc, MDT_DCSConditionsSvc
 from MuonCondTool.MuonCondToolConf import MDT_DCSConditionsTool, MDT_DCSConditionsRun2Tool, MDT_MapConversion
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 
@@ -71,7 +70,7 @@ def RPCCondSummarySvcCfg(flags,**kwargs):
       else:
           kwargs['ConditionsServices'] = ['RPC_STATUSConditionsSvc','RPC_DCSConditionsSvc']  # COOL folders not available online
           
-    return RPCCondSummarySvc(name,**kwargs)
+    return RPCCondSummarySvc(**kwargs)
  
 def CSCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator() 
@@ -79,7 +78,7 @@ def CSCCondSummarySvcCfg(flags,**kwargs):
     
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
-    return CSCCondSummarySvc(name,**kwargs)
+    return CSCCondSummarySvc(**kwargs)
 
 def TGCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator()
@@ -87,7 +86,7 @@ def TGCCondSummarySvcCfg(flags,**kwargs):
 
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
-    return TGCCondSummarySvc(name,**kwargs) 
+    return TGCCondSummarySvc(**kwargs)
 
 # def MuonStationIntersectSvcCfg(flags, **kwargs):
 #     # has dependencies on

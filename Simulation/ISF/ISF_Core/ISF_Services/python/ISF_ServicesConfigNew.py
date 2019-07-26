@@ -9,12 +9,14 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from BarcodeServices.BarcodeServicesConfigNew import MC15aPlusBarcodeSvcCfg
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cfg, TruthStrategyGroupCaloMuBremCfg, TruthStrategyGroupCaloDecay_MC15Cfg, TruthStrategyGroupIDHadInt_MC15Cfg, ParticleFinalStateFilterCfg, ParticlePositionFilterDynamicCfg, EtaPhiFilterCfg, GenParticleInteractingFilterCfg
+from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
 
-from ISF_Services.ISF_ServicesConf import ISF__TruthSvc, ISF__InputConverter
+
+from ISF_Services.ISF_ServicesConf import ISF__TruthSvc, ISF__GeoIDSvc, ISF__ISFEnvelopeDefSvc, ISF__InputConverter
 
 #Functions yet to be migrated:
-#getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getISFEnvelopeDefSvc, getAFIIEnvelopeDefSvc, getGeoIDSvc, getAFIIGeoIDSvc
-# getLongLivedInputConverter, getValidationTruthService, getMC12BeamPipeTruthStrategies, getMC12IDTruthStrategies
+#getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getAFIIEnvelopeDefSvc, getAFIIGeoIDSvc
+#getLongLivedInputConverter, getValidationTruthService, getMC12BeamPipeTruthStrategies, getMC12IDTruthStrategies
 #getMC12CaloTruthStrategies, getMC12MSTruthStrategies, getMC12TruthService, getTruthService, getMC12LLPTruthService, getMC12PlusTruthService,  getMC15IDTruthStrategies
 #getMC15CaloTruthStrategies
 
@@ -42,10 +44,13 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     return getParticleBrokerSvc(name, **kwargs)
 
 
-def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
+def ISFEnvelopeDefSvcCfg(ConfigFlags, name="ISF_ISFEnvelopeDefSvc", **kwargs):
+    result = EnvelopeDefSvcCfg(ConfigFlags)
     # ATLAS common envlope definitions
-    kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")
-    return CfgMgr.ISF__ISFEnvelopeDefSvc(name, **kwargs)
+    kwargs.setdefault("ATLASEnvelopeDefSvc", result.getService("AtlasGeometry_EnvelopeDefSvc"))
+
+    result.addService(ISF__ISFEnvelopeDefSvc(name, **kwargs))
+    return result
 
 
 def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
@@ -56,10 +61,12 @@ def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     return CfgMgr.ISF__AFIIEnvelopeDefSvc(name, **kwargs)
 
 
-def getGeoIDSvc(name="ISF_GeoIDSvc", **kwargs):
+def GeoIDSvcCfg(ConfigFlags, name="ISF_GeoIDSvc", **kwargs):
+    result = ISFEnvelopeDefSvcCfg(ConfigFlags)
     # with ISF volume definitions
-    kwargs.setdefault("EnvelopeDefSvc", "ISF_ISFEnvelopeDefSvc")
-    return CfgMgr.ISF__GeoIDSvc(name, **kwargs)
+    kwargs.setdefault("EnvelopeDefSvc", result.getService("ISF_ISFEnvelopeDefSvc"))
+    result.addService(ISF__GeoIDSvc(name, **kwargs))
+    return result
 
 
 def getAFIIGeoIDSvc(name="ISF_AFIIGeoIDSvc", **kwargs):
