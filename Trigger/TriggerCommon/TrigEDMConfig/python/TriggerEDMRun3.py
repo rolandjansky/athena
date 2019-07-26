@@ -225,10 +225,10 @@ TriggerHLTList = [
     #bjet jets
 
     ('xAOD::JetContainer#HLT_SplitJet',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
-    ('xAOD::JetContainer#HLT_SplitJetAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::JetAuxContainer#HLT_SplitJetAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BJetViews'),
-    ('xAOD::JetContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::JetAuxContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # MinBias
 
