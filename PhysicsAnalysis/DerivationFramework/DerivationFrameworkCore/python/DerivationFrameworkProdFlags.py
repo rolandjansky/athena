@@ -466,19 +466,6 @@ class WriteDAOD_HIGG2D4Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D4Stream)
 listAODtoDPD.append(WriteDAOD_HIGG2D4Stream.StreamName)
 
-class WriteDAOD_HIGG2D5Stream(JobProperty):
-    """HIGG2D5: J/psi gamma"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG2D5'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D5.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D5Stream)
-listAODtoDPD.append(WriteDAOD_HIGG2D5Stream.StreamName)
-
 
 ##################################
 # Defined by Higgs subgroup 3
@@ -737,6 +724,23 @@ listAODtoDPD.append(WriteDAOD_HIGG8D1Stream.StreamName)
 #    pass
 #jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG8D2Stream)
 #listAODtoDPD.append(WriteDAOD_HIGG8D2Stream.StreamName)
+
+#################################
+# Defined by the HDBS group
+#################################
+
+class WriteDAOD_HDBS2Stream(JobProperty):
+    """HDBS2: Meson Gamma"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HDBS2'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHDBS/HDBS2.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS2Stream)
+listAODtoDPD.append(WriteDAOD_HDBS2Stream.StreamName)
 
 #################################
 # Defined by the STDM group
