@@ -12,9 +12,6 @@ rec.doWriteESD=True
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-
-include("TrigUpgradeTest/testHLT_MT.py")
-
 ##########################################
 # menu
 ###########################################
