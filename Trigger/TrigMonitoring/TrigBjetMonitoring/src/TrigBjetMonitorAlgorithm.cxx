@@ -42,10 +42,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   using namespace Monitored;
 
 
-  //  auto tool = getGroup("TrigBjetMonitor");
-
-
-  
   // Read off-line PV's  and fill histograms 
 
   auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
@@ -60,14 +56,10 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   }
   std::cout << " Size of the Off-line PV container: " << offlinepv->size()  << std::endl;
   OffNVtx = offlinepv->size() ;
-  //  fill(tool,OffNVtx);
   for (unsigned int j = 0; j<offlinepv->size(); j++){
     OffxVtx = (*(offlinepv))[j]->x();
     OffyVtx = (*(offlinepv))[j]->y();
     OffzVtx = (*(offlinepv))[j]->z();
-    //    fill(tool,OffxVtx);
-    //    fill(tool,OffyVtx);
-    //    fill(tool,OffzVtx);
   }
   fill("TrigBjetMonitor",OffNVtx,OffxVtx,OffyVtx,OffzVtx);
   
@@ -101,23 +93,16 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   for ( auto& trigName : m_AllChains ) {
 
     
-    // General test of hiostogrsm fill with d0 
-    std::string NameH = "d0_"+trigName;
-    std::cout << " NameH: " << NameH << std::endl;
-    auto d0 = Monitored::Scalar<float>(NameH,0.05);
-    fill("TrigBjetMonitor",d0);
-    ATH_MSG_INFO(" =====> Histogram " << NameH << " is filled with d0: " << d0);
-    
+    // Access to TrigFeature
+    bool Run2_Access = true;
+    // bool Run2_Access = false;
+
     
     if ( m_trigDecTool->isPassed(trigName) ) {
       std::cout << " Trigger chain from AllChains list: " << trigName << " has fired !!! " << std::endl;
 
 
       // Trigger type
-
-      // Access to TrigFeature
-      //bool Run2_Access = true;
-      bool Run2_Access = false;
 
       // split vs unsplit
       std::size_t found = trigName.find("split");

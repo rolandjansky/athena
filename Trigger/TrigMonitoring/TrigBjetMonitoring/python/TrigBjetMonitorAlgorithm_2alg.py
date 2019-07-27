@@ -37,7 +37,7 @@ def TrigBjetMonConfig(inputFlags):
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    #shifterTrigBjetMonAlg = helper.addAlgorithm(TrigBjetMonitorAlgorithm,'ShifterTrigBjetMonAlg')
+    shifterTrigBjetMonAlg = helper.addAlgorithm(TrigBjetMonitorAlgorithm,'ShifterTrigBjetMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -85,10 +85,14 @@ def TrigBjetMonConfig(inputFlags):
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
-    BjetMonGroup = helper.addGroup(trigBjetMonAlg,'TrigBjetMonitor','HLT/BjetMon/')
+    myGroup = helper.addGroup(
+        trigBjetMonAlg,
+        'TrigBjetMonitor',
+        'HLT/BjetMon/Expert/'
+    )
 
     # Add a GMT for the other example monitor algorithm
-    #shifterGroup = helper.addGroup(shifterTrigBjetMonAlg,'TrigBjetMonitor','HLT/BjetMon/Shifter/')
+    shifterGroup = helper.addGroup(shifterTrigBjetMonAlg,'TrigBjetMonitor','HLT/BjetMon/Shifter/')
 
     ### STEP 5 ###
     # Configure histograms
@@ -96,14 +100,14 @@ def TrigBjetMonConfig(inputFlags):
 
     # Offline PV histograms - common for all trigger chains
 
-    BjetMonGroup.defineHistogram('Off_NVtx', title='Number of Offline Vertices;NVtx;Events',
-                                 path='Shifter/Offline',xbins=100,xmin=0.0,xmax=100.)
-    BjetMonGroup.defineHistogram('Off_xVtx', title='Offline xVtx;xVtx;Events',
-                                 path='Shifter/Offline',xbins=200,xmin=-1.5,xmax=+1.5)
-    BjetMonGroup.defineHistogram('Off_yVtx', title='Offline yVtx;yVtx;Events',
-                                 path='Shifter/Offline',xbins=200,xmin=-1.5,xmax=+1.5)
-    BjetMonGroup.defineHistogram('Off_zVtx', title='Offline zVtx;zVtx;Events',
-                                 path='Shifter/Offline',xbins=200,xmin=-200.0,xmax=+200.0)
+    shifterGroup.defineHistogram('Off_NVtx', title='Number of Offline Vertices;NVtx;Events',
+                                 path='Offline',xbins=100,xmin=0.0,xmax=100.)
+    shifterGroup.defineHistogram('Off_xVtx', title='Offline xVtx;xVtx;Events',
+                                 path='Offline',xbins=200,xmin=-1.5,xmax=+1.5)
+    shifterGroup.defineHistogram('Off_yVtx', title='Offline yVtx;yVtx;Events',
+                                 path='Offline',xbins=200,xmin=-1.5,xmax=+1.5)
+    shifterGroup.defineHistogram('Off_zVtx', title='Offline zVtx;zVtx;Events',
+                                 path='Offline',xbins=200,xmin=-200.0,xmax=+200.0)
 
     # Histograms which depend on the trigger chain
 
@@ -117,13 +121,13 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Expert/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                print " ==> histogram ",HistName," is defined for Expert folder"
+                myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                        path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Shifter/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                print " ==> histogram ",HistName," is defined for Shifter folder"
+                shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                             path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             continue
         else :                      # b-jets
@@ -131,49 +135,49 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
-                print " ==> histogram ",HistName," is defined for Expert folder"
+                myGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
+                                        path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
-                print " ==> histogram ",HistName," is defined for Shifter folder"
+                shifterGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
+                                             path=chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             HistName = 'd0_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
-                print " ==> histogram ",HistName," is defined for Expert folder"
+                myGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
+                                        path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
-                print " ==> histogram ",HistName," is defined for Shifter folder"
+                shifterGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
+                                             path=chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Expert/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                print " ==> histogram ",HistName," is defined for Expert folder"
+                myGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                        path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Shifter/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                print " ==> histogram ",HistName," is defined for Shifter folder"
+                shifterGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
+                                             path=chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
 
             HistName = 'wMV2c20_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-                print " ==> histogram ",HistName," is defined for Expert folder"
+                myGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
+                                        path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+                print " ==> histogam ",HistName," is defined for myGroup"
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-                print " ==> histogram ",HistName," is defined for Shifter folder"
+                shifterGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
+                                             path=chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+                print " ==> histogam ",HistName," is defined for shifterGroup"
             continue
 
 
     print " ==> In TrigBjetMonitorAlgorithm.py: AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
-    #shifterTrigBjetMonAlg.AllChains = AllChains
+    shifterTrigBjetMonAlg.AllChains = AllChains
 
 
 
@@ -220,8 +224,8 @@ if __name__=='__main__':
     # MC input files proposed by Tim Martin in https://its.cern.ch/jira/browse/ATR-19881 for Run-3
     # file = '/afs/cern/ch/user/t/tamartin/public/ESD.pool.root'
     # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
-    # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/mt.AOD.pool.root'
+    # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/mt.AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
 
