@@ -37,7 +37,6 @@
 #	Unknown    <-- should be temporary until you figure out what to classify it as
 
 from __future__ import print_function
-from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
 #####################
 #####################

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __all__ = 'getTriggerDerivationConfig'
 
@@ -181,15 +181,15 @@ def getTriggerDerivationConfig(signatures):
         signatures = [signatures]
 
     # check if signatures are requested that don't exist and print warning
-    unknownSignatures = [ s for s in signatures if not s in TriggerDerivationConfig ]
+    unknownSignatures = [ s for s in signatures if s not in TriggerDerivationConfig ]
     if unknownSignatures:
-        logger.warning("requesting derivation configuration for unknown trigger signatures: %s" % ", ".join(unknownSignatures) )
+        logger.warning("requesting derivation configuration for unknown trigger signatures: %s", ", ".join(unknownSignatures) )
     
 
     # build list of collections for the requested signatures, removing duplicates
     derivationCollections = []
     for s in signatures:
-        if not s in signatures: continue
+        if s not in signatures: continue
 
         for c in TriggerDerivationConfig[s]:
 

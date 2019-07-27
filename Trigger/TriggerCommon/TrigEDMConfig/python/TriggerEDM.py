@@ -8,11 +8,12 @@
 # to the Run 3 section
 # ***********************************************************************************
 
-from __future__ import print_function
-
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 from TrigEDMConfig.TriggerEDMRun2 import TriggerResultsList,TriggerLvl1List,TriggerIDTruth,TriggerHLTList,EDMDetails,EDMLibraries,TriggerL2EvolutionList,TriggerEFEvolutionList
 from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TriggerEDM')
 
 #************************************************************
 #
@@ -161,13 +162,13 @@ def getTriggerObjList(destination, lst):
         if dset & confset: # intersection of the sets
             t,k = getTypeAndKey(item[0])
             colltype = t
-            if EDMDetails[t].has_key('collection'):
+            if 'collection' in EDMDetails[t]:
                 colltype = EDMDetails[t]['collection']
-            if toadd.has_key(colltype):
+            if colltype in toadd:
                 if k not in toadd[colltype]:
                     toadd[colltype] += [k]
             else:
-                    toadd[colltype] = [k]
+                toadd[colltype] = [k]
     return InsertContainerNameForHLT(toadd)
 
 
@@ -308,7 +309,7 @@ def getL2BSTypeList():
     for item in TriggerL2List:
         t,k = getTypeAndKey(item[0])
         ctype = t
-        if EDMDetails[t].has_key('collection'):
+        if 'collection' in EDMDetails[t]:
             ctype = EDMDetails[t]['collection']
         l += [ctype]
     return l
@@ -320,7 +321,7 @@ def getEFBSTypeList():
     for item in TriggerEFList:
         t,k = getTypeAndKey(item[0])
         ctype = t
-        if EDMDetails[t].has_key('collection'):
+        if 'collection' in EDMDetails[t]:
             ctype = EDMDetails[t]['collection']
         l += [ctype]
     return l
@@ -332,7 +333,7 @@ def getHLTBSTypeList():
     for item in TriggerHLTList:
         t,k = getTypeAndKey(item[0])
         ctype = t
-        if EDMDetails[t].has_key('collection'):
+        if 'collection' in EDMDetails[t]:
             ctype = EDMDetails[t]['collection']
         l += [ctype]
     return l
@@ -345,7 +346,7 @@ def getEFDSTypeList():
         if 'DS' in item[1].split():
             t,k = getTypeAndKey(item[0])
             ctype = t
-            if EDMDetails[t].has_key('collection'):
+            if 'collection' in EDMDetails[t]:
                 ctype = EDMDetails[t]['collection']
             l += [ctype]
     return l
@@ -358,7 +359,7 @@ def getHLTDSTypeList():
         if 'DS' in item[1].split():
             t,k = getTypeAndKey(item[0])
             ctype = t
-            if EDMDetails[t].has_key('collection'):
+            if 'collection' in EDMDetails[t]:
                 ctype = EDMDetails[t]['collection']
             l += [ctype]
     return l
@@ -377,7 +378,7 @@ def getTPList(version=2):
         
     for t,d in EDMDetails.iteritems():                
         colltype = t
-        if d.has_key('collection'):
+        if 'collection' in d:
             colltype = EDMDetails[t]['collection']
         if colltype in bslist: 
             l[colltype] = d['persistent']
@@ -405,9 +406,9 @@ def getARATypesRenaming():
     renames = {}
     for entry in edm:
         t, key = getTypeAndKey(entry[0])
-        if nonunique.has_key(key): # potential problem we have to do something
+        if key in nonunique: # potential problem we have to do something
             
-            if not EDMDetails[t].has_key('typealias') or EDMDetails[t]['typealias'] == '':
+            if 'typealias' not in EDMDetails[t] or EDMDetails[t]['typealias'] == '':
                 if nonunique[key] == 1:
                     # First time's ok.
                     nonunique[key] = t
@@ -415,17 +416,16 @@ def getARATypesRenaming():
                     # Duplicate entry; ok.
                     continue
                 else:
-                    print ("ERROR types/keys will catch ", t, " ", key)
+                    log.error("types/keys will catch %s %s", t, key)
                 continue
             else:
                 obj = t                    
-                if EDMDetails[t].has_key('collection'):
+                if 'collection' in EDMDetails[t]:
                     obj = EDMDetails[t]['collection']
 
                 # form the branch name
                 bname = key+'_'+EDMDetails[t]['typealias']
                         
-                #print ('type/key : ',key, '/', obj, ' to be aliased to: ', bname)
                 renames[(key, obj)] = bname
             
     return renames
@@ -441,7 +441,7 @@ def InsertContainerNameForHLT(typedict):
         for el in v:
             if el.startswith('HLT_') or el == 'HLT':
                 prefixAndLabel = el.split('_',1) #only split on first underscore
-                containername = k if not 'Aux' in k else EDMDetails[k]['parent'] #we want the type in the Aux SG key to be the parent type #104811
+                containername = k if 'Aux' not in k else EDMDetails[k]['parent'] #we want the type in the Aux SG key to be the parent type #104811
                 #maybe this is not needed anymore since we are now versionless with the CLIDs but it's not hurting either
                 containername = re.sub('::','__',re.sub('_v[0-9]+$','',containername))
                 newnames+=['_'.join([prefixAndLabel[0],containername]+([prefixAndLabel[1]] if len(prefixAndLabel) > 1 else []))]
