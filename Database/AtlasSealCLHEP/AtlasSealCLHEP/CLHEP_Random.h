@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/Randomize.h"
-#include "CxxUtils/unused.h"
 
 namespace {
   // Suppress unused variable warning from clhep header.
-  static const int UNUSED(HepRandomGenActive_x) = CLHEP::HepRandomGenActive;
+  [[maybe_unused]]
+  static const int HepRandomGenActive_x = CLHEP::HepRandomGenActive;
 }
 
 //----Functions missing in the implementation and required by the dictionary
