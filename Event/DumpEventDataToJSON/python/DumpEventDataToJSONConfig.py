@@ -8,13 +8,18 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
     result=ComponentAccumulator()
     extrapolationEngine=""
     if doExtrap:
+      from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+      gmsAcc=GeoModelCfg( configFlags )
+      result.merge(gmsAcc)
+      
       from TrkExEngine.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
       extrapAcc = AtlasExtrapolationEngineCfg(configFlags)
-
-      extrapolationEngine = extrapAcc.popPrivateTools()
+      extrapolationEngine = extrapAcc.getPrimary()
       result.merge(extrapAcc)
-
-    dumpAlg = DumpEventDataToJsonAlg(OutputLevel=VERBOSE, ExtrapolateTracks=doExtrap, Extrapolator = extrapolationEngine)
+      
+      kwargs.setdefault('Extrapolator', extrapolationEngine)
+      
+    dumpAlg = DumpEventDataToJsonAlg(ExtrapolateTracks=doExtrap, **kwargs )
     result.addEventAlgo(dumpAlg)
     return result
 
