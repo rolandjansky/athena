@@ -48,7 +48,6 @@ class ChainConfigurationBase(object):
 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
-                        L1Item = self.chainL1Item,
                         ChainSteps = chainSteps,
                         L1Thresholds = [self.L1Threshold] )
 

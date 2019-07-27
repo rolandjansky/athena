@@ -40,16 +40,16 @@ if opt.doElectronSlice == True:
     PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
     egammaChains  = [
-        Chain(name='HLT_e3_etcut1step_L1EM3', L1Item="L1_EM3",  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep]  ),
-        Chain(name='HLT_e3_etcut_L1EM3',      L1Item="L1_EM3",  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
-        Chain(name='HLT_e5_etcut_L1EM3',      L1Item="L1_EM3",  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
-        Chain(name='HLT_e7_etcut_L1EM3',      L1Item="L1_EM3",  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  )
+        Chain(name='HLT_e3_etcut1step_L1EM3',  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep]  ),
+        Chain(name='HLT_e3_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
+        Chain(name='HLT_e5_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
+        Chain(name='HLT_e7_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  )
         ]
 
 #    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
 #    DiEleStep2=ChainStep("DiEleStep2",[electronSeq, electronSeq], multiplicity=2) #need to be: one leg with only one step, one with 3 steps!
     
-#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut', L1Item="L1_EM3_EM3",  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
+#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut',  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
     testChains += egammaChains
 
 ##################################################################
@@ -68,7 +68,7 @@ if opt.doPhotonSlice == True:
     precisionCaloPhotonStep = ChainStep("precisionCaloPhotonStep", [precisionCaloPhotonSeq])
 
     photonChains = [
-        Chain(name='HLT_g5_etcut_L1EM3', L1Item="L1_EM3",   L1Thresholds=["EM3"],  ChainSteps=[ FastCaloStep,  fastPhotonStep, precisionCaloPhotonStep]  )
+        Chain(name='HLT_g5_etcut_L1EM3',    L1Thresholds=["EM3"],  ChainSteps=[ FastCaloStep,  fastPhotonStep, precisionCaloPhotonStep]  )
         ]
 
     testChains += photonChains
@@ -95,11 +95,11 @@ if opt.doMuonSlice == True:
     emptyStep=ChainStep("Step2_empty")
 
     ## single muon trigger  
-    MuonChains += [Chain(name='HLT_mu6fast_L1MU6',   L1Item="L1_MU6",  L1Thresholds=["MU6"], ChainSteps=[ step1mufast ])]
-    MuonChains += [Chain(name='HLT_mu6Comb_L1MU6',   L1Item="L1_MU6",  L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb ])]
-    MuonChains += [Chain(name='HLT_mu6_L1MU6',       L1Item="L1_MU6",  L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
-    MuonChains += [Chain(name='HLT_mu6msonly_L1MU6', L1Item="L1_MU6",  L1Thresholds=["MU6"], ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
-    MuonChains += [Chain(name='HLT_mu20_ivar_L1MU6', L1Item="L1_MU6",  L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
+    MuonChains += [Chain(name='HLT_mu6fast_L1MU6',     L1Thresholds=["MU6"], ChainSteps=[ step1mufast ])]
+    MuonChains += [Chain(name='HLT_mu6Comb_L1MU6',     L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb ])]
+    MuonChains += [Chain(name='HLT_mu6_L1MU6',         L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
+    MuonChains += [Chain(name='HLT_mu6msonly_L1MU6',   L1Thresholds=["MU6"], ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
+    MuonChains += [Chain(name='HLT_mu20_ivar_L1MU6',   L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
     # multi muon trigger
     # 2muons symmetric
@@ -109,7 +109,7 @@ if opt.doMuonSlice == True:
     step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=2)
     step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=2)
  
-    MuonChains += [Chain(name='HLT_2mu6Comb_L12MU6', L1Item="L1_2MU6", L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
+    MuonChains += [Chain(name='HLT_2mu6Comb_L12MU6',  L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
 
     # 2muons asymmetric (this will change): 2 sequences, 2 seeds
     step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=2)
@@ -118,11 +118,11 @@ if opt.doMuonSlice == True:
     step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=2)
     step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=2)
     
-    MuonChains += [Chain(name='HLT_mu6_mu4_L12MU4', L1Item="L1_2MU4",
+    MuonChains += [Chain(name='HLT_mu6_mu4_L12MU4',
                              L1Thresholds=["MU4", "MU4"],
                              ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]
             
-    MuonChains += [Chain(name='HLT_mu6_mu4_L1MU4_MU6', L1Item="L1_MU4_MU6",
+    MuonChains += [Chain(name='HLT_mu6_mu4_L1MU4_MU6',
                              L1Thresholds=["MU4", "MU6"],
                              ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]        
 
@@ -131,7 +131,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [Chain(name='HLT_mu6nol1_L1MU6', L1Item="L1_MU6",  L1Thresholds=["MU6"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [Chain(name='HLT_mu6nol1_L1MU6', L1Thresholds=["MU6"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 
@@ -163,16 +163,16 @@ if opt.doJetSlice == True:
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        Chain(name='HLT_j45_L1J20', L1Item="L1_J20",  L1Thresholds=["J20"],   ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_j85_L1J20', L1Item="L1_J20",  L1Thresholds=["J20"],ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_j420_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_j260_320eta490_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-      #  Chain(name='HLT_j225_gsc420_boffperf_split', L1Item="L1_J20",  ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_j460_a10_lcw_subjes_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a10_tc_lcw_subjes]  ),
-        Chain(name='HLT_j460_a10r_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a10r]  ),
-        Chain(name='HLT_3j200_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-        Chain(name='HLT_5j70_0eta240_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
+        Chain(name='HLT_j45_L1J20',  L1Thresholds=["J20"],   ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j85_L1J20',  L1Thresholds=["J20"],ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j420_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j260_320eta490_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
+      #  Chain(name='HLT_j225_gsc420_boffperf_split',   ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_j460_a10_lcw_subjes_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10_tc_lcw_subjes]  ),
+        Chain(name='HLT_j460_a10r_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10r]  ),
+        Chain(name='HLT_3j200_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
+        Chain(name='HLT_5j70_0eta240_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
         ]
 
     testChains += jetChains
@@ -188,9 +188,9 @@ if opt.doBjetSlice == True:
     step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
 
     bjetChains  = [                                                                                                                                                                         
-          Chain(name='HLT_j35_gsc45_boffperf_split_L1J20' , L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-          Chain(name='HLT_j35_gsc45_bmv2c1070_split_L1J20', L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-          Chain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Item="L1_J20", L1Thresholds=["J20"], ChainSteps=[step1,step2] )
+          Chain(name='HLT_j35_gsc45_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+          Chain(name='HLT_j35_gsc45_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+          Chain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2] )
         ]
     testChains += bjetChains
     
@@ -208,9 +208,9 @@ if opt.doTauSlice == True:
   
   
   tauChains  = [
-      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Item="L1_TAU12",    L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
-      Chain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Item="L1_TAU12IM",  L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
-      Chain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Item="L1_TAU20IM",  L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT]),
+      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
+      Chain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
+      Chain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT]),
       ]
   testChains += tauChains
 
@@ -228,10 +228,10 @@ if opt.doMETSlice == True:
     comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=2)
 
     metChains = [
-        Chain(name="HLT_xe65_L1XE50",         L1Item="L1_XE50", L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
-        Chain(name="HLT_xe30_L1XE10",         L1Item="L1_XE10", L1Thresholds=["XE10"], ChainSteps=[metCellStep]),
-        Chain(name="HLT_xe30_tcpufit_L1XE10", L1Item="L1_XE10", L1Thresholds=["XE10"], ChainSteps=[metClusterPufitStep]),
-        Chain(name='HLT_xe30_cell_xe30_tcpufit_L12XE10', L1Item="L1_2XE10",  L1Thresholds=["XE10","XE10"], ChainSteps=[comboStep_cell_clusterpufit ]) 
+        Chain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
+        Chain(name="HLT_xe30_L1XE10",         L1Thresholds=["XE10"], ChainSteps=[metCellStep]),
+        Chain(name="HLT_xe30_tcpufit_L1XE10", L1Thresholds=["XE10"], ChainSteps=[metClusterPufitStep]),
+        Chain(name='HLT_xe30_cell_xe30_tcpufit_L12XE10',  L1Thresholds=["XE10","XE10"], ChainSteps=[comboStep_cell_clusterpufit ]) 
         ]
 
 
@@ -254,13 +254,13 @@ if opt.doBphysicsSlice == True:
     step4muEFCB=ChainStep("Step4_muEFCB",   [ muEFCBSequence() ])
     step5EFDimu=ChainStep("Step5_EFDimu",   [ dimuEFSequence() ])
 
-    BphysChains += [Chain(name='HLT_2mu4_bDimu_L12MU4',     L1Item="L1_2MU4", L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu, step3muEFSA, step4muEFCB, step5EFDimu])]
-    BphysChains += [Chain(name='HLT_2mu6_bJpsimumu_L12MU6', L1Item="L1_2MU6", L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [Chain(name='HLT_2mu4_bBmumu_L12MU4',    L1Item="L1_2MU4", L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [Chain(name='HLT_2mu4_bUpsimumu_L12MU4', L1Item="L1_2MU4", L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [Chain(name='HLT_2mu4_bJpsimumu_L12MU4', L1Item="L1_2MU4", L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bDimu_L12MU4',     L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu, step3muEFSA, step4muEFCB, step5EFDimu])]
+    BphysChains += [Chain(name='HLT_2mu6_bJpsimumu_L12MU6', L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bBmumu_L12MU4',    L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bUpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bJpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
 
-    #BphysChains += [Chain(name='HLT_mu6_mu4_bJpsimumu_L1MU6_2MU4', L1Item="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
+    #BphysChains += [Chain(name='HLT_mu6_mu4_bJpsimumu_L1MU6_2MU4',  ChainSteps=[ step1mufast, step2L2Dimu])]
                                         #to come: step3muEFSA, step4muEFCB, step5EFJpsi])]
     testChains += BphysChains  
 
@@ -282,8 +282,8 @@ if opt.doCombinedSlice == True:
     comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
 
 
-    comboChains =  [Chain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Item="L1_EM8I_MU10", L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
- #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step', L1Item="L1_MU6_EM7",  ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
+    comboChains =  [Chain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
+ #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step',   ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
     testChains += comboChains
 
 

@@ -87,6 +87,6 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep] )
     
     return chain
