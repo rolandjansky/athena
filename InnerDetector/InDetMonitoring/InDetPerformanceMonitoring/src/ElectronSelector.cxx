@@ -91,7 +91,7 @@ void ElectronSelector::Init()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElecContainer)
 {
-  if (m_doDebug) std::cout << " --ElectronSelector::PrepareElectronList -- START  -- " << std::endl;
+  (*m_msgStream) << MSG::DEBUG << " --ElectronSelector::PrepareElectronList -- START  -- " << endreq;
   Clear(); // clear current list records
 
   typedef xAOD::ElectronContainer::const_iterator electron_iterator;
@@ -99,22 +99,24 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   electron_iterator iterEnd = pxElecContainer->end();
   
   // Loop over the Electrons                                                                                                                                                       
-  int allelectroncount = 0;
-  int goodelectroncount = 0;
+  int electroncount = 0;
   for(; iter != iterEnd ; iter++) {
-    allelectroncount++;
-    (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << allelectroncount 
+    electroncount++;
+    (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
 		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
-		   << std::endl;
+		   << endreq;
     const xAOD::Electron * ELE = (*iter);
-    if ( RecordElectron(ELE) ) goodelectroncount++;
+    if ( RecordElectron(ELE) ) {
+      (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
+		     << " is good " 
+		     << endreq;
+    }
   }
   OrderElectronList();
 
-  (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::PrepareElectronList -- m_pxElTrackList.size() = " << m_pxElTrackList.size() << endreq;
-  if (m_doDebug) std::cout << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- good / all = " 
-			   << goodelectroncount << " / " << allelectroncount 
-			   << std::endl;
+  (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- m_pxElTrackList.size() / all = " 
+		 << m_pxElTrackList.size() << " / " << electroncount 
+		 << endreq;
   return;
 }
 
@@ -158,7 +160,7 @@ void ElectronSelector::Clear()
   m_pxElTrackList.clear();
   m_goodElecNegTrackParticleList.clear();
   m_goodElecPosTrackParticleList.clear();
-
+ 
   // -1 means not assigned
   m_elecneg1 = -1;
   m_elecneg2 = -1;
