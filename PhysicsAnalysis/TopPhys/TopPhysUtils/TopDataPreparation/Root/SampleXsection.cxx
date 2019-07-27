@@ -43,6 +43,7 @@ bool SampleXsection::readFromFile(const char *fName)
         else if (s_shower=="sherpa21") shower=sherpa21;
         else if (s_shower=="pythia8") shower=pythia8;
         else if (s_shower=="herwigpp") shower=herwigpp;
+        else if (s_shower=="amcatnlopythia8") shower=amcatnlopythia8;
         else {
 	  cerr << "ERROR!! TopDataPreparation::SampleXsection::readFromFile: unknown showering (which is needed for btagging SF!!!) : " << s_shower << " for DSID= " << dsid <<endl;
 	  shower=unknown;
@@ -157,6 +158,8 @@ int SampleXsection::getShoweringIndex(const int dsid) const
     return 3;
   else if (shower == showering::sherpa21)
     return 4;
+  else if (shower == showering::amcatnlopythia8)
+	return 5;
   else{
     
     std::cout << "===========================================================================================================================================" << std::endl;
