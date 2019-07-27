@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -22,7 +22,7 @@ def createMenuFlags():
     return flags
 
 
-class MenuUtils:
+class MenuUtils(object):
     @staticmethod
     def toCTPSeedingDict( flags ):
         seeding = {} # HLTChain to L1 item mapping
