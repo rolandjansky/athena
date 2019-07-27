@@ -15,7 +15,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 
 
 Digi_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/DigitizationTests/QBALLS.HITS.17587614._000019.pool.root.1 \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/QBALLS.HITS.17587614._000019.pool.root.1 \
 --conditionsTag default:OFLCOND-MC16-SDR-16 \
 --digiSeedOffset1 170 \
 --digiSeedOffset2 170 \
