@@ -102,17 +102,25 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   int electroncount = 0;
   for(; iter != iterEnd ; iter++) {
     electroncount++;
-    (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
+    (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
 		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)
 		   << endreq;
     const xAOD::Electron * ELE = (*iter);
     if ( RecordElectron(ELE) ) {
-      (*m_msgStream) << MSG::DEBUG  << " --ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
+      (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
 		     << " is good " 
 		     << endreq;
     }
   }
-  OrderElectronList();
+  bool progressingwell = true;
+  
+  if (progressingwell) progressingwell = OrderElectronList ();
+  if (progressingwell) progressingwell = RetrieveVertices ();
+
+  if (!progressingwell) {
+    if (m_doDebug) std::cout << "   -- ElectronSelector::PrepareElectronList -- FAILED -- this event has not even a good e+e- pair "  << std::endl;
+    this->Clear(); // reset the content as it is not going to be used
+  }
 
   (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::PrepareElectronList -- COMPLETED -- electroncount -- m_pxElTrackList.size() / all = " 
 		 << m_pxElTrackList.size() << " / " << electroncount 
@@ -171,9 +179,12 @@ void ElectronSelector::Clear()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
-void ElectronSelector::OrderElectronList()
+bool ElectronSelector::OrderElectronList()
 {
-  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << std::endl;
+  (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << endreq;
+  
+  bool goodlist = true;
+
   if (m_pxElTrackList.size() >= 2) { // we need at least 2 electrons
 
     double ptMinus1 = 0.;
@@ -236,6 +247,7 @@ void ElectronSelector::OrderElectronList()
       elecposcount = 0;
       elecnegcount = 0;
       this->Clear();
+      goodlist = false;
     }
 
     if (elecposcount + elecnegcount >= 2){ // fill the final list of electrons
@@ -246,9 +258,50 @@ void ElectronSelector::OrderElectronList()
     }
   }
 
-  if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- " << std::endl;
-  return;
+  (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::OrderElectronList -- COMPLETED  -- status: "<< goodlist << std::endl;
+  return goodlist;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
+bool ElectronSelector::RetrieveVertices ()
+{
+  if (m_doDebug) std::cout << " -- ElectronSelector::RetrieveVertices -- START  -- list size: " 
+			   << m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size() 
+			   << std::endl;
+  bool goodvertices = false;
+  int nverticesfound = 0;
+  if (m_goodElecNegTrackParticleList.size() >= 1 && m_goodElecPosTrackParticleList.size() >= 1) { // we need at least 1 e- and 1 e+
+    // then, check the distances between the e- and e+ vertices, and make sure at least 1 pair comes from same vertex
+    for (unsigned int ielec = 0; ielec < m_goodElecNegTrackParticleList.size(); ielec++) {
+      // loop on e-
+      if (m_goodElecNegTrackParticleList.at(ielec)->vertex()) {
+	if (m_doDebug) std::cout << "     e-(" << ielec <<")->vertex()->v= (" << m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()
+				 << ", " << m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()
+				 << ", " << m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()
+				 << ") " << std::endl;
 
+	for (unsigned int iposi = 0; iposi < m_goodElecPosTrackParticleList.size(); iposi++) {
+	  if (m_goodElecPosTrackParticleList.at(iposi)->vertex()) {
+	    if (m_doDebug) std::cout << "     e+(" << iposi <<")->vertex()->v= (" << m_goodElecPosTrackParticleList.at(iposi)->vertex()->x()
+				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->y()
+				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->z()
+				     << ") " << std::endl;
+	    float delta_x = m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->x();
+	    float delta_y = m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y();
+	    float delta_z = m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z();
 
+	    if (delta_x < 0.1 && delta_y < 0.1 && delta_z < 4) {
+	      if (m_doDebug) std::cout << "     BINGO !!! e+e- pair in same vertex !!! " << std::endl;
+	      nverticesfound++;
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  if (nverticesfound >= 1) goodvertices = true;
+
+  if (m_doDebug) std::cout << " -- ElectronSelector::RetrieveVertices -- COMPLETED -- status: " << goodvertices << std::endl; 
+  return goodvertices;
+}

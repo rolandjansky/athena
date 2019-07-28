@@ -39,7 +39,6 @@ class ElectronSelector : public EventAnalysis
 
   inline unsigned int               GetElectronCollectionSize() {return m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size();}
   void                              Init();
-  void                              OrderElectronList ();
   void                              PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
   bool                              RecordElectron (const xAOD::Electron *);
   inline void                       SetPtCut (float newpt) {m_ptCut = newpt;}
@@ -54,6 +53,8 @@ class ElectronSelector : public EventAnalysis
 
   // functions 
   void   Clear();
+  bool   OrderElectronList ();
+  bool   RetrieveVertices ();
 
   // message stream
   MsgStream * m_msgStream;
