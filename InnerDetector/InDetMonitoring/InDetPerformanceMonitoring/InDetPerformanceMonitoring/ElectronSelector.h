@@ -69,6 +69,8 @@ class ElectronSelector : public EventAnalysis
   bool m_doDebug;
   // 
   float m_ptCut;
+  float m_deltaXYcut; //cut for vertex distance in X or Y 
+  float m_deltaZcut; //cut for vertex distance in Z
 
   // Electron likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!

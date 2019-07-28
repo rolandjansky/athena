@@ -309,8 +309,7 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
   // loop over the muons and electrons and count how many pass the leadingPt and secondPt cut
   unsigned int npassleadingpt = 0;
   unsigned int npasssecondpt = 0; 
-  if ( eventisgood && m_workAsFourMuons) {
-    // in this case there must be already 4 muons
+  if ( eventisgood && (m_workAsFourMuons || m_workAsFourLeptons) ) {
     for (unsigned int i=0; i < m_numberOfFullPassMuons; i++) {
       if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * using muon " << i << " with pt: " << m_pxIDTrack[i]->pt() <<  std::endl;}
       if (m_pxIDTrack[i]->pt() > m_LeadingMuonPtCut*CLHEP::GeV) npassleadingpt++;
@@ -327,16 +326,45 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
       if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing second muon pt cut " << m_LeadingMuonPtCut*CLHEP::GeV << std::endl;}
     }
   } 
+
   // four electrons case
-  if ( eventisgood && m_workAsFourElectrons) {
+  if ( eventisgood && (m_workAsFourElectrons || m_workAsFourLeptons) ) {
+    npassleadingpt = 0;
+    npasssecondpt = 0;
     for (unsigned int i=0; i < m_numberOfFullPassElectrons; i++) {
       if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * using electrons " << i << " with pt: " << m_pxELTrack[i]->pt() << std::endl;}
       if (m_pxELTrack[i]->pt() > m_LeadingMuonPtCut*CLHEP::GeV) npassleadingpt++;
       if (m_pxELTrack[i]->pt() > m_SecondMuonPtCut*CLHEP::GeV) npasssecondpt++;
     }
+    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * #withpt > leading pt" << m_LeadingMuonPtCut*CLHEP::GeV << " = " << npassleadingpt << std::endl;}
+    if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * #withpt > second pt " << m_SecondMuonPtCut*CLHEP::GeV << " = " << npasssecondpt << std::endl;}
+    if (npassleadingpt == 0) { // at least 1 electron must pass the leading pt cut
+      eventisgood = false;
+      if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing leading muon pt cut " << m_LeadingMuonPtCut*CLHEP::GeV << std::endl;}
+    }
+    if (npasssecondpt < m_numberOfFullPassElectrons) { // all electrons must pass the second pt cut
+      eventisgood = false;
+      if(m_doDebug) {std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") * Failing second muon pt cut " << m_LeadingMuonPtCut*CLHEP::GeV << std::endl;}
+    }
   }
-  // four leptons case
 
+  // Invariant mass window
+  if (eventisgood) {
+    if ( m_fInvariantMass[eType]  < m_MassWindowLow  ) {
+      if(m_doDebug) {
+	std::cout <<" * FourMuonEvent::EventSelection * Failing mass window low cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowLow << std::endl;
+      }
+      eventisgood = false;
+    }
+    if ( m_fInvariantMass[eType]  > m_MassWindowHigh ) {
+      if(m_doDebug) {
+	std::cout <<" * FourMuonEvent * Failing mass window high cut:  reco m= " << m_fInvariantMass[eType] << " > " <<  m_MassWindowHigh << std::endl;
+      }
+      eventisgood = false;
+    }
+  }
+
+  //
   if(m_doDebug){  std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") ** completed ** result= " << eventisgood << std::endl;}
 
   m_doDebug = inputdebug;

@@ -36,7 +36,9 @@ unsigned int ElectronSelector::s_uNumInstances;
 //==================================================================================
 ElectronSelector::ElectronSelector():
   m_doDebug ( true ),
-  m_ptCut ( 10 )
+  m_ptCut ( 10 ),
+  m_deltaXYcut ( 0.1 ),
+  m_deltaZcut ( 4 )
 {
   ++s_uNumInstances;
   
@@ -290,15 +292,15 @@ bool ElectronSelector::RetrieveVertices ()
 	    float delta_y = m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y();
 	    float delta_z = m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z();
 
-	    if (delta_x < 0.1 && delta_y < 0.1 && delta_z < 4) {
+	    if (delta_x < m_deltaXYcut && delta_y < m_deltaXYcut && delta_z < m_deltaZcut) {
 	      if (m_doDebug) std::cout << "     BINGO !!! e+e- pair in same vertex !!! " << std::endl;
 	      nverticesfound++;
-	    }
-	  }
-	}
-      }
-    }
-  }
+	    } // vertex is the same
+	  } // positron has vertex
+	} // loop on positrons
+      } // electron has vertex
+    } // loop on electrons (e-) 
+  } // at least one e+e- pair
 
   if (nverticesfound >= 1) goodvertices = true;
 
