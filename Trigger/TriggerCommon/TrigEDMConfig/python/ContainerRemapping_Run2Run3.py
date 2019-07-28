@@ -1,8 +1,11 @@
-#==============================================================
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # ContainerRemapping_Run2Run3.py
 # A jobOptions fragment for aliasing Run 3 HLT container names
 # to the Run 2 predecessors, e.g. for validation
 #
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TriggerEDM')
 
 # Mapping of Run 3 name to Run 2 name
 # Should suffice to just do the interface container
@@ -32,7 +35,7 @@ from SGComps import AddressRemappingSvc
 def remapHLTContainerNames():
     for containertype, renamelist in HLT_Name_Changes.iteritems():
         for run3name, run2name in renamelist:
-            print "Remapping {} object SG Keys: {} --> {}".format(containertype,run3name,run2name)
+            log.info("Remapping {} object SG Keys: {} --> {}".format(containertype,run3name,run2name))
 
             auxcontainertype = containertype.replace("Container","AuxContainer")
             if containertype=="xAOD::CaloClusterContainer":
