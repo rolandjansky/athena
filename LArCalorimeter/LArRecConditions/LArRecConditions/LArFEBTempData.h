@@ -34,8 +34,8 @@ inline LArFEBTempData::FEBTemp LArFEBTempData::getFebTemp(const HWIdentifier& h)
 }
 
 #include "AthenaKernel/CLASS_DEF.h"
-CLASS_DEF( LArFEBTempData, 204177791 , 1)
+CLASS_DEF( LArFEBTempData, 37052556, 1)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArFEBTempData>, 244452853 , 1)
+CLASS_DEF( CondCont<LArFEBTempData>, 52616604, 1)
 
 #endif
