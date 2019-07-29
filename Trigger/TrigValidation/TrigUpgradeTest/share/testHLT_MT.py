@@ -371,12 +371,13 @@ if opt.doL1Sim:
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
+        from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1DecoderTest()
+        topSequence += L1Decoder("L1Decoder")
+        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
-        topSequence += L1DecoderTest()
+        from L1Decoder.L1DecoderConfig import L1Decoder
+        topSequence += L1Decoder("L1Decoder")
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
