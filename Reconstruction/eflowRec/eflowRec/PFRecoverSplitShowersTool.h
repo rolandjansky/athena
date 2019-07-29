@@ -49,8 +49,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix);
   void performSubtraction(eflowCaloObject* thisEflowCaloObject);
-
-private:
+  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject);  
 
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   std::vector<eflowRecCluster*> m_clustersToConsider;

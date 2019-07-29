@@ -227,13 +227,22 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
         * sqrt(thisEfRecTrack->getVarEExpect())) {
       /* Check if we can annihilate right away */
       Subtractor::annihilateClusters(clusterSubtractionList);
+      //Now we should mark all of these clusters as being subtracted
+      //Now need to mark which clusters were modified in the subtraction procedure
+      this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+
     } else {
       /* Subtract the track from all matched clusters */
       Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList);
+      //Now need to mark which clusters were modified in the subtraction procedure
+      this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+      
       /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
       if (getSumEnergy(clusterSubtractionList) < m_subtractionSigmaCut
           * sqrt(thisEfRecTrack->getVarEExpect())) {
         Subtractor::annihilateClusters(clusterSubtractionList);
+	//Now we should mark all of these clusters as being subtracted
+	this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
       }
     }
     /* Flag tracks as subtracted */
@@ -254,4 +263,27 @@ double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<std::pair<xAOD:
   double result = 0.0;
   for (auto thisPair : clusters) result += (thisPair.first)->e();
   return result;
+}
+
+void PFRecoverSplitShowersTool::markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject){
+  //An eflowCaloObject may have one cluster and N tracks, and then one would have N eflowTrackClusterLink* for each track-cluster pair
+  //Hence there can be more entries in the track cluster link list due to duplication
+
+  const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject.efRecLink();
+  
+  for (auto thisClusterPair : clusterList){
+    xAOD::CaloCluster* thisCluster = thisClusterPair.first;
+
+    for (auto thisTrackClusterLinkPair : matchedTrackList){
+      //if the subtraction status is already true, then no need to update it
+      if (true == thisTrackClusterLinkPair.second) continue;
+      //eflowTrackCluster link returns an eflowRecCluster pointer, which in turn returns an xAIOD:;CaloCluster* pointer
+      xAOD::CaloCluster* thisMatchedTrackCluster = (thisTrackClusterLinkPair.first)->getCluster()->getCluster();
+      //Now we can do a floating point comparison of the energy to check which cluster we have
+      if (fabs(thisCluster->e() - thisMatchedTrackCluster->e()) < 0.0001){
+	if (true == thisClusterPair.second) thisTrackClusterLinkPair.second = true;
+      }//if have a match of the cluster
+    }//loop on track cluster link pairs
+    
+  }//loop on cluster pair list
 }
