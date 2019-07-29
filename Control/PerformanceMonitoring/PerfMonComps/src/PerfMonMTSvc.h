@@ -161,7 +161,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // There should be a more clever way!
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_evt;
+    //std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_evt;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy

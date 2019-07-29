@@ -93,7 +93,8 @@ StatusCode PerfMonMTSvc::finalize(){
  */
 void PerfMonMTSvc::startAud( const std::string& stepName,
                              const std::string& compName ) {
-  /*
+ 
+   /*
    * This if statement is temporary. It will be removed.
    * In current implementation the very first thing called is stopAud function
    * for PerfMonMTSvc. There are some components before it. We miss them.
@@ -102,7 +103,6 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
   if( compName != "PerfMonMTSvc" ){  
     startSnapshotAud(stepName, compName);
 
-    //if (stepName == "Execute")
     if( isLoop() && m_isEventLoopMonitoring == true)
       startCompAud_MT(stepName, compName);
     else
@@ -263,8 +263,7 @@ void PerfMonMTSvc::report2Stdout_Description(){
 void PerfMonMTSvc::report2Stdout_Serial(){
 
   using boost::format;
-  int threshold = 5; // Do not print components whose measurements are below 5 ms
-
+  
   std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
   std::cout << "PerfMonMTSvc                           Serial Component Level Monitoring                            " << std::endl;
   std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
@@ -284,8 +283,7 @@ void PerfMonMTSvc::report2Stdout_Serial(){
     ); 
     for(auto it : pairs){
       
-      if(it.second->m_delta_cpu + it.second->m_delta_wall > threshold)
-        std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName;
+      std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName;
     }
     std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
   }
@@ -294,7 +292,6 @@ void PerfMonMTSvc::report2Stdout_Serial(){
 void PerfMonMTSvc::report2Stdout_Parallel(){
 
   using boost::format;
-  int threshold = 5; // do print components whose measurements are below 5 ms
 
   std::cout << "PerfMonMTSvc                           Aggregated Event Loop Monitoring                             " << std::endl;
   std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
@@ -315,8 +312,7 @@ void PerfMonMTSvc::report2Stdout_Parallel(){
     );
     for(auto it : pairs){
       
-      if(it.second.cpu_time > threshold)
-        std::cout << format("PerfMonMTSvc %|5t|%1%  %|30t|%2$.2f  %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
+      std::cout << format("PerfMonMTSvc %|5t|%1%  %|30t|%2$.2f  %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
     }
     std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
   }
@@ -358,7 +354,7 @@ void PerfMonMTSvc::report2Stdout_Summary(){
   
 
   std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Number of Events processed:" %  m_eventIds.size();
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% ms \n") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size());
+  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2$.2f ms \n") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size());
   std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  );
 
   std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
@@ -446,7 +442,7 @@ void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j){
 
 bool PerfMonMTSvc::isLoop(){
   int eventNumber = getEventNumber();
-  return (eventNumber > 0) ? true : false;
+  return (eventNumber >= 0) ? true : false;
 }
 
 int PerfMonMTSvc::getEventNumber(){
@@ -505,8 +501,8 @@ void PerfMonMTSvc::divideData2Steps_serial(){
       m_compLevelDataMap_ini[it.first] = it.second;
     if(it.first.stepName == "Start")
       m_compLevelDataMap_start[it.first] = it.second;
-    if(it.first.stepName == "Execute")
-      m_compLevelDataMap_evt[it.first] = it.second;
+    //if(it.first.stepName == "Execute")
+      //m_compLevelDataMap_evt[it.first] = it.second;
     if(it.first.stepName == "Stop")
       m_compLevelDataMap_stop[it.first] = it.second;
     if(it.first.stepName == "Finalize")
@@ -519,7 +515,7 @@ void PerfMonMTSvc::divideData2Steps_serial(){
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
-  m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
+  //m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);
