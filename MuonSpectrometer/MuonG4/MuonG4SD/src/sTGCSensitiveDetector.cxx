@@ -43,8 +43,6 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   const G4Step* post_Step=aStep->GetTrack()->GetStep();
 
-  const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
-
 
   Amg::Vector3D position = Amg::Hep3VectorToEigen(postStep->GetPosition());
 
