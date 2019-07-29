@@ -13,12 +13,17 @@
 #include <AsgTools/AnaToolHandle.h>
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
+#include "PMGTools/PMGTruthWeightTool.h"
 
 
 class TFile;
 
 namespace EL {
 class Worker;
+}
+
+namespace {
+enum class WEIGHTTYPE {MURUP, MURDOWN, MUFUP, MUFDOWN, VAR3CUP, VAR3CDOWN, FSRUP, FSRDOWN};
 }
 
 namespace top {
@@ -46,6 +51,14 @@ class JetFtagEffPlots : public EventSelectorBase {
 
   // Easy access to histograms.
   std::shared_ptr<PlotManager> m_hists               = nullptr;
+  std::shared_ptr<PlotManager> m_hists_muRup         = nullptr;
+  std::shared_ptr<PlotManager> m_hists_muRdown       = nullptr;
+  std::shared_ptr<PlotManager> m_hists_muFup         = nullptr;
+  std::shared_ptr<PlotManager> m_hists_muFdown       = nullptr;
+  std::shared_ptr<PlotManager> m_hists_Var3cup       = nullptr;
+  std::shared_ptr<PlotManager> m_hists_Var3cdown     = nullptr;
+  std::shared_ptr<PlotManager> m_hists_FSRup         = nullptr;
+  std::shared_ptr<PlotManager> m_hists_FSRdown       = nullptr;
 
 
   // Nominal hash value
@@ -55,10 +68,17 @@ class JetFtagEffPlots : public EventSelectorBase {
   
   bool m_fill_total_hists;
 
-  bool m_use_event_weight;
-  
   //optional suffix you can add to your histogram
   std::string m_histogram_suffix;
+  bool m_doNominal;
+  bool m_doMuRup;
+  bool m_doMuRdown;
+  bool m_doMuFup;
+  bool m_doMuFdown;
+  bool m_doVar3cup;
+  bool m_doVar3cdown;
+  bool m_doFSRup;
+  bool m_doFSRdown;
 
   // pT and eta bin edges
   std::string m_ptBins;
@@ -81,6 +101,8 @@ class JetFtagEffPlots : public EventSelectorBase {
 
 
   asg::AnaToolHandle<IBTaggingSelectionTool> m_selection_tool;
+  
+  PMGTools::PMGTruthWeightTool* m_PMGTruthWeights;
  
   top::ScaleFactorRetriever* m_sfRetriever;
 
@@ -90,6 +112,8 @@ class JetFtagEffPlots : public EventSelectorBase {
   //helper function to fill histograms
   void FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const;
 
+  /// A helper function to get the correct truth weight
+  float GetPMGTruthWeight(WEIGHTTYPE type) const;
   
 };
 
