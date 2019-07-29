@@ -15,7 +15,7 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace MuonCombined {
  
@@ -26,7 +26,8 @@ namespace MuonCombined {
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_trackBuilder("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
       m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool"),
-      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor")
+      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
+      m_beamService("BeamCondSvc", name)
   {
     declareInterface<IMuonCandidateTool>(this);
     declareProperty("Printer",m_printer );
@@ -34,6 +35,7 @@ namespace MuonCombined {
     declareProperty("TrackBuilder",m_trackBuilder );
     declareProperty("TrackExtrapolationTool",m_trackExtrapolationTool );
     declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
+    declareProperty("BeamSpotSvc", m_beamService);
   }
 
   MuonCandidateTool::~MuonCandidateTool()
@@ -46,6 +48,7 @@ namespace MuonCombined {
     if( !m_trackBuilder.empty() )           ATH_CHECK(m_trackBuilder.retrieve());
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK(m_beamService.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -56,16 +59,11 @@ namespace MuonCombined {
   void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) const {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
-    const xAOD::EventInfo* eventInfo; 
-    float beamSpotX = 0.;
-    float beamSpotY = 0.;
-    float beamSpotZ = 0.;
 
-    if(evtStore()->retrieve(eventInfo).isSuccess()){
-      beamSpotX = eventInfo->beamPosX();
-      beamSpotY = eventInfo->beamPosY();
-      beamSpotZ = eventInfo->beamPosZ();
-    } 
+    float beamSpotX = m_beamService->beamPos()[Amg::x];
+    float beamSpotY = m_beamService->beamPos()[Amg::y];
+    float beamSpotZ = m_beamService->beamPos()[Amg::z];
+
     ATH_MSG_DEBUG( " Beamspot position  bs_x " << beamSpotX << " bs_y " << beamSpotY << " bs_z " << beamSpotZ);  
 
       
