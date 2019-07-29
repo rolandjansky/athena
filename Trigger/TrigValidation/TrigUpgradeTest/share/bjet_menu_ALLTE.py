@@ -17,9 +17,9 @@ step1 = ChainStep("Step1ALLTE_bjet", [getBJetSequence('jALLTE')])
 step2 = ChainStep("Step2ALLTE_bjet", [getBJetSequence('gscALLTE')])
 
 testChains  = [                                                                                                                                                                         
-    Chain(name='HLT_j35_gsc45_boffperf_split_L1J20' , L1Item="L1_J20",  ChainSteps=[step1,step2] ),
-    Chain(name='HLT_j35_gsc45_bmv2c1070_split_L1J20', L1Item="L1_J20",  ChainSteps=[step1,step2] ),
-    Chain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Item="L1_J20",  ChainSteps=[step1,step2] )
+    Chain(name='HLT_j35_gsc45_boffperf_split_L1J20' , L1Item="L1_J20",  L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+    Chain(name='HLT_j35_gsc45_bmv2c1070_split_L1J20', L1Item="L1_J20",  L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+    Chain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Item="L1_J20",  L1Thresholds=["J20"], ChainSteps=[step1,step2] )
     ]
 
 

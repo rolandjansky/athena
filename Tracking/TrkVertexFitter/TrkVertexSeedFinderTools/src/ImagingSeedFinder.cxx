@@ -27,8 +27,7 @@ namespace Trk
   ImagingSeedFinder::ImagingSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
     m_vertexImageMaker("Trk::VertexImageMaker", this),
-    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder", this),
-    m_cacheRunNumber(0), m_cacheEventNumber(0), m_currentSeedIdx(0)
+    m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder", this)
   {   
 
     declareProperty("VertexImageMaker"        , m_vertexImageMaker         );
@@ -45,29 +44,10 @@ namespace Trk
   // ImagingSeedFinder inistialize
   StatusCode ImagingSeedFinder::initialize() 
   { 
-    msg(MSG::INFO) << "ImagingSeedFinder initialization..." << endmsg;
+    ATH_MSG_INFO( "ImagingSeedFinder initialization..."  );
 
-    ATH_CHECK( m_eventInfoKey.initialize() );
-
-    // Get the image maker tool
-    if (m_vertexImageMaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve vertex image maker tool" << m_vertexImageMaker << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_vertexImageMaker << endmsg;
-    }
-    
-
-    /* Get the VertexCluster Tool */
-    if ( m_VertexClusterFinder.retrieve().isFailure() )
-      {
-        msg(MSG::FATAL) << "Failed to retrieve vertex cluster tool" << m_VertexClusterFinder << endmsg;
-        return StatusCode::FAILURE;
-      }
-    else
-      {
-        msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_VertexClusterFinder << endmsg;
-      }
+    ATH_CHECK( m_vertexImageMaker.retrieve() );
+    ATH_CHECK( m_VertexClusterFinder.retrieve() );
 
     return StatusCode::SUCCESS;
 
@@ -85,69 +65,29 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find seed - based on vector of Trk::Track's
-  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
+  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint)
+  {
+    std::vector<Amg::Vector3D> seeds =
+      findMultiSeeds( vectorTrk, constraint);
 
-    // This gets the EventInfo object from StoreGate
-    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
-    if ( !myEventInfo.isValid() )
-    {
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
+    if (seeds.empty()) {
       return Amg::Vector3D(0.,0.,0.);
     }
-    
-    unsigned int ei_RunNumber = myEventInfo->runNumber();
-    unsigned int ei_EventNumber =myEventInfo->eventNumber();
-
-    if (  (ei_RunNumber != m_cacheRunNumber) || (ei_EventNumber != m_cacheEventNumber) ){
-      m_seeds = findMultiSeeds( VectorTrk, constraint);
-      m_currentSeedIdx = 0;
-      m_cacheRunNumber = ei_RunNumber;
-      m_cacheEventNumber = ei_EventNumber;
-    } 
-
-
-     if (m_currentSeedIdx >= m_seeds.size()) {
-       return Amg::Vector3D(0.,0.,0.);
-      } else {
-       Amg::Vector3D TheVertex = m_seeds[m_currentSeedIdx];
-       m_currentSeedIdx++;
-       return TheVertex;
-      }
-
+    return seeds[0];
   } // End ImagingSeedFinder find seed - based on vector of Trk::Track's
 
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find seed - based on vector of Trk::ParametersBase
-  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & parametersList,const xAOD::Vertex * constraint) {
+  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & parametersList,const xAOD::Vertex * constraint)
+  {
+    std::vector<Amg::Vector3D> seeds =
+      findMultiSeeds( parametersList, constraint);
 
-    // This gets the EventInfo object from StoreGate
-    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
-    if (!myEventInfo.isValid() ) 
-      {
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
+    if (seeds.empty()) {
       return Amg::Vector3D(0.,0.,0.);
     }
-    
-    unsigned int ei_RunNumber = myEventInfo->runNumber();
-    unsigned int ei_EventNumber =myEventInfo->eventNumber();
-
-    if (  (ei_RunNumber != m_cacheRunNumber) || (ei_EventNumber != m_cacheEventNumber) ){
-      m_seeds = findMultiSeeds( parametersList, constraint);
-      m_currentSeedIdx = 0;
-      m_cacheRunNumber = ei_RunNumber;
-      m_cacheEventNumber = ei_EventNumber;
-    } 
-
-
-     if (m_currentSeedIdx >= m_seeds.size()) {
-       return Amg::Vector3D(0.,0.,0.);
-      } else {
-       Amg::Vector3D TheVertex = m_seeds[m_currentSeedIdx];
-       m_currentSeedIdx++;
-       return TheVertex;
-      }
-
+    return seeds[0];
   } // End  ImagingSeedFinder find seed - based on vector of Trk::ParametersBase
 
   // --------------------------------------------------------------------------------
@@ -156,16 +96,13 @@ namespace Trk
  
     //create perigees from track list
     std::vector<const Trk::TrackParameters*> perigeeList;
-    
-    std::vector<const Trk::Track*>::const_iterator begin=vectorTrk.begin();
-    std::vector<const Trk::Track*>::const_iterator end=vectorTrk.end();
-    
-    for (std::vector<const Trk::Track*>::const_iterator iter=begin;
-	 iter!=end;++iter) {
-      if (isnan((*iter)->perigeeParameters()->parameters()[Trk::d0])) {
+    perigeeList.reserve (vectorTrk.size());
+
+    for (const Trk::Track* track : vectorTrk) {
+      if (isnan(track->perigeeParameters()->parameters()[Trk::d0])) {
 	continue;
       }  
-      perigeeList.push_back((*iter)->perigeeParameters());
+      perigeeList.push_back(track->perigeeParameters());
     }
    
     //create seed from perigee list
@@ -176,38 +113,33 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find multiseed - based on vector of Trk::ParametersBase
-  std::vector<Amg::Vector3D> ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint) {
- 
-    //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::DEBUG) << "findMultiSeeds using ImagingSeedFinder has been called" << endmsg;
+  std::vector<Amg::Vector3D>
+  ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,
+                                    const xAOD::Vertex * constraint)
+  {
+    ATH_MSG_DEBUG( "findMultiSeeds using ImagingSeedFinder has been called"  );
 
     // Make the image from tracks, and immediately
-    VertexImage image = m_vertexImageMaker->makeVertexImage( parametersList, constraint );
+    std::unique_ptr<VertexImage> image =
+      m_vertexImageMaker->makeVertexImage( parametersList, constraint );
 
     //Run clustering tool to find vertices
     //Coordinates are relative to the center of the histogram (constraint or (0,0,0) if no constraint)
-    std::vector<Amg::Vector3D> relCoordVertices = m_VertexClusterFinder->findVertexClusters( image );
+    std::vector<Amg::Vector3D> vertices =
+      m_VertexClusterFinder->findVertexClusters( *image );
 
-    msg(MSG::DEBUG) << "Found " << relCoordVertices.size() << " candidate clusters" << endmsg;
+    ATH_MSG_DEBUG( "Found " << vertices.size() << " candidate clusters"  );
  
-    // Loop through the vertices in relative coordinate space, ask the image to convert to absolute positions, and set x,y to constraint if we have one.
+    // Loop through the vertices in relative coordinate space, and set x,y to constraint if we have one.
 
-    std::vector<Amg::Vector3D> vertices;
     int counter=0;
-    for( std::vector<Amg::Vector3D>::iterator relit = relCoordVertices.begin(); relit != relCoordVertices.end(); relit++ ){
+    for (Amg::Vector3D& v : vertices) {
       if(constraint) {
-        vertices.push_back( Amg::Vector3D( constraint->position().x(),
-                                           constraint->position().y(),
-                                           constraint->position().z()+relit->z() ) );
-
-      } else {
-        vertices.push_back( Amg::Vector3D( relit->x(),
-                                           relit->y(),
-                                           relit->z() ) );
-
-
+        v = Amg::Vector3D (constraint->position().x(),
+                           constraint->position().y(),
+                           constraint->position().z() + v.z());
       }		
-        msg(MSG::DEBUG) << "  Seed " << counter << " = ( " << vertices.back().x() << ", " << vertices.back().y() << ", " << vertices.back().z() << " )" << endmsg;
+      ATH_MSG_DEBUG( "  Seed " << counter << " = ( " << v.x() << ", " << v.y() << ", " << v.z() << " )"  );
 
       counter++;
     }

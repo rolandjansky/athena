@@ -3,19 +3,14 @@
 from AthenaCommon import CfgMgr
 
 def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
-    kwargs.setdefault("DetectorName",     "SCT");
-    kwargs.setdefault("Alignable",        True);
-    kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc");
-    kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc");
-    kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc");
-    from AthenaCommon.DetFlags      import DetFlags
+    kwargs.setdefault("DetectorName",     "SCT")
+    kwargs.setdefault("Alignable",        True)
+    kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc")
+    kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc")
+    kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc")
     return CfgMgr.SCT_DetectorTool(name, **kwargs)
 
 
-###### ComponentAccumulator
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def SCT_GeometryCfg( flags ):

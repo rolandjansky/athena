@@ -31,7 +31,11 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK( m_trackParticleKeys.initialize() );
   ATH_CHECK( m_jetKeys.initialize() );
   ATH_CHECK( m_muonKeys.initialize() );
-  if (m_extrapolateTracks) ATH_CHECK( m_extrapolator.retrieve() );
+  if (m_extrapolateTracks) {
+    ATH_CHECK( m_extrapolator.retrieve() );
+  } else {
+    m_extrapolator.disable();
+  }
   return StatusCode::SUCCESS;
 }
 

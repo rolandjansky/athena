@@ -24,18 +24,22 @@ def getTrigConfigSvc(flags):
         hltcs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.HLTConfigFile)
         rv.addService(hltcs)
         lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
-        lvl1cs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
+        # Configures here via "newJO" but XMLs not generated for this menu name
+        lvl1XML = flags.Trigger.LVL1ConfigFile.replace('newJO_', '')
+        lvl1cs.XMLMenuFile = findFileInXMLPATH(lvl1XML)
         rv.addService(lvl1cs)
         l1topocs = L1TopoConfigSvc()
         l1topocs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.LVL1TopoConfigFile)
         rv.addService(l1topocs)
         ts = TrigConfigSvc("TrigConfigSvc")
-        ts.PriorityList = ['xml']
+        # run3_dummy - temporary - until we have a proper HLT configuration source for the Run 3 trigger
+        ts.PriorityList = ["run3_dummy", 'xml']
         rv.addService(ts)
         return rv
     rv.addService(DSConfigSvc('DSConfigSvc'))
     tcs = SetupTrigConfigSvc()
-    tcs.SetStates(["ds"])
+    # run3_dummy - temporary - until we have a proper HLT configuration source for the Run 3 trigger
+    tcs.SetStates(["run3_dummy", "ds"])
     tcssvc = tcs.GetConfigurable()
     rv.addService(tcssvc)
 
@@ -76,6 +80,11 @@ def getTrigDecisionTool(flags):
     tdt = Trig__TrigDecisionTool('TrigDecisionTool', TrigConfigSvc=rv.getService('TrigConfigSvc'))
     from TrigEDMConfig.TriggerEDM import EDMLibraries
     tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+    
+    # Other valid option "TriggerElement" for Run 2 navigation. 
+    # This option to be removed and "TrigComposite" the only valid choice once a R2->R3 converter is put in place. 
+    tdt.NavigationFormat = "TrigComposite"
+
     rv.addPublicTool(tdt)
     getTrigDecisionTool.rv = rv
     return rv

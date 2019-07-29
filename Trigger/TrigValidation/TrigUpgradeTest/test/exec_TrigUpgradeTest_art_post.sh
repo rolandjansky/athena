@@ -84,7 +84,7 @@ timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warni
 
 if [ -f ntuple.pmon.gz ]; then
   echo $(date "+%FT%H:%M %Z")"     Running perfmon"
-  timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz
+  timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz >perfmon.log 2>&1
 fi
 
 ### HISTOGRAM COUNT
@@ -143,7 +143,7 @@ fi
 
 if [ -f ${ESDTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
-  timeout 10m checkFile.py ${ESDTOCHECK} 2>&1 | tee ${ESDTOCHECK}.checkFile
+  timeout 10m checkFile.py ${ESDTOCHECK} >${ESDTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileESD"
 else
   echo $(date "+%FT%H:%M %Z")"     No ESD file to check"
@@ -151,10 +151,10 @@ fi
 
 if [ -f ${AODTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
-  timeout 10m checkFile.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkFile
+  timeout 10m checkFile.py ${AODTOCHECK} >${AODTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileAOD"
   echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
-  timeout 10m checkxAOD.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkxAOD
+  timeout 10m checkxAOD.py ${AODTOCHECK} >${AODTOCHECK}.checkxAOD 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckXAOD"
 else
   echo $(date "+%FT%H:%M %Z")"     No AOD file to check"

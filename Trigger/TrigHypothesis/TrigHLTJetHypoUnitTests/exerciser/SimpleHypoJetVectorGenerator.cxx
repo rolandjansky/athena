@@ -34,9 +34,9 @@ SimpleHypoJetVectorGenerator::initialize() {
 
 std::string SimpleHypoJetVectorGenerator::toString() const {
   std::stringstream ss;
-  ss << name() <<":: ets";
+  ss << name() <<":: et: ";
   for(const auto& e : m_ets){ss << e <<  ", ";}
-  ss << " etas: ";
+  ss << " eta:  ";
   for(const auto& e : m_etas){ss << e << ", ";}
   ss<<" bkgd: "<< m_nbkgd << " max E" << m_bkgd_etmax << " max abs eta: "
     << m_bkgd_etamax << '\n';

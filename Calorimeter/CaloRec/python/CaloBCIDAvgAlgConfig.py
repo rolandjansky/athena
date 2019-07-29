@@ -18,7 +18,7 @@ def CaloBCIDAvgAlgCfg (flags):
     from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
     result.merge (LArMCSymCondAlgCfg (flags))
 
-    if flags.Input.isMC == False:
+    if flags.Input.isMC is False:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         result.merge (LuminosityCondAlgCfg (flags))
         lumiAlg = result.getCondAlgo ('LuminosityCondAlg')
@@ -52,6 +52,7 @@ def CaloBCIDAvgAlgCfg (flags):
                               BunchCrossingTool = theBunchCrossingTool,
                               ShapeKey = 'LArShape')
 
+    result.addEventAlgo (alg)
     return result
 
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     flags1.Input.Files = defaultTestFiles.RAW
     flags1.lock()
     acc1 = CaloBCIDAvgAlgCfg (flags1)
-    acc1.printCondAlgs(summariseProps=True)
+    acc1.printConfig(summariseProps=True)
     acc1.wasMerged()
 
     print ('--- mc')
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     flags2.Input.isMC = True
     flags2.lock()
     acc2 = CaloBCIDAvgAlgCfg (flags2)
-    acc2.printCondAlgs(summariseProps=True)
+    acc2.printConfig(summariseProps=True)
     acc2.wasMerged()
 
     print ('--- online')
@@ -86,5 +87,5 @@ if __name__ == "__main__":
     flags3.Common.isOnline = True
     flags3.lock()
     acc3 = CaloBCIDAvgAlgCfg (flags3)
-    acc3.printCondAlgs(summariseProps=True)
+    acc3.printConfig(summariseProps=True)
     acc3.wasMerged()

@@ -34,8 +34,7 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         kwargs.setdefault('TruthVolumeLevel',  2)
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
     return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)

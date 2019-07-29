@@ -56,7 +56,7 @@ GlobalFlags.DataSource.set_data()
 GlobalFlags.InputFormat.set_bytestream()
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-Comm-02-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()  #Switched on for the prediction

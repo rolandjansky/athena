@@ -42,7 +42,7 @@ include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
 theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
 theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = True
 AthenaSealSvc.CheckDictAtInit = True
 

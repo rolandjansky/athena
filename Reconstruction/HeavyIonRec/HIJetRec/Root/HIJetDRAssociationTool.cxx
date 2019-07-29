@@ -23,7 +23,7 @@ HIJetDRAssociationTool::HIJetDRAssociationTool(const std::string& n)
 //**********************************************************************
 
 
-int HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
+StatusCode HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
 {
 
   const xAOD::IParticleContainer* ppars=0;
@@ -34,13 +34,13 @@ int HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
     if (!ppars)
     {
       ATH_MSG_ERROR("Failed to retrieve xAOD container " << m_container_key );
-      return 0;
+      return StatusCode::FAILURE;
     }
   }
   else
   {
     ATH_MSG_ERROR("Failed to retrieve xAOD container " << m_container_key );
-    return 0;
+    return StatusCode::FAILURE;
   }
 
   for (xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ijet++)
@@ -54,6 +54,6 @@ int HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
     }
     theJet->setAssociatedObjects(m_assoc_name,ParticleVector);
   }
-  return 1;
+  return StatusCode::SUCCESS;
 } 
 

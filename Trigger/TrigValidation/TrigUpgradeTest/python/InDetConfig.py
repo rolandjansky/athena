@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-class InDetCacheNames:
+class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
@@ -455,5 +455,4 @@ if __name__ == "__main__":
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
-    print 'All ok'
-    
+    print('All ok')

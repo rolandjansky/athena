@@ -4,7 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetAthSequence, jetRecoDictToString
     
-def jetRecoSequence(dummyFlags,**recoDict):
+def jetCFSequence(dummyFlags,**recoDict):
     """ Function to create the jet Menu Sequence"""
     
     ## RoIs = 'FSJETRoI'
@@ -13,7 +13,7 @@ def jetRecoSequence(dummyFlags,**recoDict):
     return (JetAthSequence, InputMakerAlg, sequenceOut) 
 
 def jetMenuSequence(dummyFlags,**recoDict):
-    (JetAthSequence, InputMakerAlg, sequenceOut)= jetRecoSequence(dummyFlags,**recoDict)    
+    (JetAthSequence, InputMakerAlg, sequenceOut)= jetCFSequence(dummyFlags,**recoDict)    
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict

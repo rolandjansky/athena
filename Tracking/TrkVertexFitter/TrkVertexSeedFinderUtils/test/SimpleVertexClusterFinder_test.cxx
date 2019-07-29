@@ -115,8 +115,8 @@ void test1 (Trk::VertexImageMaker& tool1, Trk::SimpleVertexClusterFinder& tool2)
   xAOD::Vertex vert1;
   initVertex (vert1);
 
-  Trk::VertexImage image = tool1.makeVertexImage (pvec, &vert1);
-  std::vector<Amg::Vector3D> verts = tool2.findVertexClusters (image);
+  std::unique_ptr<Trk::VertexImage> image = tool1.makeVertexImage(pvec, &vert1);
+  std::vector<Amg::Vector3D> verts = tool2.findVertexClusters (*image);
   assert (verts.size() == 4);
   assertVec3D (verts[0], { -0.778228, -1.80779, 17.8691  });
   assertVec3D (verts[1], { -0.721533, -1.79632,  2.88162 });

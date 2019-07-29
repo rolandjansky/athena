@@ -21,7 +21,7 @@ def _createCfgFlags():
 
     acf=AthConfigFlags()
 
-    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # fromer global.InputFiles
+    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
@@ -72,6 +72,12 @@ def _createCfgFlags():
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
+    
+    # Might move this elsewhere in the future.
+    # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
+    # (many, e.g. those that set properties of one tool are not needed)
+    acf.addFlag('TrackingGeometry.MagneticFileMode', 6)
+    acf.addFlag('TrackingGeometry.MaterialSource', 'COOL') # Can be COOL, Input or None
 
 #Detector Flags:
     def __detector():

@@ -48,15 +48,17 @@ def  EDMDecodingVersion():
         ItemDic=inputFileSummary.get("eventdata_itemsDic")
         ItemList=inputFileSummary.get('eventdata_itemsList')
 
+        TriggerFlags.doMergedHLTResult = True
         if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
             TriggerFlags.EDMDecodingVersion = 1
             TriggerFlags.doMergedHLTResult = False
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
-            TriggerFlags.doMergedHLTResult = True
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTSummary"):          
+            TriggerFlags.EDMDecodingVersion = 3
         else:
-            log.warning("No HLTResult found in pool file")
+            log.warning("Cannot recognise HLT EDM format, TriggerFlags.EDMDecodingVersion=%d" % TriggerFlags.EDMDecodingVersion())
         pass
     pass
                 
@@ -369,7 +371,7 @@ class HLTTriggerResultGetter(Configured):
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
             topSequence += RoiWriter()
             # write out the RoiDescriptorStores
-            from TrigEDMConfig.TriggerEDM import TriggerRoiList
+            from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
         #Are we adding operational info objects in ESD?

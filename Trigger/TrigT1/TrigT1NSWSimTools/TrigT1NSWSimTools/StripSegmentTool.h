@@ -72,7 +72,6 @@ namespace NSWL1 {
         BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
         StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
         // analysis variable to be put into the ntuple
-        int m_seg_n;                                            //!< number of Segments found
         std::vector<int> *m_seg_wedge1_size;                        //!< theta
         std::vector<int> *m_seg_wedge2_size;                        //!< theta
         std::vector<float> *m_seg_theta;                        //!< theta
@@ -82,8 +81,6 @@ namespace NSWL1 {
         std::vector<float> *m_seg_eta_inf;  
         std::vector<float> *m_seg_phi;
         std::vector<int> *m_seg_bandId;
-        std::vector<int> *m_seg_secId;
-        std::vector<int> *m_seg_bcId;
         std::vector<int> *m_seg_phiId;
         std::vector<int> *m_seg_rIdx;
         std::vector<float> *m_seg_global_r;

@@ -35,7 +35,8 @@ class HLTCaloESD_xAODCaloClusters: public IHLTMonTool {
   
   float            m_OFF_min_et;
   std::vector<int> m_OFF_types;
-  
+
+  bool  m_runMonitoring;  
   bool  m_match_types;
   float m_max_delta_r;
 

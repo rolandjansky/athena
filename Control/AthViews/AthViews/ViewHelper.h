@@ -76,7 +76,7 @@ namespace ViewHelper
 
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( ViewContainer * ViewVector, std::string const& NodeName,
-                                   EventContext const& SourceContext, IScheduler * Scheduler )
+                                   EventContext const& SourceContext, SmartIF<IScheduler> Scheduler )
   {
     //Prevent view nesting - test if source context has view attached
     if ( SourceContext.template hasExtension<Atlas::ExtendedEventContext>() ) {

@@ -155,7 +155,7 @@ if TriggerFlags.doMT():
         TriggerFlags.MuonSlice.setAll()
         TriggerFlags.METSlice.setAll()
         TriggerFlags.JetSlice.setAll()
-        #TriggerFlags.TauSlice.setAll()
+        TriggerFlags.TauSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
@@ -243,8 +243,8 @@ for i in outSequence.getAllChildren():
         StreamRDO.ItemList += preplist(getLvl1ESDList())
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
 
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-        for item in TriggerHLTList:
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+        for item in TriggerHLTListRun3:
             if "ESD" in item[1] or "AOD" in item[1]:
                 StreamRDO.ItemList += [item[0]]
 

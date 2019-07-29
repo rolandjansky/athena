@@ -614,7 +614,7 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
-    ATH_MSG_VERBOSE("RPCs per chamber " + rpcPrdsPerChamber.size() );
+    ATH_MSG_VERBOSE("RPCs per chamber " << rpcPrdsPerChamber.size() );
      
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);

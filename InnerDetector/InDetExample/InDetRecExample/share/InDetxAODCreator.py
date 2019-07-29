@@ -195,11 +195,11 @@ if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
                               topSequence)
 
 
-if InDetFlags.doTrackSegmentsPixelPrdAssociation() and InDetFlags.doParticleCreation():
+if InDetFlags.doTrackSegmentsDisappearing() and InDetFlags.doParticleCreation():
     if doCreation :
-        createTrackParticles(InDetKeys.PixelPrdAssociationTracks(),
-                             InDetKeys.PixelPrdAssociationTracksTruth(),
-                             InDetKeys.xAODPixelPrdAssociationTrackParticleContainer(),
+        createTrackParticles(InDetKeys.DisappearingTracks(),
+                             InDetKeys.DisappearingTracksTruth(),
+                             InDetKeys.xAODDisappearingTrackParticleContainer(),
                              topSequence)
 
 

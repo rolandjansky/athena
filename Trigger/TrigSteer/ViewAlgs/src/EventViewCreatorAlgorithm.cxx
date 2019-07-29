@@ -21,7 +21,6 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs );
   ATH_CHECK( m_viewsKey.initialize() );
   ATH_CHECK( m_inViewRoIs.initialize() );
-  ATH_CHECK( m_scheduler.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -110,7 +109,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
           m_viewNodeName,             // CF node to attach views to
           context,                    // Source context
-          m_scheduler.get() ) );
+          getScheduler() ) );
   
   // report number of views, stored already when container was created
   // auto viewsHandle = SG::makeHandle( m_viewsKey );

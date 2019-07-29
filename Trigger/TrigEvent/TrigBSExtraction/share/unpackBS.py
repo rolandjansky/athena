@@ -16,7 +16,7 @@ EvtMax=-1
 
 AthenaSealSvc = Service( "AthenaSealSvc" )
 # Set up service
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 # Services
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc

@@ -40,7 +40,7 @@ private:
   //ConditionsInput
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey{this,"OFCKey","LArOFC","SG Key of OFC conditions object"};
   SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape32","SG Key of Shape conditions object"};
-  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverage","SGKey of LArMinBiasAverage object"};
+  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverageSym","SGKey of LArMinBiasAverage object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArMCSym> m_mcSym{this,"MCSym","LArMCSym","SG Key of LArMCSym object"};
   SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};

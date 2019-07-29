@@ -23,7 +23,8 @@ const bool striphack=true;
 
 namespace NSWL1 {
 
-    struct MMStripHits {
+    class MMStripHits {
+    public:
       Identifier          t_id;
       MMStripOfflineData* t_mmstrip;
       int                 t_cache_index;

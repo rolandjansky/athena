@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -34,7 +34,7 @@ def TrigBSReadCfg( inputFlags ):
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name();
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
     eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
     acc.addService( bsCnvSvc )
 
@@ -54,7 +54,8 @@ def TrigBSReadCfg( inputFlags ):
     bsMetaDataTool = ByteStreamMetadataTool()
     acc.addPublicTool( bsMetaDataTool )
     
-    from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
+    from StoreGate.StoreGateConf import StoreGateSvc
+    from SGComps.SGCompsConf import ProxyProviderSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
     acc.addService( metaDataStore )
     inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
@@ -78,7 +79,7 @@ def TrigBSReadCfg( inputFlags ):
     # this is trigger specific and should only be loaded if some doTrigger flags is set
     # or it should be moved elsewhere, however, since there is no better location now let is stick here
     bsCnvSvc.InitCnvs += [ "EventInfo",
-                        "HLT::HLTResult" ]
+                           "HLT::HLTResult" ]
     
     bsAddressProviderSvc.TypeNames += [
         "TileCellIDC/TileCellIDC",
@@ -102,7 +103,7 @@ def TrigBSReadCfg( inputFlags ):
 
 
     
-    if inputFlags.Input.isMC == False:        
+    if inputFlags.Input.isMC is False:
         bsCnvSvc.GetDetectorMask=True
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
@@ -121,5 +122,4 @@ if __name__ == "__main__":
 
     acc = TrigBSReadCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
-
+    print("All OK")

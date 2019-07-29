@@ -53,7 +53,7 @@
     StatusCode  initialize();
     StatusCode  finalize();
 
-    virtual int modify(xAOD::JetContainer& jetCont) const;
+    virtual StatusCode modify(xAOD::JetContainer& jetCont) const;
 
     float getFJVT(const xAOD::Jet *jet) const;
     bool forwardJet(const xAOD::Jet *jet) const;

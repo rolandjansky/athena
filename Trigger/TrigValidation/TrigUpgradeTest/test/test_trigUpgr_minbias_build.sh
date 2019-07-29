@@ -12,8 +12,8 @@ export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/MinBias.py"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
-export REGTESTEXP="leaving with code"
-export REGTESTREF=`find_data.py TrigUpgradeTest/dummy_regtest.ref`
+export REGTESTEXP="DEBUG REGTEST"
+export REGTESTREF=`find_data.py TrigUpgradeTest/minbias.ref`
 
 # Skip dumping chain counts because this test doesn't produce the histogram including them
 export SKIP_CHAIN_DUMP=1

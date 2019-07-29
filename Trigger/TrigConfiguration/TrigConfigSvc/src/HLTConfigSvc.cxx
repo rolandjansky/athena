@@ -188,8 +188,13 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_xe30_cell_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe30_tcpufit_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
+      dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
+      dummyChains["HLT_tau0_perf_ptonly_L1TAU12"] = "L1_TAU12";
+      dummyChains["HLT_tau25_medium1_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
       dummyChains["HLT_j35_gsc45_boffperf_split_L1J20"] = "L1_J20";
       dummyChains["HLT_j35_gsc45_bmv2c1070_split_L1J20"] = "L1_J20";
+
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {
          const std::string& chainName = mapPair.first;

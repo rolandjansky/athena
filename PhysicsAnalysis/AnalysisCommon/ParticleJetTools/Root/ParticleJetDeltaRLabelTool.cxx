@@ -109,7 +109,7 @@ namespace {
 }
 
 
-int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
+StatusCode ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
 
   ATH_MSG_VERBOSE("In " << name() << "::modify()");
 
@@ -117,9 +117,9 @@ int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
     const TruthParticleContainer* taus = NULL;
     const TruthParticleContainer* bs = NULL;
     const TruthParticleContainer* cs = NULL;
-    ASG_CHECK( evtStore()->retrieve( taus, m_taupartcollection), 1);
-    ASG_CHECK( evtStore()->retrieve( bs, m_bottompartcollection), 1);
-    ASG_CHECK( evtStore()->retrieve( cs, m_charmpartcollection), 1);
+    ASG_CHECK( evtStore()->retrieve( taus, m_taupartcollection) );
+    ASG_CHECK( evtStore()->retrieve( bs, m_bottompartcollection) );
+    ASG_CHECK( evtStore()->retrieve( cs, m_charmpartcollection) );
 
     vector<vector<const TruthParticle*> > jetlabelpartsb = match(*bs, jets);
     vector<vector<const TruthParticle*> > jetlabelpartsc = match(*cs, jets);
@@ -182,7 +182,7 @@ int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
             jet.setAttribute<int>(m_doublelabelname, 0);
     }
 
-    return 0;
+    return StatusCode::SUCCESS;
 }
 
 

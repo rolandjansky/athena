@@ -37,7 +37,7 @@ def fastElectronSequence(ConfigFlags):
     theElectronFex.ElectronsName=recordable("HLT_L2Electrons")
 
     # EVCreator:
-    l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
+    l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
     l2ElectronViewsMaker.RoIsLink = "roi" # -||-
     l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
     l2ElectronViewsMaker.Views = "EMElectronViews"

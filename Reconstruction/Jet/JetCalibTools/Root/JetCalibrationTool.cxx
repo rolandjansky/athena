@@ -334,39 +334,16 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   return StatusCode::FAILURE;
 }
 
-CP::CorrectionCode JetCalibrationTool::applyCorrection(xAOD::Jet& jet) {
-  StatusCode sc = applyCalibration(jet);
-  if ( sc != StatusCode::FAILURE ) return CP::CorrectionCode::Ok;
-  return CP::CorrectionCode::Error;
-}
-
-StatusCode JetCalibrationTool::applyCalibration(xAOD::Jet& jet) const { 
-  //Grab necessary event info for pile up correction and store it in a JetEventInfo class object
-  JetEventInfo jetEventInfo;
-  ATH_MSG_VERBOSE("Extracting event information.");
-  ATH_CHECK( initializeEvent(jetEventInfo) );
-  ATH_MSG_VERBOSE("Applying calibration.");
-  ATH_CHECK( calibrateImpl(jet,jetEventInfo) );
-  return StatusCode::SUCCESS; 
-}
-
-
-int JetCalibrationTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetCalibrationTool::applyCalibration(xAOD::JetContainer& jets) const {
   //Grab necessary event info for pile up correction and store it in a JetEventInfo class object
   ATH_MSG_VERBOSE("Modifying jet collection.");
   JetEventInfo jetEventInfo;
-  ATH_CHECK( initializeEvent(jetEventInfo), 1 );
+  ATH_CHECK( initializeEvent(jetEventInfo) );
   xAOD::JetContainer::iterator jet_itr = jets.begin();
   xAOD::JetContainer::iterator jet_end = jets.end(); 
   for ( ; jet_itr != jet_end; ++jet_itr )
-    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo), 1 );
- return 0;
-}
-
-int JetCalibrationTool::modifyJet(xAOD::Jet& jet) const {
-  ATH_MSG_VERBOSE("Modifying jet.");
-  ATH_CHECK( applyCalibration(jet), 1 );
-  return 0;
+    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo) );
+ return StatusCode::SUCCESS;
 }
 
 // Private/Protected Methods

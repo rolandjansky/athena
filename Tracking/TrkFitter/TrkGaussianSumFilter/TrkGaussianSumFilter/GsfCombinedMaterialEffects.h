@@ -50,12 +50,12 @@ class GsfCombinedMaterialEffects : public AthAlgTool, virtual public IMultiState
 
   private:
 
-  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects;
-
-  ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects;
-
-  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects;
-
+  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects{this,
+    "MultipleScatteringUpdator","Trk::MultipleScatterUpdator/MultipleScatterUpdator",""};
+  ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects{this,
+    "EnergyLossUpdator","Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",""};
+  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{this,
+    "BetheHeitlerEffects","Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",""};
 };
 
 } // end Trk namespace

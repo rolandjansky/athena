@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,7 +22,6 @@
 #include "AthContainers/exceptions.h"
 #include "AthContainers/ViewVectorBase.h"
 #include "AthLinks/ElementLink.h"
-#include "CxxUtils/unused.h"
 #include "boost/preprocessor/stringize.hpp"
 #include <atomic>
 
@@ -360,7 +359,8 @@ std::atomic<const char*> ClassID_traits< ViewVector<DV> >::s_name { nullptr };
  * @brief Use this macro to associate a CLID with a @c ViewVector class.
  */
 #define VIEWVECTOR_CLASS_DEF(NAME, CID) \
-  static const bool UNUSED(clidinit_##CID) = ClassID_traits<NAME>::init (CID, #NAME); \
+  [[maybe_unused]] \
+  static const bool clidinit_##CID = ClassID_traits<NAME>::init (CID, #NAME); \
   CLIDREGISTRY_ADDENTRY(CID, NAME)
 #endif
 
