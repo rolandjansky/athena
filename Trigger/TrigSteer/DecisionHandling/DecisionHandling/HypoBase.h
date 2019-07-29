@@ -52,28 +52,28 @@ class HypoBase : public ::AthReentrantAlgorithm {
   StatusCode runtimeValidation(SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const;
 
   /// Ensure all HypoAlg Decisions have a feature. Supports ComboHypo too
-  StatusCode validateHasFeature(const TrigCompositeUtils::Decision* d) const;
+  StatusCode validateHasFeature(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
 
   /// Ensure that all DecisionIDs have propagated correctly from their parent
-  StatusCode validateLogicalFlow(const TrigCompositeUtils::Decision* d, const LogicalFlowCheckMode mode) const;
+  StatusCode validateLogicalFlow(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL, const LogicalFlowCheckMode mode) const;
 
   /// Ensure that no space is being wasted by duplicated DecisionIDs in any Decision objects
-  StatusCode validateDuplicatedDecisionID(const TrigCompositeUtils::Decision* d) const;
+  StatusCode validateDuplicatedDecisionID(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
 
   /// Ensure that all present IDs correspond to configured chains
-  StatusCode validateDecisionIDs(const TrigCompositeUtils::Decision* d) const;
+  StatusCode validateDecisionIDs(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
 
   /// Ensure that the Decision has at least one valid parent, unless it is a initial Decision from the L1 Decoder
-  StatusCode validateParentLinking(const TrigCompositeUtils::Decision* d) const;
+  StatusCode validateParentLinking(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
 
   /// Execute all checks on one node in the graph, d, then recursive call self on all parent nodes up to L1.
-  StatusCode recursiveValidateGraph(const TrigCompositeUtils::Decision* d) const;
+  StatusCode recursiveValidateGraph(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL) const;
 
   /// Print header line
   void printBangs() const;
 
   /// A problem was found, print common output data
-  void printErrorHeader(const TrigCompositeUtils::Decision* d)  const;
+  void printErrorHeader(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL)  const;
 
   /// @}
 
