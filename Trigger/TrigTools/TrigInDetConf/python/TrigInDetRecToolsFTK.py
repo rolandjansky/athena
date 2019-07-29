@@ -44,32 +44,32 @@ from FTK_RecTools.FTK_RecToolsConf import FTK_PixelClusterOnTrackTool, FTK_SCTCl
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
  
-InDetTrigBroadPixelClusterOnTrackToolFTK = \
-                                         FTK_PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackToolFTK",
-                                                                     ErrorStrategy = 0) # use broad errors
+InDetTrigPixelClusterOnTrackToolFTK = \
+                                         FTK_PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackToolFTK",
+                                                                     ErrorStrategy = 2) # use broad errors
  
   
-ToolSvc += InDetTrigBroadPixelClusterOnTrackToolFTK
+ToolSvc += InDetTrigPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigBroadPixelClusterOnTrackToolFTK
+  print InDetTrigPixelClusterOnTrackToolFTK
   
 # SiLorentzAngleTool for SCT
 from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
-InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",
+InDetTrigSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigSCT_ClusterOnTrackToolFTK",
                                                                     CorrectionStrategy = 0,  # do correct position bias
-                                                                    ErrorStrategy      = 0,  # do use broad errors
+                                                                    ErrorStrategy      = 2,  # do use broad errors
                                                                     LorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
-ToolSvc += InDetTrigBroadSCT_ClusterOnTrackToolFTK
+ToolSvc += InDetTrigSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigBroadSCT_ClusterOnTrackToolFTK
+  print InDetTrigSCT_ClusterOnTrackToolFTK
   
   
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
 InDetTrigRotCreatorFTK = Trk__RIO_OnTrackCreator(name            = 'InDetTrigRotCreatorFTK',
-                                                 ToolPixelCluster= InDetTrigBroadPixelClusterOnTrackToolFTK,
-                                                 ToolSCT_Cluster = InDetTrigBroadSCT_ClusterOnTrackToolFTK,
+                                                 ToolPixelCluster= InDetTrigPixelClusterOnTrackToolFTK,
+                                                 ToolSCT_Cluster = InDetTrigSCT_ClusterOnTrackToolFTK,
                                                  Mode            = 'indet')
 ToolSvc += InDetTrigRotCreatorFTK
 if (InDetTrigFlags.doPrintConfigurables()):
@@ -124,12 +124,11 @@ if (InDetTrigFlags.doPrintConfigurables()):
         
 
 
-# @TODO does th InDetTrigTrackSummaryHelperToolFTK do hole search and if so is that intended ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigTrackSummaryToolFTK = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolFTK",
                                                  InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolFTK,
                                                  doSharedHits           = False,
-                                                 doHolesInDet           = False,
+                                                 doHolesInDet           = False, # Search for InDet holes using InDetTrackSummaryHelperTool turned OFF
                                                  TRT_ElectronPidTool    = None)
 ToolSvc += InDetTrigTrackSummaryToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):

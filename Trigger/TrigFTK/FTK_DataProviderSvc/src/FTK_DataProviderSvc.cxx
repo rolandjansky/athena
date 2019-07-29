@@ -1637,7 +1637,9 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   //
   // Build the TSOS
   //
-  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
+  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
+  typePattern.set(Trk::TrackStateOnSurface::Perigee);
+  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(nullptr, trkPerigee,nullptr,nullptr,typePattern));
 
 
   //
