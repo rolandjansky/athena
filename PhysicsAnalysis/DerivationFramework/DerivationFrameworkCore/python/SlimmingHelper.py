@@ -451,7 +451,7 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMPFlowExKt3SubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3SubJetsCPContent import AntiKt8EMPFlowExKt3SubJetsCPContent
                         items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets_experimental":
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         items.append(collectionName)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
                         items.append(collectionName)
