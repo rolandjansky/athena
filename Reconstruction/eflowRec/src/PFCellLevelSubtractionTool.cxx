@@ -26,7 +26,6 @@
 
 #include "xAODPFlow/PFO.h"
 
-#include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowCaloObjectMaker.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -361,8 +360,9 @@ void PFCellLevelSubtractionTool::performSubtraction() {
       Subtractor::annihilateClusters(clusterList);
 
       //Now we should mark all of these clusters as being subtracted
-      //All clusters in the clusterList, will also be in the matchedTrackList by construction
-      for (unsigned int index = 0; index < matchedTrackList.size(); ++index) thisEflowCaloObject->setTrackClusterLinkSubtractionStatus(index,true);      
+      this->markSubtractionStatus(clusterList, *thisEflowCaloObject);
+      //All clusters in the clusterList, will also be in the matchedTrackList by construction      
+      //for (unsigned int index = 0; index < clusterList.size(); ++index) thisEflowCaloObject->setTrackClusterLinkSubtractionStatus(index,clusterList[index].second);     
     } else {
     
       /* Subtract the track from all matched clusters */
@@ -465,4 +465,24 @@ void PFCellLevelSubtractionTool::printAllClusters(const eflowRecClusterContainer
   }
 }
 
-//bool PFCellLevelSubtractionTool::runInGoldenMode() { return ((m_goldenModeString.value() == "golden1") || (m_goldenModeString.value() == "golden2")); }
+void PFCellLevelSubtractionTool::markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject){
+  //An eflowCaloObject may have one cluster and N tracks, and then one would have N eflowTrackClusterLink* for each track-cluster pair
+  //Hence there can be more entries in the track cluster link list due to duplication
+
+  const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject.efRecLink();
+  
+  for (auto thisClusterPair : clusterList){
+    xAOD::CaloCluster* thisCluster = thisClusterPair.first;
+
+    for (auto thisTrackClusterLinkPair : matchedTrackList){
+      //if the subtraction status is already true, then no need to update it
+      if (true == thisTrackClusterLinkPair.second) continue;
+      //eflowTrackCluster link returns an eflowRecCluster pointer, which in turn returns an xAIOD:;CaloCluster* pointer
+      xAOD::CaloCluster* thisMatchedTrackCluster = (thisTrackClusterLinkPair.first)->getCluster()->getCluster();
+      //Now we can do a floating point comparison of the energy to check which cluster we have
+      if (fabs(thisCluster->e() - thisMatchedTrackCluster->e()) < 0.0001){
+	if (true == thisClusterPair.second) thisTrackClusterLinkPair.second = true;
+      }//if have a match of the cluster
+    }//loop on track cluster link pairs
+  }//loop on cluster pair list
+}

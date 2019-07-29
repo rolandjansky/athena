@@ -69,6 +69,8 @@ void eflowCellSubtractionFacilitator::annihilateClusters(std::vector<std::pair<x
     for (; theFirstCell != theLastCell; ++theFirstCell) thisCluster->removeCell(*theFirstCell);
     thisCluster->setCalE(0.0);
     thisCluster->setRawE(0.0);
+    //set the subtracted status to true
+    thisPair.second = true;
   }
   setAnnFlag();
 }

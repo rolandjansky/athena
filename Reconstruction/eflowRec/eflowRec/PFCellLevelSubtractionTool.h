@@ -9,6 +9,7 @@
 #include "eflowRec/IPFSubtractionTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowEEtaBinnedParameters.h"
@@ -48,9 +49,8 @@ public:
   std::string printTrack(const xAOD::TrackParticle* track);
   std::string printCluster(const xAOD::CaloCluster* cluster);
   void printAllClusters(const eflowRecClusterContainer& recClusterContainer);
-
- private:
-
+  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject);
+  
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   eflowRecTrackContainer* m_eflowTrackContainer;
   eflowRecClusterContainer* m_eflowClusterContainer;
