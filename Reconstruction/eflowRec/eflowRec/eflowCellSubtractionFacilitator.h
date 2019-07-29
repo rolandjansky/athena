@@ -45,9 +45,9 @@ class eflowCellSubtractionFacilitator{
 
   double getRingsEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                         CellIt endRing);
-  void subtractPartialRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
+  void subtractPartialRings(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                             CellIt endRing, double targetRingEnergy, double eRing);
-  void subtractFullRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
+  void subtractFullRings(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing,
                          CellIt endRing);
   bool subtractRings(eflowRingSubtractionManager& ringSubtractionManager,
                      const std::pair<eflowCaloENUM, short>& ring, double & eSubtracted,

@@ -361,8 +361,7 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 
       //Now we should mark all of these clusters as being subtracted
       this->markSubtractionStatus(clusterList, *thisEflowCaloObject);
-      //All clusters in the clusterList, will also be in the matchedTrackList by construction      
-      //for (unsigned int index = 0; index < clusterList.size(); ++index) thisEflowCaloObject->setTrackClusterLinkSubtractionStatus(index,clusterList[index].second);     
+
     } else {
     
       /* Subtract the track from all matched clusters */
@@ -395,12 +394,17 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 	ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       
 	Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
+	//Now need to mark which clusters were modified in the subtraction procedure
+	this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+
 	
 	ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
       
 	/* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
 	if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
 	  Subtractor::annihilateClusters(clusterSubtractionList);
+	  //Now we should mark all of these clusters as being subtracted
+	  this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
 	}
 	
 	ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
@@ -484,5 +488,6 @@ void PFCellLevelSubtractionTool::markSubtractionStatus(const std::vector<std::pa
 	if (true == thisClusterPair.second) thisTrackClusterLinkPair.second = true;
       }//if have a match of the cluster
     }//loop on track cluster link pairs
+    
   }//loop on cluster pair list
 }

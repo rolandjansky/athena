@@ -75,7 +75,7 @@ void eflowCellSubtractionFacilitator::annihilateClusters(std::vector<std::pair<x
   setAnnFlag();
 }
 
-void eflowCellSubtractionFacilitator::subtractPartialRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing, CellIt endRing,
+void eflowCellSubtractionFacilitator::subtractPartialRings(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing, CellIt endRing,
     double targetRingEnergy, double eRings) {
   for (CellIt itRing = beginRing; itRing != endRing; ++itRing) {
     /* Loop over Rings */
@@ -83,6 +83,8 @@ void eflowCellSubtractionFacilitator::subtractPartialRings(const std::vector<std
       /* Loop over Cells */
       std::pair<CaloCell*, int> thisPair = thisCell;
       xAOD::CaloCluster* cluster = tracksClusters[thisPair.second].first;
+      //flag this cluster as having had subtraction applied to it
+      tracksClusters[thisPair.second].second = true;
       CaloCell* cell = thisPair.first;
       CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster, cell);
       double oldCellWeight = theIterator.weight();
@@ -92,7 +94,7 @@ void eflowCellSubtractionFacilitator::subtractPartialRings(const std::vector<std
   }
 }
 
-void eflowCellSubtractionFacilitator::subtractFullRings(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing, CellIt endRing) {
+void eflowCellSubtractionFacilitator::subtractFullRings(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters, CellIt beginRing, CellIt endRing) {
   /* Subtract full ring */
 
   for (CellIt itRing = beginRing; itRing != endRing; ++itRing) {
@@ -101,6 +103,8 @@ void eflowCellSubtractionFacilitator::subtractFullRings(const std::vector<std::p
       /* Loop over Cells */
       std::pair<CaloCell*, int> thisPair = thisCell;
       xAOD::CaloCluster* cluster = tracksClusters[thisPair.second].first;
+      //flag this cluster as having had subtraction applied to it
+      tracksClusters[thisPair.second].second = true;
       cluster->removeCell(thisPair.first);
     }
   }
