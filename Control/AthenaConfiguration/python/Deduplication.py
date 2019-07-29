@@ -19,7 +19,6 @@ class DeduplicationFailed(RuntimeError):
 
 def deduplicate(newComp,compList):
     #Check for duplicates:
-    _msg.debug("Deduplicating %s", newComp.getJobOptName())
 
     for idx,comp in enumerate(compList):
         if comp.getType()==newComp.getType() and comp.getFullName()==newComp.getFullName():
