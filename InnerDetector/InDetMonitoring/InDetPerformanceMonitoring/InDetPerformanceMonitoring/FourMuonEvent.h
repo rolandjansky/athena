@@ -82,10 +82,14 @@ class FourMuonEvent : public EventAnalysis
   float                              getPtImbalance( ZTYPE eType );
   const std::string                  getRegion() const ;
   unsigned int                       getPosMuon( int eType );
-  inline int                         GetVertexMuNeg1 () { return m_muonneg1_vtx; }
-  inline int                         GetVertexMuNeg2 () { return m_muonneg2_vtx; }
-  inline int                         GetVertexMuPos1 () { return m_muonpos1_vtx; }
-  inline int                         GetVertexMuPos2 () { return m_muonpos2_vtx; }
+  inline int                         GetVertexElNeg1 () { return m_elec_vtx[0];}
+  inline int                         GetVertexElNeg2 () { return m_elec_vtx[1];}
+  inline int                         GetVertexElPos1 () { return m_elec_vtx[2];}
+  inline int                         GetVertexElPos2 () { return m_elec_vtx[3];}
+  inline int                         GetVertexMuNeg1 () { return m_muon_vtx[0];} //{ return m_muonneg1_vtx; }
+  inline int                         GetVertexMuNeg2 () { return m_muon_vtx[1];} //{ return m_muonneg2_vtx; }
+  inline int                         GetVertexMuPos1 () { return m_muon_vtx[2];} //{ return m_muonpos1_vtx; }
+  inline int                         GetVertexMuPos2 () { return m_muon_vtx[3];} //{ return m_muonpos2_vtx; }
   int                                getZCharge( ZTYPE eType );
   inline const float&                getZEta   ( ZTYPE eType ) { return m_fZEtaDir[eType];      }
   inline const float&                getZMass  ( ZTYPE eType ) { return m_fInvariantMass[eType];}
@@ -198,6 +202,7 @@ class FourMuonEvent : public EventAnalysis
   int m_muonpos1_vtx; // tell us wich of the vertex
   int m_muonpos2_vtx; // tell us wich of the vertex
 
+  int m_muon_vtx[NUM_MUONS];
   int m_elec_vtx[NUM_MUONS];
 
 };

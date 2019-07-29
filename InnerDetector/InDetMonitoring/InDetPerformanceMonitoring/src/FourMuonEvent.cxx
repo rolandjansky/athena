@@ -84,17 +84,17 @@ bool FourMuonEvent::Reco()
 
   // if muons are requested 
   if (m_workAsFourMuons || m_workAsFourLeptons) {
-    if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::MuonContainer " << m_container << std::endl; }
+    if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::MuonContainer " << m_container << std::endl; }
 
     const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
     // check if muon container does exist
     if (pxMuonContainer != nullptr) { 
-      if (m_doDebug || thisdebug) {
+      if (m_doDebug) {
 	std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
-					     << " track list has "<< pxMuonContainer->size() 
-					     << " combined muons in container " << m_container 
-					     << std::endl; 
+		  << " track list has "<< pxMuonContainer->size() 
+		  << " combined muons in container " << m_container 
+		  << std::endl; 
       }
       xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
       xAOD::MuonContainer::const_iterator xMuonItrE  = pxMuonContainer->end();
@@ -102,12 +102,12 @@ bool FourMuonEvent::Reco()
       while ( xMuonItr != xMuonItrE ){ // start loop on muons
 	const xAOD::Muon* pxCMuon = *xMuonItr;
 	theCount++;
-	if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** attempt on muon " << theCount << " with xMuonItr "<< *xMuonItr << std::endl;
+	if (m_doDebug) std::cout << " * FourMuonEvent::Reco ** attempt on muon " << theCount << " with xMuonItr "<< *xMuonItr << std::endl;
 	
 	// Apply muon cuts
 	if ( m_xMuonID.passSelection( pxCMuon)) {
 	  RecordMuon( pxCMuon );
-	  if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco ** muon " << theCount << " is accepted " << std::endl;
+	  if (m_doDebug) std::cout << " * FourMuonEvent::Reco ** muon " << theCount << " is accepted " << std::endl;
 	}
 	xMuonItr++;
       } // end loop on muons
@@ -429,10 +429,7 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
 		npartinvtx++;
 		vtxNpart.at(ivtx) = npartinvtx;
 		// fill the variables that tells to which vertex is associated each muon // not very nice piece of code :(
-		if (imu==0) m_muonneg1_vtx = ivtx+1;
-		if (imu==1) m_muonneg2_vtx = ivtx+1;
-		if (imu==2) m_muonpos1_vtx = ivtx+1;
-		if (imu==3) m_muonpos2_vtx = ivtx+1;
+		m_muon_vtx[imu] = ivtx+1;
 	      }
 	    }
 	  } // vertex exist
@@ -485,11 +482,11 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
       // allow no muon without vertex
       if (noVertexCountMuon > 0) vertexstatus = false;
       if (m_doDebug || true) {
-	std::cout << " * FourMuonEvent::EventSelection(" << eType <<")  * vertices ID of the muons = " << std::endl
-		  << "                   mu- 1 " << m_muonneg1_vtx << "  pt: " << m_pxMUTrack[0]->pt() << std::endl
-		  << "                   mu- 2 " << m_muonneg2_vtx << "  pt: " << m_pxMUTrack[1]->pt() << std::endl
-		  << "                   mu+ 1 " << m_muonpos1_vtx << "  pt: " << m_pxMUTrack[2]->pt() << std::endl
-		  << "                   mu+ 2 " << m_muonpos2_vtx << "  pt: " << m_pxMUTrack[3]->pt()
+	std::cout << " * FourMuonEvent::EventSelection(" << eType <<") * vertices ID of the muons = " << std::endl
+		  << "                   mu- 1 " << m_muon_vtx[0] << "  pt: " << m_pxMUTrack[0]->pt() << std::endl
+		  << "                   mu- 2 " << m_muon_vtx[1] << "  pt: " << m_pxMUTrack[1]->pt() << std::endl
+		  << "                   mu+ 1 " << m_muon_vtx[2] << "  pt: " << m_pxMUTrack[2]->pt() << std::endl
+		  << "                   mu+ 2 " << m_muon_vtx[3] << "  pt: " << m_pxMUTrack[3]->pt()
 		  << std::endl;
       } // end debug      
     } // end m_workAsFourMuons
@@ -502,7 +499,7 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
       // and allow maximum a muon without vertex
       if (noVertexCountElec > 0) vertexstatus = false;
       if (m_doDebug || true) {
-	std::cout << " * FourMuonEvent::EventSelection(" << eType <<")  * vertices ID of the electrons = " << std::endl
+	std::cout << " * FourMuonEvent::EventSelection(" << eType <<") * vertices ID of the electrons = " << std::endl
 		  << "                   el- 1 " << m_elec_vtx[0] << "  pt: " << m_pxELTrack[0]->pt() << std::endl
 		  << "                   el- 2 " << m_elec_vtx[1] << "  pt: " << m_pxELTrack[1]->pt() << std::endl
 		  << "                   el+ 1 " << m_elec_vtx[2] << "  pt: " << m_pxELTrack[2]->pt() << std::endl
@@ -902,6 +899,7 @@ void FourMuonEvent::Clear()
   m_muonpos1_vtx = 0;
   m_muonpos2_vtx = 0;
 
+  for (int i=0; i < NUM_MUONS; i++) m_muon_vtx[i] = 0; // reset the vertex ID to which the electrons are associated
   for (int i=0; i < NUM_MUONS; i++) m_elec_vtx[i] = 0; // reset the vertex ID to which the electrons are associated
   return;
 }
@@ -1365,7 +1363,7 @@ void FourMuonEvent::SetSecondMuonPtCut (double newvalue)
 //==================================================================================
 void FourMuonEvent::OrderMuonList()
 {
-  if(m_doDebug || true){ std::cout << " * FourMuonEvent::OrderMuonList * -- start -- " << std::endl 
+  if(m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * -- start -- " << std::endl 
 			   << "                                  #muons: " << m_numberOfFullPassMuons<< std::endl;}
 
   int muPlus1Id = -9;
@@ -1385,7 +1383,7 @@ void FourMuonEvent::OrderMuonList()
 
   if (nMuonsAtEntry >= 2) { // we need at least 2 muons
     for (int imuon=0; imuon < (int) nMuonsAtEntry; imuon++) {
-      if(m_doDebug||true){ std::cout << " * FourMuonEvent::OrderMuonList * testing imuon= " << imuon 
+      if(m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * testing imuon= " << imuon 
 			       << "   with charge= " << m_pxRecMuon[imuon]->charge()
 			       << "   and pt= " << m_pxRecMuon[imuon]->pt()
 			       << std::endl;

@@ -74,12 +74,13 @@ class IDPerfMonZmumu : public AthAlgorithm
 
  private:
   // Private class member functions.
-  StatusCode          bookTrees();
-  void                RegisterHistograms();
-  const xAOD::Vertex* GetDiMuonVertex(const xAOD::TrackParticle*,const  xAOD::TrackParticle*);
-  bool                FillRecParameters(const Trk::Track* track, const xAOD::TrackParticle* trackp_for_unbias, double charge,const xAOD::Vertex* vertex);
-  bool                FillRecParametersTP(const xAOD::TrackParticle* trackp, const xAOD::TrackParticle* trackp_for_unbias,double charge,const xAOD::Vertex* vertex = NULL);
-  StatusCode          FillTruthParameters(const xAOD::TrackParticle* track);
+  StatusCode          bookTrees ();
+  void                Clear4MuNtupleVariables ();
+  void                RegisterHistograms ();
+  const xAOD::Vertex* GetDiMuonVertex (const xAOD::TrackParticle*,const  xAOD::TrackParticle*);
+  bool                FillRecParameters (const Trk::Track* track, const xAOD::TrackParticle* trackp_for_unbias, double charge,const xAOD::Vertex* vertex);
+  bool                FillRecParametersTP (const xAOD::TrackParticle* trackp, const xAOD::TrackParticle* trackp_for_unbias,double charge,const xAOD::Vertex* vertex = NULL);
+  StatusCode          FillTruthParameters (const xAOD::TrackParticle* track);
 
   const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
   StatusCode CheckTriggerStatusAndPrescale ();
@@ -229,6 +230,60 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_2_d0_PVerr;
   int m_negative_2_vtx;
 
+  // electrons in four leptons analysis
+  double m_el_negative1_px;
+  double m_el_negative1_py;
+  double m_el_negative1_pz;
+  double m_el_negative1_z0;
+  double m_el_negative1_d0;
+  double m_el_negative1_z0_err;
+  double m_el_negative1_d0_err;
+  double m_el_negative1_z0_PV;
+  double m_el_negative1_d0_PV;
+  double m_el_negative1_z0_PVerr;
+  double m_el_negative1_d0_PVerr;
+  int    m_el_negative1_vtx;
+
+  double m_el_negative2_px;
+  double m_el_negative2_py;
+  double m_el_negative2_pz;
+  double m_el_negative2_z0;
+  double m_el_negative2_d0;
+  double m_el_negative2_z0_err;
+  double m_el_negative2_d0_err;
+  double m_el_negative2_z0_PV;
+  double m_el_negative2_d0_PV;
+  double m_el_negative2_z0_PVerr;
+  double m_el_negative2_d0_PVerr;
+  int    m_el_negative2_vtx;
+
+  double m_el_positive1_px;
+  double m_el_positive1_py;
+  double m_el_positive1_pz;
+  double m_el_positive1_z0;
+  double m_el_positive1_d0;
+  double m_el_positive1_z0_err;
+  double m_el_positive1_d0_err;
+  double m_el_positive1_z0_PV;
+  double m_el_positive1_d0_PV;
+  double m_el_positive1_z0_PVerr;
+  double m_el_psoitive1_d0_PVerr;
+  int    m_el_positive1_vtx;
+
+  double m_el_positive2_px;
+  double m_el_positive2_py;
+  double m_el_positive2_pz;
+  double m_el_positive2_z0;
+  double m_el_positive2_d0;
+  double m_el_positive2_z0_err;
+  double m_el_positive2_d0_err;
+  double m_el_positive2_z0_PV;
+  double m_el_positive2_d0_PV;
+  double m_el_positive2_z0_PVerr;
+  double m_el_psoitive2_d0_PVerr;
+  int    m_el_positive2_vtx;
+
+  //
   double m_4mu_minv;
 
   double m_pv_x;
