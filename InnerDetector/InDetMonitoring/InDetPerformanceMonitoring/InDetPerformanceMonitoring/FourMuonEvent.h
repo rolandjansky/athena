@@ -198,6 +198,8 @@ class FourMuonEvent : public EventAnalysis
   int m_muonpos1_vtx; // tell us wich of the vertex
   int m_muonpos2_vtx; // tell us wich of the vertex
 
+  int m_elec_vtx[NUM_MUONS];
+
 };
 //==============================================================================
 #endif

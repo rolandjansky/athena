@@ -840,8 +840,8 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.SetSecondMuonPtCut (m_SecondMuonPtCut);
     m_4mu.SetOpeningAngleCut (m_OpeningAngleCut);
     m_4mu.SetZ0GapCut        (m_Z0GapCut);
-    // m_4mu.setDebugMode(m_doDebug);
-    m_4mu.setDebugMode(true);
+    m_4mu.setDebugMode       (m_doDebug);
+    std::cout << " -- SALVA -- m_4mu.setDebugMode (" << m_doDebug << ") -- SALVA -- " << std::endl;
 
     if(m_4mu.Reco()){
       ATH_MSG_INFO ("Sucessfull 4-muon reconstruction. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
@@ -882,7 +882,6 @@ StatusCode IDPerfMonZmumu::execute()
 	m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
 	m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
 	
-
 	m_nVertex =        m_4mu.GetNVertex ();
 	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
 	m_negative_2_vtx = m_4mu.GetVertexMuNeg2();
