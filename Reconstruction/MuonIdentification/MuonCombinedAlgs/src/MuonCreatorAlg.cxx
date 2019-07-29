@@ -141,6 +141,20 @@ StatusCode MuonCreatorAlg::execute()
     ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
   }
 
+  //---------------------------------------------------------------------------------------------------------------------//
+  //------------                Monitoring of the reconstructed muons inside the trigger algs                ------------//
+  //------------ Author:        Laurynas Mince                                                               ------------//
+  //------------ Last modified: 23/07/2019                                                                   ------------//
+  //---------------------------------------------------------------------------------------------------------------------//
+
+  // Variables to initialize and keep for monitoring
+  std::vector<double> ini_mupt(0);
+
+  // Monitoring histograms
+  auto muon_pt = Monitored::Collection("muon_pt", ini_mupt);
+
+  auto monitorIt = Monitored::Group(m_monTool, muon_pt);
+
   return StatusCode::SUCCESS;
 }
 

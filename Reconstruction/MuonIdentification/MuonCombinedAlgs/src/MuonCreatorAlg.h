@@ -21,6 +21,9 @@
 #include "TrkTrack/TrackCollection.h"
 #include "MuonSegment/MuonSegment.h"
 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/Monitored.h"
+
 namespace MuonCombined {
   class IMuonCreatorTool;
 }
@@ -53,6 +56,9 @@ class MuonCreatorAlg : public AthAlgorithm
   bool m_buildSlowMuon;
   bool m_doSA;
   bool m_makeClusters;
+
+  // Monitoring tool
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 };
 
