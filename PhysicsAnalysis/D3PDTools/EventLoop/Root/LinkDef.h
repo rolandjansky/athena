@@ -15,7 +15,6 @@
 #pragma link C++ class EL::BatchJob+;
 #pragma link C++ class EL::BatchSample+;
 #pragma link C++ class EL::BatchSegment+;
-#pragma link C++ class EL::BatchWorker+;
 #pragma link C++ class EL::CondorDriver+;
 #pragma link C++ class EL::DirectDriver+;
 #pragma link C++ class EL::Driver+;
@@ -34,7 +33,6 @@
 #pragma link C++ class EL::TorqueDriver+;
 #pragma link C++ class EL::VomsProxySvc+;
 #pragma link C++ class EL::IWorker+;
-#pragma link C++ class EL::Worker+;
 
 #pragma link C++ class std::pair<Long64_t,Long64_t>+;
 #pragma link C++ class std::vector<std::pair<Long64_t,Long64_t> >+;

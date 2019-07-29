@@ -23,13 +23,12 @@ atlas_add_root_dictionary( EventLoop
    ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AnaAlgorithmWrapper.h 
    EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
-   EventLoop/BatchWorker.h EventLoop/CondorDriver.h EventLoop/DirectDriver.h
+   EventLoop/CondorDriver.h EventLoop/DirectDriver.h
    EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h
    EventLoop/LLDriver.h EventLoop/LSFDriver.h EventLoop/LocalDriver.h
    EventLoop/OutputStream.h EventLoop/MetricsSvc.h EventLoop/SoGEDriver.h
    EventLoop/StatusCode.h EventLoop/TorqueDriver.h
-   EventLoop/VomsProxySvc.h
-   EventLoop/Worker.h EventLoop/SlurmDriver.h
+   EventLoop/VomsProxySvc.h EventLoop/SlurmDriver.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
