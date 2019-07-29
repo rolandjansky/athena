@@ -110,7 +110,8 @@ class FourMuonEvent : public EventAnalysis
   typedef EventAnalysis PARENT;
 
   // Private methods
-  void     Clear();
+  bool     CheckMuonVertices ();
+  void     Clear ();
   bool     EventSelection (ZTYPE eType);
   bool     EventSelectionNew (ZTYPE eType);
   bool     ReconstructKinematicsNew();
@@ -135,6 +136,7 @@ class FourMuonEvent : public EventAnalysis
   double m_MassWindowLow;
   double m_MassWindowHigh;
   double m_OpeningAngleCut;
+  double m_deltaXYcut;
   double m_Z0GapCut;
 
   bool m_doDebug;

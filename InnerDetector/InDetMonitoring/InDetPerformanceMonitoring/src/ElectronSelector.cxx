@@ -35,10 +35,10 @@ unsigned int ElectronSelector::s_uNumInstances;
 // Public Methods
 //==================================================================================
 ElectronSelector::ElectronSelector():
-  m_doDebug ( true ),
+  m_doDebug ( false ),
   m_ptCut ( 10 ),
   m_deltaXYcut ( 0.1 ),
-  m_deltaZcut ( 4 )
+  m_deltaZcut ( 4. )
 {
   ++s_uNumInstances;
   
@@ -157,7 +157,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   }
 
   if (electronisgood) {
-    if (m_doDebug) std::cout << "   good electron -> store this electron with pt " << theTrackParticle->pt() << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
     m_pxElTrackList.push_back(theTrackParticle);
   }
 
@@ -234,15 +234,6 @@ bool ElectronSelector::OrderElectronList()
       }
     }
 
-    if (m_doDebug && elecposcount + elecnegcount >= 2){ 
-      std::cout << " -- ElectronSelector::OrderElectronsList * taking " << elecposcount + elecnegcount 
-		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
-      if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
-      if (m_elecneg2 >= 0) std::cout << "                                second  e-: " << m_elecneg2 << "   Pt = " << ptMinus2 << std::endl;
-      if (m_elecpos1 >= 0) std::cout << "                                leading e+: " << m_elecpos1 << "   Pt = " << ptPlus1 << std::endl;
-      if (m_elecpos2 >= 0) std::cout << "                                second  e+: " << m_elecpos2 << "   Pt = " << ptPlus2 << std::endl;
-    }
-
     if (elecposcount == 0 || elecnegcount == 0) {
       // We need at least one e- and one e+
       if (m_doDebug) std::cout << " -- ElectronSelector::OrderElectronList -- No opposite charge electrons --> DISCARD ALL ELECTRONS -- " << std::endl;
@@ -250,6 +241,15 @@ bool ElectronSelector::OrderElectronList()
       elecnegcount = 0;
       this->Clear();
       goodlist = false;
+    }
+
+    if (m_doDebug && elecposcount + elecnegcount >= 2){ 
+      std::cout << " -- ElectronSelector::OrderElectronList -- electron summary list taking " << elecposcount + elecnegcount 
+		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
+      if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
+      if (m_elecneg2 >= 0) std::cout << "                                second  e-: " << m_elecneg2 << "   Pt = " << ptMinus2 << std::endl;
+      if (m_elecpos1 >= 0) std::cout << "                                leading e+: " << m_elecpos1 << "   Pt = " << ptPlus1 << std::endl;
+      if (m_elecpos2 >= 0) std::cout << "                                second  e+: " << m_elecpos2 << "   Pt = " << ptPlus2 << std::endl;
     }
 
     if (elecposcount + elecnegcount >= 2){ // fill the final list of electrons
@@ -293,8 +293,9 @@ bool ElectronSelector::RetrieveVertices ()
 	    float delta_z = m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z();
 
 	    if (delta_x < m_deltaXYcut && delta_y < m_deltaXYcut && delta_z < m_deltaZcut) {
-	      if (m_doDebug) std::cout << "     BINGO !!! e+e- pair in same vertex !!! " << std::endl;
 	      nverticesfound++;
+	      if (m_doDebug) std::cout << "     ELEC-BINGO !!! e+e- pair in same vertex !!! e-[" << ielec 
+				       << "]  e+[" << iposi<< "]   count: " << nverticesfound << std::endl;
 	    } // vertex is the same
 	  } // positron has vertex
 	} // loop on positrons
