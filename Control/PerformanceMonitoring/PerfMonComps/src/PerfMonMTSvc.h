@@ -18,9 +18,18 @@
 // PerfMonComps includes
 #include "PerfMonMTUtils.h"
 
+// Containers
 #include <set>
 
-#include <nlohmann/json.hpp> 
+// Input/Output includes
+#include <fstream>
+#include <iomanip>
+#include "boost/format.hpp"
+#include <nlohmann/json.hpp>
+
+// Other Libraries
+#include <algorithm>
+#include <functional>
 
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
@@ -66,50 +75,29 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void stopSnapshotAud ( const std::string& stepName,
                            const std::string& compName );
 
-    /// Component Level Auditing ( just for serial parts for now) 
+    /// Component Level Auditing in Serial Steps
     void startCompAud_serial ( const std::string& stepName,
-                             const std::string& compName );
+                               const std::string& compName );
 
     void stopCompAud_serial ( const std::string& stepName,
-                            const std::string& compName );
+                              const std::string& compName );
 
-    /// Component Level Auditing ( just for serial parts for now) 
+    /// Component Level Auditing in Parallel Steps(Event loop)
     void startCompAud_MT ( const std::string& stepName,
-                             const std::string& compName );
+                           const std::string& compName );
 
     void stopCompAud_MT ( const std::string& stepName,
-                            const std::string& compName );
+                          const std::string& compName );
 
-
-    PMonMT::StepComp generate_serial_state( const std::string& stepName,
-                                                 const std::string& compName);
-
-    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
-                                                 const std::string& compName,
-                                                 const int& eventNumber);
-
-
-    int getEventNumber();
-   
-    // Returns true if the execution is at the event loop, false o/w.
-    bool isLoop();
-
-    void parallelDataAggregator();
-
-    std::string get_cpu_model_info();
-    int get_cpu_core_info();
-
-    void eventCounter(int eventNumber);
-    
-    
     // Report the results
     void report();
 
     void report2Stdout();
   
-    void report2Stdout_Summary();
+    void report2Stdout_Description();
     void report2Stdout_Serial();
     void report2Stdout_Parallel();
+    void report2Stdout_Summary();
     void report2Stdout_CpuInfo();
 
     void report2JsonFile();
@@ -118,17 +106,35 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Serial(nlohmann::json& j);
     void report2JsonFile_Parallel(nlohmann::json& j);
 
+
+    int getEventNumber();
+    void eventCounter(int eventNumber);
+    
+    bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
+
+    void parallelDataAggregator(); // 
+
+    void divideData2Steps_serial();    
+    void divideData2Steps_parallel();   
+ 
+    std::string get_cpu_model_info();
+    int get_cpu_core_info();
+
+    PMonMT::StepComp generate_serial_state( const std::string& stepName,
+                                            const std::string& compName);
+
+    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
+                                                   const std::string& compName,
+                                                   const int& eventNumber);
+
     
   private:
 
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
-    /* Data structure  to store component level measurements
-     * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
-     */
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap;
-    
+    BooleanProperty m_isEventLoopMonitoring; 
+
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
 
@@ -140,18 +146,42 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Comp level measurements inside event loop
     PMonMT::MeasurementData m_parallelCompLevelData;
 
-    // get rid of pair
-    //std::map< PMonMT::StepComp, std::pair<double, double> > m_aggParallelCompLevelDataMap;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
+    std::mutex m_mutex_capture; // lock for capturing event loop measurements
+    std::mutex m_mutex_stdout;  // lock for printing stdout
 
-    std::mutex m_mutex;
-
-    BooleanProperty m_isEventLoopMonitoring;
-    
-    int m_minEventNum = INT_MAX;  
-    int m_maxEventNum = -1;  
-
+    // Event ID's are stored to count the number of events. There should be a better way!
     std::set<int> m_eventIds;
+
+    /* Data structure  to store component level measurements
+     * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
+     */
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap;
+
+    // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
+    // There should be a more clever way!
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_evt;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
+    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_cbk; // callback
+    
+    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;
+    
+
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
+    
+    // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
+    // There should be a more clever way!
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_evt;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_stop;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_plp;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
+
+    std::vector<std::map < PMonMT::StepComp , PMonMT::Measurement> > m_stdoutVec_parallel;
+
+    
 
 }; // class PerfMonMTSvc
 
