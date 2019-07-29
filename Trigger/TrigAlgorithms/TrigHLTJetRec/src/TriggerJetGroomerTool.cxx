@@ -90,7 +90,8 @@ TriggerJetGroomerTool::groom(const JetContainer* in,
   ATH_MSG_DEBUG("Executing " << m_modifiers.size() << " jet modifiers.");
   for (const auto& mod : m_modifiers){
     ATH_MSG_DEBUG("  Executing modifier " << mod->name());
-    mod->modify(*out) ;
+    if(mod->modify(*out).isFailure())
+      ATH_MSG_DEBUG("    Modifier returned FAILURE!");
   }
   ATH_MSG_DEBUG("mofidier execution ends");
 

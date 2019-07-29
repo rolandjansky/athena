@@ -152,7 +152,7 @@ if hasattr(runArgs,"postExec"):
 if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
   ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite";
   ToolSvc.TrigDecisionTool.TrigConfigSvc="Trig::TrigConfigSvc/TrigConfigSvc";
-  ServiceMgr.TrigConfigSvc.PriorityList=["run3_dummy", "ds", "xml"]
+  ServiceMgr.TrigConfigSvc.PriorityList=["run3_dummy", "xml"]
   from TrigConfigSvc.TrigConfigSvcConfig import (findFileInXMLPATH,  LVL1ConfigSvc, L1TopoConfigSvc)
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   ServiceMgr += LVL1ConfigSvc("LVL1ConfigSvc")

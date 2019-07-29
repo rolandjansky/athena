@@ -1,24 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------------------------------
 # L1 configuration
 # -------------------------------------------------------------
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.GlobalFlags import GlobalFlags
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging  # loads logger
 from AthenaCommon.Include import include  # to include old style job options
-from AthenaCommon.AppMgr import theApp
-        
+
 if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulation
     from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder
 
-    import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
-    import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
-    import TrigT1RPCsteering.TrigT1RPCsteeringConfig
-    import TrigT1TGC.TrigT1TGCConfig
+    import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig    # noqa: F401
+    import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig    # noqa: F401
+    import TrigT1RPCsteering.TrigT1RPCsteeringConfig   # noqa: F401
+    import TrigT1TGC.TrigT1TGCConfig                   # noqa: F401
     from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
     from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
 
@@ -34,7 +30,6 @@ class Lvl1SimulationGetter (Configured):
 
         log = logging.getLogger( "Lvl1TriggerOnlineGetter.py" )
 
-        from AthenaServices.AthenaServicesConf import AthenaOutputStream
         from AthenaCommon.AppMgr import ServiceMgr
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
@@ -62,7 +57,6 @@ class Lvl1SimulationGetter (Configured):
                 log.info("adding l1topo simulation to the topSequence")
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
                 topSequence += L1TopoSimulation()
-                topSequence.L1TopoSimulation.OutputLevel = DEBUG
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
                     from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool

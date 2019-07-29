@@ -97,7 +97,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
         if current_file_type == 'POOL':
             import ROOT
             # open the file using ROOT.TFile
-            current_file = ROOT.TFile.Open(filename)
+            current_file = ROOT.TFile.Open( _get_pfn(filename) )
 
             # open the tree 'POOLContainer' to read the number of entries
             if current_file.GetListOfKeys().Contains('POOLContainer'):
@@ -335,6 +335,24 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
     return meta_dict
 
 
+def _get_pfn(filename):
+    """
+    Extract the actuall filename if LFN or PFN notation is used
+    """
+    pfx = filename[0:4]
+    if pfx == 'PFN:':
+        return filename[4:]
+    if pfx == 'LFN:':
+        import subprocess, os
+        os.environ['POOL_OUTMSG_LEVEL'] = 'Error' 
+        output = subprocess.check_output(['FClistPFN','-l',filename[4:]]).split('\n')
+        if len(output) == 2:
+            return output[0]
+        msg.error( 'FClistPFN({0}) returned unexpected number of lines:'.format(filename) )
+        msg.error( '\n'.join(output) )
+    return filename
+ 
+
 def _read_guid(filename):
     """
     Extracts the "guid" (Globally Unique Identfier in POOL files and Grid catalogs) value from a POOL file.
@@ -342,7 +360,7 @@ def _read_guid(filename):
     :return: the guid value
     """
     import ROOT
-    root_file = ROOT.TFile.Open(filename)
+    root_file = ROOT.TFile.Open( _get_pfn(filename) )
     params = root_file.Get('##Params')
 
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')

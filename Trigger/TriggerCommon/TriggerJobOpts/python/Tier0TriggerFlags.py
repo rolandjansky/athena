@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
 
-	
 __author__  = 'Emily Nurse'
 __doc__="Tier0 trigger ntuple information"
 

@@ -145,7 +145,7 @@ StatusCode LArCalibDigitMaker::execute() {
      bool ispulsed=calibParams->isPulsed(eventNb,*csl_it);
      //build LArCalibDigit:
      // std::cout << "Event:" << eventNb 
-     // 	     << "Building a LArCalibDigit with DAC=" << dac << ", Delay=" << delay << ", isPulsed=" << ispulsed << std::endl;
+     //        << "Building a LArCalibDigit with DAC=" << dac << ", Delay=" << delay << ", isPulsed=" << ispulsed << std::endl;
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits

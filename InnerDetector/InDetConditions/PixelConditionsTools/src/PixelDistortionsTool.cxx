@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,8 +36,6 @@ PixelDistortionsTool::PixelDistortionsTool(const std::string& type,
      m_rndmSvc(0),
      m_distortions(0),
      m_doCorrections(false),  
-     m_lastDisto(0),
-     m_lastID(),                // Invalid Id.
      m_ownDistortions(true),
      m_version(1) // db object version number 
 {
@@ -277,8 +275,6 @@ StatusCode PixelDistortionsTool::fillDataCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)
     }
   }
   // reset cached items
-  m_lastDisto = 0;
-  m_lastID = Identifier(); // Invalid ID
   return sc;
 }
   
@@ -403,15 +399,7 @@ PixelDistortionsTool::correction(Identifier id, const Amg::Vector2D & locpos, co
   if ( sqrt(invtanphi*invtanphi+invtaneta*invtaneta) > 100. ) 
     return nullCorrection;
 
-  const float *disto = 0;
-  if (m_lastID.is_valid() && id == m_lastID) {
-    // Used cached pointer.
-    disto = m_lastDisto;
-  } else {
-    disto = getDistortionsArray(id);
-    m_lastDisto = disto;
-    m_lastID = id;
-  } 
+  const float *disto = getDistortionsArray(id);
 
   const double xFE = 22.0*CLHEP::millimeter; //Distance between the 2 Front-End line, where bows have been measured
   const double yFE = 60.8*CLHEP::millimeter;  //Length of the active surface of each module

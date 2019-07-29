@@ -237,7 +237,7 @@ ToolSvc.LArRoI_Map.Print = False
 # POOL
 #
 if ( readPOOLFile) :
-	include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 	AthenaSealSvc.CheckDictionary = True 
 
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
@@ -363,7 +363,7 @@ if ( doPhysOFC ) :
 			LArPhysOFCAlg.StoreEmpty = True # clean up DB folder
 	
 if ( writePOOLFile ) :
-	include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 	AthenaSealSvc.CheckDictionary = True 
 	AthenaSealSvc.OutputLevel = INFO
 	

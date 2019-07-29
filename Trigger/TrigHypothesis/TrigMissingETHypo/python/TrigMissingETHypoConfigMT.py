@@ -67,7 +67,7 @@ def TrigMETCellHypoToolFromName(name, conf):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     
     decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
+    decodedDict = decoder.getChainDict(conf)
     decodedDict['chainName'] = name 
     
     return TrigMETCellHypoToolFromDict( decodedDict )

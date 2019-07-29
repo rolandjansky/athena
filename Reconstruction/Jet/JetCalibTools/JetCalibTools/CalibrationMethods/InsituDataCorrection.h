@@ -18,12 +18,10 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 class InsituDataCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( InsituDataCorrection, IJetCalibrationTool )

@@ -201,8 +201,8 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     # the rest of triger EDM
     itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTList )
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTListRun3 )
     itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
 
     # summary objects
@@ -221,7 +221,7 @@ def triggerBSOutputCfg( flags, decObj ):
 
 
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList, persistent
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, persistent
     from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg # , StreamTagMakerTool, TriggerBitsMakerTool     # TODO add config of these two
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
     
@@ -231,7 +231,7 @@ def triggerBSOutputCfg( flags, decObj ):
                                                     "{}#remap_{}Aux.".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
 
     # EDM
-    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTList )    
+    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTListRun3 )    
     for item in EDMCollectionsToRecord:
         typeName, collName = item[0].split("#")
         serialisedTypeColl="{}#{}".format(persistent(typeName), collName)
@@ -256,12 +256,12 @@ def triggerBSOutputCfg( flags, decObj ):
 def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
 
     # configure views merging
-    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTList )
+    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTListRun3 )
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
     # group by the view collection name/(the view maker algorithm in practice)
     from collections import defaultdict
@@ -295,7 +295,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
         groupedByType = defaultdict( list )
     
         # scan the EDM
-        for el in TriggerHLTList:
+        for el in TriggerHLTListRun3:
             if not any([ outputType in el[1].split() for outputType in edmSet ]):
                 continue
             collType, collName = el[0].split("#")

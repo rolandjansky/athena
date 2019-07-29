@@ -4,6 +4,7 @@
 # Based heavily on AtlasExtrapolator.py
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 # import the Extrapolator configurable
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
@@ -12,9 +13,13 @@ from TrkExTools.TrkExToolsConf import Trk__Extrapolator
 def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        result=ComponentAccumulator()
 
+       acc  = MagneticFieldSvcCfg(flags)
+       result.merge(acc)
+
        # get the correct TrackingGeometry setup
        from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-       acc, geom_svc = TrackingGeometrySvcCfg(flags)
+       acc = TrackingGeometrySvcCfg(flags)
+       geom_svc = acc.getPrimary() 
        result.merge(acc)
 
        # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------

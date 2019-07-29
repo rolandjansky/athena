@@ -17,7 +17,7 @@ def precisionCaloSequence(ConfigFlags):
     """ Creates PrecisionCalo sequence """
     # EV creator
     InViewRoIs="PrecisionCaloRoIs"     
-    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "precisionCaloViewsMaker")
+    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo")
     precisionCaloViewsMaker.ViewFallThrough = True
     precisionCaloViewsMaker.RoIsLink = "initialRoI"
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs

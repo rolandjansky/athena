@@ -25,6 +25,7 @@ def createDQConfigFlags():
     acf.addFlag('DQ.doMonitoring', True)
     acf.addFlag('DQ.doStreamAwareMon', True)
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
+    acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
     acf.addFlag('DQ.useTrigger', True)
 

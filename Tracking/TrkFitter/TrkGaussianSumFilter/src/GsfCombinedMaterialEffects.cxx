@@ -27,15 +27,9 @@ Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects (const std::string& 
                    const std::string& name,
                    const IInterface* parent)
   :
-  AthAlgTool(type, name, parent),
-  m_multipleScatterEffects("Trk::MultipleScatterUpdator/MultipleScatterUpdator"),
-  m_energyLossEffects("Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator"),
-  m_betheHeitlerEffects("Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects")
+  AthAlgTool(type, name, parent)
 {
   declareInterface<IMultiStateMaterialEffects>(this);
-  declareProperty("MultipleScatteringUpdator", m_multipleScatterEffects);
-  declareProperty("EnergyLossUpdator", m_energyLossEffects);
-  declareProperty("BetheHeitlerEffects", m_betheHeitlerEffects);
 }
 
 Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects()

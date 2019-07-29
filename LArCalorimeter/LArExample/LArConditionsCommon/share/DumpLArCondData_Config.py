@@ -31,7 +31,7 @@ theApp.Dlls += [ "LArConditionsTest" ]
 #--------------------------------------------------------------
 # Load SEAL/POOL support
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 # Check the dictionary in memory for completeness
 AthenaSealSvc = Service( "AthenaSealSvc" )
 # AthenaSealSvc.CheckDictionary = True

@@ -58,20 +58,26 @@ private:
   struct TrackMatch
   {
   public:
+    bool hasPix;
     int trackNumber;
+    int hitsScore;
     double dR;
     double seconddR;
-    bool isTRT;
-    int score;
-    int hitsScore;
     double deltaPhiLast;
     double deltaEta[4];
     double deltaPhi[4];
     double deltaPhiRescaled[4];
   };
 
-  /** @brief function to sort track matches based on quality */
-  static bool TrackMatchSorter(const TrackMatch& match1, const TrackMatch& match2);
+  /** @brief function object to sort track matches based on quality */
+  class TrackMatchSorter
+  {
+  public:
+    TrackMatchSorter(double distance = 0.0) : m_distance(distance) {};
+    bool operator()(const TrackMatch& match1, const TrackMatch& match2);
+  private:
+    double m_distance;
+  };
 
   /** @brief Compute for tracks passing the loose matching
     the distance between track extrapolated to 2nd sampling and cluster */
@@ -79,13 +85,11 @@ private:
                      std::vector<TrackMatch>&      trackMatches,
                      const xAOD::CaloCluster&      cluster, 
                      int                           trackNumber,
-                     bool                          isTRT,
-                     const xAOD::TrackParticle&     trkPB,
+                     const xAOD::TrackParticle&    trkPB,
                      const Trk::PropDirection      dir) const;
 
   /** @brief Loose track-cluster matching */
   bool isCandidateMatch(const xAOD::CaloCluster*  cluster,
-                        bool                      isTRT,
                         const xAOD::TrackParticle* track,
                         bool                       flip) const;
 
@@ -139,45 +143,54 @@ private:
     "useCandidateMatch", true,
     "Boolean to use candidate matching"};
 
-  /** @brief flag to either use last measurement hit or perigee */
-  Gaudi::Property<bool> m_useLastMeasurement {this,
-    "useLastMeasurement", false,
-    "Boolean to use last measurement for extrapolation, otherwise use perigee"};
-
-  /** @brief Boolean to favor tracks with Pixel hits*/
+  /** @brief Boolean to apply heuristic when tracks have close deltaR */
   Gaudi::Property<bool> m_useScoring {this,
     "useScoring", true,
-    "Boolean to favor tracks with Pixel hits"};
+    "Boolean to apply heuristic when tracks have close deltaR"};
 
   /** @brief Boolean to use Rescale in the metric*/
-  Gaudi::Property<bool> m_UseRescaleMetric {this,
+  Gaudi::Property<bool> m_useRescaleMetric {this,
     "UseRescaleMetric", true, "Use Rescale Metric"};
 
   /** @brief Boolean to do second pass with Rescale*/
   Gaudi::Property<bool> m_SecondPassRescale {this,
     "SecondPassRescale", true, "Do second pass with rescale"};
 
-  /** @brief TrackToCalo extrapolation tool. Handles Trk::ParametersBase as input.
-    Extrapolation starts from the last measurement of the track. The
-    InDetExtrapolator is used, with all proper material effects inside the
-    part of the ID that is traversed. Both charged and neutral particles
-    are handled. */
+  /// The resolutions:  might be good to split in barrel/end-cap in the future
+  Gaudi::Property<float> m_deltaEtaResolution {this,
+      "DeltaEtaResolution", 1.0, "The deltaEta resolution"};
+
+  Gaudi::Property<float> m_deltaPhiResolution {this,
+      "DeltaPhiResolution", 1.0, "The deltaPhi resolution"};
+
+  Gaudi::Property<float> m_deltaPhiRescaleResolution {this,
+      "DeltaPhiRescaleResolution", 1.0,
+      "The deltaPhiRescale resolution"};
+
+  /** @brief The distance from which one goes from using better deltaR to using score.
+      Note that this distance varies depending on the resolutions entered above.
+      If you don't use resolutions (resolution = 1.0) this becomes deltaR distance.
+  */
+  Gaudi::Property<float> m_distanceForScore {this,
+      "DistanceForScore", 0.01,
+      "The distance from which one goes from using better deltaR to using score."};
+  
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools",
     "Name of the extrapolation tool"};
 
   /** @brief */
   Gaudi::Property<bool> m_isCosmics {this, 
-    "isCosmics", false, "Boolean for use of cosmics"};
+      "isCosmics", false, "Boolean for use of cosmics"};
+
+  // Calculated values based on resolutions
+  double m_deltaEtaWeight;
+  double m_deltaPhiWeight;
+  double m_deltaPhiRescaleWeight;
+
+  TrackMatchSorter m_sorter;
+
 };
 
 #endif
-
-
-
-
-
-
-
-
 

@@ -30,11 +30,10 @@ IOVDbConn::~IOVDbConn() {}
 
 cool::IDatabasePtr IOVDbConn::getCoolDb() {
   // only open if not already activated
-  if (m_coolDb.get()==0) {
+  if (not m_coolDb.get()) {
     // check connection not already aborted
     if (m_abort) {
-      m_log << MSG::ERROR << "COOL connection for " << m_connstr << 
-        " already aborted as invalid" << endmsg;
+      m_log << MSG::ERROR << "COOL connection for " << m_connstr << " already aborted as invalid" << endmsg;
       // in this case, return the null connection ptr immediately to avoid
       // another full attempt to connect
       return m_coolDb;
@@ -47,23 +46,16 @@ cool::IDatabasePtr IOVDbConn::getCoolDb() {
     try {
       m_coolDb=dbSvc.openDatabase(m_connstr,m_readonly);
       m_active=true;
-    }
-    catch (std::exception& e) {
+    } catch (std::exception& e) {
       // create a new COOL conditions DB
-      m_log << MSG::INFO << "*** COOL  exception caught: " << e.what() 
-             << endmsg;
-      m_log << MSG::INFO << "Create a new conditions database: " << m_connstr
-             << endmsg;
+      m_log << MSG::INFO << "*** COOL  exception caught: " << e.what() << endmsg;
+      m_log << MSG::INFO << "Create a new conditions database: " << m_connstr<< endmsg;
       try {
         m_coolDb=dbSvc.createDatabase(m_connstr);
         m_active=true;
-      }
-      catch (std::exception&e ) {
-        m_log << MSG::ERROR << "*** COOL  exception caught: " << e.what() 
-               << endmsg;
-        m_log << MSG::ERROR << 
-          "Could not create a new conditions database - abort connection"
-               << endmsg;
+      } catch (std::exception&e ) {
+        m_log << MSG::ERROR << "*** COOL  exception caught: " << e.what() << endmsg;
+        m_log << MSG::ERROR << "Could not create a new conditions database - abort connection"<< endmsg;
         m_abort=true;
         m_coolDb.reset();
       }
@@ -72,41 +64,63 @@ cool::IDatabasePtr IOVDbConn::getCoolDb() {
   return m_coolDb;
 }
 
+bool
+IOVDbConn::open(){
+  m_coolDb = getCoolDb();
+  return valid();
+}
+
+void
+IOVDbConn::close(){
+  setInactive();
+}
+
+bool
+IOVDbConn::dropAndReconnect(){
+  bool success{};
+  try {
+    setInactive();
+    success = open();
+  } catch (std::exception& e) {
+    m_log << MSG::WARNING << "Exception from disconnect/reconnect: " <<e.what() << endmsg;
+    // try once more to connect
+    try {
+      success = open();
+    } catch (std::exception& e) {
+      m_log << MSG::ERROR << "Cannot reconnect to database:" << e.what()<< endmsg;
+    }
+  }
+  return success;
+}
+
 CoraCoolDatabasePtr IOVDbConn::getCoraCoolDb() {
   // only open if not already activated
-  if (m_coracoolDb.get()==0) {
+  if (not m_coracoolDb.get()) {
     // open new connection
-    m_log << MSG::INFO << "Opening CoraCool connection for " << m_connstr << 
-      endmsg;
+    m_log << MSG::INFO << "Opening CoraCool connection for " << m_connstr << endmsg;
     coral::ConnectionService connSvc;
-    m_coracoolDb=CoraCoolDatabasePtr(new CoraCoolDatabase(m_connstr,
-                                                          m_coolDb,connSvc,m_readonly));
+    m_coracoolDb=CoraCoolDatabasePtr(new CoraCoolDatabase(m_connstr,m_coolDb,connSvc,m_readonly));
     m_coracoolDb->connect();
   }
   return m_coracoolDb;
 }
 
 void IOVDbConn::setInactive() {
-  if (m_coolDb.get()!=0) {
+  if (m_coolDb.get()) {
     m_log << MSG::INFO << "Disconnecting from " << m_connstr << endmsg;
     try {
       m_coolDb->closeDatabase();
-    }
-    catch (std::exception& e) {
-      m_log << MSG::INFO << "Exception caught when disconnecting: " <<
-        e.what() << endmsg;
+    } catch (std::exception& e) {
+      m_log << MSG::INFO << "Exception caught when disconnecting: " <<e.what() << endmsg;
     }
     m_coolDb.reset();
   }
-  if (m_coracoolDb.get()!=0) {
-    m_log << MSG::INFO << "Disconnecting CoraCool from " << m_connstr << 
-      endmsg;
+  if (m_coracoolDb.get()) {
+    m_log << MSG::INFO << "Disconnecting CoraCool from " << m_connstr << endmsg;
     try { 
       m_coracoolDb->disconnect();
-    }
-    catch (std::exception& e) {
-      m_log << MSG::INFO << "Exception caught when disconnecting CoraCool: " 
-             << e.what() << endmsg;
+    } catch (std::exception& e) {
+      m_log << MSG::INFO << "Exception caught when disconnecting CoraCool: "<< e.what() << endmsg;
     }
     m_coracoolDb.reset();
   }

@@ -15,7 +15,7 @@ LArAutoCorrNoiseCondAlg::LArAutoCorrNoiseCondAlg( const std::string& name, ISvcL
     : ::AthAlgorithm( name, pSvcLocator )
     , m_LArOnOffIdMappingObjKey( "LArOnOffIdMap" )
     , m_LArMCSymObjKey( "LArMCSym" )
-    , m_LArAutoCorrObjKey( "LArAutoCorr" )
+    , m_LArAutoCorrObjKey( "LArAutoCorrSym" )
     , m_LArAutoCorrNoiseObjKey( "LArAutoCorrNoise" )
     , m_condSvc( "CondSvc", name )
     , m_isSuperCell( false )

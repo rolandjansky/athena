@@ -2,7 +2,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #from AthenaCommon import CfgMgr
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
-from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg
+from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
 
 
 #todo - think about the flow, do we need if statements?!
@@ -91,7 +91,16 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     kwargs.setdefault('TruthRecordService', result.getService("ISF_MC15aPlusTruthService"))
     #kwargs.setdefault('TruthRecordService', ConfigFlags.Sim.TruthStrategy) # TODO need to have manual override (simFlags.TruthStrategy.TruthServiceName())
 
-    kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
+    accGeoID = GeoIDSvcCfg(ConfigFlags)
+    result.merge(accGeoID)
+    kwargs.setdefault('GeoIDSvc', result.getService('ISF_GeoIDSvc'))
+
+    #input converter
+    accInputConverter = InputConverterCfg(ConfigFlags)
+    result.merge(accInputConverter)
+    kwargs.setdefault('InputConverter', result.getService("ISF_InputConverter"))
+
+
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

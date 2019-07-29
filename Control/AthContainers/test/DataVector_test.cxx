@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -148,7 +148,8 @@ void test1 ()
   testConst.push_back(new int(-2));
   DataVector<int>::const_iterator ci(testConst.begin()), ce(testConst.end());
   while (ci != ce) {
-    const int* UNUSED(cp) = *ci;
+    [[maybe_unused]]
+    const int* cp = *ci;
 #if 0
     //this is bad but unfortunately correct: a DataVector<int> is like a
     //vector<int*>. vector<int*>::const_iterator has type (int* const)*

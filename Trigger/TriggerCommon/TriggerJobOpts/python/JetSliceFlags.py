@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Jet slice specific flags  """
 
-from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
-from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 __author__  = 'T. Bold'
 __version__="$Revision: 1.31 $"

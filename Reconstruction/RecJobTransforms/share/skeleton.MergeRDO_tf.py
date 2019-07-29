@@ -145,6 +145,7 @@ if hasattr(runArgs, "outputRDO_MRGFile"):
 else:
   outputFile = "DidNotSetOutputName.root"
 
+from Digitization.DigitizationFlags import digitizationFlags
 if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
   from OverlayCommonAlgs.OverlayFlags import overlayFlags
   eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"

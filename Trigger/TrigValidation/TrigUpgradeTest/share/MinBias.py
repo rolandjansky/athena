@@ -8,7 +8,7 @@ eventAlgs,viewAlgs = makeInDetAlgs(whichSignature='FS', separateTrackParticleCre
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence  = AlgSequence()
-topSequence.L1Decoder.ChainToCTPMapping={"HLT_mbsptrk":"L1_RD0_FILLED", "HLT_mbsptrk1":"L1_RD0_FILLED"}
+topSequence.L1Decoder.ChainToCTPMapping={"HLT_mbsptrk":"L1_RD0_FILLED"}
 topSequence += eventAlgs
 
 topSequence.InDetSCTRawDataProvider_FS.RoIs   = "FSRoI"
@@ -30,10 +30,18 @@ SpCount.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCount
 
 
+def makeAndSetHypo( alg, hypoClass, **hypokwargs):
+    hypoTool = hypoClass( **hypokwargs )
+    tools = alg.HypoTools
+    alg.HypoTools = tools + [ hypoTool ]
+    # now, this seems to be simpler: alg.HypoTools += [hypoTool], but it gives issue with Configurables of different class beeing named the same (even if they are private tools!)
+
 SpCountHypo = SPCountHypoAlgMT()
 SpCountHypo.OutputLevel= DEBUG
-SpCountHypo.HypoTools += [ SPCountHypoTool("HLT_mbsptrk", OutputLevel=DEBUG) ]
+SpCountHypo.HypoInputDecisions="L1FS"
+makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG)
 SpCountHypo.HypoInputDecisions="FSDecisions"
+
 SpCountHypo.HypoOutputDecisions="SPDecisions"
 SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCountHypo
@@ -48,8 +56,9 @@ topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
 TrackCountHypo.OutputLevel= DEBUG
-TrackCountHypo.HypoTools+=[TrackCountHypoTool("HLT_mbsptrk1", OutputLevel=DEBUG)]
-TrackCountHypo.HypoInputDecisions="FSDecisions"
+makeAndSetHypo( TrackCountHypo, TrackCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG )
+
+TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 TrackCountHypo.trackCountKey="HLT_TrackCount"

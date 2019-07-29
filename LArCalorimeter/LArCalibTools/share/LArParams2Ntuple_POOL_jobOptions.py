@@ -88,7 +88,7 @@ ToolSvc.LArRoI_Map.Print = False
 #
 # Read in from POOL file
 #
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py")
+include("AthenaServices/AthenaSealSvc_joboptions.py")
 include("LArRawConditions/LArRawConditionsDict_joboptions.py")
 AthenaSealSvc.CheckDictionary = True 
 
@@ -108,7 +108,7 @@ CondProxyProvider.OutputLevel = DEBUG
 EventPersistencySvc = Service( "EventPersistencySvc" )
 EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
 
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 include( "LArRawConditions/LArRawConditionsDict_joboptions.py" )
 
 PoolSvc = Service ( "PoolSvc" )

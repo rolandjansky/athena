@@ -35,7 +35,7 @@ if not hasattr(topSequence, "SGInputLoader"):
 # from IOVSvc.IOVSvcConf import CondSvc
 # svcMgr += CondSvc()
 
-doExtrap = True
+doExtrap = False
 
 ExtrapolationEngine=""
 if (doExtrap):

@@ -1,7 +1,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence, jetRecoSequence
+from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence, jetCFSequence
 
 def jetDictFromString(jet_def_string):
     """ Function to retrieve the jet dictionaory from string"""
@@ -22,10 +22,10 @@ def jetDictFromString(jet_def_string):
     }
     return jetRecoDict
 
-def jetRecoSequenceFromString(jet_def_string):
+def jetCFSequenceFromString(jet_def_string):
     """ Function to retrieve jet Reco sequence from string"""
     jetRecoDict=jetDictFromString(jet_def_string)
-    return jetRecoSequence(None,**jetRecoDict)	
+    return jetCFSequence(None,**jetRecoDict)	
     
  
 def jetMenuSequenceFromString(jet_def_string):

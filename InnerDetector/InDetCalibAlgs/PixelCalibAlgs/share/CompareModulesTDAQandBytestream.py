@@ -330,20 +330,20 @@ collection = [
 #     'rfio:/castor/cern.ch/grid/atlas/atlasdatadisk/data10_7TeV/ESD/f247/data10_7TeV.00153030.physics_MinBias.recon.ESD.f247/data10_7TeV.00153030.physics_MinBias.recon.ESD.f247._lb0368._0001.1',
     ]
 
+import PyUtils.MetaReader import read_metadata
+inputfile = read_metadata(collection[0])
 
-import PyUtils.AthFile as AthFile
-inputfile = AthFile.fopen( collection[0] )
 
-if inputfile.fileinfos['file_type'] == 'bs':
+if inputfile['file_type'] == 'BS':
   globalflags.InputFormat = 'bytestream'
-elif inputfile.fileinfos['file_type'] == 'pool':
+elif inputfile['file_type'] == 'POOL':
   globalflags.InputFormat = 'pool'
 else:
   raise RuntimeError, "Unable to read input file (format not supported)"
 
 
-if inputfile.fileinfos['file_type'] == 'pool':
-  globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
+if inputfile['file_type'] == 'POOL':
+  globalflags.DetDescrVersion = inputfile['GeoAtlas']
 else:
   globalflags.DetDescrVersion = 'ATLAS-GEO-08-00-02'
 

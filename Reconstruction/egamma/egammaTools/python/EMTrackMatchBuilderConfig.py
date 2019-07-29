@@ -23,7 +23,6 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     kwargs.setdefault("TrackParticlesName", flags.Egamma.Keys.Output.GSFTrackParticles)
     kwargs.setdefault("broadDeltaEta",      0.1)    # candidate match is done in 2 times this  so +- 0.2
     kwargs.setdefault("broadDeltaPhi",      0.15)   # candidate match is done in 2 times this  so +- 0.3
-    kwargs.setdefault("useLastMeasurement", False)  # important for GSF!!!
     kwargs.setdefault("useCandidateMatch",  True)
     kwargs.setdefault("useScoring",         True)
     kwargs.setdefault("SecondPassRescale",  True)

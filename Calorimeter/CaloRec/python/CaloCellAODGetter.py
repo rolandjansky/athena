@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # jobOption to create VIEW CaloCellContainer based on one (or more) 
 # clusters or other tools. 
 
 
-from AthenaCommon.Constants import *  # DEBUG in there
 from RecExConfig.Configured import Configured
 class CaloCellAODGetter (Configured) :
     _outputType= "CaloCellContainer"
@@ -15,8 +14,8 @@ class CaloCellAODGetter (Configured) :
         from CaloRec.CaloRecConf import CaloConstCellMaker
         
         theCaloCellMaker=CaloConstCellMaker("CaloCellMakerFromCluster",
-                    CaloCellsOutputName=self.outputKey(),
-                    OwnPolicy=1)
+                                            CaloCellsOutputName=self.outputKey(),
+                                            OwnPolicy=1)
         self._CaloCellMakerHandle = theCaloCellMaker
         
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool,CaloCellContainerCheckerTool
@@ -89,9 +88,8 @@ def addClusterToCaloCellAOD(clustersInputName):
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'addClusterToCaloCellAOD' )
 
-    from RecExConfig.ObjKeyStore import objKeyStore
-
 ## comment out until objKeyStore is automatically filled from input content
+##     from RecExConfig.ObjKeyStore import objKeyStore
 ##     if not objKeyStore.isInInput("CaloClusterContainer",clustersInputName):
 ##         mlog.warning ("CaloClusterContainer %s does not exist. Not triggering it " % clustersInputName )
 ##         return
@@ -122,7 +120,7 @@ def addClusterToCaloCellAOD(clustersInputName):
     except Exception:
         mlog.warning ("Could not configure CaloCellAODGetter ")
         import traceback
-        print traceback.format_exc() 
+        print(traceback.format_exc())
 
 # This can be used to write a sparse cell container into the AOD
 # with additional specified CaloSampling, provided
@@ -156,4 +154,4 @@ def addCaloSamplingToCaloCellAOD(samplingName):
     except Exception:
         mlog.warning ("Could not configure CaloCellAODGetter ")
         import traceback
-        print traceback.format_exc() 
+        print(traceback.format_exc())

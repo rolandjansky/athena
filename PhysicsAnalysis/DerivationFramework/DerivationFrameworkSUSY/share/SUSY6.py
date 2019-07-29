@@ -265,7 +265,7 @@ SeqSUSY6 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY6SlimmingHelper = SlimmingHelper("SUSY6SlimmingHelper")
 SUSY6SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "AntiKt4EMTopoJets", "MET_Reference_AntiKt4EMTopo", "PrimaryVertices"]
-SUSY6SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo", "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles"]
+SUSY6SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo", "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetDisappearingTrackParticles"]
 SUSY6SlimmingHelper.ExtraVariables = [ "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
           "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID"]
 SUSY6SlimmingHelper.IncludeMuonTriggerContent = True

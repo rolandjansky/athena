@@ -181,7 +181,7 @@ namespace Analysis {
   }
 
 
-  int JetBTaggerTool::modify(xAOD::JetContainer& jetsOriginal) const{
+  StatusCode JetBTaggerTool::modify(xAOD::JetContainer& jetsOriginal) const{
 
     // The procedure is slightly complicated: first the BTagging objects need to be created and ElementLinks
     // to them stored in the Jets, then the association can be done, and then finally the b-tagging proper
@@ -211,7 +211,7 @@ namespace Analysis {
     StatusCode sc = h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
         std::make_unique<xAOD::BTaggingAuxContainer>());
 
-    ATH_CHECK(sc, 1);
+    ATH_CHECK(sc);
 
     xAOD::JetContainer::const_iterator itB = jets.begin();
     xAOD::JetContainer::const_iterator itE = jets.end();
@@ -227,7 +227,7 @@ namespace Analysis {
         ElementLink< xAOD::BTaggingContainer> linkBTagger;
         h_jetBTaggingLinkName(jetToTag) = linkBTagger;
       } //end loop JetContainer
-      return 0;
+      return StatusCode::SUCCESS;
     } //end test Solenoid status
 
     // We don't want to redo the track-jet association in case of augmentation; however, since
@@ -240,7 +240,7 @@ namespace Analysis {
       jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jets, h_BTaggingCollectionName.ptr());
       if ( jetIsAssociated.isFailure() ) {
         ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
-        return 1;
+        return StatusCode::FAILURE;
       }
     }
     else {
@@ -268,7 +268,7 @@ namespace Analysis {
       h_jetBTaggingLinkName(*jetToTag) = linkBTagger;
     }
 
-    return 0;
+    return StatusCode::SUCCESS;
   }
 
 } //// namespace analysis

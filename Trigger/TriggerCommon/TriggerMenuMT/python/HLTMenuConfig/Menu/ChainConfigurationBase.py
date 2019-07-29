@@ -3,7 +3,8 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase' )
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
+
 
 #----------------------------------------------------------------
 # Base class to configure chain
@@ -37,9 +38,17 @@ class ChainConfigurationBase(object):
         mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
         return mySequence
 
+    def getStep(self, stepID, stepPartName, sequenceCfgArray):
+        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        log.debug("Configuring step " + stepName)
+        seqArray = []
+        for sequenceCfg in sequenceCfgArray:
+            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
+        return ChainStep(stepName, seqArray, self.mult)
+
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
-                        L1Item = self.chainL1Item,
-                        ChainSteps = chainSteps, L1Thresholds=[self.L1Threshold] )
+                        ChainSteps = chainSteps,
+                        L1Thresholds = [self.L1Threshold] )
 
         return myChain

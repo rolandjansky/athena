@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import MeV
-from AthenaCommon.Constants import VERBOSE
 
 def caloTopoCoolFolderCfg(configFlags):
     result=ComponentAccumulator()
@@ -15,7 +14,7 @@ def caloTopoCoolFolderCfg(configFlags):
         "HadCalibration2/CaloOutOfCluster",
         "HadCalibration2/CaloOutOfClusterPi0",
         "HadCalibration2/CaloDMCorr2"
-        ]
+    ]
     hadCalibPrefix = "/CALO/"
     hadCalibDB = "CALO_ONL"
     if configFlags.Input.isMC:
@@ -157,14 +156,14 @@ def getTopoMoments(configFlags):
 
 # a.k.a. DigiTruth
 def getTopoTruthMoments(configFlags):
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+    from CaloRec.CaloRecConf import CaloClusterMomentsMaker_DigiHSTruth
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
     from LArCellRec.LArCellRecConf import LArHVFraction
     TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
     TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
     TopoMoments_Truth.MaxAxisAngle = 20*deg
-    TopoMoments_Truth.TwoGaussianNoise = configFlags.Calo,TopoCluster.doTwoGaussianNoise
+    TopoMoments_Truth.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
     TopoMoments_Truth.MinBadLArQuality = 4000
     TopoMoments_Truth.MomentsNames = ["FIRST_PHI_DigiHSTruth"
                                       ,"FIRST_ETA_DigiHSTruth"
@@ -239,7 +238,8 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
         from AthenaCommon.AlgSequence import AthSequencer
         result.addSequence(AthSequencer(sequenceName))
 
-    if not clustersname: clustersname = "CaloTopoClusters"
+    if not clustersname:
+        clustersname = "CaloTopoClusters"
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg
@@ -249,11 +249,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     # Schedule electronic noise cond alg (needed for LC weights)
     result.merge(CaloNoiseCondAlgCfg(configFlags,"electronicNoise"))
     
-    #from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
-
-    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
-    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
-    from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
+    from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMaker, CaloClusterSnapshot
 
     result.merge(LArGMCfg(configFlags))
 
@@ -267,7 +263,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     result.merge(tileCondCfg(configFlags))
 
     if not doLCCalib:
-         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
     else:
         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
          
@@ -346,7 +342,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
 
     CaloTopoCluster.ClusterCorrectionTools += [getTopoMoments(configFlags)]
 
-    if doLCCalib==None:
+    if doLCCalib is None:
         doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
     if doLCCalib:
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
@@ -366,12 +362,7 @@ if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-
-    #log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
@@ -411,7 +402,7 @@ if __name__=="__main__":
         "ThinNegativeEnergyCaloClustersAlg",
         CaloClustersKey=theKey,
         ThinNegativeEnergyCaloClusters = True,
-        )
+    )
     cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
   
 #    cfg.getService("StoreGateSvc").Dump=True

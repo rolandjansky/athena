@@ -67,7 +67,7 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMC
 
 def fastCaloEVCreator():   
     InViewRoIs="EMCaloRoIs"     
-    fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker" )
+    fastCaloViewsMaker = EventViewCreatorAlgorithm( "IMfastCalo" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
@@ -96,7 +96,7 @@ def clusterFSInputMaker( ):
   """Creates the inputMaker for FS in menu"""
   RoIs = 'FSJETRoI'
   from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-  InputMakerAlg = InputMakerForRoI("clusterFSInputMaker", RoIsLink="initialRoI")
+  InputMakerAlg = InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 

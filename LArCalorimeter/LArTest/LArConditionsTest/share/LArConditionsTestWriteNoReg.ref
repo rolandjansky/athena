@@ -6942,9 +6942,9 @@ StorageSvc           INFO LArRampSubset_p1 [BB629283-BDF5-4FA8-93F4-5D8C2F201364
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO CondMultChanCollImpl [1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
+StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
+StorageSvc           INFO DataHeaderForm_p6 [7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]
 OutputCondition...   INFO Written 3 objects to output stream
 OutputCondition...   INFO Register objects in IOV database, interval of validity [run,LB] from [0,0] to [2147483647,4294967295]
 OutputCondition...   INFO Register object LArRampMC#/LArCalorimeter/LArTests/LArRampsSingleGroup in IOV database folder /LArCalorimeter/LArTests/LArRampsSingleGroup without tagging

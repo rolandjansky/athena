@@ -158,7 +158,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
-    EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in HLTChains])
+    EnabledChainNamesToCTP = dict([ (c["chainName"], c["L1item"])  for c in allChainDicts])
     l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
@@ -601,7 +601,7 @@ def findCFSequences(filter_name, cfseqList):
 def buildFilter(filter_name,  filter_input):
     """
      Build the FILTER
-     one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
+     one filter per previous sequence at the start of the sequence: always create a new one    
      if the previous hypo has more than one output, try to get all of them
      one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
     """

@@ -289,7 +289,7 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
     NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "PixelPrdAssociation" or
+    NewTrackingCuts.mode() == "Disappearing" or
     NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
     NewTrackingCuts.mode() == "SLHCConversionFinding"):
     usePrdAssociationTool = True

@@ -5,6 +5,7 @@
 from AthenaCommon.CFElements import parOR, seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -31,10 +32,9 @@ def getBJetSequence( step ):
 
 def bJetStep1Sequence():
 
-    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-    (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+    from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+    (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
 				 
-
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoIFromJetsMT
@@ -74,7 +74,7 @@ def bJetStep1Sequence():
     jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
     jetSplitter.ImposeZconstraint = True
     jetSplitter.Jets = sequenceOut
-    jetSplitter.OutputJets = "SplitJets"
+    jetSplitter.OutputJets = recordable("HLT_SplitJet")
     jetSplitter.OutputRoi = "SplitJets"
     jetSplitter.InputVertex = prmVtx.OutputVertexKey
 
@@ -100,8 +100,8 @@ def bJetStep1Sequence():
 def bJetStep1SequenceALLTE():
 
     # Construct jets
-    from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-    (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+    from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+    (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -177,9 +177,9 @@ def bJetStep2Sequence():
 
     # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step2", RoIsLink="initialRoI")
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
@@ -199,7 +199,7 @@ def bJetStep2Sequence():
     theGSC.JetKey = InputMakerAlg.InViewJets
     theGSC.TrackKey = PTTrackParticles[0]
     theGSC.PriVtxKey = "EFHistoPrmVtx"
-    theGSC.JetOutputKey = "GSCJets"
+    theGSC.JetOutputKey = recordable("HLT_GSCJet") 
 
     step2Sequence = seqAND("step2Sequence",[theGSC])
     InputMakerAlg.ViewNodeName = "step2Sequence"
@@ -228,7 +228,7 @@ def bJetStep2Sequence():
 def bJetStep2SequenceALLTE():
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
+    InputMakerAlg = InputMakerForRoI("IMBJet_step2_ALLTE", RoIsLink="initialRoI")
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
@@ -268,11 +268,11 @@ def bJetStep3Sequence():
 
    # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step3")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step3")
     InputMakerAlg.ViewNodeName = bJetSequenceSequence.name()
     InputMakerAlg.RoIsLink = "step1RoI"
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
-    InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
+    #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view

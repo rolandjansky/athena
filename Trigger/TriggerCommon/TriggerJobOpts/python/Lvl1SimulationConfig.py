@@ -18,8 +18,7 @@ def Lvl1SimulationSequence( flags = None ):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgSequence import AthSequencer
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaCommon.Constants import DEBUG
-    
+
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
     from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
@@ -35,7 +34,6 @@ def Lvl1SimulationSequence( flags = None ):
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
     caloTowerMaker.ExtraInputs   = ["LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD", "TileTTL1Container#TileTTL1Cnt" ]
-    caloTowerMaker.OutputLevel=DEBUG
     caloTowerMaker.ZeroSuppress = True
     caloTowerMaker.CellType     = 3
 

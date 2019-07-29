@@ -18,7 +18,7 @@ public:
   /// Constructor
   ParticleJetDeltaRLabelTool(const std::string& name);
 
-  int modify(xAOD::JetContainer& jets) const;
+  StatusCode modify(xAOD::JetContainer& jets) const;
 
   std::vector<std::vector<const xAOD::TruthParticle*> > match(
           const xAOD::TruthParticleContainer& parts,

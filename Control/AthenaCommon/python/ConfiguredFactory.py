@@ -1273,7 +1273,7 @@ class ConfiguredFactory(object):
                     
                 # turn filename syntax into module syntax: remove extension and replace / with . (dot)
                 confDbModule = os.path.splitext(localfile)[0].replace(os.sep,'.')
-                self.logger().debug( "importing %s..." % confDbModule )
+                self.logger().debug( "importing %s...", confDbModule )
                 try:
                     mod = __import__( confDbModule, globals(), locals(), [dbFile] )
                 except Exception as err:
@@ -1283,7 +1283,7 @@ class ConfiguredFactory(object):
                     nFiles += 1
 
         stopTime = time.time()
-        self.logger().info( "imported %i confDb modules in %.2f seconds" % (nFiles,stopTime-startTime) )
+        self.logger().info( "imported %i confDb modules in %.2f seconds", nFiles, stopTime-startTime )
         self._hasReadDB = True
         
 
