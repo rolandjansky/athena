@@ -81,7 +81,6 @@ StatusCode
 EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
                                       const xAOD::CaloCluster*      cluster, 
                                       const xAOD::TrackParticle*    trkPB,
-                                      bool                          isTRT, 
                                       Trk::PropDirection            direction,
                                       std::vector<double>&          eta,
                                       std::vector<double>&          phi,
@@ -196,8 +195,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     ATH_MSG_INFO("Could not create an extension from " << extrapFrom 
                  <<  " for a track with : "<< " Track Pt "
                  <<trkPB->pt()<< " Track Eta " 
-                 << trkPB->eta()<<" Track Fitter " 
-                 << trkPB->trackFitter() << " isTRT " << isTRT); 
+                 <<trkPB->eta()<<" Track Fitter ");
     return StatusCode::SUCCESS; 
   }
   // Should we flip the sign for deltaPhi? 
@@ -324,7 +322,7 @@ bool EMExtrapolationTools::getEtaPhiAtCalo (const Trk::TrackParameters* trkPar,
   std::unique_ptr<Trk::CaloExtension> extension = nullptr;      
   extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, Trk::alongMomentum, Trk::muon );
   if(!extension){
-    ATH_MSG_WARNING("Could not create an extension from getHackEtaPhiAtCalo ");
+    ATH_MSG_WARNING("Could not create an extension from geEtaPhiAtCalo ");
     return false;
   } 
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;

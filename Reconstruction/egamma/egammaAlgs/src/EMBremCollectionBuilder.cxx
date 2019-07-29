@@ -281,8 +281,6 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
         if (hitEM2) {
           perigeeExtrapEta = extrapEta;
           perigeeExtrapPhi = extrapPhi;
-        } else {
-          ATH_MSG_WARNING("Extrapolation to EM2 failed!");
         }
         break;
       }
