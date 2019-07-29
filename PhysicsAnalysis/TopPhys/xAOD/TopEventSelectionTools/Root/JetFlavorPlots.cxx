@@ -77,7 +77,7 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
         m_doRadLow= true;
       else {
         std::cout << "ERROR: Can't understand argument " << s << " for JETFLAVORPLOTS." << std::endl;
-        exit(1);
+        throw std::runtime_error{ "ERROR: Can't understand argument " +  s + "For JETFLAVORPLOTS"};
       }
     }
     //If neither nominal or radiation has been selected, assume it's nominal
