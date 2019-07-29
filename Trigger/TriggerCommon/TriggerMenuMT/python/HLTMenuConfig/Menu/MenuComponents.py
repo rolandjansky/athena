@@ -350,26 +350,6 @@ class MenuSequence(object):
         %(self.name, self.hypo.Alg.name(), self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
 
 
-#################################################
-#### CONFIGURATION FOR L1DECODER
-#################################################
-## It might be moved somewhere in the cofiguration later one
-# This is map between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
-# to be moved to L1Decoder package
-def DoMapSeedToL1Decoder(seed):
-    mapSeedToL1Decoder = {  "EM" : "L1EM",
-                            "MU" : "L1MU",
-                            "J"  : "L1J",
-                            "TAU": "L1TAU",
-                            "XE" : "L1MET",
-                            "XS" : "L1MET",
-                            "TE" : "L1MET"}
-
-    # remove actual threshold value from L1 seed string
-    for thresholdType, l1Collection in mapSeedToL1Decoder.iteritems():
-        if seed.startswith( thresholdType ):
-            return l1Collection
-    log.error("Threshold "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
 
 
 #################################################
@@ -389,10 +369,10 @@ class Chain(object):
         self.vseeds=L1Thresholds
 
      
-
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
         # group_seed is used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
-        self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
+        self.group_seed = [ mapThresholdToL1DecisionCollection(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
 
         isCombo=False

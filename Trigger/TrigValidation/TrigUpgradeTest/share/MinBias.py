@@ -38,8 +38,10 @@ def makeAndSetHypo( alg, hypoClass, **hypokwargs):
 
 SpCountHypo = SPCountHypoAlgMT()
 SpCountHypo.OutputLevel= DEBUG
+SpCountHypo.HypoInputDecisions="L1FS"
 makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG)
 SpCountHypo.HypoInputDecisions="FSDecisions"
+
 SpCountHypo.HypoOutputDecisions="SPDecisions"
 SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCountHypo
@@ -55,6 +57,7 @@ from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
 TrackCountHypo.OutputLevel= DEBUG
 makeAndSetHypo( TrackCountHypo, TrackCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG )
+
 TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
