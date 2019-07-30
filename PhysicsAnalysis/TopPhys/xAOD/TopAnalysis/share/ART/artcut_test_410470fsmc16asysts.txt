@@ -64,7 +64,7 @@ PerfStats No
 Systematics All
 JetUncertainties_NPModel CategoryReduction
 JetUncertainties_BunchSpacing 25ns
-LargeRJESUncertaintyConfig Split23,Tau32WTA
+LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
