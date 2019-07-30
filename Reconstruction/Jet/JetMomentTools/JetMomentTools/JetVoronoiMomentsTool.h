@@ -17,24 +17,28 @@
 ///
 
 #include <string>
-#include "JetRec/JetModifierBase.h"
-#include "xAODJet/Jet.h" 
+#include "AsgTools/AsgTool.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
 
 namespace JetVoronoiDiagramHelpers{
   struct Diagram;
 }
 
-class JetVoronoiMomentsTool : public JetModifierBase {
-ASG_TOOL_CLASS(JetVoronoiMomentsTool,IJetModifier)
+class JetVoronoiMomentsTool : public asg::AsgTool,
+                              public IJetDecorator {
+ASG_TOOL_CLASS(JetVoronoiMomentsTool,IJetDecorator)
 
 public:
 
   // Constructor from tool name
   JetVoronoiMomentsTool(const std::string& name);
 
-  // Inherited methods to modify a jet container
-  virtual StatusCode modify(xAOD::JetContainer& jets) const;
-  virtual int modifyJet(xAOD::Jet& jet) const;
+  // Inherited from AsgTool via IJetDecorator
+  virtual StatusCode initialize();
+
+  // Inherited method to decorate a jet container
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
 
 private:
 
@@ -43,6 +47,8 @@ private:
   float m_x_max;
   float m_y_min;
   float m_y_max;
+
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey;
 
   int modifyJet(xAOD::Jet& jet, const JetVoronoiDiagramHelpers::Diagram & voro) const;
 
