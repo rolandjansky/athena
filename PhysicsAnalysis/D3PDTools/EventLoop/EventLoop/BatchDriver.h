@@ -64,7 +64,7 @@ namespace EL
 
   private:
     virtual void
-    doSubmit (const Job& job, const std::string& location) const override;
+    doSubmit (Detail::JobSubmitInfo& info) const override;
 
   private:
     virtual void

@@ -26,7 +26,7 @@
 
 namespace EL
 {
-  class DirectDriver : public Driver
+  class DirectDriver final : public Driver
   {
     //
     // public interface
@@ -66,7 +66,7 @@ namespace EL
     /// rationale: the virtual part of EL::Driver::submit
   private:
     virtual void
-    doSubmit (const Job& job, const std::string& location) const override;
+    doSubmit (Detail::JobSubmitInfo& info) const override;
 
 
 

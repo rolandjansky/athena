@@ -30,7 +30,7 @@
 
 namespace EL
 {
-  class SlurmDriver : public BatchDriver
+  class SlurmDriver final : public BatchDriver
   {
     //
     // public interface

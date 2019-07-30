@@ -21,6 +21,7 @@
 #include <memory>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
@@ -74,17 +75,17 @@ namespace EL
 
 
   void DirectDriver ::
-  doSubmit (const Job& job, const std::string& location) const
+  doSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
     using namespace msgEventLoop;
 
-    for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
-	   end = job.sampleHandler().end(); sample != end; ++ sample)
+    for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
+	   end = info.job->sampleHandler().end(); sample != end; ++ sample)
     {
       Worker worker;
-      ANA_CHECK_THROW (worker.directExecute (*sample, job, location, *options()));
+      ANA_CHECK_THROW (worker.directExecute (*sample, *info.job, info.submitDir, *options()));
     }
-    diskOutputSave (location, job);
+    diskOutputSave (info.submitDir, *info.job);
   }
 }
