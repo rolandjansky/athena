@@ -155,7 +155,11 @@ namespace EL
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
 
-    driver->doResubmit (location, option);
+    Detail::JobSubmitInfo info;
+    info.submitDir = location;
+    info.resubmit = true;
+    info.resubmitOption = option;
+    driver->doResubmit (info);
   }
 
 
@@ -350,8 +354,7 @@ namespace EL
 
 
   void Driver ::
-  doResubmit (const std::string& /*location*/,
-              const std::string& /*option*/) const
+  doResubmit (Detail::JobSubmitInfo& /*info*/) const
   {
     RCU_READ_INVARIANT (this);
     RCU_THROW_MSG ("job resubmission not supported for this driver");

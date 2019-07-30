@@ -37,6 +37,12 @@ namespace EL
       /// \brief the path to the submission directory
       std::string submitDir;
 
+      /// \brief whether we are merely resubmitting this job
+      bool resubmit {false};
+
+      /// \brief if we are resubmitting, the resubmit option chosen
+      std::string resubmitOption;
+
       /// \brief the user job we are submitting
       const Job *job {nullptr};
     };

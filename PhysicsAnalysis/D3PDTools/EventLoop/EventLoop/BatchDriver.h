@@ -68,8 +68,7 @@ namespace EL
 
   private:
     virtual void
-    doResubmit (const std::string& location,
-                const std::string& option) const override;
+    doResubmit (Detail::JobSubmitInfo& info) const override;
 
   private:
     virtual bool
@@ -131,8 +130,8 @@ namespace EL
     /// rationale: the virtual part of batch submission
   private:
     virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
+    batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+ 		 const std::vector<std::size_t>& jobIndices)
       const = 0;
 
 

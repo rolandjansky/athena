@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <TSystem.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/Job.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
@@ -58,11 +59,13 @@ namespace EL
 
 
   void LocalDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     RCU_READ_INVARIANT (this);
+
+    // safely ignoring: resubmit
 
     const std::string dockerImage {
       options.castString(Job::optDockerImage)};
@@ -70,8 +73,8 @@ namespace EL
       options.castString(Job::optDockerOptions)};
 
     std::ostringstream basedirName;
-    basedirName << location << "/tmp";
-    if (!resubmit)
+    basedirName << info.submitDir << "/tmp";
+    if (!info.resubmit)
     {
       if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
         RCU_THROW_MSG ("failed to create directory " + basedirName.str());
@@ -86,8 +89,8 @@ namespace EL
       std::ostringstream cmd;
       cmd << "cd " << dirName.str() << " && ";
       if (!dockerImage.empty())
-        cmd << "docker run --rm -v " << RCU::Shell::quote (location) << ":" << RCU::Shell::quote (location) << " " << dockerOptions << " " << dockerImage << " ";
-      cmd << RCU::Shell::quote (location) << "/submit/run " << index;
+        cmd << "docker run --rm -v " << RCU::Shell::quote (info.submitDir) << ":" << RCU::Shell::quote (info.submitDir) << " " << dockerOptions << " " << dockerImage << " ";
+      cmd << RCU::Shell::quote (info.submitDir) << "/submit/run " << index;
       RCU::Shell::exec (cmd.str());
     }
   }

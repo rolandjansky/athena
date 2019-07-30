@@ -18,6 +18,7 @@
 #include <EventLoop/TorqueDriver.h>
 
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -56,13 +57,13 @@ namespace EL
 
 
   void TorqueDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     RCU_READ_INVARIANT (this);
 
-    if (resubmit)
+    if (info.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
     assert (!jobIndices.empty());
@@ -70,7 +71,7 @@ namespace EL
     const std::size_t njob = jobIndices.size();
 
     std::ostringstream cmd;
-    cmd << "cd " << location << "/submit && qsub "
+    cmd << "cd " << info.submitDir << "/submit && qsub "
         << options.castString (Job::optSubmitFlags)
         << " -t 0-" << (njob-1) << " run";
     if (gSystem->Exec (cmd.str().c_str()) != 0)

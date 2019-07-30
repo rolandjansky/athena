@@ -16,6 +16,7 @@
 #include <sstream>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/MessageCheck.h>
 #include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
@@ -57,8 +58,8 @@ namespace EL
 
 
   void KubernetesDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     using namespace msgEventLoop;
@@ -92,17 +93,17 @@ namespace EL
                                 std::istreambuf_iterator<char>() );
     }
     baseConfig = RCU::substitute (baseConfig, "%%DOCKERIMAGE%%", dockerImage);
-    baseConfig = RCU::substitute (baseConfig, "%%SUBMITDIR%%", location);
+    baseConfig = RCU::substitute (baseConfig, "%%SUBMITDIR%%", info.submitDir);
 
     std::ostringstream basedirName;
-    basedirName << location << "/tmp";
-    if (!resubmit)
+    basedirName << info.submitDir << "/tmp";
+    if (!info.resubmit)
     {
       if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
         RCU_THROW_MSG ("failed to create directory " + basedirName.str());
     }
 
-    const std::string jobFilePath {location + "/job.yml"};
+    const std::string jobFilePath {info.submitDir + "/job.yml"};
     {
       bool first {true};
       std::ofstream jobFile (jobFilePath.c_str());
@@ -112,7 +113,7 @@ namespace EL
         std::string setupConfig {std::istreambuf_iterator<char>(file),
             std::istreambuf_iterator<char>()};
         setupConfig = RCU::substitute (setupConfig, "%%DOCKERIMAGE%%", dockerImage);
-        setupConfig = RCU::substitute (setupConfig, "%%SUBMITDIR%%", location);
+        setupConfig = RCU::substitute (setupConfig, "%%SUBMITDIR%%", info.submitDir);
         jobFile << setupConfig;
         first = false;
       }
@@ -132,7 +133,7 @@ namespace EL
         std::string myConfig = baseConfig;
         myConfig = RCU::substitute (myConfig, "%%JOBINDEX%%", std::to_string (jobIndex));
         std::ostringstream command;
-        command << location << "/submit/run " << jobIndex;
+        command << info.submitDir << "/submit/run " << jobIndex;
         myConfig = RCU::substitute (myConfig, "%%COMMAND%%", command.str());
 
         jobFile << myConfig << "\n";
