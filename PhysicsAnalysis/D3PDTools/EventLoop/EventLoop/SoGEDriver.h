@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class SoGEDriver : public BatchDriver
+  class SoGEDriver final : public BatchDriver
   {
     //
     // public interface

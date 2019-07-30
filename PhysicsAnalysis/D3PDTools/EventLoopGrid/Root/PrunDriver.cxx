@@ -5,6 +5,7 @@
 #include <EventLoopGrid/PrunDriver.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
 #include <PathResolver/PathResolver.h>
@@ -473,13 +474,12 @@ EL::PrunDriver::PrunDriver()
   RCU_NEW_INVARIANT(this);
 }
 
-void EL::PrunDriver::doSubmit(const EL::Job& job,  
-			      const std::string& location) const 
+void EL::PrunDriver::doSubmit(Detail::JobSubmitInfo& info) const
 {
   RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());
+  RCU_REQUIRE(not info.submitDir.empty());
 
-  const std::string jobELGDir = location + "/elg";
+  const std::string jobELGDir = info.submitDir + "/elg";
   const std::string runShFile = jobELGDir + "/runjob.sh";
   //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
   const std::string mergeShFile = jobELGDir + "/elg_merge";
@@ -494,14 +494,14 @@ void EL::PrunDriver::doSubmit(const EL::Job& job,
   gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
   gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
 
-  const SH::SampleHandler& sh = job.sampleHandler();
+  const SH::SampleHandler& sh = info.job->sampleHandler();
 
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
     SH::MetaObject& meta = *(*s)->meta();
-    meta.fetchDefaults(*job.options());
+    meta.fetchDefaults(*info.job->options());
     meta.fetchDefaults(*options());
     meta.fetchDefaults(defaultOpts());
-    meta.setString("nc_outputs", outputFileNames(job));
+    meta.setString("nc_outputs", outputFileNames(*info.job));
     std::string outputSampleName = meta.castString("nc_outputSampleName");
     if (outputSampleName.empty()) {
       outputSampleName = "user.%nickname%.%in:name%";
@@ -516,21 +516,21 @@ void EL::PrunDriver::doSubmit(const EL::Job& job,
     meta.setString("nc_mergeScript", mergestr);
   }
 
-  saveJobDef(jobDefFile, job, sh);
+  saveJobDef(jobDefFile, *info.job, sh);
   
-  for (EL::Job::outputIter out = job.outputBegin();
-       out != job.outputEnd(); ++out) {
+  for (EL::Job::outputIter out = info.job->outputBegin();
+       out != info.job->outputEnd(); ++out) {
     SH::SampleHandler shOut = outputSH(sh, out->label());
-    shOut.save(location + "/output-" + out->label());
+    shOut.save(info.submitDir + "/output-" + out->label());
   }
   SH::SampleHandler shHist = outputSH(sh, "hist-output");
-  shHist.save(location + "/output-hist");
+  shHist.save(info.submitDir + "/output-hist");
  
   TmpCd keepDir(jobELGDir);
 
   processAllInState(sh, JobState::INIT, 0); 
 
-  sh.save(location + "/input");
+  sh.save(info.submitDir + "/input");
 }
 
 bool EL::PrunDriver::doRetrieve(const std::string& location) const 

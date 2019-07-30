@@ -5,6 +5,7 @@
 #include "EventLoopGrid/GridDriver.h"
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/Job.h"
+#include "EventLoop/JobSubmitInfo.h"
 #include "EventLoop/MessageCheck.h"
 #include "EventLoop/OutputStream.h"
 #include <PathResolver/PathResolver.h>
@@ -166,19 +167,18 @@ namespace EL {
    RCU_NEW_INVARIANT (this);
  }
 
- void EL::GridDriver::doSubmit(const EL::Job& job,  
-			       const std::string& location) const {
+void EL::GridDriver::doSubmit(Detail::JobSubmitInfo& info) const {
    RCU_READ_INVARIANT(this);
-   RCU_REQUIRE(not location.empty());
+   RCU_REQUIRE(not info.submitDir.empty());
    using namespace std;
 
-   //Parent class ensures location is absolute, but if originally specified 
+   //Parent class ensures info.submitDir is absolute, but if originally specified 
    //as a relative path, it may still contain '..' which will cause trouble
    //later as dq2 -H option used by Ganga Tasks requires the canonical path
-   string jobDir = location;
+   string jobDir = info.submitDir;
    {
      Ssiz_t len, pos;
-     TString tsLocation(location.c_str());
+     TString tsLocation(info.submitDir.c_str());
      const char *noDir = "/[A-Za-z0-9_\\.-]+/\\.\\.";      
      while ((pos = TRegexp(noDir).Index(tsLocation,&len,0)) != -1) 
        tsLocation.Remove(pos, len);      
@@ -237,24 +237,24 @@ namespace EL {
 
   {//Save the Algorithms and sample MetaObjects to be sent with the jobs 
     TFile f(jobDefFile.c_str(), "RECREATE"); 
-    f.WriteTObject(&job.jobConfig(), "jobConfig", "SingleKey");      
+    f.WriteTObject(&info.job->jobConfig(), "jobConfig", "SingleKey");      
 
-    for (EL::Job::outputIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++out) {
+    for (EL::Job::outputIter out = info.job->outputBegin(),
+	   end = info.job->outputEnd(); out != end; ++out) {
       outputs.Add(out->Clone());
     }      
-    f.WriteTObject(&outputs, "outputs", "SingleKey");      
-    for (SH::SampleHandler::iterator sample = job.sampleHandler().begin();
-	 sample != job.sampleHandler().end();  ++sample) {
+    f.WriteTObject(&outputs, "outputs", "SingleKey");
+    for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
+	 sample != info.job->sampleHandler().end();  ++sample) {
       SH::MetaObject meta(*(*sample)->meta());
-      meta.fetchDefaults(*job.options());
+      meta.fetchDefaults(*info.job->options());
       meta.fetchDefaults(*options());
       f.WriteObject(&meta, (*sample)->name().c_str());
       //f.WriteObject((*sample)->meta(), (*sample)->name().c_str());
     }
     f.Close();      
   }
-  SH::MetaObject meta(*job.options());
+  SH::MetaObject meta(*info.job->options());
   meta.fetchDefaults(*options());
     
   map<string, SH::SampleHandler> outMap; // <label,samples>     
@@ -264,8 +264,8 @@ namespace EL {
 
   std::stringstream gangaCmd;
 
-  for (SH::SampleHandler::iterator sample = job.sampleHandler().begin();
-       sample != job.sampleHandler().end(); ++sample) {
+  for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
+       sample != info.job->sampleHandler().end(); ++sample) {
 
     TString inDS;
     TString outDS;
@@ -341,7 +341,7 @@ namespace EL {
     outDSs.push_back(std::string(outDS.Data()));	
   }
 
-  string taskName = location;
+  string taskName = info.submitDir;
   if (taskName.rfind('/') != string::npos)
     taskName = taskName.substr(taskName.rfind('/')+1);
   stringstream submitCmd;
@@ -350,7 +350,7 @@ namespace EL {
     << "for EL job " << taskName << "\n"
     << "t = AtlasTask()\n"
     << "t.name = '" << taskName << "'\n" 
-    << "t.comment += 'location:" << location << "'\n"
+    << "t.comment += 'location:" << info.submitDir << "'\n"
     << "t.float = 200\n"
     << "app = Athena()\n"
     << "app.athena_compile = True\n"
@@ -391,14 +391,14 @@ namespace EL {
     return;
   }
 
-  cout << "Done. Call EL::GridDriver::status(\"" << location 
+  cout << "Done. Call EL::GridDriver::status(\"" << info.submitDir
        << "\") to follow the progress of your jobs." << endl;
 
   int taskId = -1;
   string container = getStrValues(gangaMsg, "TaskContainer: ");
   istringstream(getStrValues(gangaMsg, "TaskID: ")) >> taskId;
   RCU_ASSERT(taskId >= 0);
-  writeTaskID(location, taskId);
+  writeTaskID(info.submitDir, taskId);
 
   {
     ofstream of(dsContFile.c_str());
@@ -413,8 +413,8 @@ namespace EL {
 		<< "\"out\": tr.getContainerName()}\n";
   sendGangaCmd(queryOutDsCmd.str(), gangaMsg);
 
-  for (SH::SampleHandler::iterator sample = job.sampleHandler().begin();
-       sample != job.sampleHandler().end(); ++sample) {
+  for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
+       sample != info.job->sampleHandler().end(); ++sample) {
     string sampleOutDs = getStrValues(gangaMsg, (*sample)->name() + ": ");
     if (*sampleOutDs.rbegin() == '\n')
      sampleOutDs  = sampleOutDs.substr(0, sampleOutDs.size()-1);
@@ -422,8 +422,8 @@ namespace EL {
      sampleOutDs  = sampleOutDs.substr(0, sampleOutDs.size()-1);
 
     //Create a sample for each output and add it to that output's handler 
-    for (EL::Job::outputIter out=job.outputBegin();
-	 out != job.outputEnd(); ++out) {
+    for (EL::Job::outputIter out=info.job->outputBegin();
+	 out != info.job->outputEnd(); ++out) {
       SH::SampleGrid * mysample = new SH::SampleGrid((*sample)->name());
       mysample->meta()->setString("nc_grid", sampleOutDs);
       mysample->meta()->setString("nc_grid_filter", "*" + out->label() + ".root*");
@@ -466,13 +466,13 @@ namespace EL {
   // cout << "(Please note: this service is still under development!)\n";
     
   //Save the output Sample Handlers
-  for (EL::Job::outputIter output=job.outputBegin(),
-	 end=job.outputEnd(); output != end; ++output)
+  for (EL::Job::outputIter output=info.job->outputBegin(),
+	 end=info.job->outputEnd(); output != end; ++output)
     {
-      outMap[output->label()].fetch(job.sampleHandler());
+      outMap[output->label()].fetch(info.job->sampleHandler());
       outMap[output->label()].save(jobDir + "/output-" + output->label());
     };
-  outMap["hist"].fetch(job.sampleHandler());
+  outMap["hist"].fetch(info.job->sampleHandler());
   outMap["hist"].save(jobDir + "/output-hist");
     
 }

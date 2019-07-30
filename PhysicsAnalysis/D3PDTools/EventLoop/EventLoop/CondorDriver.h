@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class CondorDriver : public BatchDriver
+  class CondorDriver final : public BatchDriver
   {
     //
     // public interface

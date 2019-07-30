@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class TorqueDriver : public BatchDriver
+  class TorqueDriver final : public BatchDriver
   {
     //
     // public interface

@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class GEDriver : public BatchDriver
+  class GEDriver final : public BatchDriver
   {
     //
     // public interface

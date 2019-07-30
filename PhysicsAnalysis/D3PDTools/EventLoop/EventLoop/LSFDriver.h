@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class LSFDriver : public BatchDriver
+  class LSFDriver final : public BatchDriver
   {
     //
     // public interface

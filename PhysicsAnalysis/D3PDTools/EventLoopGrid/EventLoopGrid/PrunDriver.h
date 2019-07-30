@@ -14,7 +14,7 @@ namespace SH {
 
 namespace EL {
 
-  class PrunDriver : public Driver {
+  class PrunDriver final : public Driver {
 
   public:
 
@@ -22,9 +22,9 @@ namespace EL {
 
     void testInvariant () const;
 
-    virtual void doSubmit(const Job& job, const std::string& location) const;
+    virtual void doSubmit(Detail::JobSubmitInfo& info) const override;
 
-    virtual bool doRetrieve(const std::string& location) const;
+    virtual bool doRetrieve(const std::string& location) const override;
 
     static void status(const std::string& location);
 
@@ -32,7 +32,12 @@ namespace EL {
 			 const std::string& task,
 			 const std::string& state);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
     ClassDef(EL::PrunDriver, 1);
+#pragma GCC diagnostic pop
   };
 }
 

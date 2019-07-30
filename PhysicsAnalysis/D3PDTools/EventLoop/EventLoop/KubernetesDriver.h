@@ -16,7 +16,7 @@
 
 namespace EL
 {
-  class KubernetesDriver : public BatchDriver
+  class KubernetesDriver final : public BatchDriver
   {
     //
     // public interface

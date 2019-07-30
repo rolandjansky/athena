@@ -1,26 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
 
 #ifndef EVENT_LOOP_DRIVER_HH
 #define EVENT_LOOP_DRIVER_HH
-
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a base class for classes that implement a
-/// driver for running on a particular architecture.  While these
-/// classes are meant to be instantiated by the user, the interface
-/// provided in this class is intended for experts only.  The module
-/// is considered to be in the pre-alpha stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -29,6 +15,13 @@
 
 namespace EL
 {
+  /// \brief the base class for the various EventLoop drivers that
+  /// allow to run jobs on different backends
+  ///
+  /// The interface here is intended for users to interact with
+  /// directly, but it is considered an expert level task to define
+  /// new implementations of this class.
+
   class Driver : public TObject
   {
     //
@@ -263,7 +256,7 @@ namespace EL
     ///   the virtual part of \ref submitOnly
   private:
     virtual void
-    doSubmit (const Job& job, const std::string& location) const;
+    doSubmit (Detail::JobSubmitInfo& info) const;
 
 
     /// \copydoc resubmit

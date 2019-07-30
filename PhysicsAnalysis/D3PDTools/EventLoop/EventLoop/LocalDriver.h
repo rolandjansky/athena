@@ -28,7 +28,7 @@
 
 namespace EL
 {
-  class LocalDriver : public BatchDriver
+  class LocalDriver final : public BatchDriver
   {
     //
     // public interface

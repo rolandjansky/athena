@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -18,6 +12,7 @@
 #include <EventLoop/Driver.h>
 
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
@@ -30,6 +25,7 @@
 #include <TFile.h>
 #include <TObjString.h>
 #include <TSystem.h>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -138,7 +134,10 @@ namespace EL
     }
     sh_hist.save (mylocation + "/hist");
 
-    doSubmit (myjob, mylocation);
+    Detail::JobSubmitInfo info;
+    info.submitDir = mylocation;
+    info.job = &myjob;
+    doSubmit (info);
 
     // rationale: this particular file can be checked to see if a job
     //   has been submitted successfully.
@@ -338,11 +337,13 @@ namespace EL
 
 
   void Driver ::
-  doSubmit (const Job& /*job*/, const std::string& /*location*/) const
+  doSubmit (Detail::JobSubmitInfo& /*info*/) const
   {
     RCU_READ_INVARIANT (this);
+    using namespace msgEventLoop;
 
-    RCU_THROW_MSG (std::string ("Driver::doSubmit not overridden in class ") + typeid(*this).name());
+    ANA_MSG_FATAL ("Driver::doSubmit not overridden in class " << typeid(*this).name());
+    std::abort ();
   }
 
 

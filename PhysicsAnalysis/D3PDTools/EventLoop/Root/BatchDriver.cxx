@@ -20,6 +20,7 @@
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/BatchSample.h>
 #include <EventLoop/BatchSegment.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
@@ -328,39 +329,39 @@ namespace EL
 
 
   void BatchDriver ::
-  doSubmit (const Job& job, const std::string& location) const
+  doSubmit (Detail::JobSubmitInfo& info) const
   {
     using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
 
-    ANA_MSG_DEBUG ("submitting batch job in location " << location);
+    ANA_MSG_DEBUG ("submitting batch job in location " << info.submitDir);
 
-    const std::string submitDir = location + "/submit";
+    const std::string submitDir = info.submitDir + "/submit";
     if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + submitDir);
-    const std::string runDir = location + "/run";
+    const std::string runDir = info.submitDir + "/run";
     if (gSystem->MakeDirectory (runDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + runDir);
-    const std::string fetchDir = location + "/fetch";
+    const std::string fetchDir = info.submitDir + "/fetch";
     if (gSystem->MakeDirectory (fetchDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + fetchDir);
-    const std::string statusDir = location + "/status";
+    const std::string statusDir = info.submitDir + "/status";
     if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + statusDir);
 
-    SH::MetaObject meta = *job.options();
+    SH::MetaObject meta = *info.job->options();
     meta.fetchDefaults (*options());
 
     BatchJob myjob;
-    fillFullJob (myjob, job, location, meta);
-    myjob.location=getWriteLocation(location);
+    fillFullJob (myjob, *info.job, info.submitDir, meta);
+    myjob.location=getWriteLocation(info.submitDir);
     {
-      std::unique_ptr<TFile> file
-	(TFile::Open ((location + "/submit/config.root").c_str(), "RECREATE"));
+      std::string path = info.submitDir + "/submit/config.root";
+      std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
       myjob.Write ("job");
     }
     {
-      std::ofstream file ((location + "/submit/segments").c_str());
+      std::ofstream file ((info.submitDir + "/submit/segments").c_str());
       for (std::size_t iter = 0, end = myjob.segments.size();
 	   iter != end; ++ iter)
       {
@@ -368,14 +369,14 @@ namespace EL
       }
     }
 
-    makeScript (location, myjob.segments.size(),
+    makeScript (info.submitDir, myjob.segments.size(),
 		meta.castBool(Job::optBatchSharedFileSystem,true));
 
     std::vector<std::size_t> jobIndices;
     for (std::size_t index = 0; index != myjob.segments.size(); ++ index)
       jobIndices.push_back (index);
 
-    batchSubmit (location, meta, jobIndices, false);
+    batchSubmit (info.submitDir, meta, jobIndices, false);
   }
 
 
