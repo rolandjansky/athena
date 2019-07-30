@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgTools/AsgToolsConf.h"
@@ -31,7 +31,6 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 //#include "TrigDecisionTool/DecisionAccess.h"
-#include "CxxUtils/unused.h"
 
 using namespace std;
 
@@ -80,12 +79,14 @@ void testFeatureGroup() {
 
   for ( fIt = f.getCombinations().begin(); fIt != f.getCombinations().end(); ++fIt ) {
     vector< Feature<TrigCaloCluster> > cCont = fIt->get<TrigCaloCluster>();
-    const TrigCaloCluster* UNUSED(cluster) = 0;
+    [[maybe_unused]]
+    const TrigCaloCluster* cluster = 0;
     if (!cCont.empty())
       cluster = cCont[0];
     
     vector< Feature<TrigInDetTrack> > tCont = fIt->get<TrigInDetTrack>();
-    const TrigInDetTrack* UNUSED(track) = 0;
+    [[maybe_unused]]
+    const TrigInDetTrack* track = 0;
     if ( !tCont.empty() ) 
       track = tCont[0];
     
