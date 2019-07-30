@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -157,25 +157,29 @@ namespace Trk
     }
 
 
-    Amg::Vector3D* SeedPoint(0);
+    Amg::Vector3D SeedPoint;
     //now find the best point for seeding and linearization of the tracks
     if (IsStartingPoint) {
-      SeedPoint=new Amg::Vector3D(startingPoint);
+      SeedPoint=startingPoint;
     } else {
       if (perigeeList.size()>1) {
         if (IsConstraint) {
-          SeedPoint=new Amg::Vector3D(m_SeedFinder->findSeed(perigeeList,&constraint));
+          SeedPoint=m_SeedFinder->findSeed(perigeeList,&constraint);
         } else {
-          SeedPoint=new Amg::Vector3D(m_SeedFinder->findSeed(perigeeList));
+          SeedPoint=m_SeedFinder->findSeed(perigeeList);
         }
-      } else {
-        SeedPoint=new Amg::Vector3D(constraint.position().x(),constraint.position().y(),constraint.position().z());
+      }
+      else if (IsConstraint) {
+        SeedPoint=constraint.position();
+      }
+      else {
+        SeedPoint.setZero();
       }
     }
 
     //in case m_onlyzseed is on, just use only the z component given by the seed finder
     if (m_onlyzseed&&IsConstraint) {
-      *SeedPoint=Amg::Vector3D(constraint.position().x(),constraint.position().y(),SeedPoint->z());
+      SeedPoint=constraint.position();
     }
     
 
@@ -189,7 +193,7 @@ namespace Trk
     std::vector<const Trk::TrackParameters*>::const_iterator perigeesEnd=perigeeList.end();
 
     ATH_MSG_DEBUG("Inside fitter with track perigee parameters.");
-    ATH_MSG_DEBUG("Seed point: " << *SeedPoint);
+    ATH_MSG_DEBUG("Seed point: " << SeedPoint);
     int myDebugNTrk(0);
 
     for (std::vector<const Trk::TrackParameters*>::const_iterator perigeesIter=perigeesBegin;perigeesIter!=perigeesEnd;++perigeesIter) {
@@ -203,8 +207,8 @@ namespace Trk
      
       VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, (*perigeesIter), NULL); //TODO: Must think now about when to delete this memory! -David S.
       
-      //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,*SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
-      bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
+      //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
+      bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
       if (!success)
       {
 	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
@@ -220,7 +224,7 @@ namespace Trk
     std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesEnd  =neutralPerigeeList.end();
 
     ATH_MSG_DEBUG("Inside fitter with neutral perigee parameters.");
-    ATH_MSG_DEBUG("Seed point: " << *SeedPoint);
+    ATH_MSG_DEBUG("Seed point: " << SeedPoint);
     int myDebugNNeutral(0);
     for (std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesIter=neutralPerigeesBegin;neutralPerigeesIter!=neutralPerigeesEnd;++neutralPerigeesIter) {
 
@@ -230,7 +234,7 @@ namespace Trk
 
       VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, NULL, (*neutralPerigeesIter) ); //TODO: Must think now about when to delete this memory! -David S.
      
-      bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
+      bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
       if (!success)
       {
 	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
@@ -253,28 +257,25 @@ namespace Trk
 
 
    
-    xAOD::Vertex* ConstraintVertex(0);
+    xAOD::Vertex ConstraintVertex;
+    ConstraintVertex.makePrivateStore();
     //use the previous prior vertex info for the initial vertex if there
     if (IsConstraint ) {
-      ConstraintVertex=new xAOD::Vertex();
-      ConstraintVertex->makePrivateStore();
-      ConstraintVertex->setPosition( constraint.position() );
-      ConstraintVertex->setCovariancePosition( constraint.covariancePosition() );
-      ConstraintVertex->setFitQuality( 0., 0. );
+      ConstraintVertex.setPosition( constraint.position() );
+      ConstraintVertex.setCovariancePosition( constraint.covariancePosition() );
+      ConstraintVertex.setFitQuality( 0., 0. );
     } else {
       AmgSymMatrix(3) startingCovMatrix;
       startingCovMatrix.setIdentity();
       startingCovMatrix = startingCovMatrix / m_initialError;
       //now initialize with starting position and covariance matrix
-      ConstraintVertex=new xAOD::Vertex();
-      ConstraintVertex->makePrivateStore();
-      ConstraintVertex->setPosition( *SeedPoint );
-      ConstraintVertex->setCovariancePosition( startingCovMatrix );
-      ConstraintVertex->setFitQuality( 0., -3. );
+      ConstraintVertex.setPosition( SeedPoint );
+      ConstraintVertex.setCovariancePosition( startingCovMatrix );
+      ConstraintVertex.setFitQuality( 0., -3. );
     }
 
     //now put the linearizedtracks into VxTrackAtVertex
-    return dothefit(*ConstraintVertex,*SeedPoint,theLinTracks);
+    return dothefit(ConstraintVertex,SeedPoint,theLinTracks);
 
 
   }
@@ -598,9 +599,6 @@ namespace Trk
       msg(MSG::DEBUG) << "chi2: " << ActualVertex->chiSquared()
                       << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endmsg;
     }
-
-    delete &ConstraintVertex;
-    delete &SeedVertex;
 
     // TODO: get rid of following line
     //std::cout << "Number of steps: " << num_steps << ". Number of relinearizations: " << num_relinearizations << "." << std::endl << std::endl;
