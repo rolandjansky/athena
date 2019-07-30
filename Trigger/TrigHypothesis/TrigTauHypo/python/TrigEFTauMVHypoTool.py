@@ -1,7 +1,8 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     name = chainDict['chainName']
-    chainPart = chainDict['chainParts'][0]
 
     from TrigTauHypo.TrigTauHypoConf import TrigEFTauMVHypoTool
     currentHypo = TrigEFTauMVHypoTool(name)
