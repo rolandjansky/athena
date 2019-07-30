@@ -58,9 +58,7 @@ namespace EL
   }
 
   void CondorDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
@@ -69,7 +67,7 @@ namespace EL
 
     if (!info.resubmit)
     {
-      if(!options.castBool(Job::optBatchSharedFileSystem,true))
+      if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
       {
         const std::string newLocation = info.submitDir + "/submit/" + tarballName;
         int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
@@ -86,7 +84,7 @@ namespace EL
       file << "output                  = submit/log-$(Item).out\n";
       file << "error                   = submit/log-$(Item).err\n";
       file << "initialdir              = " << info.submitDir << "\n";
-      if(!options.castBool(Job::optBatchSharedFileSystem,true))
+      if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
 	{ // Transfer data with non-shared file-systems
 	  file << "should_transfer_files   = YES\n";
 	  file << "when_to_transfer_output = ON_EXIT\n";
@@ -95,10 +93,10 @@ namespace EL
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}
       file << "arguments               = $(Item)\n";
-      file << "\n" << options.castString (Job::optCondorConf) << "\n";
+      file << "\n" << info.options.castString (Job::optCondorConf) << "\n";
       file << "queue in ( ";
       bool first {true};
-      for (std::size_t index : jobIndices)
+      for (std::size_t index : info.batchJobIndices)
       {
         if (first)
           first = false;
@@ -112,7 +110,7 @@ namespace EL
     {
       std::ostringstream cmd;
       cmd << "cd " << info.submitDir << "/submit && condor_submit "
-	  << options.castString (Job::optSubmitFlags) << " submit";
+	  << info.options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
 	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
     }

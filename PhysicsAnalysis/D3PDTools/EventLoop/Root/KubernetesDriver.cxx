@@ -58,19 +58,17 @@ namespace EL
 
 
   void KubernetesDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     using namespace msgEventLoop;
 
     RCU_READ_INVARIANT (this);
 
     const std::string dockerImage {
-      options.castString(Job::optDockerImage)};
+      info.options.castString(Job::optDockerImage)};
 
     const std::string dockerOptions {
-      options.castString(Job::optDockerOptions)};
+      info.options.castString(Job::optDockerOptions)};
     if (!dockerOptions.empty())
     {
       ANA_MSG_WARNING ("you specified docker options for kubernetes driver");
@@ -80,12 +78,12 @@ namespace EL
 
     /// \brief the setup file we use as a template
     const std::string batchSetupFile {
-      options.castString(Job::optBatchSetupFile, "EventLoop/kubernetes_setup.yml")};
+      info.options.castString(Job::optBatchSetupFile, "EventLoop/kubernetes_setup.yml")};
 
 
     /// \brief the config file we use as a template
     const std::string batchConfigFile {
-      options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
+      info.options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
     std::string baseConfig;
     {
       std::ifstream file (PathResolverFindDataFile (batchConfigFile).c_str());
@@ -118,7 +116,7 @@ namespace EL
         first = false;
       }
 
-      for (std::size_t jobIndex : jobIndices)
+      for (std::size_t jobIndex : info.batchJobIndices)
       {
         std::ostringstream dirName;
         dirName << basedirName.str() << "/" << jobIndex;

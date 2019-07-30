@@ -59,18 +59,16 @@ namespace EL
 
 
   void LocalDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
     // safely ignoring: resubmit
 
     const std::string dockerImage {
-      options.castString(Job::optDockerImage)};
+      info.options.castString(Job::optDockerImage)};
     const std::string dockerOptions {
-      options.castString(Job::optDockerOptions)};
+      info.options.castString(Job::optDockerOptions)};
 
     std::ostringstream basedirName;
     basedirName << info.submitDir << "/tmp";
@@ -79,7 +77,7 @@ namespace EL
       if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
         RCU_THROW_MSG ("failed to create directory " + basedirName.str());
     }
-    for (std::size_t index : jobIndices)
+    for (std::size_t index : info.batchJobIndices)
     {
       std::ostringstream dirName;
       dirName << basedirName.str() << "/" << index;

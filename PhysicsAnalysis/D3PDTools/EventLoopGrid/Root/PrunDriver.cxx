@@ -498,8 +498,7 @@ void EL::PrunDriver::doSubmit(Detail::JobSubmitInfo& info) const
 
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
     SH::MetaObject& meta = *(*s)->meta();
-    meta.fetchDefaults(*info.job->options());
-    meta.fetchDefaults(*options());
+    meta.fetchDefaults(info.options);
     meta.fetchDefaults(defaultOpts());
     meta.setString("nc_outputs", outputFileNames(*info.job));
     std::string outputSampleName = meta.castString("nc_outputSampleName");

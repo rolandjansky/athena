@@ -58,9 +58,7 @@ namespace EL
     /// rationale: the virtual part of batch submission
   private:
     virtual void
-    batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices)
-      const override;
+    batchSubmit (Detail::JobSubmitInfo& info) const override;
 
     /// effects: special initialization for condor scripts: export PATH
     /// guarantee: strong

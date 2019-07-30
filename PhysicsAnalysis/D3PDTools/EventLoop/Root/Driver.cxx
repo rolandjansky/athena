@@ -138,6 +138,8 @@ namespace EL
     Detail::JobSubmitInfo info;
     info.submitDir = mylocation;
     info.job = &myjob;
+    info.options = *info.job->options();
+    info.options.fetchDefaults (*options());
     doSubmit (info);
 
     // rationale: this particular file can be checked to see if a job

@@ -85,22 +85,20 @@ namespace EL
 
 
   void LLDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
     // safely ignoring: resubmit
 
     // Submit n jobs with loadleveler
-    for (std::size_t iter : jobIndices)
+    for (std::size_t iter : info.batchJobIndices)
     {
       // Submit!
 
       std::ostringstream cmd;
       cmd << "cd " << info.submitDir << "/submit && llsubmit "
-          << options.castString (Job::optSubmitFlags)
+          << info.options.castString (Job::optSubmitFlags)
           << " run"<<iter<<".cmd";
 
       if (gSystem->Exec (cmd.str().c_str()) != 0)
