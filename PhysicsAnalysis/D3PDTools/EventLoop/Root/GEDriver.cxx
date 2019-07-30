@@ -48,9 +48,7 @@ namespace EL
 
 
   void GEDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
@@ -58,9 +56,9 @@ namespace EL
 
     std::ostringstream cmd;
     cmd << "cd " << info.submitDir << "/submit";
-    for (std::size_t iter : jobIndices)
+    for (std::size_t iter : info.batchJobIndices)
     {
-      cmd << " && qsub " << options.castString (Job::optSubmitFlags)
+      cmd << " && qsub " << info.options.castString (Job::optSubmitFlags)
           << " -o " << info.submitDir << "/submit/log-" << iter << ".out"
           << " -e " << info.submitDir << "/submit/log-" << iter << ".err"
           << " run " << iter;

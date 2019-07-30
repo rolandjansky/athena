@@ -84,7 +84,7 @@ namespace EL
 	   end = info.job->sampleHandler().end(); sample != end; ++ sample)
     {
       Worker worker;
-      ANA_CHECK_THROW (worker.directExecute (*sample, *info.job, info.submitDir, *options()));
+      ANA_CHECK_THROW (worker.directExecute (*sample, *info.job, info.submitDir, info.options));
     }
     diskOutputSave (info.submitDir, *info.job);
   }

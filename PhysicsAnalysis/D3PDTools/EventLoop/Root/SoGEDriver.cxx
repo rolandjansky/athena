@@ -58,22 +58,20 @@ namespace EL
 
 
   void SoGEDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
     if (info.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
-    assert (!jobIndices.empty());
-    assert (jobIndices.back() + 1 == jobIndices.size());
-    const std::size_t njob = jobIndices.size();
+    assert (!info.batchJobIndices.empty());
+    assert (info.batchJobIndices.back() + 1 == info.batchJobIndices.size());
+    const std::size_t njob = info.batchJobIndices.size();
 
     std::ostringstream cmd;
     cmd << "cd " << info.submitDir << "/submit && qsub "
-        << options.castString (Job::optSubmitFlags)
+        << info.options.castString (Job::optSubmitFlags)
         << " -t 1-" << (njob) << " run";
     if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());

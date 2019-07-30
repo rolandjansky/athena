@@ -247,15 +247,13 @@ void EL::GridDriver::doSubmit(Detail::JobSubmitInfo& info) const {
     for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
 	 sample != info.job->sampleHandler().end();  ++sample) {
       SH::MetaObject meta(*(*sample)->meta());
-      meta.fetchDefaults(*info.job->options());
-      meta.fetchDefaults(*options());
+      meta.fetchDefaults(info.options);
       f.WriteObject(&meta, (*sample)->name().c_str());
       //f.WriteObject((*sample)->meta(), (*sample)->name().c_str());
     }
     f.Close();      
   }
-  SH::MetaObject meta(*info.job->options());
-  meta.fetchDefaults(*options());
+  SH::MetaObject meta(info.options);
     
   map<string, SH::SampleHandler> outMap; // <label,samples>     
   list<std::string> outDSs; //Created dq2 datasets for output 

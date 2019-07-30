@@ -11,7 +11,9 @@
 
 #include <EventLoop/Global.h>
 
+#include <SampleHandler/MetaObject.h>
 #include <string>
+#include <vector>
 
 namespace EL
 {
@@ -43,8 +45,15 @@ namespace EL
       /// \brief if we are resubmitting, the resubmit option chosen
       std::string resubmitOption;
 
+      /// \brief the options with which we submit this job
+      SH::MetaObject options;
+
       /// \brief the user job we are submitting
       const Job *job {nullptr};
+
+      /// \brief if we run in batch, this is the list of job-indices
+      /// to run
+      std::vector<std::size_t> batchJobIndices;
     };
   }
 }

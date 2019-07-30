@@ -58,9 +58,7 @@ namespace EL
   }
   //****************************************************
   void SlurmDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     using namespace msgEventLoop;
 
@@ -80,11 +78,11 @@ namespace EL
     if (info.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
-    assert (!jobIndices.empty());
-    assert (jobIndices.back() + 1 == jobIndices.size());
-    const std::size_t njob = jobIndices.size();
+    assert (!info.batchJobIndices.empty());
+    assert (info.batchJobIndices.back() + 1 == info.batchJobIndices.size());
+    const std::size_t njob = info.batchJobIndices.size();
 
-    if(!options.castBool(Job::optBatchSharedFileSystem,true))
+    if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
     {
       int status=gSystem->CopyFile("RootCore.par",(info.submitDir+"/submit/RootCore.par").c_str());
       if(status != 0)
@@ -105,16 +103,16 @@ namespace EL
       if(!m_memory    .empty()) file << "#SBATCH --mem=" << m_memory << "\n";
       if(!m_constraint.empty()) file << "#SBATCH --constraint=" << m_constraint << "\n";
       file << "\n";
-      file << options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
+      file << info.options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
       file << "\n";
       //note: no "\n" at the of this string since this goes as pre-command to the execution of the next line
-      file << options.castString(Job::optBatchSlurmWrapperExec); 
+      file << info.options.castString(Job::optBatchSlurmWrapperExec);
       file << "./run ${SLURM_ARRAY_TASK_ID}\n";
     }
 
     {
       std::ostringstream cmd;
-      cmd << "cd " << info.submitDir << "/submit && sbatch --array=0-" << njob-1 << " " << options.castString (Job::optSubmitFlags) << " submit";
+      cmd << "cd " << info.submitDir << "/submit && sbatch --array=0-" << njob-1 << " " << info.options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
     }

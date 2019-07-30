@@ -48,9 +48,7 @@ namespace EL
 
 
   void LSFDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices)
-    const
+  batchSubmit (Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
 
@@ -58,10 +56,10 @@ namespace EL
 
     std::ostringstream cmd;
     cmd << "cd " << info.submitDir << "/submit";
-    for (std::size_t iter : jobIndices)
+    for (std::size_t iter : info.batchJobIndices)
     {
-      cmd << " && bsub " << options.castString (Job::optSubmitFlags);
-      if (options.castBool (Job::optResetShell, true))
+      cmd << " && bsub " << info.options.castString (Job::optSubmitFlags);
+      if (info.options.castBool (Job::optResetShell, true))
         cmd << " -L /bin/bash";
       cmd << " " << info.submitDir << "/submit/run " << iter;
     }

@@ -349,11 +349,8 @@ namespace EL
     if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
       RCU_THROW_MSG ("failed to create directory " + statusDir);
 
-    SH::MetaObject meta = *info.job->options();
-    meta.fetchDefaults (*options());
-
     BatchJob myjob;
-    fillFullJob (myjob, *info.job, info.submitDir, meta);
+    fillFullJob (myjob, *info.job, info.submitDir, info.options);
     myjob.location=getWriteLocation(info.submitDir);
     {
       std::string path = info.submitDir + "/submit/config.root";
@@ -370,13 +367,12 @@ namespace EL
     }
 
     makeScript (info.submitDir, myjob.segments.size(),
-		meta.castBool(Job::optBatchSharedFileSystem,true));
+		info.options.castBool(Job::optBatchSharedFileSystem,true));
 
-    std::vector<std::size_t> jobIndices;
     for (std::size_t index = 0; index != myjob.segments.size(); ++ index)
-      jobIndices.push_back (index);
+      info.batchJobIndices.push_back (index);
 
-    batchSubmit (info, meta, jobIndices);
+    batchSubmit (info);
   }
 
 
@@ -401,7 +397,6 @@ namespace EL
     std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
     RCU_ASSERT_SOFT (config.get() != 0);
 
-    std::vector<std::size_t> jobIndices;
     for (std::size_t segment = 0; segment != config->segments.size(); ++ segment)
     {
       if (all_missing)
@@ -409,23 +404,23 @@ namespace EL
         std::ostringstream completed_file;
         completed_file << info.submitDir << "/status/completed-" << segment;
         if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
-          jobIndices.push_back (segment);
+          info.batchJobIndices.push_back (segment);
       } else
       {
         std::ostringstream fail_file;
         fail_file << info.submitDir << "/status/fail-" << segment;
         if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
-          jobIndices.push_back (segment);
+          info.batchJobIndices.push_back (segment);
       }
     }
 
-    if (jobIndices.empty())
+    if (info.batchJobIndices.empty())
     {
       RCU_PRINT_MSG ("found no jobs to resubmit");
       return;
     }
 
-    for (std::size_t segment : jobIndices)
+    for (std::size_t segment : info.batchJobIndices)
     {
       std::ostringstream command;
       command << "rm -rf";
@@ -434,7 +429,8 @@ namespace EL
       command << " " << info.submitDir << "/status/done-" << segment;
       RCU::Shell::exec (command.str());
     }
-    batchSubmit (info, *config->job.options(), jobIndices);
+    info.options = *config->job.options();
+    batchSubmit (info);
   }
 
 
