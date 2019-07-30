@@ -57,8 +57,6 @@ void test1 (Trk::Mode3dTo1dFinder& tool)
 {
   std::cout << "test1\n";
 
-  tool.setPriVtxPosition (0.3, 0.2);
-
   {
     std::vector<Trk::PositionAndWeight> points;
     points.emplace_back (Amg::Vector3D(1.1, 1.7, 2.8), 0.9);
@@ -66,7 +64,7 @@ void test1 (Trk::Mode3dTo1dFinder& tool)
     points.emplace_back (Amg::Vector3D(0.8, 2.3, 3.5), 0.7);
     points.emplace_back (Amg::Vector3D(1.3, 2.1, 2.5), 1.8);
 
-    const Amg::Vector3D mode = tool.getMode (points);
+    const Amg::Vector3D mode = tool.getMode (0, 0, points);
     assertVec3D (mode, {0.861111, 1.755, 2.6,});
   }
 
@@ -77,7 +75,7 @@ void test1 (Trk::Mode3dTo1dFinder& tool)
     points.emplace_back (0.8, 2.3, 3.5);
     points.emplace_back (1.3, 2.1, 2.5);
 
-    const Amg::Vector3D mode = tool.getMode (points);
+    const Amg::Vector3D mode = tool.getMode (0, 0, points);
     assertVec3D (mode, {0.85, 1.75, 2.65});
   }
 }
