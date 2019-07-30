@@ -245,11 +245,11 @@ namespace Trk
 
     if (m_useweights)
     {
-      myresult=m_mode3dfinder->getMode(CrossingPointsAndWeights);
+      myresult=m_mode3dfinder->getMode(0, 0, CrossingPointsAndWeights);
     }
     else
     {
-      myresult=m_mode3dfinder->getMode(CrossingPoints);
+      myresult=m_mode3dfinder->getMode(0, 0, CrossingPoints);
     }
     
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
