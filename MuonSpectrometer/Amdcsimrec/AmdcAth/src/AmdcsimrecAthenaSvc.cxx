@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -11,10 +11,8 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "EventInfo/TagInfo.h"
 
 //----------------------------------------------------------------//
-#include "EventInfoMgt/ITagInfoMgr.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -43,8 +41,7 @@ AmdcsimrecAthenaSvc::AmdcsimrecAthenaSvc(const std::string& name,ISvcLocator* sv
   AthService(name,svc),
 p_IGeoModelSvc(0),
 p_detStore(0),
-p_MuonDetectorManager(0),
-p_ITagInfoMgr(0)
+p_MuonDetectorManager(0)
 {
 
 //*Set Default values
@@ -68,9 +65,6 @@ p_ITagInfoMgr(0)
 
 
    m_AmdcABlinesStamp = 1;
-   
-   m_TagInfoXMLStamp = -1 ;
-   m_TagInfoXML.clear();
    
    m_AGDD2GeoSwitchesStamp = -1 ;
    m_AGDD2GeoSwitches.clear();
@@ -205,25 +199,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG( "Found MuonDetectorManager ") ;
-  }
-
-
-//TagInfo 
-  const DataHandle<TagInfo> tagInfoH;
-  std::string tagInfoKey = "";
- 
-  sc = service("TagInfoMgr", p_ITagInfoMgr);
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING( " Unable to locate TagInfoMgr service" ) ; 
-  }else{
-    tagInfoKey = p_ITagInfoMgr->tagInfoKey();
-  }
-
-  sc = p_detStore->regFcn(&AmdcsimrecAthenaSvc::SetTagInfoXML,this, tagInfoH, tagInfoKey) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING( "Cannot register AmdcsimrecAthenaSvc::SetTagInfoXML function for key "  << tagInfoKey ) ;
-  }else{
-    ATH_MSG_DEBUG( "Registered AmdcsimrecAthenaSvc::SetTagInfoXML callback for key: " << tagInfoKey ) ;
   }
 
 
@@ -1993,53 +1968,10 @@ void AmdcsimrecAthenaSvc::TestXtomoStuff(){ p_Amdcsimrec->TestXtomoStuff(); }
 
 
 
-int AmdcsimrecAthenaSvc::GetTagInfoXMLStamp() { return m_TagInfoXMLStamp ;}
-
-std::vector< std::pair<std::string,std::string> > AmdcsimrecAthenaSvc::GetTagInfoXML() { return m_TagInfoXML;}
-
 int AmdcsimrecAthenaSvc::GetAGDD2GeoSwitchesStamp() { return m_AGDD2GeoSwitchesStamp ;}
 
 std::vector<std::string> AmdcsimrecAthenaSvc::GetAGDD2GeoSwitches()  {return m_AGDD2GeoSwitches;}
 
-
-StatusCode AmdcsimrecAthenaSvc::SetTagInfoXML(IOVSVC_CALLBACK_ARGS)
-{
-
-  ATH_MSG_DEBUG( "----> SetTagInfoXML is called " ) ;
-
-  const TagInfo* pTagInfo = 0;
-  StatusCode sc = p_detStore->retrieve(pTagInfo);
-  if (sc.isFailure()){
-    ATH_MSG_DEBUG( " Retrieve pTagInfo failed     " ) ;
-  }else{
-    TagInfo::NameTagPairVec aNameTagPairVec;
-    pTagInfo->getInputTags(aNameTagPairVec);
-    m_TagInfoXMLStamp = m_TagInfoXMLStamp + 1;
-    m_TagInfoXML.clear(); 
-    for (unsigned int Item = 0; Item < aNameTagPairVec.size(); Item++) {
-      std::string aNameTagPairVecFirst  = aNameTagPairVec[Item].first;   
-      std::string aNameTagPairVecSecond = aNameTagPairVec[Item].second;   
-      std::pair<std::string,std::string> aPair(aNameTagPairVecFirst,aNameTagPairVecSecond);
-      m_TagInfoXML.push_back(aPair);
-    }
-    ATH_MSG_DEBUG( "     "  
-       << " One gets " 
-       <<  m_TagInfoXML.size()
-       << " items from TagInfo "
-       ) ;
-    for (unsigned int Item = 0; Item < m_TagInfoXML.size(); Item++) {
-      std::string aNameTagPairVecFirst  = m_TagInfoXML[Item].first;   
-      std::string aNameTagPairVecSecond = m_TagInfoXML[Item].second;   
-      ATH_MSG_DEBUG( "      " 
-          << "  " << aNameTagPairVecFirst
-          << "  " << aNameTagPairVecSecond
-          ) ;
-    }
-  }
-  
-  return StatusCode::SUCCESS;
-
-}
 
 StatusCode AmdcsimrecAthenaSvc::SetLocation(std::string NameFile, std::string& FileLocation)
 {
