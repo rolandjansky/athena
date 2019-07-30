@@ -37,6 +37,7 @@ namespace EL
   {
     struct AlgorithmData;
     struct JobSubmitInfo;
+    enum class JobSubmitStep;
     class Module;
     struct ModuleData;
     class OutputStreamData;

@@ -308,6 +308,22 @@ namespace EL
 
 
 
+  ::StatusCode BatchDriver ::
+  doSubmitStep (Detail::JobSubmitInfo& info,
+                Detail::JobSubmitStep step) const
+  {
+    using namespace msgEventLoop;
+    ANA_CHECK (Driver::doSubmitStep (info, step));
+    switch (step)
+    {
+    default:
+      (void) true; // safe to do nothing
+    }
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
   void BatchDriver ::
   doUpdateJob (Job& job, const std::string& location) const
   {

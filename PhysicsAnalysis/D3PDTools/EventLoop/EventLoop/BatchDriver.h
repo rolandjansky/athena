@@ -58,6 +58,11 @@ namespace EL
     // interface inherited from Driver
     //
 
+  protected:
+    virtual ::StatusCode
+    doSubmitStep (Detail::JobSubmitInfo& info,
+                  Detail::JobSubmitStep step) const override;
+
   private:
     virtual void
     doUpdateJob (Job& job, const std::string& location) const override;
