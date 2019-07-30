@@ -71,6 +71,7 @@ class FourMuonEvent : public EventAnalysis
   inline const float&                get4MuInvMass (ZTYPE eType)          { return m_fInvariantMass[eType];  } 
   inline int                         getAcceptedEvents ()                 { return m_acceptedEventCount; }      
   inline const xAOD::Muon*           getCombMuon ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : nullptr;  }
+  inline const xAOD::TrackParticle*  getELTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxELTrack[uPart] : nullptr;  }
   inline const xAOD::TrackParticle*  getIDTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : nullptr;  }
   inline double                      GetInvMass() { return m_FourMuonInvMass; }
   inline const xAOD::TrackParticle*  getMSTrack  ( unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : nullptr;  }
@@ -82,6 +83,7 @@ class FourMuonEvent : public EventAnalysis
   float                              getPtImbalance( ZTYPE eType );
   const std::string                  getRegion() const ;
   unsigned int                       getPosMuon( int eType );
+  inline int                         GetVertexElec ( unsigned int uPart ) { return (uPart < NUM_MUONS) ? m_elec_vtx[uPart] : 0;}
   inline int                         GetVertexElNeg1 () { return m_elec_vtx[0];}
   inline int                         GetVertexElNeg2 () { return m_elec_vtx[1];}
   inline int                         GetVertexElPos1 () { return m_elec_vtx[2];}

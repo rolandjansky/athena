@@ -95,7 +95,7 @@ if (MC_bool):
     #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
 
 EvtMax= -1
-EvtMax = 1000
+EvtMax = 10000
 SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence

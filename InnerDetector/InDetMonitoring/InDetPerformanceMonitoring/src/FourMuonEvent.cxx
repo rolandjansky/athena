@@ -32,8 +32,8 @@ FourMuonEvent::FourMuonEvent()
   m_container = PerfMonServices::MUON_COLLECTION; //PerfMonServices::ELECTRON_COLLECTION
 
   m_doDebug = false;
-  m_workAsFourMuons = true;
-  m_workAsFourElectrons = false;
+  m_workAsFourMuons = false;
+  m_workAsFourElectrons = true;
   m_workAsFourLeptons = false;
 
   // Setup the muon tags
@@ -187,7 +187,7 @@ bool FourMuonEvent::Reco()
   } // end of workAsFourMuons
   
   if (m_workAsFourElectrons) {
-    std::cout << " * FourMuonEvent::Reco * work in progress to use 4 electrons as well " << std::endl;
+    std::cout << " * FourMuonEvent::Reco * applying 4 electron selection " << std::endl;
     m_passedFourElectronSelection = false; // unless the event has 4 muons, assume it is not good
     
     if (m_numberOfFullPassElectrons == 4) {
@@ -200,11 +200,14 @@ bool FourMuonEvent::Reco()
       
       if (m_passedFourElectronSelection) {
 	m_FourMuonInvMass = m_fInvariantMass[ID]; // store invariant mass
-	if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is a GOOD 4-electrom event " << std::endl;
+	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is a GOOD 4-electrom event " << std::endl;
       }
       else {
-	if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " FAILS the 4-electron event selection " << std::endl;
+	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " FAILS the 4-electron event selection " << std::endl;
       }
+    }
+    else {
+	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is not a 4-electron event " << std::endl;
     }
   } // end of workAsFourElectrons
 
@@ -297,10 +300,6 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
 			    << "                            m_NumberOfFullPassElectrons: " << m_numberOfFullPassElectrons 
 			    << std::endl;
   }
-
-  m_workAsFourMuons = true;
-  m_workAsFourElectrons = false;
-  m_workAsFourLeptons = false;
 
   // Depending on mode: require a minimum of electrons or muons
   if ( eventisgood && m_workAsFourMuons) {
@@ -451,11 +450,12 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
 	      vtxListZ.push_back(m_pxELTrack[iel]->vertex()->z());
 	      vtxNpart.push_back(0); // initialize particle count to 0
 	    }
+	    bool vertexmatchfound = false;
 	    // loop on existing vertices. Check if this particle shares one of the existing ones. If not, add a new vertex to the list
 	    for (unsigned int ivtx=0; ivtx < vtxListX.size(); ivtx++) {
-	      float deltaX = fabs(m_pxELTrack[iel]->vertex()->x() - vtxListX.at(ivtx));
-	      float deltaY = fabs(m_pxELTrack[iel]->vertex()->y() - vtxListY.at(ivtx));
-	      float deltaZ = fabs(m_pxELTrack[iel]->vertex()->z() - vtxListZ.at(ivtx));
+	      float deltaX = fabs( m_pxELTrack[iel]->vertex()->x() - vtxListX.at(ivtx) );
+	      float deltaY = fabs( m_pxELTrack[iel]->vertex()->y() - vtxListY.at(ivtx) );
+	      float deltaZ = fabs( m_pxELTrack[iel]->vertex()->z() - vtxListZ.at(ivtx) );
 	      
 	      if (deltaX < m_deltaXYcut && deltaY < m_deltaXYcut && deltaZ < m_Z0GapCut) {
 		// this is an existing vertex
@@ -464,7 +464,16 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
 		vtxNpart.at(ivtx) = npartinvtx;
 		// fill the variables that tells to which vertex is associated each muon
 		m_elec_vtx[iel] = ivtx+1;
+		vertexmatchfound = true;
 	      }
+	    }
+	    if (!vertexmatchfound) { // the electron is not in any of the previous listed vertices
+	      // this is a new vertex 
+	      vtxListX.push_back(m_pxELTrack[iel]->vertex()->x());
+	      vtxListY.push_back(m_pxELTrack[iel]->vertex()->y());
+	      vtxListZ.push_back(m_pxELTrack[iel]->vertex()->z());
+	      vtxNpart.push_back(1); // initialize particle count to 1 
+	      m_elec_vtx[iel] = vtxListX.size(); // this electron is in this new vertex
 	    }
 	  } // vertex exist
 	  else { // no vertex
@@ -496,7 +505,7 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
       if (vtxListX.size()>0) vertexstatus = true;
       // check that the electrons are not split into too many vertices
       if (vtxListX.size() >= m_numberOfFullPassElectrons - 1) vertexstatus = false;
-      // and allow maximum a muon without vertex
+      // and allow no electron without vertex
       if (noVertexCountElec > 0) vertexstatus = false;
       if (m_doDebug || true) {
 	std::cout << " * FourMuonEvent::EventSelection(" << eType <<") * vertices ID of the electrons = " << std::endl
@@ -1487,9 +1496,9 @@ bool FourMuonEvent::CheckMuonVertices ()
 				       << ", " << m_pxMUTrack[imupos]->vertex()->z()
 				       << ") " << std::endl;
 	      
-	      float delta_x = m_pxMUTrack[imuneg]->vertex()->x() - m_pxMUTrack[imupos]->vertex()->x();
-	      float delta_y = m_pxMUTrack[imuneg]->vertex()->y() - m_pxMUTrack[imupos]->vertex()->y();
-	      float delta_z = m_pxMUTrack[imuneg]->vertex()->z() - m_pxMUTrack[imupos]->vertex()->z();
+	      float delta_x = fabs( m_pxMUTrack[imuneg]->vertex()->x() - m_pxMUTrack[imupos]->vertex()->x());
+	      float delta_y = fabs( m_pxMUTrack[imuneg]->vertex()->y() - m_pxMUTrack[imupos]->vertex()->y());
+	      float delta_z = fabs( m_pxMUTrack[imuneg]->vertex()->z() - m_pxMUTrack[imupos]->vertex()->z());
 	      
 	      if (delta_x < m_deltaXYcut && delta_y < m_deltaXYcut && delta_z < m_Z0GapCut) {
 		nverticesfound++;

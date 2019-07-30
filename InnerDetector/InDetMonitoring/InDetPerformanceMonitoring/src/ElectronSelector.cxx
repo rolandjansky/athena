@@ -146,19 +146,44 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 
   if (electronisgood && thisElec->author(xAOD::EgammaParameters::AuthorElectron) != 1) {
     electronisgood = false;
-    (*m_msgStream) << MSG::DEBUG << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails author  -- " << thisElec->author(xAOD::EgammaParameters::AuthorElectron) << endreq;
   }
 
   if (electronisgood && theTrackParticle->pt() * CGeV < m_ptCut ) { // pt cut given in GeV
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt()
 		   << " < " << m_ptCut << " (cut value) "
-		   << std::endl;
+		   << endreq;
+  }
+
+  const xAOD::CaloCluster* cluster = thisElec->caloCluster();
+  if(!cluster) electronisgood = false;
+
+  if (electronisgood && fabs(cluster->eta())> 2.4 ) { // 
+    electronisgood = false;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails eta cut  -- cluster_eta= " << cluster->eta() << endreq;
   }
 
   if (electronisgood) {
-    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
+    if (true) {
+      CLHEP::HepLorentzVector calocluster4mom;
+      calocluster4mom.setPx ( cluster->e() * cos(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
+      calocluster4mom.setPy ( cluster->e() * sin(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
+      calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
+      calocluster4mom.setE  ( cluster->e() );
+      
+      std::cout << " -- ElectronSelector::RecordElectron -- count " << m_pxElTrackList.size()
+		<< "  track Pt: " << theTrackParticle->pt() 
+		<< "  cluster ET: " << calocluster4mom.perp()
+		<< "  cluster E: " << cluster->e() 
+		<< "  theta: " << theTrackParticle->theta()
+		<< std::endl;
+    }
+  }
+
+  if (electronisgood) {
     m_pxElTrackList.push_back(theTrackParticle);
+    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
   }
 
   return electronisgood;
@@ -184,6 +209,7 @@ void ElectronSelector::Clear()
 bool ElectronSelector::OrderElectronList()
 {
   (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << endreq;
+  std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << std::endl;
   
   bool goodlist = true;
 
@@ -243,7 +269,7 @@ bool ElectronSelector::OrderElectronList()
       goodlist = false;
     }
 
-    if (m_doDebug && elecposcount + elecnegcount >= 2){ 
+    if ((m_doDebug || true) && elecposcount + elecnegcount >= 2 ){ 
       std::cout << " -- ElectronSelector::OrderElectronList -- electron summary list taking " << elecposcount + elecnegcount 
 		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
       if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
@@ -288,9 +314,9 @@ bool ElectronSelector::RetrieveVertices ()
 				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->y()
 				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->z()
 				     << ") " << std::endl;
-	    float delta_x = m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->x();
-	    float delta_y = m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y();
-	    float delta_z = m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z();
+	    float delta_x = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->x() );
+	    float delta_y = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->y()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->y() );
+	    float delta_z = fabs( m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()-m_goodElecPosTrackParticleList.at(iposi)->vertex()->z() );
 
 	    if (delta_x < m_deltaXYcut && delta_y < m_deltaXYcut && delta_z < m_deltaZcut) {
 	      nverticesfound++;

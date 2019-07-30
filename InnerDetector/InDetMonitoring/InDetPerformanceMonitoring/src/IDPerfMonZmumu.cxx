@@ -567,23 +567,23 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_FourMuTree->Branch("Negative_2_d0_err", &m_negative_2_d0_err,  "Negative_2_d0_err/D");
     m_FourMuTree->Branch("Negative_2_vtx",    &m_negative_2_vtx,  "Negative_2_vtx/I");
 
-    m_FourMuTree->Branch("Positive_1_Px",  &m_positive_px,  "Positive_1_Px/D");
-    m_FourMuTree->Branch("Positive_1_Py",  &m_positive_py,  "Positive_1_Py/D");
-    m_FourMuTree->Branch("Positive_1_Pz",  &m_positive_pz,  "Positive_1_Pz/D");
-    m_FourMuTree->Branch("Positive_1_z0",  &m_positive_z0,  "Positive_1_z0/D");
-    m_FourMuTree->Branch("Positive_1_d0",  &m_positive_d0,  "Positive_1_d0/D");
-    m_FourMuTree->Branch("Positive_1_z0_err",  &m_positive_z0_err,  "Positive_1_z0_err/D");
-    m_FourMuTree->Branch("Positive_1_d0_err",  &m_positive_d0_err,  "Positive_1_d0_err/D");
-    m_FourMuTree->Branch("Positive_1_vtx",  &m_positive_1_vtx,  "Positive_1_vtx/I");
+    m_FourMuTree->Branch("Positive_1_Px",     &m_positive_px,     "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_1_Py",     &m_positive_py,     "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_1_Pz",     &m_positive_pz,     "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_1_z0",     &m_positive_z0,     "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_1_d0",     &m_positive_d0,     "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_1_z0_err", &m_positive_z0_err, "Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_1_d0_err", &m_positive_d0_err, "Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_1_vtx",    &m_positive_1_vtx,  "Positive_1_vtx/I");
 
-    m_FourMuTree->Branch("Positive_2_Px",  &m_positive_2_px,  "Positive_1_Px/D");
-    m_FourMuTree->Branch("Positive_2_Py",  &m_positive_2_py,  "Positive_1_Py/D");
-    m_FourMuTree->Branch("Positive_2_Pz",  &m_positive_2_pz,  "Positive_1_Pz/D");
-    m_FourMuTree->Branch("Positive_2_z0",  &m_positive_2_z0,  "Positive_1_z0/D");
-    m_FourMuTree->Branch("Positive_2_d0",  &m_positive_2_d0,  "Positive_1_d0/D");
-    m_FourMuTree->Branch("Positive_2_z0_err",  &m_positive_2_z0_err,  "Positive_1_z0_err/D");
-    m_FourMuTree->Branch("Positive_2_d0_err",  &m_positive_2_d0_err,  "Positive_1_d0_err/D");
-    m_FourMuTree->Branch("Positive_2_vtx",  &m_positive_2_vtx,  "Positive_2_vtx/I");
+    m_FourMuTree->Branch("Positive_2_Px",     &m_positive_2_px,    "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_2_Py",     &m_positive_2_py,    "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_2_Pz",     &m_positive_2_pz,    "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_2_z0",     &m_positive_2_z0,    "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_2_d0",     &m_positive_2_d0,    "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_2_z0_err", &m_positive_2_z0_err,"Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_2_d0_err", &m_positive_2_d0_err,"Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_2_vtx",    &m_positive_2_vtx,   "Positive_2_vtx/I");
 
     // electrons
     m_FourMuTree->Branch("ElNegative_1_Px",     &m_el_negative1_px,     "ElNegative_1_Px/D");
@@ -894,38 +894,85 @@ StatusCode IDPerfMonZmumu::execute()
 	const xAOD::TrackParticle* muon2_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(2));
 
 	// muons
-	m_positive_px = muon1_pos->p4().Px();
-	m_positive_py = muon1_pos->p4().Py();
-	m_positive_pz = muon1_pos->p4().Pz();
-	m_positive_d0 = muon1_pos->d0();
-	m_positive_z0 = muon1_pos->z0();
+	if (muon1_pos) {
+	  m_positive_px = muon1_pos->p4().Px();
+	  m_positive_py = muon1_pos->p4().Py();
+	  m_positive_pz = muon1_pos->p4().Pz();
+	  m_positive_d0 = muon1_pos->d0();
+	  m_positive_z0 = muon1_pos->z0();
+	  m_positive_d0_err = muon1_pos->definingParametersCovMatrix()(0,0);
+	  m_positive_z0_err = muon1_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (muon1_neg) {
+	  m_negative_px = muon1_neg->p4().Px();
+	  m_negative_py = muon1_neg->p4().Py();
+	  m_negative_pz = muon1_neg->p4().Pz();
+	  m_negative_d0 = muon1_neg->d0();
+	  m_negative_z0 = muon1_neg->z0();
+	  m_negative_d0_err = muon1_neg->definingParametersCovMatrix()(0,0);
+	  m_negative_z0_err = muon1_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (muon2_pos) {
+	  m_positive_2_px = muon2_pos->p4().Px();
+	  m_positive_2_py = muon2_pos->p4().Py();
+	  m_positive_2_pz = muon2_pos->p4().Pz();
+	  m_positive_2_d0 = muon2_pos->d0();
+	  m_positive_2_z0 = muon2_pos->z0();
+	  m_positive_2_d0_err = muon2_pos->definingParametersCovMatrix()(0,0);
+	  m_positive_2_z0_err = muon2_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (muon2_neg) {
+	  m_negative_2_px = muon2_neg->p4().Px();
+	  m_negative_2_py = muon2_neg->p4().Py();
+	  m_negative_2_pz = muon2_neg->p4().Pz();
+	  m_negative_2_d0 = muon2_neg->d0();
+	  m_negative_2_z0 = muon2_neg->z0();
+	  m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
+	  m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
+	}
 	
-	m_negative_px = muon1_neg->p4().Px();
-	m_negative_py = muon1_neg->p4().Py();
-	m_negative_pz = muon1_neg->p4().Pz();
-	m_negative_d0 = muon1_neg->d0();
-	m_negative_z0 = muon1_neg->z0();
-	
-	m_positive_2_px = muon2_pos->p4().Px();
-	m_positive_2_py = muon2_pos->p4().Py();
-	m_positive_2_pz = muon2_pos->p4().Pz();
-	m_positive_2_d0 = muon2_pos->d0();
-	m_positive_2_z0 = muon2_pos->z0();
-	m_positive_2_d0_err = muon2_pos->definingParametersCovMatrix()(0,0);
-	m_positive_2_z0_err = muon2_pos->definingParametersCovMatrix()(1,1);
-	
-	m_negative_2_px = muon2_neg->p4().Px();
-	m_negative_2_py = muon2_neg->p4().Py();
-	m_negative_2_pz = muon2_neg->p4().Pz();
-	m_negative_2_d0 = muon2_neg->d0();
-	m_negative_2_z0 = muon2_neg->z0();
-	m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
-	m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
-
 	// electrons
-	m_el_positive1_px = 0.;
+	const xAOD::TrackParticle* elec1_neg = m_4mu.getELTrack(0);
+	const xAOD::TrackParticle* elec2_neg = m_4mu.getELTrack(1);
+	const xAOD::TrackParticle* elec1_pos = m_4mu.getELTrack(2);
+	const xAOD::TrackParticle* elec2_pos = m_4mu.getELTrack(3);
+	if (elec1_neg) {
+	  m_el_negative1_px = elec1_neg->p4().Px();
+	  m_el_negative1_py = elec1_neg->p4().Py();
+	  m_el_negative1_pz = elec1_neg->p4().Pz();
+	  m_el_negative1_d0 = elec1_neg->d0();
+	  m_el_negative1_z0 = elec1_neg->z0();
+	  m_el_negative1_d0_err = elec1_neg->definingParametersCovMatrix()(0,0);
+	  m_el_negative1_z0_err = elec1_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (elec2_neg) {
+	  m_el_negative2_px = elec2_neg->p4().Px();
+	  m_el_negative2_py = elec2_neg->p4().Py();
+	  m_el_negative2_pz = elec2_neg->p4().Pz();
+	  m_el_negative2_d0 = elec2_neg->d0();
+	  m_el_negative2_z0 = elec2_neg->z0();
+	  m_el_negative2_d0_err = elec2_neg->definingParametersCovMatrix()(0,0);
+	  m_el_negative2_z0_err = elec2_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (elec1_pos) {
+	  m_el_positive1_px = elec1_pos->p4().Px();
+	  m_el_positive1_py = elec1_pos->p4().Py();
+	  m_el_positive1_pz = elec1_pos->p4().Pz();
+	  m_el_positive1_d0 = elec1_pos->d0();
+	  m_el_positive1_z0 = elec1_pos->z0();
+	  m_el_positive1_d0_err = elec1_pos->definingParametersCovMatrix()(0,0);
+	  m_el_positive1_z0_err = elec1_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (elec2_pos) {
+	  m_el_positive2_px = elec2_pos->p4().Px();
+	  m_el_positive2_py = elec2_pos->p4().Py();
+	  m_el_positive2_pz = elec2_pos->p4().Pz();
+	  m_el_positive2_d0 = elec2_pos->d0();
+	  m_el_positive2_z0 = elec2_pos->z0();
+	  m_el_positive2_d0_err = elec2_pos->definingParametersCovMatrix()(0,0);
+	  m_el_positive2_z0_err = elec2_pos->definingParametersCovMatrix()(1,1);
+	}
 	
-
 	// other quantities
 	m_nVertex =        m_4mu.GetNVertex ();
 	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
@@ -933,12 +980,26 @@ StatusCode IDPerfMonZmumu::execute()
 	m_positive_1_vtx = m_4mu.GetVertexMuPos1();
 	m_positive_2_vtx = m_4mu.GetVertexMuPos2();
 
+	m_el_negative1_vtx = m_4mu.GetVertexElec(0);
+	m_el_negative2_vtx = m_4mu.GetVertexElec(1);
+	m_el_positive1_vtx = m_4mu.GetVertexElec(2);
+	m_el_positive2_vtx = m_4mu.GetVertexElec(3);
+
 	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
 
-	if (muon1_neg->vertex() != nullptr) { // check vertex exists
-	  m_pv_x = muon1_pos->vertex()->x();
-	  m_pv_y = muon1_pos->vertex()->y();
-	  m_pv_z = muon1_pos->vertex()->z();
+	if (muon1_neg) {
+	  if (muon1_neg->vertex() != nullptr) { // check vertex exists
+	    m_pv_x = muon1_pos->vertex()->x();
+	    m_pv_y = muon1_pos->vertex()->y();
+	    m_pv_z = muon1_pos->vertex()->z();
+	  }
+	}
+	else if (elec1_neg) {
+	  if (elec1_neg->vertex() != nullptr) { // check vertex exists
+	    m_pv_x = elec1_pos->vertex()->x();
+	    m_pv_y = elec1_pos->vertex()->y();
+	    m_pv_z = elec1_pos->vertex()->z();
+	  }
 	}
 	
 	m_4mu_minv = m_4mu.GetInvMass();
