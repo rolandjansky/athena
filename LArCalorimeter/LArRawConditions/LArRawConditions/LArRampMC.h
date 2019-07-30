@@ -6,11 +6,8 @@
 #define LARRAWCONDITIONS_LARRAMPMC_H
 
 #include "LArRawConditions/LArRampComplete.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArRamp for MC
  *  Derives from LArRampComplete, and implements the phi-z symmetry
@@ -38,11 +35,6 @@ class LArRampMC: public LArRampComplete {
   
   virtual  RampRef_t ADC2DAC(const HWIdentifier&  CellID, int gain) const ;
   
- private: 
-
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
 };
 
 //ConditionsContainer clid for athenaMT

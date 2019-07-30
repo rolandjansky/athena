@@ -30,9 +30,20 @@ def CaloBCIDAvgAlgCfg (flags):
             result.merge(addFolders(flags, ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>',
                                             '/LAR/ElecCalibOfl/LArPileupAverage'], 'LAR_OFL'))
 
+
+        #For data, the regular shape is the 4-sample one used to Q-factor computation by LArRawChannelBuilder
+        #Here we need a 32-sample, symmetrized shape. Therfore the re-key'ing and the dedicated LArPileUpShapeSymCondAlg
+
+
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
+
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
+        result.addCondAlgo(LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym"))
+
         alg = CaloBCIDAvgAlg (isMC = False,
                               LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,
-                              ShapeKey = 'LArShape32')
+                              ShapeKey = 'LArShape32Sym')
 
     else:
         from LArRecUtils.LArRecUtilsConfig import \
@@ -48,9 +59,12 @@ def CaloBCIDAvgAlgCfg (flags):
         result.merge(addFolders(flags, ['/LAR/ElecCalibMC/Shape',
                                         '/LAR/ElecCalibMC/LArPileupAverage'], 'LAR_OFL'))
 
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
+
         alg = CaloBCIDAvgAlg (isMC = True,
                               BunchCrossingTool = theBunchCrossingTool,
-                              ShapeKey = 'LArShape')
+                              ShapeKey = 'LArShapeSym')
 
     result.addEventAlgo (alg)
     return result

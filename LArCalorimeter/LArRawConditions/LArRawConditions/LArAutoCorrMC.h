@@ -8,10 +8,7 @@
 #define LARRAWCONDITIONS_LARAUTOCORRMC_H
 
 #include "LArRawConditions/LArAutoCorrComplete.h"
-#include "LArElecCalib/ILArMCSymTool.h"
 #include "AthenaKernel/BaseInfo.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include <vector>
 
 
@@ -35,12 +32,6 @@ class LArAutoCorrMC: public LArAutoCorrComplete {
   // retrieving AutoCorr using online ID
   
   virtual AutoCorrRef_t autoCorr(const HWIdentifier&  CellID, int gain) const ;
-
- protected:
-
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
 
 };
 
