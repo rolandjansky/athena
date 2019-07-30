@@ -14,6 +14,7 @@
 
 #include <EventLoop/Job.h>
 #include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/JobSubmitStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
@@ -93,6 +94,7 @@ namespace EL
   submitOnly (const Job& job, const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
+    using namespace msgEventLoop;
 
     std::string mylocation = location;
     if (location[0] != '/')
@@ -106,6 +108,20 @@ namespace EL
 
     Job myjob = job;
     doUpdateJob (myjob, mylocation);
+
+    Detail::JobSubmitInfo info;
+    info.submitDir = mylocation;
+    info.job = &myjob;
+    for (unsigned stepIter = unsigned (Detail::JobSubmitStep::Initial);
+         stepIter != unsigned (Detail::JobSubmitStep::Final) + 1;
+         stepIter += 1)
+    {
+      if (doSubmitStep (info, Detail::JobSubmitStep (stepIter)).isFailure())
+      {
+        ANA_MSG_ERROR ("while performing submission step " << stepIter);
+        throw std::runtime_error ("submission error in step " + std::to_string (stepIter));
+      }
+    }
 
     if (job.options()->castBool (Job::optDisableMetrics, false))
       if (!myjob.algsHas (MetricsSvc::name))
@@ -135,11 +151,6 @@ namespace EL
     }
     sh_hist.save (mylocation + "/hist");
 
-    Detail::JobSubmitInfo info;
-    info.submitDir = mylocation;
-    info.job = &myjob;
-    info.options = *info.job->options();
-    info.options.fetchDefaults (*options());
     doSubmit (info);
 
     // rationale: this particular file can be checked to see if a job
@@ -331,6 +342,27 @@ namespace EL
       sh.fetch (job.sampleHandler());
       sh.save (location + "/output-" + out->label());
     }
+  }
+
+
+
+  ::StatusCode Driver ::
+  doSubmitStep (Detail::JobSubmitInfo& info,
+                Detail::JobSubmitStep step) const
+  {
+    switch (step)
+    {
+    case Detail::JobSubmitStep::FillOptions:
+      {
+        info.options = *info.job->options();
+        info.options.fetchDefaults (*options());
+      }
+      break;
+
+    default:
+      (void) true; // safe to do nothing
+    }
+    return ::StatusCode::SUCCESS;
   }
 
 

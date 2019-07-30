@@ -14,6 +14,8 @@
 #include <TObject.h>
 #include <SampleHandler/MetaObject.h>
 
+class StatusCode;
+
 namespace EL
 {
   /// \brief the base class for the various EventLoop drivers that
@@ -240,6 +242,19 @@ namespace EL
     //
     // virtual interface
     //
+
+    /// \brief do whatever needs to be done for the given submission step
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   job configuration errors\n
+    ///   driver errors\n
+    ///   job submission errors
+  protected:
+    virtual ::StatusCode
+    doSubmitStep (Detail::JobSubmitInfo& info,
+                  Detail::JobSubmitStep step) const;
+
 
     /// \brief update the job before it is submitted
     /// \par Guarantee
