@@ -56,7 +56,7 @@ def MDTCondSummarySvcCfg(flags, **kwargs):
       kwargs['ConditionsServices'] = [cond_svc]  # COOL folders not available online
     cond_summary = MDTCondSummarySvc(**kwargs)
     result.addService(cond_summary)
-    return result, cond_summary
+    return result
  
 def RPCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator()

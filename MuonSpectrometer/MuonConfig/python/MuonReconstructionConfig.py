@@ -23,13 +23,18 @@ if __name__=="__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
+    
+    ConfigFlags.Detector.GeometryMDT   = True 
+    ConfigFlags.Detector.GeometryTGC   = True
+    ConfigFlags.Detector.GeometryCSC   = True     
+    ConfigFlags.Muon.doCSCs = False # FIXME - this does not yet work. Need to investigate why.
+    ConfigFlags.Detector.GeometryRPC   = True 
+    
     log.setLevel(DEBUG)
     from AthenaCommon.Logging import log
     log.debug('About to set up Segment Finding.')
     
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.3/v1/myESD.pool.root"]
-    ConfigFlags.Muon.doCSCs = False 
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
