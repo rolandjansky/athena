@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -141,10 +141,15 @@ namespace CP
             {
               if (m_maxD0Significance > 0)
               {
-                const float d0sig = xAOD::TrackingHelpers::d0significance
-                  (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
-                   eventInfo->beamPosSigmaXY());
-                m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+                try
+                {
+                  const float d0sig = xAOD::TrackingHelpers::d0significance
+                    (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
+                    eventInfo->beamPosSigmaXY());
+                  m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+                } catch (const std::runtime_error &) {
+                  m_accept.setCutResult (cutIndex ++, false);
+                }
               }
               if (m_maxDeltaZ0SinTheta > 0)
               {
