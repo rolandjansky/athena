@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParametersBase
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           PRIVATE
+                          AtlasTest/TestTools
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -37,4 +38,23 @@ atlas_add_component( TrkVertexFitterUtils
 
 # Install files from the package:
 atlas_install_headers( TrkVertexFitterUtils )
+atlas_install_joboptions( share/*.txt )
 
+
+atlas_add_test( DummyAnnealingMaker_test
+                SOURCES test/DummyAnnealingMaker_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
+                EXTRA_PATTERNS "AtlasFieldSvc" )
+
+atlas_add_test( DetAnnealingMaker_test
+                SOURCES test/DetAnnealingMaker_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
+                EXTRA_PATTERNS "AtlasFieldSvc" )
+
+atlas_add_test( ImpactPoint3dEstimator_test
+                SOURCES test/ImpactPoint3dEstimator_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
+                EXTRA_PATTERNS "AtlasFieldSvc" )
