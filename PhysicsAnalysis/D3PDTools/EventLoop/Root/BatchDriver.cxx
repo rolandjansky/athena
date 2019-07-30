@@ -21,6 +21,7 @@
 #include <EventLoop/BatchSample.h>
 #include <EventLoop/BatchSegment.h>
 #include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/JobSubmitStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
@@ -316,30 +317,25 @@ namespace EL
     ANA_CHECK (Driver::doSubmitStep (info, step));
     switch (step)
     {
+    case Detail::JobSubmitStep::UpdateOutputLocation:
+      {
+        const std::string writeLocation=getWriteLocation(info);
+        for (Job::outputMIter out = info.job->outputBegin(),
+               end = info.job->outputEnd(); out != end; ++ out)
+        {
+          if (out->output() == 0)
+          {
+            out->output (new SH::DiskOutputLocal
+                         (writeLocation + "/fetch/data-" + out->label() + "/"));
+          }
+        }
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void BatchDriver ::
-  doUpdateJob (Job& job, const std::string& location) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    const std::string writeLocation=getWriteLocation(location);
-
-    for (Job::outputMIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
-    {
-      if (out->output() == 0)
-      {
-	out->output (new SH::DiskOutputLocal
-		     (writeLocation + "/fetch/data-" + out->label() + "/"));
-      }
-    }
   }
 
 
@@ -367,7 +363,7 @@ namespace EL
 
     BatchJob myjob;
     fillFullJob (myjob, *info.job, info.submitDir, info.options);
-    myjob.location=getWriteLocation(info.submitDir);
+    myjob.location=getWriteLocation(info);
     {
       std::string path = info.submitDir + "/submit/config.root";
       std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
@@ -382,7 +378,7 @@ namespace EL
       }
     }
 
-    makeScript (info.submitDir, myjob.segments.size(),
+    makeScript (info, myjob.segments.size(),
 		info.options.castBool(Job::optBatchSharedFileSystem,true));
 
     for (std::size_t index = 0; index != myjob.segments.size(); ++ index)
@@ -577,12 +573,13 @@ namespace EL
 
 
   void BatchDriver ::
-  makeScript (const std::string& location, std::size_t njobs, bool sharedFileSystem) const
+  makeScript (Detail::JobSubmitInfo& info,
+              std::size_t njobs, bool sharedFileSystem) const
   {
     RCU_READ_INVARIANT (this);
 
-    const std::string writeLocation=getWriteLocation(location);
-    const std::string submitLocation=getSubmitLocation(location);
+    const std::string writeLocation=getWriteLocation(info);
+    const std::string submitLocation=getSubmitLocation(info.submitDir);
 
     std::string name = batchName ();
     bool multiFile = (name.find ("{JOBID}") != std::string::npos);
@@ -590,7 +587,7 @@ namespace EL
     {
       std::ostringstream str;
       str << index;
-      const std::string fileName = location + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
+      const std::string fileName = info.submitDir + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
 
       {
         std::ofstream file (fileName.c_str());
@@ -774,12 +771,12 @@ namespace EL
     return result;
   }
 
-  const std::string BatchDriver ::
-  getWriteLocation (const std::string& location) const
+  std::string BatchDriver ::
+  getWriteLocation (const Detail::JobSubmitInfo& info) const
   {
     RCU_READ_INVARIANT (this);
-    if(options()->castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, write to output
-      return location;
+    if(info.options.castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, write to output
+      return info.submitDir;
     else
       return ".";
   }

@@ -36,7 +36,11 @@ namespace EL
       /// options.
       FillOptions,
 
-      Final = FillOptions
+      /// in this step we update the output location of streams that
+      /// don't yet have one defined
+      UpdateOutputLocation,
+
+      Final = UpdateOutputLocation
     };
   }
 }

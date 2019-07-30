@@ -22,6 +22,7 @@
 #include <TSystem.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/JobSubmitStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
@@ -56,21 +57,36 @@ namespace EL
 
 
 
-  void DirectDriver ::
-  doUpdateJob (Job& job, const std::string& location) const
+  ::StatusCode DirectDriver ::
+  doSubmitStep (Detail::JobSubmitInfo& info,
+                Detail::JobSubmitStep step) const
   {
-    RCU_READ_INVARIANT (this);
-
-    for (Job::outputMIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
+    using namespace msgEventLoop;
+    ANA_CHECK (Driver::doSubmitStep (info, step));
+    switch (step)
     {
-      if (out->output() == 0)
+    case Detail::JobSubmitStep::UpdateOutputLocation:
       {
-	out->output (new SH::DiskOutputLocal
-		     (location + "/data-" + out->label() + "/"));
+        for (Job::outputMIter out = info.job->outputBegin(),
+               end = info.job->outputEnd(); out != end; ++ out)
+        {
+          if (out->output() == 0)
+          {
+            out->output (new SH::DiskOutputLocal
+                         (info.submitDir + "/data-" + out->label() + "/"));
+          }
+        }
       }
+      break;
+
+    default:
+      (void) true; // safe to do nothing
     }
+    return ::StatusCode::SUCCESS;
   }
+
+
+
 
 
 

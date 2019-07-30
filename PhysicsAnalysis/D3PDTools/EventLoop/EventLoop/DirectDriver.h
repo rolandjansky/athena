@@ -50,14 +50,10 @@ namespace EL
     // interface inherited from Driver
     //
 
-    /// effects: update the job before it is submitted
-    /// guarantee: basic
-    /// failures: out of memory II
-    /// failures: job specifications unfulfillable
-  private:
-    virtual void
-    doUpdateJob (Job& job, const std::string& location) const override;
-
+  protected:
+    virtual ::StatusCode
+    doSubmitStep (Detail::JobSubmitInfo& info,
+                  Detail::JobSubmitStep step) const override;
 
     /// effects: submit the given job with the given output location
     /// guarantee: strong
