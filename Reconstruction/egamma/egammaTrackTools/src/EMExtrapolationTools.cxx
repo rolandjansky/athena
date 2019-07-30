@@ -193,10 +193,12 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    */
   if(!didExtension){
     ATH_MSG_INFO("Could not create an extension from " << extrapFrom 
-                 <<  " for a track with : "<< " Track Pt "
-                 <<trkPB->pt()<< " Track Eta " 
-                 <<trkPB->eta()<<" Track Fitter ");
-    return StatusCode::SUCCESS; 
+                 <<  " for a track with : "
+                 << " Track Pt " <<trkPB->pt()
+                 << " Track Eta " <<trkPB->eta()
+                 << " Track Phi " <<trkPB->phi()
+                 <<" Track Fitter " << trkPB->trackFitter() );
+    return StatusCode::FAILURE; 
   }
   // Should we flip the sign for deltaPhi? 
   bool flipSign = false; 
