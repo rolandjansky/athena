@@ -35,10 +35,10 @@ def getTriggerEDMList(key, runVersion):
             return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
 
     elif runVersion ==3:
-        if 'SLIM' in key or 'SMALL' in key or 'LARGE' in key :
-            return getTriggerEDMSlimList(key, runVersion)
-        else:
-            return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+        #if 'SLIM' in key or 'SMALL' in key or 'LARGE' in key :
+        #    return getTriggerEDMSlimList(key, runVersion)
+        #else:
+        return getTriggerObjList(key,[TriggerHLTList])
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
 
