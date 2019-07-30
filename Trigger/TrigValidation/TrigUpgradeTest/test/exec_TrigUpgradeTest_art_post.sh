@@ -125,9 +125,11 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
-else
+elif [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
   echo "art-result: 999 RootComp"
+else
+  echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file and no reference are found - skipping RootComp"
 fi
 
 ### CHAINDUMP
