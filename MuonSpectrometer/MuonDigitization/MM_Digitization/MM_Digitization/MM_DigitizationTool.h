@@ -20,8 +20,8 @@
 	which is also initialized in the initialize() method.
 	In the execute() method, the digits and the SDOs (Simulation Data Object,
 	container for simulation data to be preserved after the digitization procedue, and persistified together with the RDOs)
-	containers are created and recorded on StoreGate; the GenericMuonSimHit collection are merged using the
-	TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<GenericMuonSimHit>& hit)) method);
+	containers are created and recorded on StoreGate; the MMSimHit collection are merged using the
+	TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<MMSimHit>& hit)) method);
 	into a loop over the TimedHitCollection for the given DetectorElement,
 	the handleMicroMegasSimhit() method converts the SimID into the Offline ID to be associated to the Digit and pass to the
 	digitization tool the drift radius and the distance to the chamber RO side (for the propagation delay computation).
