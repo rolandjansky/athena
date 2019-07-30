@@ -49,7 +49,7 @@ namespace EL
       SH::MetaObject options;
 
       /// \brief the user job we are submitting
-      const Job *job {nullptr};
+      Job *job {nullptr};
 
       /// \brief if we run in batch, this is the list of job-indices
       /// to run

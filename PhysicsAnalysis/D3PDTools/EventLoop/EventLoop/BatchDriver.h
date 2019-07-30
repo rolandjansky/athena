@@ -65,10 +65,6 @@ namespace EL
 
   private:
     virtual void
-    doUpdateJob (Job& job, const std::string& location) const override;
-
-  private:
-    virtual void
     doSubmit (Detail::JobSubmitInfo& info) const override;
 
   private:
@@ -149,7 +145,8 @@ namespace EL
     /// failures: out of memory II
     /// failures: i/o errors
   private:
-    void makeScript (const std::string& location, std::size_t njobs, bool sharedFileSystem) const;
+    void makeScript (Detail::JobSubmitInfo& info,
+                     std::size_t njobs, bool sharedFileSystem) const;
 
 
     /// effects: merge the fetched histograms
@@ -164,7 +161,7 @@ namespace EL
     /// returns: path to directory for writing
     /// guarantee: strong
   private:
-    const std::string getWriteLocation(const std::string& location) const;
+    std::string getWriteLocation(const Detail::JobSubmitInfo& info) const;
 
     /// effects: determine location with input configuration
     /// returns: path to directory with input configuration

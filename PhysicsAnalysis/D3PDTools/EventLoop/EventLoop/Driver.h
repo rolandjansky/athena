@@ -256,17 +256,6 @@ namespace EL
                   Detail::JobSubmitStep step) const;
 
 
-    /// \brief update the job before it is submitted
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   out of memory II\n
-    ///   job specifications unfulfillable
-  private:
-    virtual void
-    doUpdateJob (Job& job, const std::string& location) const;
-
-
     /// \copydoc submitOnly
     /// \par Rationale
     ///   the virtual part of \ref submitOnly

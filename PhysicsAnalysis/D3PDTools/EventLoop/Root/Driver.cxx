@@ -107,8 +107,6 @@ namespace EL
       RCU_THROW_MSG ("could not create output directory " + mylocation);
 
     Job myjob = job;
-    doUpdateJob (myjob, mylocation);
-
     Detail::JobSubmitInfo info;
     info.submitDir = mylocation;
     info.job = &myjob;
@@ -363,14 +361,6 @@ namespace EL
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void Driver ::
-  doUpdateJob (Job& /*job*/, const std::string& /*location*/) const
-  {
-    RCU_READ_INVARIANT (this);
   }
 
 
