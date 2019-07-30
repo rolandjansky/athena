@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigNavigation
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/CxxUtils
                           Control/AthenaKernel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
