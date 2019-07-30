@@ -264,8 +264,7 @@ namespace EL
     ///   the virtual part of \ref resubmit
   private:
     virtual void
-    doResubmit (const std::string& location,
-                const std::string& option) const;
+    doResubmit (Detail::JobSubmitInfo& info) const;
 
 
     /// \copydoc retrieve

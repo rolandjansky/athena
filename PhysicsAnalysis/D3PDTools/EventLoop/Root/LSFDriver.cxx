@@ -18,6 +18,7 @@
 #include <EventLoop/LSFDriver.h>
 
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -47,20 +48,22 @@ namespace EL
 
 
   void LSFDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool /*resubmit*/)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     RCU_READ_INVARIANT (this);
 
+    // safely ignoring: resubmit
+
     std::ostringstream cmd;
-    cmd << "cd " << location << "/submit";
+    cmd << "cd " << info.submitDir << "/submit";
     for (std::size_t iter : jobIndices)
     {
       cmd << " && bsub " << options.castString (Job::optSubmitFlags);
       if (options.castBool (Job::optResetShell, true))
         cmd << " -L /bin/bash";
-      cmd << " " << location << "/submit/run " << iter;
+      cmd << " " << info.submitDir << "/submit/run " << iter;
     }
     if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());

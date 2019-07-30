@@ -19,6 +19,7 @@
 
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -57,8 +58,8 @@ namespace EL
   }
   //****************************************************
   void SlurmDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     using namespace msgEventLoop;
@@ -76,7 +77,7 @@ namespace EL
 
     RCU_READ_INVARIANT (this);
 
-    if (resubmit)
+    if (info.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
     assert (!jobIndices.empty());
@@ -85,13 +86,13 @@ namespace EL
 
     if(!options.castBool(Job::optBatchSharedFileSystem,true))
     {
-      int status=gSystem->CopyFile("RootCore.par",(location+"/submit/RootCore.par").c_str());
+      int status=gSystem->CopyFile("RootCore.par",(info.submitDir+"/submit/RootCore.par").c_str());
       if(status != 0)
       RCU_THROW_MSG ("failed to copy RootCore.par");
     }
 
     {
-      std::ofstream file ((location + "/submit/submit").c_str());
+      std::ofstream file ((info.submitDir + "/submit/submit").c_str());
 
       file << "#!/bin/bash \n";
       file << "\n";
@@ -113,7 +114,7 @@ namespace EL
 
     {
       std::ostringstream cmd;
-      cmd << "cd " << location << "/submit && sbatch --array=0-" << njob-1 << " " << options.castString (Job::optSubmitFlags) << " submit";
+      cmd << "cd " << info.submitDir << "/submit && sbatch --array=0-" << njob-1 << " " << options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
     }

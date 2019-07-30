@@ -19,6 +19,7 @@
 
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/JobSubmitInfo.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
@@ -57,8 +58,8 @@ namespace EL
   }
 
   void CondorDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+  batchSubmit (Detail::JobSubmitInfo& info, const SH::MetaObject& options,
+               const std::vector<std::size_t>& jobIndices)
     const
   {
     RCU_READ_INVARIANT (this);
@@ -66,11 +67,11 @@ namespace EL
     // name of tarball being made (this needs to match BatchDriver.cxx)
     const std::string tarballName("AnalysisPackage.tar.gz");
 
-    if (!resubmit)
+    if (!info.resubmit)
     {
       if(!options.castBool(Job::optBatchSharedFileSystem,true))
       {
-        const std::string newLocation = location + "/submit/" + tarballName;
+        const std::string newLocation = info.submitDir + "/submit/" + tarballName;
         int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
         if(status != 0)
           RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
@@ -78,13 +79,13 @@ namespace EL
     }
 
     {
-      std::ofstream file ((location + "/submit/submit").c_str());
+      std::ofstream file ((info.submitDir + "/submit/submit").c_str());
       file << "executable              = run\n";
       file << "universe                = vanilla\n";
       file << "log                     = submit/run.log\n";
       file << "output                  = submit/log-$(Item).out\n";
       file << "error                   = submit/log-$(Item).err\n";
-      file << "initialdir              = " << location << "\n";
+      file << "initialdir              = " << info.submitDir << "\n";
       if(!options.castBool(Job::optBatchSharedFileSystem,true))
 	{ // Transfer data with non-shared file-systems
 	  file << "should_transfer_files   = YES\n";
@@ -110,7 +111,7 @@ namespace EL
 
     {
       std::ostringstream cmd;
-      cmd << "cd " << location << "/submit && condor_submit "
+      cmd << "cd " << info.submitDir << "/submit && condor_submit "
 	  << options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
 	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
