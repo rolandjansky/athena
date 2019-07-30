@@ -11,7 +11,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace Trk {
   class ITrackAmbiguityProcessorTool;
@@ -46,8 +46,7 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder;
     ToolHandle<Muon::IMuonTrackExtrapolationTool> m_trackExtrapolationTool;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
-
-    SG::ReadHandleKey<xAOD::EventInfo> m_evInfo{this,"EventInfo","EventInfo","event info"};
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     unsigned int m_extrapolationStrategy;
   };
