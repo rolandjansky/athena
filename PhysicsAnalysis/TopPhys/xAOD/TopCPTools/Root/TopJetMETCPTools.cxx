@@ -380,24 +380,30 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // so just put it here for now.
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig(); 
-    if (calibChoice == "CombMass") {
-      //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
-      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config";
+    if(m_config->isMC()){
+      if (calibChoice == "CombMass") {
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config";
+      }
+      else if (calibChoice == "TAMass") {
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config";
+      }
+      else if (calibChoice == "CaloMass") {
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
+      }
+      else {
+        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
+        return StatusCode::FAILURE;
+      }
+    }else{ //Insitu calibration for Data
+      if((calibChoice == "CombMass")||(calibChoice == "TAMass")||(calibChoice == "CaloMass")){
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_3April2019.config"; //Data has only one config file
+      }else{
+        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
+        return StatusCode::FAILURE;
+      }
     }
-    else if (calibChoice == "TAMass") {
-      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config";
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config";
-    }
-    else if (calibChoice == "CaloMass") {
-      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
-    }
-    else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
-      return StatusCode::FAILURE;
-    }
-    const std::string calibSequenceLargeR = "EtaJES_JMS";
+    std::string calibSequenceLargeR = "EtaJES_JMS";
+    if(!m_config->isMC()) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's is insitu calibration
     const std::string calibAreaLargeR = "00-04-82";
     JetCalibrationTool* jetCalibrationToolLargeR
       = new JetCalibrationTool("JetCalibrationToolLargeR");
@@ -422,48 +428,22 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
 
   std::string conference("");
   std::string configDir("");
-  std::vector<std::string>* variables = nullptr;
-  std::string largeRJES_config = m_config->largeRJESUncertaintyConfig();
+  std::string largeRJESJMS_config = m_config->largeRJetUncertainties_NPModel();
   std::string calibArea  = "None"; // Take the default JetUncertainties CalibArea tag
   std::string MC_type = "MC16";
 
-  conference = "Moriond2018";
+  conference = "Spring2019";
   configDir  = "rel21";
-  MC_type += "a";
 
-  bool JERisMC = m_config->isMC();
+  //This has zero impact on the JES uncertainties, but controls how the JER uncertainties (currently only for small-R jets) are applied
+  bool JERisMC = true;
 
-  variables = new std::vector<std::string>;
-  variables->push_back("pT");
-  std::string variable;
-  size_t pos_end = 0;
-  while( (pos_end = largeRJES_config.find(",")) != std::string::npos) {
-    variable = largeRJES_config.substr(0,pos_end);
-    variables->push_back(variable);
-    largeRJES_config.erase(0,pos_end+1);
-  }
-  variables->push_back(largeRJES_config);
-
-  largeRJES_config = m_config->largeRJESJMSConfig();
-  //if (largeRJES_config.find("UJ2016_") != 0) largeRJES_config.insert(0, "UJ2016_");
-
-  m_jetUncertaintiesToolLargeR_strong
-    = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Strong",
+  m_jetUncertaintiesToolLargeR
+    = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
                                 jetCalibrationNameLargeR, MC_type, JERisMC,
                                 configDir+"/"+conference
-                                + "/R10_"+largeRJES_config+"_strong.config",variables,"",calibArea);
-  m_jetUncertaintiesToolLargeR_medium
-    = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Medium",
-                                jetCalibrationNameLargeR, MC_type, JERisMC,
-                                configDir+"/"+conference
-                                + "/R10_"+largeRJES_config+"_medium.config",variables,"",calibArea);
-  m_jetUncertaintiesToolLargeR_weak
-    = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Weak",
-                                jetCalibrationNameLargeR, MC_type, JERisMC,
-                                configDir+"/"+conference
-                                + "/R10_"+largeRJES_config+"_weak.config",variables,"",calibArea);
+                                + "/R10_"+largeRJESJMS_config+".config",nullptr,"",calibArea);
 
-  if (variables) delete variables;
   return StatusCode::SUCCESS;
 }
 

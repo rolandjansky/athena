@@ -224,7 +224,7 @@ namespace top{
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
-    m_largeRJESUncertaintyConfig("SetMe"),
+    m_largeRJetUncertainties_NPModel("CategoryReduction"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
@@ -893,7 +893,7 @@ namespace top{
 
     this->largeRJetPtcut( std::stof(settings->value("LargeRJetPt")) );
     this->largeRJetEtacut( std::stof(settings->value("LargeRJetEta")) );
-    this->largeRJESUncertaintyConfig( settings->value("LargeRJESUncertaintyConfig") );
+    this->largeRJetUncertainties_NPModel( settings->value("LargeRJetUncertainties_NPModel") );
     this->largeRJESJMSConfig( settings->value("LargeRJESJMSConfig") );
 
     this->trackJetPtcut( std::stof(settings->value("TrackJetPt")) );

@@ -118,9 +118,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("LargeRJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "25000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0" );
-    registerParameter("LargeRJESUncertaintyConfig",
-		      "Variables to be varied with JES uncertainties. Options:D2Beta1,Tau21WTA,Tau32WTA,Split12,Split23,Qw ( default Split23,Tau32WTA)",
-		      "Split23,Tau32WTA");
+    registerParameter("LargeRJetUncertainties_NPModel", "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for Large-R Jet Uncertainties","CategoryReduction");
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
                       "CombMass");

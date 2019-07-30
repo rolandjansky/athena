@@ -68,9 +68,7 @@ class JetMETCPTools final : public asg::AsgTool {
   ToolHandle<IJetCalibrationTool> m_jetCalibrationTool;
   ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
 
-  ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_strong;
-  ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_medium;
-  ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_weak;
+  ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
 
   ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
   ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolFrozenJMS;

@@ -45,10 +45,7 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_jetUncertaintiesToolReducedNPScenario2("JetUncertaintiesToolReducedNPScenario2"),
   m_jetUncertaintiesToolReducedNPScenario3("JetUncertaintiesToolReducedNPScenario3"),
   m_jetUncertaintiesToolReducedNPScenario4("JetUncertaintiesToolReducedNPScenario4"),
-
-  m_jetUncertaintiesToolLargeR_strong("JetUncertaintiesToolLargeR_Strong"),
-  m_jetUncertaintiesToolLargeR_medium("JetUncertaintiesToolLargeR_Medium"),
-  m_jetUncertaintiesToolLargeR_weak("JetUncertaintiesToolLargeR_Weak"),
+  m_jetUncertaintiesToolLargeR("JetUncertaintiesToolLargeR"),
 
   m_jetUpdateJvtTool("JetUpdateJvtTool"),
   m_fjvtTool("fJVTTool"),
@@ -61,20 +58,20 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_systMap_ReducedNPScenario2(),
   m_systMap_ReducedNPScenario3(),
   m_systMap_ReducedNPScenario4(),
-  m_systMap_LargeR_strong()
+  m_systMap_LargeR()
 {
   declareProperty( "config" , m_config );
 
   declareProperty( "JetCalibrationTool" , m_jetCalibrationTool );
   declareProperty( "JetCalibrationToolLargeR" , m_jetCalibrationToolLargeR );
 
-  declareProperty( "JetUncertaintiesToolLargeR" , m_jetUncertaintiesToolLargeR_strong);
   declareProperty( "JetUncertaintiesTool" , m_jetUncertaintiesTool);
   declareProperty( "JetUncertaintiesToolFrozenJMS" , m_jetUncertaintiesToolFrozenJMS);
   declareProperty( "JetUncertaintiesToolReducedNPScenario1" , m_jetUncertaintiesToolReducedNPScenario1 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario2" , m_jetUncertaintiesToolReducedNPScenario2 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario3" , m_jetUncertaintiesToolReducedNPScenario3 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario4" , m_jetUncertaintiesToolReducedNPScenario4 );
+  declareProperty( "JetUncertaintiesToolLargeR" , m_jetUncertaintiesToolLargeR);
 
   declareProperty( "JetUpdateJvtTool" , m_jetUpdateJvtTool );
 
@@ -96,12 +93,8 @@ StatusCode JetObjectCollectionMaker::initialize() {
   if (m_config->useLargeRJets()) {
     top::check( m_jetCalibrationToolLargeR.retrieve(),
                 "Failed to retrieve JetCalibrationToolLargeR" );
-    top::check( m_jetUncertaintiesToolLargeR_strong.retrieve(),
-                "Failed to retrieve JetUncertaintiesToolLargeR_Strong" );
-    top::check( m_jetUncertaintiesToolLargeR_medium.retrieve(),
-                "Failed to retrieve JetUncertaintiesToolLargeR_Medium" );
-    top::check( m_jetUncertaintiesToolLargeR_weak.retrieve(),
-                "Failed to retrieve JetUncertaintiesToolLargeR_Weak" );
+    top::check( m_jetUncertaintiesToolLargeR.retrieve(),
+                "Failed to retrieve JetUncertaintiesToolLargeR" );
   }
 
   ///-- JER uncertainties model --///
@@ -175,9 +168,9 @@ StatusCode JetObjectCollectionMaker::initialize() {
   
   ///-- JES systematics --///
   if (m_isMC || m_doFull_JER) {
-    std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),
-      np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
-    std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
+    std::string allNP(m_config->jetUncertainties_NPModel()+"_"),
+      np1("SR_Scenario1_"),np2("SR_Scenario2_"),np3("SR_Scenario3_"),np4("SR_Scenario4_");
+    std::string allNP_FrozenJMS(m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
     
     bool onlyJER = ( (!m_isMC) && m_doFull_JER ) || ( m_isMC && m_doFull_JER_Pseudodata );
 
@@ -195,40 +188,16 @@ StatusCode JetObjectCollectionMaker::initialize() {
     }
   }
   ///-- Large-R JES systematics --///
-  if (m_isMC && !m_doFull_JER_Pseudodata) {
-    if (m_config->useLargeRJets()) {
-      std::string largeR_strong("LARGERJET_Strong_"),largeR_medium("LARGERJET_Medium_"),largeR_weak("LARGERJET_Weak_");
-      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
-      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
-      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+  if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
+    if(m_config->largeRJESJMSConfig() == "CombMass"){
+      std::string largeR(m_config->largeRJetUncertainties_NPModel()+"_");
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR , m_systMap_LargeR , largeR , true);
+    }else{
+      ATH_MSG_WARNING("TA Mass & Calo Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
     }
   }
 
   
-
-  // See http://cern.ch/go/nHF6 for more information
-  if (m_config->doLargeRSmallRCorrelations()) {
-    systMap* smallR_systs = &m_systMap_AllNP;
-    // Not sure what to do if the frozen JMS is used
-    if (m_doMultipleJES) {
-      smallR_systs = &m_systMap_ReducedNPScenario1;
-    }
-    addCorrelation("CORR_LargeRSmallR_A", *smallR_systs,
-                   "JET_GroupedNP_2",
-                   m_systMap_LargeR_strong, "JET_Top_Run1_Tau32");
-    
-    addCorrelation("CORR_LargeRSmallR_B", *smallR_systs,
-                   "JET_GroupedNP_2",
-                   m_systMap_LargeR_weak, "JET_Rtrk_Baseline_pT");
-    
-    addCorrelation("CORR_LargeRSmallR_C__1up", m_systMap_LargeR_weak,
-                   "JET_Rtrk_Baseline_mass__1up-JET_Top_Run1_Tau32__1up",
-                   m_specifiedSystematicsLargeR);
-    
-    addCorrelation("CORR_LargeRSmallR_C__1down", m_systMap_LargeR_weak,
-                   "JET_Rtrk_Baseline_mass__1down-JET_Top_Run1_Tau32__1down",
-                   m_specifiedSystematicsLargeR);
-  }
 
   ///-- Large R jet substructure --///
   if (m_config->jetSubstructureName() == "Trimmer")
@@ -240,6 +209,17 @@ StatusCode JetObjectCollectionMaker::initialize() {
   m_config->systematicsJets( specifiedSystematics() );
   m_config->systematicsLargeRJets( specifiedSystematicsLargeR() );
   m_config->systematicsTrackJets( m_specifiedSystematicsTrackJets );
+
+  ///-- Large R jet truth labeling --///
+  m_TaggerForJES = nullptr;
+  if(m_config->isMC()){
+    m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "TaggerTruthLabelling" ) );
+    top::check(m_TaggerForJES->setProperty("CalibArea",  "SmoothedWZTaggers/Rel21"), "Failed to set CalibArea for m_TaggerForJES");
+    top::check(m_TaggerForJES->setProperty("ConfigFile",  "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat"),
+               "Failed to set ConfigFile for m_TaggerForJES");
+    top::check(m_TaggerForJES->setProperty("DSID", m_config->getDSID()), "Failed to set DSID for m_TaggerForJet");
+    top::check(m_TaggerForJES->initialize(), "Failed to initialize m_TaggerForJES");
+  }
 
   ///-- DL1 Decoration --///
   m_btagSelToolsDL1Decor["DL1"]    = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();
@@ -306,10 +286,8 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
     }
   } 
   else {
-    if (m_isMC && !m_doFull_JER_Pseudodata) {
-      top::check( applySystematic( m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong, true ) , "Failed to apply large-R syst.");
-      top::check( applySystematic( m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium, true ) , "Failed to apply large-R syst.");
-      top::check( applySystematic( m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak, true ) , "Failed to apply large-R syst.");
+    if(m_config->isMC()){
+      top::check( applySystematic( m_jetUncertaintiesToolLargeR , m_systMap_LargeR, true ) , "Failed to apply large-R syst.");
     }
   }
 
@@ -372,6 +350,28 @@ StatusCode JetObjectCollectionMaker::calibrate(const bool isLargeR) {
       jet -> auxdecor<float>("Tau21_wta") =  fabs(tau1) > 1.e-6 ? (tau2/tau1) : -999;  // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
 
       top::check( m_jetCalibrationToolLargeR->applyCalibration( *jet ) , "Failed to applyCalibration" );
+
+      ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
+      const std::string calibChoice = m_config->largeRJESJMSConfig();
+      if(m_config->isMC()){
+        ///-- Truth labeling required by the large-R jet uncertainties --///
+        top::check( m_TaggerForJES->decorateTruthLabel(*jet) , "Failed to do truth labeling for large-R jet" );
+        if(calibChoice == "TAMass"){
+          xAOD::JetFourMom_t jet_calib_p4;
+          jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
+          jet->setJetP4(jet_calib_p4);
+        }
+      }else{ //For data, there's only one config file so special method is required for TA mass and Calos mass
+        if(calibChoice == "CaloMass"){
+          xAOD::JetFourMom_t jetInsituP4_calo;
+          jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo",jetInsituP4_calo);
+          jet->setJetP4(jetInsituP4_calo);
+        }else if(calibChoice == "TAMass"){
+          xAOD::JetFourMom_t jetInsituP4_ta;
+          jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA",jetInsituP4_ta);
+          jet->setJetP4(jetInsituP4_ta);
+        }
+      }
     }
 
     ///-- Update JVT --///
@@ -459,21 +459,18 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaint
       ///-- Loop over the xAOD Container --///
       for( auto jet : *(shallow_xaod_copy.first) ){
           
-        if (isLargeR) {
+        if (isLargeR && m_config->isMC()) { //JES for large-R jets only exist for MC
 
-          if ((*syst).first.name().find("LARGER") == std::string::npos)
-            continue;
-	  
           ///-- Only large R jets with the following properties can be calibrated.--///
-          bool calibratable_jet = (jet->m()/jet->pt() <= 1
-                                   && std::fabs(jet->eta()) <= 2.0
-                                   && jet->pt() > 150e3
-                                   && jet->pt() < 3000e3);
+          bool calibratable_jet = (std::fabs(jet->eta()) <= 2.0
+                                   && jet->pt() > 200e3);
           if(!calibratable_jet)
             continue;
         }
         ///-- Apply Corrrection --///
-        top::check( tool->applyCorrection( *jet ) , "Failed to applyCorrection" );
+        if(!(isLargeR && !m_config->isMC())){ //Large-R jet uncertainties don't apply to Data
+          top::check( tool->applyCorrection( *jet ) , "Failed to applyCorrection" );
+        }
         ///-- Update JVT --///
         if (!isLargeR) jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt( *jet );
       }
