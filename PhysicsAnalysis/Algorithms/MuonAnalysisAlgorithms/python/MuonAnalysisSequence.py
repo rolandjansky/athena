@@ -178,7 +178,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if shallowViewOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                             'MuonViewFromSelectionAlg' + postfix )
-        alg.selection = selectionDecorNames[ : ]
+        alg.selection = selectionDecorNamesOutput[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
 
@@ -210,6 +210,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'MuonDeepCopyMaker' + postfix )
         alg.deepCopy = True
+        alg.selection = selectionDecorNamesOutput[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
         pass
