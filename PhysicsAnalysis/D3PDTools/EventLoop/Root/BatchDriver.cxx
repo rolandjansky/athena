@@ -317,7 +317,7 @@ namespace EL
     ANA_CHECK (Driver::doSubmitStep (info, step));
     switch (step)
     {
-    case Detail::JobSubmitStep::UpdateOutputLocation:
+    case Detail::JobSubmitStep::updateOutputLocation:
       {
         const std::string writeLocation=getWriteLocation(info);
         for (Job::outputMIter out = info.job->outputBegin(),
