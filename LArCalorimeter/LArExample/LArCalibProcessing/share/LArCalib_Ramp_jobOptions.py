@@ -322,6 +322,8 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -438,7 +440,12 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
