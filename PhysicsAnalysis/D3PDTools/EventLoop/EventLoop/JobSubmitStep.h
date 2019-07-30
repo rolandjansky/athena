@@ -29,18 +29,37 @@ namespace EL
     {
       /// this is just the initial step we do, nothing really happens
       /// here
-      Initial,
+      initial,
+
+      /// \brief update the submitDir variable to be an absolute path
+      updateSubmitDir = initial,
 
       /// in this step we fill the options structure, combining the
       /// different locations from which we can pull configuration
       /// options.
-      FillOptions,
+      fillOptions,
 
       /// in this step we update the output location of streams that
       /// don't yet have one defined
-      UpdateOutputLocation,
+      updateOutputLocation,
 
-      Final = UpdateOutputLocation
+      /// add any system algorithms to the job that may need to get
+      /// added
+      addSystemAlgs,
+
+      /// \brief create the submission directory
+      createSubmitDir,
+
+      /// prepare files in our submission directory
+      prepareSubmitDir,
+
+      /// do the actual job submission
+      submitJob,
+
+      /// do whatever needs to be done after the submission is done
+      postSubmit,
+
+      final = postSubmit
     };
   }
 }

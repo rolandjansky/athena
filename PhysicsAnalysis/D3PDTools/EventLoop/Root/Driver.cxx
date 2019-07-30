@@ -96,22 +96,12 @@ namespace EL
     RCU_READ_INVARIANT (this);
     using namespace msgEventLoop;
 
-    std::string mylocation = location;
-    if (location[0] != '/')
-      mylocation = gSystem->WorkingDirectory () + ("/" + location);
-    if (location.find ("/pnfs/") == 0)
-      RCU_THROW_MSG ("can not place submit directory on pnfs: " + mylocation);
-    if (job.options()->castBool (Job::optRemoveSubmitDir, false))
-      gSystem->Exec (("rm -rf " + mylocation).c_str());
-    if (gSystem->MakeDirectory (mylocation.c_str()) != 0)
-      RCU_THROW_MSG ("could not create output directory " + mylocation);
-
     Job myjob = job;
     Detail::JobSubmitInfo info;
-    info.submitDir = mylocation;
+    info.submitDir = location;
     info.job = &myjob;
-    for (unsigned stepIter = unsigned (Detail::JobSubmitStep::Initial);
-         stepIter != unsigned (Detail::JobSubmitStep::Final) + 1;
+    for (unsigned stepIter = unsigned (Detail::JobSubmitStep::initial);
+         stepIter != unsigned (Detail::JobSubmitStep::final) + 1;
          stepIter += 1)
     {
       if (doSubmitStep (info, Detail::JobSubmitStep (stepIter)).isFailure())
@@ -120,40 +110,6 @@ namespace EL
         throw std::runtime_error ("submission error in step " + std::to_string (stepIter));
       }
     }
-
-    if (job.options()->castBool (Job::optDisableMetrics, false))
-      if (!myjob.algsHas (MetricsSvc::name))
-     	myjob.algsAdd (new MetricsSvc);
-
-    {
-      std::unique_ptr<TFile> file (TFile::Open ((mylocation + "/driver.root").c_str(), "RECREATE"));
-      file->WriteObject (this, "driver");
-      file->Close ();
-    }
-    myjob.sampleHandler().save (mylocation + "/input");
-    {
-      std::ofstream file ((mylocation + "/location").c_str());
-      file << mylocation << "\n";
-    }
-
-    SH::SampleHandler sh_hist;
-    for (SH::SampleHandler::iterator sample = myjob.sampleHandler().begin(),
-	   end = myjob.sampleHandler().end(); sample != end; ++ sample)
-    {
-      const std::string histfile
-	= mylocation + "/hist-" + (*sample)->name() + ".root";
-      std::unique_ptr<SH::SampleHist> hist
-	(new SH::SampleHist ((*sample)->name(), histfile));
-      hist->meta()->fetch (*(*sample)->meta());
-      sh_hist.add (hist.release());
-    }
-    sh_hist.save (mylocation + "/hist");
-
-    doSubmit (info);
-
-    // rationale: this particular file can be checked to see if a job
-    //   has been submitted successfully.
-    std::ofstream ((mylocation + "/submitted").c_str());
   }
 
 
@@ -348,12 +304,88 @@ namespace EL
   doSubmitStep (Detail::JobSubmitInfo& info,
                 Detail::JobSubmitStep step) const
   {
+    using namespace msgEventLoop;
+
     switch (step)
     {
-    case Detail::JobSubmitStep::FillOptions:
+    case Detail::JobSubmitStep::updateSubmitDir:
+      {
+        if (info.submitDir[0] != '/')
+          info.submitDir = gSystem->WorkingDirectory () + ("/" + info.submitDir);
+        if (info.submitDir.find ("/pnfs/") == 0)
+        {
+          ANA_MSG_ERROR ("can not place submit directory on pnfs: " + info.submitDir);
+          return ::StatusCode::FAILURE;
+        }
+      }
+      break;
+
+    case Detail::JobSubmitStep::fillOptions:
       {
         info.options = *info.job->options();
         info.options.fetchDefaults (*options());
+      }
+      break;
+
+    case Detail::JobSubmitStep::addSystemAlgs:
+      {
+        if (info.options.castBool (Job::optDisableMetrics, false))
+          if (!info.job->algsHas (MetricsSvc::name))
+            info.job->algsAdd (new MetricsSvc);
+      }
+      break;
+
+    case Detail::JobSubmitStep::createSubmitDir:
+      {
+        if (info.options.castBool (Job::optRemoveSubmitDir, false))
+          gSystem->Exec (("rm -rf " + info.submitDir).c_str());
+        if (gSystem->MakeDirectory (info.submitDir.c_str()) != 0)
+        {
+          ANA_MSG_ERROR ("could not create output directory " + info.submitDir);
+          return ::StatusCode::FAILURE;
+        }
+      }
+      break;
+
+    case Detail::JobSubmitStep::prepareSubmitDir:
+      {
+        {
+          std::unique_ptr<TFile> file (TFile::Open ((info.submitDir + "/driver.root").c_str(), "RECREATE"));
+          file->WriteObject (this, "driver");
+          file->Close ();
+        }
+        info.job->sampleHandler().save (info.submitDir + "/input");
+        {
+          std::ofstream file ((info.submitDir + "/location").c_str());
+          file << info.submitDir << "\n";
+        }
+
+        SH::SampleHandler sh_hist;
+        for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
+               end = info.job->sampleHandler().end(); sample != end; ++ sample)
+        {
+          const std::string histfile
+            = info.submitDir + "/hist-" + (*sample)->name() + ".root";
+          std::unique_ptr<SH::SampleHist> hist
+            (new SH::SampleHist ((*sample)->name(), histfile));
+          hist->meta()->fetch (*(*sample)->meta());
+          sh_hist.add (hist.release());
+        }
+        sh_hist.save (info.submitDir + "/hist");
+      }
+      break;
+
+    case Detail::JobSubmitStep::submitJob:
+      {
+        doSubmit (info);
+      }
+      break;
+
+    case Detail::JobSubmitStep::postSubmit:
+      {
+        // this particular file can be checked to see if a job has
+        // been submitted successfully.
+        std::ofstream ((info.submitDir + "/submitted").c_str());
       }
       break;
 
