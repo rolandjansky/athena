@@ -3,8 +3,8 @@
 ## Configuration Access to OFFLINE DB (COMP200)
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonCondAlg.MuonCondAlgConf import MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg,TgcCondDbAlg
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
+from MuonCondAlg.MuonCondAlgConf import MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg ##,TgcCondDbAlg
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def MdtCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
