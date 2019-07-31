@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -25,7 +25,9 @@ namespace Trk {
 namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError){
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
+                                         IVKalState& /*istate*/)
+  {
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -64,8 +66,11 @@ namespace Trk{
 
 
 
+//
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError){
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
+                                         IVKalState& /*istate*/)
+  {
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -104,7 +109,9 @@ namespace Trk{
   }
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError){
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
+                                         IVKalState& /*istate*/)
+  {
 //
 //------ Variables and arrays needed for fitting kernel
 //
