@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace DerivationFramework {
 
@@ -25,7 +26,7 @@ namespace DerivationFramework {
       virtual bool eventPassesFilter() const;
 
     private:
-      mutable int m_prescale, m_eventCounter;	
+      Gaudi::Property<unsigned int> m_prescale {this, "Prescale", 1};	
   }; 
 }
 
