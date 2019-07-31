@@ -39,7 +39,6 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   if (!charge && (!geantinoHit)) return false;
   //  G4cout << "\t\t MicromegasSD: Hit in a sensitive layer!!!!! " << G4endl;
-  const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   const G4Step* post_Step=aStep->GetTrack()->GetStep();
 
