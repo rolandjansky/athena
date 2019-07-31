@@ -19,10 +19,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 
-//#include "xAODMuon/Muon.h"
-//#include "xAODMuon/MuonContainer.h"
-
-
 
 // Local debug variables. Global scope, but only accessible by this file.
 static const float CGeV              =  1.0e-3;  // Conversion factor to remove evil MeV
@@ -36,7 +32,8 @@ unsigned int ElectronSelector::s_uNumInstances;
 //==================================================================================
 ElectronSelector::ElectronSelector():
   m_doDebug ( false ),
-  m_ptCut ( 10 ),
+  m_ptCut ( 10. ),
+  m_etaCut ( 2.45 ), // 2.47 is used in ANA-HIGG-2018-29-INT1 Higgs to 4leptons Run2 paper
   m_deltaXYcut ( 0.1 ),
   m_deltaZcut ( 4. )
 {
@@ -79,8 +76,14 @@ void ElectronSelector::Init()
   //  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
   //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
-  if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure())
-    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: MediumLHElectron " << endreq;
+  //if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure()) 
+  //if((m_LHTool2015->setProperty("WorkingPoint","TightLHElectron")).isFailure())
+  if((m_LHTool2015->setProperty("WorkingPoint","LooseLHElectron")).isFailure()) {
+    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: LooseLHElectron " << endreq;
+  } 
+  else  {
+    (*m_msgStream) << MSG::WARNING << "Loading ConfigFile for electron likelihood tool: LooseLHElectron. SUCCESS " << endreq;    
+  } 
 
   StatusCode lhm = m_LHTool2015->initialize();
   if(lhm.isFailure())
@@ -159,30 +162,49 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   const xAOD::CaloCluster* cluster = thisElec->caloCluster();
   if(!cluster) electronisgood = false;
 
-  if (electronisgood && fabs(cluster->eta())> 2.4 ) { // 
+  if (electronisgood && (fabs(cluster->eta())> m_etaCut || fabs(theTrackParticle->eta())> m_etaCut) ) { // cut in eta for the cluster and the track 
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron fails eta cut  -- cluster_eta= " << cluster->eta() << endreq;
   }
 
+
   if (electronisgood) {
+    CLHEP::HepLorentzVector calocluster4mom;
+    calocluster4mom.setPx ( cluster->e() * cos(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
+    calocluster4mom.setPy ( cluster->e() * sin(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
+    calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
+    calocluster4mom.setE  ( cluster->e() );
+  
     if (true) {
-      CLHEP::HepLorentzVector calocluster4mom;
-      calocluster4mom.setPx ( cluster->e() * cos(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
-      calocluster4mom.setPy ( cluster->e() * sin(theTrackParticle->phi()) * sin(theTrackParticle->theta()) );
-      calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
-      calocluster4mom.setE  ( cluster->e() );
-      
-      std::cout << " -- ElectronSelector::RecordElectron -- count " << m_pxElTrackList.size()
+      std::cout << " -- ElectronSelector::RecordElectron -- id " << m_pxElTrackList.size()
 		<< "  track Pt: " << theTrackParticle->pt() 
 		<< "  cluster ET: " << calocluster4mom.perp()
 		<< "  cluster E: " << cluster->e() 
 		<< "  theta: " << theTrackParticle->theta()
+		<< "  eta: " << theTrackParticle->eta()
 		<< std::endl;
     }
-  }
+  
+    xAOD::TrackParticle* newtp = new xAOD::TrackParticle(*theTrackParticle);
+    float qsign = (theTrackParticle->qOverP() > 0) ? 1. : -1.;
+    newtp->setDefiningParameters(theTrackParticle->d0(), theTrackParticle->z0(), theTrackParticle->phi(), theTrackParticle->theta(), qsign/cluster->e());
+    //  }
 
-  if (electronisgood) {
-    m_pxElTrackList.push_back(theTrackParticle);
+    if (true) {
+      std::cout << " -- new method                       -- id " << m_pxElTrackList.size()
+		<< "  track Pt: " << theTrackParticle->pt() 
+		<< "  new track Pt: " << newtp->pt() 
+		<< "  cluster ET: " << calocluster4mom.perp()
+		<< "  cluster E: " << cluster->e() 
+		<< "  theta: " << theTrackParticle->theta()
+		<< "  new: " << newtp->theta()
+		<< std::endl;
+    }
+
+    //if (electronisgood) {
+
+    // m_pxElTrackList.push_back(theTrackParticle);
+    m_pxElTrackList.push_back(newtp);
     (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
   }
 

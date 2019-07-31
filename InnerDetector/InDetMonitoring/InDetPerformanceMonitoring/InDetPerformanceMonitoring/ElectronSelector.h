@@ -69,6 +69,7 @@ class ElectronSelector : public EventAnalysis
   bool m_doDebug;
   // 
   float m_ptCut;
+  float m_etaCut;
   float m_deltaXYcut; //cut for vertex distance in X or Y 
   float m_deltaZcut; //cut for vertex distance in Z
 
