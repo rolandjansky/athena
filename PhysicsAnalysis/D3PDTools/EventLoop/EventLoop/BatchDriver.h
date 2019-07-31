@@ -169,14 +169,6 @@ namespace EL
   private:
     const std::string getSubmitLocation(const std::string& location) const;
 
-#ifndef USE_CMAKE
-    /// effects: determine location of rootcorebin on node
-    /// returns: path to directory of rootcorebin on node
-    /// guarantee: strong
-  private:
-    const std::string getRootCoreBin() const;
-#endif
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"

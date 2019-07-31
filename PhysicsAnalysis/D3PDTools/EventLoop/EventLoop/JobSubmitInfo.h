@@ -36,6 +36,21 @@ namespace EL
 
     struct JobSubmitInfo final
     {
+      /// \brief standard constructor
+      ///
+      /// This is mostly defined, so that this include file doesn't
+      /// need to include a whole bunch of other files, just to
+      /// destruct their objects
+      JobSubmitInfo () noexcept;
+
+      /// \brief standard destructor
+      ///
+      /// This is mostly defined, so that this include file doesn't
+      /// need to include a whole bunch of other files, just to
+      /// destruct their objects
+      ~JobSubmitInfo () noexcept;
+
+
       /// \brief the path to the submission directory
       std::string submitDir;
 
@@ -50,6 +65,9 @@ namespace EL
 
       /// \brief the user job we are submitting
       Job *job {nullptr};
+
+      /// \brief if we run in batch, the batch job object we are using
+      std::unique_ptr<BatchJob> batchJob;
 
       /// \brief if we run in batch, this is the list of job-indices
       /// to run

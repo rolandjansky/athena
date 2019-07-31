@@ -47,11 +47,23 @@ namespace EL
       /// added
       addSystemAlgs,
 
-      /// \brief create the submission directory
+      /// create the submission directory
       createSubmitDir,
 
       /// prepare files in our submission directory
       prepareSubmitDir,
+
+      /// create the directories needed in the batch directory
+      batchCreateDirectories,
+
+      /// create the batch-driver job object
+      batchCreateJob,
+
+      /// create the batch-run script
+      batchMakeScript,
+
+      /// create the list of batch job indices
+      batchMakeIndices,
 
       /// do the actual job submission
       submitJob,
