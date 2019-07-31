@@ -182,6 +182,30 @@ int main( int argc, char* argv[] ) {
 
 
 
+   //Obtain summary information also split by muon |eta|
+   const int Neta = 4;
+   double etaCuts[Neta-1] = {1.0, 2.0, 2.5};
+
+   std::string etaRegions = "|eta| < 1.0      1.0 < |eta| < 2.0   2.0 < |eta| < 2.5     |eta| > 2.5";
+
+   //Muon counters for each eta region
+   int allMuonsEta[Neta];
+   for (int eta = 0; eta < Neta; eta++)
+     allMuonsEta[eta] = 0;
+
+   //Muon counters for muons in each eta region passing each working point
+   int selectedMuonsEta[Neta][Nwp];
+   for (int eta = 0; eta < Neta; eta++)
+     for (int wp = 0; wp < Nwp; wp++)
+       selectedMuonsEta[eta][wp] = 0;
+
+   int selectedMuonsEtaNotBad[Neta][Nwp];
+   for (int eta = 0; eta < Neta; eta++)
+     for (int wp = 0; wp < Nwp; wp++)
+       selectedMuonsEtaNotBad[eta][wp] = 0;
+
+
+
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
 
@@ -225,9 +249,16 @@ int main( int argc, char* argv[] ) {
       xAOD::MuonContainer::const_iterator mu_end = muons->end();
       for( ; mu_itr != mu_end; ++mu_itr ) {
 
+	int etaIndex = Neta-1;
+	for (int eta = 0; eta < Neta-1; eta++)
+	  if (std::abs((*mu_itr)->eta()) < etaCuts[eta]) {
+	    etaIndex = eta;
+	    break;
+	  }
 
 	allMuons++;
 	allMuonsType[(*mu_itr)->muonType()]++;
+	allMuonsEta[etaIndex]++;
 	muCounter++;
 
 	Info( APP_NAME, "===== Muon number: %i",
@@ -306,12 +337,14 @@ int main( int argc, char* argv[] ) {
 	    selectedMuons[wp]++;
 	    selectedMuonsEvent[wp]++;
 	    selectedMuonsType[(*mu_itr)->muonType()][wp]++;
+	    selectedMuonsEta[etaIndex][wp]++;
 	    selectionResults += "pass     ";
 
 	    if (!selectorTools[wp]->isBadMuon(**mu_itr)) {
 	      selectedMuonsNotBad[wp]++;
 	      selectedMuonsEventNotBad[wp]++;
 	      selectedMuonsTypeNotBad[(*mu_itr)->muonType()][wp]++;
+	      selectedMuonsEtaNotBad[etaIndex][wp]++;
 	    }
 	  }
 	  else
@@ -396,6 +429,39 @@ int main( int argc, char* argv[] ) {
        for (int type = 0; type < Ntype; type++) {
 	 std::stringstream ss;
 	 ss << std::left << std::setw(16) << (std::to_string(selectedMuonsType[type][wp]) + " (" + std::to_string(selectedMuonsTypeNotBad[type][wp]) + ")");
+	 line += ss.str();
+       }
+     }
+
+     Info(APP_NAME, "%s", line.c_str());
+   }
+   Info(APP_NAME, "---------------------------------------------------------------------------------------");
+
+
+   //Make table of selected muons by |eta| and working point
+   Info(APP_NAME, "Selected muons by |eta| and working point (numbers in parenthesis include bad muon veto):");
+   Info(APP_NAME, "---------------------------------------------------------------------------------------");
+   for (int l = 0; l < Nwp+2; l++) {
+     
+     std::string line = "";
+     if (l == 0) { //line with eta regions
+       line += "              ";
+       line += etaRegions;
+     }
+     else if (l == 1) { //line for all muons inclusive
+       line += "All muons:      ";
+       for (int eta = 0; eta < Neta; eta++) {
+	 std::stringstream ss;
+	 ss << std::left << std::setw(20) << std::to_string(allMuonsEta[eta]);
+	 line += ss.str();
+       }
+     }
+     else { //lines for each of the working points
+       int wp = l - 2;
+       line += WPnames[wp] + ":" + padding[wp] + "     ";
+       for (int eta = 0; eta < Neta; eta++) {
+	 std::stringstream ss;
+	 ss << std::left << std::setw(20) << (std::to_string(selectedMuonsEta[eta][wp]) + " (" + std::to_string(selectedMuonsEtaNotBad[eta][wp]) + ")");
 	 line += ss.str();
        }
      }
