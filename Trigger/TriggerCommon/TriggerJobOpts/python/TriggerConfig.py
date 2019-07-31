@@ -275,9 +275,18 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             collType, collName = coll[0].split("#")
             collType = collType.split(":")[-1]
             viewsColl = coll[3].split(":")[-1]
-            setattr(tool, collType+"Views", [ viewsColl ] )
-            setattr(tool, collType+"InViews", [ collName ] )
-            setattr(tool, collType, [ collName ] )
+            # Get existing property, or return empty list if not set.
+            attrView = getattr(tool, collType+"Views", [])
+            attrInView = getattr(tool, collType+"InViews", [])
+            attrName = getattr(tool, collType, [])
+            #
+            attrView.append( viewsColl )
+            attrInView.append( collName )
+            attrName.append( collName )
+            #
+            setattr(tool, collType+"Views", attrView )
+            setattr(tool, collType+"InViews", attrInView )
+            setattr(tool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
                 __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( viewsColl ) )
