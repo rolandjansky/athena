@@ -64,6 +64,7 @@ atlas_add_component( TrigEgammaHypo
 atlas_install_headers( TrigEgammaHypo )
 atlas_install_python_modules( python/*.py )
 
+# Unit tests:
 atlas_add_test( TrigL2CaloHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2CaloHypoTool
 		POST_EXEC_SCRIPT nopost.sh )
 
@@ -72,3 +73,8 @@ atlas_add_test( TrigL2ElectronHypoToolConfig SCRIPT python -m TrigEgammaHypo.Tri
 
 atlas_add_test( TrigL2PhotonHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2PhotonHypoTool
 		POST_EXEC_SCRIPT nopost.sh )
+
+# Check Python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )
