@@ -526,6 +526,7 @@ def muEFSARecoSequence( RoIs, name ):
   theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg_"+name,MuonCandidateTool=theCandidateTool)
 
   # Monitoring tool for MuonCreatorAlg
+  from MuonCombinedAlgs.MuonCombinedAlgsConf import *
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
   theMuonCandidateAlg.MonTool = MuonCreatorAlgMonitoring()
 

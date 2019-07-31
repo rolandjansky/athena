@@ -29,3 +29,4 @@ atlas_add_component( MuonCombinedAlgs
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AthenaMonitoring xAODCaloEvent xAODMuon xAODTruth xAODTracking GaudiKernel MuonSegment MuonRecToolInterfaces MuonLayerEvent MuonCombinedEvent MuonCombinedToolInterfaces TrkSegment TrkTrack TrkToolInterfaces)
 
+atlas_install_python_modules( python/MuonCombinedAlgsMonitoring.py)

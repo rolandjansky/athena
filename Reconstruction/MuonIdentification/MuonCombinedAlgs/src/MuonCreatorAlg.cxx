@@ -144,16 +144,20 @@ StatusCode MuonCreatorAlg::execute()
   //---------------------------------------------------------------------------------------------------------------------//
   //------------                Monitoring of the reconstructed muons inside the trigger algs                ------------//
   //------------ Author:        Laurynas Mince                                                               ------------//
-  //------------ Last modified: 23/07/2019                                                                   ------------//
+  //------------ Last modified: 30/07/2019                                                                   ------------//
   //---------------------------------------------------------------------------------------------------------------------//
-
+  
   // Variables to initialize and keep for monitoring
   std::vector<double> ini_mupt(0);
 
   // Monitoring histograms
   auto muon_pt = Monitored::Collection("muon_pt", ini_mupt);
-
+  
   auto monitorIt = Monitored::Group(m_monTool, muon_pt);
+
+  for (auto const& muon : *(wh_muons.ptr())) {
+    ini_mupt.push_back(muon->pt()/1000); // converted to GeV
+  }
 
   return StatusCode::SUCCESS;
 }
