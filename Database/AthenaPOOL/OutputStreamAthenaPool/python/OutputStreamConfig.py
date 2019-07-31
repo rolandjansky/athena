@@ -7,6 +7,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    from OutputStreamAthenaPoolConf import MakeEventStreamInfo
    from AthenaServices.AthenaServicesConf import AthenaOutputStream
    from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+   from StoreGate.StoreGateConf import StoreGateSvc
 
    flagName="Output.%sFileName" % streamName
    if configFlags.hasFlag(flagName):
@@ -24,9 +25,9 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
 
    result=ComponentAccumulator(sequenceName="AthOutSeq")
    # define athena output stream
-   writingTool = AthenaOutputStreamTool( streamName + "Tool" )
-   streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
-   streamInfoTool.Key = streamName
+   writingTool = AthenaOutputStreamTool( "Stream" + streamName + "Tool" )
+   streamInfoTool = MakeEventStreamInfo( "Stream" + streamName + "_MakeEventStreamInfo" )
+   streamInfoTool.Key = "Stream" + streamName
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
@@ -34,8 +35,9 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
       OutputFile = fileName,
       HelperTools = [ streamInfoTool ],
       )
-   #outputStream.MetadataStore = svcMgr.MetaDataStore
-   #outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
+   result.addService(StoreGateSvc("MetaDataStore"))
+   outputStream.MetadataStore = result.getService("MetaDataStore")
+   outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]
 
    # For xAOD output
    if streamName=="xAOD":
