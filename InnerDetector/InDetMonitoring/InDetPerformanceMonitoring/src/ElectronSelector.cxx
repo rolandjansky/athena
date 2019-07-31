@@ -159,14 +159,30 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 		   << endreq;
   }
 
+  if (electronisgood && theTrackParticle->pt() * CGeV < m_ptCut ) { // pt cut given in GeV
+    electronisgood = false;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt()
+		   << " < " << m_ptCut << " (cut value) "
+		   << endreq;
+  }
+
   const xAOD::CaloCluster* cluster = thisElec->caloCluster();
   if(!cluster) electronisgood = false;
+
+  if (electronisgood && (cluster->e() * cos(theTrackParticle->theta())) * CGeV < m_ptCut) { // cut on et of the cluster
+    electronisgood = false;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron fails cluster Et cut  -- Et= " << (cluster->e() * cos(theTrackParticle->theta()))* CGeV 
+		   << " < " << m_ptCut << " (cut value) "
+		   << endreq;
+    std::cout << "   -- electron fails cluster Et cut  -- Et= " << (cluster->e() * cos(theTrackParticle->theta()))* CGeV 
+	      << " < " << m_ptCut << " (cut value) "
+	      << std::endl;
+  }
 
   if (electronisgood && (fabs(cluster->eta())> m_etaCut || fabs(theTrackParticle->eta())> m_etaCut) ) { // cut in eta for the cluster and the track 
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron fails eta cut  -- cluster_eta= " << cluster->eta() << endreq;
   }
-
 
   if (electronisgood) {
     CLHEP::HepLorentzVector calocluster4mom;
@@ -188,7 +204,6 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     xAOD::TrackParticle* newtp = new xAOD::TrackParticle(*theTrackParticle);
     float qsign = (theTrackParticle->qOverP() > 0) ? 1. : -1.;
     newtp->setDefiningParameters(theTrackParticle->d0(), theTrackParticle->z0(), theTrackParticle->phi(), theTrackParticle->theta(), qsign/cluster->e());
-    //  }
 
     if (true) {
       std::cout << " -- new method                       -- id " << m_pxElTrackList.size()
@@ -201,8 +216,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 		<< std::endl;
     }
 
-    //if (electronisgood) {
-
+    // store this electron?
     // m_pxElTrackList.push_back(theTrackParticle);
     m_pxElTrackList.push_back(newtp);
     (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
