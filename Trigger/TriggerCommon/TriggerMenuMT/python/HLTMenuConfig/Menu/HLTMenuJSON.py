@@ -38,7 +38,8 @@ def generateJSON( allStepsSequence ):
     from TriggerJobOpts.TriggerFlags              import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     triggerConfigHLT = TriggerConfigHLT.currentTriggerConfig()
-    return __generateJSON( triggerConfigHLT.allChainDicts, None, TriggerFlags.outputHLTconfigFile().replace( '.xml', '' ) )
+    import os
+    return __generateJSON( triggerConfigHLT.allChainDicts, None, "HLTmenu_"+os.getenv( "AtlasVersion" ) + "." + TriggerFlags.triggerMenuSetup() )
     
 def generateJSON_newJO( allStepsSequence ):
     __log.info("Generating HLT JSON config in the new JO")
@@ -56,4 +57,4 @@ def generateJSON_newJO( allStepsSequence ):
                 chainDicts.append( decoder.getChainDict( chain ) )
                                     
     import os
-    return __generateJSON( chainDicts, None, "HLTconfig_"+os.getenv( "AtlasVersion" ) + "." + ConfigFlags.Trigger.triggerMenuSetup )
+    return __generateJSON( chainDicts, None, "HLTmenu_"+os.getenv( "AtlasVersion" ) + "." + ConfigFlags.Trigger.triggerMenuSetup )

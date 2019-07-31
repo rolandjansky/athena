@@ -24,9 +24,14 @@ flags.Detector.GeometryCSC   = True
 flags.Detector.GeometryRPC   = True     
 flags.Trigger.writeBS=True # switches on HLTResultMT creation
 
-exec("from TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup +" import setupMenu")
+
+import importlib
+setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup
+setupMenuModule = importlib.import_module( setupMenuPath )
+assert setupMenuModule != None, "Could not import module {}".format(setupMenuPath)
+assert setupMenuModule.setupMenu != None, "Could not import setupMenu from {}".format(setupMenuPath)
 flags.needFlagsCategory('Trigger')
-setupMenu(flags)
+setupMenuModule.setupMenu(flags)
 
 
 flags.Input.isMC = False
