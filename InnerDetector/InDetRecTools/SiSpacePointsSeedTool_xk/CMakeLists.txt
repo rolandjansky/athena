@@ -20,14 +20,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkSpacePoint			  
                           PRIVATE
                           Tracking/TrkTools/TrkToolInterfaces 
-			  Tracking/TrkEvent/TrkTrack)
+			  Tracking/TrkEvent/TrkTrack
+			  Event/xAOD/xAODTruth )
 
 # Component(s) in the package:
 atlas_add_component( SiSpacePointsSeedTool_xk
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
-                     InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint TrkToolInterfaces ITrackToVertex )
+                     InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint 
+		     TrkToolInterfaces xAODTruth ITrackToVertex )
 
 # Install files from the package:
 atlas_install_headers( SiSpacePointsSeedTool_xk )

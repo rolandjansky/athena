@@ -171,8 +171,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          if NewTrackingCuts.mode() == "LowPtRoI" :
 
-            # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool
-            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
+            # ZWindowRoI Tool needed for InDet__SiSpacePointsSeeded tool            
             if (len(InputCollections) == 0) :
                InputZWindowTracks = ""
                print "InputCollections is empty, ZWindowRoI tool needs at least one"
@@ -181,14 +180,19 @@ class  ConfiguredNewTrackingSiPattern:
                print "InputCollections is not empty, ZWindowRoI tool will use the first track colletion in the list"
                print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
 
-            ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
-                                        InputTracksCollection     = InputZWindowTracks,
-                                        LeadingMinTrackPt         = 15000.0,
-                                        SubleadingMinTrackPt      = 12000.0,
-                                        TracksMaxEta              = 2.5,
-                                        TracksMaxD0               = 9999.,
-                                        MaxDeltaZTracksPair       = 2.0,
-                                        TrackZ0Window             = 1.0 )
+            #from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
+            #ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
+            #                            InputTracksCollection     = InputZWindowTracks,
+            #                            LeadingMinTrackPt         = 27000.0,
+            #                            SubleadingMinTrackPt      = 20000.0,
+            #                            TracksMaxEta              = 2.5,
+            #                            TracksMaxD0               = 9999.,
+            #                            MaxDeltaZTracksPair       = 1.0,
+            #                            TrackZ0Window             = 1.0 )
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__TruthHSRoISeedTool
+            ZWindowRoISeedTool = InDet__TruthHSRoISeedTool (name = "InDetZWindowRoISeedTool",
+                                                            InputTruthEventsCollection = "TruthEvents",
+                                                            TrackZ0Window             = 1.0 )
             ToolSvc += ZWindowRoISeedTool
             #ZWindowRoISeedTool.OutputLevel = VERBOSE
             #ServiceMgr.MessageSvc.debugLimit = 1000000
