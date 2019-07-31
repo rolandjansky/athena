@@ -421,7 +421,7 @@ remap  = {
     "TauIso"   : "tauIso",
     "Jet"      : "bjet",
     "FS"       : "bjet",
-    #"Jet"      : "bjetVtx",
+    "Jet"      : "bjetVtx",
     "FullScan" : "fullScan",
     "BeamSpot" : "beamSpot",
     "Bphysics" : "bphysics",
