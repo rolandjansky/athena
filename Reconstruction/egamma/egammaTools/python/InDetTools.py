@@ -8,45 +8,79 @@ from egammaRec.Factories import FcnWrapper, ToolFactory, PublicToolFactory
 # Tools for extrapolating to the calo
 def configureExtrapolator( egammaExtrapolator ):
 
-  from AthenaCommon.AppMgr import ToolSvc
-  
+  from AthenaCommon.AppMgr import ToolSvc  
   # this turns off dynamic calculation of eloss in calorimeters
   egammaExtrapolator.DoCaloDynamic = False 
     
   # all left to MaterialEffects/EnergyLossUpdators
-
   from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
-  
-  AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
-  NoElossMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'NoElossMaterialEffectsUpdator')
-  NoElossMaterialEffectsUpdator.EnergyLoss = False
+  egammaMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'egammaMaterialEffectsUpdator')
+  egammaNoElossMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'egammaNoElossMaterialEffectsUpdator')
+  egammaNoElossMaterialEffectsUpdator.EnergyLoss = False
 
-  if not hasattr(ToolSvc,'AtlasMaterialEffectsUpdator'):
-    ToolSvc += AtlasMaterialEffectsUpdator 
-  if  not hasattr(ToolSvc,'NoElossMaterialEffectsUpdator'):  
-    ToolSvc += NoElossMaterialEffectsUpdator
+  if not hasattr(ToolSvc,'egammaMaterialEffectsUpdator'):
+    ToolSvc += egammaMaterialEffectsUpdator 
+  if  not hasattr(ToolSvc,'egammaNoElossMaterialEffectsUpdator'):  
+    ToolSvc += egammaNoElossMaterialEffectsUpdator
 
   MyUpdators = []
-  MyUpdators += [AtlasMaterialEffectsUpdator] 
-  MyUpdators += [NoElossMaterialEffectsUpdator]
+  MyUpdators += [egammaMaterialEffectsUpdator] 
+  MyUpdators += [egammaNoElossMaterialEffectsUpdator]
   
   MySubUpdators = []
-  MySubUpdators += [ AtlasMaterialEffectsUpdator.name() ] # for Global
-  MySubUpdators += [ AtlasMaterialEffectsUpdator.name() ] # for ID
-  MySubUpdators += [ AtlasMaterialEffectsUpdator.name() ] # for BeamPipe
-  MySubUpdators += [ NoElossMaterialEffectsUpdator.name() ] # for Calo
-  MySubUpdators += [ NoElossMaterialEffectsUpdator.name() ] # for muon spectrometer
-  MySubUpdators += [ AtlasMaterialEffectsUpdator.name() ] # for cavern
+  MySubUpdators += [ egammaMaterialEffectsUpdator.name() ] # for Global
+  MySubUpdators += [ egammaMaterialEffectsUpdator.name() ] # for ID
+  MySubUpdators += [ egammaMaterialEffectsUpdator.name() ] # for BeamPipe
+  MySubUpdators += [ egammaNoElossMaterialEffectsUpdator.name() ] # for Calo
+  MySubUpdators += [ egammaNoElossMaterialEffectsUpdator.name() ] # for muon spectrometer
+  MySubUpdators += [ egammaMaterialEffectsUpdator.name() ] # for cavern
+
+  #egamma RungeKutta Propagator  
+  from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RkPropagator
+  egammaRungeKuttaPropagator = RkPropagator(name = 'egammaRungeKuttaPropagator')
+  
+  #egamma STEP_Propagator with no material effects
+  from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP_Propagator
+  egammaNoMatSTEP_Propagator = STEP_Propagator(name = 'egammaNoMatSTEP_Propagator')
+  egammaNoMatSTEP_Propagator.MaterialEffects=False
+
+  if not hasattr(ToolSvc,'egammaRungeKuttaPropagator'):
+    ToolSvc += egammaRungeKuttaPropagator
+  if not hasattr(ToolSvc,'egammaNoMatSTEP_Propagator'):
+    ToolSvc += egammaNoMatSTEP_Propagator
+
+  myPropagators  = []
+  myPropagators += [egammaRungeKuttaPropagator]
+  myPropagators += [egammaNoMatSTEP_Propagator]
+  
+  MySubPropagators = []
+  MySubPropagators += [ egammaRungeKuttaPropagator.name() ] # for Global
+  MySubPropagators += [ egammaRungeKuttaPropagator.name() ] # for ID
+  MySubPropagators += [ egammaRungeKuttaPropagator.name()] # for BeamPipe
+  MySubPropagators += [ egammaRungeKuttaPropagator.name() ] # for Calo
+  MySubPropagators += [ egammaNoMatSTEP_Propagator.name() ] # for MS
+  MySubPropagators += [ egammaRungeKuttaPropagator.name() ] # for cavern
   
   egammaExtrapolator.MaterialEffectsUpdators = MyUpdators
   egammaExtrapolator.SubMEUpdators = MySubUpdators
+  egammaExtrapolator.Propagators = myPropagators
+  egammaExtrapolator.SubPropagators = MySubPropagators
+  #egamma STEP with no eloss for calo intersections
+  egammaExtrapolator.STEP_Propagator=egammaNoMatSTEP_Propagator
 
 ###############
-#egammaExtrapolator
+
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+#The general use extrapolator now same as ATLAS default
 egammaExtrapolator = ToolFactory(AtlasExtrapolator,
-                                 postInit=[configureExtrapolator],
                                  name = 'egammaExtrapolator')
+
+#Specialized for e/gamma calo extrapolations i.e ignore material effect 
+#that are not that relevant in the calo side
+egammaCaloExtrapolator = ToolFactory(AtlasExtrapolator,
+                                 postInit=[configureExtrapolator],
+                                 name = 'egammaCaloExtrapolator')
+
 
 #################################################################
 # egamma InDet summary tool to be used conversion finding

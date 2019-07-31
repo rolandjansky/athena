@@ -126,6 +126,7 @@ StatusCode egammaSelectedTrackCopy::execute()
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
+    
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
     ++allTracks;
     bool isTRT=false;
@@ -146,11 +147,10 @@ StatusCode egammaSelectedTrackCopy::execute()
     }
 
     for(const xAOD::CaloCluster* cluster : passingClusters ){
-
       /*
-         check if it the track is selected due to this cluster.
-         If not continue to next cluster
-         */
+       check if it the track is selected due to this cluster.
+       If not continue to next cluster
+       */
       if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
@@ -165,7 +165,7 @@ StatusCode egammaSelectedTrackCopy::execute()
         ++selectedSiTracks;
       }
       /*
-       * The particular track got  selected 
+       * The particular track got selected 
        * due to a cluster (any one of them will do)
        * break here and move to the next track
        */
@@ -258,7 +258,6 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   if (m_extrapolationTool->getMatchAtCalo (ctx,
                                            cluster, 
                                            track, 
-                                           trkTRT,
                                            Trk::alongMomentum, 
                                            eta,
                                            phi,
@@ -294,7 +293,6 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     if (m_extrapolationTool->getMatchAtCalo (ctx,
                                              cluster, 
                                              track, 
-                                             trkTRT,
                                              Trk::alongMomentum, 
                                              eta1,
                                              phi1,

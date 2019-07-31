@@ -310,7 +310,7 @@ protected:
   /** TileCellCont pointer - has collections of TileCells */
   TileCellCont* m_tilecell;
   /** Full Container */
-  CaloCellContainer* m_fullCellContainer;
+  CaloCellContainer* m_fullCellContainer=nullptr;
   /** Input DataBlock to pre-allocate memory space for
       ROBFragment to be decoded */
   //std::vector<uint32_t> m_datablock;

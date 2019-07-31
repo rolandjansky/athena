@@ -58,12 +58,11 @@ private:
   struct TrackMatch
   {
   public:
+    bool hasPix;
     int trackNumber;
+    int hitsScore;
     double dR;
     double seconddR;
-    bool isTRT;
-    bool hasPix;
-    int hitsScore;
     double deltaPhiLast;
     double deltaEta[4];
     double deltaPhi[4];
@@ -86,13 +85,11 @@ private:
                      std::vector<TrackMatch>&      trackMatches,
                      const xAOD::CaloCluster&      cluster, 
                      int                           trackNumber,
-                     bool                          isTRT,
-                     const xAOD::TrackParticle&     trkPB,
+                     const xAOD::TrackParticle&    trkPB,
                      const Trk::PropDirection      dir) const;
 
   /** @brief Loose track-cluster matching */
   bool isCandidateMatch(const xAOD::CaloCluster*  cluster,
-                        bool                      isTRT,
                         const xAOD::TrackParticle* track,
                         bool                       flip) const;
 
@@ -146,11 +143,6 @@ private:
     "useCandidateMatch", true,
     "Boolean to use candidate matching"};
 
-  /** @brief flag to either use last measurement hit or perigee */
-  Gaudi::Property<bool> m_useLastMeasurement {this,
-    "useLastMeasurement", false,
-    "Boolean to use last measurement for extrapolation, otherwise use perigee"};
-
   /** @brief Boolean to apply heuristic when tracks have close deltaR */
   Gaudi::Property<bool> m_useScoring {this,
     "useScoring", true,
@@ -182,12 +174,7 @@ private:
   Gaudi::Property<float> m_distanceForScore {this,
       "DistanceForScore", 0.01,
       "The distance from which one goes from using better deltaR to using score."};
-
-  /** @brief TrackToCalo extrapolation tool. Handles Trk::ParametersBase as input.
-    Extrapolation starts from the last measurement of the track. The
-    InDetExtrapolator is used, with all proper material effects inside the
-    part of the ID that is traversed. Both charged and neutral particles
-    are handled. */
+  
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools",
     "Name of the extrapolation tool"};
@@ -206,12 +193,4 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
 

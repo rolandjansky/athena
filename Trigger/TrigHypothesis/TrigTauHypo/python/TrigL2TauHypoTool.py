@@ -7,9 +7,7 @@ def TrigL2TauHypoToolFromDict( chainDict ):
 
     part='calo'
     threshold=chainPart['threshold']
-    criteria= chainPart['selection']
     strategy=chainPart['preselection']
-    print "TrigL2TauHypoTool: name = ", name, " chainPart: ", chainPart
 
     # Simple implementation of 2015 pre-selection
     #currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -37,7 +35,6 @@ def TrigL2TauHypoToolFromDict( chainDict ):
     return currentHypo
 
 def TrigTauHypoProvider( name, conf ):
-    from AthenaCommon.Constants import DEBUG
     """ Configure a b-jet hypo tool from chain name. """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName

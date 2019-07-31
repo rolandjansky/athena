@@ -121,9 +121,8 @@ if TriggerFlags.doMT():
     topSequence += Lvl1SimulationSequence(None)
     recoLog.info( "Configuring HLT (MT)" )
 
-
-    from TrigUpgradeTest.TestUtils import L1DecoderTest
-    topSequence += L1DecoderTest()
+    from L1Decoder.L1DecoderConfig import L1Decoder
+    topSequence += L1Decoder()
     
     include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
@@ -156,6 +155,7 @@ if TriggerFlags.doMT():
         TriggerFlags.METSlice.setAll()
         TriggerFlags.JetSlice.setAll()
         TriggerFlags.TauSlice.setAll()
+        TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)

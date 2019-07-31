@@ -68,7 +68,6 @@ public:
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
                                      const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
-                                     bool                          isTRT, 
                                      Trk::PropDirection            direction,
                                      std::vector<double>&          eta,
                                      std::vector<double>&          phi,

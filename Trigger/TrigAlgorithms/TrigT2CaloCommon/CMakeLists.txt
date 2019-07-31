@@ -68,15 +68,16 @@ atlas_add_test( flake8
         SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
         POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( TestService 
-		SCRIPT test/test_dataaccess.sh
-		POST_EXEC_SCRIPT nopost.sh
-		PROPERTIES TIMEOUT 1200)
+# Helper to define unit tests running in a separate directory
+function( _add_test name script )
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${name} )
+   file( REMOVE_RECURSE ${rundir} )   # cleanup to avoid interference with previous run
+   file( MAKE_DIRECTORY ${rundir} )
+   atlas_add_test( ${name}
+      SCRIPT ${script}
+      PROPERTIES TIMEOUT 1200
+      PROPERTIES WORKING_DIRECTORY ${rundir} )
+endfunction( _add_test )
 
-atlas_add_test( TestServiceNewJO 
-		SCRIPT test/test_dataaccessNewJO.sh
-		POST_EXEC_SCRIPT nopost.sh
-		PROPERTIES TIMEOUT 1200)
-
-
-
+_add_test( TestService test/test_dataaccess.sh )
+_add_test( TestServiceNewJO test/test_dataaccessNewJO.sh )

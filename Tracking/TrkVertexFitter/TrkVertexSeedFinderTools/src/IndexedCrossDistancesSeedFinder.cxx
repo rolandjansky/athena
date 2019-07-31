@@ -80,7 +80,8 @@ namespace Trk
 
   void IndexedCrossDistancesSeedFinder::setPriVtxPosition( double vx, double vy )
   {
-    m_mode3dfinder->setPriVtxPosition( vx, vy ) ;
+    m_vx = vx;
+    m_vy = vy;
     return ;
   }
 
@@ -252,14 +253,14 @@ namespace Trk
 
     if (m_useweights)
     {
-      myresult=m_mode3dfinder->getMode(CrossingPointsAndWeights);
+      myresult=m_mode3dfinder->getMode(m_vx, m_vy, CrossingPointsAndWeights, m_info);
 
       m_correXY = m_correZ = -9.9 ;
-      m_mode3dfinder->getCorrelationDistance( m_correXY, m_correZ ) ;
+      m_info->getCorrelationDistance( m_correXY, m_correZ ) ;
     }
     else
     {
-      myresult=m_mode3dfinder->getMode(CrossingPoints);
+      myresult=m_mode3dfinder->getMode(m_vx, m_vy, CrossingPoints, m_info);
     }
     
     ATH_MSG_DEBUG(" 3D modes found ! " ); 
@@ -281,7 +282,7 @@ int IndexedCrossDistancesSeedFinder::getModes1d(   std::vector<float>  & phi,
   z = thez ;
   return m ;
 **/
-  return (int)( m_mode3dfinder->Modes1d( phi, radi, z, wght ) ) ;
+  return (int)( m_info->Modes1d( phi, radi, z, wght ) ) ;
 }
 
 
@@ -294,7 +295,7 @@ int IndexedCrossDistancesSeedFinder::perigeesAtSeed(
 
   ATH_MSG_DEBUG(" Enter perigeesAtSeed  " );
 
-  std::vector<int> modes = m_mode3dfinder->AcceptedCrossingPointsIndices() ;
+  std::vector<int> modes = m_info->AcceptedCrossingPointsIndices() ;
  
   ATH_MSG_DEBUG(" found " << modes.size() <<" modes accepted for perigeesAtSeed " );
 

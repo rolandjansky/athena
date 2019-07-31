@@ -90,7 +90,7 @@ from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
 TrigSerToolTP = TrigSerTPTool('TrigSerTPTool')
 ToolSvc += TrigSerToolTP
 
-from TriggerJobOpts.TriggerEDM import getL2BSTypeList,getEFBSTypeList, getTPList
+from TrigEDMConfig.TriggerEDM import getL2BSTypeList,getEFBSTypeList, getTPList
 TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
 TrigSerToolTP.TPMap = getTPList() 
                                                                                                 

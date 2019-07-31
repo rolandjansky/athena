@@ -8,28 +8,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # provide a minimal menu information
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
-   topSequence.L1Decoder.roiUnpackers[0].OutputLevel=DEBUG
-
-# map L1 decisions for menu
-for unpack in topSequence.L1Decoder.roiUnpackers:
-    if unpack.name() is "EMRoIsUnpackingTool":
-        unpack.Decisions="L1EM"
-        emUnpacker=unpack
-    if unpack.name() is "MURoIsUnpackingTool":
-        unpack.Decisions="L1MU"
-        
-for unpack in topSequence.L1Decoder.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.Decisions="RerunL1EM"
-        unpack.SourceDecisions="L1EM"
-
-for unpack in topSequence.L1Decoder.rerunRoiUnpackers:
-    if unpack.name() is "EMRerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1EM"
-    if unpack.name() is "MURerunRoIsUnpackingTool":
-        unpack.SourceDecisions="L1MU"
-
-
 
 
 ##########################################
