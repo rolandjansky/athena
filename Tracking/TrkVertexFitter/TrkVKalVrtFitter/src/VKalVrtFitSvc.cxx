@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -38,8 +38,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
 	dvect& ErrorMatrix, 
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2 ) 
+	double& Chi2,
+        IVKalState& /*istate*/,
+        bool ifCovV0 /*= false*/)
 {
+    if (ifCovV0)
+      m_ifcovv0 = ifCovV0;
 //
 //------  extract information about selected tracks
 //
@@ -66,8 +70,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 	dvect& ErrorMatrix, 
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2 ) 
+	double& Chi2,
+        IVKalState& /*istate*/,
+        bool ifCovV0 /*= false*/)
 {
+    if (ifCovV0)
+      m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
@@ -167,8 +175,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
 	dvect& ErrorMatrix, 
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2 ) 
+	double& Chi2,
+        IVKalState& /*istate*/,
+        bool ifCovV0 /*= false*/)
 {
+    if (ifCovV0)
+      m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
@@ -203,8 +215,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 	dvect& ErrorMatrix, 
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2 ) 
+	double& Chi2,
+        IVKalState& /*istate*/,
+        bool ifCovV0 /*= false*/)
 {
+    if (ifCovV0)
+      m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
@@ -404,7 +420,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 	                              const dvect& CovVrtMom,
 				      const long int& Charge,
 				      dvect& Perigee,
-				      dvect& CovPerigee)
+				      dvect& CovPerigee,
+                                      IVKalState& /*istate*/)
   {
     int i,j,ij;				      
     double Vrt[3],PMom[4],Cov0[21],Per[5],CovPer[15];
@@ -594,7 +611,9 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 */
 
  
-  StatusCode TrkVKalVrtFitter::VKalGetFullCov( long int NTrk, dvect& CovVrtTrk, int useMom)
+  StatusCode TrkVKalVrtFitter::VKalGetFullCov( long int NTrk, dvect& CovVrtTrk,
+                                               IVKalState& /*istate*/,
+                                               bool useMom)
   {
     if(!m_FitStatus)       return StatusCode::FAILURE;
     if(NTrk<1)             return StatusCode::FAILURE;
@@ -717,7 +736,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
 
 
-  StatusCode TrkVKalVrtFitter::VKalGetMassError( double& dM, double& MassError)
+  StatusCode TrkVKalVrtFitter::VKalGetMassError( double& dM, double& MassError,
+                                                 IVKalState& /*istate*/)
   {    
     if(!m_FitStatus) return StatusCode::FAILURE;
     dM        = m_vkalFitControl->getVertexMass();
@@ -726,7 +746,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   }
   
 
-  StatusCode  TrkVKalVrtFitter::VKalGetTrkWeights(dvect& trkWeights)
+  StatusCode  TrkVKalVrtFitter::VKalGetTrkWeights(dvect& trkWeights,
+                                                  IVKalState& /*istate*/)
   {    
     if(!m_FitStatus) return StatusCode::FAILURE;  // no fit made
     trkWeights.clear();

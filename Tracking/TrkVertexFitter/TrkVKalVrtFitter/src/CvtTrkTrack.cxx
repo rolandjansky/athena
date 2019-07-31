@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrkTrack parameters to internal VKalVrt parameters
@@ -136,7 +136,8 @@ namespace Trk{
 //  Create Trk::Track with perigee defined at m_refGVertex vertex
 //
   Track* TrkVKalVrtFitter::CreateTrkTrack( const std::vector<double>& VKPerigee,
-                                                const std::vector<double>& VKCov)
+                                           const std::vector<double>& VKCov,
+                                           IVKalState& /*istate*/)
   {
 
     const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov);
