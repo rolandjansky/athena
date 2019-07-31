@@ -94,38 +94,38 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void report2Stdout();
   
-    void report2Stdout_Description();
+    void report2Stdout_Description() const;
     void report2Stdout_Serial();
     void report2Stdout_Parallel();
-    void report2Stdout_Summary();
-    void report2Stdout_CpuInfo();
+    void report2Stdout_Summary() const;
+    void report2Stdout_CpuInfo() const;
 
-    void report2JsonFile();
+    void report2JsonFile() const;
 
-    void report2JsonFile_Summary(nlohmann::json& j);
-    void report2JsonFile_Serial(nlohmann::json& j);
-    void report2JsonFile_Parallel(nlohmann::json& j);
+    void report2JsonFile_Summary(nlohmann::json& j) const;
+    void report2JsonFile_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Parallel(nlohmann::json& j) const;
 
 
-    int getEventNumber();
+    int getEventNumber() const;
     void eventCounter(int eventNumber);
     
-    bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
+    bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
 
     void parallelDataAggregator(); // 
 
     void divideData2Steps_serial();    
     void divideData2Steps_parallel();   
  
-    std::string get_cpu_model_info();
-    int get_cpu_core_info();
+    std::string get_cpu_model_info() const;
+    int get_cpu_core_info() const;
 
     PMonMT::StepComp generate_serial_state( const std::string& stepName,
-                                            const std::string& compName);
+                                            const std::string& compName) const;
 
     PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
                                                    const std::string& compName,
-                                                   const int& eventNumber);
+                                                   const int& eventNumber) const;
 
     
   private:
@@ -147,7 +147,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::MeasurementData m_parallelCompLevelData;
 
     std::mutex m_mutex_capture; // lock for capturing event loop measurements
-    std::mutex m_mutex_stdout;  // lock for printing stdout
 
     // Event ID's are stored to count the number of events. There should be a better way!
     std::set<int> m_eventIds;

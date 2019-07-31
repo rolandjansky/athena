@@ -92,8 +92,7 @@ StatusCode PerfMonMTSvc::finalize(){
  * Start Auditing
  */
 void PerfMonMTSvc::startAud( const std::string& stepName,
-                             const std::string& compName ) {
- 
+                             const std::string& compName ) {  
    /*
    * This if statement is temporary. It will be removed.
    * In current implementation the very first thing called is stopAud function
@@ -116,7 +115,7 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
  */
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
-
+ 
   if( compName != "PerfMonMTSvc" ){
     stopSnapshotAud(stepName, compName);
 
@@ -223,7 +222,7 @@ void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName,
 
 
 // Report the results
-void PerfMonMTSvc::report(){
+void PerfMonMTSvc::report() {
 
   report2Stdout();
   report2JsonFile();
@@ -231,9 +230,7 @@ void PerfMonMTSvc::report(){
 }
 
 
-void PerfMonMTSvc::report2Stdout(){ 
-
-  std::lock_guard<std::mutex> lock( m_mutex_stdout ); 
+void PerfMonMTSvc::report2Stdout() { 
 
   report2Stdout_Description(); 
   report2Stdout_Serial();
@@ -245,7 +242,7 @@ void PerfMonMTSvc::report2Stdout(){
   report2Stdout_CpuInfo();
 }
 
-void PerfMonMTSvc::report2Stdout_Description(){
+void PerfMonMTSvc::report2Stdout_Description() const {
 
   std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
   std::cout << "PerfMonMTSvc                                  PerfMonMTSvc Report                                   " << std::endl;
@@ -260,7 +257,7 @@ void PerfMonMTSvc::report2Stdout_Description(){
 }
 
 
-void PerfMonMTSvc::report2Stdout_Serial(){
+void PerfMonMTSvc::report2Stdout_Serial() { 
 
   using boost::format;
   
@@ -289,7 +286,7 @@ void PerfMonMTSvc::report2Stdout_Serial(){
   }
   
 }
-void PerfMonMTSvc::report2Stdout_Parallel(){
+void PerfMonMTSvc::report2Stdout_Parallel() {
 
   using boost::format;
 
@@ -328,7 +325,7 @@ void PerfMonMTSvc::report2Stdout_Parallel(){
 
 }
 
-void PerfMonMTSvc::report2Stdout_Summary(){
+void PerfMonMTSvc::report2Stdout_Summary() const {
 
   using boost::format;
 
@@ -361,7 +358,7 @@ void PerfMonMTSvc::report2Stdout_Summary(){
 
 }
 
-void PerfMonMTSvc::report2Stdout_CpuInfo(){
+void PerfMonMTSvc::report2Stdout_CpuInfo() const {
 
   using boost::format;
   std::cout << "PerfMonMTSvc                                   System Information                                   " << std::endl;
@@ -375,7 +372,7 @@ void PerfMonMTSvc::report2Stdout_CpuInfo(){
 }
 
 
-void PerfMonMTSvc::report2JsonFile(){
+void PerfMonMTSvc::report2JsonFile() const {
 
   json j;
 
@@ -391,7 +388,7 @@ void PerfMonMTSvc::report2JsonFile(){
 
 }
 
-void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j){
+void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
 
   // Report snapshot level results
   for(int i = 0; i < 3; i++ ){
@@ -405,7 +402,7 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j){
   }
 
 }
-void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j){
+void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j) const {
 
   // Report component level results
   for(auto& it : m_compLevelDataMap){
@@ -424,7 +421,7 @@ void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j){
   }
 }
 
-void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j){
+void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j) const {
 
   for(auto& it : m_aggParallelCompLevelDataMap){
 
@@ -440,12 +437,12 @@ void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j){
 }
 
 
-bool PerfMonMTSvc::isLoop(){
+bool PerfMonMTSvc::isLoop() const {
   int eventNumber = getEventNumber();
   return (eventNumber >= 0) ? true : false;
 }
 
-int PerfMonMTSvc::getEventNumber(){
+int PerfMonMTSvc::getEventNumber() const {
 
   auto ctx = Gaudi::Hive::currentContext();
   int eventNumber = ctx.eventID().event_number();
@@ -453,7 +450,7 @@ int PerfMonMTSvc::getEventNumber(){
 }
 
 PMonMT::StepComp PerfMonMTSvc::generate_serial_state( const std::string& stepName,
-                                        const std::string& compName){
+                                                      const std::string& compName) const {
 
   PMonMT::StepComp currentState;
   currentState.stepName = stepName;
@@ -462,8 +459,8 @@ PMonMT::StepComp PerfMonMTSvc::generate_serial_state( const std::string& stepNam
 }
 
 PMonMT::StepCompEvent PerfMonMTSvc::generate_parallel_state( const std::string& stepName,
-                                               const std::string& compName,
-                                                 const int& eventNumber){
+                                                             const std::string& compName,
+                                                             const int& eventNumber) const {
 
   PMonMT::StepCompEvent currentState;
   currentState.stepName = stepName;
@@ -543,7 +540,7 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
 }
 
 
-std::string PerfMonMTSvc::get_cpu_model_info(){
+std::string PerfMonMTSvc::get_cpu_model_info() const  {
 
   std::string cpu_model;
 
@@ -570,7 +567,7 @@ std::string PerfMonMTSvc::get_cpu_model_info(){
 
 }
 
-int PerfMonMTSvc::get_cpu_core_info(){
+int PerfMonMTSvc::get_cpu_core_info() const  {
 
   int logical_core_num = 0;
 
@@ -595,6 +592,6 @@ int PerfMonMTSvc::get_cpu_core_info(){
   }
 }
 
-void PerfMonMTSvc::eventCounter(int eventNumber){
+void PerfMonMTSvc::eventCounter(int eventNumber) {
   m_eventIds.insert(eventNumber);
 }
