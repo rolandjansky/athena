@@ -15,6 +15,7 @@
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+#include "BoostedJetTaggers/JSSWTopTaggerANN.h"
 #include "BoostedJetTaggers/TopoclusterTopTagger.h"
 #include "BoostedJetTaggers/JetQGTagger.h"
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
