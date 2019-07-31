@@ -172,6 +172,12 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
        ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
        ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
        for ( ; partIt!=partItEnd; ++partIt) {
+<<<<<<< HEAD
+=======
+         //std::cout << "pdg: " << partIt.pdgCode() << " momentum: " << partIt.momentum().x() << " " << partIt.momentum().y() << " " << partIt.momentum().z()<< std::endl;
+
+
+>>>>>>> add broker check to SVC, param working
          m_particleBroker->push( *partIt, &isfp);
        }
      }

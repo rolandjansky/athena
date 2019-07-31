@@ -79,7 +79,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
   // of them)
   Int_t bin = 0;
   if (numInputPar == 1)             bin = m_par[0]->GetBin( chosenBin[0] );
-  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 );
+  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 ); //Hack here to choose z axis bin 1
   else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] ); //Select Z bin as 1 to choose pions for now
   // TODO: implement case of >3 input parameters
 
