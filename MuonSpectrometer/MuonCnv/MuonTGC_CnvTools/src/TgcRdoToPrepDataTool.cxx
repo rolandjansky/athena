@@ -3411,11 +3411,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
     return sc;
   }
   
-  if(!TgcCabGet->isConfigured()) {
-    ATH_MSG_DEBUG("TGCcablingServer not yet configured!");
-    return StatusCode::FAILURE;
-  }
-  
   sc = TgcCabGet->giveCabling(m_tgcCabling);
   if(!sc.isSuccess()) {
     msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;

@@ -544,10 +544,6 @@ void TGCRecRoiSvc::getStripInfo(Amg::Vector3D & s_pos,
 StatusCode TGCRecRoiSvc::getCabling() const {
   ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name());
   ATH_CHECK( tgcCabGet.retrieve() );
-  if(!tgcCabGet->isConfigured()) {
-      ATH_MSG_DEBUG( "TGCcablingServer not yet configured!" );
-      return StatusCode::FAILURE;
-  }
   ATH_CHECK( tgcCabGet->giveCabling(*&m_cabling) );
   m_isAtlas = tgcCabGet->isAtlas();
   return StatusCode::SUCCESS;
