@@ -48,7 +48,6 @@ if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
 #use conditions from this run number and timestamp
 svcMgr.EventSelector.RunNumber = svcMgr.EvtIdModifierSvc.Modifiers[0]
 svcMgr.EventSelector.OverrideRunNumber = True
-svcMgr.EventSelector.OverrideEventNumber = True
 svcMgr.EventSelector.InitialTimeStamp = svcMgr.EvtIdModifierSvc.Modifiers[2]
 print svcMgr.EventSelector
 svcMgr.TagInfoMgr.OutputLevel=DEBUG
