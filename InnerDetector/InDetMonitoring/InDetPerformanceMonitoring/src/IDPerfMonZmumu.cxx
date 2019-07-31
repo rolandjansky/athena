@@ -1768,6 +1768,15 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_el_negative1_z0_err = 0.;
   m_el_negative1_vtx = 0;
 
+  m_el_negative2_px = 0.;
+  m_el_negative2_py = 0.;
+  m_el_negative2_pz = 0.;
+  m_el_negative2_d0 = 0.;
+  m_el_negative2_z0 = 0.;
+  m_el_negative2_d0_err = 0.;
+  m_el_negative2_z0_err = 0.;
+  m_el_negative2_vtx = 0;
+
   m_el_positive1_px = 0.;
   m_el_positive1_py = 0.;
   m_el_positive1_pz = 0.;
@@ -1777,6 +1786,14 @@ void IDPerfMonZmumu::Clear4MuNtupleVariables()
   m_el_positive1_z0_err = 0.;
   m_el_positive1_vtx = 0;
   
+  m_el_positive2_px = 0.;
+  m_el_positive2_py = 0.;
+  m_el_positive2_pz = 0.;
+  m_el_positive2_d0 = 0.;
+  m_el_positive2_z0 = 0.;
+  m_el_positive2_d0_err = 0.;
+  m_el_positive2_z0_err = 0.;
+  m_el_positive2_vtx = 0;
   
   // other quantities
   m_nVertex =        0;
