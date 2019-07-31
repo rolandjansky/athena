@@ -52,6 +52,7 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
                                "MphysOverMcal":("LArMphysOverMcal","/LAR/ElecCalibFlat/MphysOverMcal",LArMphysOverMcalCondAlg),
                                "OFC":("LArOFC","/LAR/ElecCalibFlat/OFC",LArOFCCondAlg),
                                "Shape":("LArShape","/LAR/ElecCalibFlat/Shape",LArShapeCondAlg),
+                               "HVScaleCorr":("LArHVScaleCorr","/LAR/ElecCalibFlat/HVScaleCorr",LArHVScaleCorrCondFlatAlg),
                            }
 
     result=IOVDbSvcCfg(ConfigFlags)
@@ -94,6 +95,7 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
                                "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL""LArPedestalComplete"),
                                "uA2MeV":("/LAR/ElecCalibOFl/uA2MeV/Symmetry","LAr_OFL", "LAruA2MeVMC"),
                                "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete"),
+                               "HVScale":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete"),
                                "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArOFCComplete"),
                                "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete"),
                            }
@@ -107,7 +109,7 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
         except KeyError:
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
                         
-        result.merge(addFolderList(ConfigFlags,folderlist))
+    result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result
 
