@@ -17,6 +17,11 @@
 
 class MsgStream;
 
+namespace Reco 
+{ 
+  class ITrackToVertex; 
+}
+
 namespace InDet {
 
   class ZWindowRoISeedTool : 
@@ -40,6 +45,10 @@ namespace InDet {
 
     /** Compute RoI */
     virtual std::vector<ZWindow> getRoIs();
+
+  private:
+
+    ToolHandle< Reco::ITrackToVertex > m_trackToVertex;
 
   protected:
 

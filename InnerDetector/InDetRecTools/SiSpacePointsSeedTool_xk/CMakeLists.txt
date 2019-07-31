@@ -27,7 +27,7 @@ atlas_add_component( SiSpacePointsSeedTool_xk
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
-                     InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint TrkToolInterfaces )
+                     InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint TrkToolInterfaces ITrackToVertex )
 
 # Install files from the package:
 atlas_install_headers( SiSpacePointsSeedTool_xk )
