@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # include the python fragment to set up the default bphysics vertex fitter
-from TrigBphysHypo import TrigBphysVertexingConfig
+from TrigBphysHypo import TrigBphysVertexingConfig  # noqa: F401
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuFex
-
-from AthenaCommon.AppMgr import ToolSvc
 
 class EFMultiMuFex_DiMu (TrigEFMultiMuFex):
     __slots__ = []
@@ -127,30 +125,6 @@ class EFMultiMuFex_Tau3 (TrigEFMultiMuFex):
                                 
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuFex_Tau3 (TrigEFMultiMuFex):
-    __slots__ = []
-    def __init__(self, name = "EFMultiMuFex_Tau3"):
-        super( TrigEFMultiMuFex, self ).__init__( name )
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptAll = False
-
-        # L2 Bmumu cuts
-        self.LowerMassCut      = 0.
-        self.UpperMassCut     = 2900.
-        self.OppositeSign = False
-        self.MuonAlgo = "TrigMuSuperEF"
-        self.NMassMuon = 3
-        self.CheckNinputTE = False
-        
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFMultiMuFexMonitoring import TrigEFMultiMuFexValidationMonitoring
-        validation = TrigEFMultiMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFMultiMuFexMonitoring import TrigEFMultiMuFexOnlineMonitoring
-        online = TrigEFMultiMuFexOnlineMonitoring()
-                                
-        self.AthenaMonTools = [ validation, online, time ]
 
 class EFMultiMuFex_Tau2 (TrigEFMultiMuFex):
     __slots__ = []

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # vim: tabstop=4:shiftwidth=4:expandtab
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuXHypo
@@ -75,10 +75,6 @@ class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo):
         self.UpperD0MassCut = 2300.
         self.D0Chi2Cut = 90.
 
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        
 
 class EFBMuMuXHypo_allModes (EFBMuMuXHypo_1):
     __slots__ = []
