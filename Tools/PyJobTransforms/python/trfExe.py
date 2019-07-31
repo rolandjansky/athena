@@ -1243,6 +1243,8 @@ class athenaExecutor(scriptExecutor):
             elif currentSubstep in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
         
+        if currentSubstep is None:
+            currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
             if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
@@ -1250,8 +1252,6 @@ class athenaExecutor(scriptExecutor):
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
-                if currentSubstep is None:
-                    currentSubstep = 'all'
                 if currentSubstep in self.conf.argdict['athenaopts'].value:
                     conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value[currentSubstep]]))
                     if len(conflictOpts) > 0:
