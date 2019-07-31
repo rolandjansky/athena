@@ -227,12 +227,7 @@ StatusCode egammaBuilder::execute(){
         std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         //
-        for (auto egRec : *egammaRecs){
-            if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
-                ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-                return StatusCode::FAILURE;
-            }
-        }
+          ATH_CHECK(m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egammaRecs.ptr()));
         //
         if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
     }
