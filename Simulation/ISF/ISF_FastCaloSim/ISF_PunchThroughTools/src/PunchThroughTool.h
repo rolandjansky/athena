@@ -10,6 +10,7 @@
 
 // Athena Base
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 
 #include "BarcodeEvent/Barcode.h"
 #include "BarcodeEvent/PhysicsProcessCode.h"
@@ -115,6 +116,7 @@ namespace ISF {
     mutable double                       m_initEta{0.};     //!< the incoming particle's eta
     mutable double                       m_initTheta{0.};   //!< the incoming particle's theta
     mutable double                       m_initPhi{0.};     //!< the incoming particle's phi
+    mutable int                       m_initPdg{0};     //!< the incoming particle's pdg
 
     /** calo-MS borders */
     double                               m_R1{0.};

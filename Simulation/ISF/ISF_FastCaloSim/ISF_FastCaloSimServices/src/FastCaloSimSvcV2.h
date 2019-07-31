@@ -8,6 +8,12 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
+// Framework includes
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IChronoStatSvc.h"
+#include "AthenaBaseComps/AthService.h"
+
 // FastCaloSim includes
 #include "IFastCaloSimParamSvc.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
@@ -23,6 +29,9 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
 
+#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
+
+
 namespace CLHEP
 {
   class HepRandomEngine;
@@ -34,6 +43,10 @@ class TFCSParametrizationBase;
 
 
 namespace ISF {
+
+  class IParticleBroker;
+  class IPunchThroughTool;
+
   /** @class FastCaloSimSvcV2
 
       @author Elmar.Ritsch -at- cern.ch, Geraldine.Conti -at- cern.ch, Flavia.Dias -at- cern.ch
@@ -75,6 +88,11 @@ namespace ISF {
     std::string                     m_randomEngineName;
 
     std::string  m_caloCellsOutputName;
+
+    bool m_doPunchThrough;
+    ToolHandle< IPunchThroughTool >     m_punchThroughTool;
+    ServiceHandle<ISF::IParticleBroker> m_particleBroker;
+
   };
 
 }

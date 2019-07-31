@@ -27,6 +27,8 @@
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
+#include "ISF_Interfaces/IParticleBroker.h"
+
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -34,6 +36,7 @@
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 
 #include "PathResolver/PathResolver.h"
+
 
 #include "TFile.h"
 #include <fstream>
@@ -46,14 +49,21 @@ ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* sv
   : BaseSimulationSvc(name, svc)
   , m_paramSvc("ISF_FastCaloSimV2ParamSvc", name)
   , m_rndGenSvc("AtRndmGenSvc", name)
+  , m_doPunchThrough(false)
+  , m_punchThroughTool("")
+  , m_particleBroker ("ISF_ParticleBroker",name)
+
 {
   declareProperty("ParamSvc"                       ,       m_paramSvc);
   declareProperty("CaloCellsOutputName"            ,       m_caloCellsOutputName) ;
   declareProperty("CaloCellMakerTools_setup"       ,       m_caloCellMakerToolsSetup) ;
   declareProperty("CaloCellMakerTools_release"     ,       m_caloCellMakerToolsRelease) ;
+  declareProperty("PunchThroughTool"               ,       m_punchThroughTool);
+  declareProperty("DoPunchThroughSimulation"       ,       m_doPunchThrough) ;
   declareProperty("RandomSvc"                      ,       m_rndGenSvc                );
   declareProperty("RandomStream"                   ,       m_randomEngineName         );
   declareProperty("FastCaloSimCaloExtrapolation"   ,       m_FastCaloSimCaloExtrapolation );
+  declareProperty("ParticleBroker"                 ,       m_particleBroker, "ISF ParticleBroker Svc" );
 }
 
 /** framework methods */
@@ -63,10 +73,17 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
 
   ATH_CHECK(m_rndGenSvc.retrieve());
   m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
+
   if (!m_randomEngine) {
     ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
     return StatusCode::FAILURE;
   }
+
+  if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() ) 
+  {
+    ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
+    return StatusCode::FAILURE;
+  } 
 
   ATH_CHECK(m_paramSvc.retrieve());
 
@@ -147,6 +164,18 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 
   Amg::Vector3D particle_position =  isfp.position();
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
+
+  if (m_doPunchThrough) {
+     // call punch-through simulation
+     const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
+     if (isfpVec) {
+       ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
+       ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
+       for ( ; partIt!=partItEnd; ++partIt) {
+         m_particleBroker->push( *partIt, &isfp);
+       }
+     }
+   }
 
    //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();

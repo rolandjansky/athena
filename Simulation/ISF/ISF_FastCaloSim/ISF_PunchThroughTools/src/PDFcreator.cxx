@@ -27,7 +27,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
   // we have to choose which bin we use for the current energy & eta regime.
   // It's very unlikely to exactly hit a bin's center, therefore we randomly
   // choose either the lower next or the upper next bin.
-
+ 
   int numInputPar = inputParameters.size();
   TAxis **axis = new TAxis*[numInputPar];
   Int_t *chosenBin = new Int_t[numInputPar];
@@ -35,8 +35,8 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
 
   // get the axis from the first (could be any other too, but the first one
   // always exists) histogram (which holds the function's first fit parameter)
-  axis[0] = m_par[0]->GetXaxis();
-  axis[1] = m_par[0]->GetYaxis();
+  axis[0] = m_par[0]->GetXaxis(); //Energy
+  axis[1] = m_par[0]->GetYaxis(); //Eta
 
   // loop over all input inputParameters (e.g. eta & energy)
   for (int inputPar=0; inputPar<numInputPar; inputPar++) {
@@ -47,6 +47,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
     // get the id of the bin corresponding to the current value
     // (use FindFixBin to avoid the axis from being rebinned)
     Int_t bin = curaxis->FindFixBin(curvalue);
+
     // get the center of the closest bin to the input inputParameter
     double closestCenter = curaxis->GetBinCenter(bin);
     // get the bins edge closest to the current value
@@ -78,9 +79,10 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
   // of them)
   Int_t bin = 0;
   if (numInputPar == 1)             bin = m_par[0]->GetBin( chosenBin[0] );
-  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1] );
-  else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] );
+  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 );
+  else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] ); //Select Z bin as 1 to choose pions for now
   // TODO: implement case of >3 input parameters
+
 
   // free some memory
   delete [] axis;

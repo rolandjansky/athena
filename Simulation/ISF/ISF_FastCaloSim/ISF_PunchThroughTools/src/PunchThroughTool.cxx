@@ -400,6 +400,8 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   //  -> the azimutal angle phi
   m_initPhi = m_initPs->position().phi();
 
+  m_initPdg = m_initPs->pdgCode();
+
   // this is the place where the magic is done:
   // test for each registered punch-through pdg if a punch-through
   // occures and create these particles
@@ -487,6 +489,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       std::vector<double> parameters;
       parameters.push_back( m_initEnergy );
       parameters.push_back( fabs(m_initEta) );
+
       // the maximum number of particles which should be produced
       // if no maximum number is given, this is -1
       int maxParticles = p->getMaxNumParticles();
@@ -634,6 +637,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   std::vector<double> parInitEnergyEta;
   parInitEnergyEta.push_back( m_initEnergy );
   parInitEnergyEta.push_back( fabs(m_initEta) );
+  //parInitEnergyEta.push_back( fabs(m_initEta) ); ADD initial pdgid here
 
   // (2.1) get the energy
   double energy = p->getExitEnergyPDF()->getRand(
@@ -905,7 +909,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
       name.str("");
       name << folderName << pdg<< "/parameter" << par;
 
-      // get the histogram from the file
+      // get the histogram from the filenan
       TH1 *hist = (TH1*)m_fileLookupTable->Get(name.str().c_str());
 
       // if histogram does not exist -> error!
