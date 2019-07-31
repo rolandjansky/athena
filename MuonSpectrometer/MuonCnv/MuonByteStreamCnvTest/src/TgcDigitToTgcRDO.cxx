@@ -35,14 +35,9 @@ StatusCode TgcDigitToTgcRDO::initialize()
   ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
   ATH_CHECK( m_tgc_cabling_server.retrieve() );
 
-  if(m_tgc_cabling_server->isConfigured()) {
-    ATH_MSG_DEBUG( "standard digitization job: " 
-                   << "initialize now the TGC cabling and TGC container."  );
-    ATH_CHECK( getCabling() );
-  } else {
-    ATH_MSG_DEBUG( "TGCcablingServerSvc not yet configured; postpone the " 
-                   << "ITGCcablingSvc and the TgcRdocontainer initialization at first event" );
-  }
+  ATH_MSG_DEBUG( "standard digitization job: "
+		 << "initialize now the TGC cabling and TGC container."  );
+  ATH_CHECK( getCabling() );
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_rdoContainerKey );
