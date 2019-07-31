@@ -122,7 +122,7 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( Templates_test
       SOURCES test/Templates_test.cxx
       LINK_LIBRARIES TrigNavigationLib AthenaKernel GaudiKernel AthContainers
-      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent CxxUtils
+      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent 
       TrigDecisionToolLib
       EXTRA_PATTERNS ".*" )
 endif()
