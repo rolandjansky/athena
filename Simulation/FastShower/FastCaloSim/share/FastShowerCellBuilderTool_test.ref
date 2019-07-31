@@ -123,7 +123,7 @@ IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_GLOBAL/OFLP200

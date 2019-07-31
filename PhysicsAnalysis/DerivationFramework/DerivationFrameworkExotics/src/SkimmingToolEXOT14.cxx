@@ -12,6 +12,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetAuxContainer.h"
 // #include "xAODTracking/TrackingPrimitives.h"
 
 // #include "JetCalibTools/JetCalibrationTool.h"
@@ -214,29 +215,41 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
   xAOD::JetContainer::const_iterator jet_itr(jets->begin());
   xAOD::JetContainer::const_iterator jet_end(jets->end());
 
-  xAOD::Jet* jetC = 0; // new xAOD::Jet();
+  xAOD::JetContainer calibJets;
+  calibJets.setStore(new xAOD::JetAuxContainer());
+  
   m_j1TLV.SetPtEtaPhiE(0, 0, 0, 0);
   m_j2TLV.SetPtEtaPhiE(0, 0, 0, 0);
 
-  for(int i = 0; jet_itr != jet_end; ++jet_itr, ++i) {
+  // Copy jets into the container to be calibrated
+  while(jet_itr != jet_end) {
+    xAOD::Jet* jetC = new xAOD::Jet();
+    jetC->setJetP4(xAOD::JetFourMom_t((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->m()));
+    calibJets.push_back(jetC);
+    jet_itr++;
+  }
 
-    jetC = 0;
-    CP::CorrectionCode cc = m_JESTool->calibratedCopy(**jet_itr, jetC);
+  // Calibrate the jets
+  if(m_JESTool->applyCalibration(calibJets).isFailure())
+    ATH_MSG_WARNING("Jet calibration returned FAILURE!");
 
-    if (abs(jetC->eta()) > m_maxEta) { delete jetC; continue; }
-    // ATH_MSG_INFO("jet uncalib=" << (*jet_itr)->pt() << "   calib=" << jetC->pt());
+  jet_itr = calibJets.begin();
+  jet_end = calibJets.end();
+  while(jet_itr != jet_end) {
 
-    if (jetC->pt() > m_j1TLV.Pt()) {
+    if (abs((*jet_itr)->eta()) > m_maxEta) continue;
+
+    if ((*jet_itr)->pt() > m_j1TLV.Pt()) {
 
       m_j2TLV = m_j1TLV;
-      m_j1TLV.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      m_j1TLV.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
 
-    } else if (jetC->pt() > m_j2TLV.Pt()) {
+    } else if ((*jet_itr)->pt() > m_j2TLV.Pt()) {
 
-      m_j2TLV.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      m_j2TLV.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
     }
     
-    delete jetC;
+    jet_itr++;
   }
 
   // save this for this code.

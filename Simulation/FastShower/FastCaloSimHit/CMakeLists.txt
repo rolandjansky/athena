@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
-                          Control/CxxUtils
                           Control/PileUpTools
                           Event/EventInfo
                           TileCalorimeter/TileConditions
@@ -37,11 +36,11 @@ atlas_add_library( FastCaloSimHitLib
                    src/*.cxx
                    PUBLIC_HEADERS FastCaloSimHit
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel LArSimEvent TileSimEvent StoreGateLib SGtests PileUpToolsLib TileConditionsLib
-                   PRIVATE_LINK_LIBRARIES CaloEvent CaloIdentifier CxxUtils EventInfo TileEvent )
+                   PRIVATE_LINK_LIBRARIES CaloEvent CaloIdentifier EventInfo TileEvent )
 
 atlas_add_component( FastCaloSimHit
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel LArSimEvent TileSimEvent CaloEvent CaloIdentifier CxxUtils PileUpToolsLib EventInfo TileConditionsLib TileEvent FastCaloSimHitLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel LArSimEvent TileSimEvent CaloEvent CaloIdentifier PileUpToolsLib EventInfo TileConditionsLib TileEvent FastCaloSimHitLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

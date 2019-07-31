@@ -36,16 +36,12 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::initialize()
   // Get Pixel Detector Manager and Pixel ID helper
   if (m_usePIX) {
     ATH_CHECK(detStore()->retrieve(m_pixmgr, m_pix));
-    ATH_CHECK(m_IBLDistFolderKey.initialize());
-    if (m_useDynamicAlignFolders) {
-      ATH_CHECK(m_pixelL2FolderKey.initialize());
-    }
   }
+  ATH_CHECK(m_IBLDistFolderKey.initialize(m_usePIX));
+  ATH_CHECK(m_pixelL2FolderKey.initialize(m_usePIX and m_useDynamicAlignFolders));
   
   // Get  SCT Detector Manager and SCT ID helper
-  if (m_useSCT) {
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  }
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_useSCT));
 
   ATH_CHECK(m_writeKey.initialize());
   ATH_CHECK(m_condSvc.retrieve());

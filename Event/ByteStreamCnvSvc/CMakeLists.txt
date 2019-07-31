@@ -22,6 +22,8 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/PersistentDataModel
    Event/EventInfo
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODTrigger
    Event/ByteStreamCnvSvcLegacy )
 
 # External dependencies:
@@ -39,7 +41,7 @@ atlas_add_library( ByteStreamCnvSvcLib
    ByteStreamCnvSvcBaseLib StoreGateLib rt
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
    AthenaKernel SGTools CollectionBase FileCatalog
-   AthenaPoolUtilities PersistentDataModel EventInfo
+   AthenaPoolUtilities PersistentDataModel EventInfo xAODEventInfo xAODTrigger
    ByteStreamCnvSvcLegacy )
 
 atlas_add_component( ByteStreamCnvSvc

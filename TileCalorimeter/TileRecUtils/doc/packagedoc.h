@@ -37,6 +37,8 @@ This package contains the algorithms and tools used for TileCal reconstruction
 
   - TileRawChannelBuilderManyAmps: used by TileDigitsMaker. TileRawChannels are built using the method developed by Frank Marritt, based on fitting the digital samples to to a series of pulses (for pileup handling). Default method for full ATLAS reconstruction.
 
+  - TileRawChannelBuilderWienerFilter: used by TileDigitsMaker. TileRawChannels are built using the Wiener Filtering method, based on the cross-correlation between the samples and the noise minimizing its contribution.
+
   - TileCellBuilder: creates TileCells from TileRawChannels, which are stored in a container. By default uses Opt2 Optimal Filter, and on-th-fly cell masking.
 
   - TileCellFakeProb: scales down the energy of TileCells due to simulated failure of drawers

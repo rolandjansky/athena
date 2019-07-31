@@ -81,7 +81,7 @@ def ExampleMonitoringConfig(inputFlags):
 
     ### STEP 5 ###
     # Configure histograms
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
+    myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
                             path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')

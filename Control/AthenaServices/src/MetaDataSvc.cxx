@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -128,7 +128,6 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "BeginInputFile", 80);
    m_incSvc->addListener(this, "EndInputFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
-   m_incSvc->addListener(this, "ShmProxy", 90);
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
@@ -220,6 +219,8 @@ StatusCode MetaDataSvc::stop() {
 StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
    if (riid == this->interfaceID()) {
       *ppvInterface = this;
+   } else if (riid == IMetadataTransition::interfaceID()) {
+     *ppvInterface = dynamic_cast<IMetadataTransition*>(this);
    } else {
       // Interface is not directly available: try out a base class
       return(::AthService::queryInterface(riid, ppvInterface));
@@ -342,24 +343,19 @@ StatusCode MetaDataSvc::prepareOutput()
    return rc;
 }
 
-StatusCode MetaDataSvc::proxyIncident(const Incident& inc)
+StatusCode MetaDataSvc::shmProxy(const std::string& filename)
 {
-   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc == nullptr) {
-      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
-      return StatusCode::FAILURE;
-   }
-   const std::string fileName = fileInc->fileName();
    if (!m_clearedInputDataStore) {
       if (!m_inputDataStore->clearStore().isSuccess()) {
-         ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+         ATH_MSG_ERROR("Unable to clear input MetaData Proxies");
+	 return StatusCode::FAILURE;
       }
       m_clearedInputDataStore = true;
    }
-   if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
-      ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
+   if (!addProxyToInputMetaDataStore(filename).isSuccess()) {
+      ATH_MSG_ERROR("Unable to add proxy to InputMetaDataStore");
+      return StatusCode::FAILURE;
    }
-
    return StatusCode::SUCCESS;
 }
 
@@ -393,10 +389,6 @@ void MetaDataSvc::handle(const Incident& inc) {
    } else if (inc.type() == "LastInputFile") {
       if (m_metaDataTools.release().isFailure()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-      }
-   } else if (inc.type() == "ShmProxy") {
-      if(proxyIncident(inc).isFailure()) {
-         ATH_MSG_ERROR("Could not process proxy incident for " << fileName);
       }
    }
 }
@@ -524,6 +516,13 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const std::string par[3] = { "SHM" , keyName , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
+   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
+   if (iter == m_streamForKey.end()) {
+      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
+   } else if (fileName != iter->second) { // Remove duplicated objects
+      ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
+      m_inputDataStore->proxy(clid, keyName)->reset();
+   }
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
       return(StatusCode::FAILURE);
@@ -540,13 +539,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink (clid, keyName, 187169987).isFailure()) {
       ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
    }
-   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
-   if (iter == m_streamForKey.end()) {
-      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
-   } else if (fileName != iter->second) { // Remove duplicated objects
-      ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
-      m_inputDataStore->proxy(clid, keyName)->reset();
-   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -560,7 +552,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    }
    if (fileName.find("BSF:") == 0) {
       ATH_MSG_DEBUG("MetaDataSvc called for non ROOT file.");
-   } else if (fileName == "SHM") {
+   } else if (fileName.substr(0, 3) == "SHM") {
       ATH_MSG_DEBUG("MetaDataSvc called for shared memory.");
    } else {
       const std::string par[2] = { fileName,  m_metaDataCont.value() + "(DataHeader)" };

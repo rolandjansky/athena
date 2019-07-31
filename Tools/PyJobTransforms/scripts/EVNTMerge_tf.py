@@ -6,6 +6,7 @@
 #  N.B. Do need clarification as to if AODtoDPD is ever run in parallel with AOD merging 
 # @version $Id: AODMerge_tf.py 530225 2012-12-12 18:16:17Z graemes $ 
 
+from __future__ import print_function
 import sys
 import time
 
@@ -38,7 +39,7 @@ def main():
 
 def getTransform():
     executorSet = set()
-    print type(executorSet)
+    print(type(executorSet))
     executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
 
     trf = transform(executor = executorSet)

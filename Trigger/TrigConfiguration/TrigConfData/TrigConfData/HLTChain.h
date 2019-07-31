@@ -41,6 +41,9 @@ namespace TrigConf {
       /** Accessor to the seeding L1 item */
       const std::string & l1item() const;
 
+      /** Accessor to the l1 thresholds */
+      std::vector<std::string> l1thresholds() const;
+
       /** Accessor to the connected output streams */
       std::vector<DataStructure> streams() const;
 

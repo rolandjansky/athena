@@ -28,11 +28,19 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+  return StatusCode::SUCCESS;
+}
 
+StatusCode GenericMonitoringTool::start() {
   if ( not m_explicitBooking ) {
     ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringTool::stop() {
+  m_fillers.clear();
   return StatusCode::SUCCESS;
 }
 
@@ -128,6 +136,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
   }
 
   return result;
+}
+
+uint32_t GenericMonitoringTool::runNumber() {
+  return Gaudi::Hive::currentContext().eventID().run_number();
 }
 
 uint32_t GenericMonitoringTool::lumiBlock() {

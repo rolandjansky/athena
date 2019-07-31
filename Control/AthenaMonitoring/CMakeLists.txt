@@ -10,9 +10,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           LumiBlock/LumiBlockComps
+                          LumiBlock/LumiBlockData
                           Trigger/TrigEvent/TrigDecisionInterface
                           PRIVATE
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/SGMon/SGAudCore
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODEventInfo
@@ -22,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools)
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost COMPONENTS filesystem system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
@@ -33,8 +35,8 @@ atlas_add_library( AthenaMonitoringLib
                    PUBLIC_HEADERS AthenaMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib LumiBlockData
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists )
 
 atlas_add_component( AthenaMonitoring
                      src/components/*.cxx
@@ -45,6 +47,7 @@ atlas_add_component( AthenaMonitoring
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( share/Run3DQTestingDriver.py )
 
 # Units tests C++:
 file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )

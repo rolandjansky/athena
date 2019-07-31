@@ -246,6 +246,7 @@ StatusCode TrigEDMChecker::initialize() {
   if (m_doTDTCheck) {
     ATH_CHECK( m_trigDec.retrieve() );
     m_trigDec->ExperimentalAndExpertMethods()->enable();
+    ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
 
 	return StatusCode::SUCCESS;
@@ -4019,13 +4020,26 @@ StatusCode TrigEDMChecker::dumpTDT() {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
     if (passed) {
-      std::vector< LinkInfo<xAOD::IParticleContainer> > features = m_trigDec->features<xAOD::IParticleContainer>(item);
-      ATH_MSG_INFO("    " << item << " IParticle features size: " << features.size());
-      for (const LinkInfo<xAOD::IParticleContainer>& li : features) {
+      if (m_trigDec->getNavigationFormat() == "TriggerElement") {
+        ATH_MSG_INFO("    Skipping Run 2 features in this dumper");
+        continue;
+      }
+      std::vector< LinkInfo<xAOD::IParticleContainer> > passFeatures = m_trigDec->features<xAOD::IParticleContainer>(item);
+      ATH_MSG_INFO("    " << item << " Passed IParticle features size: " << passFeatures.size());
+      for (const LinkInfo<xAOD::IParticleContainer>& li : passFeatures) {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
-          ATH_MSG_INFO("      IParticle Feature pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+        }
+      }
+      std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+      ATH_MSG_INFO("    " << item << " Passed+Failed IParticle features size: " << allFeatures.size());
+      for (const LinkInfo<xAOD::IParticleContainer>& li : allFeatures) {
+        if (!li.isValid()) {
+          ATH_MSG_WARNING("      Unable to access feature - link invalid.");
+        } else {
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
         }
       }
     }
@@ -4109,6 +4123,12 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
       const ElementLink<xAOD::TrigEMClusterContainer> elementLink = tc->objectLink<xAOD::TrigEMClusterContainer>(name);
       if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigEMClusterContainer 'feature'");
       else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigEMClusterContainer link 'feature', Energy:" << (*elementLink)->energy());
+
+    } else if (clid == ClassID_traits< xAOD::TrigMissingETContainer >::ID()) {
+
+      const ElementLink<xAOD::TrigMissingETContainer> elementLink = tc->objectLink<xAOD::TrigMissingETContainer>(name);
+      if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigMissingETContainer 'feature'");
+      else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigMissingETContainer link 'feature', ex:" << (*elementLink)->ex() << " ey:" << (*elementLink)->ey());
 
     } else {
 

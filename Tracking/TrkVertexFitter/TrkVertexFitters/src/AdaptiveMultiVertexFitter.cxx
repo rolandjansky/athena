@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -371,7 +371,7 @@ namespace Trk
 	
         // std::cout << " step: " << num_steps << " considering shift of: " << *iter << " vtx z: " <<  (*iter)->recVertex().position().z() <<std::endl;
 
-        Amg::Vector3D vrtpos(3,0);
+        Amg::Vector3D vrtpos;
 
         vrtpos[0]=oldpositions[*iter][0]-(*iter)->position()[0];
         vrtpos[1]=oldpositions[*iter][1]-(*iter)->position()[1];

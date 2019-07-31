@@ -1,12 +1,29 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool, TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool
-from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import *
-from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.AppMgr import ToolSvc
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-import re
+# import Hypo Algs/Tools
+from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
+    TrigMufastHypoAlg, TrigMufastHypoTool,
+    TrigmuCombHypoAlg, TrigmuCombHypoTool,
+    TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool,
+    TrigMuisoHypoAlg, TrigMuisoHypoTool,
+    TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool,
+    TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool
+)
 
+# import monitoring
+from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
+    TrigMufastHypoMonitoring,
+    TrigmuCombHypoMonitoring,
+    TrigMuonEFMSonlyHypoMonitoring,
+    TrigMuisoHypoMonitoring,
+    TrigMuonEFCombinerHypoMonitoring
+)
+
+# other imports
+from AthenaCommon.SystemOfUnits import GeV
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigMuonHypoMTConfig')
 
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
@@ -189,15 +206,14 @@ trigMuonEFTrkIsoThresholds = {
 
 def addMonitoring(tool, monClass, name, thresholdHLT ):
     try:
-        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-            tool.MonTool = monClass( name + "Monitoring_" + thresholdHLT ) 
+        tool.MonTool = monClass( "MonTool" )
+        tool.MonTool.HistPath = name + "/" + thresholdHLT
     except AttributeError:
-        tool.MonTool = ""
-        print name, ' Monitoring Tool failed'
+        log.error('%s Monitoring Tool failed', name)
 
 
 def getThresholdsFromDict( chainDict ):    
-    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon' or i['signature'] is 'Bphysics']
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon' or i['signature']=='Bphysics']
     return sum( [ [part['threshold']]*int(part['multiplicity']) for part in cparts ], [])
 
 
@@ -206,31 +222,22 @@ def TrigMufastHypoToolFromDict( chainDict ):
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
-    # # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ['Validation']
+    # Setup MonTool for monitored variables in AthenaMonitoring package
     addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
     
     return tool
 
 
-def TrigMufastHypoToolFromName( name,  thresholdHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMufastHypoToolFromDict( decodedDict )
+class TrigMufastHypoConfig(object):
 
+    log = logging.getLogger('TrigMufastHypoConfig')
 
-class TrigMufastHypoConfig():
-    
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ): 
-        
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+
         tool = TrigMufastHypoTool( thresholdHLT )  
 
-        datayear = '2017'
-
         nt = len(thresholds)
-        print "TrigMufastHypoConfig: Set ", nt, " thresholds" 
+        log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
         tool.PtThresholdForECWeakBRegionA = [ 3. * GeV ] * nt
@@ -238,23 +245,21 @@ class TrigMufastHypoConfig():
 
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
-            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
                 tool.AcceptAll = False
                 values = muFastThresholds[thvaluename]
                 tool.PtBins[th] = values[0]
                 tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-                print "TrigMufastHypoConfig: Configration of threshold[", th, "] ", tool.PtThresholds[th]
-                print "TrigMufastHypoConfig: Configration of PtBins[", th, "] ", tool.PtBins[th]
+                log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
+                log.debug('Configration of PtBins[%d] %s', th, tool.PtBins[th])
                 if thvaluename in muFastThresholdsForECWeakBRegion:
                     spThres = muFastThresholdsForECWeakBRegion[thvaluename]
                     tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
                     tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
-                    print 'TrigMufastHypoConfig: -> Thresholds for A[', th, ']/B[', th, ']=',tool.PtThresholdForECWeakBRegionA[th],'/',tool.PtThresholdForECWeakBRegionB[th]
                 else:
-                    print 'TrigMufastHypoConfig: No special thresholds for EC weak Bfield regions for',thvaluename
-                    print 'TrigMufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
+                    log.debug('No special thresholds for EC weak Bfield regions for %s. Copy EC1 for region A, EC2 for region B.', thvaluename)
                     spThres = values[0][1]
                     if thvaluename == '2GeV' or thvaluename == '3GeV':
                         tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
@@ -262,10 +267,11 @@ class TrigMufastHypoConfig():
                     else:
                         tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
                         tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
-                    print 'TrigMufastHypoConfig: -> Thresholds for A[', th, ']/B[', th, ']=',tool.PtThresholdForECWeakBRegionA[th],'/',tool.PtThresholdForECWeakBRegionB[th]
-                
+
+                log.debug('Thresholds for A[%d]/B[%d] = %d/%d', th, th, tool.PtThresholdForECWeakBRegionA[th], tool.PtThresholdForECWeakBRegionB[th])
+
             except LookupError:
-                if (thvaluename=='passthrough'):
+                if (thvalue=='passthrough'):
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
@@ -274,7 +280,6 @@ class TrigMufastHypoConfig():
         return tool
 
 def TrigmuCombHypoToolFromDict( chainDict ):
-    print chainDict
 
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigmuCombHypoConfig()
@@ -286,34 +291,29 @@ def TrigmuCombHypoToolFromDict( chainDict ):
 
     return tool
 
-def TrigmuCombHypoToolFromName( name, thresholdsHLT ):	
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigmuCombHypoToolFromDict( decodedDict )
-        
-class TrigmuCombHypoConfig():
+class TrigmuCombHypoConfig(object):
+
+    log = logging.getLogger('TrigmuCombHypoConfig')
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
 
         tool = TrigmuCombHypoTool( thresholdHLT )
 
         nt = len(thresholds)
-        print "TrigMufastHypoConfig: Set ", nt, " thresholds" 
+        log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
-            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
                 values = muCombThresholds[thvaluename]
                 tool.PtBins[th] = values[0]
                 tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
             except LookupError:
-                if (threshold=='passthrough'):
+                if (thvalue=='passthrough'):
                     tool.AcceptAll = True
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
@@ -322,7 +322,7 @@ class TrigmuCombHypoConfig():
                 else:
                     raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % thvaluename)
         
-            if (tight == True): 
+            if (tight is True):
                 tool.ApplyPikCuts        = True
                 tool.MaxPtToApplyPik      = 25.
                 tool.MaxChi2IDPik         = 3.5
@@ -340,16 +340,9 @@ def TrigMuisoHypoToolFromDict( chainDict ):
     return tool
     
 
-def TrigMuisoHypoToolFromName( name, thresholdHLT ):
+class TrigMuisoHypoConfig(object):
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuisoHypoToolFromDict( decodedDict )
-
-
-class TrigMuisoHypoConfig() :
+    log = logging.getLogger('TrigMuisoHypoConfig')
 
     def ConfigurationHypoTool( self, toolName ):	
 
@@ -359,21 +352,19 @@ class TrigMuisoHypoConfig() :
         tool.AcceptAll = False
         if 'passthrough' in toolName:                    
             tool.AcceptAll = True
-            print 'MuisoHypoConfig configured in pasthrough mode'
+            log.debug('MuisoHypoConfig configured in pasthrough mode')
 
         if "FTK" in toolName: # allows us to use different working points in FTK mode
-            tool.IDConeSize   = 2;
+            tool.IDConeSize   = 2
             tool.MaxIDIso_1   = 0.12
             tool.MaxIDIso_2   = 0.12
             tool.MaxIDIso_3   = 0.12  
         else:
-            tool.IDConeSize   = 2;
+            tool.IDConeSize   = 2
             tool.MaxIDIso_1   = 0.1
             tool.MaxIDIso_2   = 0.1
             tool.MaxIDIso_3   = 0.1
 
-        print 'MuisoHypoConfig configuration done'
- 
         return tool
 
 
@@ -385,31 +376,25 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     return tool
 
     
-def TrigMuonEFMSonlyHypoToolFromName( name, thresholdHLT ) :
+class TrigMuonEFMSonlyHypoConfig(object):
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFMSonlyHypoToolFromDict( decodedDict )
-    
-class TrigMuonEFMSonlyHypoConfig(): 
-        
+    log = logging.getLogger('TrigMuonEFMSonlyHypoConfig')
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
 
+        log = logging.getLogger(self.__class__.__name__)
         tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
 
         nt = len(thresholds)
-        print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
-        print "But cann't use multi muon trigger due to not yet implemented it"
+        log.debug('Set %d thresholds', nt)
+        log.warning('But cannot use multi muon trigger (not implemented yet)')
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
-            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
                 tool.AcceptAll = False
@@ -418,11 +403,11 @@ class TrigMuonEFMSonlyHypoConfig():
                 tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
 
             except LookupError:
-                if (threshold=='passthrough'):
+                if (thvalue=='passthrough'):
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
-                    raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+                    raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
         return tool
 
@@ -434,31 +419,23 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
-def TrigMuonEFCombinerHypoToolFromName( name, thresholdHLT ) :
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
-    decodedDict['chainName'] = name # override
-    return TrigMuonEFCombinerHypoToolFromDict( decodedDict )
-
-
-class TrigMuonEFCombinerHypoConfig(): 
+class TrigMuonEFCombinerHypoConfig(object):
         
+    log = logging.getLogger('TrigMuonEFCombinerHypoConfig')
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
 
         tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
 
         nt = len(thresholds)
-        print "TrigMuonEFCombinerHypoConfig: Set ", nt, " thresholds" 
+        log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
-            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
                 tool.AcceptAll = False
@@ -467,24 +444,26 @@ class TrigMuonEFCombinerHypoConfig():
                 tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
 
             except LookupError:
-                if (threshold=='passthrough'):
+                if (thvalue=='passthrough'):
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
-                    raise Exception('MuonEFCB Hypo Misconfigured: threshold %r not supported' % threshold)
+                    raise Exception('MuonEFCB Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
         return tool
 
 
 
 def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
-    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
     thresholds = cparts[0]['isoInfo']
     config = TrigMuonEFTrackIsolationHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     return tool
 
-class TrigMuonEFTrackIsolationHypoConfig() :
+class TrigMuonEFTrackIsolationHypoConfig(object) :
+
+    log = logging.getLogger('TrigMuonEFTrackIsolationHypoConfig')
 
     def ConfigurationHypoTool(self, toolName, isoCut):
 
@@ -509,10 +488,10 @@ class TrigMuonEFTrackIsolationHypoConfig() :
                 tool.useVarIso = False                                
         except LookupError:
             if(isoCut=='passthrough') :
-                print 'Setting passthrough'
+                log.debug('Setting passthrough')
                 tool.AcceptAll = True
             else:
-                print 'isoCut = ', isoCut
+                log.error('isoCut = ', isoCut)
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
         return tool
 
@@ -524,24 +503,28 @@ if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1 
 
-    configToTest = [ 'HLT_mu6fast',
-                     'HLT_mu6Comb',
-                     'HLT_mu6'                    
-                     'HLT_mu20_ivar',
-                     'HLT_2mu6Comb',
-                     'HLT_2mu6']
+    configToTest = [ 'HLT_mu6fast_L1MU6',
+                     'HLT_mu6Comb_L1MU6',
+                     'HLT_mu6_L1MU6',                    
+                     'HLT_mu20_ivar_L1MU20',
+                     'HLT_2mu6Comb_L12MU6',
+                     'HLT_2mu6_L12MU6']
+
+    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+    chainNameDecoder = DictFromChainName.DictFromChainName()
                     
     for c in configToTest:
-        print "testing config ", c
-        toolMufast = TrigMufastHypoToolFromName(c, c)
+        log.info("testing config %s", c)
+        chainDict = chainNameDecoder.getChainDict(c)
+        toolMufast = TrigMufastHypoToolFromDict(chainDict)
         assert toolMufast
-        toolmuComb = TrigmuCombHypoToolFromName(c, c)
+        toolmuComb = TrigmuCombHypoToolFromDict(chainDict)
         assert toolmuComb
-        toolMuiso = TrigMuisoHypoToolFromName(c, c)
+        toolMuiso = TrigMuisoHypoToolFromDict(chainDict)
         assert toolMuiso
-        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromName(c, c)
+        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromDict(chainDict)
         assert toolEFMSonly
-        toolEFCombiner = TrigMuonEFCombinerHypoToolFromName(c, c)
+        toolEFCombiner = TrigMuonEFCombinerHypoToolFromDict(chainDict)
         assert toolEFCombiner
         
-    print "All OK"
+    log.info("All OK")

@@ -22,21 +22,17 @@ decription           : Implementation code for the class GsfMaterialEffectsUpdat
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/Layer.h"
 
-Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& type, const std::string& name, const IInterface* parent)
+Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& type, 
+                                                          const std::string& name, 
+                                                          const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_outputlevel(0),
-  m_materialEffects("Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects"),
   m_useReferenceMaterial(false),
   m_momentumCut(250.*Gaudi::Units::MeV)
 {
-
   declareInterface<IMultiStateMaterialEffectsUpdator>(this);
-
-  declareProperty("MaterialEffects",         m_materialEffects         );
   declareProperty("UseReferenceMaterial",    m_useReferenceMaterial        );
   declareProperty("MinimalMomentum",         m_momentumCut                 );
-
 }
 
 Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator ()
@@ -44,54 +40,35 @@ Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator ()
 
 StatusCode Trk::GsfMaterialEffectsUpdator::initialize ()
 {
-
-  m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
-
   // Retrieve the specific material effects
-  if ( m_materialEffects.retrieve().isFailure() ){
-    msg(MSG::FATAL)
-	  << "Could not retrieve Material Effects AlgTool: " << m_materialEffects.typeAndName()
-	  << "... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
-
+  ATH_CHECK(m_materialEffects.retrieve());
+  ATH_MSG_INFO("Initialisation of " << name() << " was successful" );
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode Trk::GsfMaterialEffectsUpdator::finalize()
 {
-
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
-
+  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
-
 }
 
 /* ============================================================================
-   ============================================================================
    Full update based on layer information
-   ============================================================================
    ============================================================================ */
 
-const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( const Trk::ComponentParameters& componentParameters,
-									      const Trk::Layer& layer,
-									      Trk::PropDirection direction,
-									      Trk::ParticleHypothesis particleHypothesis ) const
+const Trk::MultiComponentState* 
+Trk::GsfMaterialEffectsUpdator::updateState ( const Trk::ComponentParameters& componentParameters,
+                                              const Trk::Layer& layer,
+                                              Trk::PropDirection direction,
+                                              Trk::ParticleHypothesis particleHypothesis ) const
 {
-  
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update using layer information and particle hypothesis: " << particleHypothesis << endmsg;
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
     msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endmsg;
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters);
     return clonedMultiComponentState;
   }
     
@@ -125,25 +102,19 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
 
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters);
     return clonedMultiComponentState;
   }
 
-
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
+  pathCorrection = pathCorrection > 0. ? pathCorrection : 
+    layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
 
   // The pathlength ( in mm ) is the path correction * the thickness of the material
   double pathLength = pathCorrection * materialProperties->thickness();
-  //std::cout << "1PL, PC, X0  :" << pathLength  << '\t' << pathCorrection<< '\t' <<pathLength / materialProperties->x0() <<'\t' << materialProperties->thickness() <<std::endl;
-
  
   ATH_MSG_DEBUG("Calculated path-length (mm): " << pathLength << "\t" << pathLength / materialProperties->x0());
-
 
   const Trk::MultiComponentState* updatedState = compute( componentParameters, *materialProperties, pathLength, direction, particleHypothesis );
   
@@ -162,38 +133,28 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
 									      Trk::PropDirection direction,
 									      Trk::ParticleHypothesis particleHypothesis ) const
 {
-  
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update using material properties and path length information" << endmsg;
-  
   const Trk::MultiComponentState* updatedState = 0;
-    
   updatedState = compute( componentParameters, materialProperties, pathLength, direction, particleHypothesis );
-
   return updatedState;
-
 }
 
 /* ============================================================================
-   ============================================================================
    Pre-update based on layer information
-   ============================================================================
    ============================================================================ */
-
 const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( const Trk::ComponentParameters& componentParameters,
-										const Trk::Layer& layer,
-										Trk::PropDirection direction,
-										Trk::ParticleHypothesis particleHypothesis ) const
+                                                                                const Trk::Layer& layer,
+                                                                                Trk::PropDirection direction,
+                                                                                Trk::ParticleHypothesis particleHypothesis ) const
 {
   
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update prior to propagation using layer information and particle hypothesis: " << particleHypothesis << endmsg;
+  ATH_MSG_DEBUG("Material effects update prior to propagation using layer information and particle hypothesis: " 
+                 << particleHypothesis);
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
-    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing 0!" << endmsg;
-    return 0;
+    ATH_MSG_ERROR("Trying to update component without trackParameters... returing 0!");
+    return nullptr;
   }
 
   // Get the pre-update factor
@@ -201,9 +162,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
 
   // Bail if the pre-update factor is small
   if ( preUpdateFactor < 0.01 ){
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No pre-update necessary... return 0" << endmsg;
-    return 0;
+    return nullptr;
   }
 
   const Trk::MaterialProperties* materialProperties(0);
@@ -238,56 +197,51 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
 
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters );
     return clonedMultiComponentState;
   }
 
-
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
+  pathCorrection = pathCorrection > 0. ? pathCorrection : 
+    layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
   
   // Scale the correction by the pre-update factor
   pathCorrection *= preUpdateFactor;
 
   // The pathlength ( in mm ) is the path correction * the thickness of the material
   double pathLength = pathCorrection * materialProperties->thickness();
-  //std::cout << "2PL, PC, X0  :" << pathLength  << '\t' << pathCorrection<< '\t' <<pathLength / materialProperties->x0() <<std::endl;
 
-  if (m_outputlevel <= 0)
-     msg(MSG::DEBUG) << "Calculated path-length (mm): " << pathLength << "\t" << pathLength / materialProperties->x0() << endmsg;
-
-  const Trk::MultiComponentState* updatedState = compute( componentParameters, *materialProperties, pathLength, direction, particleHypothesis );
+  const Trk::MultiComponentState* updatedState = compute( componentParameters, 
+                                                          *materialProperties, 
+                                                          pathLength, 
+                                                          direction, 
+                                                          particleHypothesis );
   
   return updatedState;
 
 }
 
 /* ============================================================================
-   ============================================================================
    Post-update based on layer information
-   ============================================================================
    ============================================================================ */
 
-const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState ( const Trk::ComponentParameters& componentParameters,
-										  const Layer& layer,
-										  PropDirection direction,
-										  ParticleHypothesis particleHypothesis ) const
+const Trk::MultiComponentState* 
+Trk::GsfMaterialEffectsUpdator::postUpdateState ( const Trk::ComponentParameters& componentParameters,
+                                                  const Layer& layer,
+                                                  PropDirection direction,
+                                                  ParticleHypothesis particleHypothesis ) const
 {
   
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update after propagation using layer information and particle hypothesis: " << particleHypothesis << endmsg;
+ ATH_MSG_DEBUG("Material effects update after propagation using layer information and particle hypothesis: " 
+               << particleHypothesis);
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
     msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endmsg;
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters);
     return clonedMultiComponentState;
   }
     
@@ -297,13 +251,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
 
   // Bail if the postUpdateFactor is small
   if ( postUpdateFactor < 0.01 ){
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties could be retrieved for this layer... cloning initial state" << endmsg;
-    //const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    //const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    //delete clonedParameters;
-    //return clonedMultiComponentState;
-    return 0;
+    return nullptr;
   }
 
   const Trk::MaterialProperties* materialProperties(0);
@@ -325,9 +273,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
 	
       // Determine the pathCorrection if the material properties exist
       pathCorrection = materialProperties ? 1. / fabs( surface->normal().dot( trackParameters->momentum().unit() ) ) : 0.;
-
     }
-
   }
 
   // Check that the material properties have been defined - if not define them from the layer information
@@ -335,73 +281,61 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
 
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters);
     return clonedMultiComponentState;
   }
 
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
+  pathCorrection = pathCorrection > 0. ? pathCorrection : 
+    layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
   // Scale the correction by the pre-update factor
   pathCorrection *= postUpdateFactor;
 
   // The pathlength ( in mm ) is the path correction * the thickness of the material
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  //std::cout << "3PL, PC, X0  :" << pathLength  << '\t' << pathCorrection<< '\t' <<pathLength / materialProperties->x0() <<std::endl;
-
   ATH_MSG_DEBUG( "Calculated path-length (mm): " << pathLength << "\t" << pathLength / materialProperties->x0() );
 
-  const Trk::MultiComponentState* updatedState = compute( componentParameters, *materialProperties, pathLength, direction, particleHypothesis );
-  
-  return updatedState;
+  const Trk::MultiComponentState* updatedState = compute( componentParameters, 
+                                                          *materialProperties, 
+                                                          pathLength, 
+                                                          direction, 
+                                                          particleHypothesis );
 
+  return updatedState;
 }
 
 /* ============================================================================
-   ============================================================================
    Compute method
-   ============================================================================
    ============================================================================ */
 
-const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const Trk::ComponentParameters& componentParameters,
-									  const Trk::MaterialProperties& materialProperties,
-									  double pathLength,
-									  Trk::PropDirection direction,
-									  Trk::ParticleHypothesis particleHypothesis ) const
+const Trk::MultiComponentState* 
+Trk::GsfMaterialEffectsUpdator::compute ( const Trk::ComponentParameters& componentParameters,
+                                          const Trk::MaterialProperties& materialProperties,
+                                          double pathLength,
+                                          Trk::PropDirection direction,
+                                          Trk::ParticleHypothesis particleHypothesis ) const
 {
 
   double momentum = componentParameters.first->momentum().mag();
 
   if ( momentum <= m_momentumCut ){
-
-    if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "Ignoring material effects... Momentum too low" << endmsg;
-
-    const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
-    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
-    delete clonedParameters;
+    ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
+    const Trk::ComponentParameters clonedParameters = componentParameters.clone();
+    const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState(clonedParameters);
     return clonedMultiComponentState;
-
   }
-
-  // msg(MSG::VERBOSE) << "Computing updated parameters, covariances and weights" << endmsg;
 
   Trk::MultiComponentState* computedState = new Trk::MultiComponentState();
     /* Get values for:
      - Change in momentum
      - Change in covariance of momentum
      - Weights of new states
-  */
+     */
 
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
-
-  // msg(MSG::VERBOSE) << "Calculating, weights, deltaP and delta-covariance" << endmsg;
-
 
   Trk::IMultiStateMaterialEffects::Cache cache;
   m_materialEffects->compute( cache, componentParameters, materialProperties, pathLength, direction, particleHypothesis );
@@ -417,7 +351,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
                    << " Number of deltaP entries: " << cache.deltaPs.size()
 	                 << " number of deltaCovariance entries: " << cache.deltaCovariances.size() );
    delete computedState;
-   return new Trk::MultiComponentState( *( componentParameters.clone() ) );
+   return new Trk::MultiComponentState(componentParameters.clone());
   }
   
   ATH_MSG_VERBOSE( "Updator found: " << cache.weights.size() << " components" );
@@ -426,22 +360,6 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   unsigned int componentIndex = 0;
 
   for ( ; componentIndex < cache.weights.size(); ++componentIndex){
-    if (m_outputlevel < 0){
-      if ( !measuredCov ){
-        msg(MSG::VERBOSE) << "Printing updated parameters" << std::endl
-        << " ************* Component number: " << componentIndex << " *************" << std::endl
-        << "* - Component weight: " << cache.weights[componentIndex] << std::endl
-        << "* - Component deltaP: " << cache.deltaPs[componentIndex] << std::endl
-        << " **********************************************************************" << endmsg;
-      }else{
-        msg(MSG::VERBOSE) << "Printing updated parameters" << std::endl
-        << " ************* Component number: " << componentIndex << " *************" << std::endl
-        << "* - Component weight:     " << cache.weights[componentIndex] << std::endl
-        << "* - Component deltaP:     " << cache.deltaPs[componentIndex] << std::endl
-        << "* - Component deltaSigma: " << sqrt( (*cache.deltaCovariances[componentIndex])(Trk::qOverP,Trk::qOverP) )  << std::endl
-        << " **********************************************************************" << endmsg;
-      }
-    }
     const Amg::VectorX& stateVector = trackParameters->parameters();
     Amg::VectorX updatedStateVector(5);
     updatedStateVector = stateVector;
@@ -450,41 +368,41 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
     if ( !updateP( updatedStateVector, cache.deltaPs[componentIndex] ) ){
       ATH_MSG_ERROR( "Cannot update state vector momentum... returning original component");
       delete computedState;
-      return new Trk::MultiComponentState( *(componentParameters.clone() ) );
+      return new Trk::MultiComponentState( componentParameters.clone());
     }
     
     const TrackParameters* updatedTrackParameters = 0;
     
     if ( measuredCov && !cache.deltaCovariances.empty() && cache.deltaCovariances[componentIndex] != 0 ){
-      AmgSymMatrix(5)* updatedCovariance = new AmgSymMatrix(5)( *cache.deltaCovariances[componentIndex] + *measuredCov );
-      updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],updatedStateVector[Trk::loc2],updatedStateVector[Trk::phi],updatedStateVector[Trk::theta],updatedStateVector[Trk::qOverP], updatedCovariance );
+      
+      AmgSymMatrix(5)* updatedCovariance = new AmgSymMatrix(5)( *cache.deltaCovariances[componentIndex] + *measuredCov);
+      updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],
+                                                                                          updatedStateVector[Trk::loc2],
+                                                                                          updatedStateVector[Trk::phi],
+                                                                                          updatedStateVector[Trk::theta],
+                                                                                          updatedStateVector[Trk::qOverP], 
+                                                                                          updatedCovariance );
     }
     else
-      updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],updatedStateVector[Trk::loc2],updatedStateVector[Trk::phi],updatedStateVector[Trk::theta],updatedStateVector[Trk::qOverP], 0 );
-    
+      updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],
+                                                                                          updatedStateVector[Trk::loc2],
+                                                                                          updatedStateVector[Trk::phi],
+                                                                                          updatedStateVector[Trk::theta],
+                                                                                          updatedStateVector[Trk::qOverP], 0 );
     double updatedWeight = componentParameters.second * cache.weights[componentIndex];
-
     const Trk::ComponentParameters updatedComponent(updatedTrackParameters, updatedWeight);
-    
     computedState->push_back( updatedComponent );
   }
-
-
   return computedState;
-
 }
 
 /* ============================================================================
-   ============================================================================
    updateP method
-   ============================================================================
    ============================================================================ */
   
 bool Trk::GsfMaterialEffectsUpdator::updateP (Amg::VectorX& stateVector, double deltaP) const
 {
   
-  // msg(MSG::VERBOSE) << "Original q/p: " << stateVector[Trk::qOverP] << endmsg;
-
   double p = 1./fabs( stateVector[Trk::qOverP] );
   p += deltaP;
   
@@ -494,9 +412,6 @@ bool Trk::GsfMaterialEffectsUpdator::updateP (Amg::VectorX& stateVector, double 
   double updatedIp = stateVector[Trk::qOverP] > 0. ? 1./p : -1./p;
   
   stateVector[Trk::qOverP] = updatedIp;
-
-  //msg(MSG::VERBOSE) << "Updated q/p: " << stateVector[Trk::qOverP] << endmsg;
   
   return true;
-
 }

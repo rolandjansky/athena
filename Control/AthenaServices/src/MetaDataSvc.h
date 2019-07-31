@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef METADATASVC_H
-#define METADATASVC_H
+#ifndef ATHENASERVICES_METADATASVC_H
+#define ATHENASERVICES_METADATASVC_H
 
 /** @file MetaDataSvc.h
  *  @brief This file contains the class definition for the MetaDataSvc class.
@@ -60,47 +60,48 @@ public: // Constructor and Destructor
 
 public: // Non-static members
    /// Required of all Gaudi services:
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
    /// Required of all Gaudi services:
-   StatusCode stop();
+   virtual StatusCode stop() override;
    /// Required of all Gaudi services:
-   StatusCode finalize();
+   virtual StatusCode finalize() override;
    /// Required of all Gaudi services:  see Gaudi documentation for details
 
    /// Function called when a new metadata source becomes available
-   StatusCode newMetadataSource(const Incident&);
+   virtual StatusCode newMetadataSource(const Incident&) override;
 
    /// Function called when a metadata source is closed
-   StatusCode retireMetadataSource(const Incident&);
+   virtual StatusCode retireMetadataSource(const Incident&) override;
 
    /// Function called when the current state of metadata must be made 
    /// ready for output
-   StatusCode prepareOutput();
-   StatusCode proxyIncident(const Incident&);
-              
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode prepareOutput() override;
+
+   virtual StatusCode shmProxy(const std::string& filename) override;
+
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
    /// Get all addresses from provider. Called before begin event.
    /// @param storeID [IN] store ID, this function only preloads detector store addresses.
    /// @param tads [OUT] list of the transient addresses which were preloaded.
-   StatusCode preLoadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads);
+   virtual StatusCode preLoadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) override;
 
    /// Implementation of the loadAddresses function without any functionality.
-   StatusCode loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads);
+   virtual StatusCode loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) override;
 
    /// Update a transient address.
    /// @param tad [IN] transient address to be updated.
-   StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
-                            const EventContext& ctx);
+   virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                    const EventContext& ctx) override;
 
    /// Incident service handle listening for BeginInputFile and EndInputFile.
-   void handle(const Incident& incident);
+   virtual void handle(const Incident& incident) override;
 
    /// Transition output metadata file - fire MeteDataStop incident to transition OutputStream
    StatusCode transitionMetaDataFile(bool ignoreInputFile = false);
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-   StatusCode io_reinit();
+   virtual StatusCode io_reinit() override;
 
    StatusCode rootOpenAction(FILEMGR_CALLBACK_ARGS);
 

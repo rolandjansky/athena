@@ -1,14 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // AthMemoryAuditor.cxx 
 // Author: Rolf Seuster
 
+// This auditor is not thread-safe without signiicant work.
+// Disable checking for now.
+// We'll also report an ERROR is this is used in an MT job.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "GaudiKernel/INamedInterface.h"
 
 #include "AthMemoryAuditor.h"
+#include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IHiveWhiteBoard.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -107,6 +117,14 @@ AthMemoryAuditor::finalize()
 
 StatusCode AthMemoryAuditor::initialize()
 {
+  // Error out if this is a MT job --- we're not thread-safe!
+  ServiceHandle<IInterface> wbsvc ("EventDataSvc", "AthMemoryAuditor");
+  CHECK( wbsvc.retrieve() );
+  if (dynamic_cast<IHiveWhiteBoard*> (wbsvc.get()) != nullptr) {
+    ATH_MSG_ERROR ("AthMemoryAuditor requested in MT job --- not thread safe!");
+    return StatusCode::FAILURE;
+  }
+
   current_stage=2;
   
   m_reported=false;

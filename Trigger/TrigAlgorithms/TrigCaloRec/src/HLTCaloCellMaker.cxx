@@ -37,7 +37,7 @@ HLTCaloCellMaker::~HLTCaloCellMaker()
 
 StatusCode HLTCaloCellMaker::initialize() {
   ATH_CHECK( m_roiCollectionKey.initialize() );
-  if ( m_roiMode ) 
+  if ( m_roiMode )
     ATH_CHECK( m_cellContainerKey.initialize() );
   else
     ATH_CHECK( m_cellContainerVKey.initialize() );
@@ -49,9 +49,13 @@ StatusCode HLTCaloCellMaker::initialize() {
 
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
-
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
+  if ( not roisHandle.isValid() ) {
+    ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
+    return StatusCode::FAILURE;
+  }
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
+  ATH_MSG_DEBUG("Operating on " << roiCollection->size() <<"RoI(s)");
 
   // datahandle 
   if ( m_roiMode ) {

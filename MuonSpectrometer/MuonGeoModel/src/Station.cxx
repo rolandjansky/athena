@@ -464,7 +464,7 @@ double Station::getYMin() const {
 
 double Station::GetWidth1() const 
 {
-	MsgStream log(m_msgSvc, "MuonGeoModel");
+  //MsgStream log(m_msgSvc, "MuonGeoModel");
 	if (m_width1) return m_width1;
 	else
 	{
@@ -551,7 +551,7 @@ double Station::GetWidth1() const
 }
 double Station::GetWidth2() const
 {
-    MsgStream log(m_msgSvc, "MuonGeoModel");
+  //MsgStream log(m_msgSvc, "MuonGeoModel");
     if (m_width2) return m_width2;
     else
     {

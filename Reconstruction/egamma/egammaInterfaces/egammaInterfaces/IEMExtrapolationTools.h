@@ -48,22 +48,6 @@ public:
   virtual StatusCode finalize() = 0;
 
   typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
-  /**  test for cluster/extrapolated track match, from Trk::TrackParticleBase,
-   *   returns true for good match, and the values for eta/phi, 
-   *     deltaEta/deltaPhi for sampling 2
-   */
-  virtual bool  matchesAtCalo(const EventContext&           ctx,
-                              const xAOD::CaloCluster*      cluster, 
-                              const xAOD::TrackParticle*    trkPB, 
-                              bool                          isTRT, 
-                              Trk::PropDirection            direction,
-                              std::vector<double>&          eta,
-                              std::vector<double>&          phi,
-                              std::vector<double>&          deltaEta,
-                              std::vector<double>&          deltaPhi,
-                              unsigned int                  extrapFrom = fromPerigee,
-                              Cache* cache=nullptr) const = 0;
-
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  
@@ -72,7 +56,6 @@ public:
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
                                      const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
-                                     bool                          isTRT,                         
                                      Trk::PropDirection            direction,
                                      std::vector<double>&          eta,
                                      std::vector<double>&          phi,

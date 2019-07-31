@@ -716,9 +716,6 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
     if _name in cached_instances:
         return cached_instances[_name] 
 
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
  
     from tauRecTools.tauRecToolsConf import TauTrackFinder
     TauTrackFinder = TauTrackFinder(name = _name,
@@ -729,7 +726,7 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
-                                    ParticleCaloExtensionTool = pcExtensionTool,
+                                    ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     BypassSelector = noSelector,
                                     BypassExtrapolator = True
                                     )
@@ -935,6 +932,24 @@ def getTauWPDecoratorJetRNN():
     ToolSvc += TauWPDecorator
     cached_instances[_name] = TauWPDecorator
     return TauWPDecorator
+
+
+########################################################################
+# ParticleCaloExtensionTool
+def getParticleCaloExtensionTool():
+    _name = sPrefix + 'ParticleCaloExtensionTool'
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    tauParticleCaloExtensionTool=Trk__ParticleCaloExtensionTool(name = _name, Extrapolator = getAtlasExtrapolator())
+    
+    ToolSvc += tauParticleCaloExtensionTool  
+    cached_instances[_name] = tauParticleCaloExtensionTool
+    return tauParticleCaloExtensionTool   
 
 
 # end

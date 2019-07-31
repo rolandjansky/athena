@@ -89,8 +89,8 @@ if InDetTrigFlags.loadRotCreator():
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
     if do_runI :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
                                                                     PixelLorentzAngleTool              = TrigPixelLorentzAngleTool,
@@ -948,28 +948,25 @@ if InDetTrigFlags.doNewTracking():
       condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
   #to here
 
-#move 
-if InDetTrigFlags.doAmbiSolving():
-
-  from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
-  InDetTrigAmbiTrackSelectionTool = \
-      InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
-                                         DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                         minHits         = InDetTrigCutValues.minClusters(),
-                                         minNotShared    = InDetTrigCutValues.minSiNotShared(),
-                                         maxShared       = InDetTrigCutValues.maxShared(),
-                                         minTRTHits      = 0,  # used for Si only tracking !!!
-                                         Cosmics         = False,  #there is a different instance
-                                         UseParameterization = False,
-                                         # sharedProbCut   = 0.10,
-                                         # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
-                                         )
-   
-   
-  ToolSvc += InDetTrigAmbiTrackSelectionTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionTool
+from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
+InDetTrigAmbiTrackSelectionTool = \
+    InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
+                                       AssociationTool    = InDetTrigPrdAssociationTool,
+                                       DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       minHits         = InDetTrigCutValues.minClusters(),
+                                       minNotShared    = InDetTrigCutValues.minSiNotShared(),
+                                       maxShared       = InDetTrigCutValues.maxShared(),
+                                       minTRTHits      = 0,  # used for Si only tracking !!!
+                                       Cosmics         = False,  #there is a different instance
+                                       UseParameterization = False,
+                                       # sharedProbCut   = 0.10,
+                                       # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
+                                       )
+ 
+ 
+ToolSvc += InDetTrigAmbiTrackSelectionTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigAmbiTrackSelectionTool
 
 if InDetTrigFlags.doNewTracking():
 

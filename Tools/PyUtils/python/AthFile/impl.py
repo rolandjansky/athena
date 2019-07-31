@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/AthFile/impl.py
 # @purpose a simple abstraction of a file to retrieve informations out of it
 # @author Sebastien Binet <binet@cern.ch>
 # @date November 2009
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
@@ -15,6 +15,8 @@ import errno
 import os
 import subprocess
 import sys
+import six
+from past.builtins import basestring
 
 import PyUtils.Helpers as H
 from PyUtils.Helpers    import ShutUp
@@ -40,6 +42,28 @@ DEFAULT_AF_TIMEOUT = 20
 
 ### utils ----------------------------------------------------------------------
 
+# Try to convert long->int in output when we're running with python2,
+# to prevent interoperability problems if we then read with python3.
+def _clean_dict (d):
+    for k, v in d.items():
+        if type(v) == type({}):
+            _clean_dict(v)
+        elif type(v) == type([]):
+            _clean_list(v)
+        elif type(v) in six.integer_types:
+            d[k] = int(v)
+    return
+def _clean_list (l):
+    for i in range(len(l)):
+        v = l[i]
+        if type(v) == type({}):
+            _clean_dict(v)
+        elif type(v) == type([]):
+            _clean_list(v)
+        elif type(v) in six.integer_types:
+            l[i] = int(v)
+    return
+
 def _get_real_ext(fname):
     """little helper to get the 'real' extension of a filename, handling 'fake' extensions (e.g. foo.ascii.gz -> .ascii)"""
     se = os.path.splitext
@@ -61,7 +85,7 @@ def _my_open(name, mode='r', bufsiz=-1):
             return self
         gzip.GzipFile.__exit__ = gzip_exit
         gzip.GzipFile.__enter__= gzip_enter
-        return gzip.open(name, mode)
+        return gzip.open(name, mode + 't')
     else:
         return open(name, mode, bufsiz)
     
@@ -324,7 +348,7 @@ class AthFileServer(object):
         self.pyroot = ru.import_root()
         try:
             ru._pythonize_tfile()
-        except Exception, err:
+        except Exception as err:
             self.msg().warning('problem during TFile pythonization:\n%s', err)
             
         self.msg().debug('importing ROOT... [done]')
@@ -349,7 +373,7 @@ class AthFileServer(object):
                 if f:
                     f.Close()
                     del f
-            except Exception,err:
+            except Exception as err:
                 self._msg.info('could not close a TFile:\n%s', err)
                 pass
         tfiles[:] = []
@@ -454,7 +478,7 @@ class AthFileServer(object):
             # synchronize once
             try:
                 self._sync_pers_cache()
-            except Exception, err:
+            except Exception as err:
                 self.msg().info('could not synchronize the persistent cache:\n%s', err)
                 pass
                 
@@ -474,7 +498,7 @@ class AthFileServer(object):
         msg = self.msg()
         cache = dict(self._cache)
         fids = []
-        for k,v in cache.iteritems():
+        for k,v in six.iteritems (cache):
             v = v.infos
             fid = v.get('file_md5sum', v['file_guid'])
             if fid:
@@ -552,7 +576,7 @@ class AthFileServer(object):
             try:
                 self._cache = cache
                 self._sync_pers_cache()
-            except Exception,err:
+            except Exception as err:
                 msg.info('could not synchronize the persistent cache:\n%s', err)
             pass
         return self._cache[fname]
@@ -580,7 +604,7 @@ class AthFileServer(object):
                 return 'file:'+uri
             return uri
         
-        from urlparse import urlsplit
+        from six.moves.urllib.parse import urlsplit
         url = urlsplit(_normalize_uri(fname))
         protocol = url.scheme
         def _normalize(fname):
@@ -692,7 +716,7 @@ class AthFileServer(object):
             else:
                 msg.warning("could not save to [%s]", pid_fname)
             msg.debug('synch-ing cache to [%s]... [done]', fname)
-        except Exception,err:
+        except Exception as err:
             msg.debug('synch-ing cache to [%s]... [failed]', fname)
             msg.debug('reason:\n%s', err)
             pass
@@ -742,7 +766,7 @@ class AthFileServer(object):
         cache = {}
         try:
             cache = loader(fname)
-        except Exception, err:
+        except Exception as err:
             msg.info("problem loading cache from [%s]!", fname)
             msg.info(repr(err))
             pass
@@ -770,13 +794,13 @@ class AthFileServer(object):
             saver = self._save_ascii_cache
         try:
             saver(fname)
-        except IOError,err:
+        except IOError as err:
             import errno
             if err.errno != errno.EACCES:
                 raise
             else:
                 msg.info('could not save cache in [%s]', fname)
-        except Exception,err:
+        except Exception as err:
             msg.warning('could not save cache into [%s]:\n%s', fname, err)
         return
     
@@ -820,11 +844,11 @@ class AthFileServer(object):
         """load file informations from a pretty-printed python code"""
         dct = {}
         ast = compile(_my_open(fname).read(), fname, 'exec')
-        exec ast in dct,dct
+        exec (ast, dct,dct)
         del ast
         try:
             cache = dct['fileinfos']
-        except Exception, err:
+        except Exception as err:
             raise
         finally:
             del dct
@@ -835,19 +859,21 @@ class AthFileServer(object):
         from pprint import pprint
         cache = self._cache
         with _my_open(fname, 'w') as fd:
-            print >> fd, "# this is -*- python -*-"
-            print >> fd, "# this file has been automatically generated."
-            print >> fd, "fileinfos = ["
+            print ("# this is -*- python -*-", file=fd)
+            print ("# this file has been automatically generated.", file=fd)
+            print ("fileinfos = [", file=fd)
             fd.flush()
             for k in cache:
-                print >> fd, "\n## new-entry"
+                print ("\n## new-entry", file=fd)
+                if six.PY2:
+                    _clean_dict (cache[k].fileinfos)
                 pprint((k, cache[k].fileinfos),
                        stream=fd,
                        width=120)
                 fd.flush()
-                print >> fd, ", "
-            print >> fd, "]"
-            print >> fd, "### EOF ###"
+                print (", ", file=fd)
+            print ("]", file=fd)
+            print ("### EOF ###", file=fd)
             fd.flush()
         return
     
@@ -856,7 +882,7 @@ class AthFileServer(object):
         import PyUtils.dbsqlite as dbsqlite
         cache = dbsqlite.open(fname)
         d = {}
-        for k,v in cache.iteritems():
+        for k,v in six.iteritems (cache):
             d[k] = AthFile.from_infos(v)
         return d
         
@@ -920,7 +946,7 @@ class AthFileServer(object):
             do_close = False
             f = fname
             
-        _is_root_file= bool(f and f.IsOpen() and 'root' in f.read(10))
+        _is_root_file= bool(f and f.IsOpen() and b'root' in f.read(10))
         if f and do_close:
             f.Close()
             del f
@@ -998,9 +1024,6 @@ class FilePeeker(object):
         # user-driven (and might need user-customized macros or configurations)
         self._sub_env['ROOTENV_NO_HOME'] = '1'
 
-        # prevent from running athena-mp unadvertantly...
-        self._sub_env['ATHENA_PROC_NUMBER'] ='0'
-
         # prevent from running athena in interactive mode (and freeze)
         if 'PYTHONINSPECT' in self._sub_env:
             del self._sub_env['PYTHONINSPECT']
@@ -1062,7 +1085,7 @@ class FilePeeker(object):
             if evtmax in (-1, None):
                 evtmax = nentries
             evtmax = int(evtmax)
-            for row in xrange(evtmax):
+            for row in range(evtmax):
                 if coll_tree.GetEntry(row) < 0:
                     break
                 # With root 5.34.22, trying to access leaves of a
@@ -1150,8 +1173,8 @@ class FilePeeker(object):
                         os.close(fd_pkl)
                         if os.path.exists(out_pkl_fname):
                             os.remove(out_pkl_fname)
-                        print "\n  ---------   running Athena peeker"
-                        print  os.environ.get('CMTPATH','')
+                        print ("\n  ---------   running Athena peeker")
+                        print (os.environ.get('CMTPATH',''))
 
                         import AthenaCommon.ChapPy as api
                         app = api.AthenaApp(cmdlineargs=["--nprocs=0"])
@@ -1160,9 +1183,6 @@ class FilePeeker(object):
                             """ % str([file_name])
                         app << """
                             import os
-                            # prevent from running athena-mp in child processes
-                            os.putenv('ATHENA_PROC_NUMBER','0')
-    
                             # prevent from running athena in interactive mode (and freeze)
                             if 'PYTHONINSPECT' in os.environ:
                                 del os.environ['PYTHONINSPECT']
@@ -1192,9 +1212,9 @@ class FilePeeker(object):
                             (os.getpid(), uuid.uuid4())
                             )
                         stdout = open(stdout_fname, "w")
-                        print >> stdout,"="*80
-                        print >> stdout,self._sub_env
-                        print >> stdout,"="*80
+                        print ("="*80, file=stdout)
+                        print (self._sub_env, file=stdout)
+                        print ("="*80, file=stdout)
                         stdout.flush()
                         if DEFAULT_AF_RUN:
                             sc = app.run(stdout=stdout, env=self._sub_env)
@@ -1263,7 +1283,7 @@ class FilePeeker(object):
                 f_root.Close()
                 del f_raw
                 del f_root
-            except Exception,err:
+            except Exception as err:
                 msg.warning(
                     'problem while closing raw and root file handles:\n%s',
                     err
@@ -1274,11 +1294,7 @@ class FilePeeker(object):
         import re
         import PyUtils.Helpers as H
         with H.ShutUp(filters=[re.compile('.*')]):
-            try:
-                f = self._process_call(fname, evtmax, projects)
-            except Exception,err:
-                # give it another chance but with the full environment
-                f = self._process_call(fname, evtmax, projects=None)
+            f = self._process_call(fname, evtmax, projects=None)
 
         return f
 
@@ -1293,14 +1309,14 @@ class FilePeeker(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
             pass
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
             pass
 
@@ -1384,7 +1400,7 @@ class FilePeeker(object):
             evtmax = nentries
             
         ievt = iter(bs)
-        for i in xrange(evtmax):
+        for i in range(evtmax):
             try:
                 evt = ievt.next()
                 evt.check() # may raise a RuntimeError
@@ -1400,8 +1416,8 @@ class FilePeeker(object):
                 file_infos['beam_energy'].append(beam_energy)
                 file_infos['stream_tags'].extend(stream_tags)
 
-            except RuntimeError, err:
-                print "** WARNING ** detected a corrupted bs-file:\n",err
+            except RuntimeError as err:
+                print ("** WARNING ** detected a corrupted bs-file:\n",err)
         """
         detailed dump how-to:
         ---------------------

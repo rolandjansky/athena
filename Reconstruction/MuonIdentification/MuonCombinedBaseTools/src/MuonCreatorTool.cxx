@@ -116,7 +116,8 @@ namespace MuonCombined {
     declareProperty("MomentumBalanceTool",m_momentumBalanceTool);
     declareProperty("ScatteringAngleTool",m_scatteringAngleTool);
     declareProperty("MuonSelectionTool", m_selectorTool);
-    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);	
+    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);
+    declareProperty("TrackSegmentAssociationTool",m_trackSegmentAssociationTool);
     declareProperty("BuildStauContainer",m_buildStauContainer=false);
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
     declareProperty("FillAlignmentEffectsOnTrack",m_fillAlignmentEffectsOnTrack=true);
@@ -132,6 +133,7 @@ namespace MuonCombined {
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
+    declareProperty("TrackQuery", m_trackQuery);
      
   }
 
@@ -147,8 +149,7 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
-    if(m_useCaloCells) ATH_CHECK(m_caloExtTool.retrieve());
-    else m_caloExtTool.disable();
+    ATH_CHECK(m_caloExtTool.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
@@ -684,7 +685,7 @@ namespace MuonCombined {
 
     // Add inner match chi^2
     muon.setParameter(static_cast<int>(tag->matchDoF()),     xAOD::Muon::msInnerMatchDOF);
-    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);    
+    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);
 
     ATH_MSG_DEBUG("Done adding Combined Fit Muon  " << tag->author() << " type " << tag->type());
 

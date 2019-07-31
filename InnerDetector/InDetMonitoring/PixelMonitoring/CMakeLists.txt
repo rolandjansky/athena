@@ -14,7 +14,6 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelGeoModel
    InnerDetector/InDetRawEvent/InDetRawData
    InnerDetector/InDetRecEvent/InDetPrepRawData
-   LumiBlock/LumiBlockComps
    Tracking/TrkEvent/TrkTrack
    PRIVATE
    Database/AthenaPOOL/AthenaPoolUtilities
@@ -43,7 +42,7 @@ atlas_add_component( PixelMonitoring
    PixelMonitoring/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib AtlasDetDescr
-   GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack
+   GaudiKernel InDetRawData InDetPrepRawData TrkTrack
    AthenaPoolUtilities GeoPrimitives xAODEventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
    TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver 

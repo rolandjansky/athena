@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /*********************************************************************************
@@ -19,9 +19,9 @@ AlgTool inheriting from the IMultiStateExtrapolator class
 #include "GaudiKernel/Counters.h"
 
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkExInterfaces/INavigator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -42,15 +42,14 @@ namespace Trk{
 
 class Layer;
 class Surface;
-class INavigator;
 class TrackingVolume;
 class TrackingGeometry;
 class TrackStateOnSurface;
 class MaterialProperties;
 class IMultiComponentStateMerger;
 class IMaterialMixtureConvolution;
-
-
+class IMultiComponentStateCombiner;
+class IMultipleScatteringUpdator;
 /** @struct StateAtBoundarySurface
   - Structure to contain information about a state at the interface between tracking volumes
   */
@@ -100,42 +99,47 @@ public:
   virtual StatusCode finalize() override;
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual const MultiComponentState* extrapolate ( const IPropagator&,
-                                                   const MultiComponentState&,
-                                                   const Surface&,
-                                                   PropDirection direction = anyDirection,
-                                                   BoundaryCheck boundaryCheck = true,
-                                                   ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+  virtual const MultiComponentState* 
+    extrapolate ( const IPropagator&,
+                  const MultiComponentState&,
+                  const Surface&,
+                  PropDirection direction = anyDirection,
+                  BoundaryCheck boundaryCheck = true,
+                  ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
-  virtual const MultiComponentState* extrapolateDirectly ( const IPropagator&,
-                                                           const MultiComponentState&,
-                                                           const Surface&,
-                                                           PropDirection direction = anyDirection,
-                                                           BoundaryCheck boundaryCheck = true,
-                                                           ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+  virtual const MultiComponentState* 
+    extrapolateDirectly ( const IPropagator&,
+                          const MultiComponentState&,
+                          const Surface&,
+                          PropDirection direction = anyDirection,
+                          BoundaryCheck boundaryCheck = true,
+                          ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual const MultiComponentState* extrapolate ( const MultiComponentState&,
-                                                   const Surface&,
-                                                   PropDirection direction = anyDirection,
-                                                   BoundaryCheck boundaryCheck = true,
-                                                   ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+  virtual const MultiComponentState* 
+    extrapolate ( const MultiComponentState&,
+                  const Surface&,
+                  PropDirection direction = anyDirection,
+                  BoundaryCheck boundaryCheck = true,
+                  ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual const MultiComponentState* extrapolateDirectly ( const MultiComponentState&,
-                                                           const Surface&,
-                                                           PropDirection direction = anyDirection,
-                                                           BoundaryCheck boundaryCheck = true,
-                                                           ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+  virtual const MultiComponentState* 
+    extrapolateDirectly ( const MultiComponentState&,
+                          const Surface&,
+                          PropDirection direction = anyDirection,
+                          BoundaryCheck boundaryCheck = true,
+                          ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
 
 
-  virtual const std::vector<const Trk::TrackStateOnSurface*>* extrapolateM(const MultiComponentState&,
-                                                                           const Surface& sf,
-                                                                           PropDirection dir,
-                                                                           BoundaryCheck bcheck,
-                                                                           ParticleHypothesis particle) const override; 
+  virtual const std::vector<const Trk::TrackStateOnSurface*>* 
+    extrapolateM(const MultiComponentState&,
+                 const Surface& sf,
+                 PropDirection dir,
+                 BoundaryCheck bcheck,
+                 ParticleHypothesis particle) const override final; 
 
 
 private:
@@ -286,10 +290,6 @@ private:
                            PropDirection direction  = anyDirection,
                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method to print details of the state at a point in extrapolation */
-  void printState( const std::string&, const TrackParameters& ) const;
-
-
   std::string layerRZoutput(const Trk::Layer * lay) const;
 
   std::string positionOutput(const Amg::Vector3D& pos) const;
@@ -303,16 +303,20 @@ private:
                             PropDirection dir,
                             ParticleHypothesis particle) const;
 
-  ToolHandleArray< IPropagator >     m_propagators;                      //!< Propagators to be retrieved from the ToolSvc
-  ToolHandle<INavigator>                        m_navigator;                        //!< Navigator
-  ToolHandle<IMaterialMixtureConvolution>       m_materialUpdator;                  //!< (Multi-component) material effects updator
-  ToolHandle<IMultiComponentStateMerger>        m_merger;                           //!< Multi-component state reduction
+  ToolHandleArray<IPropagator>                  m_propagators
+  {this,"Propagators",{},""};
+  ToolHandle<INavigator>                        m_navigator              
+  {this,"Navigator","Trk::Navigator/Navigator",""};   
+  ToolHandle<IMaterialMixtureConvolution>       m_materialUpdator
+  {this,"GsfMaterialConvolution","Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution","" };
+  ToolHandle<IMultiComponentStateMerger>        m_merger
+  {this,"ComponentMerger","Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",""};    
   ToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
-  {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};    //!< Multi-component State combiner
+  {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};    
   ToolHandle< IMultipleScatteringUpdator >      m_msupdators
-  {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!<  Array of MultipleScattering Updators
+  {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; 
   ToolHandle< IEnergyLossUpdator >              m_elossupdators
-  {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};                         //!<  Array of EnergyLoss Updators
+  {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
 
   bool                               m_propagatorStickyConfiguration;    //!< Switch between simple and full configured propagators
   bool                               m_surfaceBasedMaterialEffects;      //!< Switch to turn on/off surface based material effects

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable
+from ..lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable
 
 RPCBA, RPCBC = 312, 313
 

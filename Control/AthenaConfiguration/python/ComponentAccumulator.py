@@ -516,21 +516,22 @@ class ComponentAccumulator(object):
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
 
+        self._msg.debug("Merging services with global setup")
         for s in self._services:
-            deduplicate(s,ServiceMgr)
+            deduplicate(s, ServiceMgr.getChildren())
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
-
-
         for t in self._publicTools:
             deduplicate(t,ToolSvc)
 
+        self._msg.debug("Merging conditions algorithms with global setup")
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
-            deduplicate(c,condseq)
+            deduplicate(c, condseq.getChildren() )
+
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
@@ -775,12 +776,19 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
+        try:
+            from AthenaPython import PyAthenaComps
+            PyAlg = PyAthenaComps.Alg
+        except ImportError:
+            PyAlg = type(None)
+
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
-            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
-                pass
+                if isinstance (alg, PyAlg):
+                    alg.setup()
             pass
 
 
@@ -789,6 +797,8 @@ class ComponentAccumulator(object):
             addCompToJos(alg)
             condalgseq.append(alg.getFullName())
             bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
+            if isinstance (alg, PyAlg):
+                alg.setup()
             pass
 
 
@@ -800,6 +810,9 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        from AthenaCommon.Debugging import allowPtrace
+        allowPtrace()
+
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 

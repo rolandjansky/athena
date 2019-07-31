@@ -33,15 +33,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
 StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("PixelDigitizationTool::Initialize()");
 
-  // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL("Property InputObjectName not set !");
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Input objects: '" << m_inputObjectName << "'");
-  }
-
   // Initialize services
   CHECK(m_mergeSvc.retrieve());
 
@@ -61,11 +52,16 @@ StatusCode PixelDigitizationTool::initialize() {
   
   CHECK(m_energyDepositionTool.retrieve());
 
-  // Initialize ReadHandleKey
-  if (!m_hitsContainerKey.key().empty()) {
-    ATH_MSG_INFO("Loading single input HITS");
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -93,7 +89,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
   // Get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // In case of single hits container just load the collection using read handles
-  if (!m_hitsContainerKey.key().empty()) {
+  if (!m_onlyUseContainerName) {
     SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get Pixel SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());

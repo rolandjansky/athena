@@ -57,7 +57,7 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("PixelConditionsSummaryTool", ToolSvc.PixelConditionsSummaryTool)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup.getTool())
     return CfgMgr.FrontEndSimTool(name, **kwargs)
 
 def BarrelRD53SimTool(name="BarrelRD53SimTool", **kwargs):
@@ -271,9 +271,13 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
 
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("RDOCollName", overlayFlags.evtStore() + "+PixelRDOs")
-    kwargs.setdefault("SDOCollName", overlayFlags.evtStore() + "+PixelSDO_Map")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("RDOCollName", overlayFlags.sigPrefix() + "PixelRDOs")
+        kwargs.setdefault("SDOCollName", overlayFlags.sigPrefix() + "PixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", overlayFlags.evtStore() + "+PixelRDOs")
+        kwargs.setdefault("SDOCollName", overlayFlags.evtStore() + "+PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 

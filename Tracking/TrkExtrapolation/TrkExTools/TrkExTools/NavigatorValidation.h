@@ -15,8 +15,9 @@
 // Trk
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExTools/Navigator.h"
-#include <atomic>
 
+//For marking not thread safety                                                                                         
+#include "CxxUtils/checker_macros.h" 
 #define TRKEXTOOLS_MAXNAVSTEPS 100
 class TTree;
  /** 
@@ -29,7 +30,7 @@ class TTree;
  */
 namespace Trk{
 
-  class NavigatorValidation : public Navigator,
+  class  ATLAS_NOT_THREAD_SAFE  NavigatorValidation : public Navigator,
                     virtual public INavigator {
     public:
       /** Constructor */

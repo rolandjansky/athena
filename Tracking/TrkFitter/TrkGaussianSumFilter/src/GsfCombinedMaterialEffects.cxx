@@ -27,20 +27,9 @@ Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects (const std::string& 
                    const std::string& name,
                    const IInterface* parent)
   :
-  AthAlgTool(type, name, parent),
-  m_multipleScatterEffects("Trk::MultipleScatterUpdator/MultipleScatterUpdator"),
-  m_energyLossEffects("Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator"),
-  m_betheHeitlerEffects("Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects")
+  AthAlgTool(type, name, parent)
 {
-
   declareInterface<IMultiStateMaterialEffects>(this);
-
-  declareProperty("MultipleScatteringUpdator", m_multipleScatterEffects);
-
-  declareProperty("EnergyLossUpdator", m_energyLossEffects);
-
-  declareProperty("BetheHeitlerEffects", m_betheHeitlerEffects);
-
 }
 
 Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects()
@@ -92,11 +81,8 @@ StatusCode Trk::GsfCombinedMaterialEffects::initialize()
 
 StatusCode Trk::GsfCombinedMaterialEffects::finalize()
 {
-
   ATH_MSG_INFO( "Finalisation of " << name() << " was successful" );
-
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -109,22 +95,18 @@ void Trk::GsfCombinedMaterialEffects::compute (
             Trk::ParticleHypothesis particleHypothesis ) const
 {
 
-  ATH_MSG_VERBOSE( "Computing combined material effects" );
+  ATH_MSG_DEBUG( "Computing combined material effects" );
 
   // Reset everything before computation
   cache.reset();
 
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
 
-  ATH_MSG_VERBOSE( "Calculating multiple scattering material effects" );
-
-
   /* ========================================================================
      Retrieve multiple scattering corrections
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
-
   Trk::MultiStateMaterialEffectsAdapter::compute(
                                         cache_multipleScatter,
                                         m_multipleScatterEffects,
@@ -139,16 +121,14 @@ void Trk::GsfCombinedMaterialEffects::compute (
     ATH_MSG_DEBUG( "WARNING: Multiple scattering effects are not determined" );
     cache_multipleScatter.weights.push_back(1.);
     cache_multipleScatter.deltaPs.push_back(0.);
-    AmgSymMatrix(5)* newCov = new AmgSymMatrix(5);
+    std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();
     newCov->setZero();
-    cache_multipleScatter.deltaCovariances.push_back( newCov );
+    cache_multipleScatter.deltaCovariances.push_back( std::move(newCov) );
   }
 
-  ATH_MSG_VERBOSE( "Calculating energy loss material effects" );
 
   std::vector<double> energyLoss_weights;
   std::vector<double> energyLoss_deltaPs;
-  std::vector<const AmgSymMatrix(5)*> energyLoss_deltaCovariances;
 
   /* ========================================================================
      Retrieve energy loss corrections
@@ -183,31 +163,25 @@ void Trk::GsfCombinedMaterialEffects::compute (
 
   // Protect if there are no new components
   if ( cache_energyLoss.weights.empty() ){
-    ATH_MSG_DEBUG( "WARNING: Energy loss effects are not determined" );
     cache_energyLoss.weights.push_back(1.);
     cache_energyLoss.deltaPs.push_back(0.);
-    AmgSymMatrix(5)* newCov = new AmgSymMatrix(5);
+    std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();                                         
+    newCov->setZero();                                                                                                  
     newCov->setZero();
-    cache_energyLoss.deltaCovariances.push_back( newCov );
+    cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
   }
-
-  if (msgLvl(MSG::VERBOSE))
-    for ( const auto& deltaP: cache_energyLoss.deltaPs )
-      ATH_MSG_VERBOSE( "Energy loss deltaP: " << deltaP );
-
-
-
 
   /* ========================================================================
      Combine the multiple scattering and energy loss components
      ======================================================================== */
 
-  ATH_MSG_VERBOSE( "Combining the energy loss and multiple scattering components" );
+  ATH_MSG_DEBUG("Combining the energy loss and multiple scattering components" );
 
   // Iterators over the multiple scattering components
   std::vector<double>::const_iterator multipleScatter_weightsIterator = cache_multipleScatter.weights.begin();
   std::vector<double>::const_iterator multipleScatter_deltaPsIterator = cache_multipleScatter.deltaPs.begin();
-  std::vector<const AmgSymMatrix(5)*>::const_iterator multipleScatter_deltaCovariancesIterator = cache_multipleScatter.deltaCovariances.begin();
+  std::vector<std::unique_ptr<const AmgSymMatrix(5)>>::const_iterator 
+    multipleScatter_deltaCovariancesIterator = cache_multipleScatter.deltaCovariances.begin();
 
   // Loop over multiple scattering components
   for ( ; multipleScatter_weightsIterator != cache_multipleScatter.weights.end();
@@ -216,7 +190,8 @@ void Trk::GsfCombinedMaterialEffects::compute (
     // Iterators over the energy loss components
     std::vector<double>::const_iterator energyLoss_weightsIterator = cache_energyLoss.weights.begin();
     std::vector<double>::const_iterator energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
-    std::vector<const AmgSymMatrix(5)*>::const_iterator energyLoss_deltaCovariancesIterator = cache_energyLoss.deltaCovariances.begin();
+    std::vector<std::unique_ptr<const AmgSymMatrix(5)>>::const_iterator 
+      energyLoss_deltaCovariancesIterator = cache_energyLoss.deltaCovariances.begin();
 
     // Loop over energy loss components
 
@@ -230,17 +205,12 @@ void Trk::GsfCombinedMaterialEffects::compute (
       cache.deltaPs.push_back( combinedDeltaP );
 
       if ( measuredCov ){
-        AmgSymMatrix(5)* summedCovariance = new AmgSymMatrix(5) (  (*(*multipleScatter_deltaCovariancesIterator)) + (*(*energyLoss_deltaCovariancesIterator) ));
-        //std::cout << "GSFCM DeltaPhi " << (*summedCovariance)[Trk::phi][Trk::phi] <<std::endl;
-
-        cache.deltaCovariances.push_back( summedCovariance );
+        std::unique_ptr<AmgSymMatrix(5)> summedCovariance = 
+          std::make_unique<AmgSymMatrix(5)>((*(*multipleScatter_deltaCovariancesIterator)) 
+                                            + (*(*energyLoss_deltaCovariancesIterator) ));
+        cache.deltaCovariances.push_back( std::move(summedCovariance));
       }
-
     } // end for loop over energy loss components
-
   } // end for loop over multiple scattering components
-
-
-  ATH_MSG_VERBOSE( "Successfully included combined material effects" );
-
+  ATH_MSG_DEBUG( "Successfully included combined material effects" );
 }

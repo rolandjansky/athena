@@ -69,7 +69,10 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
        ss << "    "  << address << " " << ip->eta() << "\n";
      }
      ss << '\n';
-     collector->collect("DijetConditionMT", ss.str());
+
+     std::stringstream k;
+     k << "DijetConditionMT (" << this << ")"; 
+     collector->collect(k.str(), ss.str());
    }
   return pass;
 

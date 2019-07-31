@@ -43,11 +43,11 @@ Trk::GeometryBuilder::GeometryBuilder(const std::string& t, const std::string& n
   m_worldMaterialProperties(),
   m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
-  m_inDetGeometryBuilder(""),
+  m_inDetGeometryBuilder("", this),
   m_caloGeometry{},
-  m_caloGeometryBuilder(""),
+  m_caloGeometryBuilder("", this),
   m_muonGeometry{},
-  m_muonGeometryBuilder(""),
+  m_muonGeometryBuilder("", this),
   m_compactify(true),
   m_synchronizeLayers(true)
 {

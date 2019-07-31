@@ -6,7 +6,6 @@
 #include "TrackWriteFastSim/TrackFastSimSD.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
 // Geant4 headers
@@ -30,7 +29,7 @@ TrackFastSimSD::TrackFastSimSD(const std::string& name, const std::string& outpu
 // Initialize from G4 - necessary to new the write handle for now
 void TrackFastSimSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
+  if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = std::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
 }
 
 G4bool TrackFastSimSD::ProcessHits(G4Step* aStep,G4TouchableHistory* )

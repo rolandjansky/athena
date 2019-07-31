@@ -16,6 +16,9 @@
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "StoreGate/StoreGateSvc.h"
 
+#include "GeoModelKernel/GeoVAlignmentStore.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 namespace InDetDD {
 
   const int FIRST_HIGHER_LEVEL = 1;
@@ -202,7 +205,7 @@ namespace InDetDD {
                                                         const Identifier & id, 
                                                         const Amg::Transform3D & delta,
                                                         FrameType frame,
-                                                        GeoVAlignmentStore* /*alignStore*/) const
+                                                        GeoVAlignmentStore* alignStore) const
   {
 
     if (level == 0) { // At the element level - local shift
@@ -213,7 +216,7 @@ namespace InDetDD {
 
       if (frame == InDetDD::global) {
 
-        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta);
+        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta, alignStore);
 
       } else if (frame == InDetDD::local) {
 
@@ -225,10 +228,10 @@ namespace InDetDD {
         if( m_isLogical ){
 	  //Ensure cache is up to date and use the alignment corrected local to global transform
 	  element->updateCache();
-	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta, alignStore);
         } else 
 	  //Use default local to global transform
-	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta, alignStore);
       } else {
         // other not supported
         msg(MSG::WARNING) << "Frames other than global or local are not supported." << endmsg;
@@ -251,7 +254,7 @@ namespace InDetDD {
       if (iter == m_higherAlignableTransforms[index].end()) return false;      
 
       // Its a global transform
-      return setAlignableTransformGlobalDelta(iter->second, delta);
+      return setAlignableTransformGlobalDelta(iter->second, delta, alignStore);
     }
 
   }
@@ -456,6 +459,118 @@ namespace InDetDD {
   }
 
   return alignmentChange;
+  }
+
+  bool PixelDetectorManager::processSpecialAlignment(const std::string& key,
+                                                     const CondAttrListCollection* obj,
+                                                     GeoVAlignmentStore* alignStore) const {
+    bool alignmentChange = false;
+
+    ATH_MSG_INFO("Processing IBLDist alignment container with key " << key);
+    if(numerology().numLayers()==4) {
+      // this doesn't appear to be Run 2, i.e. the IBL isn't there. Bailing
+      return alignmentChange;
+    }
+
+    int nstaves = 0;
+    if (numerology().numPhiModulesForLayer(0) < 14)
+      nstaves = 14;
+    else
+      nstaves = numerology().numPhiModulesForLayer(0);
+
+    std::vector<float> ibldist;
+    std::vector<float> iblbaseline;
+    ibldist.resize(nstaves);
+    iblbaseline.resize(nstaves);
+
+    // loop over objects in collection
+    for (CondAttrListCollection::const_iterator citr = obj->begin();
+        citr != obj->end(); ++citr) {
+
+      const coral::AttributeList &atrlist = citr->second;
+      ibldist[atrlist["stave"].data<int>()] = atrlist["mag"].data<float>();
+      iblbaseline[atrlist["stave"].data<int>()] = atrlist["base"].data<float>();
+
+      ATH_MSG_VERBOSE("IBLDist DB -- channel: " << citr->first
+        << ", stave: " << atrlist["stave"].data<int>()
+        << ", mag: " << atrlist["mag"].data<float>()
+        << ", base: " << atrlist["base"].data<float>());
+    }
+
+    /**
+     * Paul Gessinger (Jun 2019): For MT, we won't retrieve the underlying actual
+     * alignable transform container, since that's hard to come by.
+     * We loop over all detector elements, check if they match the
+     * detector elements we have IBL dist info for, retrieve the actual transform
+     * from the provided GeoAlignmentStore, and re-set it to the corrected
+     * value including IBL bowing.
+     *
+     * The calculation of the bowing is taken from the non-MT implementation above.
+     */
+
+
+    for(const auto* detElem : *getDetectorElementCollection()) {
+      if(!detElem->isInnermostPixelLayer()) {
+        // skip non-IBL elements. This only works if the innermost pixel layer is in fact
+        // the IBL. That should be the case for Run2 until replacement of the ID.
+        continue;
+      }
+      std::string repr = getIdHelper()->show_to_string(detElem->identify());
+      ATH_MSG_DEBUG("IBLDist alignment for identifier " << repr);
+
+
+      IdentifierHash idHash = getIdHelper()->wafer_hash(detElem->identify());
+      if (!idHash.is_valid()) {
+        ATH_MSG_WARNING("Invalid HashID for identifier " << repr);
+        ATH_MSG_WARNING("No IBLDist corrections can be applied for "
+                        "invalid HashID's - exiting ");
+        return false;
+      }
+
+      // extract the stave number
+      int stave = getIdHelper()->phi_module(detElem->identify());
+
+      double z = detElem->center()[2];
+      const double y0y0 = 366.5 * 366.5;
+
+      double bowx = ibldist[stave] * (z * z - y0y0) / y0y0;
+      double basex = iblbaseline[stave];
+      // This is in the module frame, as bowing corrections are directly L3
+
+      ATH_MSG_DEBUG("Total IBL-module Tx shift (baseline+bowing): " << basex + bowx);
+
+      if ((basex + bowx) == 0) {
+        continue; // make sure we ignore NULL corrections
+      }
+
+      Amg::Transform3D shift = Amg::Translation3D(basex + bowx, 0, 0) *
+                               Amg::RotationMatrix3D::Identity();
+
+      // now we need to get the original alignment delta to apply this additional
+      // shift to
+      ExtendedAlignableTransform* eat = m_alignableTransforms[idHash];
+      const GeoTrf::Transform3D* currentDelta = alignStore->getDelta(eat->alignableTransform());
+      if (currentDelta == nullptr) {
+        ATH_MSG_ERROR("Have IBL Dist for element which does not have an alignment delta."
+                      << " This indicates inconsistent alignment data");
+        return false;
+      }
+
+      ATH_MSG_VERBOSE("Previous delta for " << repr << ":\n" << currentDelta->matrix());
+      ATH_MSG_VERBOSE("Bowing-only delta for " << repr << ":\n" << shift.matrix());
+      Amg::Transform3D newDelta = shift * (*currentDelta);
+
+      // We can probably just write it back to the geo alignment store.
+      // The IBL bowing is always at the module level, and that's the delta that
+      // we retrieved from the geo alignment store.
+
+      alignStore->setDelta(eat->alignableTransform(), newDelta);
+      ATH_MSG_VERBOSE("New delta for " << repr << ":\n"
+                      << alignStore->getDelta(eat->alignableTransform())->matrix());
+
+    }
+
+    return alignmentChange;
   }
 
   // New global alignment folders

@@ -3,14 +3,10 @@
 # art-description: Test of the RDOtoRDOTrigger transform with threads=1
 # art-type: build
 # art-include: master/Athena
-# art-output: log.*
-# art-output: *.log
-# art-output: *.txt
-# art-output: *.root
-# art-output: runargs.*
-# art-output: runwrapper.*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
-export NAME="trigAna_q221_RDOtoRDOTrig_build"
+export NAME="trigAna_q221_RDOtoRDOTrig_mt1_build"
 export TEST="TrigAnalysisTest"
 export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1"
 export EVENTS=20
@@ -18,7 +14,11 @@ export THREADS=1
 export JOB_LOG="athena.log"
 export AODTOCHECK="RDO_TRIG.pool.root" # to run checkFile and checkxAOD on this
 
-echo "Running Reco_tf command:"
+# Use specific RegTest pattern and reference file installed with the release
+export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+export REGTESTREF=`find_data.py TrigAnalysisTest/q221_RDOtoRDOTrig_mt1_build.ref`
+
+echo "Running RDO->RDO_TRIG with Reco_tf command:"
 (set -x
 Reco_tf.py \
 --AMI=q221 \
@@ -33,5 +33,12 @@ Reco_tf.py \
 export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%.*}"
 
+# merge transform logs for post-processing and prepare for RegTest comparison
+source exec_art_triganalysistest_merge_trf_logs.sh "RDOtoRDOTrigger"
+
 # use TrigUpgradeTest post-processing script
 source exec_TrigUpgradeTest_art_post.sh
+
+# zip the merged log (can be large and duplicates information)
+tar -czf athena.merged.log.tar.gz athena.merged.log
+rm -f athena.merged.log

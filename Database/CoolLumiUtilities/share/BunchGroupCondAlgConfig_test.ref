@@ -1,0 +1,15 @@
+--- data
+Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/TRIGGER/LVL1/BunchGroupContent')]
+Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: /TRIGGER/LVL1/BunchGroupContent
+Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData
+IOVDbSvc: ['/TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag><db>COOLONL_TRIGGER/COMP200</db>']
+--- default
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: 
+Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData
+IOVDbSvc: []

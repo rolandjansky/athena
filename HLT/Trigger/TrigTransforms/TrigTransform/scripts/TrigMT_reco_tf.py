@@ -51,11 +51,13 @@ def getTransform():
                                      inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
                                      perfMonFile = 'ntuple_BSRDOtoRAW.pmon.gz',
                                      literalRunargs = ['writeBS = runArgs.writeBS',
-                                                       'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags',
-                                                       'athenaCommonFlags.FilesInput = runArgs.inputBS_RDOFile',
-                                                       'EvtMax = runArgs.maxEvents',
+                                                       'from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
+                                                       'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputBS_RDOFile)',
+                                                       'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)',
+                                                       'if hasattr(runArgs,\'skipEvents\'):',
+                                                       '   jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)',
                                                        'if hasattr(runArgs,\'outputBSFile\'):',
-                                                       '   athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )']))
+                                                       '   jps.AthenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )']))
 
     #RAWtoCOST is new option for trigger transform
     #runs in athena and will succeed if input BS file has costmon enabled

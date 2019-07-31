@@ -44,10 +44,10 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
   virtual ~ForwardGsfFitter() {};
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override final;
 
   /** Configure the forward GSF fitter
       - Configure the extrapolator
@@ -55,19 +55,20 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
       - Configure the RIO_OnTrack creator */
   virtual StatusCode configureTools ( const ToolHandle<Trk::IMultiStateExtrapolator> &,
        const ToolHandle<Trk::IMultiStateMeasurementUpdator> &,
-       const ToolHandle<Trk::IRIO_OnTrackCreator> &);
+       const ToolHandle<Trk::IRIO_OnTrackCreator> &) override final;
 
   /** Forward GSF fit using PrepRawData */
   virtual const ForwardTrajectory* fitPRD ( const PrepRawDataSet&,
                const TrackParameters&,
-               const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+               const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
   /** Forward GSF fit using MeasurementSet */
   virtual const ForwardTrajectory* fitMeasurements ( const MeasurementSet&,
                const TrackParameters&,
-               const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+               const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
 
-  /** The interface will later be extended so that the initial state can be additionally a MultiComponentState object! */
+  /** The interface will later be extended so that the initial 
+   * state can be additionally a MultiComponentState object! */
 
  private:
 
@@ -80,11 +81,15 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
       const ParticleHypothesis particleHypothesis = nonInteracting ) const;
 
  private:
+
+  /**These are passed via the configure tools so not retrieved from this tool*/
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator>           m_rioOnTrackCreator;
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
+  /** MultiComponentStateCombiner tool
+   */
+  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner{this,
+    "MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
   double                                    m_cutChiSquaredPerNumberDOF;
 
   bool                                      m_overideMaterialEffectsSwitch;

@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from TrigT2MinBias.TrigT2MinBiasConf import T2ZdcFex, T2ZdcHypo
-from TrigT2MinBias.TrigT2MinBiasConf import T2MbtsFex, T2MbtsHypo 
+from TrigT2MinBias.TrigT2MinBiasConf import T2MbtsFex, T2MbtsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePoints, TrigCountSpacePointsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountTrtHits, TrigCountTrtHitsHypo
 
@@ -46,22 +46,22 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xmin = trigT2MinBiasProperties.pixelClusTotMin(),
                                              xmax = trigT2MinBiasProperties.pixelClusTotMax(),
                                              opt="kVecUO") ]
-        
-        # Include the underflow and overflow bins as regular bins in the monitoring histogram 
+
+        # Include the underflow and overflow bins as regular bins in the monitoring histogram
         self.Histograms += [ defineHistogram('PixelClusEndcapC_Size',title='Pixel CL Size in ECC;CL Size;Pixel CL',
                                              type = 'TH1F',
                                              xbins = trigT2MinBiasProperties.pixelClusSizeBins()+2,
                                              xmin = trigT2MinBiasProperties.pixelClusSizeMin()-1.0,
                                              xmax = trigT2MinBiasProperties.pixelClusSizeMax()+1.0,
                                              opt="kVec") ]
-        
+
         self.Histograms += [ defineHistogram('PixelClusBarrel_Tot',title='Pixel CL ToT in Barrel;Time Over Threshold;Pixel CL',
                                              type = 'TH1F',
                                              xbins = trigT2MinBiasProperties.pixelClusTotBins(),
                                              xmin = trigT2MinBiasProperties.pixelClusTotMin(),
                                              xmax = trigT2MinBiasProperties.pixelClusTotMax(),
                                              opt="kVecUO") ]
-        
+
         # Include the underflow and overflow bins as regular bins in the monitoring histogram
         self.Histograms += [ defineHistogram('PixelClusBarrel_Size',title='Pixel CL Size in Barrel;Cluster Size;Pixel CL',
                                              type = 'TH1F',
@@ -84,22 +84,22 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xmin = trigT2MinBiasProperties.pixelClusSizeMin()-1.0,
                                              xmax = trigT2MinBiasProperties.pixelClusSizeMax()+1.0,
                                              opt="kVec") ]
-        
+
         self.Histograms += [ defineHistogram('sctSpEndcapC',
                                              type  = 'TH1I',
                                              title = "SCT SP in ECC;SCT SP;evts",
                                              xbins = 2000, xmin=-0.5, xmax=1999.5)]
-        
+
         self.Histograms += [ defineHistogram('sctSpBarrel',
                                              type  = 'TH1I',
                                              title = "SCT SP in Barrel;SCT SP;evts",
                                              xbins = 2000, xmin=-0.5, xmax=1999.5)]
-        
+
         self.Histograms += [ defineHistogram('sctSpEndcapA',
                                              type  = 'TH1I',
                                              title = "SCT SP in ECA;SCT SP;evts",
                                              xbins = 2000, xmin=-0.5, xmax=1999.5)]
-        
+
 
         self.Histograms += [ defineHistogram('PIX_SPCount, SCT_SPCount',
                                              type  = 'TH2I',
@@ -140,7 +140,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              type  = 'TH1I',
                                              title = "L2 Pix SP per module;PIX SP after ToT cut;entries",
                                              xbins = 300, xmin=-0.5, xmax=299.5)]
-                                             
+
         self.Histograms += [ defineHistogram('SctSpPerModule',
                                              type  = 'TH1I',
                                              title = "L2 Sct SP per module;SCT SP;entries",
@@ -157,7 +157,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 100, xmin=0., xmax=10.)]
 
         # monitor data errors
-                
+
         # PIX Errors are defined in : InnerDetector/InDetConditions/PixelConditionsServices/PixelConditionsServices/IPixelByteStreamErrorsSvc.h
         self.Histograms += [ defineHistogram('PixelDataErrors',
                                              type='TH1F',
@@ -197,9 +197,9 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                     "B16_S1", "B16_S2", "B17_S1", "B17_S2", "B18_S1", "B18_S2",
                     "B19_S1", "B19_S2", "B20_S1", "B20_S2", "B21_S1", "B21_S2",
                     "B22_S1", "B22_S2", "B23_S1", "B23_S2", "B24_S1", "B24_S2",
-                    "B25_S1", "B25_S2", "B26_S1", "B26_S2", 
+                    "B25_S1", "B25_S2", "B26_S1", "B26_S2",
                     "B01_S1"]
-        
+
         labelDescr = disks
         xyLabels = ''
         for c in labelDescr:
@@ -227,7 +227,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
         xyLabels = ''
         for c in labelDescr:
             xyLabels +=  c+':'
-            
+
         self.Histograms += [ defineHistogram("pixBarrL1_clust_occ_eta, pixBarrL1_clust_occ_phi",
                                              type  = 'TH2I',
                                              title = "PixelBarrel layer1 cl occ; eta index ;phi index",
@@ -239,7 +239,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
         xyLabels = ''
         for c in labelDescr:
             xyLabels +=  c+':'
-        
+
         self.Histograms += [ defineHistogram("pixBarrL2_clust_occ_eta, pixBarrL2_clust_occ_phi",
                                              type  = 'TH2I',
                                              title = "PixelBarrel layer2 cl occ; eta index ;phi index module",
@@ -251,7 +251,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
         xyLabels = ''
         for c in labelDescr:
             xyLabels +=  c+':'
-        
+
         self.Histograms += [ defineHistogram("pixECC_clust_occ_disk, pixECC_clust_occ_phi",
                                              type  = 'TH2I',
                                              title = "Pixel ECC cl occ; disk number ;phi index",
@@ -305,7 +305,7 @@ class MbSpFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 13, xmin=-6.5, xmax=6.5,
                                              ybins = 56, ymin=-0.5, ymax=55.5 )]
 
-        
+
 class MbSpHypoMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MbSpHypoMonitoring"):
         super(MbSpHypoMonitoring, self).__init__(name)
@@ -383,7 +383,7 @@ class MbTrtFexMonitoring(TrigGenericMonitoringToolConfig):
                                              type  = 'TH1I',
                                              title = "Number of TRT Hits;# Hits;Evts",
                                              xbins = 2000, xmin=1000., xmax=11000.)]
-        
+
         ## errors are defined in InnerDetector/InDetConditions/TRT_ConditionsServices/src/TRT_ByteStream_ConditionsSvc.cxx
         self.Histograms += [ defineHistogram('TrtDataErrors',
                                              type='TH1F',
@@ -417,7 +417,7 @@ class MbSpFex ( TrigCountSpacePoints ) :
     __slots__ = []
     def __init__ (self, name):
         super(MbSpFex, self).__init__(name)
-        
+
         # Set the histogram dimensions from TrigT2MinBiasProperties.
         self.PixelClusToTCut = trigT2MinBiasProperties.pixelClusToTCut()
         self.PixelClusTotBins = trigT2MinBiasProperties.pixelClusTotBins()
@@ -426,7 +426,7 @@ class MbSpFex ( TrigCountSpacePoints ) :
         self.PixelClusSizeBins = trigT2MinBiasProperties.pixelClusSizeBins()
         self.PixelClusSizeMin = trigT2MinBiasProperties.pixelClusSizeMin()
         self.PixelClusSizeMax = trigT2MinBiasProperties.pixelClusSizeMax()
-        
+
         #self.SpacePointProviderTool = ospTool
         time = TrigTimeHistToolConfig("MbSpFexTimers")
         time.NumberOfHistBins = 100
@@ -473,8 +473,8 @@ L2MbSpFex_noPix.PixelModuleThreshold = 1000000 # Disable dynamic masking.
 L2MbSpFex_noPix.SCTModuleThreshold = 1000000 # Disable dynamic masking.
 L2MbSpFex_noPix.ReadPixelSp = False # Disable the Pixel readout
 fexes["L2MbSpFex_noPix"] = L2MbSpFex_noPix
-        
-class MbSpHypo ( TrigCountSpacePointsHypo ):    
+
+class MbSpHypo ( TrigCountSpacePointsHypo ):
     __slots__ = []
     def __init__ (self, name="MbSpHypo"):
         super(MbSpHypo, self).__init__(name)
@@ -537,7 +537,7 @@ hypos["L2MbSpHypo_veto"] = L2MbSpHypo_veto
 class L2MbSpMhNoPixHypo_veto(MbSpHypo):
     def __init__(self, name, threshold):
         super(L2MbSpMhNoPixHypo_veto, self).__init__(name)
-        
+
         self.AcceptAll = False
         self.TriggerTypeAND = False # Must use OR because Pixel is disabled
         self.Veto = True
@@ -545,10 +545,10 @@ class L2MbSpMhNoPixHypo_veto(MbSpHypo):
         self.PixelClusRatioA = -1. # Disable
         self.PixelClusRatioB = -1. # Disable
         self.PixelClusEndcapC = -1. # Disable
-        self.PixelClusBarrel = -1. # Disable 
+        self.PixelClusBarrel = -1. # Disable
         self.PixelClusEndcapA = -1. # Disable
         self.PixelClusEndcapC_max = -1. # Disable
-        self.PixelClusBarrel_max = -1. # Disable 
+        self.PixelClusBarrel_max = -1. # Disable
         self.PixelClusEndcapA_max = -1. # Disable
         self.TotalSctSp = threshold  # here is the only one actively used setting
         self.SctSpEndcapC = -1. # Disable
@@ -566,7 +566,7 @@ L2MbSpHypoLow.AcceptAll = False
 L2MbSpHypoLow.Veto = False
 L2MbSpHypoLow.TriggerTypeAND = False ## ???
 L2MbSpHypoLow.VetoLargeSP = True
-L2MbSpHypoLow.TotalPixelClus = 200. # 
+L2MbSpHypoLow.TotalPixelClus = 200. #
 L2MbSpHypoLow.TotalPixelClusMin = 2. # Used only if  VetoLargeSP
 L2MbSpHypoLow.PixelClusRatioA = -1. # Disable
 L2MbSpHypoLow.PixelClusRatioB = -1. # Disable
@@ -669,7 +669,7 @@ L2MbSpHypo_cos.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 
 # Setup for 2016 SCT only non collision bacground filtering
-# 2016: 50 SP, 2017 Sep+: 100 SP 
+# 2016: 50 SP, 2017 Sep+: 100 SP
 L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
 L2MbSpHypo_ncb.AcceptAll = False
 L2MbSpHypo_ncb.Veto = False
@@ -700,7 +700,7 @@ L2MbSpHypo_blayer.AcceptAll = False
 L2MbSpHypo_blayer.Veto = False
 L2MbSpHypo_blayer.TriggerTypeAND = False # PIX only
 L2MbSpHypo_blayer.SctSpEndcaps_cut = -1 # Disable
-L2MbSpHypo_blayer.TotalPixelClus = 50 # Minimum number of hits in the BLayer (layer restriction in FEX) 
+L2MbSpHypo_blayer.TotalPixelClus = 50 # Minimum number of hits in the BLayer (layer restriction in FEX)
 L2MbSpHypo_blayer.PixelClusRatioA = -1. # Disable
 L2MbSpHypo_blayer.PixelClusRatioB = -1. # Disable
 L2MbSpHypo_blayer.PixelClusEndcapC = -1. # Disable
@@ -771,7 +771,7 @@ hypos["L2MbSpMhHypo"] = L2MbSpMhHypo
 L2MbSpMhPcHypo = MbSpHypo("L2MbSpMhPcHypo")
 L2MbSpMhPcHypo.AcceptAll = False
 L2MbSpMhPcHypo.Veto = False
-L2MbSpMhPcHypo.TriggerTypeAND = True 
+L2MbSpMhPcHypo.TriggerTypeAND = True
 L2MbSpMhPcHypo.TotalPixelClus = 749.
 L2MbSpMhPcHypo.PixelClusRatioA = -1. # Disable
 L2MbSpMhPcHypo.PixelClusRatioB = -1. # Disable
@@ -936,12 +936,12 @@ hypos["L2MbSpMhNoPixHypo_tight_eff"] = L2MbSpMhNoPixHypo_tight_eff
 
 
 class L2MbSpUPC(MbSpHypo):
-    def __init__(self, name, minTh, maxTh):        
+    def __init__(self, name, minTh, maxTh):
         super(L2MbSpUPC, self).__init__(name)
         self.VetoLargeSP = True
         self.TriggerTypeAND = False
         self.TotalPixelClus = maxTh+0.1 # this is negated selection due to the VetoLargeSP and we want inclusive 8 - 24 selection
-        self.TotalPixelClusMin = minTh-0.1 
+        self.TotalPixelClusMin = minTh-0.1
         self.TotalSctSp=-1
 
 
@@ -954,17 +954,17 @@ hypos["L2MbSpUPC_loose"]   = L2MbSpUPC("L2MbSpUPC_loose", 6, 28)
 class L2MbSpMhNoPixHypo_hip(MbSpHypo):
     def __init__(self, name, threshold):
         super(L2MbSpMhNoPixHypo_hip, self).__init__(name)
-        
+
         self.AcceptAll = False
         self.TriggerTypeAND = False # Must use OR because Pixel is disabled
         self.TotalPixelClus = -1. # Disable
         self.PixelClusRatioA = -1. # Disable
         self.PixelClusRatioB = -1. # Disable
         self.PixelClusEndcapC = -1. # Disable
-        self.PixelClusBarrel = -1. # Disable 
+        self.PixelClusBarrel = -1. # Disable
         self.PixelClusEndcapA = -1. # Disable
         self.PixelClusEndcapC_max = -1. # Disable
-        self.PixelClusBarrel_max = -1. # Disable 
+        self.PixelClusBarrel_max = -1. # Disable
         self.PixelClusEndcapA_max = -1. # Disable
         self.TotalSctSp = threshold  # here is the only one actively used setting
         self.SctSpEndcapC = -1. # Disable
@@ -1007,26 +1007,26 @@ hypos["L2MbSpMhNoPixHypo_hip_2400"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_h
 
 hypos["L2MbSpMhNoPixHypo_hip_2600"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_2600", 2600.)
 
-# .... setup for HI High Multiplicity chains (SCT SP=2700) 
+# .... setup for HI High Multiplicity chains (SCT SP=2700)
 hypos["L2MbSpMhNoPixHypo_hip_2700"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_2700", 2700.)
 hypos["L2MbSpMhNoPixHypo_hip_2800"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_2800", 2800.)
 
-# .... setup for HI High Multiplicity chains (SCT SP=3800) 
+# .... setup for HI High Multiplicity chains (SCT SP=3800)
 hypos["L2MbSpMhNoPixHypo_hip_3800"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_3800", 3800.)
 
 # .... setup for HI High Multiplicity chains (SCT SP=4000)
-hypos["L2MbSpMhNoPixHypo_hip_4000"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4000", 4000.) 
+hypos["L2MbSpMhNoPixHypo_hip_4000"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4000", 4000.)
 
 
 # .... setup for HI High Multiplicity chains (SCT SP=4200)
-hypos["L2MbSpMhNoPixHypo_hip_4200"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4200", 4200.) 
+hypos["L2MbSpMhNoPixHypo_hip_4200"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4200", 4200.)
 
 
 # .... setup for HI High Multiplicity chains (SCT SP=4400)
-hypos["L2MbSpMhNoPixHypo_hip_4400"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4400", 4400.) 
+hypos["L2MbSpMhNoPixHypo_hip_4400"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4400", 4400.)
 
 # .... setup for HI High Multiplicity chains (SCT SP=4600)
-hypos["L2MbSpMhNoPixHypo_hip_4600"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4600", 4600.) 
+hypos["L2MbSpMhNoPixHypo_hip_4600"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4600", 4600.)
 
 
 
@@ -1043,9 +1043,9 @@ class MbTrtFex ( TrigCountTrtHits ) :
         self.TotBins = trigT2MinBiasProperties.trtHitTotBins()
         self.TotMin = trigT2MinBiasProperties.trtHitTotMin()
         self.TotMax = trigT2MinBiasProperties.trtHitTotMax()
-        
+
         self.TrtDataProviderTool =  trtTool
-        
+
         time = TrigTimeHistToolConfig("MbTrtFexTimers")
         time.NumberOfHistBins = 100
         time.TimerHistLimits = [0, 500]
@@ -1056,7 +1056,7 @@ fexes["L2MbTrtFex"] = MbTrtFex("L2MbTrtFex")
 MbTrtFex_1 = MbTrtFex # remove once cosmic clice migrated
 
 
-class MbTrtHypo ( TrigCountTrtHitsHypo ):    
+class MbTrtHypo ( TrigCountTrtHitsHypo ):
     __slots__ = []
     def __init__ (self, name="MbTrtHypo"):
         super(MbTrtHypo, self).__init__(name)
@@ -1072,7 +1072,7 @@ MbTrtHypo_1 = MbTrtHypo # remove once cosmic clice migrated
 #Trt hypo configurables
 L2MbTrtHypo =  MbTrtHypo("L2MbTrtHypo")
 L2MbTrtHypo.AcceptAll = False
-L2MbTrtHypo.TimeOverThresholdCut = 18 
+L2MbTrtHypo.TimeOverThresholdCut = 18
 L2MbTrtHypo.TrtHitsEndcaps = 60.
 L2MbTrtHypo.TotalTrtHits = -1.
 
@@ -1088,7 +1088,7 @@ hypos["L2MbTrtHypo_PT"] = L2MbTrtHypo_PT
 # ...cos version
 L2MbTrtHypo_cos =  MbTrtHypo("L2MbTrtHypo_cos")
 L2MbTrtHypo_cos.AcceptAll = False
-L2MbTrtHypo_cos.TimeOverThresholdCut = 18 
+L2MbTrtHypo_cos.TimeOverThresholdCut = 18
 L2MbTrtHypo_cos.TrtHitsEndcaps = 7500.
 L2MbTrtHypo_cos.TotalTrtHits = -1.
 del L2MbTrtHypo_cos.AthenaMonTools["MbTrtHypoTimers"]  # remove timing tools
@@ -1108,8 +1108,8 @@ class MbMbtsFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TriggerEnergies,TriggerTimes',
                                              type='TH2F',
                                              title="MBTS Energy and Time from DSP;Energy [pC]; Time relative to L1 [ns];",
-                                             xbins = 51, xmin=-5.5, xmax=45.5, 
-                                             ybins = 100, ymin=-100., ymax=100.)]        
+                                             xbins = 51, xmin=-5.5, xmax=45.5,
+                                             ybins = 100, ymin=-100., ymax=100.)]
 
         self.Histograms += [ defineHistogram('BCID, TimeDiff_A_C',
                                              type='TH2F',
@@ -1120,15 +1120,15 @@ class MbMbtsFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TriggerID,TriggerEnergies',
                                              type='TH2F',
                                              title='Mbts Energy vs MBTS ID; MBTS ID; Energy [pC];',
-                                             xbins = 32, xmin=0,    xmax=32, 
-                                             ybins = 51, ymin=-5.5, ymax=45.5)]        
+                                             xbins = 32, xmin=0,    xmax=32,
+                                             ybins = 51, ymin=-5.5, ymax=45.5)]
 
         self.Histograms += [ defineHistogram('TriggerID,TriggerTimes',
                                              type='TH2F',
                                              title='MBTS Time vs MBTS ID; MBTS ID;Time relative to L1 [ns];',
-                                             xbins = 32, xmin=0,    xmax=32, 
-                                             ybins = 100, ymin=-100., ymax=100.)]        
-	
+                                             xbins = 32, xmin=0,    xmax=32,
+                                             ybins = 100, ymin=-100., ymax=100.)]
+
         self.Histograms += [ defineHistogram('TimeDiff_A_C',
                                              type='TH1F',
                                              title="MBTS Fex time difference of mean times A-C;time diff [ns];",
@@ -1139,7 +1139,7 @@ class MbMbtsFexMonitoring(TrigGenericMonitoringToolConfig):
                                              title="Mbts Fex Multiplicity; multiplicity A-side;multiplicity C-side;",
                                              xbins = 17, xmin=-0.5, xmax=16.5,
                                              ybins = 17, ymin=-0.5, ymax=16.5)]
-        
+
 class MbMbtsHypoMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MbMbtsHypoMonitoring"):
         super(MbMbtsHypoMonitoring, self).__init__(name)
@@ -1167,8 +1167,8 @@ class MbMbtsHypoMonitoring(TrigGenericMonitoringToolConfig):
 #        self.Histograms += [ defineHistogram('TriggerEnergies,TriggerTimes',
 #                                             type='TH2F',
 #                                             title="MBTS Energy and Time from DSP;Energy [pC]; Time relative to L1 [ns];",
-#                                             xbins = 51, xmin=-5.5, xmax=45.5, 
-#                                             ybins = 100, ymin=-100., ymax=100.)]        
+#                                             xbins = 51, xmin=-5.5, xmax=45.5,
+#                                             ybins = 100, ymin=-100., ymax=100.)]
 
 
 # end of monitoring tools config what foloows are fexes/hypos configs
@@ -1178,7 +1178,7 @@ class MbMbtsFex( T2MbtsFex ):
     __slots__ = []
     def __init__ (self, name ):
         super(MbMbtsFex, self).__init__(name)
-        self.Threshold = trigT2MinBiasProperties.mbtsThreshold() # pC        
+        self.Threshold = trigT2MinBiasProperties.mbtsThreshold() # pC
         time = TrigTimeHistToolConfig("MbMbtsFexTimers")
         time.NumberOfHistBins = 100
         time.TimerHistLimits = [0, 50]
@@ -1206,7 +1206,7 @@ L2MbMbtsHypo_PT.TimeCut = -1 # Disable
 hypos["L2MbMbtsHypo_PT"] = L2MbMbtsHypo_PT
 
 
-L2MbMbtsHypo1NTime = MbMbtsHypo("L2MbMbtsHypo_1_NTime") # No time cut 
+L2MbMbtsHypo1NTime = MbMbtsHypo("L2MbMbtsHypo_1_NTime") # No time cut
 L2MbMbtsHypo1NTime.AcceptAll = False
 L2MbMbtsHypo1NTime.MbtsCounters = 1
 L2MbMbtsHypo1NTime.Coincidence = False
@@ -1223,7 +1223,7 @@ L2MbMbtsHypo1.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo1.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_1"] = L2MbMbtsHypo1
 
-L2MbMbtsHypo2NTime = MbMbtsHypo("L2MbMbtsHypo_2_NTime") # No time cut 
+L2MbMbtsHypo2NTime = MbMbtsHypo("L2MbMbtsHypo_2_NTime") # No time cut
 L2MbMbtsHypo2NTime.AcceptAll = False
 L2MbMbtsHypo2NTime.MbtsCounters = 2
 L2MbMbtsHypo2NTime.Coincidence = False
@@ -1239,7 +1239,7 @@ L2MbMbtsHypo2.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo2.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_2"] =L2MbMbtsHypo2
 
-L2MbMbtsHypo11NTime = MbMbtsHypo("L2MbMbtsHypo_1_1_NTime") # No time cut 
+L2MbMbtsHypo11NTime = MbMbtsHypo("L2MbMbtsHypo_1_1_NTime") # No time cut
 L2MbMbtsHypo11NTime.AcceptAll = False
 L2MbMbtsHypo11NTime.MbtsCounters = 1
 L2MbMbtsHypo11NTime.Coincidence = True
@@ -1298,7 +1298,7 @@ L2MbMbtsHypo_4_4_or.Coincidence = False
 L2MbMbtsHypo_4_4_or.Or = True
 L2MbMbtsHypo_4_4_or.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
-hypos["L2MbMbtsHypo_4_4_or"] = L2MbMbtsHypo_4_4_or 
+hypos["L2MbMbtsHypo_4_4_or"] = L2MbMbtsHypo_4_4_or
 
 ## hypo for CEP events
 # the following mean that only events with 0_0, 1_0, 0_1 and 1_1 will pass
@@ -1311,7 +1311,7 @@ L2MbMbtsHypo_1_1_inn_veto.Veto = True
 L2MbMbtsHypo_1_1_inn_veto.MBTSMode = 1 # inner
 L2MbMbtsHypo_1_1_inn_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
-hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto 
+hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto
 
 #photoproduction in PbPb ATR-12470
 # the following mean that only events with 0_2+, 2+_0, 2+_1 and 1_2+ will pass
@@ -1327,7 +1327,7 @@ L2MbMbtsHypo_1_1_inn_one_side_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut
 hypos["L2MbMbtsHypo_1_1_inn_one_side_veto"] = L2MbMbtsHypo_1_1_inn_one_side_veto
 
 #To clen splashes ATR-18401
-L2MbMbtsHypo_8_8_NTime_veto = MbMbtsHypo("L2MbMbtsHypo_8_8_NTime_veto") # No time cut 
+L2MbMbtsHypo_8_8_NTime_veto = MbMbtsHypo("L2MbMbtsHypo_8_8_NTime_veto") # No time cut
 L2MbMbtsHypo_8_8_NTime_veto.AcceptAll = False
 L2MbMbtsHypo_8_8_NTime_veto.MbtsCounters = 8
 L2MbMbtsHypo_8_8_NTime_veto.Coincidence = False
@@ -1346,8 +1346,8 @@ class MbZdcFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TriggerEnergies,TriggerTimes',
                                              type='TH2F',
                                              title="ZDC Energy and Time from DSP;Energy [pC]; Time relative to L1 [ns];",
-                                             xbins = 53, xmin=-5.5, xmax=100.5, 
-                                             ybins = 100, ymin=-100., ymax=100.)]   
+                                             xbins = 53, xmin=-5.5, xmax=100.5,
+                                             ybins = 100, ymin=-100., ymax=100.)]
 
 
 class MbZdcFex( T2ZdcFex ):
@@ -1470,7 +1470,7 @@ class ZdcHypoMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-class ZdcHypo ( T2ZdcHypo ):    
+class ZdcHypo ( T2ZdcHypo ):
     __slots__ = []
     def __init__ (self, name="ZdcHypo"):
         super(ZdcHypo, self).__init__(name)
@@ -1485,11 +1485,11 @@ L2MbZdcHypo_PT.AcceptAll = True
 L2MbZdcHypo_PT.TimeLogic = 0
 L2MbZdcHypo_PT.EnergyLogic = 1
 L2MbZdcHypo_PT.MultiplicityLogic = 0
-L2MbZdcHypo_PT.TimeOffset = [0., 0., 0., 0., 
+L2MbZdcHypo_PT.TimeOffset = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_PT.Pedestal = [0., 0., 0., 0., 
+L2MbZdcHypo_PT.Pedestal = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_PT.EnergyCalibration = [1., 1., 1., 1., 
+L2MbZdcHypo_PT.EnergyCalibration = [1., 1., 1., 1.,
 	1., 1., 1., 1.]
 L2MbZdcHypo_PT.TimeModuleCut = 99999.
 L2MbZdcHypo_PT.SumEnergyCut = [-1., 99999., -1., 99999.]
@@ -1503,11 +1503,11 @@ L2MbZdcHypo_hip_low_sideA.AcceptAll = False
 L2MbZdcHypo_hip_low_sideA.TimeLogic = 0
 L2MbZdcHypo_hip_low_sideA.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_low_sideA.MultiplicityLogic = 0
-L2MbZdcHypo_hip_low_sideA.TimeOffset = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_low_sideA.TimeOffset = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_low_sideA.Pedestal = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_low_sideA.Pedestal = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_low_sideA.EnergyCalibration = [1., 1., 1., 1., 
+L2MbZdcHypo_hip_low_sideA.EnergyCalibration = [1., 1., 1., 1.,
 	1., 1., 1., 1.]
 L2MbZdcHypo_hip_low_sideA.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_low_sideA.SumEnergyCut = [180., 99999., 99999., -1] # 1<A<2 || 3<C<4
@@ -1522,11 +1522,11 @@ L2MbZdcHypo_hip_low_sideC.AcceptAll = False
 L2MbZdcHypo_hip_low_sideC.TimeLogic = 0
 L2MbZdcHypo_hip_low_sideC.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_low_sideC.MultiplicityLogic = 0
-L2MbZdcHypo_hip_low_sideC.TimeOffset = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_low_sideC.TimeOffset = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_low_sideC.Pedestal = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_low_sideC.Pedestal = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_low_sideC.EnergyCalibration = [1., 1., 1., 1., 
+L2MbZdcHypo_hip_low_sideC.EnergyCalibration = [1., 1., 1., 1.,
 	1., 1., 1., 1.]
 L2MbZdcHypo_hip_low_sideC.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_low_sideC.SumEnergyCut = [99999.,-1., 180., 99999.] # 1<A<2 || 3<C<4
@@ -1541,11 +1541,11 @@ L2MbZdcHypo_hip_hi_sideA.AcceptAll = False
 L2MbZdcHypo_hip_hi_sideA.TimeLogic = 0
 L2MbZdcHypo_hip_hi_sideA.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_hi_sideA.MultiplicityLogic = 0
-L2MbZdcHypo_hip_hi_sideA.TimeOffset = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_hi_sideA.TimeOffset = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_hi_sideA.Pedestal = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_hi_sideA.Pedestal = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_hi_sideA.EnergyCalibration = [1., 1., 1., 1., 
+L2MbZdcHypo_hip_hi_sideA.EnergyCalibration = [1., 1., 1., 1.,
 	1., 1., 1., 1.]
 L2MbZdcHypo_hip_hi_sideA.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_hi_sideA.SumEnergyCut = [300., 99999., 99999., -1.] # 1<A<2 || 3<C<4
@@ -1560,11 +1560,11 @@ L2MbZdcHypo_hip_hi_sideC.AcceptAll = False
 L2MbZdcHypo_hip_hi_sideC.TimeLogic = 0
 L2MbZdcHypo_hip_hi_sideC.EnergyLogic = 2 ## OR
 L2MbZdcHypo_hip_hi_sideC.MultiplicityLogic = 0
-L2MbZdcHypo_hip_hi_sideC.TimeOffset = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_hi_sideC.TimeOffset = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_hi_sideC.Pedestal = [0., 0., 0., 0., 
+L2MbZdcHypo_hip_hi_sideC.Pedestal = [0., 0., 0., 0.,
 	0., 0., 0., 0.]
-L2MbZdcHypo_hip_hi_sideC.EnergyCalibration = [1., 1., 1., 1., 
+L2MbZdcHypo_hip_hi_sideC.EnergyCalibration = [1., 1., 1., 1.,
 	1., 1., 1., 1.]
 L2MbZdcHypo_hip_hi_sideC.TimeModuleCut = 99999.
 L2MbZdcHypo_hip_hi_sideC.SumEnergyCut = [99999.,-1., 300., 99999.] # 1<A<2 || 3<C<4

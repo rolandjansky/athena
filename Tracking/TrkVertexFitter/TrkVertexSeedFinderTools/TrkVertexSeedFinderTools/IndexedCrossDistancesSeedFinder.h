@@ -6,6 +6,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk
@@ -84,6 +85,10 @@ namespace Trk
     mutable double m_correXY ;
     mutable double m_correZ ;
 
+    double m_vx = 0;
+    double m_vy = 0;
+
+    std::unique_ptr<Trk::IMode3dFinder::IMode3dInfo> m_info;
   };
 }
 #endif

@@ -182,7 +182,9 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   ATH_MSG_INFO( "taking hits from '" << m_hitContainerKey.key() << "'" );
 
-  m_cabling = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
+
   m_RUN2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
   m_RUN2plus = m_cabling->isRun2PlusCabling();
 

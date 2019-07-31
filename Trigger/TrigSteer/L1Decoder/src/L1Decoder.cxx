@@ -18,10 +18,12 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode L1Decoder::initialize() {
   ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
 
-  if (  m_RoIBResultKey.objKey().empty() )
+  if ( m_RoIBResultKey.objKey().empty() ) {
     renounce( m_RoIBResultKey );
-  else
+    ATH_MSG_INFO( "RoIBResultKey empty: assume we're running with CTP emulation" );
+  } else {
     ATH_CHECK( m_RoIBResultKey.initialize( ) );
+  }
 
   ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_startStampKey.initialize() );
@@ -71,8 +73,9 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     ATH_CHECK( timeStampHandle.record( std::make_unique<TrigTimeStamp>() ) );
   }
   using namespace TrigCompositeUtils;
-  const ROIB::RoIBResult* roib=0;
-  if ( not m_RoIBResultKey.key().empty() ) {
+  const ROIB::RoIBResult dummyResult;
+  const ROIB::RoIBResult* roib = &dummyResult;
+  if ( !m_RoIBResultKey.key().empty() ) {
     SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
     roib = roibH.cptr();
     ATH_MSG_DEBUG( "Obtained ROIB result" );
@@ -124,8 +127,11 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
   {
     SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
-    ATH_CHECK( saveChainsInfo( activeChains, handleFSDecisions.ptr(), "unprescaled") );    
-    handleFSDecisions.ptr()->at(0)->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
+    auto decision  = TrigCompositeUtils::newDecisionIn( handleFSDecisions.ptr(), "L1" );
+    for ( auto chain: activeChains ) 
+      TrigCompositeUtils::addDecisionID( chain, decision );
+    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
+
   }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_enableCostMonitoring) {

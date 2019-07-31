@@ -5,10 +5,12 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
 
-
 # Declare the package's dependencies: 
 atlas_depends_on_subdirs( PRIVATE
                           Trigger/TriggerCommon/TriggerJobOpts)
+
+# External dependencies:
+find_package( six )
 
 atlas_add_test( flake8
    SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python

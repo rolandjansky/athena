@@ -10,10 +10,6 @@
 #include "TrigT1NSWSimTools/StripClusterTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -27,10 +23,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
-#include "TVector3.h"
-
 #include <functional>
 #include <algorithm>
 #include <map>
@@ -44,19 +37,17 @@ namespace NSWL1 {
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
       m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
       m_detManager(0),
       m_sTgcIdHelper(0),
       m_tree(0),
       m_clusters()
     {
       declareInterface<NSWL1::IStripClusterTool>(this);
-      declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple");
+      declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
     }
 
     StripClusterTool::~StripClusterTool() {
-
     }
 
 
@@ -64,82 +55,38 @@ namespace NSWL1 {
   StatusCode StripClusterTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
-
-
-      const IInterface* parent = this->parent();
-      const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
-
-      if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-        ITHistSvc* tHistSvc;
-        StatusCode sc = service("THistSvc", tHistSvc);
-        if(sc.isFailure()) {
-          ATH_MSG_FATAL("Unable to retrieve THistSvc");
-          return sc;
-        }
-
-        char ntuple_name[40];
-        memset(ntuple_name,'\0',40*sizeof(char));
-        sprintf(ntuple_name,"%sTree",algo_name.c_str());
-
-        m_tree = 0;
-        sc = tHistSvc->getTree(ntuple_name,m_tree);
-
-        if (sc.isFailure()) {
-          ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
-          return sc;
-        } else {
-          ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
-          sc = this->book_branches();
-          if (sc.isFailure()) {
-            ATH_MSG_ERROR("Cannot book the branches for the analysis ntuple");
-          }
-        }
-
-      }
-
-
-      // retrieve the Incident Service
-      if( m_incidentSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Incident Service successfully rertieved");
-      }
-      m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      //  retrieve the MuonDetectormanager
-      if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-      }
-
-      //  retrieve the sTGC offline Id helper
-      if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-        ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-      }
-
-      return StatusCode::SUCCESS;
+    const IInterface* parent = this->parent();
+    const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
+    std::string algo_name = pnamed->name();
+    if ( m_doNtuple && algo_name=="NSWL1Simulation" ){
+      ITHistSvc* tHistSvc;
+      ATH_CHECK(service("THistSvc", tHistSvc));
+      char ntuple_name[40];
+      memset(ntuple_name,'\0',40*sizeof(char));
+      sprintf(ntuple_name,"%sTree",algo_name.c_str());
+      m_tree = 0;
+      ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
     }
+    ATH_CHECK(this->book_branches());
+    // retrieve the Incident Service
+    ATH_CHECK(m_incidentSvc.retrieve());
+    m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-    void StripClusterTool::handle(const Incident& inc) {
-      if( inc.type()==IncidentType::BeginEvent ) {
-        this->reset_ntuple_variables();
-      }
+    // retrieve the Random Service
+    ATH_CHECK(m_rndmSvc.retrieve());
+    //  retrieve the MuonDetectormanager
+    ATH_CHECK(detStore()->retrieve( m_detManager ));
+    //  retrieve the sTGC offline Id helper
+    ATH_CHECK(detStore()->retrieve( m_sTgcIdHelper ));
+
+    return StatusCode::SUCCESS;
+  }
+
+  void StripClusterTool::handle(const Incident& inc) {
+    if( inc.type()==IncidentType::BeginEvent ) {
+      this->reset_ntuple_variables();
     }
+  }
 
 
     StatusCode StripClusterTool::book_branches() {
@@ -155,18 +102,14 @@ namespace NSWL1 {
       m_cl_ltgx= new std::vector< float >();
       m_cl_ltgy= new std::vector< float >();
       m_cl_ltgz= new std::vector< float >();
-
       m_cl_truth_x= new std::vector<float >();
       m_cl_truth_y= new std::vector<float >();
       m_cl_truth_z= new std::vector<float>();
-
       m_cl_truth_lx= new std::vector<float >();
       m_cl_truth_ly= new std::vector<float >();
       m_cl_truth_lz= new std::vector<float>();
-
       m_cl_truth_E= new std::vector<float >();
       m_cl_truth_n= new std::vector<int >();
-
       m_cl_side= new std::vector<int>();
       m_cl_isSmall= new std::vector<int>();
       m_cl_wedge= new std::vector<int>();
@@ -176,9 +119,7 @@ namespace NSWL1 {
       m_cl_bandId= new std::vector<int>();
       m_cl_phiId= new std::vector<int>();
 
-
       if (m_tree) {
-          
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
         m_tree->Branch(TString::Format("%s_cl_n",n).Data(),&m_cl_n,TString::Format("%s_cl_n/i",n).Data());
@@ -211,16 +152,11 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_cl_truth_n",n).Data(),&m_cl_truth_n);
 
       }
-      else {
-         return StatusCode::FAILURE;
-      }
       return StatusCode::SUCCESS;
     }
 
 
     void StripClusterTool::reset_ntuple_variables() {
-      // if ntuple is not booked nothing to do
-      if ( m_tree==0 ) return;
       clear_ntuple_variables();
     }
 
@@ -231,22 +167,18 @@ namespace NSWL1 {
       m_cl_x->clear();
       m_cl_y->clear();
       m_cl_z->clear();
-
       m_cl_lx->clear();
       m_cl_ly->clear();
       m_cl_lz->clear();
-
       m_cl_ltgx->clear();
       m_cl_ltgy->clear();
       m_cl_ltgz->clear();
-
       m_cl_size->clear();
       m_cl_truth_x->clear();
       m_cl_truth_y->clear();
       m_cl_truth_z->clear();
       m_cl_truth_E->clear();
       m_cl_truth_n->clear();
-
       m_cl_truth_lx->clear();
       m_cl_truth_ly->clear();
       m_cl_truth_lz->clear();
@@ -299,34 +231,34 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       }
 
       for(unsigned int s_i=0; s_i < this_cl->size();s_i++){
-     	n_strip++;
+     	  n_strip++;
   	    ATH_MSG_DEBUG("Start strip" << n_strip);
-	    if(sdo_container && first_strip){ // Save truth deposits associated with cluster should be the same on for the whole strip, so take the first one need to work on this logic
-        first_strip=false;
-  	    Identifier Id = this_cl->at(s_i)->Identity();
-	    const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
-	    const MuonSimData strip_sdo = (sdo_container->find(Id))->second;
-	    std::vector<MuonSimData::Deposit> deposits;
-	    strip_sdo.deposits(deposits);
-	    //retrieve the info of the first associated hit, i.e. the fastest in time
-      	if (deposits.size()!=1)ATH_MSG_WARNING("Multiple cluster hits for strip!");
-        if (deposits.size()==0){
-          ATH_MSG_WARNING("Empty hit here"); 
-          continue;
-        }
+	      if(sdo_container && first_strip){ // Save truth deposits associated with cluster should be the same on for the whole strip, so take the first one need to work on this logic
+          first_strip=false;
+  	      Identifier Id = this_cl->at(s_i)->Identity();
+	        const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
+	        const MuonSimData strip_sdo = (sdo_container->find(Id))->second;
+	        std::vector<MuonSimData::Deposit> deposits;
+	        strip_sdo.deposits(deposits);
+	        //retrieve the info of the first associated hit, i.e. the fastest in time
+          if (deposits.size()!=1)ATH_MSG_WARNING("Multiple cluster hits for strip!");
+          if (deposits.size()==0){
+            ATH_MSG_WARNING("Empty hit here"); 
+            continue;
+          }
         
-        int    truth_barcode   = deposits[0].first.barcode();
-        double truth_localPosX = deposits[0].second.firstEntry();
-        double truth_localPosY = deposits[0].second.secondEntry();
-	    Amg::Vector3D hit_gpos(0.,0.,0.);
-	    Amg::Vector2D lpos(truth_localPosX,truth_localPosY);
-        rdoEl->surface(Id).localToGlobal(lpos, hit_gpos,hit_gpos);
-	    double truth_globalPosX = hit_gpos.x();
-        double truth_globalPosY = hit_gpos.y();
-        double truth_globalPosZ = hit_gpos.z();
-	    float  truth_energy    = strip_sdo.word();
+          int    truth_barcode   = deposits[0].first.barcode();
+          double truth_localPosX = deposits[0].second.firstEntry();
+          double truth_localPosY = deposits[0].second.secondEntry();
+	        Amg::Vector3D hit_gpos(0.,0.,0.);
+	        Amg::Vector2D lpos(truth_localPosX,truth_localPosY);
+          rdoEl->surface(Id).localToGlobal(lpos, hit_gpos,hit_gpos);
+	        double truth_globalPosX = hit_gpos.x();
+          double truth_globalPosY = hit_gpos.y();
+          double truth_globalPosZ = hit_gpos.z();
+	        float  truth_energy    = strip_sdo.word();
 
-        if(fabs(locx-lpos.x())>.001 || fabs(locy - lpos.y())>.001){
+          if(fabs(locx-lpos.x())>.001 || fabs(locy - lpos.y())>.001){
       	    ATH_MSG_DEBUG("OLD locx " << locx <<" new locx "<<lpos.x() <<" b " << int(locx!=lpos.x()));
       	    ATH_MSG_DEBUG("OLD locy " << locy <<" new locy "<<lpos.y() << " b " << int(locy!=lpos.y()));
       	    ATH_MSG_DEBUG("Cluster hit, truth barcode=" << truth_barcode);
@@ -338,7 +270,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       			  << ", truth localPosY="   <<  lpos.y()
       			  << ", truth enegy deposit ="   << truth_energy << std::endl);
 
-	        m_cl_truth_x->push_back( hit_gpos.x() );
+	          m_cl_truth_x->push_back( hit_gpos.x() );
       	    m_cl_truth_y->push_back( hit_gpos.y() );
       	    m_cl_truth_z->push_back( hit_gpos.z() );
 
@@ -347,7 +279,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       	    m_cl_truth_lz->push_back( 0 );
       	    m_cl_truth_E->push_back( truth_energy );
       	  }
-	    }
+	      }
 
         float s_charge=this_cl->at(s_i)->strip_charge_6bit();
         charge+=s_charge;
@@ -403,9 +335,9 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       ATH_MSG_DEBUG("Cluster dump with lX:" << x_lpos << " lY: " << y_lpos << " lZ: " << z_lpos << " cluster charge: " << charge);
 
       auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
-                           m_clusters.at(cl_i)->at(0)->bandId(),
-                           m_clusters.at(cl_i)->at(0)->trig_BCID(),                                         
-                           m_clusters.at(cl_i)->at(0)->phiId(),
+               m_clusters.at(cl_i)->at(0)->bandId(),
+               m_clusters.at(cl_i)->at(0)->trig_BCID(),                                         
+               m_clusters.at(cl_i)->at(0)->phiId(),
 						   m_clusters.at(cl_i)->at(0)->isSmall(),
 						   m_clusters.at(cl_i)->at(0)->moduleId(),
 						   m_clusters.at(cl_i)->at(0)->sectorId(),
@@ -504,8 +436,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 	     }
 
 	     else{
-	      m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
-	      ATH_MSG_DEBUG("Adding Cluster with " << cr_cluster->size() << "hits" << m_clusters.size() << " m_clusters so far");
+	        m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
           cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();//create a new empty cluster and assign this hit as the first hit
           cr_cluster->push_back(std::move(this_hit));
 	     }

@@ -16,6 +16,7 @@ topSequence += viewSeq
 
   
 # View maker alg
+from AthenaCommon import CfgMgr
 viewNodeName = "allViewAlgorithms"
 viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
 viewMaker.ViewBaseName = "testView"
@@ -30,8 +31,7 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  from TrigUpgradeTest.InDetSetup import inDetSetup
-  inDetSetup()
+
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
   (viewAlgs, eventAlgs) = makeInDetAlgs()
@@ -134,8 +134,6 @@ if TriggerFlags.doID:
 
 
 if TriggerFlags.doCalo:
-  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
   algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
 

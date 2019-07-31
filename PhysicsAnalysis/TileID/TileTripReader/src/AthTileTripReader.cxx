@@ -32,7 +32,7 @@ AthTileTripReader::AthTileTripReader(const std::string& type,
     declareInterface<AthTileTripReader>(this);
     
     declareProperty("TileTripFile",
-            m_tripFile="TileTripReader/CompleteTripList_2011-2012.root",
+            m_tripFile="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TileTripReader/CompleteTripList_2015-2018.root",
             "Path to the trip list file");
     
     declareProperty("dR",m_dR=0.4);

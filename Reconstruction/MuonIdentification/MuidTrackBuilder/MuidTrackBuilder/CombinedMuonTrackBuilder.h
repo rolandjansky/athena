@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include <atomic>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -292,13 +293,13 @@ namespace Rec
 	mutable Trk::RecVertex*					m_vertex;
 
 	// counters
-	mutable unsigned				m_countAcceptedStandaloneFit;
-	mutable unsigned				m_countBeamAxis;
-	mutable unsigned				m_countCombinedCleanerVeto;
-	mutable unsigned				m_countDegradedStandaloneFit;
-	mutable unsigned				m_countExtensionCleanerVeto;
-	mutable unsigned				m_countStandaloneCleanerVeto;
-	mutable unsigned				m_countVertexRegion;
+	mutable std::atomic_uint			m_countAcceptedStandaloneFit;
+	mutable std::atomic_uint			m_countBeamAxis;
+	mutable std::atomic_uint			m_countCombinedCleanerVeto;
+	mutable std::atomic_uint			m_countDegradedStandaloneFit;
+	mutable std::atomic_uint			m_countExtensionCleanerVeto;
+	mutable std::atomic_uint			m_countStandaloneCleanerVeto;
+	mutable std::atomic_uint			m_countVertexRegion;
 
 	// internal communication
 	mutable const Trk::TrackParameters*		m_combinedEnergyParameters;

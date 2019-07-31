@@ -6,10 +6,12 @@
 
 #include "StaticHistogramProvider.h"
 #include "LumiblockHistogramProvider.h"
+#include "OfflineHistogramProvider.h"
 
 #include "HistogramFiller1D.h"
 #include "HistogramFillerEfficiency.h"
 #include "CumulativeHistogramFiller1D.h"
+#include "HistogramFillerRebinable1D.h"
 #include "VecHistogramFiller1D.h"
 #include "VecHistogramFiller1DWithOverflows.h"
 #include "HistogramFillerProfile.h"
@@ -26,6 +28,8 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   if (boost::starts_with(def.type, "TH1")) {
     if (def.opt.find("kCumulative") != std::string::npos) {
       return new CumulativeHistogramFiller1D(def, histogramProvider);
+    } else if (def.opt.find("kAddBinsDynamically") != std::string::npos) {
+      return new HistogramFillerRebinable1D(def, histogramProvider);
     } else if (def.opt.find("kVecUO") != std::string::npos) {
       return new VecHistogramFiller1DWithOverflows(def, histogramProvider);
     } else if (def.opt.find("kVec") != std::string::npos) {
@@ -49,7 +53,9 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
 std::shared_ptr<IHistogramProvider> HistogramFillerFactory::createHistogramProvider(const HistogramDef& def) {
   std::shared_ptr<IHistogramProvider> result;
 
-  if (def.opt.find("kLBNHistoryDepth") != std::string::npos) {
+  if ( def.convention.find("OFFLINE") != std::string::npos ) {
+    result.reset(new OfflineHistogramProvider(m_gmTool, m_factory, def));
+  } else if (def.opt.find("kLBNHistoryDepth") != std::string::npos) {
     result.reset(new LumiblockHistogramProvider(m_gmTool, m_factory, def));
   } else {
     result.reset(new StaticHistogramProvider(m_factory, def));

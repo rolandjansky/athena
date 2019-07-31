@@ -73,14 +73,13 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   size_t counter = 0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
     // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString()  );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>("roi");
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor *roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<ViewContainer>("view");
+    auto viewEL = previousDecision->objectLink<ViewContainer>(viewString());
     ATH_CHECK( viewEL.isValid() );
 
     // get Muon
@@ -101,11 +100,8 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
 
     toolInput.emplace_back( newd, roi, muon, previousDecision );
 
-    newd -> setObjectLink( "feature", muonEL );
-    newd -> setObjectLink( "roi", roiEL );
-    newd -> setObjectLink( "view", viewEL );
-
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+    newd -> setObjectLink( featureString(), muonEL );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
 
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
@@ -128,18 +124,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     }
   } // End of tool algorithm
 
-  { //  debu printout
-    ATH_MSG_DEBUG ( "Exit with "<< outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {   
-      for ( auto decisionObject: *outputHandle )  {
-        TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-        ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

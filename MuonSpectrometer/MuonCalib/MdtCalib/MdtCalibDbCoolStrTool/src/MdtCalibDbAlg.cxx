@@ -44,8 +44,8 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "TSpline.h"
 #include "TFile.h"
@@ -82,11 +82,13 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_rtShift(0.),
   m_rtScale(1.),
   m_prop_beta(1.0),
-  m_AtRndmGenSvc ("AtRndmGenSvc", name),
+  m_AthRNGSvc ("AthRNGSvc", name),
+  m_RNGWrapper (nullptr),
   m_buffer_length(0),
   m_decompression_buffer(nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
-  m_readKeyTube("/MDT/T0BLOB")
+  m_readKeyTube("/MDT/T0BLOB"),
+  m_regionIdThreshold(2500)
 {
 
   //Db Folders
@@ -125,6 +127,10 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("CreateSlewingFunctions", m_createSlewingFunction = false,
 		  "If set to true, the slewing correction functions are initialized for each rt-relation that is loaded.");
 
+  declareProperty("AthRNGSvc", m_AthRNGSvc);
+  declareProperty("RandomStream", m_randomStream = "MDTCALIBDBALG");
+
+
 }
 
 StatusCode MdtCalibDbAlg::initialize(){
@@ -160,14 +166,15 @@ StatusCode MdtCalibDbAlg::initialize(){
   
   //initiallize random number generator if doing t0 smearing (for robustness studies)
   if( m_t0Spread != 0. ) {
-    ATH_CHECK( m_AtRndmGenSvc.retrieve() );
+    ATH_CHECK( m_AthRNGSvc.retrieve() );
     ATH_MSG_DEBUG( " initialize Random Number Service: running with t0 shift "
                     << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift );
-      
     // getting our random numbers stream
-    m_engine = m_AtRndmGenSvc->GetEngine("MDTCALIBDBALG");
-    //m_engine = m_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
-    //if we need to reproduce something
+    m_RNGWrapper = m_AthRNGSvc->getEngine(this, m_randomStream);
+    if (!m_RNGWrapper) {
+      ATH_MSG_ERROR("Could not get random number engine from AthRNGSvc. Abort.");
+      return StatusCode::FAILURE;
+    }
   }
 
   if ( m_rtShift != 0. || m_rtScale != 1. || m_t0Shift != 0. || m_t0Spread != 0.) {
@@ -440,10 +447,9 @@ StatusCode MdtCalibDbAlg::loadRt(){
     Identifier  athenaId; 
     char *pch = strtok(parameters," _,");
     regionId = atoi(pch);
-    //Long ago the hash was put in the RT file header, but now (2016) 
-    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.    
-    //TODO: put this magic number in constatnt
-    if(regionId>2500) {
+    //Long ago the hash was put in the RT file header, but now (2016)
+    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
+    if(regionId>m_regionIdThreshold) {
       MuonCalib::MuonFixedId id(regionId);
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
@@ -599,7 +605,6 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	}      //end else regionId is OK
       }        //end if reso && rt
     }          //end try
-    //TODO: What kind of exceptions can you get here
     catch (int i) {
       ATH_MSG_FATAL( "Error in creating rt-relation!" );
       ATH_MSG_FATAL( "npoints="<<tr_points.size());
@@ -896,7 +901,8 @@ StatusCode MdtCalibDbAlg::loadTube(){
 			   << " id " << ml << " " << l << " " << t );
 	}
 	if(m_t0Spread != 0. ){
-	  double sh = CLHEP::RandGaussZiggurat::shoot(m_engine,0.,m_t0Spread);
+	  CLHEP::HepRandomEngine* engine = m_RNGWrapper->getEngine(Gaudi::Hive::currentContext());
+	  double sh = CLHEP::RandGaussZiggurat::shoot(engine,0.,m_t0Spread);
 	  tzero += sh;
 	  ATH_MSG_VERBOSE( "T0 spread " << sh << " t0 " << tzero 
 			   << " id " << ml << " " << l << " " << t );

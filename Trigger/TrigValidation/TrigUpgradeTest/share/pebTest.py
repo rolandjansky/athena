@@ -1,3 +1,4 @@
+
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
@@ -12,7 +13,7 @@ doMuon   = True
 doJet    = False
 doCombo  = False
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence, RecoFragmentsPool
 testChains = []
 
 ##################################################################
@@ -30,24 +31,22 @@ AllowedEventBuildingIdentifiers.extend(['pebtestfour','pebtestfive'])
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
-    from TrigUpgradeTest.InDetSetup import inDetSetup
-    
-    inDetSetup()
-    fastCaloStep= fastCaloMenuSequence("Ele")
-    electronStep= electronMenuSequence()
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
+    precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
+    FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
+    PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
     step3_pebtestone=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
     step3_pebtestfour=ChainStep("Step3_pebtestfour", [pebInfoWriterSequence("pebtestfour")])
 
-    egammaChains = [
-        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestfour',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestfour]  ),
-        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+    egammaChains  = [
+        Chain(name='HLT_e3_etcut_pebtestone_L1EM3',  L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestone_L1EM3',  L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestfour_L1EM3', L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestfour]  ),
+        Chain(name='HLT_e7_etcut_L1EM3',             L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep]  )
     ]
     testChains += egammaChains
 
@@ -63,9 +62,9 @@ if (doMuon):
     step2_pebtestfive=ChainStep("Step2_pebtestfive", [pebInfoWriterSequence("pebtestfive")])
 
     muonChains = [
-        Chain(name='HLT_mu6_pebtesttwo',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtesttwo]  ),
-        Chain(name='HLT_mu6_pebtestfive',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtestfive]  ),
-        Chain(name='HLT_2mu6',        Seed="L1_MU6",  ChainSteps=[step1mufast]  )
+        Chain(name='HLT_mu6_pebtesttwo_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step1mufast, step2_pebtesttwo]  ),
+        Chain(name='HLT_mu6_pebtestfive_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step1mufast, step2_pebtestfive]  ),
+        Chain(name='HLT_2mu6_L12MU6',        L1Item="L1_2MU6",  ChainSteps=[step1mufast]  )
     ]
     testChains += muonChains
 
@@ -74,7 +73,7 @@ if (doMuon):
 #################################
 
 # this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
+EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in testChains])
 topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 
 ##########################################
@@ -168,11 +167,11 @@ stmaker.OutputLevel = DEBUG
 stmaker.ChainDecisions = "HLTSummary"
 stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
-stmaker.ChainToStream["HLT_e3_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_e5_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_e5_etcut_pebtestfour"] = streamPhysicsPebtestfour
-stmaker.ChainToStream["HLT_mu6_pebtesttwo"] = streamCalibPebtesttwo
-stmaker.ChainToStream["HLT_mu6_pebtestfive"] = streamPhysicsPebtestfive
+stmaker.ChainToStream["HLT_e3_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e5_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e5_etcut_pebtestfour_L1EM3"] = streamPhysicsPebtestfour
+stmaker.ChainToStream["HLT_mu6_pebtesttwo_L1MU6"] = streamCalibPebtesttwo
+stmaker.ChainToStream["HLT_mu6_pebtestfive_L1MU6"] = streamPhysicsPebtestfive
 
 ##### Result maker part 3 - HLT bits #####
 

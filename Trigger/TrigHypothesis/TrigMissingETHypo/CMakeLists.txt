@@ -25,11 +25,16 @@ atlas_add_component( TrigMissingETHypo
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent DecisionHandling  )
 
-atlas_add_test( TrigMissingETHypoConfigMT SCRIPT python -m TrigMissingETHypo.TrigMissingETHypoConfigMT
-                PROPERTIES TIMEOUT 300
-		        POST_EXEC_SCRIPT nopost.sh )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/TriggerConfig_*.py )
 
+# Unit tests:
+atlas_add_test( TrigMissingETHypoConfigMT SCRIPT python -m TrigMissingETHypo.TrigMissingETHypoConfigMT
+                PROPERTIES TIMEOUT 300
+		        POST_EXEC_SCRIPT nopost.sh )
+
+# Check Python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

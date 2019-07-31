@@ -42,7 +42,6 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileGeoModel.TileGMConfig import TileGMCfg    
     acc.merge( TileGMCfg( flags ) )
-    acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
     from RegionSelector.RegSelConfig import regSelCfg
     acc.merge( regSelCfg( flags ) )

@@ -51,6 +51,8 @@
     m_tree->Branch("ncell",&m_nsymcell,"ncell/I");
     m_tree->Branch("nevt_total",&m_nevt_total,"nevt_total/I");
     m_tree->Branch("identifier",m_identifier,"identifier[ncell]/I");
+    m_tree->Branch("region",m_region,"region[ncell]/I");
+    m_tree->Branch("ieta",m_ieta,"ieta[ncell]/I");
     m_tree->Branch("layer",m_layer,"layer[ncell]/I");
     m_tree->Branch("region",m_region,"region[ncell]/I");
     m_tree->Branch("ieta",m_ieta,"ieta[ncell]/I");
@@ -157,6 +159,8 @@
            const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
            cell.eta =  calodde->eta();
            cell.phi = calodde->phi();
+           cell.region = m_calo_id->region(id);
+           cell.ieta = m_calo_id->eta(id);
            cell.layer = m_calo_id->calo_sample(id);
            cell.region = m_calo_id->region(id);
            cell.ieta = m_calo_id->eta(id);
@@ -171,7 +175,7 @@
         }
       }
       ATH_MSG_INFO(" --- number of symmetric cells found " << nsym << " " << m_CellList.size());
-      if (nsym>=MAX_SYM_CELLS) ATH_MSG_ERROR(" More than allowed number of symmetric cells... Fix array size for ntuple writing !!!! ");
+      if (nsym>=MAX_SYM_CELLS) ATH_MSG_ERROR(" More than "<<MAX_SYM_CELLS<<" number of symmetric cells... Fix array size for ntuple writing !!!! ");
       m_nsymcell=nsym;
       m_first=false;
     }

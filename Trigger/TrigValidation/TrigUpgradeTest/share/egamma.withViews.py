@@ -8,16 +8,14 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from TrigUpgradeTest.InDetSetup import inDetSetup
-inDetSetup()
 
-CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
-                     "HLT_e5_etcut":  "L1_EM3",
-                     "HLT_e7_etcut":  "L1_EM7",
-                     "HLT_2e3_etcut": "L1_2EM3",
-                     "HLT_e3_e5_etcut":"L1_2EM3"}
+CTPToChainMapping = {"HLT_e3_etcut_L1EM3": "L1_EM3",
+                     "HLT_e5_etcut_L1EM3":  "L1_EM3",
+                     "HLT_e7_etcut_L1EM7":  "L1_EM7",
+                     "HLT_2e3_etcut_L1EM3": "L1_2EM3",
+                     "HLT_e3_e5_etcut_L1EM3":"L1_2EM3"}
 
-topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut_L1EM3:2", "HLT_2e3_etcut_L1EM3:2.5"]
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
@@ -43,7 +41,6 @@ def createFastCaloSequence(rerun=False):
 
 
    clusterMaker.ClustersName=clustersKey
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    
    #from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -129,6 +126,7 @@ l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
 l2ElectronViewsMaker.ViewFallThrough = True
+l2ElectronViewsMaker.RequireParentView = True
 l2ElectronViewsMaker.InputMakerOutputDecisions = ["L2ElectronLinks"]
 
 for viewAlg in viewAlgs:
@@ -140,7 +138,7 @@ theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
 
 electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
 
-l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
+l2ElectronViewsMaker.ViewNodeName = electronInViewAlgs.name()
 
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT

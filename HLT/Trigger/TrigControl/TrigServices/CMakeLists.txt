@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamData
-                          Event/EventInfo
+                          Event/EventInfoUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODCnvInterfaces
                           GaudiKernel
@@ -41,7 +41,7 @@ atlas_add_library( TrigServicesLib
                    src/*.cxx
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities ByteStreamCnvSvcLib ByteStreamData EventInfo xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigOutputHandlingLib )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities ByteStreamCnvSvcLib ByteStreamData EventInfoUtils xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigOutputHandlingLib )
 
 atlas_add_component( TrigServices
                      src/components/*.cxx

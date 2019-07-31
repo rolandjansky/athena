@@ -167,7 +167,6 @@ class GenerateMenuMT(object):
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             self.triggerConfigHLT.allChainConfigs.append(chainConfig)
-
         return self.triggerConfigHLT.allChainConfigs
 
 
@@ -193,7 +192,9 @@ class GenerateMenuMT(object):
                 self.signaturesToGenerate.append(sig)
                 log.debug('Signatures to generate %s', sig)
             else:
-                log.debug('Signature %s is not switched on', sig)
+                log.debug('Signature %s is not switched on (no chains in menu or disabled by flag)', sig)
+        
+        log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")
@@ -227,14 +228,21 @@ class GenerateMenuMT(object):
                             continue
                         else:
                             exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + ss + 'ChainDefs')                
-                            self.availableSignatures.append(ss)                        
+                            if ss not in self.availableSignatures:
+                                self.availableSignatures.append(ss)                        
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
 
+        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
+
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4, depth=8)
+
+
 
         # split the the chainDictionaries for each chain and print them in a pretty way
-        chainDicts = splitInterSignatureChainDict(mainChainDict)  
+        chainDicts = splitInterSignatureChainDict(mainChainDict) 
 
         if log.isEnabledFor(logging.DEBUG):
             import pprint
@@ -322,12 +330,15 @@ class GenerateMenuMT(object):
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
             log.debug('ChainName %s', cc.name)
-            log.debug('  L1Seed %s', cc.seed)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
-                log.info(step)
+                log.debug(step)
 
         makeHLTTree(HLTChains=finalListOfChainConfigs, newJO=False, triggerConfigHLT = self.triggerConfigHLT)
         # the return values used for debugging, might be removed later
+
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+        generateJSON( None )
+
         return finalListOfChainConfigs
             

@@ -54,8 +54,8 @@ namespace InDet {
     CompetingTRT_DriftCirclesOnTrack(const CompetingTRT_DriftCirclesOnTrack& compROT);
     //! Assignment operator
     CompetingTRT_DriftCirclesOnTrack& operator=(const CompetingTRT_DriftCirclesOnTrack& compROT);
-    /** Default move assignment operator */
-    CompetingTRT_DriftCirclesOnTrack& operator=(CompetingTRT_DriftCirclesOnTrack&& compROT) = default;
+    /** Move assignment operator */
+    CompetingTRT_DriftCirclesOnTrack& operator=(CompetingTRT_DriftCirclesOnTrack&& compROT);
     
 
     /** @brief Constructor with all parameters: PLEASE do not use directly,

@@ -130,8 +130,7 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
   s6.append("|");
 
   std::vector<SiDetElementsLayer_xk>* layer[3];
-  std::lock_guard<std::mutex> lock{m_mutex};
-  getLayers(layer);
+  std::unique_lock<std::mutex> lock{getLayers(layer)};
 
   int maps = 0;
   if (layer[0]->size()) ++maps;
@@ -313,9 +312,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   if (!m_usePIX && !m_useSCT) return;
 
   std::vector<SiDetElementsLayer_xk>* layer[3];
-  std::lock_guard<std::mutex> lock{m_mutex};
-  getLayers(layer);
-
+  std::unique_lock<std::mutex> lock{getLayers(layer)};
 
   std::list<Amg::Vector3D>::iterator g=GP.begin(), ge=GP.end();
   float Po[6] = {static_cast<float>((*g).x()), static_cast<float>((*g).y()), static_cast<float>((*g).z()),
@@ -747,9 +744,10 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
   return CB;
 }
 
-void InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const {
+std::unique_lock<std::mutex> InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   CacheEntry* ent{m_cache.get(ctx)};
+  std::unique_lock lock(ent->m_mutex);
   if (ent->m_evt!=ctx.evt()) {
     SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec{m_layerVecKey, ctx};
     if (not layerVec.isValid()) {
@@ -766,4 +764,6 @@ void InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_
   layer[0] = &(ent->m_layerVectors[0]);
   layer[1] = &(ent->m_layerVectors[1]);
   layer[2] = &(ent->m_layerVectors[2]);
+
+  return lock;
 }

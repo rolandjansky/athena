@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -397,7 +397,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minScoreShareTracks   = 0.0
            InDetAmbiTrackSelectionTool.minTRTHits            = 0
            InDetAmbiTrackSelectionTool.sharedProbCut         = 0.1
-         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiTrackSelectionTool.ObserverTool             = TrackObserverTool     #observerTool
            InDetAmbiTrackSelectionTool.MonitorAmbiguitySolving  = True
         
@@ -516,7 +516,7 @@ class  ConfiguredNewTrackingSiPattern:
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiguityProcessor.OutputLevel = VERBOSE
          
-         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "DBM"):
             InDetAmbiguityProcessor.ObserverTool             = TrackObserverTool     #observerTool
             InDetAmbiguityProcessor.MonitorAmbiguitySolving  = True
 

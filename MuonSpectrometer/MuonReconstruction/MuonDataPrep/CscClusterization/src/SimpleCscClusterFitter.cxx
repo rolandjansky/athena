@@ -78,7 +78,7 @@ namespace {
 SimpleCscClusterFitter::
 SimpleCscClusterFitter(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr)
-  , m_alignmentTool("CscAlignmentTool/CscAlignmentTool")
+  , m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
   declareProperty("position_option", m_option = "MEAN",

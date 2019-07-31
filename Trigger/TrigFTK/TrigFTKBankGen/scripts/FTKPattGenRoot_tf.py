@@ -152,61 +152,111 @@ def addFTKPattGenArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                         help='Number of trials of the trackInvertion function', 
                         group='FTKPattGenRoot')
+# track parameters
+# these define the track parameter ranges in which tracks are generated
+    parser.add_argument('--track_phi_min', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter phi min', 
+                        group='FTKPattGenRoot')
 
-    # --- further options
-    parser.add_argument('--phi_min', 
+    parser.add_argument('--track_phi_max', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter phi max', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_c_min', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter c min', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_c_max', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter c max', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_d0_min', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter d0 min', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_d0_max', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter d0 max', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_z0_min', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter z0 min', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_z0_max', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter z0 max', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_eta_min', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter eta min', 
+                        group='FTKPattGenRoot')
+
+    parser.add_argument('--track_eta_max', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+                        help='Track parameter eta max', 
+                        group='FTKPattGenRoot')
+
+# slice parameters
+# these have to be CONSISTENT with sector and constant production 
+# For new (spring 2019) sector and constant production,
+# the slice parameters are saved in the slice file
+# and there is no ned to set them here 
+    parser.add_argument('--slice_phi_min', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter phi min', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--phi_max', 
+    parser.add_argument('--slice_phi_max', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter phi max', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--c_min', 
+    parser.add_argument('--slice_c_min', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter c min', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--c_max', 
+    parser.add_argument('--slice_c_max', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter c max', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--d0_min', 
+    parser.add_argument('--slice_d0_min', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter d0 min', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--d0_max', 
+    parser.add_argument('--slice_d0_max', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter d0 max', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--z0_min', 
+    parser.add_argument('--slice_z0_min', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter z0 min', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--z0_max', 
+    parser.add_argument('--slice_z0_max', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter z0 max', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--eta_min', 
+    parser.add_argument('--slice_cot_min', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter eta min', 
                         group='FTKPattGenRoot')
 
-    parser.add_argument('--eta_max', 
+    parser.add_argument('--slice_cot_max', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='Slice parameter eta max', 
-                        group='FTKPattGenRoot')
-
-    parser.add_argument('--d0_alpha', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
-                        help='exponent for d0 distribution', 
                         group='FTKPattGenRoot')
 
     parser.add_argument('--keep7of8', 

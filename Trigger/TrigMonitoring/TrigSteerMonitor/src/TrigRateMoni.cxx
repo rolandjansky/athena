@@ -28,7 +28,7 @@
 #include "TrigSteering/TrigSteer.h"
 
 #include "TrigRateMoni.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 
 
  
@@ -439,11 +439,11 @@ StatusCode TrigRateMoni::finalHists() {
 
 void TrigRateMoni::updatePublished(unsigned int /*oldinterval*/, unsigned duration, const time_t& t) {
   // scale down buffer
-  lock_histogram_operation<TH2F>(m_published)->Reset();
+  oh_lock_histogram<TH2F>(m_published)->Reset();
   if ( duration == 0 )
-    lock_histogram_operation<TH2F>(m_published)->Add(m_buffer, 1./(double)m_duration);
+    oh_lock_histogram<TH2F>(m_published)->Add(m_buffer, 1./(double)m_duration);
   else 
-    lock_histogram_operation<TH2F>(m_published)->Add(m_buffer, 1./duration);
+    oh_lock_histogram<TH2F>(m_published)->Add(m_buffer, 1./duration);
   m_buffer->Reset();
   fillAbsoluteTime(t);
 }
@@ -457,7 +457,7 @@ void TrigRateMoni::fillAbsoluteTime(const time_t& t) {
   // break the time into day of year, hour, minute, second
   tm tmstr;
   localtime_r(&t, &tmstr);
-  scoped_lock_histogram lock;
+  oh_scoped_lock_histogram lock;
   int bin = m_published->GetNbinsX();
   // use +1 as this enums were defined to be used in Fill
   m_published->SetBinContent(bin, input+1,    tmstr.tm_yday);  

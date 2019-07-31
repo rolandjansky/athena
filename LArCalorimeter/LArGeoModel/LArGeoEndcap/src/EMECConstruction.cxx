@@ -447,112 +447,112 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 //Description of nonsensitive pieces:*
 // ***********************************
 
-  if(m_fullGeo) {
-    double z0;
+    if(m_fullGeo) {
+        double z0;
 
-    // Volumes for FRONT and BACK support structures
-	int FrontIndx = 0, BackIndx = 1;
-	if(m_hasInnerWheel && !m_hasOuterWheel){
-		FrontIndx = 10;
-		BackIndx = 11;
-	} else if(m_hasOuterWheel && !m_hasInnerWheel){
-		FrontIndx = 12;
-		BackIndx = 13;
-	}
+        // Volumes for FRONT and BACK support structures
+        EMECSupportConstruction::type_t
+            FrontSupp = EMECSupportConstruction::Front,
+            BackSupp = EMECSupportConstruction::Back;
+        if(m_hasInnerWheel && !m_hasOuterWheel){
+            FrontSupp = EMECSupportConstruction::FrontInner;
+            BackSupp = EMECSupportConstruction::BackInner;
+        } else if(m_hasOuterWheel && !m_hasInnerWheel){
+            FrontSupp = EMECSupportConstruction::FrontOuter;
+            BackSupp = EMECSupportConstruction::BackOuter;
+        }
 
-	IRDBRecordset_ptr DMpcons =
-		pAccessSvc->getRecordsetPtr("EmecDMPCons", larVersionKey.tag(), larVersionKey.node());
-	if(DMpcons->size() == 0){
-		DMpcons = pAccessSvc->getRecordsetPtr("EmecDMPCons", "EmecDMPCons-00");
-	}
-	IRDBRecordset_ptr DB_EMECmn =
-		pAccessSvc->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
-	if(DB_EMECmn->size() == 0)
-		DB_EMECmn = pAccessSvc->getRecordsetPtr("EmecMagicNumbers","EMECMagigNumbers-00");
+        IRDBRecordset_ptr DMpcons =
+            pAccessSvc->getRecordsetPtr("EmecDMPCons", larVersionKey.tag(), larVersionKey.node());
+        if(DMpcons->size() == 0){
+            DMpcons = pAccessSvc->getRecordsetPtr("EmecDMPCons", "EmecDMPCons-00");
+        }
+        IRDBRecordset_ptr DB_EMECmn =
+            pAccessSvc->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node());
+        if(DB_EMECmn->size() == 0)
+            DB_EMECmn = pAccessSvc->getRecordsetPtr("EmecMagicNumbers","EMECMagigNumbers-00");
 
-	double front_shift = 0.*Gaudi::Units::mm, back_shift = 0.*Gaudi::Units::mm;
-	try {
-		for(unsigned int i = 0; i < DMpcons->size(); ++ i){
-			std::string object = (*DMpcons)[i]->getString("PCONNAME");
-			if(object == "FrontSupportMother"){
-				int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-				if(zplane == 0) front_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-				else if(zplane == 1) front_shift -= (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-				else continue;
-			} else if(object == "BackSupportMother"){
-				int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-				if(zplane == 0) back_shift -= 0.;//(*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-				else if(zplane == 1) back_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-				else continue;
-			}
-		}
-		double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE")*Gaudi::Units::mm;
-		front_shift += reftoactive;
-		back_shift += LArTotalThickness - reftoactive;
-	}
-	catch (...){
-		front_shift = -50.*Gaudi::Units::mm; // start of EMEC envelop in the cryo.(length of env=630.)
-		back_shift = 580.*Gaudi::Units::mm;
-		std::cout << "EMECConstruction: WARNING: cannot get front|back_shift from DB"
-		          << std::endl;
-	}
+        double front_shift = 0.*Gaudi::Units::mm, back_shift = 0.*Gaudi::Units::mm;
+        try {
+            for(unsigned int i = 0; i < DMpcons->size(); ++ i){
+                std::string object = (*DMpcons)[i]->getString("PCONNAME");
+                if(object == "FrontSupportMother"){
+                    int zplane = (*DMpcons)[i]->getInt("NZPLANE");
+                    if(zplane == 0) front_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else if(zplane == 1) front_shift -= (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else continue;
+                } else if(object == "BackSupportMother"){
+                    int zplane = (*DMpcons)[i]->getInt("NZPLANE");
+                    if(zplane == 0) back_shift -= 0.;//(*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else if(zplane == 1) back_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else continue;
+                }
+            }
+            double reftoactive = (*DB_EMECmn)[0]->getDouble("REFTOACTIVE")*Gaudi::Units::mm;
+            front_shift += reftoactive;
+            back_shift += LArTotalThickness - reftoactive;
+        }
+        catch (...){
+            front_shift = -50.*Gaudi::Units::mm; // start of EMEC envelop in the cryo.(length of env=630.)
+            back_shift = 580.*Gaudi::Units::mm;
+            std::cout << "EMECConstruction: WARNING: cannot get front|back_shift from DB"
+                    << std::endl;
+        }
 //std::cout << "EMECConstruction : " << front_shift << " " << back_shift << std::endl;
-    z0 = zWheelRefPoint + front_shift;
-    EMECSupportConstruction *fsc = 0;
-    if(m_isTB) fsc = new EMECSupportConstruction(FrontIndx, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
-    else fsc = new EMECSupportConstruction(FrontIndx);
-    GeoPhysVol* physicalFSM = fsc->GetEnvelope();
-    emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
-    emecMotherPhysical->add(refSystemTransform);
-    emecMotherPhysical->add(physicalFSM);
-    delete fsc;
+        z0 = zWheelRefPoint + front_shift;
+        EMECSupportConstruction *fsc = 0;
+        if(m_isTB) fsc = new EMECSupportConstruction(FrontSupp, bPos, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
+        else fsc = new EMECSupportConstruction(FrontSupp, bPos);
+        GeoPhysVol* physicalFSM = fsc->GetEnvelope();
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
+        emecMotherPhysical->add(refSystemTransform);
+        emecMotherPhysical->add(physicalFSM);
+        delete fsc;
 
-    z0 = zWheelRefPoint + back_shift; // end of EMEC envelop in the cryo.
-    EMECSupportConstruction *bsc = 0;
-    if(m_isTB) bsc = new EMECSupportConstruction(BackIndx, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
-    else bsc = new EMECSupportConstruction(BackIndx);
-    GeoPhysVol *physicalBSM = bsc->GetEnvelope();
-    GeoTrf::Transform3D rotBSM(GeoTrf::RotateX3D(-M_PI));
-    if(m_isTB) rotBSM = GeoTrf::RotateZ3D(M_PI)*rotBSM;
-    emecMotherPhysical->add(refSystemTransform);
-    emecMotherPhysical->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(0., 0., z0)*rotBSM)));
-    emecMotherPhysical->add(physicalBSM);
-    delete bsc;
+        z0 = zWheelRefPoint + back_shift; // end of EMEC envelop in the cryo.
+        EMECSupportConstruction *bsc = 0;
+        if(m_isTB) bsc = new EMECSupportConstruction(BackSupp, bPos, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
+        else bsc = new EMECSupportConstruction(BackSupp, bPos);
+        GeoPhysVol *physicalBSM = bsc->GetEnvelope();
+        GeoTrf::Transform3D rotBSM(GeoTrf::RotateX3D(-M_PI));
+        if(m_isTB) rotBSM = GeoTrf::RotateZ3D(M_PI)*rotBSM;
+        emecMotherPhysical->add(refSystemTransform);
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translate3D(0., 0., z0)*rotBSM)));
+        emecMotherPhysical->add(physicalBSM);
+        delete bsc;
 
+        z0 = zWheelRefPoint + LArTotalThickness * 0.5; //dist. to middle of sens vol. along z  from WRP
+        EMECSupportConstruction *osc = 0;
+        if(m_isTB) osc = new EMECSupportConstruction(EMECSupportConstruction::Outer, bPos, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
+        else osc = new EMECSupportConstruction(EMECSupportConstruction::Outer, bPos);
+        GeoPhysVol *physicalOSM = osc->GetEnvelope();
+        emecMotherPhysical->add(refSystemTransform);
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
+        emecMotherPhysical->add(physicalOSM);
+        delete osc;
 
-    z0 = zWheelRefPoint + LArTotalThickness * 0.5; //dist. to middle of sens vol. along z  from WRP
-    EMECSupportConstruction *osc = 0;
-    if(m_isTB) osc = new EMECSupportConstruction(2, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
-    else osc = new EMECSupportConstruction(2);
-    GeoPhysVol *physicalOSM = osc->GetEnvelope();
-    emecMotherPhysical->add(refSystemTransform);
-    emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
-    emecMotherPhysical->add(physicalOSM);
-    delete osc;
+        z0 = zWheelRefPoint + LArTotalThickness * 0.5;
+        EMECSupportConstruction *isc = 0;
+        if(m_isTB) isc = new EMECSupportConstruction(EMECSupportConstruction::Inner, bPos, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
+        else isc = new EMECSupportConstruction(EMECSupportConstruction::Inner, bPos);
+        GeoPhysVol *physicalISM = isc->GetEnvelope();
+        emecMotherPhysical->add(refSystemTransform);
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
+        emecMotherPhysical->add(physicalISM);
+        delete isc;
 
+        z0 = zWheelRefPoint + LArTotalThickness * 0.5;
+        EMECSupportConstruction *msc = 0;
+        if(m_isTB) msc = new EMECSupportConstruction(EMECSupportConstruction::Middle, bPos, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
+        else msc = new EMECSupportConstruction(EMECSupportConstruction::Middle, bPos);
+        GeoPhysVol *physicalMSM = msc->GetEnvelope();
+        emecMotherPhysical->add(refSystemTransform);
+        emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
+        emecMotherPhysical->add(physicalMSM);
+        delete msc;
+    }
 
-    z0 = zWheelRefPoint + LArTotalThickness * 0.5;
-    EMECSupportConstruction *isc = 0;
-    if(m_isTB) isc = new EMECSupportConstruction(3, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
-    else isc = new EMECSupportConstruction(3);
-    GeoPhysVol *physicalISM = isc->GetEnvelope();
-    emecMotherPhysical->add(refSystemTransform);
-    emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
-    emecMotherPhysical->add(physicalISM);
-    delete isc;
-
-    z0 = zWheelRefPoint + LArTotalThickness * 0.5;
-    EMECSupportConstruction *msc = 0;
-    if(m_isTB) msc = new EMECSupportConstruction(4, true, "LAr::EMEC::", Gaudi::Units::halfpi*Gaudi::Units::rad);
-    else msc = new EMECSupportConstruction(4);
-    GeoPhysVol *physicalMSM = msc->GetEnvelope();
-    emecMotherPhysical->add(refSystemTransform);
-    emecMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(z0)));
-    emecMotherPhysical->add(physicalMSM);
-    delete msc;
-  }
-
-	return emecMotherPhysical;
+    return emecMotherPhysical;
 }
 
 void LArGeo::EMECConstruction::setFullGeo(bool flag)

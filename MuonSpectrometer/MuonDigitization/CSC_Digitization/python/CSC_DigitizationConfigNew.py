@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
@@ -64,15 +63,14 @@ def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
     return acc
-    
+
 def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with CscDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+CSC_DIGITS")
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.Legacy.EventStore + "+CSC_SDO")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "CSC_DIGITS")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "CSC_SDO")
     acc.setPrivateTools(CscDigitizationTool(name, **kwargs))
     return acc
 

@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from TGC_Digitization.TGC_DigitizationConf import TgcDigitizationTool, TGCDigitizer
@@ -55,11 +54,10 @@ def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
 def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with TgcDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+TGC_DIGITS")
-    if not flags.Detector.Overlay:
-        kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+TGC_SDO")
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TGC_DIGITS")
+    if not flags.Overlay.DataOverlay:
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TGC_SDO")
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 

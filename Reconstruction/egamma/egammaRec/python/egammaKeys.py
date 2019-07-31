@@ -22,6 +22,7 @@ class egammaKeysDict:
   outputs = dict(
     Conversion =    [ 'xAOD::VertexContainer', 'GSFConversionVertices','-vxTrackAtVertex.' , ''],
     Cluster  =      [ 'xAOD::CaloClusterContainer', 'egammaClusters', '','' ],
+    EgammaLargeClusters  =  [ 'xAOD::CaloClusterContainer', 'egamma711Clusters', '','' ],  # not output to AOD
     TopoSeededCluster  = [ 'xAOD::CaloClusterContainer', 'egammaTopoSeededClusters', '','-CellLink' ],
     Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '',ShowerShapesSuppress+ElectronisemSupress ],
     EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '','' ],
@@ -38,6 +39,7 @@ class egammaKeysDict:
   outputs['CellLink'] = ['CaloClusterCellLinkContainer', outputs['Cluster'][1] + '_links', '','']
   outputs['TopoSeededCellLink'] = ['CaloClusterCellLinkContainer', outputs['TopoSeededCluster'][1] + '_links', '','']
   outputs['FwdClusterCellLink'] = ['CaloClusterCellLinkContainer', outputs['FwdCluster'][1] + '_links', '','']
+  outputs['EgammaLargeClustersCellLink'] = ['CaloClusterCellLinkContainer', outputs['EgammaLargeClusters'][1] + '_links', '','']
   #
 
 # Create methods to return the types and keys in inputs and outputs

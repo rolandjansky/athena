@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBTOOLBASE_H
@@ -23,6 +23,7 @@
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "CscCalibTools/ICscCalibTool.h"
 
+#include <atomic>
 #include <inttypes.h>
 #include <vector>
 #include "TMath.h"
@@ -126,8 +127,8 @@ public:
   virtual double getLatency() const override final;
 
 
-  mutable int m_messageCnt_t0base;
-  mutable int m_messageCnt_t0phase;
+  mutable std::atomic_int m_messageCnt_t0base;
+  mutable std::atomic_int m_messageCnt_t0phase;
   //private:
   //  ../src/CscCalibTool.cxx: In member function 'virtual bool CscCalibTool::stripT0phase(uint32_t) const':
   //  ../src/CscCalibTool.cxx:351: error: increment of data-member 'CscCalibTool::m_messageCnt_t0phase' in read-only structure

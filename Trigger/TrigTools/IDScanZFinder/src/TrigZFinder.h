@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef   __TRIGZFINDER_H__
-#define   __TRIGZFINDER_H__
+#ifndef   IDSCANZFINDER_TRIGZFINDER_H
+#define   IDSCANZFINDER_TRIGZFINDER_H
 
 #include <string>
 #include <vector>
@@ -46,7 +46,8 @@ class TrigZFinder: public TrigZFinderInternal, public AthAlgTool, virtual public
   
   virtual StatusCode initialize() override;
 
-  TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi);
+  virtual
+  TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi) override;
 
   /// no private data members - all inherited from the TrigZFinderInternal class
   /// NB: BE CAREFUL !!! Nothing set with a job option should EVER be changed 

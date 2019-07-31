@@ -366,6 +366,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
         InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
         InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK
+        InDetTrigAmbiguityProcessor.SuppressHoleSearch=True # Hole search makes no sense for FTK tracks as they are limited to 12 hits
         #InDetTrigAmbiguityProcessor.RefitPrds = 
 
       if InDetTrigFlags.materialInteractions() and InDetTrigFlags.solenoidOn():

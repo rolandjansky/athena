@@ -1,26 +1,25 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from logging import getLogger; log = getLogger("DCSC2.tile")
-from .lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, 
-                  DCSC_Variable_With_Mapping, OUT_OF_CONFIG, GoodIOV)
+from logging import getLogger; log = getLogger("DCSCalculator2.tile")
+from ..lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, 
+                   DCSC_Variable_With_Mapping, OUT_OF_CONFIG, GoodIOV)
+
+from itertools import product
+
+from TileCalibBlobObjs.Classes import (
+    TileCalibDrawerBch, TileBchDecoder, TileBchStatus, TileCalibUtils, TileBchPrbs)
+
+# Magic, needed for functioning coral Blob
+try:
+    import PyCintex as C
+except Exception:
+    import cppyy as C
+Blob = C.gbl.coral.Blob
 
 WHITE, BLACK, GREY, RED, YELLOW, GREEN = None, -1, 0, 1, 2, 3
 
 TILBA, TILBC, TIEBA, TIEBC = 232, 233, 234, 235
 N_CHANNELS_PER_MODULE = [90]*148+[64]*14+[60]+[64]*66+[60]+[64]*46
-
-from itertools import product
-
-# Magic, needed for functioning coral Blob
-try:
-    import PyCintex as C
-except:
-    import cppyy as C
-import PyCool 
-Blob = C.gbl.coral.Blob
-
-from TileCalibBlobObjs.Classes import (
-    TileCalibDrawerBch, TileBchDecoder, TileBchStatus, TileCalibUtils, TileBchPrbs)
 
 def make_blob(string):
     b = Blob()

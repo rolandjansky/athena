@@ -28,9 +28,7 @@ namespace MuonCalib {
    @author Martin Woudstra, Niels van Eldik
 */
 
-//TODO: Use public extends<AthAlgTool, IInterface> here. Then you can construct the base class using base_class.
-
-class MdtCalibrationTool : virtual public IInterface, public AthAlgTool {
+class MdtCalibrationTool : public extends<AthAlgTool, IInterface> {
 public:
   /** constructor */
   MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent);
@@ -74,30 +72,30 @@ public:
       of the distance of the reconstructed track from the anode wire instead of the drift
       radius
   */
-  bool driftRadiusFromTime( MdtCalibHit &hit, double signedTrackLength, double triggerTime = 0.0, bool resolFromRtrack=false );
+  bool driftRadiusFromTime( MdtCalibHit &hit, double signedTrackLength, double triggerTime = 0.0, bool resolFromRtrack=false ) const;
 
   /** Convert the raw MDT time (+charge) into a drift radius + error.
       It returns whether the conversion was successful.
        
   */
-  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcSettings &settings, bool resolFromRtrack=false  );
+  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcSettings &settings, bool resolFromRtrack=false  ) const;
 
   /** Convert the raw MDT time (+charge) into a drift radius + error.
       It returns whether the conversion was successful.
        
   */
-  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  );
+  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  ) const;
 
   /** TDC bin size. 25/32 ns for all MDT/sMDT, except BMG=0.2ns */
-  double tdcBinSize(const Identifier &id);
+  double tdcBinSize(const Identifier &id) const;
 
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */
-  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, double signedTrackLength, double twinSignedTrackLength, bool &twinDigitIsPrompt, double triggerTime = 0.0 );
+  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, double signedTrackLength, double twinSignedTrackLength, bool &twinDigitIsPrompt, double triggerTime = 0.0 ) const;
    
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */
-  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcInput &twinInputData, const MdtCalibrationSvcSettings &settings, bool &twinDigitIsPrompt );
+  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcInput &twinInputData, const MdtCalibrationSvcSettings &settings, bool &twinDigitIsPrompt ) const;
    
   /** Return status of drift time: in window, above/below window (with upper/lower bounds described by the settings) or invalid.
       @return @c Muon::MdtDriftCircleStatus saying whether the drift time comes before, during or after the bounds of the drift time spectrum.
@@ -105,14 +103,14 @@ public:
       @param[in] rtRelation is used to obtain the upper and lower limits of the r(t) relation.
       @param[in] settings define the extra window around the r(t) relationship bounds that is acceptable.
   */
-  Muon::MdtDriftCircleStatus driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings );
+  Muon::MdtDriftCircleStatus driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings ) const;
    
 private:
 
   /// please don't add any data members here!!
   /// they should be added to Imp to keep the class free from data exposed to clients
   class Imp;
-  Imp *m_imp;
+  std::unique_ptr<Imp> m_imp;
 
   ToolHandle<MdtCalibrationDbTool> m_dbTool;
 

@@ -35,6 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/CxxUtils
                           Control/StoreGate
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           Event/EventInfo
                           MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCalib/MuonCalibEvent
@@ -55,7 +56,7 @@ atlas_add_library( TrigL2MuonSALib
                      src/*.cxx
                      PUBLIC_HEADERS TrigL2MuonSA
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities )
 
 atlas_add_component( TrigL2MuonSA
                      src/*.cxx
@@ -67,3 +68,7 @@ atlas_install_headers( TrigL2MuonSA )
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrelSP_new.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut share/pt_comb_sigma.lut share/pt_comb_mean.lut)
 
+atlas_add_test( MdtDataPreparator_test
+  SCRIPT python -m TrigL2MuonSA.MdtDataPreparator_test
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "-s dead tube" )

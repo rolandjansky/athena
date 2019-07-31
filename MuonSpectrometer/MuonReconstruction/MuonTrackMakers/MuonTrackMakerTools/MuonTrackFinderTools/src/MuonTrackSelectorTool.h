@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKSELECTOR_H
@@ -11,6 +11,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 
+#include <atomic>
 #include <string>
 #include <set>
 #include <vector>
@@ -123,19 +124,19 @@ namespace Muon {
     };
 
     /** counter for statistics */
-    mutable unsigned int m_ntotalTracks;
-    mutable unsigned int m_failedChi2NDofCut;
-    mutable unsigned int m_failedSingleStationCut;
-    mutable unsigned int m_failedRPCAveMinTimeCut;
-    mutable unsigned int m_failedRPCAveMaxTimeCut;
-    mutable unsigned int m_failedRPCSpreadTimeCut;
-    mutable unsigned int m_failedTwoStationsCut; 
-    mutable unsigned int m_failedTwoStationsMaxMDTHoleCut;
-    mutable unsigned int m_failedTwoStationsMaxHoleCut;
-    mutable unsigned int m_failedTwoStationsGoodStationCut;
-    mutable unsigned int m_failedTriggerStationCut;
-    mutable unsigned int m_failedMaxMDTHoleCut;
-    mutable unsigned int m_failedMaxHoleCut;
+    mutable std::atomic_uint m_ntotalTracks;
+    mutable std::atomic_uint m_failedChi2NDofCut;
+    mutable std::atomic_uint m_failedSingleStationCut;
+    mutable std::atomic_uint m_failedRPCAveMinTimeCut;
+    mutable std::atomic_uint m_failedRPCAveMaxTimeCut;
+    mutable std::atomic_uint m_failedRPCSpreadTimeCut;
+    mutable std::atomic_uint m_failedTwoStationsCut; 
+    mutable std::atomic_uint m_failedTwoStationsMaxMDTHoleCut;
+    mutable std::atomic_uint m_failedTwoStationsMaxHoleCut;
+    mutable std::atomic_uint m_failedTwoStationsGoodStationCut;
+    mutable std::atomic_uint m_failedTriggerStationCut;
+    mutable std::atomic_uint m_failedMaxMDTHoleCut;
+    mutable std::atomic_uint m_failedMaxHoleCut;
 
   };
 

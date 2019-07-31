@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-class InDetCacheNames:
+class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
@@ -115,6 +115,18 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
 
+  acc.merge(addFolders(flags, "/PIXEL/ReadoutSpeed", "PIXEL", className="AthenaAttributeList"))
+  acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
+  acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+  acc.addCondAlgo(PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+  acc.addCondAlgo(PixelCablingCondAlg(name="PixelCablingCondAlg"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+  acc.addCondAlgo(PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg"))
 
   from AthenaCommon.CfgGetter import getService
   PixelCablingSvc = getService("PixelCablingSvc")
@@ -443,5 +455,4 @@ if __name__ == "__main__":
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
-    print 'All ok'
-    
+    print('All ok')

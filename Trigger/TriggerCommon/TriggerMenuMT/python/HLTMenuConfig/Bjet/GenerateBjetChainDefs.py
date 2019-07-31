@@ -5,7 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef import BjetChainConfiguration as B
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Bjet.generateChainConfigs' )
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Bjet.GenerateBjetChainConfigs' )
 log.info("Importing %s",__name__)
 
 
@@ -27,14 +27,12 @@ def generateChainConfigs( chainDict ):
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
+        log.warning("Implement case for multi-bjet chain!!") 
         theChainDef = listOfChainDefs[0] #needs to be implemented properly
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef.name: %s" , theChainDef.name)
-    log.debug("theChainDef.seed: %s" , theChainDef.seed)
-    log.debug("theChainDef.ChainSteps: %s" , theChainDef.steps)
+    log.debug("theChainDef: %s" , theChainDef)
 
     return theChainDef
 

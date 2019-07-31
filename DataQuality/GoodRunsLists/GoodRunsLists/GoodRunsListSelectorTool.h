@@ -47,7 +47,7 @@ class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGood
   /// Initialize AlgTool
   StatusCode initialize();
   /// called for each event by EventSelector to decide if the event should be passed
-  bool passEvent(const EventInfo* pEvent) ;
+  bool passEvent(const EventIDBase& pEvent) ;
   /// Finalize AlgTool
   StatusCode finalize();
 

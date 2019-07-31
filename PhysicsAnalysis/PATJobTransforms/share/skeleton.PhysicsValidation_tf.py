@@ -1,3 +1,5 @@
+from future.utils import iteritems
+
 ###############################################################
 #
 # Skeleton top job options for Physics Validation
@@ -108,7 +110,7 @@ monMan.FileKey = "PhysVal"
 
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile
-for validationType, enabled in validationDict.iteritems():
+for validationType, enabled in iteritems(validationDict):
     if enabled:
         JOFile = 'PhysValMonitoring/PhysVal{0}_jobOptions.py'.format(validationType)
         if findFile(os.environ['JOBOPTSEARCHPATH'], JOFile):
@@ -146,3 +148,14 @@ if hasattr(runArgs,"postExec"):
         exec(cmd)
 
 
+# Temporary (July 19) trigger additions
+if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
+  ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite";
+  ToolSvc.TrigDecisionTool.TrigConfigSvc="Trig::TrigConfigSvc/TrigConfigSvc";
+  ServiceMgr.TrigConfigSvc.PriorityList=["run3_dummy", "xml"]
+  from TrigConfigSvc.TrigConfigSvcConfig import (findFileInXMLPATH,  LVL1ConfigSvc, L1TopoConfigSvc)
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  ServiceMgr += LVL1ConfigSvc("LVL1ConfigSvc")
+  ServiceMgr += L1TopoConfigSvc()
+  ServiceMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1ConfigFile.replace('newJO_', ''))
+  ServiceMgr.L1TopoConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1TopoConfigFile)

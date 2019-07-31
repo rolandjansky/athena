@@ -43,9 +43,11 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing
@@ -112,6 +114,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( MuonContainer );
   DEF_XAOD_KEY( TauJetContainer );
   DEF_XAOD_KEY( CaloClusterContainer );
+  DEF_XAOD_KEY( JetContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY
@@ -150,7 +153,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
     const SG::ReadHandleKeyArray< ViewContainer >& views;
   };
 
-  StatusCode fixLinks( const ConstHandlesGroup< xAOD::TrigCompositeContainer >& handles ) const;
+  StatusCode fixLinks() const;
 
   template<typename T, typename G, typename M >
     StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, 

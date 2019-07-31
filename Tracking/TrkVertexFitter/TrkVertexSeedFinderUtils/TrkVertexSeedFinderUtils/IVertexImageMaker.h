@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,10 +15,6 @@
 
 namespace Trk
 {
-
-  //                                                          What does 1,0 mean here???
-  static const InterfaceID IID_IVERTEXIMAGEMAKER("IVertexImageMaker", 1, 0);
-
   /**
    @class IVertexImageMaker
 
@@ -40,15 +36,13 @@ namespace Trk
   class IVertexImageMaker : virtual public IAlgTool {
 
      public:
+       DeclareInterfaceID( IVertexImageMaker, 1, 0);
 
-       /** Virtual destructor */
-       virtual ~IVertexImageMaker(){};
-
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IVERTEXIMAGEMAKER; };
 
        //Return a vertex image from the tracks centered around the constraint
-       virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint ) = 0;
+       virtual std::unique_ptr<VertexImage>
+       makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,
+                        const xAOD::Vertex * constraint ) const = 0;
   };
 }
 

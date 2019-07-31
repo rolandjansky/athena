@@ -5,10 +5,71 @@
 # Purpose: Configure LuminosityCondAlg.
 #
 
-# xxx lumicondalg to handle no-input case.
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import AthSequencer
+
+
+_isOnline = False
+
+
+def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
+                              suffix = '',
+                              isOnline = None):
+    if name == None:
+        name = 'LuminosityCondAlg' + suffix
+
+    mlog = logging.getLogger(name)
+    condSeq = AthSequencer ('AthCondSeq')
+
+    global _isOnline
+    if hasattr (condSeq, name):
+        if isOnline and not _isOnline and suffix == '':
+            mlog.error ('Inconsistent isOnline setting')
+            return None
+        return getattr (condSeq, name)
+
+    if suffix != '':
+        pass
+    elif isOnline:
+        _isOnline = True
+    else:
+        isOnline = _isOnline
+
+    kwargs = {}
+
+    from IOVDbSvc.CondDB import conddb
+    if isOnline:
+         kwargs = configureOnlineLuminosityCondAlg (name)
+
+    elif conddb.isMC:
+         mlog.info("LuminosityCondAlgDefault called for MC!")
+         kwargs = configureLuminosityCondAlgMC (name)
+
+    elif conddb.dbdata == "COMP200":
+        kwargs = configureLuminosityCondAlgRun1 (name)
+
+    elif conddb.dbdata == "CONDBR2":
+        kwargs = configureLuminosityCondAlgRun2 (name)
+
+    else:
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        kwargs = configureLuminosityCondAlgRun2 (name)
+    
+    from LumiBlockComps.LumiBlockCompsConf import \
+        LuminosityCondAlg
+
+    alg = LuminosityCondAlg (name,
+                             LuminosityOutputKey = 'LuminosityCondData' + suffix,
+                             **kwargs)
+    condSeq += alg
+
+    return alg
+
+
+def LuminosityCondAlgOnlineDefault (name = None,
+                                    suffix = ''):
+    return LuminosityCondAlgDefault (name = name, suffix = suffix,
+                                     isOnline = True)
 
 
 def configureLuminosityCondAlgMC (name):
@@ -31,17 +92,16 @@ def configureLuminosityCondAlgRun2 (name):
     from RecExConfig.RecFlags import rec
 
     # Check if this is express stream or bulk
-    if rec.doExpressProcessing():
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if rec.doExpressProcessing() or athenaCommonFlags.isOnline:
         lumiFolder  = "/TRIGGER/LUMI/OnlPrefLumi"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_ONL', lumiFolder,
-                             className = 'CondAttrListCollection')
+        conddb.addFolder('TRIGGER_ONL', lumiFolder,
+                         className = 'CondAttrListCollection')
 
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/OflPrefLumi"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_OFL', lumiFolder,
-                             className = 'CondAttrListCollection')
+        conddb.addFolder('TRIGGER_OFL', lumiFolder,
+                         className = 'CondAttrListCollection')
 
     mlog.info("configureLuminosityCondAlgRun2 requested %s", lumiFolder)
     kwargs['LuminosityFolderInputKey'] = lumiFolder
@@ -52,7 +112,7 @@ def configureLuminosityCondAlgRun2 (name):
     from CoolLumiUtilities.OnlineLumiCalibrationCondAlgDefault \
         import OnlineLumiCalibrationCondAlgDefault
     calibAlg = OnlineLumiCalibrationCondAlgDefault()
-    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey
+    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey if calibAlg else ''
     
     # Other folder names should be blank.
     kwargs['BunchLumisInputKey'] = ''
@@ -75,17 +135,15 @@ def configureLuminosityCondAlgRun1 (name):
     # Check if this is express stream or bulk
     if rec.doExpressProcessing():
         lumiFolder  = "/TRIGGER/LUMI/LBLESTONL"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_ONL', lumiFolder,
-                             className = 'CondAttrListCollection')
-            mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
+        conddb.addFolder('TRIGGER_ONL', lumiFolder,
+                         className = 'CondAttrListCollection')
+        mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
 
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/LBLESTOFL"
-        if not conddb.folderRequested( lumiFolder ):
-            conddb.addFolder('TRIGGER_OFL', lumiFolder,
-                             className = 'CondAttrListCollection')
-            mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
+        conddb.addFolder('TRIGGER_OFL', lumiFolder,
+                         className = 'CondAttrListCollection')
+        mlog.info("configureLuminosityCondAlgRun1 requested %s", lumiFolder)
 
     kwargs['LuminosityFolderInputKey'] = lumiFolder
 
@@ -113,64 +171,31 @@ def configureLuminosityCondAlgRun1 (name):
     return kwargs
 
 
-def LuminosityCondAlgDefault (name = 'LuminosityCondAlg', kwargs = None):
-    mlog = logging.getLogger(name)
-    condSeq = AthSequencer ('AthCondSeq')
-
-    if hasattr (condSeq, name):
-        return getattr (condSeq, name)
-
-    from IOVDbSvc.CondDB import conddb
-    if kwargs != None:
-        pass
-
-    elif conddb.isMC:
-         mlog.info("LuminosityCondAlgDefault called for MC!")
-         kwargs = configureLuminosityCondAlgMC (name)
-
-    elif conddb.dbdata == "COMP200":
-        kwargs = configureLuminosityCondAlgRun1 (name)
-
-    elif conddb.dbdata == "CONDBR2":
-        kwargs = configureLuminosityCondAlgRun2 (name)
-
-    else:
-        mlog.warning("LuminosityToolDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
-        kwargs = configureLuminosityCondAlgRun2 (name)
-    
-    from LumiBlockComps.LumiBlockCompsConf import \
-        LuminosityCondAlg
-
-    alg = LuminosityCondAlg (name,
-                             LuminosityOutputKey = 'LuminosityCondData',
-                             **kwargs)
-    condSeq += alg
-
-    return alg
-
-
-def LuminosityCondAlgOnline (name = 'LuminosityCondAlg'):
+# Configuration for online use
+def configureOnlineLuminosityCondAlg (name):
     mlog = logging.getLogger(name)
 
     kwargs = {}
 
     # Keep values for invalid data
     kwargs['SkipInvalid'] = False
-        
+
     from IOVDbSvc.CondDB import conddb
     if conddb.dbdata == "COMP200": # Run1
         folder  = "/TRIGGER/LUMI/LBLESTONL"
         conddb.addFolder('TRIGGER_ONL', folder,
                          className = 'CondAttrListCollection')
       
-    else: #  Run 2
-        if conddb.dbdata != "CONDBR2":
-            mlog.warning("LuminosityToolOnline can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
-            mlog.info("Using Run 2 configuration")
-
+    elif conddb.dbdata == "CONDBR2": # Run2
         folder  = "/TRIGGER/LUMI/HLTPrefLumi"
         conddb.addFolder('TRIGGER_ONL', folder,
                          className = 'CondAttrListCollection')
+
+    else: #  Run 2
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        mlog.info("Using dummy Run 2 configuration")
+        folder = ''
+
 
     kwargs['LuminosityFolderInputKey'] = folder
     mlog.info("Created online %s using folder %s" % (name, folder))
@@ -179,7 +204,7 @@ def LuminosityCondAlgOnline (name = 'LuminosityCondAlg'):
     from CoolLumiUtilities.OnlineLumiCalibrationCondAlgDefault \
         import OnlineLumiCalibrationCondAlgDefault
     calibAlg = OnlineLumiCalibrationCondAlgDefault()
-    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey
+    kwargs['OnlineLumiCalibrationInputKey'] = calibAlg.LumiCalibOutputKey if calibAlg else ''
     
     # Other folder names should be blank.
     kwargs['BunchLumisInputKey'] = ''

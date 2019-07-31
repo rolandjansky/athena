@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.FilePeekerTool
 # @purpose peek into APR files to read in-file metadata without Athena (based on PyAthena.FilePeekerLib code by Sebastian Binet) 
 # @author Alexandre Vaniachine <vaniachine@anl.gov>
 # @date May 2015
+
+from __future__ import print_function
 
 __version__= "$Revision: 734431 $"
 __author__ = "Alexandre Vaniachine <vaniachine@anl.gov>"
@@ -37,15 +39,15 @@ class FilePeekerTool():
             (os.getpid(), uuid.uuid4())
             )
         stdout = open(stdout_fname, "w")
-        print >> stdout,"Extracting in-file metadata without athena sub-process from file", self.f.GetName()
-        print >> stdout,"="*80
+        print ("Extracting in-file metadata without athena sub-process from file", self.f.GetName(), file=stdout)
+        print ("="*80, file=stdout)
         stdout.flush()
 
         pool = self.f.Get("##Params")
         import re
-        pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]' r'[[]VALUE=(?P<value>.*?)[]]').match
+        pool_token = re.compile(r'[\[]NAME=(?P<name>.*?)[]]' r'[\[]VALUE=(?P<value>.*?)[]]').match
         params = []
-        for i in xrange(pool.GetEntries()):
+        for i in range(pool.GetEntries()):
             if pool.GetEntry(i)>0:
                 match = pool_token(pool.FindLeaf("db_string").GetValueString())
                 if not match:
@@ -86,7 +88,7 @@ class FilePeekerTool():
                 break
 
         if esiTypeName != 'EventStreamInfo_p3':
-            print >> stdout, "old schema is not supported:", esiTypeName
+            print ("old schema is not supported:", esiTypeName, file=stdout)
             return {}
 
         import cppyy
@@ -103,7 +105,7 @@ class FilePeekerTool():
 
         peeked_data['run_type'] = ['N/A']
 
-        print >> stdout,  peeked_data
+        print (peeked_data, file=stdout)
 
         peeked_data['nentries'] = esic.getNumberOfEvents(esi)
         peeked_data['lumi_block'] = list(esic.lumiBlockNumbers(esi))
@@ -128,7 +130,7 @@ class FilePeekerTool():
                 isa_idx = raw_bit_mask[idx]
                 return bit_mask_typecodes[idx][isa_idx]
             bm = map(decode_bitmask,
-                     xrange(len(bit_mask_typecodes)))
+                     range(len(bit_mask_typecodes)))
             return tuple(bm)
 
         def _get_detdescr_tags(evt_type):
@@ -150,10 +152,10 @@ class FilePeekerTool():
 
             peeked_data['mc_channel_number'] = [et.m_mc_channel_number]
             peeked_data['evt_number'] = [et.m_mc_event_number]
-            #print >> stdout,  'mc_event_number', et.m_mc_event_number
-            print >> stdout,  'mc_event_weights.size:', et.m_mc_event_weights.size()
-            print >> stdout,  'mc_event_weights value', et.m_mc_event_weights[0]
-            print >> stdout,  'user_type', et.m_user_type
+            #printf ('mc_event_number', et.m_mc_event_number, file=stdout)
+            print ('mc_event_weights.size:', et.m_mc_event_weights.size(), file=stdout)
+            print ('mc_event_weights value', et.m_mc_event_weights[0], file=stdout)
+            print ('user_type', et.m_user_type, file=stdout)
 
         # handle event-less files
         if peeked_data['nentries'] == 0:
@@ -220,7 +222,7 @@ class FilePeekerTool():
         obj = cppyy.gbl.IOVMetaDataContainer()
 
         def process_metadata(obj, metadata_name):
-            print >> stdout,  'processing container [%s]' % obj.folderName()
+            print ('processing container [%s]' % obj.folderName(), file=stdout)
             data = []
             payloads = obj.payloadContainer()
             payloads_sz = payloads.size()
@@ -232,43 +234,44 @@ class FilePeekerTool():
                     payloads.append(_tmp.at(ii))
                 pass
             for ii,payload in zip(range(payloads_sz), payloads):
-                #print >> stdout,  "-->",ii,payload,type(payload),'\n'
+                #print ("-->",ii,payload,type(payload),'\n', file=stdout)
                 if not payload:
-                    print >> stdout,  "**error** null-pointer ?"
+                    print ("**error** null-pointer ?", file=stdout)
                     continue
                 # names
                 chan_names = []
                 sz = payload.name_size()
-                print >> stdout,  '==names== (sz: %s)' % sz
-                for idx in xrange(sz):
+                print ('==names== (sz: %s)' % sz, file=stdout)
+                for idx in range(sz):
                     chan = payload.chanNum(idx)
                     chan_name = payload.chanName(chan)
-                    #print >> stdout,  '--> (%s, %s)' % (idx, chan_name)
+                    #print ('--> (%s, %s)' % (idx, chan_name), file=stdout)
                     chan_names.append(chan_name)
 
                 if 1: # we don't really care about those...
                 # iovs
                     sz = payload.iov_size()
-                    print >> stdout,  '==iovs== (sz: %s)' % sz
-                    for idx in xrange(sz):
+                    print ('==iovs== (sz: %s)' % sz, file=stdout)
+                    for idx in range(sz):
                         chan = payload.chanNum(idx)
                         iov_range = payload.iovRange(chan)
                         iov_start = iov_range.start()
                         iov_stop  = iov_range.stop()
                         if 0:
-                            print >> stdout,  '(%s, %s) => (%s, %s) valid=%s runEvt=%s' % (
+                            print ('(%s, %s) => (%s, %s) valid=%s runEvt=%s' % (
                                    iov_start.run(),
                                    iov_start.event(),
                                    iov_stop.run(),
                                    iov_stop.event(),
                                    iov_start.isValid(),
-                                   iov_start.isRunEvent())
+                                   iov_start.isRunEvent()),
+                                   file=stdout)
 
                 # attrs
                 attrs = [] # can't use a dict as spec.name() isn't unique
                 sz = payload.size()
-                print >> stdout,  '==attrs== (sz: %s)' % sz
-                for idx in xrange(sz):
+                print ('==attrs== (sz: %s)' % sz, file=stdout)
+                for idx in range(sz):
                     chan = payload.chanNum(idx)
                     attr_list = payload.attributeList(chan)
                     attr_data = []
@@ -283,13 +286,13 @@ class FilePeekerTool():
                             except Exception:
                                 # swallow and keep as a string
                                 pass
-#                           print >> stdout,  spec.name(),a_data
+#                           print (spec.name(),a_data, file=stdout)
                         else:
                             a_data = getattr(a,'data<%s>'%a_type)()
-                        #print >> stdout,  "%s: %s  %s" (spec.name(), a_data, type(a_data) )
+                        #print ("%s: %s  %s" (spec.name(), a_data, type(a_data) ), file=stdout)
                         attr_data.append( (spec.name(), a_data) )
                     attrs.append(dict(attr_data))
-                    #print >> stdout,  attrs[-1]
+                    #print (attrs[-1], file=stdout)
                 if len(attrs) == len(chan_names):
                     data.append(dict(zip(chan_names,attrs)))
                 else:
@@ -329,10 +332,10 @@ class FilePeekerTool():
                     try:
                         obj.payloadContainer().at(0).dump()
                     except Exception:
-                        print >> stdout,  l.GetName()
+                        print (l.GetName(), file=stdout)
                         pass
                 v = process_metadata(obj, k)
-                #print >> stdout,  obj.folderName(),v
+                #print (obj.folderName(),v, file=stdout)
                 flName = obj.folderName()
                 metadata[obj.folderName()] = maybe_get(v, -1)
 #            if flName[:15] == 'TriggerMenuAux.' and clName[:6] == 'vector': continue
@@ -397,21 +400,21 @@ class FilePeekerTool():
             peeked_data['det_descr_tags'] = {}
 
         ## -- summary
-        print >> stdout,  ':::::: summary ::::::'
-        print >> stdout,  ' - nbr events:  %s' % peeked_data['nentries']
-        print >> stdout,  ' - run numbers: %s' % peeked_data['run_number']
-        #print >> stdout,  ' - evt numbers: %s' % peeked_data['evt_number']
-        print >> stdout,  ' - lumiblocks: %s' % peeked_data['lumi_block']
-        print >> stdout,  ' - evt types: ', peeked_data['evt_type']
-        print >> stdout,  ' - item list: %s' % len(peeked_data['eventdata_items'])
-        #print >> stdout,  ' - item list: ', peeked_data['eventdata_items']
-        print >> stdout,  ' - processing tags: %s' % peeked_data['stream_names']
-        #print >> stdout,  ' - stream tags: %s' % peeked_data['stream_tags']
-        print >> stdout,  ' - geometry: %s' % peeked_data['geometry']
-        print >> stdout,  ' - conditions tag: %s' % peeked_data['conditions_tag']
-        #print >> stdout,  ' - metadata items: %s' % len(peeked_data['metadata_items'])
-        print >> stdout,  ' - tag-info: %s' % peeked_data['tag_info'].keys()
-        #print >> stdout,  ' - item list: ' % peeked_data['eventdata_items']
+        print (':::::: summary ::::::', file=stdout)
+        print (' - nbr events:  %s' % peeked_data['nentries'], file=stdout)
+        print (' - run numbers: %s' % peeked_data['run_number'], file=stdout)
+        #print (' - evt numbers: %s' % peeked_data['evt_number'], file=stdout)
+        print (' - lumiblocks: %s' % peeked_data['lumi_block'], file=stdout)
+        print (' - evt types: ', peeked_data['evt_type'], file=stdout)
+        print (' - item list: %s' % len(peeked_data['eventdata_items']), file=stdout)
+        #print (' - item list: ', peeked_data['eventdata_items'], file=stdout)
+        print (' - processing tags: %s' % peeked_data['stream_names'], file=stdout)
+        #print (' - stream tags: %s' % peeked_data['stream_tags'], file=stdout)
+        print (' - geometry: %s' % peeked_data['geometry'], file=stdout)
+        print (' - conditions tag: %s' % peeked_data['conditions_tag'], file=stdout)
+        #print (' - metadata items: %s' % len(peeked_data['metadata_items']), file=stdout)
+        print (' - tag-info: %s' % peeked_data['tag_info'].keys(), file=stdout)
+        #print (' - item list: ' % peeked_data['eventdata_items'], file=stdout)
         stdout.flush()
         stdout.close()
         #os.remove(stdout.name)                                                                                             

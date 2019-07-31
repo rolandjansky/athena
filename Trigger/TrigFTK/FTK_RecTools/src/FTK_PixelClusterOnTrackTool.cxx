@@ -397,7 +397,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = pix->width().colRow()[Trk::locX];
     int ncol = pix->width().colRow()[Trk::locX];
-    double ang = 999.;
+    double ang = 180 * angle * M_1_PI;
     double eta = 999.;
     ATH_MSG_VERBOSE(" row " << row << " col " << col << " nrows " << nrows << 
 		    " ncol " << ncol << " locX " << centroid.xPhi() << " locY " << centroid.xEta());

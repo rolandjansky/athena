@@ -11,7 +11,6 @@ from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from PartPropSvc.PartPropSvcConf import PartPropSvc
-from StoreGate.StoreGateConf import StoreGateSvc
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
@@ -107,9 +106,9 @@ def TRT_DigitizationSplitNoMergePUToolCfg(flags, name="TRT_DigitizationToolSplit
 def TRT_DigitizationOverlayToolCfg(flags, name="TRT_OverlayDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured Overlay TRT digitization tool"""
     acc = ComponentAccumulator()
-    acc.addService(StoreGateSvc(flags.Overlay.Legacy.EventStore))
-    kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+TRT_RDOs")
-    kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+TRT_SDO_Map")
+    kwargs.setdefault("OnlyUseContainerName", False)
+    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TRT_RDOs")
+    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("Override_getT0FromData", 0)
     kwargs.setdefault("Override_noiseInSimhits", 0)

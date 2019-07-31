@@ -9,10 +9,10 @@
 #include "TrigJetHypoAlgMT.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODJet/JetContainer.h"
-// #include "DecisionHandling/TrigCompositeUtils.h"
+
 #include "DecisionHandling/HypoBase.h"
 
-#include "ITrigJetHypoToolMT.h"
+#include "TrigJetHypoToolMT.h"
 
 /**
  * @class TrigJetHypoAlgMT
@@ -31,20 +31,29 @@ class TrigJetHypoAlgMT : public ::HypoBase {
  
  private:
 
-  StatusCode decide(const xAOD::JetContainer*,
-                    TrigCompositeUtils::DecisionContainer* newDecisions,
-                    const TrigCompositeUtils::DecisionContainer* previousDecisions
-		    /* , */
-                    /* const ToolHandle<ITrigJetHypoToolMT>&xs */
-		    ) const;
+/**
+ * @brief Populate outputDecisions and run all HypoTools over the jet 
+ * collection.
+ * @param[in] jets Input container of reco jets
+ * @param[in] previousDecision The Decision object from the previous step 
+ * (L1Decoder). Jet workflow specifies there to be exactly one previous 
+ * decision object.
+ * @param[out] outputDecisions Output container of Decision objects. 
+ * To be populated with one Decision object per jet, and these filled with IDs 
+ * of passing chains.
+ **/
 
+  StatusCode decide(const xAOD::JetContainer* jets,
+                    const TrigCompositeUtils::Decision* previousDecision,
+                    TrigCompositeUtils::DecisionContainer* outputDecisions
+                    ) const;
 
-  ToolHandleArray<ITrigJetHypoToolMT> m_hypoTools {
+  
+  ToolHandleArray<TrigJetHypoToolMT> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
      
   SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {
     this, "Jets", "Jets", "jet container key, full scan"};  
-  
   
 }; 
 

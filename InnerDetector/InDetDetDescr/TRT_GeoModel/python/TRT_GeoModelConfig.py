@@ -2,8 +2,6 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def TRT_GeometryCfg( flags ):
@@ -47,7 +45,7 @@ def TRT_GeometryCfg( flags ):
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align"))
-    if flags.Common.Project is not "AthSimulation": # Protection for AthSimulation builds
+    if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
         if (not flags.Detector.SimulateTRT) or flags.Detector.OverlayTRT:
             acc.addCondAlgo(TRTAlignCondAlg)
 

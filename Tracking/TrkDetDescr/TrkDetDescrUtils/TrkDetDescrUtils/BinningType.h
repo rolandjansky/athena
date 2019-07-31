@@ -11,31 +11,48 @@
 
 namespace Trk {
 
-  /** @enum BinningType, BinningOption & BinningAccess 
-     
-     - BinningType: 
-     
-       Enumeration to qualify the binning type for the use of the 
-       LayerArrayCreator and the TrackingVolumeArrayCreator 
+/** @enum BinningType, BinningOption & BinningAccess
 
-      - BinningOption:
-        open:   [0,max]
-        closed:  0 -> nextbin -> max
+   - BinningType:
 
-      - BinningAcces
-        necessary access to global positions
+     Enumeration to qualify the binning type for the use of the
+     LayerArrayCreator and the TrackingVolumeArrayCreator
 
-      @author Andreas.Salzburger@cern.ch
-     */
-  enum BinningType { equidistant, biequidistant, arbitrary };
-  
-  /** enum BinValue */
-  enum BinningOption { open, closed };
+    - BinningOption:
+      open:   [0,max]
+      closed:  0 -> nextbin -> max
 
-  /**  how to take the global / local position */                        
-  enum BinningValue { binX, binY, binZ, binR, binPhi, binRPhi, binH, binEta };
-  
-  
+    - BinningAcces
+      necessary access to global positions
+
+    @author Andreas.Salzburger@cern.ch
+   */
+enum BinningType
+{
+  equidistant,
+  biequidistant,
+  arbitrary
+};
+
+/** enum BinValue */
+enum BinningOption
+{
+  open,
+  closed
+};
+
+/**  how to take the global / local position */
+enum BinningValue
+{
+  binX,
+  binY,
+  binZ,
+  binR,
+  binPhi,
+  binRPhi,
+  binH,
+  binEta
+};
+
 }
 #endif
-

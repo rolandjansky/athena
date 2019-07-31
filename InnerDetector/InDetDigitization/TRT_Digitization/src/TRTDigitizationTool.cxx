@@ -118,11 +118,16 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_TRTsimdrifttimetool.retrieve());
   ATH_MSG_DEBUG ( "Retrieved the Sim. Drifttime Tool" );
 
-  // Initialize ReadHandleKey
-  if (!m_hitsContainerKey.key().empty()) {
-    ATH_MSG_INFO("Loading single input HITS");
+  // Check data object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL ( "Property DataObjectName not set!" );
+    return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+  m_dataObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // Initialize data handle keys
   ATH_CHECK(m_outputRDOCollName.initialize());
@@ -143,13 +148,6 @@ StatusCode TRTDigitizationTool::initialize()
   //Retrieve TRT_StrawNeighbourService.
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
-  // Check data object name
-  if (m_dataObjectName == "")  {
-    ATH_MSG_FATAL ( "Property DataObjectName not set!" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
-  }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -496,7 +494,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
   TimedHitCollection<TRTUncompressedHit> thpctrt;
   // In case of single hits container just load the collection using read handles
-  if (!m_hitsContainerKey.key().empty()) {
+  if (!m_onlyUseContainerName) {
     SG::ReadHandle<TRTUncompressedHitCollection> hitCollection(m_hitsContainerKey);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get TRTUncompressedHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
@@ -507,7 +505,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
     thpctrt.reserve(1);
 
     // create a new hits collection
-    m_thpctrt->insert(0, hitCollection.cptr());
+    thpctrt.insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollection->size() << " hits");
   }
   else {

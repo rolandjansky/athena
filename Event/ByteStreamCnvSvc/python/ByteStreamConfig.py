@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def TrigBSReadCfg( inputFlags ):
+def ByteStreamReadCfg( inputFlags ):
     """
     Creates accumulator for BS reading
     """
@@ -34,7 +34,7 @@ def TrigBSReadCfg( inputFlags ):
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name();
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
     eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
     acc.addService( bsCnvSvc )
 
@@ -54,7 +54,8 @@ def TrigBSReadCfg( inputFlags ):
     bsMetaDataTool = ByteStreamMetadataTool()
     acc.addPublicTool( bsMetaDataTool )
     
-    from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
+    from StoreGate.StoreGateConf import StoreGateSvc
+    from SGComps.SGCompsConf import ProxyProviderSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
     acc.addService( metaDataStore )
     inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
@@ -74,12 +75,18 @@ def TrigBSReadCfg( inputFlags ):
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
     acc.addService( ByteStreamAttListMetadataSvc() )
     
-           
-    # this is trigger specific and should only be loaded if some doTrigger flags is set
-    # or it should be moved elsewhere, however, since there is no better location now let is stick here
-    bsCnvSvc.InitCnvs += [ "EventInfo",
-                        "HLT::HLTResult" ]
+    bsCnvSvc.InitCnvs += [ "EventInfo",]
+
+    return acc
+
+def TrigBSReadCfg(inputFlags):
+    acc=ByteStreamReadCfg( inputFlags )
+
+    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
+    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
     
+    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
+
     bsAddressProviderSvc.TypeNames += [
         "TileCellIDC/TileCellIDC",
         "MdtDigitContainer/MDT_DIGITS",
@@ -102,8 +109,10 @@ def TrigBSReadCfg( inputFlags ):
 
 
     
-    if inputFlags.Input.isMC == False:        
+    if inputFlags.Input.isMC is False:
         bsCnvSvc.GetDetectorMask=True
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
         #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
@@ -121,5 +130,4 @@ if __name__ == "__main__":
 
     acc = TrigBSReadCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
-
+    print("All OK")

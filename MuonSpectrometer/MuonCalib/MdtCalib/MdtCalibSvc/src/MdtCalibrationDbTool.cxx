@@ -23,7 +23,7 @@
 #include "MdtCalibData/CalibFunc.h"
 
 MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_regionSvc("MdtCalibrationRegionSvc", name),
     m_mdtIdHelper(0),
     m_detStore("StoreGateSvc/DetectorStore", name)

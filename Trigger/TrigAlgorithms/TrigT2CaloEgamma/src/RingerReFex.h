@@ -62,7 +62,6 @@ class RingerReFex : public IReAlgToolCalo
         double m_etasz; // the width of rings, in eta
         double m_phisz; // the width of rings, in phi
         size_t m_maxCells; // the amount of cells to gather
-        size_t m_maxRings; // the amount of rings to gather
         // The vector of rings that will be used to hold the sum energy
         std::vector<double>  m_rings; // my current values
         std::vector<CaloSampling::CaloSample> m_samples; ///< I'm good for those

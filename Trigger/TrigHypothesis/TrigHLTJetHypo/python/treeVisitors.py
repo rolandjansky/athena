@@ -127,7 +127,6 @@ class SimpleConditionsDictMaker(object):
             toks = [t.strip() for t in toks]
 
             attributes2 = attributes[:]  # copy...
-
             for t in toks:
                 m = self.window_re.match(t)
                 if m is None:
@@ -148,18 +147,31 @@ class SimpleConditionsDictMaker(object):
                     if attr == 'eta':
                         attr_lo = 'eta_mins'
                         result[attr_lo].append(sf * float(lo))
-                        attributes2.remove(attr_lo)
+                        try:
+                            attributes2.remove(attr_lo)
+                        except ValueError, e:
+                            print attr_lo, 'appears twice in Conditions string?'
+                            raise e
                     elif attr == 'et':
                         attr = 'EtThresholds'
                         result[attr].append(sf * float(lo))
-                        attributes2.remove(attr)
+                        try:
+                            attributes2.remove(attr)
+                        except ValueError, e:
+                            print 'et appears twice in Conditions string?'
+                            raise e
+                            
                 if hi:
                     if attr == 'eta':
                         attr = 'eta_maxs'
 
                         attr_hi = 'eta_maxs'
                         result[attr_hi].append(sf * float(hi))
-                        attributes2.remove(attr_hi)
+                        try:
+                            attributes2.remove(attr_hi)
+                        except ValueError, e:
+                            print attr_hi, 'appears twice in Conditions string?'
+                            raise e
 
             # fill in unmentioned attributes with defaults:
             for a in attributes2:
@@ -329,7 +341,6 @@ class TreeParameterExpander_dijet(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
 
-
 class TreeParameterExpander_combgen(object):
     """Convert parameter string into a dictionary holding low, high window
     cut vals. Specialistaion for the combgen Tool
@@ -356,7 +367,7 @@ class TreeParameterExpander_combgen(object):
         parameters = parameters[len(m.groups()[0])+2:]
 
         cdm = SimpleConditionsDictMaker()
-        d, ok, msgs = cdm.makeDict(parameters)
+        d, error, msgs = cdm.makeDict(parameters)
         self.msgs.extend(msgs)
         node.conf_attrs.update(d)
         
@@ -367,6 +378,39 @@ class TreeParameterExpander_combgen(object):
             self.msgs.append('Error')
 
         
+    def report(self):
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+
+
+class TreeParameterExpander_partgen(object):
+    """Convert parameter string into a dictionary holding low, high window
+    cut vals. Specialistaion for the combgen Tool
+
+    parameter strings look like '40m,100deta200, 50dphi300'
+    """
+    
+    def __init__(self):
+        self.msgs = []
+
+    def mod(self, node):
+
+        parameters = node.parameters[:]
+ 
+        cdm = SimpleConditionsDictMaker()
+
+        d, error, msgs = cdm.makeDict(parameters)
+
+        self.msgs.extend(msgs)
+        node.conf_attrs = d
+        
+
+        if not error:
+            self.msgs = ['All OK']
+        else:
+            self.msgs.append('Error')
+
+        return d, error, msgs
+    
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -391,11 +435,14 @@ class TreeParameterExpander(object):
     
     router = {
         'simple': TreeParameterExpander_simple,
+        'simplepartition': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'not': TreeParameterExpander_null,
         'and': TreeParameterExpander_null,
         'or': TreeParameterExpander_null,
         'combgen': TreeParameterExpander_combgen,
+        'partgen': TreeParameterExpander_partgen,
+        'agree': TreeParameterExpander_null,
     }
 
     def __init__(self):

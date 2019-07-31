@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +299,7 @@ private:
   struct Cache{
     double  m_direction                                ;
     double  m_step                                     ;
-    double  m_maxPath                                  ;
+    double  m_maxPath                            =10000;
     double  m_field[3]                                 ;
     bool    m_maxPathLimit                       =false;
     bool    m_mcondition                         =false;
@@ -442,11 +442,13 @@ private:
   void getFieldGradient(Cache& cache, double*,double*,double*) const;
 
   //placeholder for compatibility with new interface
+  virtual
   const TrackSurfaceIntersection* intersectSurface(const Surface&,
                                                    const TrackSurfaceIntersection*,
                                                    const double,
                                                    const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const {return 0;}
+                                                   ParticleHypothesis) const override
+  {return 0;}
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private data members: 

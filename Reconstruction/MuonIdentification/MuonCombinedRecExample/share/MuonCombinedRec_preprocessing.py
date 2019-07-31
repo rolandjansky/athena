@@ -5,17 +5,6 @@
 include.block ("MuonCombinedRecExample/MuonCombinedRec_preprocessing.py")
 from AthenaCommon import CfgMgr
 #
-# Muon Calo Energy Container is needed even if Calo is Off: use the parametrized energy loss in that case - KAA
-if rec.doMuonCombined() and muonCombinedRecFlags.doAnyMuons() and DetFlags.Muon_on():
-    # Needed by MuonIsolationTools - whether calo is ON or OFF. In calo is Off use parametrized energy loss - KAA
-  
-    InitializeMuonCaloEnergy = CfgMgr.Rec__InitializeMuonCaloEnergy(
-        name                    = "InitializeMuonCaloEnergy",
-        MuonCaloEnergyContainer = "MuonCaloEnergyCollection"
-        )
-    topSequence += InitializeMuonCaloEnergy
-    if muonCombinedRecFlags.printConfigurables():
-        print InitializeMuonCaloEnergy
 
 if rec.doMuonCombined() and muonCombinedRecFlags.doMuonClusters() and ( rec.readAOD() or rec.readESD() or DetFlags.haveRIO.Calo_on() ):
     # hack until MuonClusterCollection is properly added to ObjKeyStore

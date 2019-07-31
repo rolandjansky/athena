@@ -70,7 +70,7 @@ topSequence += LArCellContFakeWriter( "LArCellContFakeWriter" )
 #--------------------------------------------------------------
 
 # Check the dictionary in memory for completeness
-#include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+#include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 svcMgr.AthenaSealSvc.CheckDictionary = True
 
 #--------------------------------------------------------------

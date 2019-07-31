@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_SEGMENTFINDER_H
@@ -61,7 +61,7 @@ namespace TrkDriftCircleMath {
     void  setUseChamberPhi( bool useChamberPhi );
     void  setRemoveSingleOutliers( bool removeSingleOutliers );
     void  setCurvedSegmentFinder( bool doCurvedSegmentFinder );
-    void  setFitter( DCSLFitter* fitter ) {
+    void  setFitter( const DCSLFitter* fitter ) {
       if( m_ownsFitter ) delete m_fitter;
       m_ownsFitter = false;
       m_fitter = fitter;
@@ -134,7 +134,7 @@ namespace TrkDriftCircleMath {
     mutable ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY> > m_segments;
     mutable TangentToCircles  m_tanCreator;
     bool                      m_ownsFitter;
-    mutable DCSLFitter*       m_fitter; 
+    mutable const DCSLFitter* m_fitter; 
     mutable DCSLHitSelector   m_hitSelector;
     mutable MatchDCWithLine   m_matchWithLine;
     mutable MatchCrossedTubes m_matchCrossed; 

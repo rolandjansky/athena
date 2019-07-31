@@ -9,6 +9,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
 
  /**
    * @class EventViewCreatorAlgorithmWithMuons
@@ -32,11 +33,13 @@ class EventViewCreatorAlgorithmWithMuons : public EventViewCreatorAlgorithm {
     EventViewCreatorAlgorithmWithMuons();
 
     SG::WriteHandleKey< ConstDataVector<xAOD::MuonContainer> > m_inViewMuons {this,"InViewMuons","Unspecified","Name with which the Muons should be inserted into the views"};
+    SG::WriteHandleKey< ConstDataVector<MuonCandidateCollection> > m_inViewMuonCandidates {this,"InViewMuonCandidates","Unspecified","Name with which the Muon Candidates should be inserted into the views"};
 
     Gaudi::Property< std::string > m_muonsLink {this,"MuonsLink","Unspecified","Name of EL to Muon object linked to the decision"};
     double m_roiEtaWidth;
     double m_roiPhiWidth;
     bool m_linkToParent;
+    bool m_doFSRoI;
 };
 
 #endif

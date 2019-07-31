@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "RVersion.h"
 
 //____________________________________________________________________
 template <class T>
@@ -505,7 +506,7 @@ inline void Flex2DHisto<T>::setBinError(unsigned binx, unsigned biny, const doub
 {
   //Weird root behaviour: For 2D version of setBinError we ignore rather than wrap:
    if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {//as in root
-#ifdef LW_STRICT_ROOT_BEHAVIOUR
+#if defined(LW_STRICT_ROOT_BEHAVIOUR) && ROOT_VERSION_CODE < ROOT_VERSION(6,18,0)
      m_flexArray.forcePretendSumWMode();
 #endif
      return;
@@ -523,10 +524,12 @@ inline void Flex2DHisto<T>::setBinContentAndError(unsigned binx, unsigned biny, 
 {
   if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {
 #ifdef LW_STRICT_ROOT_BEHAVIOUR
-    //Annoyingly enough, root has differnt behaviour for SetBinContent
+    //Annoyingly enough, root has different behaviour for SetBinContent
     //(wrap) and SetBinError (ignore) in this case:
     setBinContent(binx,biny,cont);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,18,0)
     m_flexArray.forcePretendSumWMode();
+#endif
 #endif
     return;
   }

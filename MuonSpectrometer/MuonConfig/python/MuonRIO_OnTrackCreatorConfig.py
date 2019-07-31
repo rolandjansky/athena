@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg, MdtCalibrationDbSvcCfg
@@ -8,11 +8,13 @@ from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClu
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
 
 def CscClusterOnTrackCreatorCfg(flags,**kwargs):
-    from  MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
-    
+    from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
+    from MuonRecExample.MuonRecTools import getMuonRIO_OnTrackErrorScalingCondAlg
+
     result=ComponentAccumulator()
     
-    acc, qrat = QratCscClusterFitterCfg(flags)
+    acc = QratCscClusterFitterCfg(flags)
+    qrat = acc.getPrimary()
     result.addPublicTool(qrat)
     result.merge(acc)
     
@@ -21,7 +23,7 @@ def CscClusterOnTrackCreatorCfg(flags,**kwargs):
     kwargs.setdefault("CscClusterFitter", qrat )
     # kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
     if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg
         createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
         kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")

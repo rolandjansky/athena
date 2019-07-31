@@ -42,7 +42,7 @@ include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
 #--------------------------------------------------------------
 # Make sure AthenaSealSvc is loaded for dict check
 #--------------------------------------------------------------
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 #--------------------------------------------------------------
 # Private Application Configuration options

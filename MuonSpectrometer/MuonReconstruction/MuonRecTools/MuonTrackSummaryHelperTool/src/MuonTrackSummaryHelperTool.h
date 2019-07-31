@@ -26,14 +26,6 @@
 #include <vector>
 #include <bitset>
 
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-class MdtIdHelper;
-// New Small Wheel
-class MmIdHelper;
-class sTgcIdHelper;
-
 class Identifier;
 
 namespace Trk {
@@ -70,11 +62,13 @@ namespace Muon {
                          std::vector<int>& information,
                          std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
+    virtual
     void searchForHoles(
                         const Trk::Track& track,
-                        std::vector<int>& information, Trk::ParticleHypothesis hyp) const;
+                        std::vector<int>& information, Trk::ParticleHypothesis hyp) const override;
 
-    void addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const;
+    virtual
+    void addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const override;
 
 private:
 
@@ -85,15 +79,6 @@ private:
 
     /**increment the 'type'*/
     void increment(int& type) const;
-
-    // muon IdHelpers
-    const RpcIdHelper* m_rpcId{nullptr};
-    const TgcIdHelper* m_tgcId{nullptr};
-    const CscIdHelper* m_cscId{nullptr};
-    const MdtIdHelper* m_mdtId{nullptr};
-    //New Small Wheel
-    const sTgcIdHelper* m_stgcId{nullptr};
-    const MmIdHelper* m_mmId{nullptr};
 
     /* used to work out layer ids etc*/
     ToolHandle<MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};

@@ -6,6 +6,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TROOT.h"
 
 #include "HistogramException.h"
 #include "HistogramFactory.h"
@@ -13,8 +14,14 @@
 using namespace Monitored;
 
 HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
-                                   std::string groupName)
-    : m_histSvc(histSvc), m_groupName(std::move(groupName)) {}
+                                   std::string histoPath)
+: m_histSvc(histSvc)
+{
+  size_t split = histoPath.find('/');
+  m_streamName = histoPath.substr(0,split);
+  m_groupName = split!=std::string::npos ? histoPath.substr(split) : "";
+}
+
 
 TNamed* HistogramFactory::create(const HistogramDef& def) {
   TNamed* rootObj(0);
@@ -128,6 +135,7 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Otherwise, create the efficiency and register it
   e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
   TGraph* g = reinterpret_cast<TGraph*>(e);
+  e->SetDirectory(gROOT);
   if ( !m_histSvc->regGraph(fullName,g) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
@@ -189,15 +197,15 @@ std::string HistogramFactory::getFullName(const HistogramDef& def) {
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   
   std::string path;
-  if( online.count( def.path) != 0 ) {
-    path =  "/" + def.path + "/" + m_groupName;
-  } else if ( def.path == "DEFAULT" ) {
-    path = "/" + m_groupName;
+  if ( online.count( def.path)!=0 ) {
+    path =  "/" + def.path + "/" + m_streamName + "/" + m_groupName;
+  } else if ( def.path=="DEFAULT" ) {
+    path = "/" + m_streamName + "/" + m_groupName;
   } else {
-    path = "/" + m_groupName + "/"+def.path; 
+    path = "/" + m_streamName + "/" + def.tld + "/" + m_groupName + "/" + def.path;
   }
-  
-  // remove duplicate
+
+  // remove duplicate slashes
   std::string fullName = path + "/" + def.alias;
   fullName.erase( std::unique( fullName.begin(), fullName.end(), 
     [](const char a, const char b) { 

@@ -15,7 +15,6 @@ EMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
       ExtrapolationTool  = EMExtrapolationToolsCache,
       broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2
       broadDeltaPhi      = 0.15,  #candidate match is done in 2 times this  so +- 0.3
-      useLastMeasurement = False, #important for GSF!!!
       useCandidateMatch  = True,
       useScoring         = True,
       SecondPassRescale  = True,

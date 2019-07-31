@@ -1,3 +1,5 @@
+from past.builtins import basestring
+
 ######################################################################
 #                                                                    #
 # Place holder for numerous common job options of skeleton.XXX files #
@@ -36,7 +38,7 @@ else: athenaCommonFlags.EvtMax=-1
 #RecExCommon configuration
 if hasattr(runArgs,"geometryVersion"):
     inputGeometryVersion = runArgs.geometryVersion
-    if type(inputGeometryVersion) == str and inputGeometryVersion.endswith("_VALIDATION"):
+    if isinstance(inputGeometryVersion, basestring) and inputGeometryVersion.endswith("_VALIDATION"):
         inputGeometryVersion = inputGeometryVersion.replace("_VALIDATION", "")
     globalflags.DetDescrVersion.set_Value_and_Lock( inputGeometryVersion )
 if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )

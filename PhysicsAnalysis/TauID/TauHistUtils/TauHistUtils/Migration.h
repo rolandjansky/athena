@@ -36,9 +36,10 @@ namespace Tau{
 	Migration(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
 	virtual ~Migration();
 
-	void fill(const xAOD::TauJet& tau,int nProng, int nNeu);
-	
-	//Tau::ParamPlots m_oParamPlots;
+	/* void fill(const xAOD::TauJet& tau,int nProng, int nNeu); */
+	void fill(
+	   const xAOD::TauJet& tau,
+	   xAOD::TauJetParameters::DecayMode trueMode);
 	
 	const char *m_lable[DECAYSIZE] = {
 	    "t10r10",
@@ -57,40 +58,15 @@ namespace Tau{
 	    "t1r3",
 	    "t3r1"
 	};
-	/*
-	    "t10r10",
-	    "t10r11",
-	    "t10r1x",
-	    "t10r30",
-	    "t10r3x",
-	    "t11r10",
-	    "t11r11",
-	    "t11r1x",
-	    "t11r30",
-	    "t11r3x",
-	    "t1xr10",
-	    "t1xr11",
-	    "t1xr1x",
-	    "t1xr30",
-	    "t1xr3x",
-	    "t30r10",
-	    "t30r11",
-	    "t30r1x",
-	    "t30r30",
-	    "t30r3x",
-	    "t3xr10",
-	    "t3xr11",
-	    "t3xr1x",
-	    "t3xr30",
-	    "t3xr3x"*/
 	
-	TH1* m_migration_tauRec;
-	TH1* m_migration_eflow;
+	TH1* m_migration_panTau;
+	TH1* m_migration_panTauProto;
 	TH1* m_migration_cellBased;
     private:
 	void initializePlots();
 	std::string m_sTauJetContainerName;
-	void decayModeFill(int trueP,int trueN,int recP, int recN,TH1 *histo);
+	void decayModeFill(int trueMode, int recMode, TH1 *histo);
+	void decayModeFill(int trueMode, int recP, int recN, TH1 *histo);
     };
     
 }

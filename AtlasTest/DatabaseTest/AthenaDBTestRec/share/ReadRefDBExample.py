@@ -23,7 +23,7 @@ svcMgr.IOVDbSvc.ManageConnections=False
 #--------------------------------------------------------------
 # Make sure AthenaSealSvc is loaded for dict check
 #--------------------------------------------------------------
-# include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+# include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 svcMgr.AthenaSealSvc.CheckDictionary=True
 
 #--------------------------------------------------------------

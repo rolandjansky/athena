@@ -28,6 +28,8 @@ import subprocess
 scriptTemplate = """#!/bin/sh
 touch %(runflag)s
 rm %(subflag)s
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase 
+%(cmdjobpreprocessing)s
 %(cmdsetup)s
 mkdir -p %(rundir)s
 cd %(rundir)s
@@ -35,14 +37,13 @@ echo "Preprocessing and copying files (`date`) ..."
 # Redirect TMPDIR to avoid problems with concurrent jobs
 %(maketmpdir)s
 export TMPDIR=`pwd`/tmp
-%(cmdjobpreprocessing)s
 %(cmdcopyfiles)s
 echo ''
 echo "Creating POOL file catalog (`date`) ..."
 %(cmddefinepoolcatalog)s
 echo ''
 echo "Running athena (`date`) ..."
-/usr/bin/time -p athena.py %(configfile)s %(joboptionpath)s
+/usr/bin/time -p athena.py %(configfile)s %(joboptionpath)s  
 status=$?
 touch %(exitflag)s
 echo $status > %(exitstatus)s
@@ -79,12 +80,11 @@ class JobRunnerParameter:
                 return "%-20s = %-20s" % (self.name,self.value)
 
 def GetRelease():
-    stamp = os.getenv('AtlasBuildStamp')
-    if stamp: # nightly
+    version = os.getenv('AtlasVersion')
+    if not version: # nightly
         branch = os.getenv('AtlasBuildBranch')
+        stamp = os.getenv('AtlasBuildStamp')
         version = ','.join([branch, stamp])
-    else:
-        version = os.getenv('AtlasVersion')
     project = os.getenv('AtlasProject')
     platform = os.getenv('%s_PLATFORM' % project, os.getenv('CMTCONFIG'))
     return ','.join([project, version] + platform.split('-'))

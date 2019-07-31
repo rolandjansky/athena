@@ -30,7 +30,8 @@
 #include "../TrigTauTrackRoiUpdaterMT.h"
 #include "../TrigTrackPreSelHypoAlgMT.h"
 #include "../TrigTrackPreSelHypoTool.h"
-
+#include "../TrigEFTauMVHypoTool.h"
+#include "../TrigEFTauMVHypoAlgMT.h"
 
 DECLARE_COMPONENT( T2CaloTauHypo )
 DECLARE_COMPONENT( T2IDTauHypo )
@@ -64,3 +65,5 @@ DECLARE_COMPONENT( TrigTauCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigTauTrackRoiUpdaterMT )
 DECLARE_COMPONENT( TrigTrackPreSelHypoAlgMT )
 DECLARE_COMPONENT( TrigTrackPreSelHypoTool )
+DECLARE_COMPONENT( TrigEFTauMVHypoAlgMT )
+DECLARE_COMPONENT( TrigEFTauMVHypoTool )

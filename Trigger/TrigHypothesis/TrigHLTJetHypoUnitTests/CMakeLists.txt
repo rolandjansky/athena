@@ -14,6 +14,20 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics )
 
+atlas_add_library( TrigHLTJetHypoUnitTestsLib
+                   exerciser/*.cxx
+                   PUBLIC_HEADERS TrigHLTJetHypoUnitTests
+                   # PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib TrigHLTJetHypoLib 
+                   # PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+		   )
+
+atlas_add_component( TrigHLTJetHypoUnitTests
+                     exerciser/components/*.cxx
+                     LINK_LIBRARIES  TrigHLTJetHypoUnitTestsLib)
+		     
+atlas_install_headers( TrigHLTJetHypoUnitTests )
+
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoTimerTest
    SOURCES src/Timer.cxx
@@ -33,10 +47,17 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    src/MaximumBipartiteGroupsMatcherMTTest.cxx
    src/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
    src/MultiJetMatcherTest.cxx
+   src/PartitionsGenTest.cxx
+   src/PartitionsGroupsMatcherMTTest.cxx
    src/OrderedCollectionsMatcherTest.cxx
    src/SelectedJetsMatcherTest.cxx
    src/TLorentzVectorFactoryTest.cxx
    src/TightCleanerTest.cxx
+   src/xAODJetCollectorTest.cxx
+   src/PartitionsGrouperTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
    TrigHLTJetHypoLib )
+   
+# Install files from the package:
+atlas_install_python_modules( python/*.py ) 

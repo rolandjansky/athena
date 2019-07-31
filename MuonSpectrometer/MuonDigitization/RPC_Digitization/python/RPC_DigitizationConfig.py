@@ -23,6 +23,7 @@ def getRpcRange(name="RpcRange", **kwargs):
 
 
 def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
+    import MuonCondAlg.RpcCondDbAlgConfig # MT-safe conditions access
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 
@@ -155,10 +156,15 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
 
 def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+RPC_DIGITS")
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+RPC_SDO")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName",overlayFlags.sigPrefix()+"RPC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.sigPrefix()+"RPC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+RPC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+RPC_SDO")
     return RpcDigitizationTool(name, **kwargs)
 
 def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):

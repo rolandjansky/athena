@@ -26,7 +26,7 @@ class FTK_RawInput : public FTKDataInput
   long int m_ntruth_tracks;        // number of truth tracks
 
   int nextFile();
-  
+
 public:
   FTK_RawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused = 0x0);
   FTK_RawInput(const FTK_RawInput& v);

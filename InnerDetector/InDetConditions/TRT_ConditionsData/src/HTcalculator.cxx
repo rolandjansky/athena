@@ -40,8 +40,7 @@ float HTcalculator::Limit(float prob){
   }
   else if( prob < 0.0 ){
     return 0.0;
-  }
-  
+  } 
   return prob;
 }
 
@@ -110,12 +109,6 @@ float HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  MsgStream log(Athena::getMessageSvc(),"HTcalculator");
-  log << MSG::DEBUG << "check       "
-		 << "  GammaOccupan: " << correctionPGOG
-		 << "  correctionSL: " << correctionSL
-		 << "  correctionZR: " << correctionZR
-		 << "  correctionTW: " << correctionTW << endmsg;
 
   return correctionPGOG * correctionSL * correctionZR * correctionTW;
 }
@@ -166,7 +159,6 @@ float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, flo
 
 StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    MsgStream log(Athena::getMessageSvc(),"HTcalculator");
-   log << MSG::DEBUG << "Set TRT HT PID Parameters from the Vector Database" << endmsg;
    if ( channel_values->size() < 1){
       log << MSG::ERROR << " There are no Pid channels available!!" << endmsg;
       return StatusCode::FAILURE;
@@ -175,7 +167,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
    CondAttrListVec::const_iterator last_channel  = channel_values->end();
 
-   log << MSG::DEBUG << "There are " << channel_values->size() << "  Channels " << endmsg;
    int inichan = 0;
    for (; first_channel != last_channel; ++first_channel) {
      switch(first_channel->first){
@@ -513,9 +504,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
 	}
     }
 
-   log << MSG::DEBUG << "We have read " << inichan << " good channels" << endmsg;
-   log << MSG::DEBUG << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << endmsg;
-
 
    for (int i = 0 ; i < N_DET; i++) {
      for (int j = 0 ; j < N_GAS; j++) {
@@ -532,7 +520,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    } 
   
    m_HasBeenInitialized=1;
-   log << MSG::INFO << " TRT PID HT Vector DB loaded: " << endmsg;
    return StatusCode::SUCCESS;
 }
 
@@ -556,6 +543,7 @@ void HTcalculator::setDefaultCalibrationConstants(){
   \*****************************************************************************/
 	//FIXME
   if (m_datainplace) return;  // Just to load 1 time
+  
   MsgStream log(Athena::getMessageSvc(),"HTcalculator");
   log << MSG::WARNING << " HT PID DB is NOT available. Set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns." << endmsg;
   m_HasBeenInitialized=1;

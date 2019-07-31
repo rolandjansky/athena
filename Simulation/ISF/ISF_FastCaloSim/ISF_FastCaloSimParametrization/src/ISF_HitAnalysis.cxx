@@ -26,6 +26,9 @@
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 
+//Track Record
+#include "TrackRecord/TrackRecordCollection.h"
+
 //CaloCell
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -159,6 +162,15 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_IDCaloBoundary_z(0)
    , m_newTTC_Angle3D(0)
    , m_newTTC_AngleEta(0)
+
+   , m_MuonEntryLayer_E(0)
+   , m_MuonEntryLayer_px(0)
+   , m_MuonEntryLayer_py(0)
+   , m_MuonEntryLayer_pz(0)
+   , m_MuonEntryLayer_x(0)
+   , m_MuonEntryLayer_y(0)
+   , m_MuonEntryLayer_z(0)
+   , m_MuonEntryLayer_pdg(0)
 
    , m_caloEntrance(0)
    , m_calo_tb_coord(0)
@@ -402,6 +414,74 @@ StatusCode ISF_HitAnalysis::initialize()
       return StatusCode::FAILURE;
     }
 
+  m_final_cell_energy = new std::vector<Float_t>;
+  m_final_hit_energy = new std::vector<Float_t>;
+  m_final_g4hit_energy = new std::vector<Float_t>;
+
+  m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_r = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_z = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
+  m_newTTC_back_eta = new std::vector<std::vector<float> >;
+  m_newTTC_back_phi = new std::vector<std::vector<float> >;
+  m_newTTC_back_r = new std::vector<std::vector<float> >;
+  m_newTTC_back_z = new std::vector<std::vector<float> >;
+  m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_back_OK = new std::vector<std::vector<bool> >;
+  m_newTTC_mid_eta = new std::vector<std::vector<float> >;
+  m_newTTC_mid_phi = new std::vector<std::vector<float> >;
+  m_newTTC_mid_r = new std::vector<std::vector<float> >;
+  m_newTTC_mid_z = new std::vector<std::vector<float> >;
+  m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
+  m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_r = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_z = new std::vector<float>;
+  m_newTTC_Angle3D = new std::vector<float>;
+  m_newTTC_AngleEta = new std::vector<float>;
+
+  m_MuonEntryLayer_E = new std::vector<float>;
+  m_MuonEntryLayer_px = new std::vector<float>;
+  m_MuonEntryLayer_py = new std::vector<float>;
+  m_MuonEntryLayer_pz = new std::vector<float>;
+  m_MuonEntryLayer_x = new std::vector<float>;
+  m_MuonEntryLayer_y = new std::vector<float>;
+  m_MuonEntryLayer_z = new std::vector<float>;
+  m_MuonEntryLayer_pdg = new std::vector<int>;
+
+
+  // Optional branches
+  if(m_saveAllBranches){
+    m_tree->Branch("HitX",                 &m_hit_x);
+    m_tree->Branch("HitY",                 &m_hit_y);
+    m_tree->Branch("HitZ",                 &m_hit_z);
+    m_tree->Branch("HitE",                 &m_hit_energy);
+    m_tree->Branch("HitT",                 &m_hit_time);
+    m_tree->Branch("HitIdentifier",        &m_hit_identifier);
+    m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
+    m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
+    m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
+    m_tree->Branch("HitIsHEC",             &m_islarhec);
+    m_tree->Branch("HitIsFCAL",            &m_islarfcal);
+    m_tree->Branch("HitIsTile",            &m_istile);
+    m_tree->Branch("HitSampling",          &m_hit_sampling);
+    m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
+
+    m_tree->Branch("CellIdentifier",       &m_cell_identifier);
+    m_tree->Branch("CellE",                &m_cell_energy);
+    m_tree->Branch("CellSampling",         &m_cell_sampling);
+
+    m_tree->Branch("G4HitE",               &m_g4hit_energy);
+    m_tree->Branch("G4HitT",               &m_g4hit_time);
+    m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
+    m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
+    m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
+    m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
+  }
+
   // Grab the Ntuple and histogramming service for the tree
   sc = service("THistSvc",m_thistSvc);
   if (sc.isFailure())
@@ -598,10 +678,17 @@ StatusCode ISF_HitAnalysis::initialize()
       m_tree->Branch("newTTC_Angle3D",&m_newTTC_Angle3D);
       m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
 
+      m_tree->Branch("MuonEntryLayer_E",&m_MuonEntryLayer_E);
+      m_tree->Branch("MuonEntryLayer_px",&m_MuonEntryLayer_px);
+      m_tree->Branch("MuonEntryLayer_py",&m_MuonEntryLayer_py);
+      m_tree->Branch("MuonEntryLayer_pz",&m_MuonEntryLayer_pz);
+      m_tree->Branch("MuonEntryLayer_x",&m_MuonEntryLayer_x);
+      m_tree->Branch("MuonEntryLayer_y",&m_MuonEntryLayer_y);
+      m_tree->Branch("MuonEntryLayer_z",&m_MuonEntryLayer_z);
+      m_tree->Branch("MuonEntryLayer_pdg",&m_MuonEntryLayer_pdg);
     }
   dummyFile->Close();
   return StatusCode::SUCCESS;
-
 } //initialize
 
 StatusCode ISF_HitAnalysis::finalize()
@@ -794,6 +881,16 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_IDCaloBoundary_z->clear();
  m_newTTC_Angle3D->clear();
  m_newTTC_AngleEta->clear();
+
+
+ m_MuonEntryLayer_E->clear();
+ m_MuonEntryLayer_x->clear();
+ m_MuonEntryLayer_y->clear();
+ m_MuonEntryLayer_z->clear();
+ m_MuonEntryLayer_px->clear();
+ m_MuonEntryLayer_py->clear();
+ m_MuonEntryLayer_pz->clear();
+
  //##########################
 
  //Get the FastCaloSim step info collection from store
@@ -1043,6 +1140,30 @@ StatusCode ISF_HitAnalysis::execute()
      } //mcevent size
    } //mcEvent
  }//truth event
+
+
+
+ //Retrieve and save MuonEntryLayer information 
+ const TrackRecordCollection *MuonEntry = nullptr;
+ ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ if (sc.isFailure())
+ {
+ ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
+ //return NULL;
+ }
+ else{
+  for ( const TrackRecord &record : *MuonEntry){
+    m_MuonEntryLayer_E->push_back((record).GetEnergy());
+    m_MuonEntryLayer_px->push_back((record).GetMomentum().getX());
+    m_MuonEntryLayer_py->push_back((record).GetMomentum().getY());
+    m_MuonEntryLayer_pz->push_back((record).GetMomentum().getZ());
+    m_MuonEntryLayer_x->push_back((record).GetPosition().getX());
+    m_MuonEntryLayer_y->push_back((record).GetPosition().getY());
+    m_MuonEntryLayer_z->push_back((record).GetPosition().getZ());
+    m_MuonEntryLayer_pdg->push_back((record).GetPDGCode());
+  }
+ }
+
 
  //Get reco cells if available
  const CaloCellContainer *cellColl = 0;

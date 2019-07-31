@@ -124,6 +124,10 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
   m_addCellsWindowPhiEndcap = m_addCellsWindowPhiCellsEndcap * s_cellPhiSize * 0.5;
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
   
+  // the +1 is to account for the offset in the centers of the clusters
+  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+
 }
 
 StatusCode egammaSuperClusterBuilder::initialize() {
@@ -137,7 +141,19 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   m_addCellsWindowEtaBarrel = m_addCellsWindowEtaCellsBarrel * s_cellEtaSize * 0.5;
   m_addCellsWindowPhiEndcap = m_addCellsWindowPhiCellsEndcap * s_cellPhiSize * 0.5;
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
- 
+
+  // the +1 is to account for the offset in the centers of the clusters
+  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+
+  if (m_addCellsWindowPhiCellsBarrel % 2 == 0 ||
+      m_addCellsWindowPhiCellsEndcap % 2 == 0 ||
+      m_addCellsWindowEtaCellsBarrel % 2 == 0 ||
+      m_addCellsWindowEtaCellsEndcap % 2 == 0) {
+    ATH_MSG_FATAL("For adding cells relative to the hottest cell to be symmetric, the AddCells window size needs to be odd");
+    return StatusCode::FAILURE;
+  }
+
   if (m_correctClusters) {
     ATH_CHECK(m_clusterCorrectionTool.retrieve());
   } else {
@@ -217,28 +233,29 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(clusters[0]);
   
   bool foundHotCell = findCentralPosition(etaRef, phiRef, isBarrel, clusters);
+  if (!foundHotCell) {
+    ATH_MSG_DEBUG("Did not find the hot cell; probably a cluster that will be filtered out later");
+  }
 
+  // thse are the same as the reference but in calo frame:
   float eta0 = etaRef;
   float phi0 = phiRef;
 
-  if (foundHotCell) {
-    //Get the hotest in raw co-ordinates
-    const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
-    if (!mgr) {
-      ATH_MSG_ERROR("Couldn't create instance of CaloDetDescrManager this should never happen");
-      return nullptr;
-    }
-    CaloCell_ID::CaloSample xsample = (isBarrel) ? CaloCell_ID::EMB2 :CaloCell_ID::EME2;
-    const CaloDetDescrElement* dde = mgr->get_element(xsample, etaRef, phiRef);
-    if (dde) {
-      eta0 = dde->eta_raw();
-      phi0 = dde->phi_raw();
-    } else {
-      ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << etaRef << ", phi = " << phiRef);
-    }
-  } else {
-    ATH_MSG_DEBUG("Did not find the hot cell; probably a cluster that will be filtered out later");
+  //Get the hotest in raw co-ordinates
+  const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
+  if (!mgr) {
+    ATH_MSG_ERROR("Couldn't create instance of CaloDetDescrManager this should never happen");
+    return nullptr;
   }
+  CaloCell_ID::CaloSample xsample = (isBarrel) ? CaloCell_ID::EMB2 :CaloCell_ID::EME2;
+  const CaloDetDescrElement* dde = mgr->get_element(xsample, etaRef, phiRef);
+  if (dde) {
+    eta0 = dde->eta_raw();
+    phi0 = dde->phi_raw();
+  } else {
+    ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << etaRef << ", phi = " << phiRef);
+  }
+
   //Set the eta0/phi0 based on the references, but in raw coordinates
   newCluster->setEta0(eta0);
   newCluster->setPhi0(phi0);
@@ -254,7 +271,7 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   // Now add the clusters (other than L1 and PS)
   for (size_t i = 0; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
-    if (addEMCellsToCluster(newCluster.get(),clusters[i], etaRef, phiRef, isBarrel).isFailure()) {
+    if (addEMCellsToCluster(newCluster.get(),clusters[i], eta0, phi0, isBarrel).isFailure()) {
       ATH_MSG_DEBUG("There was problem adding the topocluster cells to the the cluster; potentially no L2 or L3 cells in cluster");
       return nullptr;
     }
@@ -268,15 +285,15 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   }
 
   // Now calculate the cluster size; use that for restricting the L1 cells
-  double phiSizePlus = 0;
-  double phiSizeMinus = 0;
+  float phiSizePlus = 0;
+  float phiSizeMinus = 0;
 
-  findPhiSize(phiSizePlus, phiSizeMinus, phiRef, newCluster.get());
+  findPhiSize(phiSizePlus, phiSizeMinus, phi0, newCluster.get());
 
   // now add L1 cells
   for (size_t i = 0; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
-    if (addL0L1EMCellsToCluster(newCluster.get(),clusters[i], etaRef, phiRef, isBarrel, phiSizePlus, phiSizeMinus).isFailure()) {
+    if (addL0L1EMCellsToCluster(newCluster.get(),clusters[i], eta0, phi0, isBarrel, phiSizePlus, phiSizeMinus).isFailure()) {
       ATH_MSG_WARNING("There was problem adding the topocluster PS and L1 cells to the the cluster");
       // Could potentially downgrade this to a debug. Getting rid of malformed clusters is the right thing to do.
       return nullptr;
@@ -320,7 +337,7 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
 
 StatusCode egammaSuperClusterBuilder::addEMCellsToCluster(xAOD::CaloCluster *newCluster,
 							  const xAOD::CaloCluster *ref,
-							  double etaRef, double phiRef, bool isBarrel) const
+							  float eta0, float phi0, bool isBarrel) const
 {
   if (!newCluster || !ref) {
     ATH_MSG_ERROR("Invalid input in AddEMCellsToCluster");
@@ -340,17 +357,17 @@ StatusCode egammaSuperClusterBuilder::addEMCellsToCluster(xAOD::CaloCluster *new
 
     // lets remove from consideration if outside the range
     if (isBarrel) { // if the center is in the barrel
-      if (fabs(etaRef - cell->eta()) > m_addCellsWindowEtaBarrel){
+      if (fabs(eta0 - cell->caloDDE()->eta_raw()) > m_addCellsWindowEtaBarrel){
 	continue;
       }
-      if (fabs(P4Helpers::deltaPhi(phiRef, cell->phi())) > m_addCellsWindowPhiBarrel){
+      if (fabs(P4Helpers::deltaPhi(phi0, cell->caloDDE()->phi_raw())) > m_addCellsWindowPhiBarrel){
 	continue;
       }
     } else { // if the center is in the endcap
-      if (fabs(etaRef - cell->eta()) > m_addCellsWindowEtaEndcap){
+      if (fabs(eta0 - cell->caloDDE()->eta_raw()) > m_addCellsWindowEtaEndcap){
 	continue;
       }
-      if (fabs(P4Helpers::deltaPhi(phiRef, cell->phi())) > m_addCellsWindowPhiEndcap){
+      if (fabs(P4Helpers::deltaPhi(phi0, cell->caloDDE()->phi_raw())) > m_addCellsWindowPhiEndcap){
 	continue;
       }
     }
@@ -365,7 +382,7 @@ StatusCode egammaSuperClusterBuilder::addEMCellsToCluster(xAOD::CaloCluster *new
     // I think we will leave this for AddTileGap3CellsinWindow
     // //First add all TileGap3 (consider only E4 cell).
     // if (CaloCell_ID::TileGap3 == sampling) {
-    //   if( fabs(cell->eta()) >1.4 && fabs(cell->eta()) < 1.6 ) {
+    //   if( fabs(cell->caloDDE()->eta_raw()) >1.4 && fabs(cell->caloDDE()->eta_raw()) < 1.6 ) {
     // 	newCluster->addCell(cell_itr.index(), cell_itr.weight());
     //   }
     //   continue;  
@@ -397,18 +414,20 @@ StatusCode egammaSuperClusterBuilder::addEMCellsToCluster(xAOD::CaloCluster *new
 
 StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster *newCluster,
 							      const xAOD::CaloCluster *ref,
-							      double etaRef, double phiRef, bool isBarrel,
-							      double phiSizePlus, double phiSizeMinus) const
+							      float eta0, float phi0, bool isBarrel,
+							      float phiSizePlus, float phiSizeMinus) const
 {
   if (!newCluster || !ref) {
     ATH_MSG_ERROR("Invalid input in addL0L1EMCellsToCluster");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("phiRef = " << phiRef << ", phiSizePlus = " << phiSizePlus << ", phiSizeMinus = " << phiSizeMinus);
+  ATH_MSG_DEBUG("phi0 = " << phi0 << ", phiSizePlus = " << phiSizePlus << ", phiSizeMinus = " << phiSizeMinus);
 
-  double phiPlus = phiRef + phiSizePlus + 0.001;
-  double phiMinus = phiRef - phiSizeMinus - 0.001;
+  float extraSize = isBarrel ? m_extraL0L1PhiSizeBarrel : m_extraL0L1PhiSizeEndcap;
+
+  float phiPlus = phi0 + phiSizePlus + extraSize;
+  float phiMinus = phi0 - phiSizeMinus - extraSize;
 
   ATH_MSG_DEBUG("phi range = " << phiMinus << " to " << phiPlus);
 
@@ -426,17 +445,17 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
 
     // lets remove from consideration if outside the range
     if (isBarrel) { // if the center is in the barrel
-      if (fabs(etaRef - cell->eta()) > m_addCellsWindowEtaBarrel){
+      if (fabs(eta0 - cell->caloDDE()->eta_raw()) > m_addCellsWindowEtaBarrel){
 	continue;
       }
-      if (fabs(P4Helpers::deltaPhi(phiRef, cell->phi())) > m_addCellsWindowPhiBarrel){
+      if (fabs(P4Helpers::deltaPhi(phi0, cell->caloDDE()->phi_raw())) > m_addCellsWindowPhiBarrel){
 	continue;
       }
     } else { // if the center is in the endcap
-      if (fabs(etaRef - cell->eta()) > m_addCellsWindowEtaEndcap){
+      if (fabs(eta0 - cell->caloDDE()->eta_raw()) > m_addCellsWindowEtaEndcap){
 	continue;
       }
-      if (fabs(P4Helpers::deltaPhi(phiRef, cell->phi())) > m_addCellsWindowPhiEndcap){
+      if (fabs(P4Helpers::deltaPhi(phi0, cell->caloDDE()->phi_raw())) > m_addCellsWindowPhiEndcap){
 	continue;
       }
     }
@@ -451,7 +470,7 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
     // only deal with L1 or PS
     if (CaloCell_ID::EMB1 == sampling || CaloCell_ID::EME1 == sampling ||
 	CaloCell_ID::PreSamplerB == sampling || CaloCell_ID::PreSamplerE == sampling) {
-      double cell_phi = proxim(cell->phi(), phiRef);
+      double cell_phi = proxim(cell->caloDDE()->phi_raw(), phi0);
       bool inRange = cell_phi > phiMinus && cell_phi < phiPlus;
       ATH_MSG_DEBUG("Found PS or L1 cell with phi = " << cell_phi << "; inRange = " << inRange);
       if (inRange) {
@@ -652,7 +671,7 @@ StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster
 	continue;
       }
       if ( (CaloCell_ID::TileGap3 == cell->caloDDE()->getSampling()) &&
-	   (std::abs(cell->eta()) > 1.4 && std::abs(cell->eta()) < 1.6)) {
+	   (std::abs(cell->caloDDE()->eta_raw()) > 1.4 && std::abs(cell->caloDDE()->eta_raw()) < 1.6)) {
 	int index = inputcells->findIndex(cell->caloDDE()->calo_hash());
 	myCluster->addCell(index, 1.);
       }
@@ -700,8 +719,8 @@ bool egammaSuperClusterBuilder::findCentralPosition(float& eta, float& phi, bool
   }
 }
 
-void egammaSuperClusterBuilder::findPhiSize(double& phiSizePlus, double& phiSizeMinus,
-					    float phiRef,
+void egammaSuperClusterBuilder::findPhiSize(float& phiSizePlus, float& phiSizeMinus,
+					    float phi0,
 					    const xAOD::CaloCluster* cluster) const
 {
   
@@ -720,14 +739,14 @@ void egammaSuperClusterBuilder::findPhiSize(double& phiSizePlus, double& phiSize
     }
 
     if (CaloCell_ID::EMB2 == dde->getSampling() || CaloCell_ID::EME2 == dde->getSampling()) {
-      double cell_phi = proxim(cell->phi(), phiRef);
-      if (cell_phi > phiRef) {
-	auto diff = cell_phi - phiRef;
+      double cell_phi = proxim(cell->caloDDE()->phi_raw(), phi0);
+      if (cell_phi > phi0) {
+	auto diff = cell_phi - phi0;
 	if (diff > phiSizePlus) {
 	  phiSizePlus = diff;
 	}
       } else {
-	auto diff = phiRef - cell_phi;
+	auto diff = phi0 - cell_phi;
 	if (diff > phiSizeMinus) {
 	  phiSizeMinus = diff;
 	}

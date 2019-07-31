@@ -22,6 +22,8 @@
 #include "Identifier/Identifier.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 #include "MuonSimEvent/sTGCSimHit.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
@@ -47,12 +49,8 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
 
-class sTgcDigitContainer;
-class sTgcDigitCollection;
 class sTgcIdHelper;
 class sTgcDigitMaker;
 class sTgcHitIdHelper;
@@ -61,8 +59,6 @@ class IAtRndmGenSvc;
 class TFile;
 class TH2F;
 class TH1F;
-
-class MuonSimDataCollection;
 /*******************************************************************************/
 class sTgcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
 
@@ -125,20 +121,16 @@ protected:
   std::string m_rndmEngineName;// name of random engine
 
 private:
-  ServiceHandle<StoreGateSvc>              m_sgSvc;
-  ActiveStoreSvc*                          m_activeStore;
   sTgcHitIdHelper*                         m_hitIdHelper;
-  sTgcDigitContainer*                      m_digitContainer;
   const sTgcIdHelper*                      m_idHelper;
   const MuonGM::MuonDetectorManager*       m_mdManager;
   sTgcDigitMaker*                          m_digitizer;
   TimedHitCollection<sTGCSimHit>*   m_thpcsTGC;
-  MuonSimDataCollection*                   m_sdoContainer;
   std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
 
   std::string m_inputHitCollectionName; // name of the input objects
-  std::string m_outputDigitCollectionName; // name of the output digits
-  std::string m_outputSDO_CollectionName; // name of the output SDOs
+  SG::WriteHandleKey<sTgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","sTGC_DIGITS","WriteHandleKey for Output sTgcDigitContainer"}; // name of the output digits
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","sTGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   bool m_doToFCorrection;
   int m_doChannelTypes;

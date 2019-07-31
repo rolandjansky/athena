@@ -72,6 +72,7 @@ ReadPixelElements.UseConditionsTools = True
 ReadPixelElements.SiLorentzAngleTool = pixelLorentzAngleTool
 ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
 ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
+ReadPixelElements.DetEleCollKey = "PixelDetectorElementCollection"
 
 #
 # SCT

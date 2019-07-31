@@ -64,13 +64,7 @@ public:
   //PATInterfaces inherited method
   StatusCode finalize();
 
-  ///Implement IJetCalibrationTool interface :
-  virtual StatusCode applyCalibration(xAOD::Jet& jet) const;
-  //PATInterfaces version of applyCalibration
-  virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet);
-
-  virtual int modify(xAOD::JetContainer&) const;
-  virtual int modifyJet(xAOD::Jet&) const;
+  virtual StatusCode applyCalibration(xAOD::JetContainer&) const;
 
   // Retrieve pTmax from in situ corrections
   virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}

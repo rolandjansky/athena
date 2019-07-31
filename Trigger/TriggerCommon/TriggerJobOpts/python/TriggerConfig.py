@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -77,36 +77,55 @@ def collectFilters( steps ):
     return filters
 
 
-def collectDecisionObjects(  hypos, filters, l1decoder ):
-    """
-    Returns the set of all decision objects of HLT
-    """
+def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
     __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
+    return decisionObjects
 
-
+def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
+    decisionObjects = set()
     __log.info("Collecting decision objects from hypos")
-    __log.info(hypos)
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
-            __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
+            __log.debug( "Hypo %s with input %s and output %s ",
+                         hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
-                [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
-                [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
+                if inputs:
+                    [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
+                if outputs:
+                    [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
             else:
-                decisionObjects.add( hypoAlg.HypoInputDecisions )
-                decisionObjects.add( hypoAlg.HypoOutputDecisions )
+                if inputs:
+                    decisionObjects.add( hypoAlg.HypoInputDecisions )
+                if outputs:
+                    decisionObjects.add( hypoAlg.HypoOutputDecisions )
+    return decisionObjects
 
+def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
+    decisionObjects = set()
     __log.info("Collecting decision objects from filters")
     for step, stepFilters in filters.iteritems():
         for filt in stepFilters:
-            decisionObjects.update( filt.Input )
-            decisionObjects.update( filt.Output )
-
+            if inputs:
+                decisionObjects.update( filt.Input )
+            if outputs:
+                decisionObjects.update( filt.Output )
     return decisionObjects
 
+def collectDecisionObjects(  hypos, filters, l1decoder ):
+    """
+    Returns the set of all decision objects of HLT
+    """
+    decObjL1 = collectL1DecoderDecisionObjects(l1decoder)
+    decObjHypo = collectHypoDecisionObjects(hypos)
+    decObjFilter = collectFilterDecisionObjects(filters)
+    decisionObjects = set()
+    decisionObjects.update(decObjL1)
+    decisionObjects.update(decObjHypo)
+    decisionObjects.update(decObjFilter)
+    return decisionObjects
 
 def triggerSummaryCfg(flags, hypos):
     """
@@ -182,8 +201,8 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     # the rest of triger EDM
     itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTList )
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTListRun3 )
     itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
 
     # summary objects
@@ -202,7 +221,7 @@ def triggerBSOutputCfg( flags, decObj ):
 
 
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList, persistent
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, persistent
     from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg # , StreamTagMakerTool, TriggerBitsMakerTool     # TODO add config of these two
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
     
@@ -212,7 +231,7 @@ def triggerBSOutputCfg( flags, decObj ):
                                                     "{}#remap_{}Aux.".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
 
     # EDM
-    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTList )    
+    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTListRun3 )    
     for item in EDMCollectionsToRecord:
         typeName, collName = item[0].split("#")
         serialisedTypeColl="{}#{}".format(persistent(typeName), collName)
@@ -237,12 +256,12 @@ def triggerBSOutputCfg( flags, decObj ):
 def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
 
     # configure views merging
-    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTList )
+    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTListRun3 )
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
     # group by the view collection name/(the view maker algorithm in practice)
     from collections import defaultdict
@@ -261,42 +280,13 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             setattr(tool, collType, [ collName ] )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
-                __log.info("The producer of the {} not in the menu".format( viewsColl ) )
+                __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( viewsColl ) )
                 continue
             if len(producer) > 1:
                 for pr in producer[1:]:
                     if pr != producer[0]:
                         __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
                         continue
-
-            producer = producer[0]
-            # NOTE: The below loop is going to find the HypoAlg which consume this output, and collate these HypoAlg's output
-            # It might be nicer to instead split up the GapFiller below to have a different GapFiller for Hypos and for Filters
-            # Then we could go back to having FixLinks be a boolean, rather than specifying a sub-set of the write handles
-            # attached to the TrigCompositeContainer parameter.
-
-            # We have a InputMaker with configured outputs, we need to identify all HypoAlg which consume these inputs.
-            # These HypoAlg all need to have their output element link collections remapped via FixLinks
-            TCHypoOutputCollections = list()
-            for step, stepHypos in hypos.iteritems():
-                for hypoAlg in stepHypos:
-                    if isinstance( hypoAlg.HypoInputDecisions, list): # Support multiple inputs and outputs to this HypoAlg
-                        counter = -1
-                        for inputDecision in hypoAlg.HypoInputDecisions:
-                            ++counter
-                            if inputDecision in producer.InputMakerOutputDecisions:
-                                TCHypoOutputCollections.append(hypoAlg.HypoOutputDecisions[counter])
-                    else: # Normal case - consume one input, produce one output
-                        if hypoAlg.HypoInputDecisions in producer.InputMakerOutputDecisions:
-                            TCHypoOutputCollections.append(hypoAlg.HypoOutputDecisions)
-            tool.FixLinks = TCHypoOutputCollections
-
-            # We need to register in storegate these Hypo outputs, but also the InputMaker outputs as well so we add them to the list here too
-            TCOutputCollections = TCHypoOutputCollections[:] # copy the list
-            TCOutputCollections.extend(producer.InputMakerOutputDecisions)
-            tool.TrigCompositeContainer = TCOutputCollections
-            tool.dumpSGBefore = False
-            tool.dumpSGAfter = False
         alg.OutputTools += [ tool ]
 
     tool = HLTEDMCreator( "GapFiller" )
@@ -305,7 +295,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
         groupedByType = defaultdict( list )
     
         # scan the EDM
-        for el in TriggerHLTList:
+        for el in TriggerHLTListRun3:
             if not any([ outputType in el[1].split() for outputType in edmSet ]):
                 continue
             collType, collName = el[0].split("#")
@@ -320,8 +310,11 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
                 __log.info("GapFiller will create EDM collection type '{}' for '{}'".format( collType, collNameList ))
             else:
                 __log.info("EDM collections of type {} are not going to be added to StoreGate, if not created by the HLT".format( collType ))
-    # append all decision objects
+
     __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
+    # Append and hence confirm all TrigComposite collections
+    # Gap filler is also used to perform re-mapping of the HypoAlg outputs which is a sub-set of decObj
+    tool.FixLinks = list(collectHypoDecisionObjects(hypos, inputs=False, outputs=True))
     tool.TrigCompositeContainer += list(decObj)
     alg.OutputTools += [tool]
 
@@ -378,7 +371,7 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( monitoringAcc )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
-    __log.info( "Number of decision objects found in HLT CF %d" % len( decObj ) )
+    __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
     __log.info( str( decObj ) )
 
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )

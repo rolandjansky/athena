@@ -53,4 +53,5 @@ atlas_add_component( SCT_Monitoring
 # Install files from the package:
 atlas_install_headers( SCT_Monitoring )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 

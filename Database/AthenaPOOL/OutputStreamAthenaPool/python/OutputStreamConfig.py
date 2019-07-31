@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaCommon.Logging import logging
@@ -14,7 +14,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    else:
       fileName="my%s.pool.root" % streamName
       msg = logging.getLogger('OutputStreamCfg')
-      msg.info("No file name predefined for stream %s. Using %s" % (streamName, fileName))      
+      msg.info("No file name predefined for stream %s. Using %s", streamName, fileName)
 
    if fileName in configFlags.Input.Files:
       raise ConfigurationError("Same name for input and output file %s" % fileName)

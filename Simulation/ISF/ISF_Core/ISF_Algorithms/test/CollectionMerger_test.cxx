@@ -14,7 +14,6 @@
 #include "TestTools/initGaudi.h"
 
 // ATLAS C++
-#include "CxxUtils/make_unique.h"
 
 // Google Test
 #include "gtest/gtest.h"
@@ -159,20 +158,20 @@ TEST_F(CollectionMerger_test, mergeCollections) {
   mergeCollections(inputKeys, outputKey);
 
   // create dummy input collections containing dummy data
-  auto                                 inputTestDataA = CxxUtils::make_unique<TestHitCollection_t>();
+  auto                                 inputTestDataA = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleA{"inputCollectionA"};
   inputTestDataHandleA.record( std::move(inputTestDataA) );
   inputTestDataHandleA->Emplace(1);
   inputTestDataHandleA->Emplace(20);
   inputTestDataHandleA->Emplace(5);
 
-  auto                                 inputTestDataB = CxxUtils::make_unique<TestHitCollection_t>();
+  auto                                 inputTestDataB = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleB{"inputCollectionB"};
   inputTestDataHandleB.record( std::move(inputTestDataB) );
   inputTestDataHandleB->Emplace(50);
   inputTestDataHandleB->Emplace(1);
 
-  auto                                 inputTestDataC = CxxUtils::make_unique<TestHitCollection_t>();
+  auto                                 inputTestDataC = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleC{"inputCollectionC"};
   inputTestDataHandleC.record( std::move(inputTestDataC) );
   inputTestDataHandleC->Emplace(20);
@@ -222,20 +221,20 @@ TEST_F(CollectionMerger_test, integration_with_data) {
 
   // create dummy input collections containing dummy data
   HepGeom::Point3D<double> pos(0.,0.,0.);
-  auto                                 inputTestDataA = CxxUtils::make_unique<SiHitCollection>();
+  auto                                 inputTestDataA = std::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleA{"inputPixelCollectionIntegrationTestA"};
   inputTestDataHandleA.record( std::move(inputTestDataA) );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  5, 0 );
 
-  auto                                 inputTestDataB = CxxUtils::make_unique<SiHitCollection>();
+  auto                                 inputTestDataB = std::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleB{"inputPixelCollectionIntegrationTestB"};
   inputTestDataHandleB.record( std::move(inputTestDataB) );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1., 50, 0 );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1.,  1, 0 );
 
-  auto                                 inputTestDataC = CxxUtils::make_unique<SiHitCollection>();
+  auto                                 inputTestDataC = std::make_unique<SiHitCollection>();
   SG::WriteHandle<SiHitCollection> inputTestDataHandleC{"inputPixelCollectionIntegrationTestC"};
   inputTestDataHandleC.record( std::move(inputTestDataC) );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1., 20, 0 );
@@ -275,13 +274,13 @@ TEST_F(CollectionMerger_test, one_empty_one_filled_input_collection___expect_fil
   // create dummy input collections containing dummy data
   HepGeom::Point3D<double> pos(0.,0.,0.);
   SG::WriteHandle<SiHitCollection> inputTestDataHandleFilled{"inputPixelCollectionIntegrationTestFilled"};
-  ASSERT_TRUE(inputTestDataHandleFilled.record(CxxUtils::make_unique<SiHitCollection>()).isSuccess());
+  ASSERT_TRUE(inputTestDataHandleFilled.record(std::make_unique<SiHitCollection>()).isSuccess());
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1.,  5, 0 );
 
   SG::WriteHandle<SiHitCollection> inputTestDataHandleEmpty{"inputPixelCollectionIntegrationTestEmpty"};
-  ASSERT_TRUE(inputTestDataHandleEmpty.record(CxxUtils::make_unique<SiHitCollection>()).isSuccess());
+  ASSERT_TRUE(inputTestDataHandleEmpty.record(std::make_unique<SiHitCollection>()).isSuccess());
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
   ASSERT_TRUE( m_alg->execute().isSuccess() );
@@ -309,11 +308,11 @@ TEST_F(CollectionMerger_test, preexisting_output_collection___expect_execute_isF
 
   // create dummy input collections containing dummy data
   SG::WriteHandle<SiHitCollection> inputTestDataHandleA{"inputPixelCollectionTestX"};
-  ASSERT_TRUE( inputTestDataHandleA.record(CxxUtils::make_unique<SiHitCollection>()).isSuccess() );
+  ASSERT_TRUE( inputTestDataHandleA.record(std::make_unique<SiHitCollection>()).isSuccess() );
 
   // create pre-existing output collection
   SG::WriteHandle<SiHitCollection> outputDataHandle{"outputPixelCollectionTestPreexisting"};
-  ASSERT_TRUE( outputDataHandle.record(CxxUtils::make_unique<SiHitCollection>()).isSuccess() );
+  ASSERT_TRUE( outputDataHandle.record(std::make_unique<SiHitCollection>()).isSuccess() );
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
   ASSERT_TRUE( m_alg->execute().isFailure() );
@@ -337,7 +336,7 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   ASSERT_TRUE( outputKey.initialize().isSuccess() );
 
   // create dummy input collections containing dummy data
-  auto inputTestDataA = CxxUtils::make_unique<TestPointerHitCollection_t>();
+  auto inputTestDataA = std::make_unique<TestPointerHitCollection_t>();
   SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleA{"inputPointerCollectionA"};
   inputTestDataHandleA.record( std::move(inputTestDataA) );
   auto* inputHitA1 = new ISFTesting::TestHit(1);
@@ -347,7 +346,7 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   auto* inputHitA3 = new ISFTesting::TestHit(5);
   inputTestDataHandleA->push_back(inputHitA3);
 
-  auto inputTestDataB = CxxUtils::make_unique<TestPointerHitCollection_t>();
+  auto inputTestDataB = std::make_unique<TestPointerHitCollection_t>();
   SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleB{"inputPointerCollectionB"};
   inputTestDataHandleB.record( std::move(inputTestDataB) );
   auto* inputHitB1 = new ISFTesting::TestHit(50);

@@ -32,9 +32,10 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
  private:
 
   // TODO: Consider taking muonContainer etc in case they are needed in future.
-  StatusCode decide(const xAOD::TrigMissingETContainer*,
+  StatusCode decide(const xAOD::TrigMissingETContainer* metContainer,
                     TrigCompositeUtils::DecisionContainer* newDecisions,
-                    const TrigCompositeUtils::DecisionContainer* previousDecisions
+                    const TrigCompositeUtils::DecisionContainer* oldDecisions,
+                    const EventContext& context
         ) const;
 
   ToolHandleArray<ITrigMissingETHypoToolMT> m_hypoTools {

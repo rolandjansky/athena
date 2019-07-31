@@ -122,6 +122,15 @@ private:
   
   std::string m_lvl1_jet_roi_key;
   std::string m_lvl1_roi_key;
+  std::string m_lvl1_rho_key;
+  std::string m_lvl1_pufit_key;
+  std::string m_lvl1_jwoj_key;
+  std::string m_lvl1_noisecut_key;
+  std::string m_lvl1_jnoisecut_key;
+  std::string m_hlt_cell_run3_met_key; 
+  std::string m_hlt_mht_run3_met_key; 
+  std::string m_hlt_topocl_run3_met_key; 
+  std::string m_hlt_topocl_PUC_run3_met_key; 
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
   std::string m_hlt_mhtem_met_key; 

@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/AthLinks
-   Control/CxxUtils
    DetectorDescription/GeoPrimitives
    Event/EventPrimitives
    Event/xAOD/xAODBase
@@ -37,7 +36,7 @@ atlas_add_library( xAODEgamma
    xAODEgamma/*.h xAODEgamma/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEgamma
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks
    GeoPrimitives EventPrimitives xAODBase xAODCaloEvent xAODCore
    xAODPrimitives xAODTracking xAODTruth ${extra_libs} )
 

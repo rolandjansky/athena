@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from LArRecUtils.LArRecUtilsConf import LArFEBConfigCondAlg
 
-def LArFEBConfigCondAlgCfg(flags, name="LArFEBConfigCondAlg", **kwargs): 
+def LArFebConfigCondAlgCfg(flags, name="LArFEBConfigCondAlg", **kwargs): 
     """Return ComponentAccumulator with configured LArFEBConfigCondAlg"""
     defaultFolders = [
         "/LAR/Configuration/FEBConfig/Physics/EMBA1",

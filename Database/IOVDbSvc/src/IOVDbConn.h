@@ -5,11 +5,13 @@
 // IOVDbConn.h
 // helper class for IOVDbSvc managing DB connections
 // Richard Hawkings, started 24/11/08
-#ifndef __IOVDBCONN_H__
-#define __IOVDBCONN_H__
+#ifndef IOVDbSvc_IOVDbConn_h
+#define IOVDbSvc_IOVDbConn_h
 
 #include "CoolKernel/IDatabase.h"
+#include "CoolKernel/IFolder.h"
 #include "CoraCool/CoraCoolTypes.h"
+#include "CoraCool/CoraCoolDatabase.h"
 
 class MsgStream;
 
@@ -31,7 +33,18 @@ class IOVDbConn {
   CoraCoolDatabasePtr getCoraCoolDb();
   void setInactive();
   void setReadOnly(const bool readOnly);
-
+  bool open();
+  void close();
+  bool dropAndReconnect();
+  bool valid() const;
+  
+  template<typename T=cool::IFolderPtr> 
+  T
+  getFolderPtr(const std::string &folderName){
+    if (not m_coolDb.get()) return nullptr;
+    return m_coolDb->getFolder(folderName);
+  }
+  
  private:
   MsgStream & m_log;
   bool m_active;
@@ -43,6 +56,8 @@ class IOVDbConn {
   cool::IDatabasePtr m_coolDb;
   CoraCoolDatabasePtr m_coracoolDb;
 };
+
+inline bool IOVDbConn::valid() const { return m_coolDb.get()!=0; }
 
 inline bool IOVDbConn::isActive() const { return m_active; }
 
@@ -58,4 +73,11 @@ inline void IOVDbConn::incUsage() { ++m_nfolder; }
 
 inline void IOVDbConn::decUsage() { --m_nfolder; }
 
-#endif //  __IOVDBCONN_H__
+template<> 
+inline CoraCoolFolderPtr
+IOVDbConn::getFolderPtr(const std::string &folderName){
+  if (not m_coracoolDb.get()) return nullptr;
+  return m_coracoolDb->getFolder(folderName);
+}
+
+#endif //  IOVDbSvc_IOVDbConn_h

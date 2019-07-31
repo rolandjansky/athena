@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Generators/GeneratorObjects
@@ -38,7 +37,7 @@ atlas_add_component( ISF_Geant4Tools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GaudiKernel G4AtlasInterfaces AthenaBaseComps CxxUtils StoreGateLib SGtests AtlasDetDescr GeneratorObjects G4AtlasToolsLib G4AtlasAlgLib MCTruth SimHelpers ISF_Event ISF_Interfaces ISF_Geant4Event )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GaudiKernel G4AtlasInterfaces AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects G4AtlasToolsLib G4AtlasAlgLib MCTruth SimHelpers ISF_Event ISF_Interfaces ISF_Geant4Event )
 
 # Install files from the package:
 atlas_install_headers( ISF_Geant4Tools )

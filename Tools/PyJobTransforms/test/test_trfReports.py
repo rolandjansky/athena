@@ -7,6 +7,7 @@
 #  @author graeme.andrew.stewart@cern.ch
 #  @version $Id: test_trfReports.py 745237 2016-05-06 02:33:15Z ssnyder $
 
+from __future__ import print_function
 import unittest
 
 import logging
@@ -30,11 +31,11 @@ class trfFileReportUnitTests(unittest.TestCase):
     def setUp(self):
         # In python 2.7 support for multiple 'with' expressions becomes available
         with open('file1', 'w') as f1:
-            print >> f1, 'This is test file 1'
+            print('This is test file 1', file=f1)
         with open('file2', 'w') as f2:
-            print >> f2, 'Short file 2'
+            print('Short file 2', file=f2)
         with open('file3', 'w') as f3:
-            print >> f3, 80 * '-', 'Long file 3', 80 * '-'
+            print(80 * '-', 'Long file 3', 80 * '-', file=f3)
 
         # For test reports, use manually set GUIDs
         self.mySingleFile = trfArgClasses.argFile(['file1'], name = 'inputTEST_SINGLEFile', io = 'input', guid = {'file1': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B'})

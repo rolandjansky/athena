@@ -73,10 +73,26 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
   cat ${JOB_LOG}
 fi
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
+echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
 timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
-
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
+
+echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
+timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
+
+### PERFMON
+
+if [ -f ntuple.pmon.gz ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running perfmon"
+  timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz >perfmon.log 2>&1
+fi
+
+### HISTOGRAM COUNT
+
+if [ -f expert-monitoring.root ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running histSizes"
+  timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
+fi
 
 ### MAKE LOG TAIL FILE
 
@@ -86,7 +102,11 @@ tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 ### REGTEST
 
 REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
-grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+if [ -z "${REGTESTEXP_EXCLUDE}" ]; then
+  grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+else
+  grep -E "${REGTESTEXP}" ${JOB_LOG} | grep -v -E "${REGTESTEXP_EXCLUDE}" > "${REGTESTREF_BASENAME}"
+fi
 
 if [ -f ${REGTESTREF} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
@@ -103,11 +123,13 @@ mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
+  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
-else
+elif [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
   echo "art-result: 999 RootComp"
+else
+  echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file and no reference are found - skipping RootComp"
 fi
 
 ### CHAINDUMP
@@ -123,7 +145,7 @@ fi
 
 if [ -f ${ESDTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
-  timeout 10m checkFile.py ${ESDTOCHECK} 2>&1 | tee ${ESDTOCHECK}.checkFile
+  timeout 10m checkFile.py ${ESDTOCHECK} >${ESDTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileESD"
 else
   echo $(date "+%FT%H:%M %Z")"     No ESD file to check"
@@ -131,14 +153,20 @@ fi
 
 if [ -f ${AODTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
-  timeout 10m checkFile.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkFile
+  timeout 10m checkFile.py ${AODTOCHECK} >${AODTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileAOD"
   echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
-  timeout 10m checkxAOD.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkxAOD
+  timeout 10m checkxAOD.py ${AODTOCHECK} >${AODTOCHECK}.checkxAOD 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckXAOD"
 else
   echo $(date "+%FT%H:%M %Z")"     No AOD file to check"
 fi
+
+### GENERATE JSON WITH POST-PROCESSING INFORMATION
+
+echo $(date "+%FT%H:%M %Z")"     Running trig-test-json.py"
+timeout 5m trig-test-json.py
+cat extra-results.json && echo
 
 ### SUMMARY
 

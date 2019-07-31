@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
@@ -116,7 +116,6 @@ namespace NSWL1 {
 
     // analysis variable to be put into the ntuple
     int m_nStripHits;                                            //!< number of STRIP hit delivered
-    int m_padTrigIndex;
     std::vector<float > *m_stripCharge=0;                           //!< charge of hit STRIPs 
     std::vector<float > *m_stripCharge_6bit=0;                           //!< charge of hit STRIPs 6 bit format
     std::vector<float > *m_stripCharge_10bit=0;                           //!< charge of hit STRIPs 10 bit format

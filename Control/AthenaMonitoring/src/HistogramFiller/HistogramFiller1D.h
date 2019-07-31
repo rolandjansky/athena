@@ -22,32 +22,55 @@ namespace Monitored {
     HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
 
     virtual unsigned fill() override {
-      if (m_monVariables.size() != 1) {
-        return 0;
-      }
-
-      auto histogram = this->histogram<TH1>();
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+      if (m_monVariables.size() != 1) { return 0; }
 
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector.size() ) {
-        // When using weights, get the weight vector and fill
-        auto weightVector = m_monWeight->getVectorRepresentation();
-        double value,weight;
-        for (const auto& zipped : boost::combine(valuesVector,weightVector)) {
-          boost::tie(value,weight) = zipped;
-          histogram->Fill(value,weight);
-        }
+      return fillHistogram();
+    } 
+    
+  protected:
+    unsigned fillHistogram() {
+      if (shouldUseWeightedFill()) {
+        return weightedFill();
       } else {
-        // Otherwise, simply loop over the values and fill
-        for (auto value : valuesVector) {
-          histogram->Fill(value);
-        }
+        return simpleFill();
+      }
+    }
+
+    bool shouldUseWeightedFill() {
+      if (!m_monWeight) { return false; }
+
+      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+      auto weightsVector = m_monWeight->getVectorRepresentation();
+
+      return std::size(valuesVector) == std::size(weightsVector);
+    }
+
+    unsigned simpleFill() {
+      auto histogram = this->histogram<TH1>();
+      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+
+      for (auto value : valuesVector) {
+        histogram->Fill(value);
       }
 
       return std::size(valuesVector);
-    } 
+    }
+
+    unsigned weightedFill() {
+      auto histogram = this->histogram<TH1>();
+      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+      auto weightVector = m_monWeight->getVectorRepresentation();
+      double value, weight;
+
+      for (const auto& zipped : boost::combine(valuesVector, weightVector)) {
+        boost::tie(value, weight) = zipped;
+        histogram->Fill(value, weight);
+      }
+
+      return std::size(valuesVector);
+    }
   };
 }
 

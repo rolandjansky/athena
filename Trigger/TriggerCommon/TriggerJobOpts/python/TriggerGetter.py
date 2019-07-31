@@ -1,12 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import jobproperties
-from AthenaCommon.AthenaCommonFlags import jobproperties
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.Logging import logging
 
-from RecExConfig.RecFlags  import jobproperties
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.Configured import Configured 
@@ -48,8 +44,8 @@ class TriggerGetter(Configured):
         self._done=True
 
         # start with print some information what this will do
-        log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d" % (recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly()) )
-        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMT: %s" % (TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMT() ) )
+        log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d", recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly() )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMT() )
 
         if TF.doMT():
             log.info("configuring MT Trigger, actually nothing happens for now")
@@ -60,20 +56,18 @@ class TriggerGetter(Configured):
         willRunLVL1SimulationGetter = recAlgs.doTrigger() and not TF.doTriggerConfigOnly()
         willRunHLTSimulationGetter = willRunLVL1SimulationGetter and (TF.doLVL2() or TF.doEF() or TF.doHLT())
 
-        log.info("Will run: %s%s%s%s" % ("GenerateMenu " if willGenerateMenu else "",
-                                         "TriggerConfigGetter " if willRunTriggerConfigGetter else "",
-                                         "LVL1SimulationGetter " if willRunLVL1SimulationGetter else "",
-                                         "HLTSimulationGetter " if willRunHLTSimulationGetter else "",
-                                         ) )
-        log.info("Will not run: %s%s%s%s" % ("GenerateMenu " if not willGenerateMenu else "",
-                                             "TriggerConfigGetter " if not willRunTriggerConfigGetter else "",
-                                             "LVL1SimulationGetter " if not willRunLVL1SimulationGetter else "",
-                                             "HLTSimulationGetter " if not willRunHLTSimulationGetter else "",
-                                         ) )
+        log.info("Will run: %s%s%s%s", "GenerateMenu " if willGenerateMenu else "",
+                                       "TriggerConfigGetter " if willRunTriggerConfigGetter else "",
+                                       "LVL1SimulationGetter " if willRunLVL1SimulationGetter else "",
+                                       "HLTSimulationGetter " if willRunHLTSimulationGetter else "" )
 
+        log.info("Will not run: %s%s%s%s", "GenerateMenu " if not willGenerateMenu else "",
+                                           "TriggerConfigGetter " if not willRunTriggerConfigGetter else "",
+                                           "LVL1SimulationGetter " if not willRunLVL1SimulationGetter else "",
+                                           "HLTSimulationGetter " if not willRunHLTSimulationGetter else "" )
         if recAlgs.doTrigger():
 
-            if ((TF.doLVL1()==True or TF.doLVL2()==True or TF.doEF()==True or TF.doHLT()==True) and TF.doTriggerConfigOnly()==False):
+            if ((TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()):
                 log.info("generating menu")
                 # trigger menu files generation
                 g = GenerateMenu()
@@ -88,7 +82,7 @@ class TriggerGetter(Configured):
         if recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly():
             # setup configuration services
             from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-            cfg =  TriggerConfigGetter()
+            cfg = TriggerConfigGetter()  # noqa: F841
 
             from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
             theConfCOOLWriter.writeConf2COOL()
@@ -112,10 +106,10 @@ class TriggerGetter(Configured):
             # initialize LVL1ConfigSvc
             log.info("configuring lvl1")
             from TriggerJobOpts.Lvl1TriggerGetter import Lvl1SimulationGetter
-            lvl1 = Lvl1SimulationGetter()
+            lvl1 = Lvl1SimulationGetter()  # noqa: F841
             
 
-            if jobproperties.Global.InputFormat()  != 'bytestream' and (TF.doLVL2==True or TF.doEF==True or TF.doHLT==True):
+            if jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT()):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")
@@ -129,7 +123,7 @@ class TriggerGetter(Configured):
                 # StreamBS.ItemList +=["TileRawChannelContainer#*"]
                 StreamBS.ItemList +=["2927#*"]
                 StreamBS.ItemList +=["2934#*"] # added on request from: Arantxa Ruiz Martinez for TileRODMu
-
+                
                 # don't need Muons in transient BS
                 # StreamBS.ItemList +=["MdtCsmContainer#*"]
                 # StreamBS.ItemList +=["RpcPadContainer#*"]
@@ -143,13 +137,13 @@ class TriggerGetter(Configured):
 
             # setup HLT
             # initialize HLT config svc
-            log.info("TriggerFlags: doLVL2 %r" % TF.doLVL2())
-            log.info("TriggerFlags: doEF   %r" % TF.doEF())
-            log.info("TriggerFlags: doHLT  %r" % TF.doHLT())
-            if TF.doLVL2()==True or TF.doEF()==True or TF.doHLT()==True:
+            log.info("TriggerFlags: doLVL2 %r", TF.doLVL2())
+            log.info("TriggerFlags: doEF   %r", TF.doEF())
+            log.info("TriggerFlags: doHLT  %r", TF.doHLT())
+            if TF.doLVL2() or TF.doEF() or TF.doHLT():
                 log.info("configuring hlt")
                 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
-                hlt = HLTSimulationGetter(g)
+                hlt = HLTSimulationGetter(g)  # noqa: F841
             else:
                 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
                 from AthenaCommon.AppMgr import ServiceMgr
@@ -162,8 +156,8 @@ class TriggerGetter(Configured):
         hltouput = Lvl1ResultBuilderGetter()
 
         # prepare result making of HLT
-        if TF.doLVL2()==True or TF.doEF()==True or TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
+        if TF.doLVL2() or TF.doEF() or TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-            hltouput = HLTTriggerResultGetter()
+            hltouput = HLTTriggerResultGetter()  # noqa: F841
       
         return True

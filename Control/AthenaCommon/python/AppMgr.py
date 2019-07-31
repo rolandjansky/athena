@@ -921,7 +921,7 @@ ToolSvc     = ServiceMgr.ToolSvc
 def auditor( self, auditor ):
    Logging.log.warning( """AuditorSvc.auditor is deprecated, use instead:
    from GaudiAud import %s
-   svcMgr.AuditorSvc += %s()""" % (auditor,auditor) )
+   svcMgr.AuditorSvc += %s()""", auditor, auditor )
 
    if type(auditor) == str:
       from AthenaCommon import ConfigurableDb
@@ -947,7 +947,7 @@ GaudiSvcConf.AuditorSvc.__iadd__ =iadd
 del iadd
 
 
-def delattr( self, attr ):
+def _delattr( self, attr ):
    try:
       c = getattr( self, attr )
 
@@ -966,8 +966,8 @@ def delattr( self, attr ):
 
    super( GaudiSvcConf.AuditorSvc, self ).__delattr__( attr )
 
-GaudiSvcConf.AuditorSvc.__delattr__ = delattr
-del delattr
+GaudiSvcConf.AuditorSvc.__delattr__ = _delattr
+del _delattr
 
 
 # AuditorSvc globals

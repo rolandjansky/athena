@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IMETADATATRANSITION_H
@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/Incident.h"
+#include <string>
 
 /** @class IMetadataTransition
  *  @brief This class provides the interface for MetadataTransitions.
@@ -31,7 +32,7 @@ public: // Non-static members
   /// Function called when the tool should write out its metadata
   virtual StatusCode prepareOutput() = 0;
 
-  virtual StatusCode proxyIncident(const Incident&) = 0;
+  virtual StatusCode shmProxy(const std::string& filename) = 0;
 
   /// Gaudi boilerplate
    static const InterfaceID& interfaceID();

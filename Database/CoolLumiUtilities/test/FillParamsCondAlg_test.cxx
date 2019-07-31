@@ -12,6 +12,7 @@
 #undef NDEBUG
 #include "../src/FillParamsCondAlg.h"
 #include "CoolLumiUtilities/FillParamsCondData.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "TestTools/initGaudi.h"
@@ -19,24 +20,6 @@
 #include "CoolKernel/IObject.h"
 #include <iostream>
 #include <cassert>
-
-
-class TestRCUSvc
-  : public Athena::IRCUSvc
-{
-public:
-  virtual StatusCode remove (Athena::IRCUObject* /*obj*/) override
-  {
-    return StatusCode::SUCCESS;
-  }
-  virtual size_t getNumSlots() const override { return 1; }
-  virtual void add (Athena::IRCUObject* /*obj*/) override
-  { }
-
-  virtual unsigned long addRef() override { std::abort(); }
-  virtual unsigned long release() override { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
-};
 
 
 EventIDBase timestamp (int t)
@@ -92,7 +75,7 @@ void test1 (ISvcLocator* svcloc)
   alg.addRef();
   assert( alg.sysInitialize().isSuccess() );
 
-  TestRCUSvc rcu;
+  Athena_test::DummyRCUSvc rcu;
   DataObjID id1 ("testFP");
   auto cc1 = std::make_unique<CondCont<AthenaAttributeList> > (rcu, id1);
   DataObjID id2 ("FillParamsCondData");

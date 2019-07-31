@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.BjetDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
@@ -19,6 +19,9 @@ def bjetSequenceCfg_j( flags ):
 
 def bjetSequenceCfg_gsc( flags ):    
     return getBJetSequence('gsc')
+
+def bjetSequenceCfg_btag( flag ):
+    return getBJetSequence('btag')
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -38,7 +41,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]
+            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]#, self.getBjetSequence_btag()]
         }
         
         ## This needs to be configured by the Bjet Developer!!
@@ -56,19 +59,26 @@ class BjetChainConfiguration(ChainConfigurationBase):
     # --------------------
     # Configuration of steps
     # --------------------
-    def getBjetSequence_j(self, name):
+    def getBjetSequence_j(self):
         stepName = "Step1_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq1 = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [bjetSeq1])
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
+        return ChainStep(stepName, [bjetSeq])
 
-    def getBjetSequence_gsc(self, name):
+    def getBjetSequence_gsc(self):
         stepName = "Step2_bjet"
         log.debug("Configuring step " + stepName)
-        bjetSeq1 = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [bjetSeq1])
-        
-            
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_gsc, None ) # the None will be used for flags in future
+        return ChainStep(stepName, [bjetSeq])
+
+    def getBjetSequence_btag(self):
+        stepName = "Step3_bjet"
+        log.debug("Configuring step " + stepName)
+        bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_btag, None ) # the None will be used for flags in future    
+        return ChainStep(stepName, [bjetSeq])
+
+
+
             
 
         

@@ -8,9 +8,8 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
 #include "StoreGate/StoreGate.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTrigger/TrigDecision.h"
 
 #include "eformat/SourceIdentifier.h"
 #include "eformat/StreamTag.h"
@@ -101,21 +100,21 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    ATH_MSG_DEBUG("In connectOutput");
 
    // Get the EventInfo obj for run/event number
-   const EventInfo* d = nullptr;
-   ATH_CHECK( m_evtStore->retrieve(d) );
-   uint64_t event = d->event_ID()->event_number();
-   uint32_t run_no = d->event_ID()->run_number();
-   uint32_t bc_time_sec = d->event_ID()->time_stamp();
-   uint32_t bc_time_ns = d->event_ID()->time_stamp_ns_offset();
+   const xAOD::EventInfo* evtInfo{nullptr};
+   ATH_CHECK( m_evtStore->retrieve(evtInfo) );
+   uint64_t event = evtInfo->eventNumber();
+   uint32_t run_no = evtInfo->runNumber();
+   uint32_t bc_time_sec = evtInfo->timeStamp();
+   uint32_t bc_time_ns = evtInfo->timeStampNSOffset();
    uint32_t run_type = 0;
-   uint32_t lvl1_id = d->trigger_info()->extendedLevel1ID();
+   uint32_t lvl1_id = evtInfo->extendedLevel1ID();
    if (lvl1_id == 0) {
       lvl1_id = event;
    }
-   uint32_t lvl1_type = d->trigger_info()->level1TriggerType();
+   uint32_t lvl1_type = evtInfo->level1TriggerType();
    uint64_t global_id = event;
-   uint16_t lumi_block = d->event_ID()->lumi_block();
-   uint16_t bc_id = d->event_ID()->bunch_crossing_id();
+   uint16_t lumi_block = evtInfo->lumiBlock();
+   uint16_t bc_id = evtInfo->bcid();
    static uint8_t nevt = 0;
    nevt = nevt%255;
    // create an empty RawEvent
@@ -133,88 +132,97 @@ StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, b
    }
    writeFEA();
 
-   // Get the EventInfo obj for trigger info
-   const EventInfo* evt = nullptr;
-   ATH_CHECK( m_evtStore->retrieve(evt) );
-   if (evt == 0) {
-      ATH_MSG_ERROR("Cannot retrieve EventInfo");
-      return(StatusCode::FAILURE);
+   // Get EventInfo
+   const xAOD::EventInfo* evtInfo{nullptr};
+   ATH_CHECK( m_evtStore->retrieve(evtInfo) );
+
+   // Try to get TrigDecision
+   const xAOD::TrigDecision* trigDecision{nullptr};
+   if(m_evtStore->retrieve(trigDecision)!=StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("Failed to retrieve xAOD::TrigDecision. Will write empty trigger decision vectors");
+     trigDecision = nullptr;
    }
+
    // change trigger info in Header
-   const TriggerInfo* triggerInfo = evt->trigger_info();
-   uint32_t *l1Buff = 0;
-   uint32_t *l2Buff = 0;
-   uint32_t *efBuff = 0;
-   uint32_t *encTag = 0;
-   if (triggerInfo != 0) {
-      // LVL1 info : FIXME
-      if (triggerInfo->extendedLevel1ID() != 0) {
-         m_rawEventWrite->lvl1_id(triggerInfo->extendedLevel1ID());
-      }
-      // trigger type
-      m_rawEventWrite->lvl1_trigger_type((uint8_t)(triggerInfo->level1TriggerType()));
-      // LVL1 info
-      const std::vector<TriggerInfo::number_type> level1TriggerInfo = triggerInfo->level1TriggerInfo();
-      uint32_t l1Size = 0;
-      l1Buff = new uint32_t[level1TriggerInfo.size()];
-      for (std::vector<TriggerInfo::number_type>::const_iterator itL1 = level1TriggerInfo.begin(),
-	      itL1E = level1TriggerInfo.end(); itL1 != itL1E; itL1++) {
-         l1Buff[l1Size] = *itL1;
-         l1Size++;
-      }
-      m_rawEventWrite->lvl1_trigger_info(l1Size, l1Buff);
-      // LVL2 info
-      const std::vector<TriggerInfo::number_type> level2TriggerInfo = triggerInfo->level2TriggerInfo();
-      uint32_t l2Size = 0;
-      l2Buff = new uint32_t[level2TriggerInfo.size()];
-      for (std::vector<TriggerInfo::number_type>::const_iterator itL2 = level2TriggerInfo.begin(),
-	      itL2E = level2TriggerInfo.end(); itL2 != itL2E; itL2++) {
-         l2Buff[l2Size] = *itL2;
-         l2Size++;
-      }
-      m_rawEventWrite->lvl2_trigger_info(l2Size, l2Buff);
-      // EF info
-      const std::vector<TriggerInfo::number_type> eventFilterInfo = triggerInfo->eventFilterInfo();
-      uint32_t efSize = 0;
-      efBuff = new uint32_t[eventFilterInfo.size()];
-      for (std::vector<TriggerInfo::number_type>::const_iterator itEF  = eventFilterInfo.begin(),
-	      itEFE = eventFilterInfo.end(); itEF != itEFE; itEF++) {
-         efBuff[efSize] = *itEF;
-         efSize++;
-      }
-      m_rawEventWrite->event_filter_info(efSize, efBuff);
-      // stream tag
-      std::vector<eformat::helper::StreamTag> on_streamTags;
-      const std::vector<TriggerInfo::StreamTag> off_streamTags = triggerInfo->streamTags();
-      for (std::vector<TriggerInfo::StreamTag>::const_iterator itS = off_streamTags.begin(),
-	      itSE = off_streamTags.end(); itS != itSE; itS++) {
-         // convert offline -> online
-         eformat::helper::StreamTag tmpTag;
-         tmpTag.name = itS->name();
-         tmpTag.type = itS->type();
-         tmpTag.obeys_lumiblock = itS->obeysLumiblock();
-         if (!((itS->robs()).empty())) {
-           std::set<TriggerInfo::number_type> tmp_robs = itS->robs();
-           for (std::set<TriggerInfo::number_type>::const_iterator it_rob = tmp_robs.begin();
-	           it_rob != tmp_robs.end(); it_rob++) {
-             tmpTag.robs.insert(*it_rob);
-           }
-         }
-         if (!((itS->dets()).empty())) {
-           std::set<TriggerInfo::number_type> tmp_dets = itS->dets();
-           for (std::set<TriggerInfo::number_type>::const_iterator it_det = tmp_dets.begin();
-	           it_det != tmp_dets.end(); it_det++) {
-             tmpTag.dets.insert((eformat::SubDetector) *it_det);
-           }
-         }
-         on_streamTags.push_back(tmpTag);
-      }
-      // encode
-      uint32_t encSize = eformat::helper::size_word(on_streamTags);
-      encTag = new uint32_t[encSize];
-      eformat::helper::encode(on_streamTags, encSize, encTag);
-      m_rawEventWrite->stream_tag(encSize, encTag);
+   uint32_t *l1Buff{nullptr};
+   uint32_t *l2Buff{nullptr};
+   uint32_t *efBuff{nullptr};
+   uint32_t *encTag{nullptr};
+
+   m_rawEventWrite->lvl1_id(evtInfo->extendedLevel1ID());
+   m_rawEventWrite->lvl1_trigger_type((uint8_t)(evtInfo->level1TriggerType()));
+
+   // LVL1 info
+   uint32_t l1Size{0};
+   if(trigDecision) {
+     const std::vector<uint32_t>& tbp = trigDecision->tbp();
+     const std::vector<uint32_t>& tap = trigDecision->tap();
+     const std::vector<uint32_t>& tav = trigDecision->tav();
+     size_t l1TotSize = tbp.size()+tap.size()+tav.size();
+     if(l1TotSize>0) {
+       l1Buff = new uint32_t[l1TotSize];
+       for(uint32_t tb : tbp) {
+	 l1Buff[l1Size++] = tb;
+       }
+       for(uint32_t tb : tap) {
+	 l1Buff[l1Size++] = tb;
+       }
+       for(uint32_t tb : tav) {
+	 l1Buff[l1Size++] = tb;
+       }
+     }
    }
+   m_rawEventWrite->lvl1_trigger_info(l1Size, l1Buff);
+
+   // LVL2 info
+   uint32_t l2Size{0};
+   if(trigDecision) {
+     const std::vector<uint32_t>& lvl2PP = trigDecision->lvl2PassedPhysics();
+     if(lvl2PP.size()>0) {
+       l2Buff = new uint32_t[lvl2PP.size()];
+       for(uint32_t tb : lvl2PP) {
+	 l2Buff[l2Size++] = tb;
+       }
+     }
+   }
+   m_rawEventWrite->lvl2_trigger_info(l2Size, l2Buff);
+
+   // EF info
+   uint32_t efSize{0};
+   if(trigDecision) {
+     const std::vector<uint32_t>& efPP = trigDecision->efPassedPhysics();
+     if(efPP.size()>0) {
+       efBuff = new uint32_t[efPP.size()];
+       for(uint32_t tb : efPP) {
+	 efBuff[efSize++] = tb;
+       }
+     }
+   }
+   m_rawEventWrite->event_filter_info(efSize, efBuff);
+
+   // stream tag
+   std::vector<eformat::helper::StreamTag> on_streamTags;
+   const std::vector<xAOD::EventInfo::StreamTag>& off_streamTags = evtInfo->streamTags();
+   for(const auto& sTag : off_streamTags) {
+     // convert offline -> online
+     eformat::helper::StreamTag tmpTag;
+     tmpTag.name = sTag.name();
+     tmpTag.type = sTag.type();
+     tmpTag.obeys_lumiblock = sTag.obeysLumiblock();
+     for(uint32_t rob : sTag.robs()) {
+       tmpTag.robs.insert(rob);
+     }
+     for(uint32_t det : sTag.dets()) {
+       tmpTag.dets.insert((eformat::SubDetector)det);
+     }
+     on_streamTags.push_back(tmpTag);
+   }
+   // encode
+   uint32_t encSize = eformat::helper::size_word(on_streamTags);
+   encTag = new uint32_t[encSize];
+   eformat::helper::encode(on_streamTags, encSize, encTag);
+   m_rawEventWrite->stream_tag(encSize, encTag);
+
    // convert RawEventWrite to RawEvent
    uint32_t rawSize = m_rawEventWrite->size_word();
    OFFLINE_FRAGMENTS_NAMESPACE::DataType* buffer = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[rawSize];

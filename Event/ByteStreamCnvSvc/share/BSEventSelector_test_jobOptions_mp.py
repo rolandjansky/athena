@@ -4,9 +4,6 @@
 #
 #==============================================================
 # Input 
-import os 
-os.environ['ATHENA_PROC_NUMBER']='2'
-
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 
 svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" ]

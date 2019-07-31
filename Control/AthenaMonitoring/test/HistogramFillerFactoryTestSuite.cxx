@@ -29,6 +29,7 @@
 #include "../src/HistogramFiller/CumulativeHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
 #include "../src/HistogramFiller/HistogramFiller2DProfile.h"
@@ -63,6 +64,7 @@ class HistogramFillerFactoryTestSuite {
         REGISTER_TEST_CASE(test_shouldCreateStaticCumulativeHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateStaticVecHistogramFiller1DWithOverflows),
         REGISTER_TEST_CASE(test_shouldCreateStaticVecHistogramFiller1D),
+        REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFillerRebinable1D),
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFiller2D),
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFillerProfile),
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFiller2DProfile),
@@ -71,6 +73,7 @@ class HistogramFillerFactoryTestSuite {
         REGISTER_TEST_CASE(test_shouldCreateLumiblockCumulativeHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockVecHistogramFiller1DWithOverflows),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockVecHistogramFiller1D),
+        REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFillerRebinable1D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFiller2D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFillerProfile),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFiller2DProfile),
@@ -103,6 +106,10 @@ class HistogramFillerFactoryTestSuite {
       performCreateFillerAndVerify<VecHistogramFiller1D, StaticHistogramProvider>("TH1F", "kVec");
     }
 
+    void test_shouldCreateStaticHistogramFillerRebinable1D() {
+      performCreateFillerAndVerify<HistogramFillerRebinable1D, StaticHistogramProvider>("TH1F", "kAddBinsDynamically");
+    }
+
     void test_shouldCreateStaticHistogramFiller2D() {
       performCreateFillerAndVerify<HistogramFiller2D, StaticHistogramProvider>("TH2D", "");
     }
@@ -133,6 +140,10 @@ class HistogramFillerFactoryTestSuite {
 
     void test_shouldCreateLumiblockVecHistogramFiller1D() {
       performCreateFillerAndVerify<VecHistogramFiller1D, LumiblockHistogramProvider>("TH1F", "kVec, kLBNHistoryDepth=10");
+    }
+
+    void test_shouldCreateLumiblockHistogramFillerRebinable1D() {
+      performCreateFillerAndVerify<HistogramFillerRebinable1D, LumiblockHistogramProvider>("TH1F", "kAddBinsDynamically, kLBNHistoryDepth=10");
     }
 
     void test_shouldCreateLumiblockHistogramFiller2D() {

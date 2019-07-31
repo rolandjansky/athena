@@ -10,6 +10,7 @@
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,6 +64,8 @@ LArPhysWaveShifter::LArPhysWaveShifter (const std::string& name, ISvcLocator* pS
   declareProperty("OutputShiftsKey",   m_totalShiftsKey);
   declareProperty("CellByCellShiftsKey",    m_cellByCellShiftsKey);
   
+  declareProperty("isSC",m_isSC=false);
+  
 }
 
 LArPhysWaveShifter::~LArPhysWaveShifter() 
@@ -74,10 +77,34 @@ StatusCode LArPhysWaveShifter::stop() {
   LArWaveHelper larWaveHelper;
 
   // get LArOnlineID helper
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
+  /*StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not get LArOnlineID" );
     return sc;
+  }*/
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
   }
 
   // Retrieve LArPhysWaveTool
