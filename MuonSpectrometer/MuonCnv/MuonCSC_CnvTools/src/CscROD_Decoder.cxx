@@ -5,7 +5,6 @@
 #include "CscROD_Decoder.h"
 #include "GaudiKernel/ListItem.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
 
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
@@ -174,18 +173,6 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   ATH_MSG_DEBUG ( "===================================================" );
   ATH_MSG_DEBUG ( "in CscROD_Decode::fillCollection() - ROD version 2" );
 
-  /** find the det descr tag version from the event type */
-  const DataHandle<TagInfo> tagInfo;
-  StatusCode status = detStore()->retrieve(tagInfo);
-  if (status.isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve tag info  from TDS. - abort ..." ); 
-   return;
-  }
-
-  std::string detdescr = "";
-  tagInfo->findTag("GeoAtlas", detdescr);
-  ATH_MSG_DEBUG ( "DetDescr tag = " << detdescr );
-  
   const uint32_t& detev_type = robFrag.rod_detev_type();
 
   CscRODReadOut rodReadOut;
