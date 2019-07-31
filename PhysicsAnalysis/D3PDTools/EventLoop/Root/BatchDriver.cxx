@@ -332,6 +332,71 @@ namespace EL
       }
       break;
 
+    case Detail::JobSubmitStep::batchCreateDirectories:
+      {
+        ANA_MSG_DEBUG ("submitting batch job in location " << info.submitDir);
+        const std::string submitDir = info.submitDir + "/submit";
+        if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
+        {
+          ANA_MSG_ERROR ("failed to create directory " + submitDir);
+          return ::StatusCode::FAILURE;
+        }
+        const std::string runDir = info.submitDir + "/run";
+        if (gSystem->MakeDirectory (runDir.c_str()) != 0)
+        {
+          ANA_MSG_ERROR ("failed to create directory " + runDir);
+          return ::StatusCode::FAILURE;
+        }
+        const std::string fetchDir = info.submitDir + "/fetch";
+        if (gSystem->MakeDirectory (fetchDir.c_str()) != 0)
+        {
+          ANA_MSG_ERROR ("failed to create directory " + fetchDir);
+          return ::StatusCode::FAILURE;
+        }
+        const std::string statusDir = info.submitDir + "/status";
+        if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
+        {
+          ANA_MSG_ERROR ("failed to create directory " + statusDir);
+          return ::StatusCode::FAILURE;
+        }
+      }
+      break;
+
+    case Detail::JobSubmitStep::batchCreateJob:
+      {
+        info.batchJob = std::make_unique<BatchJob> ();
+        fillFullJob (*info.batchJob, *info.job, info.submitDir, info.options);
+        info.batchJob->location=getWriteLocation(info);
+        {
+          std::string path = info.submitDir + "/submit/config.root";
+          std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
+          info.batchJob->Write ("job");
+        }
+        {
+          std::ofstream file ((info.submitDir + "/submit/segments").c_str());
+          for (std::size_t iter = 0, end = info.batchJob->segments.size();
+               iter != end; ++ iter)
+          {
+            file << iter << " " << info.batchJob->segments[iter].fullName << "\n";
+          }
+        }
+      }
+      break;
+
+    case Detail::JobSubmitStep::batchMakeScript:
+      {
+        makeScript (info, info.batchJob->segments.size(),
+                    info.options.castBool(Job::optBatchSharedFileSystem,true));
+      }
+      break;
+
+    case Detail::JobSubmitStep::batchMakeIndices:
+      {
+        for (std::size_t index = 0; index != info.batchJob->segments.size(); ++ index)
+          info.batchJobIndices.push_back (index);
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }
@@ -345,44 +410,6 @@ namespace EL
   {
     using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
-
-    ANA_MSG_DEBUG ("submitting batch job in location " << info.submitDir);
-
-    const std::string submitDir = info.submitDir + "/submit";
-    if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
-      RCU_THROW_MSG ("failed to create directory " + submitDir);
-    const std::string runDir = info.submitDir + "/run";
-    if (gSystem->MakeDirectory (runDir.c_str()) != 0)
-      RCU_THROW_MSG ("failed to create directory " + runDir);
-    const std::string fetchDir = info.submitDir + "/fetch";
-    if (gSystem->MakeDirectory (fetchDir.c_str()) != 0)
-      RCU_THROW_MSG ("failed to create directory " + fetchDir);
-    const std::string statusDir = info.submitDir + "/status";
-    if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
-      RCU_THROW_MSG ("failed to create directory " + statusDir);
-
-    BatchJob myjob;
-    fillFullJob (myjob, *info.job, info.submitDir, info.options);
-    myjob.location=getWriteLocation(info);
-    {
-      std::string path = info.submitDir + "/submit/config.root";
-      std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
-      myjob.Write ("job");
-    }
-    {
-      std::ofstream file ((info.submitDir + "/submit/segments").c_str());
-      for (std::size_t iter = 0, end = myjob.segments.size();
-	   iter != end; ++ iter)
-      {
-	file << iter << " " << myjob.segments[iter].fullName << "\n";
-      }
-    }
-
-    makeScript (info, myjob.segments.size(),
-		info.options.castBool(Job::optBatchSharedFileSystem,true));
-
-    for (std::size_t index = 0; index != myjob.segments.size(); ++ index)
-      info.batchJobIndices.push_back (index);
 
     batchSubmit (info);
   }

@@ -12,6 +12,7 @@
 
 #include <EventLoop/JobSubmitInfo.h>
 
+#include <EventLoop/BatchJob.h>
 #include <RootCoreUtils/Assert.h>
 
 //
@@ -20,4 +21,16 @@
 
 namespace EL
 {
+  namespace Detail
+  {
+    JobSubmitInfo ::
+    JobSubmitInfo () noexcept
+    {}
+
+
+
+    JobSubmitInfo ::
+    ~JobSubmitInfo () noexcept
+    {}
+  }
 }
