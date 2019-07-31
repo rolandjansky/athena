@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -52,7 +52,7 @@ private:
 
    // status functions for determining what information we have
    // access to
-   virtual bool changedDecisionAware() { return true; };
+   virtual bool changedDecisionAware() const { return true; };
 
    // handle incidents (end event, begin event, etc.)
    virtual void handle( const Incident& inc );
@@ -63,7 +63,7 @@ private:
    // grab the feature containers from the navigation
    // via the trig decision tool
    virtual Trig::FeatureContainer
-   getFeatureContainer( const std::string &chainName, const int condition ) {
+   getFeatureContainer( const std::string &chainName, const int condition ) const {
       return m_trigDecisionTool->features( chainName, condition );
    }
 

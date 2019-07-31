@@ -416,7 +416,7 @@ private:
    // not the tool is running in athena.  In athena, we can register with
    // store gate to get call backs when the trig decision changes, but
    // we cannot get this info in ARA.
-   virtual bool changedDecisionAware() { return false; };
+   virtual bool changedDecisionAware() const { return false; };
 
    // ensure that configured chain names is good to go.  Note that 
    // this is different for ARA and athena versions of the tool.
@@ -428,7 +428,7 @@ private:
    // an abstract function, as the exact method is different for
    // ARA and Athena.
    virtual Trig::FeatureContainer
-   getFeatureContainer( const std::string &chainName, const int condition ) = 0;
+   getFeatureContainer( const std::string &chainName, const int condition ) const = 0;
 
    // determine how to propagate L1 chain names to L2 chain names
    template< typename trait >
@@ -462,7 +462,7 @@ private:
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer &featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::DirectAttached* );
+                        const TrigMatch::DirectAttached* ) const;
 
    // function for loading objects that are attached as
    // containers to the navigation
@@ -470,14 +470,14 @@ private:
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const contType* );
+                        const contType* ) const;
 
    // function for loading l1 objects from the navigation
    template<typename trigType>
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::AncestorAttached* );
+                        const TrigMatch::AncestorAttached* ) const;
 
    size_t chainNameToIndex (const std::string& chainName);
 
