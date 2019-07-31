@@ -22,8 +22,6 @@ namespace InDetDD {
   class ServiceVolume;
 }
 
-//  class GeoSimpleObject;
-
 class ServiceStaticBuilder :  public PixelGeoBuilder  {
 public:
   
@@ -32,14 +30,12 @@ public:
   virtual GeoVPhysVol* Build();
   
   void initialize(const std::string &);
-  void initializeOld(const std::string &);
   
   int getVolumeNumber() const { return m_pixServBuilder.size(); }
   InDetDD::VolumeStandardBuilder * getBuilder(int i) const {return m_pixServBuilder[i];}
   
   double getServiceNumber(int iBuilder=0);
-  //  InDet::GeoSimpleObject* getServiceObject(int i);
-
+ 
   void addTopZone( InDetDD::Zone * envelopeZone);
   
  private:

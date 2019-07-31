@@ -15,7 +15,6 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
   std::string nodeName = table->nodeName();
   for_each(nodeName.begin(), nodeName.end(), [](char& in){ in = ::toupper(in); });
   std::string envName = "PIXEL_"+nodeName+"_GEO_XML";
-
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
   if(fileName.size()==0){

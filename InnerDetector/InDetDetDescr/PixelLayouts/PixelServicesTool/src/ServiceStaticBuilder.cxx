@@ -97,11 +97,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 //   **IMPORTANT NOTE** WIDTH can be in degrees or CLHEP::mm. See OraclePixGeoManager
 
 #include "PixelServicesTool/ServiceStaticBuilder.h"
-#include "PixelSCTDBHelper/GeoPixelGeneralDBHelper.h"
-#include "PixelSCTDBHelper/GeoPixelServicesDBHelper.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
-/*#include "PixelServicesTool/VolumeGeoCompBuilder.h"*/
 #include "PixelServicesTool/VolumeStandardBuilder.h"
 #include "PixelServicesTool/SimpleServiceVolumeMaker.h"
 
@@ -122,12 +119,15 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   // We process all tables. 
+  //***Not anymore - the specific barrel and endcap services seem to not be built here anymore, but rather elsewhere. Leave commented for the moment...***
+  /*
   bool barrelPresent   = genDBHelper.isBarrelPresent();
   bool endcapAPresent  = genDBHelper.isEndcapPresentA();
   bool endcapCPresent  = genDBHelper.isEndcapPresentC();
 
   if (barrelPresent) initialize("barrel");
   if (endcapAPresent || endcapCPresent) initialize("endcap");
+  */  
   initialize("simple");
   
   msg(MSG::INFO)<<"GEOPIXELSERVICES constructor # services : "<<m_services.size()<<endreq;
@@ -171,25 +171,26 @@ void ServiceStaticBuilder::initialize(const std::string & a)
 
   InDetDD::SimpleServiceVolumeSchema schema;
   std::string label;
+  std::string table;
   if (a=="simple") {
     schema.setPixelSchema();
+    table = "PIXEL_PIXELSIMPLESERVICE_GEO_XML";
     label = "Svc";
-  } else if (a=="barrel") { // Not used yet. initializeOld() is used instead
+  } else if (a=="barrel") { 
     schema.setPixelSchema();
+    table = "PIXEL_PIXELBARRELSERVICE_GEO_XML";
     label = "Brl";
-  } else if (a=="endcap") { // Not used yet. initializeOld() is used instead
+  } else if (a=="endcap") { 
     schema.setPixelSchema();
+    table = "PIXEL_PIXELENDCAPSERVICE_GEO_XML";
     label = "EC";
   } else {
     msg(MSG::ERROR) << "Unrecognized service table type: " << a << endreq;
     return;
   } 
-
-  GeoPixelServicesDBHelper srvDBHelper(getBasics());
-  IRDBRecordset_ptr table = srvDBHelper.getPixelServiceRecordset(a);
   
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
-  InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, getBasics(), false);
+  InDetDD::SimpleServiceVolumeMaker volMaker(table,label,schema, getBasics(),false);
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
   for (unsigned int i = 0; i < volMaker.numElements(); ++i) 
       m_services.push_back(volMaker.make(i));
@@ -197,123 +198,6 @@ void ServiceStaticBuilder::initialize(const std::string & a)
   return;
 }
 
-
-// See comment in initialize()
-void ServiceStaticBuilder::initializeOld(const std::string & a)
-{
-  //
-  // Loop over the service elements:
-  //
-
-  GeoPixelServicesDBHelper srvDBHelper(getBasics());
-
-
-  int numServices =  srvDBHelper.PixelServiceElements(a);
-  for(int ii = 0; ii < numServices; ii++) {
-    
-
-    // Will return <0 if the element doesn't belong to current inside/outside zone
-    // This check is removed as it now checks accroding to the dimensions.
-    //if (srvDBHelper.PixelServiceFrameNum(a, ii) < 0) continue;
-    //
-    //
-    // Retrieve/calculate the parameters for the volume.
-    //
-    InDetDD::ServiceVolume param;
-    param.setMaterial(srvDBHelper.PixelServiceMaterial(a, ii));
-    param.setRmin(srvDBHelper.PixelServiceRMin(a, ii));
-    param.setRmax(srvDBHelper.PixelServiceRMax(a, ii));
-    param.setZmin(srvDBHelper.PixelServiceZMin(a, ii));
-    param.setZmax(srvDBHelper.PixelServiceZMax(a, ii));
-    param.setZsymm(srvDBHelper.PixelServiceZsymm(a, ii));
-    param.setVolName(srvDBHelper.PixelServiceName(a, ii));
-
-    // Service envelopes
-    int envNum=srvDBHelper.PixelServiceEnvelopeNum(a, ii);
-    param.setEnvelopeNum(envNum);
-    int envParent=srvDBHelper.PixelServiceParentEnvelopeNum(a, ii);
-    param.setParentEnvelope(envParent);
-    int volId = srvDBHelper.PixelServiceFrameNum(a, ii);
-
-    bool needsRotation = false;
-
-    // For TUBE there is no need to read the rest 
-    std::string shapeType = srvDBHelper.PixelServiceShape(a, ii);
-    if (!shapeType.empty() && shapeType != "TUBE") {
-      double rmin2 = srvDBHelper.PixelServiceRMin2(a, ii);
-      double rmax2 = srvDBHelper.PixelServiceRMax2(a, ii);
-      int repeat = srvDBHelper.PixelServiceRepeat(a, ii);
-      double phiLoc =  srvDBHelper.PixelServicePhiLoc(a, ii);
-      double phiWidth =  srvDBHelper.PixelServiceWidth(a, ii);
-      
-      // Can be in degree or CLHEP::mm. Usually it is CLHEP::deg expect for BOX, TRAP and ROD shape
-      // Geometry manager makes no assumptions about units. So we must interpret here.
-      if (shapeType == "BOX" || shapeType == "ROD" || shapeType == "ROD2" || shapeType == "TRAP") {
-	phiWidth *= CLHEP::mm;
-      } else {
-	phiWidth *= CLHEP::degree;
-      }
-      
-      if (phiWidth == 0) phiWidth = 2*3.1415926;  //CLHEP::pi;   FIXME SES
-      if (rmin2 <= 0) rmin2 = param.rmin(); 
-      if (rmax2 <= 0) rmax2 = param.rmax(); 
-      if (repeat == 0) repeat = 1;
-      
-      if (shapeType == "PGON"  || shapeType == "PGON2" || 
-	  shapeType == "CONE"  || shapeType == "CONS" || 
-	  shapeType == "PGON3" || shapeType == "PGON31" || shapeType == "PGON4") {
-	if ((rmin2 != param.rmin()) || (rmax2 != param.rmax())) {
-	  needsRotation = true;
-	}
-      }
-      
-      int sides = 0;
-      int nCopies = 1;
-      if (shapeType == "PGON"  || shapeType == "PGON2" ||
-	  shapeType == "PGON3" || shapeType == "PGON31" || shapeType == "PGON4") {
-	sides = repeat;
-      } else {
-	nCopies = repeat;
-      }
-      
-      // Force nCopies to 1 for TUBE and CONE 
-      if (shapeType.empty() || shapeType == "TUBE" || shapeType == "CONE") {
-	nCopies = 1;
-      }
-      
-      param.setShapeType(shapeType);
-      param.setRmin2(rmin2);
-      param.setRmax2(rmax2);
-      param.setPhiLoc(phiLoc);
-      param.setPhiWidth(phiWidth);
-      param.setSides(sides);
-      param.setNCopies(nCopies);
-    }
-
-    param.setNeedsRotation(needsRotation);
-    
-    //
-    // If zin is 0... (within 10^-5) this is a volume symmetric around
-    // the origin
-    //
-    if(std::abs(param.zmin()) < 0.000001) {
-      param.setZmin(-param.zmax());
-      param.setZsymm(false);
-    }	
-
-    std::string label;
-    if(envNum>0) label="Env";
-    else if (a == "barrel") label = "Brl";
-    else if (a == "endcap") label = "EC";
-    else if (a == "simple") label = "Svc";
-    param.setLabel(label, volId); 
-
-    // Fill m_multiVolumes;
-    m_services.push_back(new InDetDD::ServiceVolume(param));
-    
-  }
-}
-  
 // For interface
 GeoVPhysVol* ServiceStaticBuilder::Build() 
 {
@@ -326,8 +210,3 @@ double ServiceStaticBuilder::getServiceNumber(int iBuilder)
   return m_pixServBuilder[iBuilder]->getServiceNumber(); 
 }
 
-// GeoSimpleObject* ServiceStaticBuilder::getServiceObject(int i) 
-// { 
-//   //return m_pixServBuilder->getServiceObject(i); 
-//   return 0;
-// }
