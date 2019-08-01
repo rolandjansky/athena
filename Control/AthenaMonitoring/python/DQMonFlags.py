@@ -398,6 +398,22 @@ class enableLumiAccess(JobProperty):
     StoredValue=True
 list+=[enableLumiAccess]
 
+class includeInCleaning(JobProperty):
+    """ Tools matching regexes in this list will have event cleaning tool set up """
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[ '.*JetMonitoring.*', '.*METMonTool.*', '.*tauMonTool.*',
+                  '.*DQTGlobalWZFinder.*', '.*jetTagMon.*', '.*phMonTool.*',
+                  '.*elMonTool.*', '.*fwdMonTool.*' ]
+list+=[includeInCleaning]
+
+class specialCleaningConfiguration(JobProperty):
+    """ Special event cleaning configurations (no regexes) """
+    statusOn=True
+    allowedTypes=['dict']
+    StoredValue={}
+list+=[specialCleaningConfiguration]
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the DQMon flag container
