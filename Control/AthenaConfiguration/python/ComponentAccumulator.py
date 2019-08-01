@@ -86,9 +86,9 @@ class ComponentAccumulator(object):
 
     def __del__(self):
          if not getattr(self,'_wasMerged',True) and not self.empty():
-             raise RuntimeError("ComponentAccumulator was not merged!")
-             #log = logging.getLogger("ComponentAccumulator")
-             #log.error("The ComponentAccumulator listed below was never merged!")
+             #can't raise an exception in __del__ method (Python rules) so this is a warning
+             log = logging.getLogger("ComponentAccumulator")
+             log.warning("The ComponentAccumulator listed below was never merged!")
 
          if getattr(self,'_privateTools',None) is not None:
              raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
