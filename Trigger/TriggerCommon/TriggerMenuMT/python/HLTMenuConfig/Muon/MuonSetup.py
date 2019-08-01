@@ -570,10 +570,10 @@ def muEFSARecoSequence( RoIs, name ):
   msMuonName = muNames.EFSAName
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
+
   themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
 
   # Monitoring tool for MuonCreatorAlg
-  # from MuonCombinedAlgs.MuonCombinedAlgsConf import MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
   themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring()
 
