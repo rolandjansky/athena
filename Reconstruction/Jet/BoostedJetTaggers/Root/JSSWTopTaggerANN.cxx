@@ -374,7 +374,7 @@ Root::TAccept JSSWTopTaggerANN::tag(const xAOD::Jet& jet) const{
   float jet_weight=1.0;
   if ( m_calcSF && (!m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN) ){
     if ( m_IsMC ){
-      if (decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE){
+      if (decorateTruthLabel(jet) == StatusCode::FAILURE){
 	ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
       }
     }
