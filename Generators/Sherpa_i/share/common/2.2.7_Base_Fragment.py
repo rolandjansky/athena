@@ -31,6 +31,9 @@ genSeq.Sherpa_i.Parameters += [
 ## Enable scale variations by default
 genSeq.Sherpa_i.Parameters += [
     "HEPMC_USE_NAMED_WEIGHTS=1",
+    "CSS_REWEIGHT=1",
+    "CSS_REWEIGHT_SCALE_CUTOFF=5.0",
+    "HEPMC_INCLUDE_ME_ONLY_VARIATIONS=1",
     "SCALE_VARIATIONS=0.25,0.25 0.25,1. 1.,0.25 1.,1. 1.,4. 4.,1. 4.,4.",
     ]
 
