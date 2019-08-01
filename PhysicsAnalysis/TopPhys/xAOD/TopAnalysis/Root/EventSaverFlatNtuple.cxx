@@ -410,7 +410,7 @@ namespace top {
           if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
           m_weight_bTagSF[tagWP] = 0.;
           systematicTree->makeOutputVariable(m_weight_bTagSF[tagWP] , "weight_bTagSF_"+shortBtagWP(tagWP));
-          if (m_config -> storePerJetBtagSFs()) {
+          if (m_config -> storePerJetBtagSFs() && m_config->isMC()) {
             m_perjet_weight_bTagSF[tagWP] = std::vector<float>();
             m_perjet_weight_bTagSF_eigen_B_up[tagWP]   = std::vector<std::vector<float> >();
             m_perjet_weight_bTagSF_eigen_B_down[tagWP] = std::vector<std::vector<float> >();
@@ -437,7 +437,7 @@ namespace top {
             if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
             m_weight_trackjet_bTagSF[tagWP] = 0.;
             systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF[tagWP] , "weight_trackjet_bTagSF_"+shortBtagWP(tagWP));
-            if (m_config -> storePerJetBtagSFs()) {
+            if (m_config -> storePerJetBtagSFs() && m_config->isMC()) {
               m_perjet_weight_trackjet_bTagSF[tagWP]                  = std::vector<float>();
               m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP]       = std::vector<std::vector<float> >();
               m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP]     = std::vector<std::vector<float> >();
@@ -2389,10 +2389,10 @@ namespace top {
             m_perjet_weight_bTagSF_eigen_C_down[tagWP]    .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
             m_perjet_weight_bTagSF_eigen_Light_up[tagWP]  .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
             m_perjet_weight_bTagSF_eigen_Light_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
-          }
-          for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
-            m_perjet_weight_bTagSF_named_up[tagWP][name]  .resize(event.m_jets.size());
-            m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size());
+            for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+              m_perjet_weight_bTagSF_named_up[tagWP][name]  .resize(event.m_jets.size());
+              m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size());
+            }
           }
         }
         else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
