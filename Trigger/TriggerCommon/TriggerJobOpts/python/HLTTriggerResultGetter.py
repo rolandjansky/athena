@@ -45,7 +45,7 @@ def  EDMDecodingVersion():
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
-        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTSummary"):          
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
             TriggerFlags.EDMDecodingVersion = 3
         else:
             log.warning("Cannot recognise HLT EDM format, TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())

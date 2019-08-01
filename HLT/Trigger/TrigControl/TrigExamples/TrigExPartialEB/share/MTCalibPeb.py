@@ -129,7 +129,7 @@ streamExampleDataScoutingPEB = ['ExampleDataScoutingPEB', 'physics', "True", "Fa
 
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions]
 stmaker.ChainToStream = {}
 stmaker.ChainToStream["HLT_MTCalibPeb1"] = streamExamplePEB
@@ -138,7 +138,7 @@ stmaker.ChainToStream["HLT_MTCalibPeb3"] = streamExampleDataScoutingPEB
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = {}
 bitsmaker.ChainToBit["HLT_MTCalibPeb1"] = 3
 bitsmaker.ChainToBit["HLT_MTCalibPeb2"] = 50
