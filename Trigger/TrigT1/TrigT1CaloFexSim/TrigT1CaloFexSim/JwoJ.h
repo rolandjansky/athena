@@ -19,58 +19,13 @@
 #include "TMath.h"
 #include "Objects.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-
-/**
- *@brief Takes JGTowers from a JGTowerContainer and combines them into gBlocks. Used for threshold on the "cone" (gBlock) pt
- *@return @c void 
- */
-void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers){
-  
-  blocks.clear();
-  TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
-  
-  for(const xAOD::JGTower* seed: towers){
-    int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
-    
-    std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
-    float seed_Et = seed->et();
-
-    if(!useNegTowers) seed_Et = TMath::Abs(seed_Et);
-    double block_area(0.0);
-    double block_pt(seed_Et);
-    double neighbor_pt = 0;
-    
-    for(const int& neighborIndex: neighbors){
-      const xAOD::JGTower* neighbor = towers.at(neighborIndex);
-      block_area += neighbor->deta()*neighbor->dphi();
-      neighbor_pt = neighbor->et();
-
-      if(!useNegTowers) neighbor_pt = TMath::Abs(neighbor_pt);
-      block_pt += neighbor_pt;
-    }
-    
-    TowerObject::Block block(block_pt, seed->eta(), seed->phi(), 0.0);
-    block.seedIndex(seedIndex);
-    block.numEta(blockCols);
-    block.numPhi(blockRows);
-    block.area(block_area);
-    block.numConstituents(neighbors.size());
-    
-    blocks.push_back(block);
-  }
-  
-  std::sort(blocks.rbegin(), blocks.rend());
-}
+#include "JGTowerReader.h"
 
 /**
  *@brief Separates Et into hard and soft terms depending on threshold pt. Stores hard and soft MET terms in a vector to be passed.
  *@return @c std::vector<float>
  */
-std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, float rho, float pTcone_cut, bool useEtaBins, bool useNegTowers){
-  
-  std::vector<TowerObject::Block> blocks;
-  BuildBlocksFromTowers(blocks, *towers, 3, 3, useNegTowers);
+std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> blocks, float rho, float pTcone_cut, bool useEtaBins, bool useNegTowers){
   
   pTcone_cut*=Gaudi::Units::GeV;
   std::vector<float> Et_vals;
