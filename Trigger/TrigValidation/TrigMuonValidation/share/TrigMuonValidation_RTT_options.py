@@ -2,7 +2,7 @@
 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 athenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964/RDO.0119996._000032.pool.root.1"]
 
 jp.AthenaCommonFlags.PoolESDOutput="theoutput.ESD.pool.root"
@@ -44,7 +44,7 @@ from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
 cols   =  ["HLT_TrackCollection_forCB","HLT_TrackCollection_MuonEFCombTrkTracks"]
 colsTP =  ["HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticles","HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"]
 
-topSequence += MuonDetailedTrackTruthMaker(name="TrigMuEFDetailedTrackTruthMaker", TrackCollectionNames = cols,OutputLevel=INFO, UseCSC=muonRecFlags.doCSCs() )
+topSequence += MuonDetailedTrackTruthMaker(name="TrigMuEFDetailedTrackTruthMaker", TrackCollectionNames = cols,OutputLevel=INFO, HasCSC=MuonGeometryFlags.hasCSC() )
 
 for i in range(0, len(cols) ):
     topSequence += TrackTruthSelector(name= cols[i] + "Selector",

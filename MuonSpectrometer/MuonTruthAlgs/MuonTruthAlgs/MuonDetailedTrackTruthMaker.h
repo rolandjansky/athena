@@ -31,7 +31,7 @@ public:
   virtual StatusCode finalize();
   
 private:
-  bool m_useCSC;
+  bool m_hasCSC;
   // PRD truth maps in any order
   std::vector<std::string> m_PRD_TruthNames;
 

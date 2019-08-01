@@ -30,18 +30,11 @@ class doVP1(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
 ## Run the integrated muon reconstruction algorithm
 class doStandalone(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-
-## Run the new third chain configuration for the NSW
-class doNSWNewThirdChain(JobProperty):
-     StatusOn=True
-     allowedType=['bool']
-     StoredValue=False
     
 ## Run clusterization 
 class doCreateClusters(JobProperty):

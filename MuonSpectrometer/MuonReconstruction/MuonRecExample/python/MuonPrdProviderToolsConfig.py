@@ -122,8 +122,9 @@ def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs):
 
 ### TODO: remove following backwards compat as soon as all clients have migrated to using CfgGetter
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-if DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on():
+if MuonGeometryFlags.hasCSC() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
   CscRdoToPrepDataTool = getPublicTool("CscPrepDataProviderTool")
 
 if DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on():

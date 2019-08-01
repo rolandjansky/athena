@@ -84,9 +84,9 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.09.00.NSW"
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-MuonDetectorTool=MuonDetectorTool(UseCSC=False)
+MuonDetectorTool=MuonDetectorTool(HasCSC=False)
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
-DetDescrCnvSvc.UseCSC = False
+DetDescrCnvSvc.HasCSC = False
 
 
 

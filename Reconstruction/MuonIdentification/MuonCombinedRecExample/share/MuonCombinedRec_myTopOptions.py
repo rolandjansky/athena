@@ -269,7 +269,6 @@ AODFlags.FastSimulation = False
 AODFlags.Streaming = False
 AODFlags.MuonTrackSlimmer = False
 
-#muonRecFlags.doNSWNewThirdChain = True
 #muonCombinedRecFlags.doCombinedFit = True
 muonCombinedRecFlags.doStatisticalCombination = True
 muonCombinedRecFlags.doMuGirl = True
