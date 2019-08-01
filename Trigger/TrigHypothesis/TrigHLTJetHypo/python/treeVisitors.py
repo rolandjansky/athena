@@ -74,13 +74,21 @@ class SimpleConditionsDictMaker(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
-    defaults = {'eta_mins': 0.0,
+    defaults = {'etalo': '0',
+                'etahi': '320',
+                'petalo': '0',  # +ve eta
+                'petahi': '320',
+                'netalo': '-320',  # -ve eta
+                'netahi': '0',
+                'EtThreshold': 0.,
+                'eta_mins': 0.,
                 'eta_maxs': 3.2,
-                'EtThresholds': 0.,
                 'asymmetricEtas': 0,
     }
 
     scale_factors = {'eta': 0.01,
+                     'neta': 0.01,
+                     'peta': 0.01,
                      'et': 1000.,
                      'smc': 1000.,
     }
@@ -126,7 +134,8 @@ class SimpleConditionsDictMaker(object):
             toks = c.split(',')
             toks = [t.strip() for t in toks]
 
-            attributes2 = attributes[:]  # copy...
+            # copy attributes... copy used to check attr not set > 1 times
+            attributes2 = attributes[:]  
             for t in toks:
                 m = self.window_re.match(t)
                 if m is None:
@@ -141,12 +150,20 @@ class SimpleConditionsDictMaker(object):
                     lo = self.defaults.get(attr+'lo', '')
                 if hi == '':
                     hi = self.defaults.get(attr+'hi', '')
-
+                    
                 sf = self.scale_factors[attr]
+                if attr in ('eta', 'peta', 'neta'):
+                    asym = 0 if attr == 'eta' else 1
+                    result['asymmetricEtas'].append(asym)
+                    attributes2.remove('asymmetricEtas')
+
+                        
                 if lo:
-                    if attr == 'eta':
+                    if attr in ('eta', 'peta', 'neta'):
                         attr_lo = 'eta_mins'
                         result[attr_lo].append(sf * float(lo))
+                        if attr == 'neta':
+                            result[attr_lo][-1] *= -1.  # negative eta range
                         try:
                             attributes2.remove(attr_lo)
                         except ValueError, e:
@@ -162,20 +179,22 @@ class SimpleConditionsDictMaker(object):
                             raise e
                             
                 if hi:
-                    if attr == 'eta':
-                        attr = 'eta_maxs'
-
+                    if attr in ('eta', 'peta', 'neta'):
                         attr_hi = 'eta_maxs'
                         result[attr_hi].append(sf * float(hi))
+                        if attr == 'neta':
+                            result[attr_hi][-1] *= -1.  # negative eta range
+                        
                         try:
                             attributes2.remove(attr_hi)
                         except ValueError, e:
                             print attr_hi, 'appears twice in Conditions string?'
                             raise e
 
-            # fill in unmentioned attributes with defaults:
-            for a in attributes2:
-                result[a].append(self.defaults[a])
+            # it maybe that an attribute was not present in the chain label.
+            # in this case, default values should be used.
+            for attr in attributes2: # whatever has not been removed...
+                result[attr].append(self.defaults[attr])
 
         msgs = ['ConditionsDict OK']
         error = False

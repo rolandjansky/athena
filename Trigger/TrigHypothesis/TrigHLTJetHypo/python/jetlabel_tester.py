@@ -16,12 +16,13 @@ def compile(label, expand=False, dump=False):
         
     if dump:
         print tree.dump()
-    
 
+def compile_(label, expand=True, dump=True):
+    compile(label, expand, dump)
+            
 if __name__ == '__main__':
 
     label = 'simple([(80et)(81et)(82et)(83et)(maxshare)])'
-    compile(label, expand=True, dump=True)
         
     label = """
     agree([]
@@ -32,7 +33,6 @@ if __name__ == '__main__':
     simple([(80et)(81et)])
     simple([(80et)(81et)]))
     )"""
-    compile(label)
     
     label = """
     combgen(
@@ -42,4 +42,26 @@ if __name__ == '__main__':
     simple([(35et, 0eta240) (55et, 0et240)])
     )"""
 
-    #compile(label)
+
+    label = """
+        and
+    (
+      []
+      simple
+      (
+        [(30et)(30et)]
+      )
+      combgen
+      (
+        [(2)(10et)]
+        dijet
+        (
+          [(34mass, 26dphi)]
+        ) 
+        simple
+        (
+          [(10et)(20et)]
+        )
+      )
+    )"""
+    compile_(label)
