@@ -160,7 +160,7 @@ namespace Trk {
     CylinderVolumeBoundaryAccessors            m_boundaryAccessors;
 
     /** numerical stability */
-    static double s_numericalStable;
+    static const double s_numericalStable;
     
  };
 
