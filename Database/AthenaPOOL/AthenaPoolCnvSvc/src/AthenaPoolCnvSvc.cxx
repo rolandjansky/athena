@@ -429,6 +429,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
             return(StatusCode::FAILURE);
          }
+         IConverter* DHcnv = converter(ClassID_traits<DataHeader>::ID());
          bool dataHeaderSeen = false;
          while (num > 0 && strncmp(placementStr, "release", 7) != 0) {
             std::string objName = "ALL";
@@ -476,7 +477,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                Token readToken;
                readToken.setOid(Token::OID_t(num, 0));
                readToken.setAuxString("[PNAME=" + className + "]");
-               this->setObjPtr(obj, &readToken); // Pull/read Obbject out of shared memory
+               this->setObjPtr(obj, &readToken); // Pull/read Object out of shared memory
                if (len == 0 || contName.substr(0, len) != m_metadataContainerProp.value()) {
                   // Write object
                   Placement placement;
@@ -493,9 +494,8 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                      // Found DataHeader
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
                                             tokenStr, placement.auxString());
-                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                      // call DH converter to add the ref to DHForm (stored earlier) and to itself
-                     if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
+                     if (!DHcnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                         ATH_MSG_ERROR("Failed updateRep for obj = " << tokenStr);
                         return(StatusCode::FAILURE);
                      }
@@ -503,19 +503,18 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   } else if( dataHeaderSeen ) {
                      dataHeaderSeen = false;
                      // next object after DataHeader - may be a DataHeaderForm
-                     // need to call the DH converter in any case
-                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+                     // in any case we need to call the DH converter to update the DHForm Ref
                      if( className == "DataHeaderForm_p6") {
                         // Tell DataHeaderCnv that it should use a new DHForm 
                         GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
                                                tokenStr, placement.auxString());
-                        if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
+                        if (!DHcnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                            ATH_MSG_ERROR("Failed updateRepRefs for obj = " << tokenStr);
                            return(StatusCode::FAILURE);
                         }
                      } else {
                         // Tell DataHeaderCnv that it should use the old DHForm 
-                        if( !cnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
+                        if( !DHcnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
                            ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                            return StatusCode::FAILURE;
                         }
@@ -526,7 +525,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   }
                }
             }
-
             // Send Token back to Client
             sc = m_outputStreamingTool[m_streamServer]->lockObject(tokenStr.c_str(), num);
             if (!sc.isSuccess()) {
@@ -543,6 +541,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             }
             if (m_doChronoStat) {
                m_chronoStatSvc->chronoStop("cRep_" + objName);
+            }
+         }
+         if( dataHeaderSeen ) {
+            // DataHeader was the last object, need to tell the converter there is no DHForm coming
+            if( !DHcnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
+               ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
+               return StatusCode::FAILURE;
             }
          }
          placementStr = nullptr;
