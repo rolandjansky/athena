@@ -153,7 +153,6 @@ def getGSFTrackFitter():
                                            GsfMaterialConvolution=GsfMaterialUpdator,
                                            ComponentMerger=GsfComponentReduction,
                                            SurfaceBasedMaterialEffects=False)
-    ToolSvc += GsfExtrapolator
 
     from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator
     egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
