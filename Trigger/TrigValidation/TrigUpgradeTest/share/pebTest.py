@@ -164,7 +164,7 @@ streamPhysicsPebtestfive = ['pebtestfive', 'physics', "True", "False"]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
 stmaker.ChainToStream["HLT_e3_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
@@ -176,7 +176,7 @@ stmaker.ChainToStream["HLT_mu6_pebtestfive_L1MU6"] = streamPhysicsPebtestfive
 ##### Result maker part 3 - HLT bits #####
 
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
 bitsmaker.OutputLevel = DEBUG
 
