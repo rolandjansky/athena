@@ -466,6 +466,10 @@ class TopConfig final {
   inline virtual void dumpBtagSystsInSystTrees( const bool& b ){if(!m_configFixed){m_dumpBtagSystsInSystTrees = b;}}
   inline virtual const bool& dumpBtagSystsInSystTrees(){return m_dumpBtagSystsInSystTrees;}
 
+  // special: store per-jet btag SGs
+  inline virtual void storePerJetBtagSFs( const bool& b ){if(!m_configFixed){m_storePerJetBtagSFs = b;}}
+  inline virtual const bool& storePerJetBtagSFs(){return m_storePerJetBtagSFs;}
+
   // Electron configuration
   inline virtual void egammaSystematicModel( const std::string& s ){if(!m_configFixed){m_egammaSystematicModel = s;}}
   inline virtual void electronEfficiencySystematicModel( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModel = s;}}
@@ -1202,6 +1206,8 @@ class TopConfig final {
 
   // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
   bool m_dumpBtagSystsInSystTrees;
+
+  bool m_storePerJetBtagSFs;
 
   // Electron configuration
   std::string m_egammaSystematicModel;
